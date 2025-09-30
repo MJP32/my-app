@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Syntax Highlighting</title>
+</head>
+<body>
+    <h1>Test Code Highlighting</h1>
+    <pre style="background: #0d1117; color: white; padding: 20px;">
+        <code id="codeBlock"></code>
+    </pre>
+
+    <script>
+        function highlightCode(code) {
+            let highlighted = code
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+
+            // Removed inline color spans: keep the escaped code as-is (no color markup)
+            // previously: wrapped comments, strings and keywords in <span style="...">
+            // leaving the text unchanged so no color HTML is injected
+            // highlighted = highlighted; // no-op
+
+            return highlighted;
+        }
+
+        const testCode = `// This is a comment
+public class Test {
+    private String name = "Hello";
+
+    public String getName() {
+        return name;
+    }
+}`;
+
+        document.getElementById('codeBlock').innerHTML = highlightCode(testCode);
+
+        // Also display raw HTML to see what's generated
+        console.log("Generated HTML:", highlightCode(testCode));
+    </script>
+</body>
+</html>

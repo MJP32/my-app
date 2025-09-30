@@ -1,0 +1,8 @@
+This file contains the code examples I need to add for:
+1. SOLID Principles (5 patterns)
+2. Enterprise Patterns (6 patterns)
+3. Concurrency Patterns (6 patterns)
+4. Dependency Injection (5 patterns)
+5. Microservices Patterns (5 patterns)
+
+Total: 27 code examples to add

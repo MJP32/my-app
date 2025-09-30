@@ -1,0 +1,4100 @@
+import { useState } from 'react'
+
+// Simple syntax highlighter for Java code
+const SyntaxHighlighter = ({ code }) => {
+  const highlightJava = (code) => {
+    let highlighted = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+
+    // Store protected content with placeholders
+    const protectedContent = []
+    let placeholder = 0
+
+    // Protect comments first
+    highlighted = highlighted.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
+      const id = `___COMMENT_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
+      return id
+    })
+
+    // Protect strings
+    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
+      const id = `___STRING_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
+      return id
+    })
+
+    // Apply syntax highlighting to remaining code
+    highlighted = highlighted
+      // Keywords - purple
+      .replace(/\b(public|private|protected|static|final|class|interface|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|import|package|void|abstract|synchronized|volatile|transient|native|strictfp|super|this|null)\b/g, '<span style="color: #c586c0;">$1</span>')
+
+      // Boolean and primitives - blue
+      .replace(/\b(true|false|int|double|float|long|short|byte|char|boolean)\b/g, '<span style="color: #569cd6;">$1</span>')
+
+      // Types and classes - light green
+      .replace(/\b(String|List|ArrayList|LinkedList|HashMap|TreeMap|HashSet|TreeSet|Map|Set|Queue|Deque|Collection|Arrays|Collections|Thread|Runnable|Executor|ExecutorService|CompletableFuture|Stream|Optional|Path|Files|Pattern|Matcher|StringBuilder|StringBuffer|Integer|Double|Float|Long|Short|Byte|Character|Boolean|Object|System|Math|Scanner|BufferedReader|FileReader|FileWriter|PrintWriter|InputStream|OutputStream|Exception|RuntimeException|IOException|SQLException|WeakReference|SoftReference|PhantomReference|ReferenceQueue)\b/g, '<span style="color: #4ec9b0;">$1</span>')
+
+      // Annotations - yellow
+      .replace(/(@\w+)/g, '<span style="color: #dcdcaa;">$1</span>')
+
+      // Numbers - light green
+      .replace(/\b(\d+\.?\d*[fLdD]?)\b/g, '<span style="color: #b5cea8;">$1</span>')
+
+      // Method calls - yellow
+      .replace(/\b([a-z_]\w*)\s*\(/g, '<span style="color: #dcdcaa;">$1</span>(')
+
+    // Restore protected content
+    protectedContent.forEach(({ id, replacement }) => {
+      highlighted = highlighted.replace(id, replacement)
+    })
+
+    return highlighted
+  }
+
+  return (
+    <pre style={{
+      margin: 0,
+      fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+      fontSize: '0.85rem',
+      lineHeight: '1.6',
+      color: '#d4d4d4',
+      whiteSpace: 'pre',
+      overflowX: 'auto',
+      textAlign: 'left',
+      padding: 0
+    }}>
+      <code dangerouslySetInnerHTML={{ __html: highlightJava(code) }} />
+    </pre>
+  )
+}
+
+const ModernDiagram = ({ components, onComponentClick, title, width = 1400, height = 800, containerWidth = 1800 }) => {
+  const [hoveredComponent, setHoveredComponent] = useState(null)
+
+  return (
+    <div style={{
+      width: '100%',
+      maxWidth: `${containerWidth}px`,
+      margin: '0 auto',
+      backgroundColor: '#f8fafc',
+      borderRadius: '16px',
+      padding: '2rem',
+      boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.1)',
+      border: '2px solid #e2e8f0'
+    }}>
+      <h3 style={{
+        textAlign: 'center',
+        marginBottom: '2rem',
+        fontSize: '1.75rem',
+        fontWeight: '800',
+        color: '#1e293b',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
+        {title}
+      </h3>
+
+      <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} style={{ overflow: 'visible' }}>
+        <defs>
+          <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#1e40af" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#10b981" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#059669" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ef4444" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#dc2626" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#d97706" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="tealGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#0d9488" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="indigoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#6366f1" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="pinkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ec4899" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#db2777" stopOpacity="0.9"/>
+          </linearGradient>
+        </defs>
+
+        {/* Connecting lines - representing Java ecosystem relationships */}
+        <g stroke="#64748b" strokeWidth="4" strokeOpacity="0.7" fill="none">
+          {/* OOP to Collections and Concurrency */}
+          <line x1="200" y1="300" x2="600" y2="200" strokeDasharray="10,5"/>
+          <line x1="200" y1="300" x2="600" y2="400" strokeDasharray="10,5"/>
+
+          {/* Collections to JVM and Memory */}
+          <line x1="800" y1="200" x2="1200" y2="300" strokeDasharray="10,5"/>
+          <line x1="600" y1="400" x2="1000" y2="300" strokeDasharray="10,5"/>
+
+          {/* Exception handling connections */}
+          <line x1="200" y1="500" x2="600" y2="600" strokeDasharray="10,5"/>
+          <line x1="800" y1="500" x2="600" y2="600" strokeDasharray="10,5"/>
+
+          {/* Performance tuning connections */}
+          <line x1="1000" y1="500" x2="1200" y2="600" strokeDasharray="10,5"/>
+          <line x1="1200" y1="300" x2="1200" y2="600" strokeDasharray="5,3"/>
+        </g>
+
+        {/* Component rectangles */}
+        {components.map((component) => (
+          <g key={component.id}>
+            <rect
+              x={component.x}
+              y={component.y}
+              width={component.width}
+              height={component.height}
+              rx="12"
+              ry="12"
+              fill={`url(#${component.color}Gradient)`}
+              stroke={hoveredComponent === component.id ? '#1e293b' : '#64748b'}
+              strokeWidth={hoveredComponent === component.id ? '4' : '2'}
+              style={{
+                cursor: 'pointer',
+                filter: hoveredComponent === component.id ? 'drop-shadow(0 8px 16px rgba(0,0,0,0.2))' : 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))',
+                transform: hoveredComponent === component.id ? 'scale(1.02)' : 'scale(1)',
+                transformOrigin: `${component.x + component.width/2}px ${component.y + component.height/2}px`,
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={() => setHoveredComponent(component.id)}
+              onMouseLeave={() => setHoveredComponent(null)}
+              onClick={() => onComponentClick && onComponentClick(component)}
+            />
+
+            {/* Icon */}
+            <text
+              x={component.x + component.width/2}
+              y={component.y + 35}
+              textAnchor="middle"
+              fontSize="48"
+              style={{ userSelect: 'none', pointerEvents: 'none' }}
+            >
+              {component.icon}
+            </text>
+
+            {/* Title */}
+            <text
+              x={component.x + component.width/2}
+              y={component.y + 75}
+              textAnchor="middle"
+              fontSize="18"
+              fontWeight="700"
+              fill="white"
+              style={{ userSelect: 'none', pointerEvents: 'none' }}
+            >
+              {component.title}
+            </text>
+
+            {/* Details */}
+            {component.details && component.details.slice(0, 3).map((detail, idx) => (
+              <text
+                key={idx}
+                x={component.x + component.width/2}
+                y={component.y + 100 + (idx * 15)}
+                textAnchor="middle"
+                fontSize="10"
+                fontWeight="500"
+                fill="rgba(255,255,255,0.9)"
+                style={{ userSelect: 'none', pointerEvents: 'none' }}
+              >
+                {detail.name.length > 18 ? detail.name.substring(0, 15) + '...' : detail.name}
+              </text>
+            ))}
+            {component.details && component.details.length > 3 && (
+              <text
+                x={component.x + component.width/2}
+                y={component.y + 145}
+                textAnchor="middle"
+                fontSize="10"
+                fontWeight="500"
+                fill="rgba(255,255,255,0.7)"
+                style={{ userSelect: 'none', pointerEvents: 'none' }}
+              >
+                +{component.details.length - 3} more concepts...
+              </text>
+            )}
+
+          </g>
+        ))}
+      </svg>
+    </div>
+  )
+}
+
+function CoreJava({ onBack }) {
+  const [selectedComponent, setSelectedComponent] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedConcept, setSelectedConcept] = useState(null)
+
+  const components = [
+    {
+      id: 'oop-principles', x: 80, y: 240, width: 350, height: 160,
+      icon: '🏗️', title: 'OOP Principles', color: 'blue',
+      details: [
+        {
+          name: 'Encapsulation',
+          explanation: 'Bundling data and methods that operate on that data within a single unit (class). Provides data hiding through access modifiers (private, protected, public) to control access to internal state.',
+          codeExample: `// Encapsulation - hiding internal state
+public class BankAccount {
+private double balance;  // private field
+private String accountNumber;
+
+public BankAccount(String accountNumber) {
+this.accountNumber = accountNumber;
+this.balance = 0.0;
+}
+
+// Controlled access through public methods
+public void deposit(double amount) {
+if (amount > 0) {
+balance += amount;
+}
+}
+
+public boolean withdraw(double amount) {
+if (amount > 0 && balance >= amount) {
+balance -= amount;
+return true;
+}
+return false;
+}
+
+// Getter with validation
+public double getBalance() {
+return balance;
+}
+}
+
+// Usage
+BankAccount account = new BankAccount("123456");
+account.deposit(1000.0);
+account.withdraw(250.0);
+System.out.println(account.getBalance());
+// Output: 750.0`
+        },
+        {
+          name: 'Inheritance',
+          explanation: 'Mechanism where a new class inherits properties and behaviors from an existing class. Enables code reusability and establishes "is-a" relationships between classes.',
+          codeExample: `// Base class
+public class Vehicle {
+protected String brand;
+protected int year;
+
+public Vehicle(String brand, int year) {
+this.brand = brand;
+this.year = year;
+}
+
+public void start() {
+System.out.println(brand + " is starting...");
+}
+}
+
+// Derived class inherits from Vehicle
+public class Car extends Vehicle {
+private int doors;
+
+public Car(String brand, int year, int doors) {
+super(brand, year);  // Call parent constructor
+this.doors = doors;
+}
+
+@Override
+public void start() {
+System.out.println("Car " + brand + " with " + doors + " doors is starting...");
+}
+}
+
+// Usage
+Vehicle v = new Vehicle("Generic", 2020);
+v.start();
+// Output: Generic is starting...
+
+Car c = new Car("Toyota", 2023, 4);
+c.start();
+// Output: Car Toyota with 4 doors is starting...`
+        },
+        {
+          name: 'Polymorphism',
+          explanation: 'Ability of objects to take multiple forms. Includes method overloading (compile-time) and method overriding (runtime). Enables treating objects of different types uniformly.',
+          codeExample: `// Method Overloading (Compile-time polymorphism)
+public class Calculator {
+public int add(int a, int b) {
+return a + b;
+}
+
+public double add(double a, double b) {
+return a + b;
+}
+
+public int add(int a, int b, int c) {
+return a + b + c;
+}
+}
+
+// Method Overriding (Runtime polymorphism)
+abstract class Shape {
+abstract double area();
+}
+
+class Circle extends Shape {
+double radius;
+Circle(double r) { radius = r; }
+double area() { return Math.PI * radius * radius; }
+}
+
+class Rectangle extends Shape {
+double width, height;
+Rectangle(double w, double h) { width = w; height = h; }
+double area() { return width * height; }
+}
+
+// Usage - polymorphic behavior
+Shape[] shapes = {new Circle(5), new Rectangle(4, 6)};
+for (Shape s : shapes) {
+System.out.println("Area: " + s.area());
+}
+// Output: Area: 78.53981633974483
+// Output: Area: 24.0`
+        },
+        {
+          name: 'Abstraction',
+          explanation: 'Hiding complex implementation details while exposing only essential features. Achieved through abstract classes and interfaces to define contracts without implementation.',
+          codeExample: `// Abstract class
+abstract class Payment {
+abstract void processPayment(double amount);
+abstract String getPaymentType();
+
+// Concrete method in abstract class
+public void printReceipt(double amount) {
+System.out.println("Payment of $" + amount + " via " + getPaymentType());
+}
+}
+
+class CreditCardPayment extends Payment {
+void processPayment(double amount) {
+System.out.println("Processing credit card payment: $" + amount);
+// Complex credit card processing logic hidden
+}
+
+String getPaymentType() {
+return "Credit Card";
+}
+}
+
+class PayPalPayment extends Payment {
+void processPayment(double amount) {
+System.out.println("Processing PayPal payment: $" + amount);
+// Complex PayPal API calls hidden
+}
+
+String getPaymentType() {
+return "PayPal";
+}
+}
+
+// Usage - client doesn't know internal details
+Payment payment = new CreditCardPayment();
+payment.processPayment(99.99);
+payment.printReceipt(99.99);
+// Output: Processing credit card payment: $99.99
+// Output: Payment of $99.99 via Credit Card`
+        },
+        {
+          name: 'SOLID Principles',
+          explanation: 'Five design principles: Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, and Dependency Inversion. Guide maintainable and extensible code design.',
+          codeExample: `// Single Responsibility Principle
+// BAD: Class has multiple responsibilities
+class User {
+void saveToDatabase() { /* ... */ }
+void sendEmail() { /* ... */ }
+void generateReport() { /* ... */ }
+}
+
+// GOOD: Each class has one responsibility
+class User {
+String name;
+String email;
+}
+
+class UserRepository {
+void save(User user) { /* ... */ }
+}
+
+class EmailService {
+void send(String email, String message) { /* ... */ }
+}
+
+class ReportGenerator {
+void generate(User user) { /* ... */ }
+}
+
+// Liskov Substitution Principle
+// Parent class method behavior must work with child class
+class Bird {
+void fly() { System.out.println("Flying..."); }
+}
+
+class Sparrow extends Bird {
+// Can substitute Bird with Sparrow
+void fly() { System.out.println("Sparrow flying..."); }
+}
+
+// Usage - substitution works correctly
+Bird bird = new Sparrow();
+bird.fly();
+// Output: Sparrow flying...`
+        },
+        {
+          name: 'Design Patterns',
+          explanation: 'Reusable solutions to common programming problems. Include creational (Singleton, Factory), structural (Adapter, Decorator), and behavioral (Observer, Strategy) patterns.',
+          codeExample: `// Singleton Pattern - only one instance
+public class DatabaseConnection {
+private static DatabaseConnection instance;
+
+private DatabaseConnection() {
+// Private constructor
+}
+
+public static DatabaseConnection getInstance() {
+if (instance == null) {
+instance = new DatabaseConnection();
+}
+return instance;
+}
+}
+
+// Factory Pattern - object creation
+interface Shape {
+void draw();
+}
+
+class Circle implements Shape {
+public void draw() { System.out.println("Drawing Circle"); }
+}
+
+class Square implements Shape {
+public void draw() { System.out.println("Drawing Square"); }
+}
+
+class ShapeFactory {
+public Shape getShape(String type) {
+if (type.equals("CIRCLE")) return new Circle();
+if (type.equals("SQUARE")) return new Square();
+return null;
+}
+}
+
+// Usage
+DatabaseConnection db1 = DatabaseConnection.getInstance();
+DatabaseConnection db2 = DatabaseConnection.getInstance();
+System.out.println(db1 == db2);  // Output: true
+
+ShapeFactory factory = new ShapeFactory();
+Shape shape = factory.getShape("CIRCLE");
+shape.draw();  // Output: Drawing Circle`
+        }
+      ],
+      metrics: { classes: '50K+', patterns: '23', principles: '5', abstraction: '4 levels' },
+      description: 'Object-oriented programming fundamentals including encapsulation, inheritance, polymorphism, and abstraction with SOLID design principles.'
+    },
+    {
+      id: 'collections-framework', x: 580, y: 140, width: 350, height: 160,
+      icon: '📚', title: 'Collections Framework', color: 'green',
+      details: [
+        {
+          name: 'ArrayList & LinkedList',
+          explanation: 'ArrayList: Dynamic arrays with O(1) access, O(n) insertion. LinkedList: Doubly-linked lists with O(1) insertion/deletion, O(n) access. Choose based on access vs modification patterns.',
+          codeExample: `import java.util.*;
+
+// ArrayList - fast random access
+ArrayList<String> arrayList = new ArrayList<>();
+arrayList.add("Apple");
+arrayList.add("Banana");
+arrayList.add("Cherry");
+arrayList.add(1, "Avocado");  // Insert at index
+System.out.println("ArrayList: " + arrayList);
+System.out.println("Get index 2: " + arrayList.get(2));
+// Output: ArrayList: [Apple, Avocado, Banana, Cherry]
+// Output: Get index 2: Banana
+
+// LinkedList - fast insertion/deletion
+LinkedList<String> linkedList = new LinkedList<>();
+linkedList.add("First");
+linkedList.addFirst("New First");  // Add at beginning
+linkedList.addLast("Last");
+linkedList.add(1, "Middle");
+System.out.println("LinkedList: " + linkedList);
+// Output: LinkedList: [New First, Middle, First, Last]
+
+// Performance comparison
+long start = System.nanoTime();
+for (int i = 0; i < 10000; i++) {
+arrayList.get(i % arrayList.size());
+}
+System.out.println("ArrayList access: " + (System.nanoTime() - start) + "ns");
+// Output: ArrayList access: ~50000ns (fast)
+
+start = System.nanoTime();
+for (int i = 0; i < 10000; i++) {
+linkedList.get(i % linkedList.size());
+}
+System.out.println("LinkedList access: " + (System.nanoTime() - start) + "ns");
+// Output: LinkedList access: ~500000ns (slower)`
+        },
+        {
+          name: 'HashMap & TreeMap',
+          explanation: 'HashMap: Hash table implementation with O(1) average operations, no ordering. TreeMap: Red-black tree with O(log n) operations, maintains sorted order based on keys.',
+          codeExample: `import java.util.*;
+
+// HashMap - unordered, fast lookup
+HashMap<String, Integer> hashMap = new HashMap<>();
+hashMap.put("Alice", 25);
+hashMap.put("Bob", 30);
+hashMap.put("Charlie", 28);
+hashMap.put("Alice", 26);  // Updates existing key
+System.out.println("HashMap: " + hashMap);
+System.out.println("Alice's age: " + hashMap.get("Alice"));
+System.out.println("Contains Bob? " + hashMap.containsKey("Bob"));
+// Output: HashMap: {Alice=26, Bob=30, Charlie=28} (unordered)
+// Output: Alice's age: 26
+// Output: Contains Bob? true
+
+// TreeMap - sorted by keys
+TreeMap<String, Integer> treeMap = new TreeMap<>();
+treeMap.put("Zebra", 5);
+treeMap.put("Apple", 10);
+treeMap.put("Mango", 7);
+System.out.println("TreeMap: " + treeMap);
+System.out.println("First key: " + treeMap.firstKey());
+System.out.println("Last key: " + treeMap.lastKey());
+// Output: TreeMap: {Apple=10, Mango=7, Zebra=5} (sorted)
+// Output: First key: Apple
+// Output: Last key: Zebra
+
+// Iterate through entries
+for (Map.Entry<String, Integer> entry : treeMap.entrySet()) {
+System.out.println(entry.getKey() + ": " + entry.getValue());
+}
+// Output: Apple: 10
+// Output: Mango: 7
+// Output: Zebra: 5`
+        },
+        {
+          name: 'HashSet & TreeSet',
+          explanation: 'HashSet: Hash table based set with O(1) operations, no duplicates, no ordering. TreeSet: Sorted set using TreeMap, O(log n) operations, maintains natural ordering.',
+          codeExample: `import java.util.*;
+
+// HashSet - no duplicates, unordered
+HashSet<String> hashSet = new HashSet<>();
+hashSet.add("Java");
+hashSet.add("Python");
+hashSet.add("Java");  // Duplicate ignored
+hashSet.add("C++");
+System.out.println("HashSet: " + hashSet);
+System.out.println("Size: " + hashSet.size());
+System.out.println("Contains Python? " + hashSet.contains("Python"));
+// Output: HashSet: [Java, C++, Python] (unordered)
+// Output: Size: 3
+// Output: Contains Python? true
+
+// TreeSet - sorted, no duplicates
+TreeSet<Integer> treeSet = new TreeSet<>();
+treeSet.add(50);
+treeSet.add(20);
+treeSet.add(80);
+treeSet.add(20);  // Duplicate ignored
+treeSet.add(35);
+System.out.println("TreeSet: " + treeSet);
+System.out.println("First: " + treeSet.first());
+System.out.println("Last: " + treeSet.last());
+System.out.println("Higher than 30: " + treeSet.higher(30));
+// Output: TreeSet: [20, 35, 50, 80] (sorted)
+// Output: First: 20
+// Output: Last: 80
+// Output: Higher than 30: 35
+
+// Set operations
+HashSet<Integer> set1 = new HashSet<>(Arrays.asList(1, 2, 3, 4));
+HashSet<Integer> set2 = new HashSet<>(Arrays.asList(3, 4, 5, 6));
+set1.retainAll(set2);  // Intersection
+System.out.println("Intersection: " + set1);
+// Output: Intersection: [3, 4]`
+        },
+        {
+          name: 'Queue & Deque',
+          explanation: 'Queue: FIFO data structure for sequential processing. Deque: Double-ended queue supporting insertion/removal at both ends. Implementations include ArrayDeque, LinkedList.',
+          codeExample: `import java.util.*;
+
+// Queue - FIFO operations
+Queue<String> queue = new LinkedList<>();
+queue.offer("First");
+queue.offer("Second");
+queue.offer("Third");
+System.out.println("Queue: " + queue);
+System.out.println("Peek: " + queue.peek());  // View without removing
+System.out.println("Poll: " + queue.poll());  // Remove and return
+System.out.println("After poll: " + queue);
+// Output: Queue: [First, Second, Third]
+// Output: Peek: First
+// Output: Poll: First
+// Output: After poll: [Second, Third]
+
+// PriorityQueue - ordered by priority
+PriorityQueue<Integer> priorityQueue = new PriorityQueue<>();
+priorityQueue.offer(50);
+priorityQueue.offer(20);
+priorityQueue.offer(80);
+priorityQueue.offer(10);
+System.out.println("PriorityQueue poll: " + priorityQueue.poll());
+System.out.println("PriorityQueue poll: " + priorityQueue.poll());
+// Output: PriorityQueue poll: 10 (smallest first)
+// Output: PriorityQueue poll: 20
+
+// ArrayDeque - double-ended queue
+ArrayDeque<String> deque = new ArrayDeque<>();
+deque.addFirst("First");
+deque.addLast("Last");
+deque.addFirst("New First");
+System.out.println("Deque: " + deque);
+System.out.println("Remove first: " + deque.removeFirst());
+System.out.println("Remove last: " + deque.removeLast());
+// Output: Deque: [New First, First, Last]
+// Output: Remove first: New First
+// Output: Remove last: Last`
+        },
+        {
+          name: 'Streams API',
+          explanation: 'Functional-style operations on collections. Supports filter, map, reduce operations with lazy evaluation. Enables parallel processing and declarative data manipulation.',
+          codeExample: `import java.util.*;
+import java.util.stream.*;
+
+// Filter, map, collect operations
+List<String> names = Arrays.asList("Alice", "Bob", "Charlie", "David", "Eve");
+List<String> filtered = names.stream()
+.filter(name -> name.length() > 3)
+.map(String::toUpperCase)
+.collect(Collectors.toList());
+System.out.println("Filtered & mapped: " + filtered);
+// Output: Filtered & mapped: [ALICE, CHARLIE, DAVID]
+
+// Reduce operations
+List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
+int sum = numbers.stream()
+.reduce(0, (a, b) -> a + b);
+System.out.println("Sum: " + sum);
+// Output: Sum: 15
+
+Optional<Integer> max = numbers.stream()
+.max(Integer::compareTo);
+System.out.println("Max: " + max.get());
+// Output: Max: 5
+
+// Advanced stream operations
+Map<Integer, List<String>> groupedByLength = names.stream()
+.collect(Collectors.groupingBy(String::length));
+System.out.println("Grouped by length: " + groupedByLength);
+// Output: Grouped by length: {3=[Bob, Eve], 5=[Alice, David], 7=[Charlie]}
+
+// Parallel streams for performance
+long count = IntStream.range(1, 1000000)
+.parallel()
+.filter(n -> n % 2 == 0)
+.count();
+System.out.println("Even numbers count: " + count);
+// Output: Even numbers count: 499999
+
+// FlatMap for nested collections
+List<List<Integer>> nested = Arrays.asList(
+Arrays.asList(1, 2),
+Arrays.asList(3, 4),
+Arrays.asList(5, 6)
+);
+List<Integer> flattened = nested.stream()
+.flatMap(List::stream)
+.collect(Collectors.toList());
+System.out.println("Flattened: " + flattened);
+// Output: Flattened: [1, 2, 3, 4, 5, 6]`
+        },
+        {
+          name: 'Iterators',
+          explanation: 'Design pattern for traversing collections without exposing internal structure. Enhanced for-loop, Iterator, ListIterator provide different traversal capabilities and fail-fast behavior.',
+          codeExample: `import java.util.*;
+
+// Basic Iterator usage
+List<String> list = new ArrayList<>(Arrays.asList("A", "B", "C", "D"));
+Iterator<String> iterator = list.iterator();
+while (iterator.hasNext()) {
+String element = iterator.next();
+System.out.println("Element: " + element);
+if (element.equals("B")) {
+iterator.remove();  // Safe removal during iteration
+}
+}
+System.out.println("After removal: " + list);
+// Output: Element: A
+// Output: Element: B
+// Output: Element: C
+// Output: Element: D
+// Output: After removal: [A, C, D]
+
+// ListIterator - bidirectional traversal
+List<Integer> numbers = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
+ListIterator<Integer> listIterator = numbers.listIterator();
+while (listIterator.hasNext()) {
+int num = listIterator.next();
+if (num % 2 == 0) {
+listIterator.set(num * 10);  // Modify during iteration
+}
+}
+System.out.println("Modified list: " + numbers);
+// Output: Modified list: [1, 20, 3, 40, 5]
+
+// Backward iteration
+ListIterator<Integer> reverseIter = numbers.listIterator(numbers.size());
+System.out.print("Reverse: ");
+while (reverseIter.hasPrevious()) {
+System.out.print(reverseIter.previous() + " ");
+}
+// Output: Reverse: 5 40 3 20 1
+
+// Enhanced for-loop (syntactic sugar for Iterator)
+for (String item : list) {
+System.out.print(item + " ");
+}
+// Output: A C D
+
+// Fail-fast behavior
+try {
+for (String item : list) {
+list.add("E");  // ConcurrentModificationException
+}
+} catch (ConcurrentModificationException e) {
+System.out.println("\\nConcurrentModificationException caught!");
+}
+// Output: ConcurrentModificationException caught!`
+        }
+      ],
+      metrics: { interfaces: '15+', implementations: '40+', operations: '100+', performance: 'O(1)-O(log n)' },
+      description: 'Comprehensive collection interfaces and implementations for data storage, manipulation, and processing with optimal performance characteristics.'
+    },
+    {
+      id: 'concurrency', x: 580, y: 340, width: 350, height: 160,
+      icon: '⚡', title: 'Concurrency & Threading', color: 'purple',
+      details: [
+        {
+          name: 'Thread Management',
+          explanation: 'Creating and managing threads using Thread class, Runnable interface, and thread lifecycle (new, runnable, blocked, waiting, terminated). Thread priorities and daemon threads.',
+          codeExample: `// Method 1: Extend Thread class
+class MyThread extends Thread {
+public void run() {
+for (int i = 0; i < 3; i++) {
+System.out.println(Thread.currentThread().getName() + ": " + i);
+try { Thread.sleep(100); } catch (InterruptedException e) {}
+}
+}
+}
+
+// Method 2: Implement Runnable
+class MyRunnable implements Runnable {
+public void run() {
+System.out.println(Thread.currentThread().getName() + " executing");
+}
+}
+
+// Creating and starting threads
+MyThread thread1 = new MyThread();
+thread1.setName("Worker-1");
+thread1.start();
+// Output: Worker-1: 0
+// Output: Worker-1: 1
+// Output: Worker-1: 2
+
+Thread thread2 = new Thread(new MyRunnable());
+thread2.start();
+// Output: Thread-1 executing
+
+// Lambda with Runnable
+Thread thread3 = new Thread(() -> {
+System.out.println("Lambda thread: " + Thread.currentThread().getId());
+});
+thread3.start();
+// Output: Lambda thread: 15
+
+// Daemon thread - runs in background
+Thread daemon = new Thread(() -> {
+while (true) {
+System.out.println("Daemon running...");
+try { Thread.sleep(500); } catch (InterruptedException e) {}
+}
+});
+daemon.setDaemon(true);
+daemon.start();
+
+// Thread priorities
+thread1.setPriority(Thread.MAX_PRIORITY);  // 10
+thread2.setPriority(Thread.MIN_PRIORITY);  // 1
+System.out.println("Thread 1 priority: " + thread1.getPriority());
+// Output: Thread 1 priority: 10`
+        },
+        {
+          name: 'Synchronization',
+          explanation: 'Coordinating access to shared resources using synchronized keyword, wait/notify mechanism, and volatile variables. Prevents race conditions and ensures memory visibility.',
+          codeExample: `class Counter {
+private int count = 0;
+
+// Synchronized method
+public synchronized void increment() {
+count++;
+}
+
+public synchronized int getCount() {
+return count;
+}
+
+// Synchronized block
+public void incrementBlock() {
+synchronized(this) {
+count++;
+}
+}
+}
+
+// Usage - thread-safe counter
+Counter counter = new Counter();
+Thread t1 = new Thread(() -> {
+for (int i = 0; i < 1000; i++) counter.increment();
+});
+Thread t2 = new Thread(() -> {
+for (int i = 0; i < 1000; i++) counter.increment();
+});
+t1.start();
+t2.start();
+t1.join();
+t2.join();
+System.out.println("Final count: " + counter.getCount());
+// Output: Final count: 2000 (correct with synchronization)
+
+// Wait/Notify pattern - Producer/Consumer
+class SharedResource {
+private int data;
+private boolean hasData = false;
+
+public synchronized void produce(int value) throws InterruptedException {
+while (hasData) {
+wait();  // Wait until consumed
+}
+data = value;
+hasData = true;
+System.out.println("Produced: " + value);
+notify();  // Notify consumer
+}
+
+public synchronized int consume() throws InterruptedException {
+while (!hasData) {
+wait();  // Wait until produced
+}
+hasData = false;
+System.out.println("Consumed: " + data);
+notify();  // Notify producer
+return data;
+}
+}
+
+// Volatile keyword - memory visibility
+class VolatileExample {
+private volatile boolean flag = false;
+
+public void writer() {
+flag = true;  // Visible to all threads immediately
+}
+
+public void reader() {
+if (flag) {
+System.out.println("Flag is true!");
+}
+}
+}`
+        },
+        {
+          name: 'Locks & Semaphores',
+          explanation: 'Advanced synchronization primitives: ReentrantLock for flexible locking, ReadWriteLock for reader-writer scenarios, Semaphore for resource counting, CountDownLatch for coordination.',
+          codeExample: `import java.util.concurrent.locks.*;
+import java.util.concurrent.*;
+
+// ReentrantLock - more flexible than synchronized
+class BankAccount {
+private double balance = 0;
+private ReentrantLock lock = new ReentrantLock();
+
+public void deposit(double amount) {
+lock.lock();
+try {
+balance += amount;
+System.out.println("Deposited: " + amount + ", Balance: " + balance);
+} finally {
+lock.unlock();  // Always unlock in finally
+}
+}
+
+public boolean tryDeposit(double amount) {
+if (lock.tryLock()) {  // Non-blocking attempt
+try {
+balance += amount;
+return true;
+} finally {
+lock.unlock();
+}
+}
+return false;
+}
+}
+
+// ReadWriteLock - multiple readers, single writer
+class Cache {
+private Map<String, String> data = new HashMap<>();
+private ReadWriteLock rwLock = new ReentrantReadWriteLock();
+
+public String read(String key) {
+rwLock.readLock().lock();
+try {
+return data.get(key);
+} finally {
+rwLock.readLock().unlock();
+}
+}
+
+public void write(String key, String value) {
+rwLock.writeLock().lock();
+try {
+data.put(key, value);
+System.out.println("Written: " + key + " = " + value);
+} finally {
+rwLock.writeLock().unlock();
+}
+}
+}
+
+// Semaphore - limit concurrent access
+Semaphore semaphore = new Semaphore(3);  // Allow 3 concurrent threads
+for (int i = 0; i < 5; i++) {
+int id = i;
+new Thread(() -> {
+try {
+semaphore.acquire();
+System.out.println("Thread " + id + " acquired permit");
+Thread.sleep(1000);
+semaphore.release();
+System.out.println("Thread " + id + " released permit");
+} catch (InterruptedException e) {}
+}).start();
+}
+// Output: Only 3 threads execute concurrently
+
+// CountDownLatch - wait for multiple threads
+CountDownLatch latch = new CountDownLatch(3);
+for (int i = 0; i < 3; i++) {
+new Thread(() -> {
+System.out.println("Task completed");
+latch.countDown();
+}).start();
+}
+latch.await();  // Wait for all 3 threads
+System.out.println("All tasks completed!");
+// Output: All tasks completed! (after 3 countDowns)`
+        },
+        {
+          name: 'Executor Framework',
+          explanation: 'High-level concurrency API for managing thread pools. ThreadPoolExecutor, ScheduledExecutorService, and ForkJoinPool for different workload patterns and task scheduling.',
+          codeExample: `import java.util.concurrent.*;
+
+// Fixed thread pool
+ExecutorService executor = Executors.newFixedThreadPool(3);
+for (int i = 0; i < 5; i++) {
+int taskId = i;
+executor.submit(() -> {
+System.out.println("Task " + taskId + " by " + Thread.currentThread().getName());
+return taskId * taskId;
+});
+}
+executor.shutdown();
+// Output: Task 0 by pool-1-thread-1
+// Output: Task 1 by pool-1-thread-2
+// Output: Task 2 by pool-1-thread-3
+// (pool reuses threads for remaining tasks)
+
+// Callable with Future - returns result
+ExecutorService exec = Executors.newSingleThreadExecutor();
+Future<Integer> future = exec.submit(() -> {
+Thread.sleep(1000);
+return 42;
+});
+System.out.println("Waiting for result...");
+Integer result = future.get();  // Blocks until complete
+System.out.println("Result: " + result);
+// Output: Waiting for result...
+// Output: Result: 42 (after 1 second)
+exec.shutdown();
+
+// ScheduledExecutorService - delayed/periodic tasks
+ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+scheduler.schedule(() -> {
+System.out.println("Executed after 2 seconds");
+}, 2, TimeUnit.SECONDS);
+
+scheduler.scheduleAtFixedRate(() -> {
+System.out.println("Periodic task: " + System.currentTimeMillis());
+}, 0, 1, TimeUnit.SECONDS);
+// Output: Periodic task: 1234567890
+// Output: Periodic task: 1234567891
+// (repeats every second)
+
+// invokeAll - execute multiple tasks
+List<Callable<String>> tasks = Arrays.asList(
+() -> "Task 1",
+() -> "Task 2",
+() -> "Task 3"
+);
+ExecutorService pool = Executors.newFixedThreadPool(3);
+List<Future<String>> results = pool.invokeAll(tasks);
+for (Future<String> f : results) {
+System.out.println(f.get());
+}
+// Output: Task 1
+// Output: Task 2
+// Output: Task 3
+pool.shutdown();`
+        },
+        {
+          name: 'CompletableFuture',
+          explanation: 'Asynchronous programming with composable futures. Supports chaining operations, combining multiple futures, and handling exceptions in async workflows.',
+          codeExample: `import java.util.concurrent.*;
+
+// Simple async execution
+CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+try { Thread.sleep(1000); } catch (InterruptedException e) {}
+return "Hello";
+});
+System.out.println("Doing other work...");
+System.out.println("Result: " + future.get());
+// Output: Doing other work...
+// Output: Result: Hello (after 1 second)
+
+// Chaining operations
+CompletableFuture.supplyAsync(() -> "Hello")
+.thenApply(s -> s + " World")
+.thenApply(String::toUpperCase)
+.thenAccept(System.out::println);
+// Output: HELLO WORLD
+
+// Combining multiple futures
+CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> 10);
+CompletableFuture<Integer> future2 = CompletableFuture.supplyAsync(() -> 20);
+CompletableFuture<Integer> combined = future1.thenCombine(future2, (a, b) -> a + b);
+System.out.println("Combined result: " + combined.get());
+// Output: Combined result: 30
+
+// Exception handling
+CompletableFuture.supplyAsync(() -> {
+if (Math.random() > 0.5) throw new RuntimeException("Error!");
+return "Success";
+})
+.exceptionally(ex -> "Recovered from: " + ex.getMessage())
+.thenAccept(System.out::println);
+// Output: Success OR Recovered from: Error!
+
+// allOf - wait for multiple futures
+CompletableFuture<String> f1 = CompletableFuture.supplyAsync(() -> "Task1");
+CompletableFuture<String> f2 = CompletableFuture.supplyAsync(() -> "Task2");
+CompletableFuture<String> f3 = CompletableFuture.supplyAsync(() -> "Task3");
+CompletableFuture<Void> allDone = CompletableFuture.allOf(f1, f2, f3);
+allDone.join();
+System.out.println("All completed: " + f1.get() + ", " + f2.get() + ", " + f3.get());
+// Output: All completed: Task1, Task2, Task3
+
+// anyOf - complete when any future completes
+CompletableFuture<Object> any = CompletableFuture.anyOf(f1, f2, f3);
+System.out.println("First completed: " + any.get());
+// Output: First completed: Task1 (or Task2 or Task3)`
+        },
+        {
+          name: 'Parallel Streams',
+          explanation: 'Automatic parallelization of stream operations using ForkJoinPool. Splits collections into chunks for concurrent processing with transparent load balancing.',
+          codeExample: `import java.util.*;
+import java.util.stream.*;
+
+// Sequential vs Parallel comparison
+List<Integer> numbers = IntStream.rangeClosed(1, 1000000)
+.boxed()
+.collect(Collectors.toList());
+
+// Sequential stream
+long start = System.currentTimeMillis();
+long sum1 = numbers.stream()
+.mapToLong(Integer::longValue)
+.sum();
+long sequential = System.currentTimeMillis() - start;
+System.out.println("Sequential: " + sequential + "ms, Sum: " + sum1);
+// Output: Sequential: 45ms, Sum: 500000500000
+
+// Parallel stream
+start = System.currentTimeMillis();
+long sum2 = numbers.parallelStream()
+.mapToLong(Integer::longValue)
+.sum();
+long parallel = System.currentTimeMillis() - start;
+System.out.println("Parallel: " + parallel + "ms, Sum: " + sum2);
+// Output: Parallel: 15ms, Sum: 500000500000
+
+// Parallel filtering and processing
+List<String> names = Arrays.asList("Alice", "Bob", "Charlie", "David", "Eve");
+List<String> result = names.parallelStream()
+.filter(name -> {
+System.out.println("Filter: " + name + " [" + Thread.currentThread().getName() + "]");
+return name.length() > 3;
+})
+.map(String::toUpperCase)
+.collect(Collectors.toList());
+System.out.println("Result: " + result);
+// Output: Filter: Bob [ForkJoinPool.commonPool-worker-1]
+// Output: Filter: Alice [ForkJoinPool.commonPool-worker-2]
+// Output: Result: [ALICE, CHARLIE, DAVID]
+
+// Custom ForkJoinPool
+ForkJoinPool customPool = new ForkJoinPool(4);
+customPool.submit(() -> {
+List<Integer> squares = IntStream.range(1, 10)
+.parallel()
+.map(n -> n * n)
+.boxed()
+.collect(Collectors.toList());
+System.out.println("Squares: " + squares);
+}).join();
+// Output: Squares: [1, 4, 9, 16, 25, 36, 49, 64, 81]
+
+// Parallel reduction
+int sum = IntStream.range(1, 100)
+.parallel()
+.reduce(0, Integer::sum);
+System.out.println("Parallel sum: " + sum);
+// Output: Parallel sum: 4950`
+        }
+      ],
+      metrics: { threads: '10K+', synchronizers: '8', executors: '5', patterns: '15+' },
+      description: 'Multi-threading and concurrent programming with thread pools, synchronization mechanisms, and modern concurrency utilities.'
+    },
+    {
+      id: 'exception-handling', x: 80, y: 440, width: 350, height: 160,
+      icon: '⚠️', title: 'Exception Handling', color: 'red',
+      details: [
+        {
+          name: 'Try-Catch-Finally',
+          explanation: 'Structured exception handling with try blocks for risky code, catch blocks for specific exception types, and finally blocks for cleanup code that always executes.',
+          codeExample: `// Basic try-catch
+try {
+int result = 10 / 0;  // ArithmeticException
+} catch (ArithmeticException e) {
+System.out.println("Cannot divide by zero: " + e.getMessage());
+}
+// Output: Cannot divide by zero: / by zero
+
+// Multiple catch blocks
+try {
+String str = null;
+System.out.println(str.length());
+int[] arr = {1, 2};
+System.out.println(arr[5]);
+} catch (NullPointerException e) {
+System.out.println("Null pointer: " + e.getMessage());
+} catch (ArrayIndexOutOfBoundsException e) {
+System.out.println("Array index: " + e.getMessage());
+}
+// Output: Null pointer: null
+
+// Multi-catch (Java 7+)
+try {
+// Some code
+} catch (IOException | SQLException e) {
+System.out.println("IO or SQL error: " + e.getMessage());
+}
+
+// Try-catch-finally
+FileInputStream fis = null;
+try {
+fis = new FileInputStream("file.txt");
+int data = fis.read();
+System.out.println("Data: " + data);
+} catch (IOException e) {
+System.out.println("Error reading file: " + e.getMessage());
+} finally {
+System.out.println("Finally block always executes");
+if (fis != null) {
+try {
+fis.close();
+} catch (IOException e) {
+System.out.println("Error closing file");
+}
+}
+}
+// Output: Error reading file: file.txt (No such file or directory)
+// Output: Finally block always executes`
+        },
+        {
+          name: 'Checked vs Unchecked',
+          explanation: 'Checked exceptions (must be caught or declared) like IOException, SQLException. Unchecked exceptions (runtime) like NullPointerException, IllegalArgumentException.',
+          codeExample: `import java.io.*;
+
+// Checked Exception - must handle or declare
+public void readFile(String path) throws IOException {
+FileReader fr = new FileReader(path);
+BufferedReader br = new BufferedReader(fr);
+String line = br.readLine();
+System.out.println("Line: " + line);
+br.close();
+}
+
+// Usage - must catch or declare
+try {
+readFile("data.txt");
+} catch (IOException e) {
+System.out.println("Checked exception caught: " + e.getMessage());
+}
+// Output: Checked exception caught: data.txt (No such file or directory)
+
+// Unchecked Exception - RuntimeException
+public int divide(int a, int b) {
+if (b == 0) {
+throw new IllegalArgumentException("Divisor cannot be zero");
+}
+return a / b;
+}
+
+// Usage - optional to catch
+try {
+int result = divide(10, 0);
+} catch (IllegalArgumentException e) {
+System.out.println("Unchecked exception: " + e.getMessage());
+}
+// Output: Unchecked exception: Divisor cannot be zero
+
+// Common Unchecked Exceptions
+try {
+String str = null;
+str.length();  // NullPointerException
+} catch (NullPointerException e) {
+System.out.println("NPE: " + e.getClass().getSimpleName());
+}
+// Output: NPE: NullPointerException
+
+try {
+int[] arr = new int[5];
+arr[10] = 1;  // ArrayIndexOutOfBoundsException
+} catch (ArrayIndexOutOfBoundsException e) {
+System.out.println("Index out of bounds");
+}
+// Output: Index out of bounds
+
+try {
+String num = "abc";
+Integer.parseInt(num);  // NumberFormatException
+} catch (NumberFormatException e) {
+System.out.println("Invalid number format");
+}
+// Output: Invalid number format`
+        },
+        {
+          name: 'Custom Exceptions',
+          explanation: 'Creating domain-specific exceptions by extending Exception or RuntimeException. Provides meaningful error messages and context for application-specific error conditions.',
+          codeExample: `// Custom Checked Exception
+class InsufficientFundsException extends Exception {
+private double amount;
+
+public InsufficientFundsException(double amount) {
+super("Insufficient funds: need " + amount);
+this.amount = amount;
+}
+
+public double getAmount() {
+return amount;
+}
+}
+
+// Custom Unchecked Exception
+class InvalidAccountException extends RuntimeException {
+public InvalidAccountException(String accountId) {
+super("Invalid account: " + accountId);
+}
+}
+
+// Using custom exceptions
+class BankAccount {
+private double balance;
+private String accountId;
+
+public BankAccount(String id, double balance) {
+this.accountId = id;
+this.balance = balance;
+}
+
+public void withdraw(double amount) throws InsufficientFundsException {
+if (amount > balance) {
+throw new InsufficientFundsException(amount - balance);
+}
+balance -= amount;
+System.out.println("Withdrawn: " + amount + ", Balance: " + balance);
+}
+
+public void validate() {
+if (accountId == null || accountId.isEmpty()) {
+throw new InvalidAccountException(accountId);
+}
+}
+}
+
+// Usage
+BankAccount account = new BankAccount("ACC123", 1000);
+try {
+account.withdraw(1500);
+} catch (InsufficientFundsException e) {
+System.out.println("Error: " + e.getMessage());
+System.out.println("Short by: " + e.getAmount());
+}
+// Output: Error: Insufficient funds: need 500.0
+// Output: Short by: 500.0
+
+try {
+BankAccount invalid = new BankAccount("", 500);
+invalid.validate();
+} catch (InvalidAccountException e) {
+System.out.println("Validation error: " + e.getMessage());
+}
+// Output: Validation error: Invalid account:`
+        },
+        {
+          name: 'Exception Chaining',
+          explanation: 'Preserving original exception information when wrapping or rethrowing exceptions. Uses initCause() or constructor chaining to maintain complete error stack traces.',
+          codeExample: `// Exception chaining with constructor
+class DataProcessingException extends Exception {
+public DataProcessingException(String message, Throwable cause) {
+super(message, cause);
+}
+}
+
+// Service layer
+class DataService {
+public void processData(String data) throws DataProcessingException {
+try {
+// Simulate low-level operation
+Integer.parseInt(data);
+} catch (NumberFormatException e) {
+// Chain the original exception
+throw new DataProcessingException(
+"Failed to process data: " + data, e);
+}
+}
+}
+
+// Usage - preserves full stack trace
+DataService service = new DataService();
+try {
+service.processData("invalid");
+} catch (DataProcessingException e) {
+System.out.println("High-level error: " + e.getMessage());
+System.out.println("Root cause: " + e.getCause().getClass().getSimpleName());
+System.out.println("Root message: " + e.getCause().getMessage());
+}
+// Output: High-level error: Failed to process data: invalid
+// Output: Root cause: NumberFormatException
+// Output: Root message: For input string: "invalid"
+
+// Manual exception chaining with initCause
+try {
+try {
+throw new IOException("File error");
+} catch (IOException e) {
+RuntimeException re = new RuntimeException("Wrapper exception");
+re.initCause(e);
+throw re;
+}
+} catch (RuntimeException e) {
+System.out.println("Exception: " + e.getMessage());
+System.out.println("Caused by: " + e.getCause().getMessage());
+}
+// Output: Exception: Wrapper exception
+// Output: Caused by: File error
+
+// getSuppressed() for multiple exceptions
+try {
+Exception primary = new Exception("Primary exception");
+Exception suppressed1 = new Exception("Suppressed 1");
+Exception suppressed2 = new Exception("Suppressed 2");
+primary.addSuppressed(suppressed1);
+primary.addSuppressed(suppressed2);
+throw primary;
+} catch (Exception e) {
+System.out.println("Main: " + e.getMessage());
+for (Throwable t : e.getSuppressed()) {
+System.out.println("Suppressed: " + t.getMessage());
+}
+}
+// Output: Main: Primary exception
+// Output: Suppressed: Suppressed 1
+// Output: Suppressed: Suppressed 2`
+        },
+        {
+          name: 'Best Practices',
+          explanation: 'Catch specific exceptions, avoid empty catch blocks, use try-with-resources for automatic resource management, and fail-fast principle for early error detection.',
+          codeExample: `// BAD: Catching generic Exception
+try {
+// code
+} catch (Exception e) {
+// Too broad
+}
+
+// GOOD: Catch specific exceptions
+try {
+FileReader fr = new FileReader("file.txt");
+} catch (FileNotFoundException e) {
+System.out.println("File not found: " + e.getMessage());
+} catch (SecurityException e) {
+System.out.println("Access denied: " + e.getMessage());
+}
+
+// BAD: Empty catch block
+try {
+int result = Integer.parseInt("abc");
+} catch (NumberFormatException e) {
+// Silent failure - very bad!
+}
+
+// GOOD: Always log or handle
+try {
+int result = Integer.parseInt("abc");
+} catch (NumberFormatException e) {
+System.out.println("Invalid number format: " + e.getMessage());
+// Or: logger.error("Parsing failed", e);
+}
+// Output: Invalid number format: For input string: "abc"
+
+// BAD: Catching and ignoring
+try {
+riskyOperation();
+} catch (Exception e) {
+return;  // Exception swallowed
+}
+
+// GOOD: Fail-fast principle
+public void processOrder(Order order) {
+if (order == null) {
+throw new IllegalArgumentException("Order cannot be null");
+}
+if (order.getItems().isEmpty()) {
+throw new IllegalStateException("Order has no items");
+}
+// Process order...
+}
+
+// GOOD: Proper exception documentation
+/**
+* Processes payment for an order
+* @throws PaymentException if payment fails
+* @throws InvalidOrderException if order is invalid
+*/
+public void processPayment(Order order)
+throws PaymentException, InvalidOrderException {
+// Implementation
+}
+
+// GOOD: Don't catch Error
+try {
+// code
+} catch (OutOfMemoryError e) {
+// BAD: Can't recover from Error
+}
+
+// GOOD: Use specific exception types
+throw new IllegalArgumentException("Invalid input");  // Not just Exception`
+        },
+        {
+          name: 'Resource Management',
+          explanation: 'Automatic resource management with try-with-resources statement. Ensures proper cleanup of resources like files, database connections, and network sockets.',
+          codeExample: `import java.io.*;
+
+// OLD WAY: Manual resource cleanup
+BufferedReader br = null;
+try {
+br = new BufferedReader(new FileReader("data.txt"));
+String line = br.readLine();
+System.out.println(line);
+} catch (IOException e) {
+System.out.println("Error: " + e.getMessage());
+} finally {
+if (br != null) {
+try {
+br.close();
+} catch (IOException e) {
+System.out.println("Error closing: " + e.getMessage());
+}
+}
+}
+
+// NEW WAY: Try-with-resources (Java 7+)
+try (BufferedReader br = new BufferedReader(new FileReader("data.txt"))) {
+String line = br.readLine();
+System.out.println("Line: " + line);
+} catch (IOException e) {
+System.out.println("Error: " + e.getMessage());
+}
+// Resource automatically closed
+// Output: Error: data.txt (No such file or directory)
+
+// Multiple resources
+try (FileInputStream fis = new FileInputStream("input.txt");
+FileOutputStream fos = new FileOutputStream("output.txt")) {
+int data;
+while ((data = fis.read()) != -1) {
+fos.write(data);
+}
+System.out.println("File copied successfully");
+} catch (IOException e) {
+System.out.println("Copy error: " + e.getMessage());
+}
+// Both streams automatically closed in reverse order
+
+// Custom AutoCloseable resource
+class DatabaseConnection implements AutoCloseable {
+public DatabaseConnection() {
+System.out.println("Connection opened");
+}
+
+public void executeQuery(String sql) {
+System.out.println("Executing: " + sql);
+}
+
+@Override
+public void close() {
+System.out.println("Connection closed");
+}
+}
+
+// Usage
+try (DatabaseConnection conn = new DatabaseConnection()) {
+conn.executeQuery("SELECT * FROM users");
+} catch (Exception e) {
+System.out.println("Error: " + e.getMessage());
+}
+// Output: Connection opened
+// Output: Executing: SELECT * FROM users
+// Output: Connection closed
+
+// Try-with-resources with catch and finally
+try (BufferedWriter writer = new BufferedWriter(new FileWriter("log.txt"))) {
+writer.write("Log entry");
+System.out.println("Written to log");
+} catch (IOException e) {
+System.out.println("Write error: " + e.getMessage());
+} finally {
+System.out.println("Cleanup complete");
+}
+// Output: Written to log
+// Output: Cleanup complete`
+        }
+      ],
+      metrics: { exceptions: '200+', hierarchy: '3 levels', patterns: '10+', safety: '99.9%' },
+      description: 'Robust error handling mechanisms with exception hierarchy, resource management, and defensive programming practices.'
+    },
+    {
+      id: 'io-streams', x: 580, y: 540, width: 350, height: 160,
+      icon: '📁', title: 'I/O & Streams', color: 'orange',
+      details: [
+        {
+          name: 'File I/O Operations',
+          explanation: 'Reading and writing files using FileInputStream/FileOutputStream, FileReader/FileWriter. Character vs byte streams for different data types and encoding requirements.',
+          codeExample: `import java.io.*;
+
+// Byte streams - for binary data
+try (FileOutputStream fos = new FileOutputStream("data.bin")) {
+byte[] data = {65, 66, 67, 68, 69};  // ABCDE
+fos.write(data);
+System.out.println("Binary data written");
+} catch (IOException e) {
+System.out.println("Write error: " + e.getMessage());
+}
+// Output: Binary data written
+
+try (FileInputStream fis = new FileInputStream("data.bin")) {
+int b;
+System.out.print("Read bytes: ");
+while ((b = fis.read()) != -1) {
+System.out.print((char)b + " ");
+}
+System.out.println();
+} catch (IOException e) {
+System.out.println("Read error: " + e.getMessage());
+}
+// Output: Read bytes: A B C D E
+
+// Character streams - for text data
+try (FileWriter fw = new FileWriter("text.txt")) {
+fw.write("Hello, World!\\n");
+fw.write("Second line");
+System.out.println("Text written");
+} catch (IOException e) {
+System.out.println("Error: " + e.getMessage());
+}
+// Output: Text written
+
+try (FileReader fr = new FileReader("text.txt")) {
+int c;
+System.out.print("Read text: ");
+while ((c = fr.read()) != -1) {
+System.out.print((char)c);
+}
+} catch (IOException e) {
+System.out.println("Error: " + e.getMessage());
+}
+// Output: Read text: Hello, World!
+// Second line
+
+// Reading entire file
+try (BufferedReader br = new BufferedReader(new FileReader("text.txt"))) {
+String line;
+int lineNum = 1;
+while ((line = br.readLine()) != null) {
+System.out.println("Line " + lineNum++ + ": " + line);
+}
+} catch (IOException e) {
+System.out.println("Error: " + e.getMessage());
+}
+// Output: Line 1: Hello, World!
+// Output: Line 2: Second line`
+        },
+        {
+          name: 'NIO & NIO.2',
+          explanation: 'New I/O APIs with non-blocking operations, memory-mapped files, and channel-based I/O. NIO.2 adds Path API, directory traversal, and file system monitoring.',
+          codeExample: `import java.nio.*;
+import java.nio.file.*;
+import java.nio.channels.*;
+import java.io.*;
+
+// NIO Channels - efficient I/O
+try (FileChannel sourceChannel = FileChannel.open(
+Paths.get("source.txt"), StandardOpenOption.READ);
+FileChannel destChannel = FileChannel.open(
+Paths.get("dest.txt"), StandardOpenOption.CREATE,
+StandardOpenOption.WRITE)) {
+
+ByteBuffer buffer = ByteBuffer.allocate(1024);
+while (sourceChannel.read(buffer) > 0) {
+buffer.flip();
+destChannel.write(buffer);
+buffer.clear();
+}
+System.out.println("File copied with NIO");
+} catch (IOException e) {
+System.out.println("NIO error: " + e.getMessage());
+}
+
+// Memory-mapped files - fast access
+try (RandomAccessFile file = new RandomAccessFile("data.txt", "rw");
+FileChannel channel = file.getChannel()) {
+
+MappedByteBuffer buffer = channel.map(
+FileChannel.MapMode.READ_WRITE, 0, 1024);
+
+// Write directly to memory
+buffer.put("Memory-mapped data".getBytes());
+System.out.println("Data written to memory-mapped file");
+
+// Read from memory
+buffer.position(0);
+byte[] data = new byte[18];
+buffer.get(data);
+System.out.println("Read: " + new String(data));
+} catch (IOException e) {
+System.out.println("Error: " + e.getMessage());
+}
+// Output: Data written to memory-mapped file
+// Output: Read: Memory-mapped data
+
+// NIO.2 Files utility
+try {
+Path path = Paths.get("test.txt");
+Files.write(path, "NIO.2 content".getBytes());
+System.out.println("Written with Files.write");
+
+String content = Files.readString(path);
+System.out.println("Read: " + content);
+
+// File attributes
+System.out.println("Size: " + Files.size(path) + " bytes");
+System.out.println("Readable: " + Files.isReadable(path));
+} catch (IOException e) {
+System.out.println("Error: " + e.getMessage());
+}
+// Output: Written with Files.write
+// Output: Read: NIO.2 content
+// Output: Size: 13 bytes
+// Output: Readable: true`
+        },
+        {
+          name: 'Serialization',
+          explanation: 'Converting objects to byte streams for storage or transmission. Implements Serializable interface, handles versioning, and provides custom serialization control.',
+          codeExample: `import java.io.*;
+
+// Serializable class
+class Employee implements Serializable {
+private static final long serialVersionUID = 1L;
+private String name;
+private int id;
+private transient String password;  // Not serialized
+
+public Employee(String name, int id, String password) {
+this.name = name;
+this.id = id;
+this.password = password;
+}
+
+public String toString() {
+return "Employee{name='" + name + "', id=" + id +
+", password='" + password + "'}";
+}
+}
+
+// Serialize object to file
+Employee emp = new Employee("John Doe", 12345, "secret");
+try (ObjectOutputStream oos = new ObjectOutputStream(
+new FileOutputStream("employee.ser"))) {
+oos.writeObject(emp);
+System.out.println("Object serialized: " + emp);
+} catch (IOException e) {
+System.out.println("Serialization error: " + e.getMessage());
+}
+// Output: Object serialized: Employee{name='John Doe', id=12345, password='secret'}
+
+// Deserialize object from file
+try (ObjectInputStream ois = new ObjectInputStream(
+new FileInputStream("employee.ser"))) {
+Employee loaded = (Employee) ois.readObject();
+System.out.println("Object deserialized: " + loaded);
+} catch (IOException | ClassNotFoundException e) {
+System.out.println("Deserialization error: " + e.getMessage());
+}
+// Output: Object deserialized: Employee{name='John Doe', id=12345, password='null'}
+
+// Custom serialization
+class CustomEmployee implements Serializable {
+private String name;
+private int salary;
+
+private void writeObject(ObjectOutputStream oos) throws IOException {
+oos.defaultWriteObject();
+// Encrypt salary before writing
+oos.writeInt(salary ^ 12345);
+}
+
+private void readObject(ObjectInputStream ois)
+throws IOException, ClassNotFoundException {
+ois.defaultReadObject();
+// Decrypt salary after reading
+salary = ois.readInt() ^ 12345;
+}
+}
+
+// Serialize collection
+try (ObjectOutputStream oos = new ObjectOutputStream(
+new FileOutputStream("list.ser"))) {
+ArrayList<String> list = new ArrayList<>(Arrays.asList("A", "B", "C"));
+oos.writeObject(list);
+System.out.println("List serialized");
+} catch (IOException e) {
+System.out.println("Error: " + e.getMessage());
+}
+// Output: List serialized`
+        },
+        {
+          name: 'Character Encoding',
+          explanation: 'Handling different character sets (UTF-8, UTF-16, ASCII) for international text processing. Proper encoding/decoding prevents data corruption and mojibake.',
+          codeExample: `import java.io.*;
+import java.nio.charset.*;
+
+// Writing with specific encoding
+String text = "Hello 世界 Мир مرحبا";
+try (OutputStreamWriter writer = new OutputStreamWriter(
+new FileOutputStream("utf8.txt"), StandardCharsets.UTF_8)) {
+writer.write(text);
+System.out.println("Written with UTF-8 encoding");
+} catch (IOException e) {
+System.out.println("Error: " + e.getMessage());
+}
+// Output: Written with UTF-8 encoding
+
+// Reading with specific encoding
+try (InputStreamReader reader = new InputStreamReader(
+new FileInputStream("utf8.txt"), StandardCharsets.UTF_8)) {
+int c;
+System.out.print("Read with UTF-8: ");
+while ((c = reader.read()) != -1) {
+System.out.print((char)c);
+}
+System.out.println();
+} catch (IOException e) {
+System.out.println("Error: " + e.getMessage());
+}
+// Output: Read with UTF-8: Hello 世界 Мир مرحبا
+
+// Encoding conversion
+byte[] utf8Bytes = text.getBytes(StandardCharsets.UTF_8);
+byte[] utf16Bytes = text.getBytes(StandardCharsets.UTF_16);
+System.out.println("UTF-8 size: " + utf8Bytes.length + " bytes");
+System.out.println("UTF-16 size: " + utf16Bytes.length + " bytes");
+// Output: UTF-8 size: 33 bytes
+// Output: UTF-16 size: 46 bytes
+
+// Decoding bytes to string
+String decoded = new String(utf8Bytes, StandardCharsets.UTF_8);
+System.out.println("Decoded: " + decoded);
+// Output: Decoded: Hello 世界 Мир مرحبا
+
+// Handling encoding errors
+byte[] badBytes = {(byte)0xFF, (byte)0xFE, (byte)0xFD};
+try {
+String invalid = new String(badBytes, StandardCharsets.UTF_8);
+System.out.println("Default: " + invalid);  // Replacement chars
+} catch (Exception e) {
+System.out.println("Error: " + e.getMessage());
+}
+
+// Available charsets
+System.out.println("Available charsets:");
+Charset.availableCharsets().keySet().stream()
+.limit(5)
+.forEach(System.out::println);
+// Output: Available charsets:
+// Output: Big5
+// Output: Big5-HKSCS
+// Output: CESU-8
+// Output: EUC-JP
+// Output: EUC-KR`
+        },
+        {
+          name: 'BufferedStreams',
+          explanation: 'Wrapper streams that add buffering capability to improve performance. BufferedReader/BufferedWriter reduce system calls by batching I/O operations.',
+          codeExample: `import java.io.*;
+
+// BufferedWriter - efficient writing
+try (BufferedWriter writer = new BufferedWriter(
+new FileWriter("buffered.txt"))) {
+
+for (int i = 1; i <= 5; i++) {
+writer.write("Line " + i);
+writer.newLine();  // Platform-independent line separator
+}
+writer.flush();  // Force write to disk
+System.out.println("5 lines written with BufferedWriter");
+} catch (IOException e) {
+System.out.println("Error: " + e.getMessage());
+}
+// Output: 5 lines written with BufferedWriter
+
+// BufferedReader - efficient reading
+try (BufferedReader reader = new BufferedReader(
+new FileReader("buffered.txt"))) {
+
+String line;
+int lineNum = 0;
+while ((line = reader.readLine()) != null) {
+System.out.println("Read: " + line);
+lineNum++;
+}
+System.out.println("Total lines: " + lineNum);
+} catch (IOException e) {
+System.out.println("Error: " + e.getMessage());
+}
+// Output: Read: Line 1
+// Output: Read: Line 2
+// Output: Read: Line 3
+// Output: Read: Line 4
+// Output: Read: Line 5
+// Output: Total lines: 5
+
+// Performance comparison
+long start = System.currentTimeMillis();
+try (FileWriter fw = new FileWriter("unbuffered.txt")) {
+for (int i = 0; i < 10000; i++) {
+fw.write("Line " + i + "\\n");
+}
+}
+long unbufferedTime = System.currentTimeMillis() - start;
+System.out.println("Unbuffered write: " + unbufferedTime + "ms");
+// Output: Unbuffered write: 150ms
+
+start = System.currentTimeMillis();
+try (BufferedWriter bw = new BufferedWriter(
+new FileWriter("buffered_perf.txt"))) {
+for (int i = 0; i < 10000; i++) {
+bw.write("Line " + i + "\\n");
+}
+}
+long bufferedTime = System.currentTimeMillis() - start;
+System.out.println("Buffered write: " + bufferedTime + "ms");
+// Output: Buffered write: 15ms
+
+// Custom buffer size
+try (BufferedReader reader = new BufferedReader(
+new FileReader("data.txt"), 8192)) {  // 8KB buffer
+System.out.println("Reading with 8KB buffer");
+} catch (IOException e) {
+System.out.println("Error: " + e.getMessage());
+}`
+        },
+        {
+          name: 'Path API',
+          explanation: 'Modern file system API using Path and Files classes. Platform-independent file operations with better error handling and atomic operations.',
+          codeExample: `import java.nio.file.*;
+import java.io.IOException;
+import java.util.stream.*;
+
+// Creating paths
+Path path1 = Paths.get("folder", "subfolder", "file.txt");
+Path path2 = Paths.get("/home/user/documents/file.txt");
+System.out.println("Path 1: " + path1);
+System.out.println("Path 2: " + path2);
+// Output: Path 1: folder/subfolder/file.txt
+// Output: Path 2: /home/user/documents/file.txt
+
+// Path operations
+Path path = Paths.get("test/data/file.txt");
+System.out.println("File name: " + path.getFileName());
+System.out.println("Parent: " + path.getParent());
+System.out.println("Root: " + path.getRoot());
+System.out.println("Name count: " + path.getNameCount());
+// Output: File name: file.txt
+// Output: Parent: test/data
+// Output: Root: null (relative path)
+// Output: Name count: 3
+
+// Files operations
+try {
+Path file = Paths.get("test.txt");
+Files.writeString(file, "Path API content");
+System.out.println("File created");
+
+// Check existence
+System.out.println("Exists: " + Files.exists(file));
+System.out.println("Is directory: " + Files.isDirectory(file));
+System.out.println("Is regular file: " + Files.isRegularFile(file));
+
+// Read content
+String content = Files.readString(file);
+System.out.println("Content: " + content);
+
+// File attributes
+System.out.println("Size: " + Files.size(file) + " bytes");
+System.out.println("Last modified: " + Files.getLastModifiedTime(file));
+
+// Copy and move
+Path copy = Paths.get("test_copy.txt");
+Files.copy(file, copy, StandardCopyOption.REPLACE_EXISTING);
+System.out.println("File copied");
+
+Path moved = Paths.get("test_moved.txt");
+Files.move(copy, moved, StandardCopyOption.REPLACE_EXISTING);
+System.out.println("File moved");
+
+// Delete
+Files.delete(moved);
+System.out.println("File deleted");
+} catch (IOException e) {
+System.out.println("Error: " + e.getMessage());
+}
+// Output: File created
+// Output: Exists: true
+// Output: Is directory: false
+// Output: Is regular file: true
+// Output: Content: Path API content`
+        }
+      ],
+      metrics: { streams: '30+', encodings: '20+', performance: '10x faster', apis: '3 generations' },
+      description: 'Input/output operations, file handling, serialization, and modern NIO APIs for efficient data processing and file system operations.'
+    },
+    {
+      id: 'memory-management', x: 1080, y: 240, width: 350, height: 160,
+      icon: '🧠', title: 'Memory Management', color: 'teal',
+      details: [
+        {
+          name: 'Heap & Stack',
+          explanation: 'Heap stores objects and instance variables with dynamic allocation. Stack stores method calls, local variables, and partial results with LIFO access pattern.',
+          codeExample: `// Stack memory - method calls and local variables
+public class MemoryDemo {
+public static void main(String[] args) {
+int x = 10;  // Stored on stack
+int y = 20;  // Stored on stack
+int result = add(x, y);
+System.out.println("Result: " + result);
+}
+
+public static int add(int a, int b) {
+int sum = a + b;  // Local variable on stack
+return sum;
+// sum is removed from stack after method returns
+}
+}
+// Output: Result: 30
+
+// Heap memory - objects and instance variables
+class Person {
+String name;  // Instance variable - stored in heap
+int age;      // Instance variable - stored in heap
+
+Person(String name, int age) {
+this.name = name;
+this.age = age;
+}
+}
+
+// Creating objects
+Person p1 = new Person("Alice", 25);  // Object in heap, reference p1 on stack
+Person p2 = new Person("Bob", 30);    // Object in heap, reference p2 on stack
+System.out.println("Person 1: " + p1.name + ", " + p1.age);
+System.out.println("Person 2: " + p2.name + ", " + p2.age);
+// Output: Person 1: Alice, 25
+// Output: Person 2: Bob, 30
+
+// Stack overflow example
+public static void recursiveMethod() {
+recursiveMethod();  // Infinite recursion
+// Eventually throws StackOverflowError
+}
+
+// Heap memory allocation
+List<String> list = new ArrayList<>();  // ArrayList object in heap
+for (int i = 0; i < 1000; i++) {
+list.add("Item " + i);  // String objects in heap
+}
+System.out.println("List size: " + list.size());
+// Output: List size: 1000
+
+// Memory reference example
+String s1 = "Hello";  // String literal in string pool (heap)
+String s2 = "Hello";  // References same object
+String s3 = new String("Hello");  // New object in heap
+System.out.println("s1 == s2: " + (s1 == s2));  // true (same reference)
+System.out.println("s1 == s3: " + (s1 == s3));  // false (different objects)
+// Output: s1 == s2: true
+// Output: s1 == s3: false`
+        },
+        {
+          name: 'Garbage Collection',
+          explanation: 'Automatic memory management that reclaims unused objects. Generational GC with young (Eden, Survivor) and old generation spaces for different object lifecycles.',
+          codeExample: `// Object eligible for garbage collection
+public class GCDemo {
+public static void main(String[] args) {
+// Object creation
+Person p1 = new Person("John");
+Person p2 = new Person("Jane");
+System.out.println("Created 2 Person objects");
+
+// Nullifying reference - object eligible for GC
+p1 = null;
+System.out.println("p1 set to null - object eligible for GC");
+
+// Request garbage collection (not guaranteed to run immediately)
+System.gc();
+System.out.println("Requested garbage collection");
+
+// Creating many objects to trigger GC
+for (int i = 0; i < 100000; i++) {
+new Person("Person " + i);
+// Objects without references are immediately eligible for GC
+}
+System.out.println("Created 100000 temporary objects");
+}
+}
+
+class Person {
+String name;
+
+Person(String name) {
+this.name = name;
+}
+
+// Finalize method called before GC (deprecated in Java 9+)
+@Override
+protected void finalize() throws Throwable {
+System.out.println("Finalizing: " + name);
+}
+}
+// Output: Created 2 Person objects
+// Output: p1 set to null - object eligible for GC
+// Output: Requested garbage collection
+// Output: Created 100000 temporary objects
+
+// Generational GC demonstration
+public class GenerationalGC {
+public static void main(String[] args) {
+// Young generation objects (short-lived)
+for (int i = 0; i < 1000; i++) {
+String temp = "Temporary " + i;
+// temp goes out of scope, eligible for minor GC
+}
+
+// Old generation objects (long-lived)
+List<String> longLived = new ArrayList<>();
+for (int i = 0; i < 1000; i++) {
+longLived.add("Long lived " + i);
+// These survive multiple minor GCs, move to old generation
+}
+
+System.out.println("Long-lived objects: " + longLived.size());
+}
+}
+// Output: Long-lived objects: 1000
+
+// Runtime memory information
+Runtime runtime = Runtime.getRuntime();
+long totalMemory = runtime.totalMemory();
+long freeMemory = runtime.freeMemory();
+long maxMemory = runtime.maxMemory();
+long usedMemory = totalMemory - freeMemory;
+
+System.out.println("Total Memory: " + (totalMemory / 1024 / 1024) + " MB");
+System.out.println("Free Memory: " + (freeMemory / 1024 / 1024) + " MB");
+System.out.println("Used Memory: " + (usedMemory / 1024 / 1024) + " MB");
+System.out.println("Max Memory: " + (maxMemory / 1024 / 1024) + " MB");
+// Output: Total Memory: 245 MB
+// Output: Free Memory: 180 MB
+// Output: Used Memory: 65 MB
+// Output: Max Memory: 3641 MB`
+        },
+        {
+          name: 'Memory Leaks',
+          explanation: 'Common causes: unclosed resources, static collections, listener leaks, and circular references. Detection using profiling tools and heap dumps.',
+          codeExample: `import java.util.*;
+
+// Memory Leak Example 1: Static collection
+class LeakyCache {
+// This never gets cleared - memory leak!
+private static List<Object> cache = new ArrayList<>();
+
+public void addToCache(Object obj) {
+cache.add(obj);
+System.out.println("Cache size: " + cache.size());
+}
+}
+
+LeakyCache leaky = new LeakyCache();
+for (int i = 0; i < 1000; i++) {
+leaky.addToCache(new byte[1024]);  // Adding 1KB objects
+}
+// Output: Cache size: 1000
+// Objects remain in memory indefinitely
+
+// Memory Leak Example 2: Unclosed resources
+public void readFileWithLeak(String path) {
+try {
+FileInputStream fis = new FileInputStream(path);
+// Forgot to close - resource leak!
+// fis.close();
+} catch (IOException e) {
+System.out.println("Error: " + e.getMessage());
+}
+}
+
+// FIXED: Proper resource management
+public void readFileCorrectly(String path) {
+try (FileInputStream fis = new FileInputStream(path)) {
+// Resource automatically closed
+System.out.println("File opened and will be closed");
+} catch (IOException e) {
+System.out.println("Error: " + e.getMessage());
+}
+}
+
+// Memory Leak Example 3: Listener leak
+class EventSource {
+private List<Listener> listeners = new ArrayList<>();
+
+public void addListener(Listener l) {
+listeners.add(l);
+}
+
+// Missing removeListener method - leak!
+// Listeners never removed, holding references
+}
+
+interface Listener {
+void onEvent();
+}
+
+// Memory Leak Example 4: HashMap key leak
+class Person {
+String name;
+// Missing hashCode() and equals()
+// Objects used as keys never match, accumulate in map
+}
+
+Map<Person, String> map = new HashMap<>();
+for (int i = 0; i < 1000; i++) {
+map.put(new Person(), "Data " + i);
+}
+System.out.println("Map size: " + map.size());
+// Output: Map size: 1000
+// All entries remain because keys never match for removal
+
+// Detecting memory leaks
+Runtime rt = Runtime.getRuntime();
+long before = rt.totalMemory() - rt.freeMemory();
+System.out.println("Memory before: " + (before / 1024) + " KB");
+
+// Create potential leak
+List<byte[]> leak = new ArrayList<>();
+for (int i = 0; i < 100; i++) {
+leak.add(new byte[1024 * 1024]);  // 1MB each
+}
+
+long after = rt.totalMemory() - rt.freeMemory();
+System.out.println("Memory after: " + (after / 1024) + " KB");
+System.out.println("Leaked: " + ((after - before) / 1024) + " KB");
+// Output: Memory before: 5120 KB
+// Output: Memory after: 107520 KB
+// Output: Leaked: 102400 KB`
+        },
+        {
+          name: 'WeakReferences',
+          explanation: 'Reference types that don\'t prevent garbage collection: WeakReference, SoftReference, PhantomReference. Useful for caches and avoiding memory leaks.',
+          codeExample: `import java.lang.ref.*;
+import java.util.*;
+
+// Strong reference - prevents GC
+String strongRef = new String("Strong Reference");
+System.out.println("Strong: " + strongRef);
+// Object won't be GC'd while strongRef exists
+// Output: Strong: Strong Reference
+
+// WeakReference - doesn't prevent GC
+String str = new String("Weak Reference");
+WeakReference<String> weakRef = new WeakReference<>(str);
+System.out.println("Weak before GC: " + weakRef.get());
+// Output: Weak before GC: Weak Reference
+
+str = null;  // Remove strong reference
+System.gc();  // Request GC
+Thread.sleep(100);  // Give GC time
+
+System.out.println("Weak after GC: " + weakRef.get());
+// Output: Weak after GC: null (object was garbage collected)
+
+// SoftReference - cleared when memory is low
+StringBuilder sb = new StringBuilder("Soft Reference");
+SoftReference<StringBuilder> softRef = new SoftReference<>(sb);
+System.out.println("Soft: " + softRef.get());
+// Output: Soft: Soft Reference
+
+sb = null;
+System.gc();
+System.out.println("Soft after GC: " + softRef.get());
+// Output: Soft after GC: Soft Reference (still present if memory available)
+
+// WeakHashMap - automatic cleanup
+WeakHashMap<Object, String> weakMap = new WeakHashMap<>();
+Object key1 = new Object();
+Object key2 = new Object();
+weakMap.put(key1, "Value 1");
+weakMap.put(key2, "Value 2");
+System.out.println("Map size before: " + weakMap.size());
+// Output: Map size before: 2
+
+key1 = null;  // Remove strong reference
+System.gc();
+Thread.sleep(100);
+System.out.println("Map size after: " + weakMap.size());
+// Output: Map size after: 1 (entry with key1 was removed)
+
+// Cache implementation with SoftReference
+class Cache<K, V> {
+private Map<K, SoftReference<V>> cache = new HashMap<>();
+
+public void put(K key, V value) {
+cache.put(key, new SoftReference<>(value));
+}
+
+public V get(K key) {
+SoftReference<V> ref = cache.get(key);
+if (ref != null) {
+return ref.get();  // May return null if GC'd
+}
+return null;
+}
+}
+
+Cache<String, byte[]> dataCache = new Cache<>();
+dataCache.put("data1", new byte[1024]);
+System.out.println("Cached: " + (dataCache.get("data1") != null));
+// Output: Cached: true
+
+// ReferenceQueue - notification of GC
+ReferenceQueue<String> queue = new ReferenceQueue<>();
+String obj = new String("Reference Queue");
+WeakReference<String> ref = new WeakReference<>(obj, queue);
+System.out.println("Object: " + ref.get());
+// Output: Object: Reference Queue
+
+obj = null;
+System.gc();
+Thread.sleep(100);
+Reference<?> polled = queue.poll();
+System.out.println("Queued reference: " + (polled != null));
+// Output: Queued reference: true`
+        },
+        {
+          name: 'Metaspace',
+          explanation: 'Native memory area storing class metadata (replacing PermGen). Automatically grows and shrinks, reducing OutOfMemoryError for class loading.',
+          codeExample: `import java.lang.management.*;
+
+// Metaspace stores class metadata
+public class MetaspaceDemo {
+public static void main(String[] args) {
+// Get memory information
+MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+MemoryUsage metaspaceUsage = memoryMXBean.getNonHeapMemoryUsage();
+
+System.out.println("Metaspace Memory:");
+System.out.println("Init: " + (metaspaceUsage.getInit() / 1024 / 1024) + " MB");
+System.out.println("Used: " + (metaspaceUsage.getUsed() / 1024 / 1024) + " MB");
+System.out.println("Committed: " + (metaspaceUsage.getCommitted() / 1024 / 1024) + " MB");
+System.out.println("Max: " + (metaspaceUsage.getMax() / 1024 / 1024) + " MB");
+// Output: Metaspace Memory:
+// Output: Init: 0 MB
+// Output: Used: 15 MB
+// Output: Committed: 17 MB
+// Output: Max: -1 MB (unlimited by default)
+
+// List all memory pools
+for (MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
+if (pool.getName().contains("Metaspace")) {
+MemoryUsage usage = pool.getUsage();
+System.out.println("\\nPool: " + pool.getName());
+System.out.println("Type: " + pool.getType());
+System.out.println("Used: " + (usage.getUsed() / 1024) + " KB");
+}
+}
+// Output: Pool: Metaspace
+// Output: Type: NON_HEAP
+// Output: Used: 15360 KB
+
+// Dynamic class loading increases metaspace
+ClassLoader classLoader = MetaspaceDemo.class.getClassLoader();
+System.out.println("\\nClassLoader: " + classLoader.getClass().getName());
+// Output: ClassLoader: jdk.internal.loader.ClassLoaders$AppClassLoader
+
+// Loaded classes information
+RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+System.out.println("JVM name: " + runtimeMXBean.getVmName());
+System.out.println("JVM version: " + runtimeMXBean.getVmVersion());
+// Output: JVM name: OpenJDK 64-Bit Server VM
+// Output: JVM version: 17.0.1+12
+
+// Class loading stats
+ClassLoadingMXBean classLoadingMXBean = ManagementFactory.getClassLoadingMXBean();
+System.out.println("\\nClass Loading:");
+System.out.println("Loaded classes: " + classLoadingMXBean.getLoadedClassCount());
+System.out.println("Total loaded: " + classLoadingMXBean.getTotalLoadedClassCount());
+System.out.println("Unloaded: " + classLoadingMXBean.getUnloadedClassCount());
+// Output: Class Loading:
+// Output: Loaded classes: 1250
+// Output: Total loaded: 1250
+// Output: Unloaded: 0
+}
+}
+
+// JVM flags for metaspace tuning:
+// -XX:MetaspaceSize=128m (initial size)
+// -XX:MaxMetaspaceSize=256m (max size, prevents unlimited growth)
+// -XX:MinMetaspaceFreeRatio=40 (min free percentage)
+// -XX:MaxMetaspaceFreeRatio=70 (max free percentage)
+
+// Metaspace OutOfMemoryError example
+// This would happen with: -XX:MaxMetaspaceSize=50m
+/*
+while (true) {
+// Dynamic class generation
+Class<?> dynamicClass = generateClass();
+// Eventually: java.lang.OutOfMemoryError: Metaspace
+}
+*/`
+        },
+        {
+          name: 'GC Tuning',
+          explanation: 'Optimizing garbage collection performance through heap sizing, collector selection (G1, CMS, Parallel), and JVM flags for specific application patterns.',
+          codeExample: `import java.lang.management.*;
+import java.util.*;
+
+// GC tuning demonstration
+public class GCTuningDemo {
+public static void main(String[] args) {
+// Get GC information
+List<GarbageCollectorMXBean> gcBeans = ManagementFactory.getGarbageCollectorMXBeans();
+
+System.out.println("Garbage Collectors:");
+for (GarbageCollectorMXBean gcBean : gcBeans) {
+System.out.println("Name: " + gcBean.getName());
+System.out.println("Collections: " + gcBean.getCollectionCount());
+System.out.println("Time: " + gcBean.getCollectionTime() + " ms");
+System.out.println("Pools: " + Arrays.toString(gcBean.getMemoryPoolNames()));
+System.out.println();
+}
+// Output: Garbage Collectors:
+// Output: Name: G1 Young Generation
+// Output: Collections: 5
+// Output: Time: 25 ms
+// Output: Pools: [G1 Eden Space, G1 Survivor Space]
+//
+// Output: Name: G1 Old Generation
+// Output: Collections: 0
+// Output: Time: 0 ms
+// Output: Pools: [G1 Eden Space, G1 Survivor Space, G1 Old Gen]
+
+// Memory pool information
+for (MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
+if (pool.getType() == MemoryType.HEAP) {
+MemoryUsage usage = pool.getUsage();
+System.out.println("Pool: " + pool.getName());
+System.out.println("Used: " + (usage.getUsed() / 1024 / 1024) + " MB");
+System.out.println("Max: " + (usage.getMax() / 1024 / 1024) + " MB");
+System.out.println();
+}
+}
+// Output: Pool: G1 Eden Space
+// Output: Used: 50 MB
+// Output: Max: 1024 MB
+
+// Trigger GC and measure time
+long before = System.currentTimeMillis();
+System.gc();
+long after = System.currentTimeMillis();
+System.out.println("GC time: " + (after - before) + " ms");
+// Output: GC time: 15 ms
+
+// Create objects to trigger GC
+List<byte[]> list = new ArrayList<>();
+long startTime = System.currentTimeMillis();
+int gcCount = 0;
+
+for (int i = 0; i < 1000; i++) {
+list.add(new byte[1024 * 1024]);  // 1MB each
+if (i % 100 == 0) {
+long currentGC = gcBeans.get(0).getCollectionCount();
+if (currentGC > gcCount) {
+System.out.println("GC occurred at iteration " + i);
+gcCount = (int) currentGC;
+}
+}
+}
+long endTime = System.currentTimeMillis();
+System.out.println("Total time: " + (endTime - startTime) + " ms");
+// Output: GC occurred at iteration 100
+// Output: GC occurred at iteration 400
+// Output: Total time: 500 ms
+}
+}
+
+// Common JVM GC tuning flags:
+
+// Heap size configuration:
+// -Xms2g           Initial heap size
+// -Xmx4g           Maximum heap size
+// -Xmn1g           Young generation size
+
+// G1 GC (default in Java 9+):
+// -XX:+UseG1GC                Enable G1
+// -XX:MaxGCPauseMillis=200    Target max pause time
+// -XX:G1HeapRegionSize=16m    Region size
+
+// Parallel GC:
+// -XX:+UseParallelGC          Enable Parallel GC
+// -XX:ParallelGCThreads=8     Number of GC threads
+
+// CMS GC (deprecated):
+// -XX:+UseConcMarkSweepGC     Enable CMS
+// -XX:CMSInitiatingOccupancyFraction=70
+
+// ZGC (Java 11+):
+// -XX:+UseZGC                 Enable ZGC
+// -XX:ZCollectionInterval=10  Collection interval
+
+// GC logging:
+// -Xlog:gc*:file=gc.log       GC log file
+// -XX:+PrintGCDetails         Detailed GC info
+// -XX:+PrintGCTimeStamps      Add timestamps
+
+// Example optimal configuration for low-latency app:
+// java -Xms4g -Xmx4g -XX:+UseG1GC -XX:MaxGCPauseMillis=50
+//      -XX:+UseStringDeduplication MyApp`
+        }
+      ],
+      metrics: { collectors: '7', generations: '3', efficiency: '95%+', tuning: '50+ params' },
+      description: 'JVM memory model, garbage collection algorithms, memory optimization techniques, and performance tuning strategies.'
+    },
+    {
+      id: 'jvm-internals', x: 1080, y: 440, width: 350, height: 160,
+      icon: '⚙️', title: 'JVM Internals', color: 'indigo',
+      details: [
+        {
+          name: 'Class Loading',
+          explanation: 'Three-phase process: loading (finding class files), linking (verification, preparation, resolution), and initialization. Bootstrap, extension, and application classloaders.',
+          codeExample: `// Custom class loader
+class CustomClassLoader extends ClassLoader {
+@Override
+public Class<?> loadClass(String name) throws ClassNotFoundException {
+System.out.println("Loading class: " + name);
+return super.loadClass(name);
+}
+}
+
+// Using custom class loader
+CustomClassLoader loader = new CustomClassLoader();
+try {
+Class<?> clazz = loader.loadClass("java.lang.String");
+System.out.println("Loaded: " + clazz.getName());
+} catch (ClassNotFoundException e) {
+System.out.println("Error: " + e.getMessage());
+}
+// Output: Loading class: java.lang.String
+// Output: Loaded: java.lang.String
+
+// Class loader hierarchy
+ClassLoader appLoader = ClassLoader.getSystemClassLoader();
+ClassLoader extLoader = appLoader.getParent();
+ClassLoader bootLoader = extLoader.getParent();
+
+System.out.println("App ClassLoader: " + appLoader.getClass().getName());
+System.out.println("Platform ClassLoader: " + extLoader.getClass().getName());
+System.out.println("Bootstrap ClassLoader: " + bootLoader);  // null (native)
+// Output: App ClassLoader: jdk.internal.loader.ClassLoaders$AppClassLoader
+// Output: Platform ClassLoader: jdk.internal.loader.ClassLoaders$PlatformClassLoader
+// Output: Bootstrap ClassLoader: null
+
+// Loading class from different loader
+Class<?> stringClass = String.class;
+ClassLoader stringLoader = stringClass.getClassLoader();
+System.out.println("String class loader: " + stringLoader);  // null (bootstrap)
+// Output: String class loader: null
+
+Class<?> myClass = CustomClassLoader.class;
+System.out.println("Custom class loader: " + myClass.getClassLoader());
+// Output: Custom class loader: jdk.internal.loader.ClassLoaders$AppClassLoader
+
+// Class initialization
+class InitDemo {
+static {
+System.out.println("Static block executed");
+}
+static int value = initialize();
+
+static int initialize() {
+System.out.println("Static initializer called");
+return 42;
+}
+}
+
+System.out.println("Before class usage");
+int val = InitDemo.value;  // Triggers class initialization
+System.out.println("Value: " + val);
+// Output: Before class usage
+// Output: Static block executed
+// Output: Static initializer called
+// Output: Value: 42
+
+// Class.forName() with initialization
+try {
+Class.forName("InitDemo");  // Initializes class
+System.out.println("Class loaded and initialized");
+} catch (ClassNotFoundException e) {
+System.out.println("Error: " + e.getMessage());
+}`
+        },
+        {
+          name: 'Bytecode',
+          explanation: 'Platform-independent intermediate representation of Java source code. Stack-based instruction set with ~200 opcodes for arithmetic, control flow, and method invocation.',
+          codeExample: `import java.io.*;
+
+// Simple method to demonstrate bytecode
+public class BytecodeDemo {
+public int add(int a, int b) {
+return a + b;
+}
+}
+
+// Bytecode for add method (javap -c BytecodeDemo):
+/*
+public int add(int, int);
+Code:
+0: iload_1        // Load first parameter onto stack
+1: iload_2        // Load second parameter onto stack
+2: iadd           // Add top two stack values
+3: ireturn        // Return integer result
+*/
+
+// Analyzing bytecode at runtime
+try {
+Class<?> clazz = BytecodeDemo.class;
+System.out.println("Class: " + clazz.getName());
+
+// Get methods
+for (java.lang.reflect.Method method : clazz.getDeclaredMethods()) {
+System.out.println("Method: " + method.getName());
+System.out.println("Parameters: " + method.getParameterCount());
+System.out.println("Return type: " + method.getReturnType().getName());
+}
+} catch (Exception e) {
+System.out.println("Error: " + e.getMessage());
+}
+// Output: Class: BytecodeDemo
+// Output: Method: add
+// Output: Parameters: 2
+// Output: Return type: int
+
+// Common bytecode instructions:
+// Load instructions: iload, aload, lload, fload, dload
+// Store instructions: istore, astore, lstore, fstore, dstore
+// Arithmetic: iadd, isub, imul, idiv
+// Control flow: if_icmpeq, goto, ifeq, ifne
+// Method invocation: invokevirtual, invokespecial, invokestatic
+// Object operations: new, newarray, getfield, putfield
+
+// Stack-based execution example
+public int calculate(int x) {
+int y = 10;
+int z = x + y;
+return z * 2;
+}
+
+// Bytecode (conceptual):
+/*
+0: bipush 10      // Push 10 onto stack
+2: istore_2       // Store in local variable y
+3: iload_1        // Load x onto stack
+4: iload_2        // Load y onto stack
+5: iadd           // Add: stack now has x+y
+6: istore_3       // Store in z
+7: iload_3        // Load z
+8: iconst_2       // Push 2
+9: imul           // Multiply: z*2
+10: ireturn       // Return result
+*/
+
+System.out.println("Result: " + new BytecodeDemo().calculate(5));
+// Output: Result: 30
+
+// Bytecode verification
+// JVM verifies: correct types, no stack overflow/underflow,
+// valid method calls, proper exception handling
+
+class VerificationDemo {
+public void safeMethod(String str) {
+if (str != null) {
+System.out.println(str.length());
+}
+// Bytecode verifier ensures null check before dereference
+}
+}`
+        },
+        {
+          name: 'JIT Compilation',
+          explanation: 'Just-In-Time compiler optimizes frequently executed bytecode to native machine code. HotSpot identification and adaptive optimization for performance improvement.',
+          codeExample: `// JIT compilation demonstration
+public class JITDemo {
+public static long hotMethod(int n) {
+long sum = 0;
+for (int i = 0; i < n; i++) {
+sum += i;
+}
+return sum;
+}
+
+public static void main(String[] args) {
+// Warm-up phase - interpreted execution
+System.out.println("Warming up...");
+for (int i = 0; i < 1000; i++) {
+hotMethod(100);
+}
+
+// Method becomes "hot" and gets JIT compiled
+long start = System.nanoTime();
+for (int i = 0; i < 10000; i++) {
+hotMethod(1000);
+}
+long interpretedTime = System.nanoTime() - start;
+System.out.println("Interpreted time: " + interpretedTime / 1000000 + "ms");
+// Output: Interpreted time: 50ms
+
+// After JIT compilation - native execution
+start = System.nanoTime();
+for (int i = 0; i < 10000; i++) {
+hotMethod(1000);
+}
+long compiledTime = System.nanoTime() - start;
+System.out.println("Compiled time: " + compiledTime / 1000000 + "ms");
+// Output: Compiled time: 10ms (5x faster)
+
+System.out.println("Speedup: " + (interpretedTime / compiledTime) + "x");
+// Output: Speedup: 5x
+}
+}
+
+// JIT compilation levels:
+// 0: Interpreter only
+// 1: C1 compiler (client) - fast compilation, less optimization
+// 2: C2 compiler (server) - slow compilation, aggressive optimization
+// 3: Tiered compilation - starts with C1, promotes to C2
+
+// Monitoring JIT compilation
+// Run with: -XX:+PrintCompilation
+/*
+Output shows:
+50  1  java.lang.String::hashCode (55 bytes)
+100 2  BytecodeDemo::hotMethod (25 bytes)
+*/
+
+// JIT optimization techniques:
+class OptimizationDemo {
+// Method inlining
+public int calculate() {
+return add(5, 10);  // add() gets inlined
+}
+
+public int add(int a, int b) {
+return a + b;
+}
+
+// Loop unrolling
+public int sumArray(int[] arr) {
+int sum = 0;
+for (int i = 0; i < arr.length; i++) {
+sum += arr[i];
+}
+// JIT unrolls loop for better performance
+return sum;
+}
+
+// Dead code elimination
+public int optimize(int x) {
+int unused = 100;  // JIT removes this
+return x * 2;
+}
+
+// Escape analysis
+public void createObjects() {
+StringBuilder sb = new StringBuilder();
+sb.append("test");
+String result = sb.toString();
+// JIT may allocate on stack instead of heap
+}
+}
+
+// Deoptimization - JIT can revert to interpreted
+class DeoptDemo {
+public void polymorphic(Object obj) {
+// Initially compiled for specific type
+// Deoptimizes if different type encountered
+obj.toString();
+}
+}
+
+// JIT compiler flags:
+// -XX:+TieredCompilation (default in Java 8+)
+// -XX:CompileThreshold=10000 (method invocation threshold)
+// -XX:+UnlockDiagnosticVMOptions -XX:+PrintInlining
+// -XX:+PrintCompilation`
+        },
+        {
+          name: 'Method Area',
+          explanation: 'Stores per-class structures including runtime constant pool, field and method data, and method code. Shared among all threads in the JVM.',
+          codeExample: `import java.lang.reflect.*;
+
+// Method area contents demonstration
+public class MethodAreaDemo {
+// Class-level data stored in method area
+private static final String CONSTANT = "Stored in constant pool";
+private static int classVariable = 100;
+
+public static void main(String[] args) {
+// Analyze class structure in method area
+Class<?> clazz = MethodAreaDemo.class;
+
+// Class metadata
+System.out.println("Class name: " + clazz.getName());
+System.out.println("Superclass: " + clazz.getSuperclass().getName());
+System.out.println("Interfaces: " + clazz.getInterfaces().length);
+// Output: Class name: MethodAreaDemo
+// Output: Superclass: java.lang.Object
+// Output: Interfaces: 0
+
+// Field data (stored in method area)
+System.out.println("\\nFields:");
+for (Field field : clazz.getDeclaredFields()) {
+System.out.println("Name: " + field.getName());
+System.out.println("Type: " + field.getType().getName());
+System.out.println("Modifiers: " + Modifier.toString(field.getModifiers()));
+}
+// Output: Fields:
+// Output: Name: CONSTANT
+// Output: Type: java.lang.String
+// Output: Modifiers: private static final
+
+// Method data (stored in method area)
+System.out.println("\\nMethods:");
+for (Method method : clazz.getDeclaredMethods()) {
+System.out.println("Name: " + method.getName());
+System.out.println("Return type: " + method.getReturnType().getName());
+System.out.println("Parameters: " + method.getParameterCount());
+}
+// Output: Methods:
+// Output: Name: main
+// Output: Return type: void
+// Output: Parameters: 1
+
+// Runtime constant pool
+System.out.println("\\nConstant: " + CONSTANT);
+// Output: Constant: Stored in constant pool
+
+// Static variables
+System.out.println("Class variable: " + classVariable);
+// Output: Class variable: 100
+}
+}
+
+// Multiple classes share method area
+class SharedMethodArea1 {
+static String data = "Class 1";
+}
+
+class SharedMethodArea2 {
+static String data = "Class 2";
+}
+
+System.out.println(SharedMethodArea1.data);  // Loads Class 1 metadata
+System.out.println(SharedMethodArea2.data);  // Loads Class 2 metadata
+// Both classes' metadata stored in same method area
+// Output: Class 1
+// Output: Class 2
+
+// Method area memory information
+Runtime runtime = Runtime.getRuntime();
+java.lang.management.MemoryMXBean memoryMXBean =
+java.lang.management.ManagementFactory.getMemoryMXBean();
+java.lang.management.MemoryUsage nonHeapUsage = memoryMXBean.getNonHeapMemoryUsage();
+
+System.out.println("\\nNon-Heap (Method Area) Memory:");
+System.out.println("Used: " + (nonHeapUsage.getUsed() / 1024 / 1024) + " MB");
+System.out.println("Committed: " + (nonHeapUsage.getCommitted() / 1024 / 1024) + " MB");
+// Output: Non-Heap (Method Area) Memory:
+// Output: Used: 15 MB
+// Output: Committed: 17 MB
+
+// String constant pool (part of method area)
+String s1 = "Hello";
+String s2 = "Hello";
+String s3 = new String("Hello").intern();
+System.out.println("\\nString pool:");
+System.out.println("s1 == s2: " + (s1 == s2));  // true (same reference)
+System.out.println("s1 == s3: " + (s1 == s3));  // true (interned)
+// Output: String pool:
+// Output: s1 == s2: true
+// Output: s1 == s3: true`
+        },
+        {
+          name: 'Runtime Data Areas',
+          explanation: 'JVM memory organization: PC registers, JVM stacks, native method stacks, heap, and method area. Each serves specific purposes in program execution.',
+          codeExample: `import java.lang.management.*;
+
+// Runtime data areas demonstration
+public class RuntimeDataAreasDemo {
+public static void main(String[] args) {
+// 1. PC Register (Program Counter)
+// Each thread has its own PC register
+// Stores address of currently executing JVM instruction
+Thread t = new Thread(() -> {
+System.out.println("Thread has its own PC register");
+});
+t.start();
+// Output: Thread has its own PC register
+
+// 2. JVM Stack
+// One per thread, stores frames for method invocations
+methodA();  // Creates frame on stack
+// Output from method calls below
+
+// 3. Heap
+// Shared among all threads, stores objects
+Object obj1 = new Object();  // Allocated on heap
+String str = new String("Heap allocation");
+int[] arr = new int[100];
+System.out.println("Objects allocated on heap");
+// Output: Objects allocated on heap
+
+// 4. Method Area / Metaspace
+// Shared among threads, stores class metadata
+Class<?> clazz = RuntimeDataAreasDemo.class;
+System.out.println("Class loaded in method area");
+// Output: Class loaded in method area
+
+// 5. Native Method Stack
+// For native (C/C++) method execution
+System.currentTimeMillis();  // Native method
+System.out.println("Native method executed");
+// Output: Native method executed
+
+// Memory statistics
+MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
+
+// Heap memory
+MemoryUsage heapUsage = memoryBean.getHeapMemoryUsage();
+System.out.println("\\nHeap Memory:");
+System.out.println("Init: " + (heapUsage.getInit() / 1024 / 1024) + " MB");
+System.out.println("Used: " + (heapUsage.getUsed() / 1024 / 1024) + " MB");
+System.out.println("Committed: " + (heapUsage.getCommitted() / 1024 / 1024) + " MB");
+System.out.println("Max: " + (heapUsage.getMax() / 1024 / 1024) + " MB");
+// Output: Heap Memory:
+// Output: Init: 256 MB
+// Output: Used: 10 MB
+// Output: Committed: 256 MB
+// Output: Max: 4096 MB
+
+// Non-heap memory (Method Area + others)
+MemoryUsage nonHeapUsage = memoryBean.getNonHeapMemoryUsage();
+System.out.println("\\nNon-Heap Memory:");
+System.out.println("Used: " + (nonHeapUsage.getUsed() / 1024 / 1024) + " MB");
+System.out.println("Committed: " + (nonHeapUsage.getCommitted() / 1024 / 1024) + " MB");
+// Output: Non-Heap Memory:
+// Output: Used: 15 MB
+// Output: Committed: 17 MB
+
+// Thread stack information
+ThreadMXBean threadBean = ManagementFactory.getThreadMXBean();
+System.out.println("\\nThreads:");
+System.out.println("Thread count: " + threadBean.getThreadCount());
+System.out.println("Peak threads: " + threadBean.getPeakThreadCount());
+// Output: Threads:
+// Output: Thread count: 5
+// Output: Peak threads: 5
+}
+
+// Stack frame example
+static void methodA() {
+int localVar = 10;  // Local variable in frame
+methodB(localVar);
+// Frame popped after return
+}
+
+static void methodB(int param) {
+int result = param * 2;
+System.out.println("Stack frame result: " + result);
+// Output: Stack frame result: 20
+}
+}
+
+// Stack trace shows call stack frames
+try {
+throw new Exception("Stack trace demo");
+} catch (Exception e) {
+System.out.println("\\nStack Trace:");
+for (StackTraceElement element : e.getStackTrace()) {
+System.out.println(element.getMethodName() + " at line " + element.getLineNumber());
+}
+}
+// Output: Stack Trace:
+// Output: main at line X
+
+// JVM memory layout visualization:
+/*
++---------------------------+
+|  Method Area/Metaspace    |  <- Class metadata, constants
++---------------------------+
+|  Heap                     |  <- Objects, arrays
+|  (Eden, Survivor, Old)    |
++---------------------------+
+
+Per Thread:
++---------------------------+
+|  PC Register              |  <- Current instruction address
++---------------------------+
+|  JVM Stack                |  <- Method frames
+|    Frame 1                |
+|    Frame 2                |
+|    ...                    |
++---------------------------+
+|  Native Method Stack      |  <- Native method frames
++---------------------------+
+*/`
+        },
+        {
+          name: 'Security Model',
+          explanation: 'Bytecode verification, sandbox execution, security manager, and permission-based access control. Prevents malicious code execution and resource access.',
+          codeExample: `import java.security.*;
+import java.io.*;
+
+// Security Manager demonstration
+public class SecurityDemo {
+public static void main(String[] args) {
+// Check if Security Manager is enabled
+SecurityManager sm = System.getSecurityManager();
+if (sm == null) {
+System.out.println("No Security Manager installed");
+} else {
+System.out.println("Security Manager: " + sm.getClass().getName());
+}
+// Output: No Security Manager installed (default in Java 17+)
+
+// Bytecode verification
+// JVM verifies all loaded classes for:
+// - Type safety
+// - No stack overflow/underflow
+// - Valid method calls
+// - Proper exception handling
+System.out.println("Bytecode verification: PASSED");
+// Output: Bytecode verification: PASSED
+
+// Access control with Security Manager
+try {
+// Create and set security manager
+SecurityManager securityManager = new SecurityManager();
+System.setSecurityManager(securityManager);
+System.out.println("Security Manager enabled");
+} catch (SecurityException e) {
+System.out.println("Cannot enable: " + e.getMessage());
+}
+
+// Permission checks
+try {
+// File access permission
+FilePermission filePermission = new FilePermission("/tmp/*", "read");
+System.out.println("File permission: " + filePermission);
+// Output: File permission: ("java.io.FilePermission" "/tmp/*" "read")
+
+// Check permission
+SecurityManager currentSM = System.getSecurityManager();
+if (currentSM != null) {
+currentSM.checkPermission(filePermission);
+System.out.println("File access granted");
+}
+} catch (SecurityException e) {
+System.out.println("Access denied: " + e.getMessage());
+}
+
+// Network permission
+try {
+SocketPermission socketPermission =
+new SocketPermission("localhost:8080", "connect");
+System.out.println("Socket permission: " + socketPermission);
+// Output: Socket permission: ("java.net.SocketPermission" "localhost:8080" "connect")
+} catch (Exception e) {
+System.out.println("Error: " + e.getMessage());
+}
+
+// Runtime permission
+try {
+RuntimePermission runtimePermission =
+new RuntimePermission("setSecurityManager");
+System.out.println("Runtime permission: " + runtimePermission);
+// Output: Runtime permission: ("java.lang.RuntimePermission" "setSecurityManager")
+} catch (Exception e) {
+System.out.println("Error: " + e.getMessage());
+}
+
+// Access Controller
+try {
+AccessController.checkPermission(
+new FilePermission("/etc/passwd", "read"));
+System.out.println("Permission granted");
+} catch (AccessControlException e) {
+System.out.println("Access denied: " + e.getPermission());
+}
+
+// Privileged action
+String result = AccessController.doPrivileged(
+new PrivilegedAction<String>() {
+public String run() {
+return System.getProperty("user.home");
+}
+});
+System.out.println("User home: " + result);
+// Output: User home: /home/user
+
+// Code source and protection domain
+Class<?> clazz = SecurityDemo.class;
+ProtectionDomain domain = clazz.getProtectionDomain();
+CodeSource codeSource = domain.getCodeSource();
+if (codeSource != null) {
+System.out.println("Code location: " + codeSource.getLocation());
+}
+// Output: Code location: file:/path/to/classes/
+
+// Policy-based security
+// Configure in java.policy file:
+/*
+grant codeBase "file:/path/to/app/*" {
+permission java.io.FilePermission "/tmp/*", "read,write";
+permission java.net.SocketPermission "localhost:8080", "connect";
+permission java.lang.RuntimePermission "accessDeclaredMembers";
+};
+*/
+
+System.out.println("Security model enforced");
+// Output: Security model enforced
+}
+}
+
+// Sandbox execution example
+class SandboxTest {
+public void restrictedOperation() throws Exception {
+SecurityManager sm = System.getSecurityManager();
+if (sm != null) {
+// This would be denied in sandbox
+sm.checkExit(0);  // Check if can exit JVM
+}
+}
+}
+
+// Running with security: java -Djava.security.manager SecurityDemo`
+        }
+      ],
+      metrics: { classloaders: '3 types', bytecodes: '200+', optimization: '1000x', security: 'sandboxed' },
+      description: 'Java Virtual Machine architecture, class loading mechanisms, bytecode execution, and runtime optimization processes.'
+    },
+    {
+      id: 'performance-tuning', x: 1080, y: 640, width: 350, height: 140,
+      icon: '🚀', title: 'Performance Tuning', color: 'pink',
+      details: [
+        {
+          name: 'Profiling Tools',
+          explanation: 'JProfiler, YourKit, VisualVM for CPU profiling, memory analysis, and thread monitoring. Java Flight Recorder for low-overhead production profiling.',
+          codeExample: `import java.lang.management.*;
+import javax.management.*;
+
+// Programmatic profiling using JMX
+public class ProfilingDemo {
+public static void main(String[] args) throws Exception {
+// Get MBean server
+MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+
+// CPU profiling
+ThreadMXBean threadBean = ManagementFactory.getThreadMXBean();
+System.out.println("CPU Time Enabled: " + threadBean.isCurrentThreadCpuTimeSupported());
+// Output: CPU Time Enabled: true
+
+long startCpu = threadBean.getCurrentThreadCpuTime();
+long startUser = threadBean.getCurrentThreadUserTime();
+
+// Execute work
+performWork();
+
+long endCpu = threadBean.getCurrentThreadCpuTime();
+long endUser = threadBean.getCurrentThreadUserTime();
+
+System.out.println("CPU Time: " + ((endCpu - startCpu) / 1_000_000) + " ms");
+System.out.println("User Time: " + ((endUser - startUser) / 1_000_000) + " ms");
+// Output: CPU Time: 125 ms
+// Output: User Time: 120 ms
+
+// Memory profiling
+MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
+MemoryUsage heapUsage = memoryBean.getHeapMemoryUsage();
+System.out.println("\\nMemory Usage:");
+System.out.println("Used: " + (heapUsage.getUsed() / 1024 / 1024) + " MB");
+System.out.println("Max: " + (heapUsage.getMax() / 1024 / 1024) + " MB");
+System.out.println("Usage: " + (heapUsage.getUsed() * 100 / heapUsage.getMax()) + "%");
+// Output: Memory Usage:
+// Output: Used: 50 MB
+// Output: Max: 4096 MB
+// Output: Usage: 1%
+
+// Thread profiling
+System.out.println("\\nThread Info:");
+System.out.println("Thread count: " + threadBean.getThreadCount());
+System.out.println("Peak: " + threadBean.getPeakThreadCount());
+System.out.println("Total started: " + threadBean.getTotalStartedThreadCount());
+// Output: Thread Info:
+// Output: Thread count: 6
+// Output: Peak: 6
+// Output: Total started: 6
+
+// Deadlock detection
+long[] deadlockedThreads = threadBean.findDeadlockedThreads();
+if (deadlockedThreads != null) {
+System.out.println("Deadlocked threads: " + deadlockedThreads.length);
+} else {
+System.out.println("No deadlocks detected");
+}
+// Output: No deadlocks detected
+
+// Hot methods detection
+long[] threadIds = threadBean.getAllThreadIds();
+for (long id : threadIds) {
+ThreadInfo info = threadBean.getThreadInfo(id, 5);  // 5 stack frames
+if (info != null) {
+System.out.println("\\nThread: " + info.getThreadName());
+System.out.println("State: " + info.getThreadState());
+StackTraceElement[] stack = info.getStackTrace();
+if (stack.length > 0) {
+System.out.println("Top method: " + stack[0].getMethodName());
+}
+}
+}
+// Output: Thread: main
+// Output: State: RUNNABLE
+// Output: Top method: main
+}
+
+static void performWork() {
+long sum = 0;
+for (int i = 0; i < 10_000_000; i++) {
+sum += i;
+}
+}
+}
+
+// VisualVM connection
+// Run application with: -Dcom.sun.management.jmxremote
+// Connect VisualVM to localhost:port
+
+// Java Flight Recorder usage
+// Start JFR: jcmd <pid> JFR.start name=myrecording duration=60s filename=recording.jfr
+// Analyze with: jfr print recording.jfr
+
+// Command-line profiling tools:
+// jstack <pid>  - Thread dump
+// jmap -heap <pid>  - Heap summary
+// jstat -gc <pid> 1000  - GC stats every second
+
+System.out.println("\\nProfiling complete");
+// Output: Profiling complete`
+        },
+        {
+          name: 'JVM Flags',
+          explanation: 'Command-line options for heap sizing (-Xms, -Xmx), GC selection (-XX:+UseG1GC), optimization levels, and debugging. Hundreds of tuning parameters available.',
+          codeExample: `import java.lang.management.*;
+
+// JVM flags demonstration
+public class JVMFlagsDemo {
+public static void main(String[] args) {
+// Get runtime information
+RuntimeMXBean runtimeBean = ManagementFactory.getRuntimeMXBean();
+
+System.out.println("JVM Arguments:");
+for (String arg : runtimeBean.getInputArguments()) {
+System.out.println(arg);
+}
+// Output: JVM Arguments:
+// Output: -Xms512m
+// Output: -Xmx2048m
+// Output: -XX:+UseG1GC
+
+// Heap configuration
+MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
+MemoryUsage heapUsage = memoryBean.getHeapMemoryUsage();
+
+System.out.println("\\nHeap Configuration:");
+System.out.println("Initial (-Xms): " + (heapUsage.getInit() / 1024 / 1024) + " MB");
+System.out.println("Maximum (-Xmx): " + (heapUsage.getMax() / 1024 / 1024) + " MB");
+System.out.println("Current: " + (heapUsage.getUsed() / 1024 / 1024) + " MB");
+// Output: Heap Configuration:
+// Output: Initial (-Xms): 512 MB
+// Output: Maximum (-Xmx): 2048 MB
+// Output: Current: 10 MB
+
+// GC configuration
+List<GarbageCollectorMXBean> gcBeans = ManagementFactory.getGarbageCollectorMXBeans();
+System.out.println("\\nGarbage Collectors:");
+for (GarbageCollectorMXBean gc : gcBeans) {
+System.out.println("Name: " + gc.getName());
+}
+// Output: Garbage Collectors:
+// Output: Name: G1 Young Generation
+// Output: Name: G1 Old Generation
+
+// System properties
+System.out.println("\\nJVM Info:");
+System.out.println("Version: " + System.getProperty("java.version"));
+System.out.println("Vendor: " + System.getProperty("java.vendor"));
+System.out.println("VM: " + System.getProperty("java.vm.name"));
+// Output: JVM Info:
+// Output: Version: 17.0.1
+// Output: Vendor: Oracle Corporation
+// Output: VM: Java HotSpot(TM) 64-Bit Server VM
+}
+}
+
+// Common JVM Flags Reference:
+
+// ===== MEMORY FLAGS =====
+// -Xms<size>        Initial heap size (e.g., -Xms512m)
+// -Xmx<size>        Maximum heap size (e.g., -Xmx2g)
+// -Xmn<size>        Young generation size (e.g., -Xmn512m)
+// -XX:MetaspaceSize=<size>     Initial metaspace size
+// -XX:MaxMetaspaceSize=<size>  Maximum metaspace size
+// -Xss<size>        Thread stack size (e.g., -Xss1m)
+
+// ===== GC FLAGS =====
+// -XX:+UseG1GC           Use G1 garbage collector (default Java 9+)
+// -XX:+UseParallelGC     Use Parallel GC
+// -XX:+UseSerialGC       Use Serial GC
+// -XX:+UseZGC            Use Z garbage collector (Java 11+)
+// -XX:MaxGCPauseMillis=<ms>  Target max pause time for G1
+// -XX:ParallelGCThreads=<n>  Number of parallel GC threads
+
+// ===== PERFORMANCE FLAGS =====
+// -server            Server mode (default on 64-bit)
+// -client            Client mode
+// -XX:+TieredCompilation   Tiered JIT compilation (default)
+// -XX:CompileThreshold=<n>  JIT compilation threshold
+// -XX:+AggressiveOpts       Enable aggressive optimizations
+
+// ===== DEBUGGING FLAGS =====
+// -verbose:gc        Print GC details
+// -XX:+PrintGCDetails      Detailed GC logging
+// -XX:+PrintGCTimeStamps   GC timestamps
+// -Xlog:gc*:file=gc.log    GC log to file (Java 9+)
+// -XX:+HeapDumpOnOutOfMemoryError  Dump heap on OOM
+// -XX:HeapDumpPath=<path>  Heap dump location
+
+// ===== DIAGNOSTIC FLAGS =====
+// -XX:+UnlockDiagnosticVMOptions  Enable diagnostic options
+// -XX:+PrintCompilation     Print JIT compilations
+// -XX:+PrintInlining        Print method inlining
+// -XX:+TraceClassLoading    Trace class loading
+
+// Example optimal configurations:
+
+// Low-latency application:
+// java -Xms4g -Xmx4g -XX:+UseG1GC -XX:MaxGCPauseMillis=50
+//      -XX:+UseStringDeduplication MyApp
+
+// High-throughput application:
+// java -Xms8g -Xmx8g -XX:+UseParallelGC -XX:ParallelGCThreads=8 MyApp
+
+// Memory-constrained environment:
+// java -Xms256m -Xmx512m -XX:+UseSerialGC MyApp
+
+// Production monitoring:
+// java -Xms2g -Xmx2g -XX:+UseG1GC
+//      -Xlog:gc*:file=gc.log
+//      -XX:+HeapDumpOnOutOfMemoryError
+//      -XX:HeapDumpPath=/var/log/heapdump.hprof MyApp`
+        },
+        {
+          name: 'Code Optimization',
+          explanation: 'Algorithm efficiency, data structure selection, object pooling, and avoiding premature optimization. Micro-benchmarking with JMH for accurate measurements.',
+          codeExample: `import java.util.*;
+
+// Code optimization examples
+public class OptimizationDemo {
+// 1. Algorithm efficiency - O(n) vs O(n²)
+public static void inefficientSearch(List<Integer> list, int target) {
+long start = System.nanoTime();
+for (int i = 0; i < list.size(); i++) {
+for (int j = 0; j < list.size(); j++) {
+if (list.get(i) + list.get(j) == target) {
+break;
+}
+}
+}
+long time = System.nanoTime() - start;
+System.out.println("Inefficient O(n²): " + (time / 1_000_000) + "ms");
+}
+// Output: Inefficient O(n²): 500ms
+
+public static void efficientSearch(List<Integer> list, int target) {
+long start = System.nanoTime();
+Set<Integer> seen = new HashSet<>(list);
+for (int num : list) {
+if (seen.contains(target - num)) {
+break;
+}
+}
+long time = System.nanoTime() - start;
+System.out.println("Efficient O(n): " + (time / 1_000_000) + "ms");
+}
+// Output: Efficient O(n): 5ms
+
+// 2. Data structure selection
+public static void compareDataStructures() {
+int size = 100000;
+
+// ArrayList vs LinkedList
+long start = System.nanoTime();
+List<Integer> arrayList = new ArrayList<>();
+for (int i = 0; i < size; i++) {
+arrayList.add(i);
+}
+System.out.println("ArrayList add: " + (System.nanoTime() - start) / 1_000_000 + "ms");
+// Output: ArrayList add: 5ms
+
+start = System.nanoTime();
+List<Integer> linkedList = new LinkedList<>();
+for (int i = 0; i < size; i++) {
+linkedList.add(i);
+}
+System.out.println("LinkedList add: " + (System.nanoTime() - start) / 1_000_000 + "ms");
+// Output: LinkedList add: 8ms
+
+// Random access comparison
+start = System.nanoTime();
+for (int i = 0; i < 1000; i++) {
+arrayList.get(size / 2);
+}
+System.out.println("ArrayList get: " + (System.nanoTime() - start) / 1_000_000 + "ms");
+// Output: ArrayList get: 0ms
+
+start = System.nanoTime();
+for (int i = 0; i < 1000; i++) {
+linkedList.get(size / 2);
+}
+System.out.println("LinkedList get: " + (System.nanoTime() - start) / 1_000_000 + "ms");
+// Output: LinkedList get: 150ms
+}
+
+// 3. String concatenation optimization
+public static void stringOptimization() {
+int iterations = 10000;
+
+// Inefficient: String concatenation
+long start = System.nanoTime();
+String result = "";
+for (int i = 0; i < iterations; i++) {
+result += i;  // Creates new String each time
+}
+System.out.println("String concat: " + (System.nanoTime() - start) / 1_000_000 + "ms");
+// Output: String concat: 800ms
+
+// Efficient: StringBuilder
+start = System.nanoTime();
+StringBuilder sb = new StringBuilder();
+for (int i = 0; i < iterations; i++) {
+sb.append(i);
+}
+result = sb.toString();
+System.out.println("StringBuilder: " + (System.nanoTime() - start) / 1_000_000 + "ms");
+// Output: StringBuilder: 2ms
+}
+
+// 4. Object pooling
+static class ObjectPool<T> {
+private Queue<T> pool = new LinkedList<>();
+private int maxSize;
+
+public ObjectPool(int maxSize) {
+this.maxSize = maxSize;
+}
+
+public T acquire(java.util.function.Supplier<T> factory) {
+T obj = pool.poll();
+return obj != null ? obj : factory.get();
+}
+
+public void release(T obj) {
+if (pool.size() < maxSize) {
+pool.offer(obj);
+}
+}
+}
+
+// Without pooling
+public static void withoutPooling() {
+long start = System.nanoTime();
+for (int i = 0; i < 10000; i++) {
+StringBuilder sb = new StringBuilder();
+sb.append("test");
+}
+System.out.println("Without pooling: " + (System.nanoTime() - start) / 1_000_000 + "ms");
+// Output: Without pooling: 15ms
+}
+
+// With pooling
+public static void withPooling() {
+ObjectPool<StringBuilder> pool = new ObjectPool<>(100);
+long start = System.nanoTime();
+for (int i = 0; i < 10000; i++) {
+StringBuilder sb = pool.acquire(() -> new StringBuilder());
+sb.append("test");
+sb.setLength(0);  // Clear for reuse
+pool.release(sb);
+}
+System.out.println("With pooling: " + (System.nanoTime() - start) / 1_000_000 + "ms");
+// Output: With pooling: 8ms
+}
+
+// 5. Avoiding autoboxing
+public static void avoidAutoboxing() {
+// Inefficient: Autoboxing
+long start = System.nanoTime();
+List<Integer> list = new ArrayList<>();
+for (int i = 0; i < 100000; i++) {
+list.add(i);  // Autoboxing int to Integer
+}
+System.out.println("With autoboxing: " + (System.nanoTime() - start) / 1_000_000 + "ms");
+// Output: With autoboxing: 20ms
+
+// Efficient: Primitive arrays
+start = System.nanoTime();
+int[] array = new int[100000];
+for (int i = 0; i < 100000; i++) {
+array[i] = i;  // No boxing
+}
+System.out.println("Primitive array: " + (System.nanoTime() - start) / 1_000_000 + "ms");
+// Output: Primitive array: 1ms
+}
+
+public static void main(String[] args) {
+List<Integer> list = new ArrayList<>();
+for (int i = 0; i < 1000; i++) list.add(i);
+
+inefficientSearch(list, 500);
+efficientSearch(list, 500);
+compareDataStructures();
+stringOptimization();
+withoutPooling();
+withPooling();
+avoidAutoboxing();
+}
+}
+
+// JMH Micro-benchmarking (requires JMH dependency):
+/*
+@Benchmark
+@BenchmarkMode(Mode.AverageTime)
+@OutputTimeUnit(TimeUnit.MICROSECONDS)
+public void benchmarkMethod() {
+// Code to benchmark
+}
+*/`
+        },
+        {
+          name: 'Monitoring',
+          explanation: 'JMX beans for runtime metrics, application performance monitoring (APM) tools, and custom instrumentation for production visibility and alerting.',
+          codeExample: `import java.lang.management.*;
+import javax.management.*;
+import java.util.*;
+
+// Production monitoring with JMX
+public class MonitoringDemo {
+public static void main(String[] args) throws Exception {
+// Get MBean server
+MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+
+// 1. Memory monitoring
+MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
+MemoryUsage heapUsage = memoryBean.getHeapMemoryUsage();
+System.out.println("=== Memory Metrics ===");
+System.out.println("Heap used: " + (heapUsage.getUsed() / 1024 / 1024) + " MB");
+System.out.println("Heap committed: " + (heapUsage.getCommitted() / 1024 / 1024) + " MB");
+System.out.println("Heap max: " + (heapUsage.getMax() / 1024 / 1024) + " MB");
+System.out.println("Usage: " + ((heapUsage.getUsed() * 100) / heapUsage.getMax()) + "%");
+// Output: === Memory Metrics ===
+// Output: Heap used: 10 MB
+// Output: Heap committed: 256 MB
+// Output: Heap max: 4096 MB
+// Output: Usage: 0%
+
+// 2. GC monitoring
+List<GarbageCollectorMXBean> gcBeans = ManagementFactory.getGarbageCollectorMXBeans();
+System.out.println("\\n=== GC Metrics ===");
+for (GarbageCollectorMXBean gc : gcBeans) {
+System.out.println("Collector: " + gc.getName());
+System.out.println("Collections: " + gc.getCollectionCount());
+System.out.println("Time: " + gc.getCollectionTime() + " ms");
+System.out.println("Avg time: " +
+(gc.getCollectionCount() > 0 ?
+gc.getCollectionTime() / gc.getCollectionCount() : 0) + " ms");
+}
+// Output: === GC Metrics ===
+// Output: Collector: G1 Young Generation
+// Output: Collections: 5
+// Output: Time: 50 ms
+// Output: Avg time: 10 ms
+
+// 3. Thread monitoring
+ThreadMXBean threadBean = ManagementFactory.getThreadMXBean();
+System.out.println("\\n=== Thread Metrics ===");
+System.out.println("Live threads: " + threadBean.getThreadCount());
+System.out.println("Peak threads: " + threadBean.getPeakThreadCount());
+System.out.println("Total started: " + threadBean.getTotalStartedThreadCount());
+System.out.println("Daemon threads: " + threadBean.getDaemonThreadCount());
+// Output: === Thread Metrics ===
+// Output: Live threads: 6
+// Output: Peak threads: 6
+// Output: Total started: 6
+// Output: Daemon threads: 5
+
+// Thread states
+long[] threadIds = threadBean.getAllThreadIds();
+Map<Thread.State, Integer> threadStates = new HashMap<>();
+for (long id : threadIds) {
+ThreadInfo info = threadBean.getThreadInfo(id);
+if (info != null) {
+Thread.State state = info.getThreadState();
+threadStates.put(state, threadStates.getOrDefault(state, 0) + 1);
+}
+}
+System.out.println("Thread states: " + threadStates);
+// Output: Thread states: {RUNNABLE=2, WAITING=3, TIMED_WAITING=1}
+
+// 4. CPU monitoring
+OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
+System.out.println("\\n=== CPU Metrics ===");
+System.out.println("Available processors: " + osBean.getAvailableProcessors());
+System.out.println("System load average: " + osBean.getSystemLoadAverage());
+// Output: === CPU Metrics ===
+// Output: Available processors: 8
+// Output: System load average: 1.5
+
+// 5. Class loading monitoring
+ClassLoadingMXBean classBean = ManagementFactory.getClassLoadingMXBean();
+System.out.println("\\n=== Class Loading Metrics ===");
+System.out.println("Loaded classes: " + classBean.getLoadedClassCount());
+System.out.println("Total loaded: " + classBean.getTotalLoadedClassCount());
+System.out.println("Unloaded: " + classBean.getUnloadedClassCount());
+// Output: === Class Loading Metrics ===
+// Output: Loaded classes: 1250
+// Output: Total loaded: 1250
+// Output: Unloaded: 0
+
+// 6. Runtime metrics
+RuntimeMXBean runtimeBean = ManagementFactory.getRuntimeMXBean();
+System.out.println("\\n=== Runtime Metrics ===");
+System.out.println("JVM uptime: " + (runtimeBean.getUptime() / 1000) + " seconds");
+System.out.println("Start time: " + new Date(runtimeBean.getStartTime()));
+System.out.println("JVM name: " + runtimeBean.getVmName());
+System.out.println("JVM version: " + runtimeBean.getVmVersion());
+// Output: === Runtime Metrics ===
+// Output: JVM uptime: 5 seconds
+// Output: Start time: Mon Jan 01 12:00:00 UTC 2024
+// Output: JVM name: Java HotSpot(TM) 64-Bit Server VM
+// Output: JVM version: 17.0.1+12
+}
+}
+
+// Custom MBean for application metrics
+public interface ApplicationMetricsMBean {
+long getRequestCount();
+double getAverageResponseTime();
+int getActiveUsers();
+}
+
+public class ApplicationMetrics implements ApplicationMetricsMBean {
+private long requestCount = 0;
+private long totalResponseTime = 0;
+private int activeUsers = 0;
+
+public void recordRequest(long responseTime) {
+requestCount++;
+totalResponseTime += responseTime;
+}
+
+public long getRequestCount() {
+return requestCount;
+}
+
+public double getAverageResponseTime() {
+return requestCount > 0 ? (double) totalResponseTime / requestCount : 0;
+}
+
+public int getActiveUsers() {
+return activeUsers;
+}
+
+public void setActiveUsers(int count) {
+activeUsers = count;
+}
+}
+
+// Register custom MBean
+ApplicationMetrics metrics = new ApplicationMetrics();
+MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+ObjectName name = new ObjectName("com.example:type=ApplicationMetrics");
+mbs.registerMBean(metrics, name);
+System.out.println("Custom MBean registered");
+// Output: Custom MBean registered
+
+// Monitoring tools:
+// - JConsole: jconsole <pid>
+// - VisualVM: visualvm
+// - Java Mission Control: jmc
+// - New Relic, Dynatrace, AppDynamics (APM tools)
+// - Prometheus + Grafana (metrics + dashboards)
+
+// Health check endpoint example
+System.out.println("\\n=== Health Check ===");
+boolean healthy = checkHealth();
+System.out.println("Status: " + (healthy ? "HEALTHY" : "UNHEALTHY"));
+// Output: === Health Check ===
+// Output: Status: HEALTHY
+
+public static boolean checkHealth() {
+MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
+MemoryUsage heapUsage = memoryBean.getHeapMemoryUsage();
+double memoryUsage = (double) heapUsage.getUsed() / heapUsage.getMax();
+
+// Alert if memory usage > 90%
+if (memoryUsage > 0.9) {
+System.err.println("ALERT: High memory usage: " + (memoryUsage * 100) + "%");
+return false;
+}
+
+// Check for deadlocks
+ThreadMXBean threadBean = ManagementFactory.getThreadMXBean();
+long[] deadlocked = threadBean.findDeadlockedThreads();
+if (deadlocked != null) {
+System.err.println("ALERT: Deadlock detected on " + deadlocked.length + " threads");
+return false;
+}
+
+return true;
+}`
+        }
+      ],
+      metrics: { tools: '10+', flags: '500+', improvement: '10-100x', monitoring: '24/7' },
+      description: 'Performance analysis, JVM tuning, code optimization techniques, and monitoring tools for production applications.'
+    }
+  ]
+
+  const handleComponentClick = (component) => {
+    setSelectedComponent(component)
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+    setSelectedComponent(null)
+    setSelectedConcept(null)
+  }
+
+  const handleConceptClick = (concept) => {
+    setSelectedConcept(concept)
+  }
+
+  return (
+    <div style={{
+      padding: '2rem',
+      maxWidth: '95%',
+      margin: '120px auto 0',
+      backgroundColor: 'white',
+      borderRadius: '16px',
+      boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
+      border: '3px solid rgba(59, 130, 246, 0.4)'
+    }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '2rem'
+      }}>
+        <button
+          onClick={onBack}
+          style={{
+            padding: '0.75rem 1.5rem',
+            fontSize: '1rem',
+            fontWeight: '600',
+            backgroundColor: '#6b7280',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          ← Back to Menu
+        </button>
+        <h1 style={{
+          fontSize: '2.5rem',
+          fontWeight: '800',
+          color: '#1f2937',
+          margin: 0,
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        }}>
+          ☕ Core Java Fundamentals
+        </h1>
+        <div style={{ width: '120px' }}></div>
+      </div>
+
+      <div style={{
+        backgroundColor: 'rgba(59, 130, 246, 0.05)',
+        padding: '2.5rem 10rem',
+        borderRadius: '16px',
+        border: '3px solid rgba(59, 130, 246, 0.3)',
+        marginBottom: '2rem'
+      }}>
+        <p style={{
+          fontSize: '1.3rem',
+          color: '#374151',
+          fontWeight: '500',
+          margin: 0,
+          lineHeight: '1.8',
+          textAlign: 'center'
+        }}>
+          Comprehensive Java programming fundamentals covering object-oriented principles, collections framework,
+          concurrency, exception handling, and JVM internals. Master the core concepts essential for
+          enterprise Java development and performance optimization.
+        </p>
+      </div>
+
+      <ModernDiagram
+        components={components}
+        onComponentClick={handleComponentClick}
+        title="Core Java Architecture & Concepts"
+        width={1400}
+        height={800}
+        containerWidth={1800}
+      />
+
+
+      {/* Modal */}
+      {isModalOpen && selectedComponent && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '2.5rem',
+            borderRadius: '16px',
+            maxWidth: '1400px',
+            width: '95%',
+            maxHeight: '85vh',
+            overflowY: 'auto',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            border: '3px solid rgba(59, 130, 246, 0.4)'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '2rem'
+            }}>
+              <h2 style={{
+                fontSize: '2rem',
+                fontWeight: '800',
+                color: '#1f2937',
+                margin: 0,
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+              }}>
+                {selectedComponent.icon} {selectedComponent.title}
+              </h2>
+              <button
+                onClick={closeModal}
+                style={{
+                  padding: '0.5rem 1rem',
+                  fontSize: '1.25rem',
+                  fontWeight: '600',
+                  backgroundColor: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{
+              backgroundColor: 'rgba(59, 130, 246, 0.05)',
+              padding: '1.5rem',
+              borderRadius: '12px',
+              border: '2px solid rgba(59, 130, 246, 0.2)',
+              marginBottom: '2rem'
+            }}>
+              <p style={{
+                fontSize: '1.1rem',
+                color: '#374151',
+                fontWeight: '500',
+                margin: 0,
+                lineHeight: '1.6'
+              }}>
+                {selectedComponent.description}
+              </p>
+            </div>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: selectedConcept ? '1fr 1fr' : '1fr',
+              gap: '2rem'
+            }}>
+              <div>
+                <h3 style={{
+                  fontSize: '1.25rem',
+                  fontWeight: '700',
+                  color: '#1f2937',
+                  marginBottom: '1rem'
+                }}>
+                  Key Concepts
+                </h3>
+                <div style={{
+                  display: 'grid',
+                  gap: '0.75rem'
+                }}>
+                  {selectedComponent.details.map((detail, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => handleConceptClick(detail)}
+                      style={{
+                        backgroundColor: selectedConcept?.name === detail.name
+                          ? 'rgba(59, 130, 246, 0.15)'
+                          : 'rgba(34, 197, 94, 0.1)',
+                        padding: '0.75rem',
+                        borderRadius: '8px',
+                        border: selectedConcept?.name === detail.name
+                          ? '2px solid rgba(59, 130, 246, 0.4)'
+                          : '2px solid rgba(34, 197, 94, 0.2)',
+                        fontSize: '0.95rem',
+                        fontWeight: '500',
+                        color: selectedConcept?.name === detail.name
+                          ? '#1e40af'
+                          : '#166534',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        transform: 'scale(1)'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (selectedConcept?.name !== detail.name) {
+                          e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.15)'
+                          e.target.style.transform = 'scale(1.02)'
+                          e.target.style.borderColor = 'rgba(34, 197, 94, 0.4)'
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (selectedConcept?.name !== detail.name) {
+                          e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.1)'
+                          e.target.style.transform = 'scale(1)'
+                          e.target.style.borderColor = 'rgba(34, 197, 94, 0.2)'
+                        }
+                      }}
+                    >
+                      • {detail.name}
+                      {selectedConcept?.name === detail.name && (
+                        <span style={{
+                          fontSize: '0.8rem',
+                          opacity: 0.8,
+                          marginLeft: '0.5rem',
+                          fontWeight: '600'
+                        }}>
+                          ← Selected
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {selectedConcept && (
+                <div>
+                  <h3 style={{
+                    fontSize: '1.25rem',
+                    fontWeight: '700',
+                    color: '#1f2937',
+                    marginBottom: '1rem'
+                  }}>
+                    {selectedConcept.name}
+                  </h3>
+
+                  <div style={{
+                    backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                    padding: '1.5rem',
+                    borderRadius: '12px',
+                    border: '2px solid rgba(59, 130, 246, 0.2)',
+                    marginBottom: '1.5rem'
+                  }}>
+                    <p style={{
+                      fontSize: '1rem',
+                      color: '#374151',
+                      fontWeight: '500',
+                      margin: 0,
+                      lineHeight: '1.7',
+                      textAlign: 'justify'
+                    }}>
+                      {selectedConcept.explanation}
+                    </p>
+                  </div>
+
+                  {selectedConcept.codeExample && (
+                    <div style={{
+                      backgroundColor: '#1e293b',
+                      padding: '1.5rem',
+                      borderRadius: '12px',
+                      border: '2px solid #334155',
+                      marginBottom: '1.5rem'
+                    }}>
+                      <h4 style={{
+                        fontSize: '1rem',
+                        fontWeight: '700',
+                        color: '#60a5fa',
+                        margin: '0 0 1rem 0'
+                      }}>
+                        💻 Code Example
+                      </h4>
+                      <SyntaxHighlighter code={selectedConcept.codeExample} />
+                    </div>
+                  )}
+
+                  <div style={{
+                    backgroundColor: 'rgba(34, 197, 94, 0.05)',
+                    padding: '1.25rem',
+                    borderRadius: '12px',
+                    border: '2px solid rgba(34, 197, 94, 0.2)'
+                  }}>
+                    <h4 style={{
+                      fontSize: '1rem',
+                      fontWeight: '700',
+                      color: '#166534',
+                      margin: '0 0 0.75rem 0'
+                    }}>
+                      💡 Key Takeaway
+                    </h4>
+                    <p style={{
+                      fontSize: '0.9rem',
+                      color: '#15803d',
+                      fontWeight: '500',
+                      margin: 0,
+                      lineHeight: '1.5',
+                      fontStyle: 'italic'
+                    }}>
+                      Understanding {selectedConcept.name.toLowerCase()} is essential for writing robust, maintainable Java applications and is fundamental to enterprise Java development.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  )
+}
+
+export default CoreJava

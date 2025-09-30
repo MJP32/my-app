@@ -1,0 +1,98 @@
+/* idea-syntax-darcula.css — approximate IntelliJ Darcula colors for Java syntax */
+
+pre[class*="language-"],
+code[class*="language-"],
+.hljs {
+  background: #2b2b2b; /* editor background */
+  color: #a9b7c6;      /* default text */
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Comments */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata,
+.hljs-comment,
+.hljs-quote {
+  color: #808080;
+  font-style: italic;
+}
+
+/* Keywords (if, for, class, public, static, etc.) */
+.token.keyword,
+.token.control,
+.hljs-keyword,
+.hljs-literal {
+  color: #cc7832; /* orange */
+  font-weight: 600;
+}
+
+/* Class / Type names */
+.token.class-name,
+.token.type,
+.hljs-title,
+.hljs-type {
+  color: #ffc66d; /* soft yellow/gold */
+  font-weight: 600;
+}
+
+/* Function / method names */
+.token.function,
+.token.method,
+.hljs-function {
+  color: #ffc66d; /* light yellow */
+}
+
+/* Strings and characters */
+.token.string,
+.token.char,
+.token.attr-value,
+.hljs-string {
+  color: #6a8759; /* green */
+}
+
+/* Numbers, constants, booleans */
+.token.number,
+.token.constant,
+.token.boolean,
+.hljs-number,
+.hljs-literal {
+  color: #6897bb; /* blue */
+}
+
+/* Annotations (Java @Override, @SuppressWarnings) */
+.token.annotation,
+.hljs-meta {
+  color: #bbb529; /* olive/gold */
+}
+
+/* Punctuation and operators */
+.token.punctuation,
+.token.operator,
+.hljs-symbol,
+.hljs-operator {
+  color: #a9b7c6; /* default text */
+}
+
+/* Tags / XML / generics angle-brackets */
+.token.tag,
+.token.tag .token.attr-name,
+.hljs-tag {
+  color: #cc7832; /* orange */
+}
+
+/* Make sure inline code doesn't keep inline color styles */
+code[class*="language-"] *[style] {
+  color: inherit !important;
+}
+
+/* Optional nicer pre formatting */
+pre[class*="language-"] {
+  padding: 0.75rem;
+  border-radius: 6px;
+  overflow: auto;
+  box-sizing: border-box;
+}

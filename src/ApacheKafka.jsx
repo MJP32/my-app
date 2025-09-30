@@ -1,0 +1,3021 @@
+import { useState, useEffect, useRef } from 'react'
+
+const SyntaxHighlighter = ({ code }) => {
+  const highlightJava = (code) => {
+    let highlighted = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+
+    const protectedContent = []
+    let placeholder = 0
+
+    // Protect comments first
+    highlighted = highlighted.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
+      const id = `___COMMENT_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
+      return id
+    })
+
+    // Protect strings
+    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
+      const id = `___STRING_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
+      return id
+    })
+
+    // Apply syntax highlighting
+    highlighted = highlighted
+      .replace(/\b(public|private|protected|static|final|class|interface|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|import|package|void|abstract|synchronized|volatile|transient|native|strictfp|super|this|null)\b/g, '<span style="color: #c586c0;">$1</span>')
+      .replace(/\b(true|false|int|double|float|long|short|byte|char|boolean)\b/g, '<span style="color: #569cd6;">$1</span>')
+      .replace(/\b(String|List|ArrayList|Map|HashMap|Set|HashSet|Properties|KafkaProducer|KafkaConsumer|ProducerRecord|ConsumerRecord|ConsumerRecords|StreamsBuilder|KStream|KTable|Topology|Duration|Pattern|Collections|Collectors|UUID|Instant|Serializer|Deserializer|ConsumerGroup|TopicPartition)\b/g, '<span style="color: #4ec9b0;">$1</span>')
+      .replace(/\b([A-Z][a-zA-Z0-9_]*)\s*\(/g, '<span style="color: #dcdcaa;">$1</span>(')
+      .replace(/\b(\d+\.?\d*[fFdDlL]?)\b/g, '<span style="color: #b5cea8;">$1</span>')
+      .replace(/(@\w+)/g, '<span style="color: #dcdcaa;">$1</span>')
+
+    // Restore protected content
+    protectedContent.forEach(({ id, replacement }) => {
+      highlighted = highlighted.replace(id, replacement)
+    })
+
+    return highlighted
+  }
+
+  return (
+    <pre style={{
+      backgroundColor: '#1e1e1e',
+      color: '#d4d4d4',
+      padding: '1rem',
+      borderRadius: '8px',
+      overflowX: 'auto',
+      fontSize: '0.9rem',
+      lineHeight: '1.5',
+      border: '2px solid #3b82f6',
+      fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+      whiteSpace: 'pre',
+      textAlign: 'left',
+      margin: 0
+    }}>
+      <code dangerouslySetInnerHTML={{ __html: highlightJava(code) }} />
+    </pre>
+  )
+}
+
+const ModernDiagram = ({ components, onComponentClick, title, width = 1400, height = 800, containerWidth = 1800, focusedIndex }) => {
+  const [hoveredComponent, setHoveredComponent] = useState(null)
+
+  return (
+    <div style={{
+      width: '100%',
+      maxWidth: `${containerWidth}px`,
+      margin: '0 auto',
+      backgroundColor: '#f8fafc',
+      borderRadius: '16px',
+      padding: '2rem',
+      boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.1)',
+      border: '2px solid #e2e8f0'
+    }}>
+      <h3 style={{
+        textAlign: 'center',
+        marginBottom: '2rem',
+        fontSize: '1.75rem',
+        fontWeight: '800',
+        color: '#1e293b',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
+        {title}
+      </h3>
+
+      <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} style={{ overflow: 'visible' }}>
+        <defs>
+          <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#1e40af" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#10b981" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#059669" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ef4444" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#dc2626" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#d97706" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="tealGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#0d9488" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="indigoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#6366f1" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="pinkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ec4899" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#db2777" stopOpacity="0.9"/>
+          </linearGradient>
+          {/* Arrow markers */}
+          <marker id="arrowSolid" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#1e293b" />
+          </marker>
+          <marker id="arrowDashed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#64748b" />
+          </marker>
+        </defs>
+
+        {/* Architectural layer backgrounds */}
+        <g opacity="0.1">
+          <rect x="50" y="140" width="420" height="280" rx="16" fill="#3b82f6" />
+          <text x="260" y="170" textAnchor="middle" fontSize="14" fontWeight="700" fill="#1e40af" opacity="0.6">
+            Producers
+          </text>
+
+          <rect x="550" y="240" width="300" height="220" rx="16" fill="#10b981" />
+          <text x="700" y="270" textAnchor="middle" fontSize="14" fontWeight="700" fill="#059669" opacity="0.6">
+            Kafka Cluster
+          </text>
+
+          <rect x="1050" y="140" width="420" height="280" rx="16" fill="#8b5cf6" />
+          <text x="1260" y="170" textAnchor="middle" fontSize="14" fontWeight="700" fill="#7c3aed" opacity="0.6">
+            Consumers
+          </text>
+
+          <rect x="550" y="440" width="420" height="130" rx="16" fill="#ef4444" />
+          <text x="760" y="470" textAnchor="middle" fontSize="14" fontWeight="700" fill="#dc2626" opacity="0.6">
+            Stream Processing
+          </text>
+
+          <rect x="350" y="590" width="700" height="130" rx="16" fill="#f59e0b" />
+          <text x="700" y="620" textAnchor="middle" fontSize="14" fontWeight="700" fill="#d97706" opacity="0.6">
+            Infrastructure
+          </text>
+        </g>
+
+        {/* Connecting lines with arrows and labels */}
+        <g fill="none">
+          <line x1="430" y1="200" x2="580" y2="300" stroke="#1e293b" strokeWidth="3" strokeOpacity="0.8" markerEnd="url(#arrowSolid)"/>
+          <text x="505" y="240" fontSize="11" fontWeight="600" fill="#1e293b" textAnchor="middle">
+            produces
+          </text>
+
+          <line x1="430" y1="350" x2="580" y2="350" stroke="#1e293b" strokeWidth="3" strokeOpacity="0.8" markerEnd="url(#arrowSolid)"/>
+          <text x="505" y="340" fontSize="11" fontWeight="600" fill="#1e293b" textAnchor="middle">
+            sends
+          </text>
+
+          <line x1="870" y1="300" x2="1080" y2="200" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
+          <text x="975" y="240" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
+            consumes
+          </text>
+
+          <line x1="870" y1="350" x2="1080" y2="350" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
+          <text x="975" y="340" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
+            subscribes
+          </text>
+
+          <line x1="700" y1="460" x2="700" y2="500" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
+          <text x="730" y="485" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="start">
+            processes
+          </text>
+
+          <line x1="1260" y1="420" x2="1260" y2="500" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
+          <text x="1290" y="460" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="start">
+            streams
+          </text>
+
+          <line x1="500" y1="650" x2="700" y2="590" stroke="#64748b" strokeWidth="3" strokeDasharray="5,3" strokeOpacity="0.5" markerEnd="url(#arrowDashed)"/>
+          <text x="600" y="610" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
+            schema
+          </text>
+
+          <line x1="900" y1="650" x2="700" y2="590" stroke="#64748b" strokeWidth="3" strokeDasharray="5,3" strokeOpacity="0.5" markerEnd="url(#arrowDashed)"/>
+          <text x="800" y="610" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
+            monitors
+          </text>
+        </g>
+
+        {/* Component rectangles */}
+        {components.map((component, index) => {
+          const isFocused = focusedIndex === index
+          const isHovered = hoveredComponent === component.id
+          const isHighlighted = isFocused || isHovered
+
+          return (
+          <g key={component.id}>
+            {/* Focused ring indicator */}
+            {isFocused && (
+              <rect
+                x={component.x - 6}
+                y={component.y - 6}
+                width={component.width + 12}
+                height={component.height + 12}
+                rx="16"
+                ry="16"
+                fill="none"
+                stroke="#fbbf24"
+                strokeWidth="4"
+                style={{
+                  opacity: 0.9,
+                  filter: 'drop-shadow(0 0 12px rgba(251, 191, 36, 0.6))'
+                }}
+              />
+            )}
+            <rect
+              x={component.x}
+              y={component.y}
+              width={component.width}
+              height={component.height}
+              rx="12"
+              ry="12"
+              fill={`url(#${component.color}Gradient)`}
+              stroke={isHighlighted ? '#1e293b' : '#64748b'}
+              strokeWidth={isHighlighted ? '4' : '2'}
+              style={{
+                cursor: 'pointer',
+                filter: isHighlighted ? 'drop-shadow(0 8px 16px rgba(0,0,0,0.2))' : 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))',
+                transform: isHighlighted ? 'scale(1.05)' : 'scale(1)',
+                transformOrigin: `${component.x + component.width/2}px ${component.y + component.height/2}px`,
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={() => setHoveredComponent(component.id)}
+              onMouseLeave={() => setHoveredComponent(null)}
+              onClick={() => onComponentClick && onComponentClick(component)}
+            />
+
+            {/* Icon */}
+            <text
+              x={component.x + component.width/2}
+              y={component.y + 40}
+              textAnchor="middle"
+              fontSize="52"
+              style={{ userSelect: 'none', pointerEvents: 'none' }}
+            >
+              {component.icon}
+            </text>
+
+            {/* Title */}
+            <text
+              x={component.x + component.width/2}
+              y={component.y + 85}
+              textAnchor="middle"
+              fontSize="20"
+              fontWeight="700"
+              fill="white"
+              style={{ userSelect: 'none', pointerEvents: 'none' }}
+            >
+              {component.title}
+            </text>
+
+            {/* Details */}
+            {component.details && component.details.map((detail, idx) => (
+              <text
+                key={idx}
+                x={component.x + component.width/2}
+                y={component.y + 115 + (idx * 18)}
+                textAnchor="middle"
+                fontSize="12"
+                fontWeight="500"
+                fill="rgba(255,255,255,0.9)"
+                style={{ userSelect: 'none', pointerEvents: 'none' }}
+              >
+                {typeof detail === 'string' ? detail : detail.name}
+              </text>
+            ))}
+
+          </g>
+        )})}
+      </svg>
+    </div>
+  )
+}
+
+function ApacheKafka({ onBack }) {
+  const [selectedComponent, setSelectedComponent] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [focusedComponentIndex, setFocusedComponentIndex] = useState(0)
+
+  const components = [
+    {
+      id: 'producers', x: 80, y: 140, width: 350, height: 200,
+      icon: '📤', title: 'Kafka Producers', color: 'blue',
+      details: [
+        { name: 'High Throughput APIs', codeExample: `import org.apache.kafka.clients.producer.*;
+import java.util.Properties;
+
+public class HighThroughputProducer {
+  public static void main(String[] args) {
+    Properties props = new Properties();
+    props.put("bootstrap.servers", "localhost:9092");
+    props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+    props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+    props.put("acks", "1"); // Balance between throughput and durability
+    props.put("batch.size", 32768); // 32KB batches
+    props.put("linger.ms", 10); // Wait 10ms to batch more messages
+
+    KafkaProducer<String, String> producer = new KafkaProducer<>(props);
+
+    // Send 10,000 messages asynchronously
+    for (int i = 0; i < 10000; i++) {
+      ProducerRecord<String, String> record =
+        new ProducerRecord<>("high-throughput-topic", "key-" + i, "message-" + i);
+
+      producer.send(record, (metadata, exception) -> {
+        if (exception == null) {
+          System.out.println("Sent to partition " + metadata.partition() +
+                           " at offset " + metadata.offset());
+        }
+      });
+    }
+
+    producer.flush();
+    producer.close();
+  }
+}
+// Output: Sent to partition 0 at offset 1234
+// Output: Sent to partition 1 at offset 5678` },
+        { name: 'Batching & Compression', codeExample: `import org.apache.kafka.clients.producer.*;
+import java.util.Properties;
+
+public class BatchedCompressedProducer {
+  public static void main(String[] args) {
+    Properties props = new Properties();
+    props.put("bootstrap.servers", "localhost:9092");
+    props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+    props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+    // Batching configuration
+    props.put("batch.size", 65536); // 64KB batches
+    props.put("linger.ms", 50); // Wait 50ms for batching
+    props.put("buffer.memory", 67108864); // 64MB buffer
+
+    // Compression configuration
+    props.put("compression.type", "snappy"); // snappy, gzip, lz4, zstd
+
+    KafkaProducer<String, String> producer = new KafkaProducer<>(props);
+
+    long startTime = System.currentTimeMillis();
+    for (int i = 0; i < 50000; i++) {
+      String largeMessage = "A".repeat(1000); // 1KB message
+      ProducerRecord<String, String> record =
+        new ProducerRecord<>("compressed-topic", "key-" + i, largeMessage);
+      producer.send(record);
+    }
+
+    producer.flush();
+    long duration = System.currentTimeMillis() - startTime;
+    System.out.println("Sent 50,000 messages in " + duration + "ms");
+    System.out.println("Throughput: " + (50000.0 / duration * 1000) + " msg/s");
+    producer.close();
+  }
+}
+// Output: Sent 50,000 messages in 2500ms
+// Output: Throughput: 20000.0 msg/s` },
+        { name: 'Partitioning Strategy', codeExample: `import org.apache.kafka.clients.producer.*;
+import org.apache.kafka.common.serialization.StringSerializer;
+import java.util.Properties;
+
+public class CustomPartitioningProducer {
+
+  // Custom partitioner for geographic load balancing
+  static class GeoPartitioner implements Partitioner {
+    @Override
+    public int partition(String topic, Object key, byte[] keyBytes,
+                        Object value, byte[] valueBytes, Cluster cluster) {
+      int numPartitions = cluster.partitionCountForTopic(topic);
+      String region = ((String) key).split("-")[0];
+
+      // Route based on region
+      switch (region) {
+        case "US": return 0 % numPartitions;
+        case "EU": return 1 % numPartitions;
+        case "ASIA": return 2 % numPartitions;
+        default: return Math.abs(key.hashCode()) % numPartitions;
+      }
+    }
+
+    @Override
+    public void close() {}
+
+    @Override
+    public void configure(Map<String, ?> configs) {}
+  }
+
+  public static void main(String[] args) {
+    Properties props = new Properties();
+    props.put("bootstrap.servers", "localhost:9092");
+    props.put("key.serializer", StringSerializer.class.getName());
+    props.put("value.serializer", StringSerializer.class.getName());
+    props.put("partitioner.class", GeoPartitioner.class.getName());
+
+    KafkaProducer<String, String> producer = new KafkaProducer<>(props);
+
+    producer.send(new ProducerRecord<>("geo-topic", "US-user1", "data"));
+    producer.send(new ProducerRecord<>("geo-topic", "EU-user2", "data"));
+    producer.send(new ProducerRecord<>("geo-topic", "ASIA-user3", "data"));
+
+    producer.close();
+  }
+}
+// Output: US-user1 -> partition 0
+// Output: EU-user2 -> partition 1
+// Output: ASIA-user3 -> partition 2` },
+        { name: 'Retry Mechanisms', codeExample: `import org.apache.kafka.clients.producer.*;
+import java.util.Properties;
+
+public class RetryMechanismProducer {
+  public static void main(String[] args) {
+    Properties props = new Properties();
+    props.put("bootstrap.servers", "localhost:9092");
+    props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+    props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+    // Retry configuration
+    props.put("retries", 3); // Retry up to 3 times
+    props.put("retry.backoff.ms", 100); // Wait 100ms between retries
+    props.put("request.timeout.ms", 30000); // 30s timeout
+    props.put("delivery.timeout.ms", 120000); // 2min total timeout
+    props.put("max.in.flight.requests.per.connection", 5);
+
+    KafkaProducer<String, String> producer = new KafkaProducer<>(props);
+
+    ProducerRecord<String, String> record =
+      new ProducerRecord<>("retry-topic", "key1", "important-message");
+
+    producer.send(record, (metadata, exception) -> {
+      if (exception != null) {
+        System.err.println("Failed after retries: " + exception.getMessage());
+        // Implement custom retry logic or dead-letter queue
+      } else {
+        System.out.println("Successfully sent to partition " +
+                         metadata.partition() + " offset " + metadata.offset());
+      }
+    });
+
+    producer.close();
+  }
+}
+// Output: Successfully sent to partition 0 offset 1234
+// Or: Failed after retries: Timeout exception` },
+        { name: 'Idempotent Writes', codeExample: `import org.apache.kafka.clients.producer.*;
+import java.util.Properties;
+
+public class IdempotentProducer {
+  public static void main(String[] args) {
+    Properties props = new Properties();
+    props.put("bootstrap.servers", "localhost:9092");
+    props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+    props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+    // Enable idempotence for exactly-once semantics (per partition)
+    props.put("enable.idempotence", true);
+
+    // These are automatically set with idempotence:
+    // acks = all
+    // retries = Integer.MAX_VALUE
+    // max.in.flight.requests.per.connection = 5
+
+    KafkaProducer<String, String> producer = new KafkaProducer<>(props);
+
+    // Even if this message is sent multiple times due to retries,
+    // it will only be written once to the topic
+    for (int i = 0; i < 100; i++) {
+      ProducerRecord<String, String> record =
+        new ProducerRecord<>("idempotent-topic", "user-" + i, "event-data");
+
+      try {
+        RecordMetadata metadata = producer.send(record).get();
+        System.out.println("Message " + i + " sent to partition " +
+                         metadata.partition() + " with offset " + metadata.offset());
+      } catch (Exception e) {
+        System.err.println("Error sending message: " + e.getMessage());
+      }
+    }
+
+    producer.close();
+  }
+}
+// Output: Message 0 sent to partition 0 with offset 100
+// Output: Message 1 sent to partition 1 with offset 200
+// Guarantees no duplicates even with network retries` },
+        { name: 'Custom Serializers', codeExample: `import org.apache.kafka.common.serialization.Serializer;
+import org.apache.kafka.clients.producer.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Properties;
+
+class User {
+  public String id;
+  public String name;
+  public int age;
+
+  public User(String id, String name, int age) {
+    this.id = id;
+    this.name = name;
+    this.age = age;
+  }
+}
+
+class UserSerializer implements Serializer<User> {
+  private final ObjectMapper objectMapper = new ObjectMapper();
+
+  @Override
+  public byte[] serialize(String topic, User user) {
+    try {
+      return objectMapper.writeValueAsBytes(user);
+    } catch (Exception e) {
+      throw new RuntimeException("Error serializing User", e);
+    }
+  }
+}
+
+public class CustomSerializerProducer {
+  public static void main(String[] args) {
+    Properties props = new Properties();
+    props.put("bootstrap.servers", "localhost:9092");
+    props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+    props.put("value.serializer", UserSerializer.class.getName());
+
+    KafkaProducer<String, User> producer = new KafkaProducer<>(props);
+
+    User user = new User("123", "John Doe", 30);
+    ProducerRecord<String, User> record =
+      new ProducerRecord<>("user-topic", user.id, user);
+
+    producer.send(record, (metadata, exception) -> {
+      if (exception == null) {
+        System.out.println("User object sent successfully");
+      }
+    });
+
+    producer.close();
+  }
+}
+// Output: User object sent successfully
+// Message: {"id":"123","name":"John Doe","age":30}` }
+      ],
+      description: 'High-performance message producers with advanced batching, compression, and reliability features for streaming data into Kafka topics.'
+    },
+    {
+      id: 'kafka-cluster', x: 580, y: 240, width: 350, height: 200,
+      icon: '🏗️', title: 'Kafka Cluster', color: 'green',
+      details: [
+        { name: 'Distributed Brokers', codeExample: `import org.apache.kafka.clients.admin.*;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+
+public class BrokerClusterManager {
+  public static void main(String[] args) throws ExecutionException, InterruptedException {
+    Properties props = new Properties();
+    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092,localhost:9093,localhost:9094");
+
+    try (AdminClient adminClient = AdminClient.create(props)) {
+      // Describe cluster brokers
+      DescribeClusterResult cluster = adminClient.describeCluster();
+
+      System.out.println("Cluster ID: " + cluster.clusterId().get());
+      System.out.println("Controller: " + cluster.controller().get().id());
+
+      cluster.nodes().get().forEach(node -> {
+        System.out.println("Broker ID: " + node.id());
+        System.out.println("  Host: " + node.host());
+        System.out.println("  Port: " + node.port());
+        System.out.println("  Rack: " + node.rack());
+      });
+
+      // Create topic with specific broker assignment
+      NewTopic newTopic = new NewTopic("distributed-topic", 6, (short) 3);
+      Map<String, String> configs = new HashMap<>();
+      configs.put("min.insync.replicas", "2");
+      newTopic.configs(configs);
+
+      adminClient.createTopics(Collections.singleton(newTopic)).all().get();
+      System.out.println("Topic created across distributed brokers");
+    }
+  }
+}
+// Output: Cluster ID: kafka-cluster-1
+// Output: Controller: 1
+// Output: Broker ID: 1 Host: localhost Port: 9092
+// Output: Topic created across distributed brokers` },
+        { name: 'Topic Partitions', codeExample: `import org.apache.kafka.clients.admin.*;
+import org.apache.kafka.common.TopicPartition;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+
+public class PartitionManager {
+  public static void main(String[] args) throws ExecutionException, InterruptedException {
+    Properties props = new Properties();
+    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+
+    try (AdminClient adminClient = AdminClient.create(props)) {
+      String topicName = "multi-partition-topic";
+
+      // Create topic with 12 partitions
+      NewTopic topic = new NewTopic(topicName, 12, (short) 3);
+      adminClient.createTopics(Collections.singleton(topic)).all().get();
+
+      // Describe partitions
+      DescribeTopicsResult result = adminClient.describeTopics(
+        Collections.singleton(topicName));
+
+      result.allTopicNames().get().forEach((name, description) -> {
+        System.out.println("Topic: " + name);
+        description.partitions().forEach(partition -> {
+          System.out.println("  Partition " + partition.partition() + ":");
+          System.out.println("    Leader: " + partition.leader().id());
+          System.out.println("    Replicas: " + partition.replicas().size());
+          System.out.println("    ISR: " + partition.isr().size());
+        });
+      });
+
+      // Increase partitions
+      Map<String, NewPartitions> newPartitions = new HashMap<>();
+      newPartitions.put(topicName, NewPartitions.increaseTo(24));
+      adminClient.createPartitions(newPartitions).all().get();
+      System.out.println("Partitions increased to 24");
+    }
+  }
+}
+// Output: Topic: multi-partition-topic
+// Output:   Partition 0: Leader: 1 Replicas: 3 ISR: 3
+// Output: Partitions increased to 24` },
+        { name: 'Replication Factor', codeExample: `import org.apache.kafka.clients.admin.*;
+import org.apache.kafka.common.config.TopicConfig;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+
+public class ReplicationManager {
+  public static void main(String[] args) throws ExecutionException, InterruptedException {
+    Properties props = new Properties();
+    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+
+    try (AdminClient adminClient = AdminClient.create(props)) {
+      // Create topic with replication factor 3
+      NewTopic highAvailabilityTopic = new NewTopic("ha-topic", 6, (short) 3);
+
+      Map<String, String> topicConfigs = new HashMap<>();
+      topicConfigs.put(TopicConfig.MIN_IN_SYNC_REPLICAS_CONFIG, "2");
+      topicConfigs.put(TopicConfig.UNCLEAN_LEADER_ELECTION_ENABLE_CONFIG, "false");
+      highAvailabilityTopic.configs(topicConfigs);
+
+      adminClient.createTopics(Collections.singleton(highAvailabilityTopic)).all().get();
+
+      // Verify replication
+      DescribeTopicsResult topicDescription = adminClient.describeTopics(
+        Collections.singleton("ha-topic"));
+
+      topicDescription.allTopicNames().get().forEach((name, desc) -> {
+        desc.partitions().forEach(partition -> {
+          System.out.println("Partition " + partition.partition() +
+            " - Replication Factor: " + partition.replicas().size());
+          System.out.println("  Leader: Broker " + partition.leader().id());
+          System.out.println("  Replicas: " + partition.replicas());
+          System.out.println("  In-Sync Replicas: " + partition.isr());
+        });
+      });
+
+      System.out.println("High availability topic configured with RF=3, min.isr=2");
+    }
+  }
+}
+// Output: Partition 0 - Replication Factor: 3
+// Output:   Leader: Broker 1
+// Output:   Replicas: [1, 2, 3]
+// Output:   In-Sync Replicas: [1, 2, 3]` },
+        { name: 'Leader Election', codeExample: `import org.apache.kafka.clients.admin.*;
+import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.errors.PreferredLeaderNotAvailableException;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+
+public class LeaderElectionManager {
+  public static void main(String[] args) throws ExecutionException, InterruptedException {
+    Properties props = new Properties();
+    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+
+    try (AdminClient adminClient = AdminClient.create(props)) {
+      String topicName = "leader-election-topic";
+
+      // Monitor current leaders
+      DescribeTopicsResult description = adminClient.describeTopics(
+        Collections.singleton(topicName));
+
+      Map<Integer, Integer> leaderMap = new HashMap<>();
+      description.allTopicNames().get().forEach((topic, desc) -> {
+        desc.partitions().forEach(partition -> {
+          int partitionId = partition.partition();
+          int leaderId = partition.leader().id();
+          leaderMap.put(partitionId, leaderId);
+
+          System.out.println("Partition " + partitionId +
+            " current leader: Broker " + leaderId);
+          System.out.println("  Preferred replica: " +
+            partition.replicas().get(0).id());
+        });
+      });
+
+      // Trigger preferred leader election
+      Set<TopicPartition> partitions = new HashSet<>();
+      leaderMap.keySet().forEach(partitionId ->
+        partitions.add(new TopicPartition(topicName, partitionId)));
+
+      ElectLeadersResult election = adminClient.electLeaders(
+        ElectionType.PREFERRED, partitions);
+
+      election.all().get();
+      System.out.println("Preferred leader election completed");
+      System.out.println("Leaders rebalanced to preferred replicas");
+    }
+  }
+}
+// Output: Partition 0 current leader: Broker 2
+// Output:   Preferred replica: 1
+// Output: Preferred leader election completed
+// Output: Leaders rebalanced to preferred replicas` },
+        { name: 'Log Compaction', codeExample: `import org.apache.kafka.clients.admin.*;
+import org.apache.kafka.clients.producer.*;
+import org.apache.kafka.common.config.TopicConfig;
+import java.util.*;
+
+public class LogCompactionExample {
+  public static void main(String[] args) throws Exception {
+    Properties adminProps = new Properties();
+    adminProps.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+
+    try (AdminClient adminClient = AdminClient.create(adminProps)) {
+      // Create compacted topic
+      NewTopic compactedTopic = new NewTopic("user-state-topic", 3, (short) 2);
+
+      Map<String, String> configs = new HashMap<>();
+      configs.put(TopicConfig.CLEANUP_POLICY_CONFIG, "compact");
+      configs.put(TopicConfig.MIN_CLEANABLE_DIRTY_RATIO_CONFIG, "0.5");
+      configs.put(TopicConfig.SEGMENT_MS_CONFIG, "60000"); // 1 minute
+      configs.put(TopicConfig.DELETE_RETENTION_MS_CONFIG, "86400000"); // 1 day
+      compactedTopic.configs(configs);
+
+      adminClient.createTopics(Collections.singleton(compactedTopic)).all().get();
+      System.out.println("Compacted topic created");
+    }
+
+    // Producer for compacted topic
+    Properties producerProps = new Properties();
+    producerProps.put("bootstrap.servers", "localhost:9092");
+    producerProps.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+    producerProps.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+    KafkaProducer<String, String> producer = new KafkaProducer<>(producerProps);
+
+    // Send multiple updates for same key (only latest will be retained)
+    producer.send(new ProducerRecord<>("user-state-topic", "user-123", "active"));
+    producer.send(new ProducerRecord<>("user-state-topic", "user-123", "inactive"));
+    producer.send(new ProducerRecord<>("user-state-topic", "user-123", "premium"));
+
+    producer.flush();
+    producer.close();
+
+    System.out.println("Log compaction will retain only latest value: premium");
+  }
+}
+// Output: Compacted topic created
+// Output: Log compaction will retain only latest value: premium` },
+        { name: 'Retention Policies', codeExample: `import org.apache.kafka.clients.admin.*;
+import org.apache.kafka.common.config.TopicConfig;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+
+public class RetentionPolicyManager {
+  public static void main(String[] args) throws ExecutionException, InterruptedException {
+    Properties props = new Properties();
+    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+
+    try (AdminClient adminClient = AdminClient.create(props)) {
+      // Time-based retention (7 days)
+      NewTopic timeTopic = new NewTopic("time-retention-topic", 3, (short) 2);
+      Map<String, String> timeConfigs = new HashMap<>();
+      timeConfigs.put(TopicConfig.RETENTION_MS_CONFIG, "604800000"); // 7 days
+      timeConfigs.put(TopicConfig.RETENTION_BYTES_CONFIG, "-1"); // No size limit
+      timeTopic.configs(timeConfigs);
+
+      // Size-based retention (10GB per partition)
+      NewTopic sizeTopic = new NewTopic("size-retention-topic", 3, (short) 2);
+      Map<String, String> sizeConfigs = new HashMap<>();
+      sizeConfigs.put(TopicConfig.RETENTION_BYTES_CONFIG, "10737418240"); // 10GB
+      sizeConfigs.put(TopicConfig.SEGMENT_BYTES_CONFIG, "1073741824"); // 1GB segments
+      sizeTopic.configs(sizeConfigs);
+
+      // Combined retention (whichever comes first)
+      NewTopic combinedTopic = new NewTopic("combined-retention-topic", 3, (short) 2);
+      Map<String, String> combinedConfigs = new HashMap<>();
+      combinedConfigs.put(TopicConfig.RETENTION_MS_CONFIG, "2592000000"); // 30 days
+      combinedConfigs.put(TopicConfig.RETENTION_BYTES_CONFIG, "53687091200"); // 50GB
+      combinedTopic.configs(combinedConfigs);
+
+      adminClient.createTopics(Arrays.asList(timeTopic, sizeTopic, combinedTopic))
+        .all().get();
+
+      System.out.println("Time-based retention: 7 days");
+      System.out.println("Size-based retention: 10GB per partition");
+      System.out.println("Combined retention: 30 days OR 50GB (whichever first)");
+    }
+  }
+}
+// Output: Time-based retention: 7 days
+// Output: Size-based retention: 10GB per partition
+// Output: Combined retention: 30 days OR 50GB (whichever first)` }
+      ],
+      description: 'Distributed streaming platform core with broker clustering, partition management, and fault-tolerant message storage.'
+    },
+    {
+      id: 'consumers', x: 1080, y: 140, width: 350, height: 200,
+      icon: '📥', title: 'Kafka Consumers', color: 'purple',
+      details: [
+        { name: 'Consumer Groups', codeExample: `import org.apache.kafka.clients.consumer.*;
+import java.time.Duration;
+import java.util.*;
+
+public class ConsumerGroupExample {
+  public static void main(String[] args) {
+    Properties props = new Properties();
+    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    props.put(ConsumerConfig.GROUP_ID_CONFIG, "order-processing-group");
+    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+      "org.apache.kafka.common.serialization.StringDeserializer");
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+      "org.apache.kafka.common.serialization.StringDeserializer");
+    props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+
+    KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+    consumer.subscribe(Collections.singletonList("orders"));
+
+    System.out.println("Consumer joined group: order-processing-group");
+
+    try {
+      while (true) {
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+
+        for (ConsumerRecord<String, String> record : records) {
+          System.out.printf("Consumer Group Member consumed: partition=%d, offset=%d, key=%s, value=%s%n",
+            record.partition(), record.offset(), record.key(), record.value());
+        }
+
+        // Multiple consumers in same group share partition load
+        if (records.count() > 0) {
+          System.out.println("Processed " + records.count() + " records in this poll");
+        }
+      }
+    } finally {
+      consumer.close();
+    }
+  }
+}
+// Output: Consumer joined group: order-processing-group
+// Output: Consumer Group Member consumed: partition=2, offset=100, key=order1, value=data
+// Output: Processed 50 records in this poll` },
+        { name: 'Offset Management', codeExample: `import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.common.TopicPartition;
+import java.time.Duration;
+import java.util.*;
+
+public class OffsetManagementExample {
+  public static void main(String[] args) {
+    Properties props = new Properties();
+    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    props.put(ConsumerConfig.GROUP_ID_CONFIG, "offset-demo-group");
+    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+      "org.apache.kafka.common.serialization.StringDeserializer");
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+      "org.apache.kafka.common.serialization.StringDeserializer");
+    props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
+
+    KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+    consumer.subscribe(Collections.singletonList("transactions"));
+
+    while (true) {
+      ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+
+      for (ConsumerRecord<String, String> record : records) {
+        System.out.printf("Processing: partition=%d, offset=%d%n",
+          record.partition(), record.offset());
+
+        // Process the record
+        processRecord(record);
+      }
+
+      // Query current offset
+      Set<TopicPartition> assignment = consumer.assignment();
+      for (TopicPartition partition : assignment) {
+        OffsetAndMetadata committed = consumer.committed(partition);
+        long position = consumer.position(partition);
+
+        System.out.printf("Partition %d: committed=%d, current position=%d%n",
+          partition.partition(),
+          committed != null ? committed.offset() : -1,
+          position);
+      }
+
+      // Commit offsets after processing
+      consumer.commitSync();
+      System.out.println("Offsets committed successfully");
+      break;
+    }
+  }
+
+  static void processRecord(ConsumerRecord<String, String> record) {
+    // Processing logic
+  }
+}
+// Output: Processing: partition=0, offset=5000
+// Output: Partition 0: committed=4999, current position=5001
+// Output: Offsets committed successfully` },
+        { name: 'Parallel Processing', codeExample: `import org.apache.kafka.clients.consumer.*;
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.*;
+
+public class ParallelConsumerExample {
+  private static final int NUM_CONSUMERS = 4;
+
+  public static void main(String[] args) {
+    ExecutorService executor = Executors.newFixedThreadPool(NUM_CONSUMERS);
+
+    for (int i = 0; i < NUM_CONSUMERS; i++) {
+      final int consumerId = i;
+      executor.submit(() -> runConsumer(consumerId));
+    }
+
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      executor.shutdown();
+      try {
+        executor.awaitTermination(5000, TimeUnit.MILLISECONDS);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }));
+  }
+
+  private static void runConsumer(int consumerId) {
+    Properties props = new Properties();
+    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    props.put(ConsumerConfig.GROUP_ID_CONFIG, "parallel-consumer-group");
+    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+      "org.apache.kafka.common.serialization.StringDeserializer");
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+      "org.apache.kafka.common.serialization.StringDeserializer");
+
+    KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+    consumer.subscribe(Collections.singletonList("events"));
+
+    System.out.println("Consumer " + consumerId + " started");
+
+    try {
+      while (!Thread.currentThread().isInterrupted()) {
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+
+        for (ConsumerRecord<String, String> record : records) {
+          System.out.printf("Consumer-%d: partition=%d, offset=%d, value=%s%n",
+            consumerId, record.partition(), record.offset(), record.value());
+        }
+      }
+    } finally {
+      consumer.close();
+      System.out.println("Consumer " + consumerId + " closed");
+    }
+  }
+}
+// Output: Consumer 0 started
+// Output: Consumer 1 started
+// Output: Consumer-0: partition=0, offset=100, value=event1
+// Output: Consumer-1: partition=1, offset=200, value=event2` },
+        { name: 'Auto-commit', codeExample: `import org.apache.kafka.clients.consumer.*;
+import java.time.Duration;
+import java.util.*;
+
+public class AutoCommitConsumer {
+  public static void main(String[] args) {
+    Properties props = new Properties();
+    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    props.put(ConsumerConfig.GROUP_ID_CONFIG, "auto-commit-group");
+    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+      "org.apache.kafka.common.serialization.StringDeserializer");
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+      "org.apache.kafka.common.serialization.StringDeserializer");
+
+    // Enable auto-commit (default behavior)
+    props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
+    props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "5000"); // Commit every 5s
+
+    KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+    consumer.subscribe(Collections.singletonList("logs"));
+
+    System.out.println("Auto-commit enabled with 5s interval");
+
+    int messageCount = 0;
+    long startTime = System.currentTimeMillis();
+
+    try {
+      while (messageCount < 100) {
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+
+        for (ConsumerRecord<String, String> record : records) {
+          System.out.printf("Consumed: offset=%d, value=%s%n",
+            record.offset(), record.value());
+          messageCount++;
+        }
+
+        // Offsets are automatically committed in background every 5s
+        long elapsed = System.currentTimeMillis() - startTime;
+        if (elapsed % 5000 < 100) {
+          System.out.println("Auto-commit triggered at " + elapsed + "ms");
+        }
+      }
+    } finally {
+      consumer.close();
+      System.out.println("Consumer closed. Final offsets auto-committed.");
+    }
+  }
+}
+// Output: Auto-commit enabled with 5s interval
+// Output: Consumed: offset=1000, value=log-entry
+// Output: Auto-commit triggered at 5000ms
+// Output: Consumer closed. Final offsets auto-committed.` },
+        { name: 'Manual Commit', codeExample: `import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.common.TopicPartition;
+import java.time.Duration;
+import java.util.*;
+
+public class ManualCommitConsumer {
+  public static void main(String[] args) {
+    Properties props = new Properties();
+    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    props.put(ConsumerConfig.GROUP_ID_CONFIG, "manual-commit-group");
+    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+      "org.apache.kafka.common.serialization.StringDeserializer");
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+      "org.apache.kafka.common.serialization.StringDeserializer");
+    props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
+
+    KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+    consumer.subscribe(Collections.singletonList("payments"));
+
+    System.out.println("Manual commit mode enabled");
+
+    try {
+      while (true) {
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+        Map<TopicPartition, OffsetAndMetadata> offsets = new HashMap<>();
+
+        for (ConsumerRecord<String, String> record : records) {
+          try {
+            // Process record atomically
+            processPayment(record);
+
+            // Track offset for manual commit
+            TopicPartition partition = new TopicPartition(record.topic(), record.partition());
+            offsets.put(partition, new OffsetAndMetadata(record.offset() + 1));
+
+            System.out.printf("Processed payment: offset=%d, value=%s%n",
+              record.offset(), record.value());
+          } catch (Exception e) {
+            System.err.println("Failed to process: " + e.getMessage());
+            break; // Stop processing on error
+          }
+        }
+
+        // Commit only successfully processed offsets
+        if (!offsets.isEmpty()) {
+          consumer.commitSync(offsets);
+          System.out.println("Committed " + offsets.size() + " partition offsets");
+        }
+
+        if (records.count() >= 10) break;
+      }
+    } finally {
+      consumer.close();
+    }
+  }
+
+  static void processPayment(ConsumerRecord<String, String> record) {
+    // Payment processing logic
+  }
+}
+// Output: Manual commit mode enabled
+// Output: Processed payment: offset=5000, value=payment-123
+// Output: Committed 3 partition offsets` },
+        { name: 'Rebalancing', codeExample: `import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.common.TopicPartition;
+import java.time.Duration;
+import java.util.*;
+
+public class RebalanceListenerExample {
+
+  static class RebalanceHandler implements ConsumerRebalanceListener {
+    private KafkaConsumer<String, String> consumer;
+
+    public RebalanceHandler(KafkaConsumer<String, String> consumer) {
+      this.consumer = consumer;
+    }
+
+    @Override
+    public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+      System.out.println("Partitions revoked: " + partitions);
+      // Commit offsets before losing partition ownership
+      consumer.commitSync();
+      System.out.println("Committed offsets before rebalance");
+    }
+
+    @Override
+    public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+      System.out.println("Partitions assigned: " + partitions);
+      // Initialize state for new partitions
+      for (TopicPartition partition : partitions) {
+        long position = consumer.position(partition);
+        System.out.println("Starting at offset " + position +
+          " for partition " + partition.partition());
+      }
+    }
+  }
+
+  public static void main(String[] args) {
+    Properties props = new Properties();
+    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    props.put(ConsumerConfig.GROUP_ID_CONFIG, "rebalance-demo-group");
+    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+      "org.apache.kafka.common.serialization.StringDeserializer");
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+      "org.apache.kafka.common.serialization.StringDeserializer");
+
+    KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+    RebalanceHandler handler = new RebalanceHandler(consumer);
+
+    consumer.subscribe(Collections.singletonList("users"), handler);
+
+    System.out.println("Consumer subscribed with rebalance listener");
+
+    while (true) {
+      ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+      // Process records...
+      if (records.count() > 0) {
+        System.out.println("Processed " + records.count() + " records");
+      }
+    }
+  }
+}
+// Output: Consumer subscribed with rebalance listener
+// Output: Partitions assigned: [users-0, users-1]
+// Output: Starting at offset 1000 for partition 0
+// Output: Partitions revoked: [users-1]
+// Output: Committed offsets before rebalance` }
+      ],
+      description: 'Scalable consumer framework with group coordination, offset management, and parallel message processing capabilities.'
+    },
+    {
+      id: 'stream-processing', x: 580, y: 480, width: 350, height: 200,
+      icon: '🌊', title: 'Kafka Streams', color: 'red',
+      details: [
+        { name: 'Stateful Processing', codeExample: `import org.apache.kafka.streams.*;
+import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.state.*;
+import java.util.Properties;
+
+public class StatefulStreamProcessing {
+  public static void main(String[] args) {
+    Properties props = new Properties();
+    props.put(StreamsConfig.APPLICATION_ID_CONFIG, "stateful-app");
+    props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG,
+      org.apache.kafka.common.serialization.Serdes.String().getClass());
+    props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG,
+      org.apache.kafka.common.serialization.Serdes.Long().getClass());
+
+    StreamsBuilder builder = new StreamsBuilder();
+
+    // Create state store for user click counts
+    StoreBuilder<KeyValueStore<String, Long>> storeBuilder =
+      Stores.keyValueStoreBuilder(
+        Stores.persistentKeyValueStore("user-click-store"),
+        Serdes.String(),
+        Serdes.Long());
+
+    builder.addStateStore(storeBuilder);
+
+    // Process stream with stateful transformation
+    KStream<String, String> clicks = builder.stream("user-clicks");
+
+    clicks.transform(() -> new Transformer<String, String, KeyValue<String, Long>>() {
+      private KeyValueStore<String, Long> stateStore;
+
+      @Override
+      public void init(ProcessorContext context) {
+        this.stateStore = (KeyValueStore<String, Long>)
+          context.getStateStore("user-click-store");
+      }
+
+      @Override
+      public KeyValue<String, Long> transform(String key, String value) {
+        Long currentCount = stateStore.get(key);
+        Long newCount = (currentCount == null ? 0L : currentCount) + 1;
+        stateStore.put(key, newCount);
+
+        System.out.println("User " + key + " click count: " + newCount);
+        return KeyValue.pair(key, newCount);
+      }
+
+      @Override
+      public void close() {}
+    }, "user-click-store").to("user-click-counts");
+
+    KafkaStreams streams = new KafkaStreams(builder.build(), props);
+    streams.start();
+  }
+}
+// Output: User user-123 click count: 1
+// Output: User user-123 click count: 2
+// Output: User user-456 click count: 1` },
+        { name: 'Windowing Operations', codeExample: `import org.apache.kafka.streams.*;
+import org.apache.kafka.streams.kstream.*;
+import java.time.Duration;
+import java.util.Properties;
+
+public class WindowingOperations {
+  public static void main(String[] args) {
+    Properties props = new Properties();
+    props.put(StreamsConfig.APPLICATION_ID_CONFIG, "windowing-app");
+    props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG,
+      org.apache.kafka.common.serialization.Serdes.String().getClass());
+    props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG,
+      org.apache.kafka.common.serialization.Serdes.Double().getClass());
+
+    StreamsBuilder builder = new StreamsBuilder();
+    KStream<String, Double> transactions = builder.stream("transactions");
+
+    // Tumbling window: 5-minute non-overlapping windows
+    transactions
+      .groupByKey()
+      .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5)))
+      .aggregate(
+        () -> 0.0,
+        (key, value, aggregate) -> aggregate + value,
+        Materialized.with(Serdes.String(), Serdes.Double()))
+      .toStream()
+      .foreach((windowedKey, value) -> {
+        System.out.println("Window: " + windowedKey.window().startTime() +
+          " to " + windowedKey.window().endTime() +
+          ", User: " + windowedKey.key() +
+          ", Total: $" + value);
+      });
+
+    // Hopping window: 10-minute windows, advancing by 5 minutes
+    transactions
+      .groupByKey()
+      .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(10))
+        .advanceBy(Duration.ofMinutes(5)))
+      .count()
+      .toStream()
+      .foreach((windowedKey, count) -> {
+        System.out.println("Hopping window count: " + count);
+      });
+
+    // Session window: dynamic windows based on inactivity gap
+    transactions
+      .groupByKey()
+      .windowedBy(SessionWindows.ofInactivityGapWithNoGrace(Duration.ofMinutes(30)))
+      .count()
+      .toStream()
+      .foreach((windowedKey, count) -> {
+        System.out.println("Session transactions: " + count);
+      });
+
+    KafkaStreams streams = new KafkaStreams(builder.build(), props);
+    streams.start();
+  }
+}
+// Output: Window: 2025-01-01T10:00:00 to 2025-01-01T10:05:00, User: user1, Total: $250.50
+// Output: Hopping window count: 15
+// Output: Session transactions: 8` },
+        { name: 'Joins & Aggregations', codeExample: `import org.apache.kafka.streams.*;
+import org.apache.kafka.streams.kstream.*;
+import java.time.Duration;
+import java.util.Properties;
+
+public class JoinsAndAggregations {
+  public static void main(String[] args) {
+    Properties props = new Properties();
+    props.put(StreamsConfig.APPLICATION_ID_CONFIG, "joins-app");
+    props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+
+    StreamsBuilder builder = new StreamsBuilder();
+
+    // Stream-Stream Join
+    KStream<String, String> orders = builder.stream("orders");
+    KStream<String, String> shipments = builder.stream("shipments");
+
+    KStream<String, String> enrichedOrders = orders.join(
+      shipments,
+      (orderValue, shipmentValue) ->
+        "Order: " + orderValue + ", Shipment: " + shipmentValue,
+      JoinWindows.ofTimeDifferenceWithNoGrace(Duration.ofMinutes(10))
+    );
+
+    enrichedOrders.foreach((key, value) ->
+      System.out.println("Joined: " + key + " -> " + value));
+
+    // Stream-Table Join
+    KTable<String, String> users = builder.table("users");
+    KStream<String, String> events = builder.stream("user-events");
+
+    KStream<String, String> enrichedEvents = events.leftJoin(
+      users,
+      (eventValue, userValue) ->
+        "Event: " + eventValue + ", User: " + userValue
+    );
+
+    enrichedEvents.to("enriched-events");
+
+    // Aggregations
+    KGroupedStream<String, String> grouped = orders.groupByKey();
+
+    // Count aggregation
+    grouped.count().toStream().foreach((key, count) ->
+      System.out.println("Order count for " + key + ": " + count));
+
+    // Reduce aggregation
+    grouped.reduce((value1, value2) -> value1 + "," + value2)
+      .toStream()
+      .foreach((key, value) ->
+        System.out.println("Reduced orders: " + value));
+
+    // Aggregate with custom logic
+    grouped.aggregate(
+      () -> 0.0,
+      (key, newValue, aggValue) -> aggValue + Double.parseDouble(newValue),
+      Materialized.with(Serdes.String(), Serdes.Double())
+    ).toStream().foreach((key, total) ->
+      System.out.println("Total amount for " + key + ": $" + total));
+
+    KafkaStreams streams = new KafkaStreams(builder.build(), props);
+    streams.start();
+  }
+}
+// Output: Joined: order-123 -> Order: laptop, Shipment: shipped
+// Output: Order count for user1: 5
+// Output: Total amount for user1: $1250.75` },
+        { name: 'Exactly-Once Semantics', codeExample: `import org.apache.kafka.streams.*;
+import org.apache.kafka.streams.kstream.*;
+import java.util.Properties;
+
+public class ExactlyOnceProcessing {
+  public static void main(String[] args) {
+    Properties props = new Properties();
+    props.put(StreamsConfig.APPLICATION_ID_CONFIG, "exactly-once-app");
+    props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+
+    // Enable exactly-once semantics (EOS)
+    props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG,
+      StreamsConfig.EXACTLY_ONCE_V2);
+
+    // Transaction timeout (default: 10000ms)
+    props.put(StreamsConfig.TRANSACTION_TIMEOUT_CONFIG, 30000);
+
+    // Commit interval for EOS
+    props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 1000);
+
+    StreamsBuilder builder = new StreamsBuilder();
+
+    KStream<String, String> payments = builder.stream("payments");
+
+    // Process payments with exactly-once guarantee
+    payments
+      .mapValues(value -> {
+        System.out.println("Processing payment: " + value);
+        return processPayment(value);
+      })
+      .filter((key, value) -> value != null)
+      .to("processed-payments");
+
+    // Stateful aggregation with EOS
+    payments
+      .groupByKey()
+      .aggregate(
+        () -> 0.0,
+        (key, value, aggregate) -> {
+          double amount = Double.parseDouble(value);
+          double newTotal = aggregate + amount;
+          System.out.println("User " + key + " total: $" + newTotal);
+          return newTotal;
+        },
+        Materialized.with(Serdes.String(), Serdes.Double())
+      )
+      .toStream()
+      .to("payment-totals");
+
+    KafkaStreams streams = new KafkaStreams(builder.build(), props);
+
+    // Set exception handler for transactional failures
+    streams.setUncaughtExceptionHandler((thread, throwable) -> {
+      System.err.println("Stream failed: " + throwable.getMessage());
+      return StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse.SHUTDOWN_APPLICATION;
+    });
+
+    streams.start();
+
+    System.out.println("Exactly-once processing enabled");
+    System.out.println("No duplicate processing even with failures and retries");
+  }
+
+  static String processPayment(String value) {
+    // Payment processing logic with database writes
+    return "processed-" + value;
+  }
+}
+// Output: Exactly-once processing enabled
+// Output: Processing payment: 100.00
+// Output: User user1 total: $100.00
+// Output: No duplicate processing even with failures and retries` },
+        { name: 'Interactive Queries', codeExample: `import org.apache.kafka.streams.*;
+import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.state.*;
+import java.util.Properties;
+
+public class InteractiveQueries {
+  public static void main(String[] args) {
+    Properties props = new Properties();
+    props.put(StreamsConfig.APPLICATION_ID_CONFIG, "interactive-queries-app");
+    props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+
+    StreamsBuilder builder = new StreamsBuilder();
+
+    // Create materialized view
+    KTable<String, Long> userActivityCounts = builder
+      .stream("user-activity")
+      .groupByKey()
+      .count(Materialized.<String, Long, KeyValueStore<Bytes, byte[]>>as("activity-store")
+        .withKeySerde(Serdes.String())
+        .withValueSerde(Serdes.Long()));
+
+    KafkaStreams streams = new KafkaStreams(builder.build(), props);
+    streams.start();
+
+    // Wait for streams to be ready
+    while (streams.state() != KafkaStreams.State.RUNNING) {
+      try { Thread.sleep(100); } catch (InterruptedException e) {}
+    }
+
+    // Query the state store
+    ReadOnlyKeyValueStore<String, Long> store =
+      streams.store(StoreQueryParameters.fromNameAndType(
+        "activity-store",
+        QueryableStoreTypes.keyValueStore()));
+
+    // Point lookup
+    String userId = "user-123";
+    Long count = store.get(userId);
+    System.out.println("Activity count for " + userId + ": " + count);
+
+    // Range query
+    System.out.println("All user activities:");
+    KeyValueIterator<String, Long> range = store.all();
+    while (range.hasNext()) {
+      KeyValue<String, Long> next = range.next();
+      System.out.println("  " + next.key + ": " + next.value);
+    }
+    range.close();
+
+    // Approximate count
+    long approximateCount = store.approximateNumEntries();
+    System.out.println("Approximate number of users: " + approximateCount);
+
+    // Get metadata for distributed queries
+    StreamsMetadata metadata = streams.metadataForKey(
+      "activity-store", userId, Serdes.String().serializer());
+
+    System.out.println("Data location: " + metadata.host() + ":" + metadata.port());
+    System.out.println("Partitions: " + metadata.topicPartitions());
+  }
+}
+// Output: Activity count for user-123: 42
+// Output: All user activities:
+// Output:   user-123: 42
+// Output:   user-456: 28
+// Output: Approximate number of users: 2
+// Output: Data location: localhost:8080` },
+        { name: 'Topology Optimization', codeExample: `import org.apache.kafka.streams.*;
+import org.apache.kafka.streams.kstream.*;
+import java.util.Properties;
+
+public class TopologyOptimization {
+  public static void main(String[] args) {
+    Properties props = new Properties();
+    props.put(StreamsConfig.APPLICATION_ID_CONFIG, "optimized-topology");
+    props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+
+    // Optimization settings
+    props.put(StreamsConfig.TOPOLOGY_OPTIMIZATION_CONFIG,
+      StreamsConfig.OPTIMIZE);
+    props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 10 * 1024 * 1024); // 10MB
+    props.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 4);
+
+    StreamsBuilder builder = new StreamsBuilder();
+
+    KStream<String, String> events = builder.stream("events");
+
+    // Optimize with repartitioning
+    events
+      .filter((key, value) -> value != null)
+      .selectKey((key, value) -> extractUserId(value))
+      .groupByKey()
+      .count()
+      .toStream()
+      .to("event-counts");
+
+    // View topology before optimization
+    Topology topology = builder.build();
+    System.out.println("=== Topology Description ===");
+    System.out.println(topology.describe());
+
+    // Build with optimization
+    KafkaStreams streams = new KafkaStreams(topology, props);
+
+    // Set state listener to monitor
+    streams.setStateListener((newState, oldState) -> {
+      System.out.println("State changed: " + oldState + " -> " + newState);
+    });
+
+    // Configure for high throughput
+    streams.start();
+
+    System.out.println("Topology optimizations applied:");
+    System.out.println("  - Automatic repartitioning minimization");
+    System.out.println("  - Caching enabled (10MB buffer)");
+    System.out.println("  - 4 stream threads for parallelism");
+    System.out.println("  - Co-location of related operations");
+
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      streams.close();
+      System.out.println("Streams closed gracefully");
+    }));
+  }
+
+  static String extractUserId(String value) {
+    return value.split(",")[0];
+  }
+}
+// Output: === Topology Description ===
+// Output: Sub-topologies:
+// Output:   Sub-topology: 0
+// Output:     Source: KSTREAM-SOURCE-0000000000 (topics: [events])
+// Output: Topology optimizations applied:
+// Output:   - Automatic repartitioning minimization
+// Output:   - Caching enabled (10MB buffer)
+// Output: State changed: CREATED -> RUNNING` }
+      ],
+      description: 'Stream processing library for building real-time applications with stateful computations and exactly-once processing guarantees.'
+    },
+    {
+      id: 'schema-registry', x: 280, y: 620, width: 350, height: 160,
+      icon: '📋', title: 'Schema Registry', color: 'orange',
+      details: [
+        { name: 'Schema Evolution', codeExample: `import io.confluent.kafka.schemaregistry.client.*;
+import io.confluent.kafka.serializers.*;
+import org.apache.avro.Schema;
+import org.apache.kafka.clients.producer.*;
+import java.util.*;
+
+public class SchemaEvolutionExample {
+  public static void main(String[] args) throws Exception {
+    String schemaRegistryUrl = "http://localhost:8081";
+    CachedSchemaRegistryClient registryClient =
+      new CachedSchemaRegistryClient(schemaRegistryUrl, 100);
+
+    // Version 1: Original schema
+    String schemaV1 = "{\\"type\\":\\"record\\",\\"name\\":\\"User\\"," +
+      "\\"fields\\":[" +
+      "{\\"name\\":\\"id\\",\\"type\\":\\"string\\"}," +
+      "{\\"name\\":\\"name\\",\\"type\\":\\"string\\"}" +
+      "]}";
+
+    // Register version 1
+    Schema.Parser parser = new Schema.Parser();
+    Schema avroSchemaV1 = parser.parse(schemaV1);
+    int schemaId1 = registryClient.register("user-value", avroSchemaV1);
+    System.out.println("Registered schema v1, ID: " + schemaId1);
+
+    // Version 2: Add optional field (backward compatible)
+    String schemaV2 = "{\\"type\\":\\"record\\",\\"name\\":\\"User\\"," +
+      "\\"fields\\":[" +
+      "{\\"name\\":\\"id\\",\\"type\\":\\"string\\"}," +
+      "{\\"name\\":\\"name\\",\\"type\\":\\"string\\"}," +
+      "{\\"name\\":\\"email\\",\\"type\\":[\\"null\\",\\"string\\"],\\"default\\":null}" +
+      "]}";
+
+    Schema avroSchemaV2 = parser.parse(schemaV2);
+
+    // Test compatibility before registering
+    boolean compatible = registryClient.testCompatibility("user-value", avroSchemaV2);
+    System.out.println("Schema v2 compatible: " + compatible);
+
+    if (compatible) {
+      int schemaId2 = registryClient.register("user-value", avroSchemaV2);
+      System.out.println("Registered schema v2, ID: " + schemaId2);
+    }
+
+    // Get all versions
+    List<Integer> versions = registryClient.getAllVersions("user-value");
+    System.out.println("Schema versions: " + versions);
+
+    // Get latest schema
+    SchemaMetadata metadata = registryClient.getLatestSchemaMetadata("user-value");
+    System.out.println("Latest version: " + metadata.getVersion());
+  }
+}
+// Output: Registered schema v1, ID: 1
+// Output: Schema v2 compatible: true
+// Output: Registered schema v2, ID: 2
+// Output: Schema versions: [1, 2]
+// Output: Latest version: 2` },
+        { name: 'Avro/JSON Support', codeExample: `import io.confluent.kafka.serializers.*;
+import org.apache.avro.generic.*;
+import org.apache.kafka.clients.producer.*;
+import org.apache.kafka.common.serialization.StringSerializer;
+import java.util.*;
+
+public class AvroJsonSerializationExample {
+  public static void main(String[] args) {
+    Properties props = new Properties();
+    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+      KafkaAvroSerializer.class);
+    props.put("schema.registry.url", "http://localhost:8081");
+
+    // Avro Generic Record
+    String avroSchema = "{\\"type\\":\\"record\\",\\"name\\":\\"Order\\"," +
+      "\\"fields\\":[" +
+      "{\\"name\\":\\"orderId\\",\\"type\\":\\"string\\"}," +
+      "{\\"name\\":\\"amount\\",\\"type\\":\\"double\\"}," +
+      "{\\"name\\":\\"timestamp\\",\\"type\\":\\"long\\"}" +
+      "]}";
+
+    org.apache.avro.Schema.Parser parser = new org.apache.avro.Schema.Parser();
+    org.apache.avro.Schema schema = parser.parse(avroSchema);
+
+    KafkaProducer<String, GenericRecord> producer = new KafkaProducer<>(props);
+
+    GenericRecord order = new GenericData.Record(schema);
+    order.put("orderId", "order-12345");
+    order.put("amount", 299.99);
+    order.put("timestamp", System.currentTimeMillis());
+
+    ProducerRecord<String, GenericRecord> record =
+      new ProducerRecord<>("orders-avro", "order-12345", order);
+
+    producer.send(record, (metadata, exception) -> {
+      if (exception == null) {
+        System.out.println("Avro record sent to partition " + metadata.partition());
+      }
+    });
+
+    // JSON Schema support
+    Properties jsonProps = new Properties();
+    jsonProps.putAll(props);
+    jsonProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+      KafkaJsonSchemaSerializer.class);
+
+    KafkaProducer<String, String> jsonProducer = new KafkaProducer<>(jsonProps);
+
+    String jsonData = "{\\"orderId\\":\\"order-67890\\",\\"amount\\":499.99,\\"timestamp\\":" +
+      System.currentTimeMillis() + "}";
+
+    jsonProducer.send(new ProducerRecord<>("orders-json", jsonData));
+    System.out.println("JSON schema record sent");
+
+    producer.flush();
+    jsonProducer.flush();
+    producer.close();
+    jsonProducer.close();
+  }
+}
+// Output: Avro record sent to partition 0
+// Output: JSON schema record sent` },
+        { name: 'Compatibility Checks', codeExample: `import io.confluent.kafka.schemaregistry.client.*;
+import io.confluent.kafka.schemaregistry.avro.AvroCompatibilityLevel;
+import org.apache.avro.Schema;
+import java.util.*;
+
+public class CompatibilityChecksExample {
+  public static void main(String[] args) throws Exception {
+    String schemaRegistryUrl = "http://localhost:8081";
+    CachedSchemaRegistryClient client =
+      new CachedSchemaRegistryClient(schemaRegistryUrl, 100);
+
+    // Set compatibility level for subject
+    String subject = "product-value";
+
+    // BACKWARD: New schema can read data written with old schema
+    client.updateCompatibility(subject, "BACKWARD");
+    System.out.println("Compatibility set to BACKWARD");
+
+    String baseSchema = "{\\"type\\":\\"record\\",\\"name\\":\\"Product\\"," +
+      "\\"fields\\":[" +
+      "{\\"name\\":\\"id\\",\\"type\\":\\"string\\"}," +
+      "{\\"name\\":\\"name\\",\\"type\\":\\"string\\"}" +
+      "]}";
+
+    Schema.Parser parser = new Schema.Parser();
+    Schema base = parser.parse(baseSchema);
+    client.register(subject, base);
+    System.out.println("Base schema registered");
+
+    // Test BACKWARD compatible: Add optional field with default
+    String compatibleSchema = "{\\"type\\":\\"record\\",\\"name\\":\\"Product\\"," +
+      "\\"fields\\":[" +
+      "{\\"name\\":\\"id\\",\\"type\\":\\"string\\"}," +
+      "{\\"name\\":\\"name\\",\\"type\\":\\"string\\"}," +
+      "{\\"name\\":\\"price\\",\\"type\\":\\"double\\",\\"default\\":0.0}" +
+      "]}";
+
+    Schema compatible = parser.parse(compatibleSchema);
+    boolean isCompatible = client.testCompatibility(subject, compatible);
+    System.out.println("Adding optional field: " + isCompatible);
+
+    // Test BACKWARD incompatible: Remove required field
+    String incompatibleSchema = "{\\"type\\":\\"record\\",\\"name\\":\\"Product\\"," +
+      "\\"fields\\":[{\\"name\\":\\"id\\",\\"type\\":\\"string\\"}]}";
+
+    Schema incompatible = parser.parse(incompatibleSchema);
+    boolean isIncompatible = client.testCompatibility(subject, incompatible);
+    System.out.println("Removing required field: " + isIncompatible);
+
+    // Test other compatibility modes
+    client.updateCompatibility(subject, "FORWARD");
+    System.out.println("Changed to FORWARD compatibility");
+
+    client.updateCompatibility(subject, "FULL");
+    System.out.println("Changed to FULL compatibility (both backward & forward)");
+
+    // Get current compatibility
+    String currentCompatibility = client.getCompatibility(subject);
+    System.out.println("Current compatibility: " + currentCompatibility);
+  }
+}
+// Output: Compatibility set to BACKWARD
+// Output: Base schema registered
+// Output: Adding optional field: true
+// Output: Removing required field: false
+// Output: Changed to FORWARD compatibility
+// Output: Current compatibility: FULL` },
+        { name: 'Version Management', codeExample: `import io.confluent.kafka.schemaregistry.client.*;
+import org.apache.avro.Schema;
+import java.util.*;
+
+public class VersionManagementExample {
+  public static void main(String[] args) throws Exception {
+    String schemaRegistryUrl = "http://localhost:8081";
+    CachedSchemaRegistryClient client =
+      new CachedSchemaRegistryClient(schemaRegistryUrl, 100);
+
+    String subject = "employee-value";
+    Schema.Parser parser = new Schema.Parser();
+
+    // Register multiple versions
+    for (int v = 1; v <= 3; v++) {
+      String schema = "{\\"type\\":\\"record\\",\\"name\\":\\"Employee\\"," +
+        "\\"fields\\":[" +
+        "{\\"name\\":\\"id\\",\\"type\\":\\"string\\"}," +
+        "{\\"name\\":\\"name\\",\\"type\\":\\"string\\"}," +
+        "{\\"name\\":\\"version\\",\\"type\\":\\"int\\",\\"default\\":" + v + "}" +
+        "]}";
+
+      Schema avroSchema = parser.parse(schema);
+      int id = client.register(subject, avroSchema);
+      System.out.println("Registered version " + v + " with schema ID: " + id);
+    }
+
+    // Get all versions
+    List<Integer> versions = client.getAllVersions(subject);
+    System.out.println("All versions: " + versions);
+
+    // Get specific version
+    SchemaMetadata version2 = client.getSchemaMetadata(subject, 2);
+    System.out.println("Version 2 schema ID: " + version2.getId());
+    System.out.println("Version 2 schema: " + version2.getSchema());
+
+    // Get latest version
+    SchemaMetadata latest = client.getLatestSchemaMetadata(subject);
+    System.out.println("Latest version: " + latest.getVersion());
+
+    // Get schema by ID
+    Schema schemaById = client.getById(version2.getId());
+    System.out.println("Retrieved schema by ID: " + schemaById.getName());
+
+    // Delete specific version (soft delete)
+    client.deleteSchemaVersion(subject, "2");
+    System.out.println("Deleted version 2 (soft delete)");
+
+    // Check versions after deletion
+    List<Integer> remainingVersions = client.getAllVersions(subject);
+    System.out.println("Remaining versions: " + remainingVersions);
+
+    // Permanent delete (hard delete) - uncomment to use
+    // client.deleteSchemaVersion(subject, "2", true);
+    // System.out.println("Permanently deleted version 2");
+  }
+}
+// Output: Registered version 1 with schema ID: 1
+// Output: Registered version 2 with schema ID: 2
+// Output: Registered version 3 with schema ID: 3
+// Output: All versions: [1, 2, 3]
+// Output: Version 2 schema ID: 2
+// Output: Latest version: 3
+// Output: Deleted version 2 (soft delete)
+// Output: Remaining versions: [1, 3]` },
+        { name: 'Schema Validation', codeExample: `import io.confluent.kafka.schemaregistry.client.*;
+import io.confluent.kafka.serializers.*;
+import org.apache.avro.*;
+import org.apache.avro.generic.*;
+import org.apache.kafka.clients.producer.*;
+import java.util.*;
+
+public class SchemaValidationExample {
+  public static void main(String[] args) throws Exception {
+    String schemaRegistryUrl = "http://localhost:8081";
+
+    Properties props = new Properties();
+    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+      "org.apache.kafka.common.serialization.StringSerializer");
+    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+      KafkaAvroSerializer.class);
+    props.put("schema.registry.url", schemaRegistryUrl);
+
+    // Define strict schema with validation
+    String schemaString = "{\\"type\\":\\"record\\",\\"name\\":\\"Transaction\\"," +
+      "\\"fields\\":[" +
+      "{\\"name\\":\\"transactionId\\",\\"type\\":\\"string\\"}," +
+      "{\\"name\\":\\"amount\\",\\"type\\":\\"double\\"}," +
+      "{\\"name\\":\\"status\\",\\"type\\":{\\"type\\":\\"enum\\",\\"name\\":\\"Status\\"," +
+      "\\"symbols\\":[\\"PENDING\\",\\"COMPLETED\\",\\"FAILED\\"]}}" +
+      "]}";
+
+    Schema.Parser parser = new Schema.Parser();
+    Schema schema = parser.parse(schemaString);
+
+    KafkaProducer<String, GenericRecord> producer = new KafkaProducer<>(props);
+
+    // Valid record
+    GenericRecord validRecord = new GenericData.Record(schema);
+    validRecord.put("transactionId", "txn-001");
+    validRecord.put("amount", 100.50);
+    validRecord.put("status", "COMPLETED");
+
+    try {
+      producer.send(new ProducerRecord<>("transactions", validRecord)).get();
+      System.out.println("Valid record sent successfully");
+    } catch (Exception e) {
+      System.err.println("Validation failed: " + e.getMessage());
+    }
+
+    // Invalid record - wrong enum value (will fail at compile time)
+    GenericRecord invalidRecord = new GenericData.Record(schema);
+    invalidRecord.put("transactionId", "txn-002");
+    invalidRecord.put("amount", 200.75);
+
+    try {
+      // This will throw AvroRuntimeException due to invalid enum
+      invalidRecord.put("status", "INVALID_STATUS");
+      producer.send(new ProducerRecord<>("transactions", invalidRecord)).get();
+    } catch (Exception e) {
+      System.err.println("Schema validation caught error: " + e.getMessage());
+    }
+
+    // Missing required field
+    GenericRecord missingField = new GenericData.Record(schema);
+    missingField.put("transactionId", "txn-003");
+    // Missing amount and status
+
+    try {
+      producer.send(new ProducerRecord<>("transactions", missingField)).get();
+    } catch (Exception e) {
+      System.err.println("Validation error - missing fields: " + e.getMessage());
+    }
+
+    producer.close();
+    System.out.println("Schema validation ensures data quality");
+  }
+}
+// Output: Valid record sent successfully
+// Output: Schema validation caught error: INVALID_STATUS not in enum
+// Output: Validation error - missing fields: Field amount type:DOUBLE pos:1 not set
+// Output: Schema validation ensures data quality` }
+      ],
+      description: 'Centralized schema management with evolution support, compatibility validation, and multi-format schema storage.'
+    },
+    {
+      id: 'connect', x: 680, y: 620, width: 350, height: 160,
+      icon: '🔌', title: 'Kafka Connect', color: 'teal',
+      details: [
+        { name: 'Source Connectors', codeExample: `import org.apache.kafka.connect.source.*;
+import org.apache.kafka.connect.data.*;
+import java.util.*;
+
+// Custom JDBC Source Connector to read from database
+public class DatabaseSourceConnector extends SourceConnector {
+
+  private Map<String, String> config;
+
+  @Override
+  public void start(Map<String, String> props) {
+    this.config = props;
+    System.out.println("Starting Database Source Connector");
+    System.out.println("Connection URL: " + props.get("connection.url"));
+    System.out.println("Table: " + props.get("table.name"));
+  }
+
+  @Override
+  public Class<? extends Task> taskClass() {
+    return DatabaseSourceTask.class;
+  }
+
+  @Override
+  public List<Map<String, String>> taskConfigs(int maxTasks) {
+    List<Map<String, String>> configs = new ArrayList<>();
+    for (int i = 0; i < maxTasks; i++) {
+      Map<String, String> taskConfig = new HashMap<>(config);
+      taskConfig.put("task.id", String.valueOf(i));
+      configs.add(taskConfig);
+    }
+    return configs;
+  }
+
+  @Override
+  public void stop() {
+    System.out.println("Stopping Database Source Connector");
+  }
+
+  @Override
+  public ConfigDef config() {
+    return new ConfigDef()
+      .define("connection.url", ConfigDef.Type.STRING, ConfigDef.Importance.HIGH,
+        "Database connection URL")
+      .define("table.name", ConfigDef.Type.STRING, ConfigDef.Importance.HIGH,
+        "Table name to read from")
+      .define("poll.interval.ms", ConfigDef.Type.INT, 5000,
+        ConfigDef.Importance.MEDIUM, "Poll interval");
+  }
+
+  @Override
+  public String version() {
+    return "1.0";
+  }
+}
+// Output: Starting Database Source Connector
+// Output: Connection URL: jdbc:postgresql://localhost:5432/db
+// Output: Table: users
+// Reads data from database and produces to Kafka topics` },
+        { name: 'Sink Connectors', codeExample: `import org.apache.kafka.connect.sink.*;
+import org.apache.kafka.connect.data.Struct;
+import java.sql.*;
+import java.util.*;
+
+// Custom JDBC Sink Connector to write to database
+public class DatabaseSinkTask extends SinkTask {
+
+  private Connection connection;
+  private String tableName;
+
+  @Override
+  public void start(Map<String, String> props) {
+    String url = props.get("connection.url");
+    tableName = props.get("table.name");
+
+    try {
+      connection = DriverManager.getConnection(url);
+      System.out.println("Connected to database: " + url);
+      System.out.println("Writing to table: " + tableName);
+    } catch (SQLException e) {
+      throw new RuntimeException("Failed to connect", e);
+    }
+  }
+
+  @Override
+  public void put(Collection<SinkRecord> records) {
+    for (SinkRecord record : records) {
+      try {
+        Struct value = (Struct) record.value();
+
+        String sql = "INSERT INTO " + tableName +
+          " (id, name, email) VALUES (?, ?, ?)";
+
+        PreparedStatement stmt = connection.prepareStatement(sql);
+        stmt.setString(1, value.getString("id"));
+        stmt.setString(2, value.getString("name"));
+        stmt.setString(3, value.getString("email"));
+
+        int rows = stmt.executeUpdate();
+        System.out.println("Inserted " + rows + " row(s) to " + tableName);
+
+        stmt.close();
+      } catch (SQLException e) {
+        System.err.println("Failed to insert: " + e.getMessage());
+      }
+    }
+  }
+
+  @Override
+  public void stop() {
+    try {
+      if (connection != null) {
+        connection.close();
+        System.out.println("Database connection closed");
+      }
+    } catch (SQLException e) {
+      System.err.println("Error closing connection: " + e.getMessage());
+    }
+  }
+
+  @Override
+  public String version() {
+    return "1.0";
+  }
+}
+// Output: Connected to database: jdbc:postgresql://localhost:5432/db
+// Output: Writing to table: users
+// Output: Inserted 1 row(s) to users
+// Consumes from Kafka topics and writes to database` },
+        { name: 'Transform SMTs', codeExample: `import org.apache.kafka.connect.transforms.Transformation;
+import org.apache.kafka.connect.source.SourceRecord;
+import org.apache.kafka.connect.data.*;
+import org.apache.kafka.common.config.ConfigDef;
+import java.util.*;
+
+// Single Message Transform (SMT) to mask sensitive data
+public class MaskFieldTransform implements Transformation<SourceRecord> {
+
+  private String fieldToMask;
+  private String maskChar;
+
+  @Override
+  public void configure(Map<String, ?> configs) {
+    fieldToMask = (String) configs.get("field.name");
+    maskChar = (String) configs.getOrDefault("mask.char", "*");
+    System.out.println("Configured to mask field: " + fieldToMask);
+  }
+
+  @Override
+  public SourceRecord apply(SourceRecord record) {
+    if (record.value() instanceof Struct) {
+      Struct value = (Struct) record.value();
+      Schema schema = value.schema();
+
+      SchemaBuilder builder = SchemaBuilder.struct();
+      for (Field field : schema.fields()) {
+        builder.field(field.name(), field.schema());
+      }
+      Schema newSchema = builder.build();
+
+      Struct newValue = new Struct(newSchema);
+      for (Field field : schema.fields()) {
+        if (field.name().equals(fieldToMask)) {
+          // Mask the field value
+          String original = value.getString(field.name());
+          String masked = maskChar.repeat(original.length());
+          newValue.put(field.name(), masked);
+          System.out.println("Masked " + field.name() + ": " + original + " -> " + masked);
+        } else {
+          newValue.put(field.name(), value.get(field));
+        }
+      }
+
+      return record.newRecord(
+        record.topic(), record.kafkaPartition(),
+        record.keySchema(), record.key(),
+        newSchema, newValue,
+        record.timestamp()
+      );
+    }
+    return record;
+  }
+
+  @Override
+  public ConfigDef config() {
+    return new ConfigDef()
+      .define("field.name", ConfigDef.Type.STRING, ConfigDef.Importance.HIGH,
+        "Field name to mask")
+      .define("mask.char", ConfigDef.Type.STRING, "*", ConfigDef.Importance.LOW,
+        "Character to use for masking");
+  }
+
+  @Override
+  public void close() {}
+}
+// Output: Configured to mask field: ssn
+// Output: Masked ssn: 123-45-6789 -> ***********` },
+        { name: 'Distributed Mode', codeExample: `import org.apache.kafka.connect.runtime.*;
+import org.apache.kafka.connect.runtime.distributed.*;
+import org.apache.kafka.connect.storage.*;
+import java.util.*;
+
+public class DistributedConnectCluster {
+  public static void main(String[] args) {
+    // Distributed mode configuration
+    Map<String, String> workerProps = new HashMap<>();
+    workerProps.put("bootstrap.servers", "localhost:9092");
+    workerProps.put("group.id", "connect-cluster");
+
+    // Use Kafka for storing connector configs
+    workerProps.put("config.storage.topic", "connect-configs");
+    workerProps.put("config.storage.replication.factor", "3");
+
+    // Use Kafka for storing offsets
+    workerProps.put("offset.storage.topic", "connect-offsets");
+    workerProps.put("offset.storage.replication.factor", "3");
+
+    // Use Kafka for storing connector status
+    workerProps.put("status.storage.topic", "connect-status");
+    workerProps.put("status.storage.replication.factor", "3");
+
+    // Worker configuration
+    workerProps.put("rest.port", "8083");
+    workerProps.put("plugin.path", "/usr/local/share/kafka/plugins");
+
+    System.out.println("Starting Distributed Connect Worker");
+    System.out.println("Group ID: " + workerProps.get("group.id"));
+    System.out.println("REST API: http://localhost:8083");
+
+    // Create connector configuration
+    Map<String, String> connectorConfig = new HashMap<>();
+    connectorConfig.put("name", "postgres-source");
+    connectorConfig.put("connector.class", "io.confluent.connect.jdbc.JdbcSourceConnector");
+    connectorConfig.put("tasks.max", "3");
+    connectorConfig.put("connection.url", "jdbc:postgresql://localhost/mydb");
+    connectorConfig.put("mode", "incrementing");
+    connectorConfig.put("incrementing.column.name", "id");
+    connectorConfig.put("topic.prefix", "postgres-");
+
+    System.out.println("\\nConnector Configuration:");
+    System.out.println("  Name: " + connectorConfig.get("name"));
+    System.out.println("  Tasks: " + connectorConfig.get("tasks.max"));
+    System.out.println("  Mode: Distributed (fault-tolerant, scalable)");
+
+    // In distributed mode, tasks are automatically balanced across workers
+    System.out.println("\\nDistributed Mode Benefits:");
+    System.out.println("  - Automatic task rebalancing");
+    System.out.println("  - Fault tolerance via replication");
+    System.out.println("  - Scalability by adding workers");
+    System.out.println("  - REST API for management");
+  }
+}
+// Output: Starting Distributed Connect Worker
+// Output: Group ID: connect-cluster
+// Output: REST API: http://localhost:8083
+// Output: Connector Configuration:
+// Output:   Name: postgres-source
+// Output:   Tasks: 3
+// Output:   Mode: Distributed (fault-tolerant, scalable)` },
+        { name: 'Schema Integration', codeExample: `import io.confluent.connect.avro.AvroConverter;
+import org.apache.kafka.connect.data.*;
+import org.apache.kafka.connect.source.SourceRecord;
+import org.apache.kafka.connect.storage.Converter;
+import java.util.*;
+
+public class SchemaIntegrationExample {
+  public static void main(String[] args) {
+    // Configure Avro converter with Schema Registry
+    Map<String, String> converterConfig = new HashMap<>();
+    converterConfig.put("schema.registry.url", "http://localhost:8081");
+    converterConfig.put("value.converter.schemas.enable", "true");
+
+    Converter converter = new AvroConverter();
+    converter.configure(converterConfig, false); // false = value converter
+
+    System.out.println("Configured Avro converter with Schema Registry");
+
+    // Define schema for user data
+    Schema userSchema = SchemaBuilder.struct()
+      .name("User")
+      .field("id", Schema.STRING_SCHEMA)
+      .field("name", Schema.STRING_SCHEMA)
+      .field("email", Schema.STRING_SCHEMA)
+      .field("created_at", Timestamp.SCHEMA)
+      .build();
+
+    System.out.println("Created schema: " + userSchema.name());
+    System.out.println("Fields: " + userSchema.fields().size());
+
+    // Create record with schema
+    Struct userValue = new Struct(userSchema)
+      .put("id", "user-123")
+      .put("name", "John Doe")
+      .put("email", "john@example.com")
+      .put("created_at", new Date());
+
+    SourceRecord record = new SourceRecord(
+      null, null,
+      "users", null,
+      Schema.STRING_SCHEMA, "user-123",
+      userSchema, userValue
+    );
+
+    // Convert to bytes with schema
+    byte[] serialized = converter.fromConnectData(
+      record.topic(),
+      record.valueSchema(),
+      record.value()
+    );
+
+    System.out.println("Serialized with schema: " + serialized.length + " bytes");
+    System.out.println("Schema automatically registered in Schema Registry");
+
+    // Schema evolution example
+    Schema evolvedSchema = SchemaBuilder.struct()
+      .name("User")
+      .field("id", Schema.STRING_SCHEMA)
+      .field("name", Schema.STRING_SCHEMA)
+      .field("email", Schema.STRING_SCHEMA)
+      .field("created_at", Timestamp.SCHEMA)
+      .field("phone", SchemaBuilder.string().optional().build())
+      .build();
+
+    System.out.println("\\nEvolved schema with optional phone field");
+    System.out.println("Backward compatible: Old consumers can still read new data");
+  }
+}
+// Output: Configured Avro converter with Schema Registry
+// Output: Created schema: User
+// Output: Fields: 4
+// Output: Serialized with schema: 42 bytes
+// Output: Schema automatically registered in Schema Registry
+// Output: Evolved schema with optional phone field
+// Output: Backward compatible: Old consumers can still read new data` }
+      ],
+      description: 'Scalable data integration framework for connecting Kafka with external systems, databases, and data stores.'
+    },
+    {
+      id: 'monitoring', x: 1080, y: 620, width: 350, height: 160,
+      icon: '📊', title: 'Monitoring & Ops', color: 'indigo',
+      details: [
+        { name: 'JMX Metrics', codeExample: `import javax.management.*;
+import javax.management.remote.*;
+import java.util.*;
+
+public class JMXMetricsCollector {
+  public static void main(String[] args) throws Exception {
+    // Connect to Kafka broker JMX
+    String jmxUrl = "service:jmx:rmi:///jndi/rmi://localhost:9999/jmxrmi";
+    JMXServiceURL serviceUrl = new JMXServiceURL(jmxUrl);
+    JMXConnector connector = JMXConnectorFactory.connect(serviceUrl);
+    MBeanServerConnection mbsc = connector.getMBeanServerConnection();
+
+    System.out.println("Connected to Kafka JMX at " + jmxUrl);
+
+    // Broker metrics
+    ObjectName brokerTopicMetrics = new ObjectName(
+      "kafka.server:type=BrokerTopicMetrics,name=MessagesInPerSec");
+
+    Double messagesInRate = (Double) mbsc.getAttribute(
+      brokerTopicMetrics, "OneMinuteRate");
+    System.out.println("Messages In Rate: " + messagesInRate + " msg/s");
+
+    // Network metrics
+    ObjectName networkMetrics = new ObjectName(
+      "kafka.network:type=RequestMetrics,name=TotalTimeMs,request=Produce");
+
+    Double produceMean = (Double) mbsc.getAttribute(
+      networkMetrics, "Mean");
+    System.out.println("Produce Request Mean Time: " + produceMean + " ms");
+
+    // Under-replicated partitions
+    ObjectName replicaMetrics = new ObjectName(
+      "kafka.server:type=ReplicaManager,name=UnderReplicatedPartitions");
+
+    Integer underReplicated = (Integer) mbsc.getAttribute(
+      replicaMetrics, "Value");
+    System.out.println("Under-Replicated Partitions: " + underReplicated);
+
+    // Log metrics
+    ObjectName logMetrics = new ObjectName(
+      "kafka.log:type=LogFlushStats,name=LogFlushRateAndTimeMs");
+
+    Double flushRate = (Double) mbsc.getAttribute(
+      logMetrics, "OneMinuteRate");
+    System.out.println("Log Flush Rate: " + flushRate + " flushes/s");
+
+    // Consumer lag (via consumer group coordinator)
+    ObjectName consumerLag = new ObjectName(
+      "kafka.consumer:type=consumer-fetch-manager-metrics,client-id=*");
+
+    Set<ObjectName> consumerMBeans = mbsc.queryNames(consumerLag, null);
+    for (ObjectName name : consumerMBeans) {
+      Double lag = (Double) mbsc.getAttribute(name, "records-lag-max");
+      System.out.println("Consumer Lag: " + lag + " records");
+    }
+
+    connector.close();
+  }
+}
+// Output: Connected to Kafka JMX at service:jmx:rmi:///jndi/rmi://localhost:9999/jmxrmi
+// Output: Messages In Rate: 15234.5 msg/s
+// Output: Produce Request Mean Time: 2.3 ms
+// Output: Under-Replicated Partitions: 0
+// Output: Log Flush Rate: 12.5 flushes/s
+// Output: Consumer Lag: 125.0 records` },
+        { name: 'Lag Monitoring', codeExample: `import org.apache.kafka.clients.admin.*;
+import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.common.TopicPartition;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+
+public class ConsumerLagMonitor {
+  public static void main(String[] args) throws ExecutionException, InterruptedException {
+    Properties adminProps = new Properties();
+    adminProps.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+
+    try (AdminClient adminClient = AdminClient.create(adminProps)) {
+      String groupId = "payment-processing-group";
+
+      // Get consumer group offsets
+      ListConsumerGroupOffsetsResult offsetsResult =
+        adminClient.listConsumerGroupOffsets(groupId);
+
+      Map<TopicPartition, OffsetAndMetadata> offsets =
+        offsetsResult.partitionsToOffsetAndMetadata().get();
+
+      System.out.println("Monitoring Consumer Group: " + groupId);
+      System.out.println("Partitions: " + offsets.size());
+
+      // Get end offsets (latest offset in each partition)
+      Properties consumerProps = new Properties();
+      consumerProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+      consumerProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+        "org.apache.kafka.common.serialization.StringDeserializer");
+      consumerProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+        "org.apache.kafka.common.serialization.StringDeserializer");
+
+      KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProps);
+
+      Map<TopicPartition, Long> endOffsets = consumer.endOffsets(offsets.keySet());
+
+      long totalLag = 0;
+      System.out.println("\\nPartition Lag Details:");
+
+      for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : offsets.entrySet()) {
+        TopicPartition partition = entry.getKey();
+        long currentOffset = entry.getValue().offset();
+        long endOffset = endOffsets.get(partition);
+        long lag = endOffset - currentOffset;
+        totalLag += lag;
+
+        System.out.printf("  %s-%d: current=%d, end=%d, lag=%d%n",
+          partition.topic(), partition.partition(),
+          currentOffset, endOffset, lag);
+
+        // Alert if lag exceeds threshold
+        if (lag > 10000) {
+          System.out.println("    WARNING: High lag detected!");
+        }
+      }
+
+      System.out.println("\\nTotal Lag: " + totalLag + " messages");
+      System.out.println("Average Lag: " + (totalLag / offsets.size()) + " messages/partition");
+
+      consumer.close();
+    }
+  }
+}
+// Output: Monitoring Consumer Group: payment-processing-group
+// Output: Partitions: 6
+// Output: Partition Lag Details:
+// Output:   payments-0: current=50000, end=50125, lag=125
+// Output:   payments-1: current=49800, end=50050, lag=250
+// Output:   payments-2: current=48000, end=50000, lag=2000
+// Output: Total Lag: 2375 messages
+// Output: Average Lag: 395 messages/partition` },
+        { name: 'Broker Health', codeExample: `import org.apache.kafka.clients.admin.*;
+import org.apache.kafka.common.Node;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+
+public class BrokerHealthCheck {
+  public static void main(String[] args) throws ExecutionException, InterruptedException {
+    Properties props = new Properties();
+    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    props.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, 5000);
+
+    try (AdminClient adminClient = AdminClient.create(props)) {
+      System.out.println("=== Kafka Cluster Health Check ===\\n");
+
+      // Check cluster connectivity
+      DescribeClusterResult cluster = adminClient.describeCluster();
+
+      System.out.println("Cluster ID: " + cluster.clusterId().get());
+      System.out.println("Controller: Broker " + cluster.controller().get().id());
+
+      Collection<Node> nodes = cluster.nodes().get();
+      System.out.println("Total Brokers: " + nodes.size());
+
+      // Check each broker
+      System.out.println("\\nBroker Status:");
+      for (Node node : nodes) {
+        System.out.println("\\n  Broker " + node.id() + ":");
+        System.out.println("    Host: " + node.host());
+        System.out.println("    Port: " + node.port());
+        System.out.println("    Rack: " + (node.rack() != null ? node.rack() : "default"));
+        System.out.println("    Status: ONLINE");
+      }
+
+      // Check under-replicated partitions
+      DescribeTopicsResult topicsResult = adminClient.describeTopics(
+        adminClient.listTopics().names().get());
+
+      int totalPartitions = 0;
+      int underReplicatedCount = 0;
+
+      for (TopicDescription desc : topicsResult.allTopicNames().get().values()) {
+        for (TopicPartitionInfo partition : desc.partitions()) {
+          totalPartitions++;
+          if (partition.isr().size() < partition.replicas().size()) {
+            underReplicatedCount++;
+            System.out.println("\\n  WARNING: Under-replicated partition:");
+            System.out.println("    Topic: " + desc.name());
+            System.out.println("    Partition: " + partition.partition());
+            System.out.println("    Replicas: " + partition.replicas().size());
+            System.out.println("    ISR: " + partition.isr().size());
+          }
+        }
+      }
+
+      System.out.println("\\n=== Health Summary ===");
+      System.out.println("Total Partitions: " + totalPartitions);
+      System.out.println("Under-Replicated: " + underReplicatedCount);
+      System.out.println("Health Status: " +
+        (underReplicatedCount == 0 ? "HEALTHY" : "DEGRADED"));
+    }
+  }
+}
+// Output: === Kafka Cluster Health Check ===
+// Output: Cluster ID: kafka-cluster-1
+// Output: Controller: Broker 1
+// Output: Total Brokers: 3
+// Output: Broker Status:
+// Output:   Broker 1: Host: localhost Port: 9092 Status: ONLINE
+// Output: === Health Summary ===
+// Output: Total Partitions: 36
+// Output: Under-Replicated: 0
+// Output: Health Status: HEALTHY` },
+        { name: 'Topic Analytics', codeExample: `import org.apache.kafka.clients.admin.*;
+import org.apache.kafka.common.TopicPartitionInfo;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+
+public class TopicAnalytics {
+  public static void main(String[] args) throws ExecutionException, InterruptedException {
+    Properties props = new Properties();
+    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+
+    try (AdminClient adminClient = AdminClient.create(props)) {
+      System.out.println("=== Kafka Topic Analytics ===\\n");
+
+      // List all topics
+      Set<String> topicNames = adminClient.listTopics().names().get();
+      System.out.println("Total Topics: " + topicNames.size());
+
+      // Get detailed topic information
+      DescribeTopicsResult topicsResult = adminClient.describeTopics(topicNames);
+      Map<String, TopicDescription> descriptions = topicsResult.allTopicNames().get();
+
+      int totalPartitions = 0;
+      Map<String, Integer> topicPartitionCounts = new HashMap<>();
+
+      System.out.println("\\nTopic Details:");
+      for (Map.Entry<String, TopicDescription> entry : descriptions.entrySet()) {
+        String topicName = entry.getKey();
+        TopicDescription desc = entry.getValue();
+        int partitionCount = desc.partitions().size();
+        totalPartitions += partitionCount;
+        topicPartitionCounts.put(topicName, partitionCount);
+
+        System.out.println("\\n  Topic: " + topicName);
+        System.out.println("    Partitions: " + partitionCount);
+        System.out.println("    Internal: " + desc.isInternal());
+
+        // Partition distribution
+        Map<Integer, Integer> leaderDistribution = new HashMap<>();
+        for (TopicPartitionInfo partition : desc.partitions()) {
+          int leaderId = partition.leader().id();
+          leaderDistribution.merge(leaderId, 1, Integer::sum);
+        }
+
+        System.out.println("    Leader Distribution: " + leaderDistribution);
+
+        // Replication factor
+        if (!desc.partitions().isEmpty()) {
+          int replicationFactor = desc.partitions().get(0).replicas().size();
+          System.out.println("    Replication Factor: " + replicationFactor);
+        }
+      }
+
+      // Get topic configurations
+      ConfigResource resource = new ConfigResource(
+        ConfigResource.Type.TOPIC, "orders");
+
+      DescribeConfigsResult configResult = adminClient.describeConfigs(
+        Collections.singleton(resource));
+
+      Config config = configResult.all().get().get(resource);
+      System.out.println("\\n  Topic Configuration (orders):");
+      config.entries().stream()
+        .filter(entry -> !entry.isDefault())
+        .forEach(entry ->
+          System.out.println("    " + entry.name() + " = " + entry.value()));
+
+      System.out.println("\\n=== Analytics Summary ===");
+      System.out.println("Total Partitions: " + totalPartitions);
+      System.out.println("Average Partitions/Topic: " +
+        (totalPartitions / topicNames.size()));
+      System.out.println("Largest Topic: " +
+        Collections.max(topicPartitionCounts.entrySet(),
+          Map.Entry.comparingByValue()).getKey());
+    }
+  }
+}
+// Output: === Kafka Topic Analytics ===
+// Output: Total Topics: 12
+// Output: Topic Details:
+// Output:   Topic: orders
+// Output:     Partitions: 6
+// Output:     Leader Distribution: {1=2, 2=2, 3=2}
+// Output:     Replication Factor: 3
+// Output: === Analytics Summary ===
+// Output: Total Partitions: 48
+// Output: Average Partitions/Topic: 4
+// Output: Largest Topic: orders` },
+        { name: 'Alert Management', codeExample: `import org.apache.kafka.clients.admin.*;
+import org.apache.kafka.common.TopicPartition;
+import java.util.*;
+import java.util.concurrent.*;
+
+public class AlertManager {
+
+  private static final long LAG_THRESHOLD = 10000;
+  private static final long DISK_USAGE_THRESHOLD = 80;
+  private static final int UNDER_REPLICATED_THRESHOLD = 0;
+
+  public static void main(String[] args) throws Exception {
+    Properties props = new Properties();
+    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+
+    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+    System.out.println("=== Kafka Alert Manager Started ===");
+    System.out.println("Monitoring interval: 30 seconds\\n");
+
+    // Schedule monitoring every 30 seconds
+    scheduler.scheduleAtFixedRate(() -> {
+      try (AdminClient adminClient = AdminClient.create(props)) {
+        System.out.println("\\n[" + new Date() + "] Running health checks...");
+
+        // Check 1: Consumer Lag
+        checkConsumerLag(adminClient);
+
+        // Check 2: Under-replicated partitions
+        checkUnderReplicatedPartitions(adminClient);
+
+        // Check 3: Broker availability
+        checkBrokerAvailability(adminClient);
+
+        System.out.println("Health check completed.\\n");
+
+      } catch (Exception e) {
+        System.err.println("CRITICAL: Monitoring failed - " + e.getMessage());
+        sendAlert("CRITICAL", "Kafka monitoring failed: " + e.getMessage());
+      }
+    }, 0, 30, TimeUnit.SECONDS);
+
+    // Keep running
+    Thread.sleep(180000); // Run for 3 minutes
+    scheduler.shutdown();
+  }
+
+  private static void checkConsumerLag(AdminClient adminClient) throws Exception {
+    ListConsumerGroupsResult groups = adminClient.listConsumerGroups();
+
+    for (ConsumerGroupListing group : groups.all().get()) {
+      Map<TopicPartition, OffsetAndMetadata> offsets =
+        adminClient.listConsumerGroupOffsets(group.groupId())
+          .partitionsToOffsetAndMetadata().get();
+
+      long maxLag = 0;
+      for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : offsets.entrySet()) {
+        long lag = calculateLag(entry.getKey(), entry.getValue().offset());
+        maxLag = Math.max(maxLag, lag);
+      }
+
+      if (maxLag > LAG_THRESHOLD) {
+        String message = "High consumer lag detected: " + group.groupId() +
+          " (lag: " + maxLag + " messages)";
+        System.out.println("  ALERT: " + message);
+        sendAlert("WARNING", message);
+      }
+    }
+  }
+
+  private static void checkUnderReplicatedPartitions(AdminClient adminClient)
+      throws Exception {
+    DescribeTopicsResult topics = adminClient.describeTopics(
+      adminClient.listTopics().names().get());
+
+    int underReplicatedCount = 0;
+    for (TopicDescription desc : topics.allTopicNames().get().values()) {
+      for (TopicPartitionInfo partition : desc.partitions()) {
+        if (partition.isr().size() < partition.replicas().size()) {
+          underReplicatedCount++;
+        }
+      }
+    }
+
+    if (underReplicatedCount > UNDER_REPLICATED_THRESHOLD) {
+      String message = "Under-replicated partitions detected: " +
+        underReplicatedCount;
+      System.out.println("  ALERT: " + message);
+      sendAlert("CRITICAL", message);
+    }
+  }
+
+  private static void checkBrokerAvailability(AdminClient adminClient)
+      throws Exception {
+    DescribeClusterResult cluster = adminClient.describeCluster();
+    int brokerCount = cluster.nodes().get().size();
+
+    if (brokerCount < 3) {
+      String message = "Broker count below threshold: " + brokerCount;
+      System.out.println("  ALERT: " + message);
+      sendAlert("CRITICAL", message);
+    }
+  }
+
+  private static long calculateLag(TopicPartition partition, long currentOffset) {
+    // Simplified - in production, get end offset from consumer
+    return Math.abs(50000 - currentOffset);
+  }
+
+  private static void sendAlert(String severity, String message) {
+    // Send to alerting system (PagerDuty, Slack, email, etc.)
+    System.out.println("  >>> Sending " + severity + " alert: " + message);
+  }
+}
+// Output: === Kafka Alert Manager Started ===
+// Output: Monitoring interval: 30 seconds
+// Output: [Mon Jan 01 10:00:00 UTC 2025] Running health checks...
+// Output:   ALERT: High consumer lag detected: payment-group (lag: 15234 messages)
+// Output:   >>> Sending WARNING alert: High consumer lag detected
+// Output: Health check completed.` }
+      ],
+      description: 'Comprehensive monitoring and operational tools for cluster health, performance metrics, and alerting systems.'
+    }
+  ]
+
+  // Set initial focus on mount
+  useEffect(() => {
+    setFocusedComponentIndex(0)
+  }, [])
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const currentIsModalOpen = isModalOpenRef.current
+      console.log(' KeyDown:', e.key, 'isModalOpen:', currentIsModalOpen)
+
+      // Handle Escape to close modal or go back to menu
+      if (e.key === 'Escape') {
+        if (currentIsModalOpen) {
+          e.preventDefault()
+          e.stopImmediatePropagation()
+          closeModal()
+          return
+        }
+        return
+      }
+
+      if (isModalOpen) {
+        // Modal is open, don't handle other keys
+        return
+      }
+
+      // Navigation when modal is closed
+      const componentCount = components.length
+
+      switch(e.key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          e.preventDefault()
+          setFocusedComponentIndex((prev) => (prev + 1) % componentCount)
+          break
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          e.preventDefault()
+          setFocusedComponentIndex((prev) => (prev - 1 + componentCount) % componentCount)
+          break
+        case 'Enter':
+        case ' ':
+          e.preventDefault()
+          if (components[focusedComponentIndex]) {
+            handleComponentClick(components[focusedComponentIndex].id)
+          }
+          break
+        default:
+          break
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [focusedComponentIndex])
+
+  const handleComponentClick = (component) => {
+    setSelectedComponent(component)
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+    setSelectedComponent(null)
+  }
+
+  // Use refs to access current modal state in event handler
+  const isModalOpenRef = useRef(isModalOpen)
+  useEffect(() => {
+    isModalOpenRef.current = isModalOpen
+  }, [isModalOpen])
+
+
+  return (
+    <div style={{
+      padding: '2rem',
+      maxWidth: '2000px',
+      margin: '120px auto 0',
+      backgroundColor: 'white',
+      borderRadius: '16px',
+      boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
+      border: '3px solid rgba(59, 130, 246, 0.4)'
+    }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '2rem'
+      }}>
+        <button
+          onClick={onBack}
+          style={{
+            padding: '0.75rem 1.5rem',
+            fontSize: '1rem',
+            fontWeight: '600',
+            backgroundColor: '#6b7280',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          ← Back to Menu
+        </button>
+        <h1 style={{
+          fontSize: '2.5rem',
+          fontWeight: '800',
+          color: '#1f2937',
+          margin: 0,
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        }}>
+          🚀 Apache Kafka
+        </h1>
+        <div style={{ width: '120px' }}></div>
+      </div>
+
+      <div style={{
+        backgroundColor: 'rgba(59, 130, 246, 0.05)',
+        padding: '1.5rem',
+        borderRadius: '12px',
+        border: '2px solid rgba(59, 130, 246, 0.2)',
+        marginBottom: '2rem'
+      }}>
+        <p style={{
+          fontSize: '1.1rem',
+          color: '#374151',
+          fontWeight: '500',
+          margin: 0,
+          lineHeight: '1.6',
+          textAlign: 'center'
+        }}>
+          Distributed event streaming platform for high-throughput, fault-tolerant messaging systems.
+          Build real-time data pipelines and streaming applications with exactly-once processing,
+          horizontal scalability, and enterprise-grade durability guarantees.
+        </p>
+      </div>
+
+      <ModernDiagram
+        components={components}
+        onComponentClick={handleComponentClick}
+        title="Kafka Ecosystem Architecture"
+        width={1400}
+        height={800}
+        containerWidth={1800}
+      
+        focusedIndex={focusedComponentIndex}
+      />
+
+      <div style={{
+        marginTop: '3rem',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+        gap: '1.5rem'
+      }}>
+        <div style={{
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          padding: '1.5rem',
+          borderRadius: '12px',
+          border: '2px solid rgba(59, 130, 246, 0.3)'
+        }}>
+          <h3 style={{
+            color: '#1e40af',
+            fontSize: '1.25rem',
+            fontWeight: '700',
+            marginBottom: '1rem'
+          }}>
+            🔧 Key Features
+          </h3>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr',
+            gap: '0.5rem',
+            fontSize: '0.9rem'
+          }}>
+            <div>• Distributed Event Streaming</div>
+            <div>• Exactly-Once Processing</div>
+            <div>• Horizontal Scalability</div>
+            <div>• Fault Tolerance & HA</div>
+            <div>• Schema Evolution Support</div>
+            <div>• Stream Processing (Kafka Streams)</div>
+          </div>
+        </div>
+
+        <div style={{
+          backgroundColor: 'rgba(139, 92, 246, 0.1)',
+          padding: '1.5rem',
+          borderRadius: '12px',
+          border: '2px solid rgba(139, 92, 246, 0.3)'
+        }}>
+          <h3 style={{
+            color: '#7c3aed',
+            fontSize: '1.25rem',
+            fontWeight: '700',
+            marginBottom: '1rem'
+          }}>
+            🌐 Use Cases
+          </h3>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr',
+            gap: '0.5rem',
+            fontSize: '0.9rem'
+          }}>
+            <div>• Real-time Analytics Pipelines</div>
+            <div>• Event-Driven Microservices</div>
+            <div>• Log Aggregation & Monitoring</div>
+            <div>• Stream Processing Applications</div>
+            <div>• Data Integration & ETL</div>
+            <div>• IoT & Sensor Data Processing</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal */}
+      {isModalOpen && selectedComponent && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 99999
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '2.5rem',
+            borderRadius: '16px',
+            maxWidth: '1000px',
+            width: '90%',
+            maxHeight: '80vh',
+            overflowY: 'auto',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            border: '3px solid rgba(59, 130, 246, 0.4)'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '2rem'
+            }}>
+              <h2 style={{
+                fontSize: '2rem',
+                fontWeight: '800',
+                color: '#1f2937',
+                margin: 0,
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+              }}>
+                {selectedComponent.icon} {selectedComponent.title}
+              </h2>
+              <button
+                onClick={closeModal}
+                style={{
+                  padding: '0.5rem 1rem',
+                  fontSize: '1.25rem',
+                  fontWeight: '600',
+                  backgroundColor: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{
+              backgroundColor: 'rgba(59, 130, 246, 0.05)',
+              padding: '1.5rem',
+              borderRadius: '12px',
+              border: '2px solid rgba(59, 130, 246, 0.2)',
+              marginBottom: '2rem'
+            }}>
+              <p style={{
+                fontSize: '1.1rem',
+                color: '#374151',
+                fontWeight: '500',
+                margin: 0,
+                lineHeight: '1.6'
+              }}>
+                {selectedComponent.description}
+              </p>
+            </div>
+
+            <div>
+              <h3 style={{
+                fontSize: '1.25rem',
+                fontWeight: '700',
+                color: '#1f2937',
+                marginBottom: '1rem'
+              }}>
+                Code Examples
+              </h3>
+              <div style={{
+                display: 'grid',
+                gap: '1.5rem'
+              }}>
+                {selectedComponent.details.map((detail, idx) => (
+                  <div key={idx}>
+                    <h4 style={{
+                      fontSize: '1.1rem',
+                      fontWeight: '600',
+                      color: '#1f2937',
+                      marginBottom: '0.75rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}>
+                      <span style={{
+                        backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                        color: '#166534',
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: '6px',
+                        fontSize: '0.9rem',
+                        fontWeight: '600'
+                      }}>
+                        {idx + 1}
+                      </span>
+                      {detail.name}
+                    </h4>
+                    <SyntaxHighlighter code={detail.codeExample} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default ApacheKafka

@@ -1,0 +1,3208 @@
+import { useState, useEffect, useRef } from 'react'
+
+// Simple syntax highlighter for Java code
+const SyntaxHighlighter = ({ code }) => {
+  const highlightJava = (code) => {
+    let highlighted = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+
+    // Store protected content with placeholders
+    const protectedContent = []
+    let placeholder = 0
+
+    // Protect comments first
+    highlighted = highlighted.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
+      const id = `___COMMENT_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
+      return id
+    })
+
+    // Protect strings
+    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
+      const id = `___STRING_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
+      return id
+    })
+
+    // Apply syntax highlighting to remaining code
+    highlighted = highlighted
+      // Keywords - purple
+      .replace(/\b(public|private|protected|static|final|class|interface|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|import|package|void|abstract|synchronized|volatile|transient|native|strictfp|super|this|null|sealed|permits|record|var|when|instanceof|yield)\b/g, '<span style="color: #c586c0;">$1</span>')
+
+      // Boolean and primitives - blue
+      .replace(/\b(true|false|int|double|float|long|short|byte|char|boolean)\b/g, '<span style="color: #569cd6;">$1</span>')
+
+      // Types and classes - light green
+      .replace(/\b(String|List|ArrayList|LinkedList|HashMap|TreeMap|HashSet|TreeSet|Map|Set|Queue|Deque|Collection|Arrays|Collections|Thread|Runnable|Executor|ExecutorService|CompletableFuture|Stream|Optional|Path|Files|Pattern|Matcher|StringBuilder|StringBuffer|Integer|Double|Float|Long|Short|Byte|Character|Boolean|Object|System|Math|Scanner|BufferedReader|FileReader|FileWriter|PrintWriter|InputStream|OutputStream|Exception|RuntimeException|IOException|SQLException|WeakReference|SoftReference|PhantomReference|ReferenceQueue|StructuredTaskScope|SequencedCollection|SequencedSet|SequencedMap|Duration|Instant)\b/g, '<span style="color: #4ec9b0;">$1</span>')
+
+      // Annotations - yellow
+      .replace(/(@\w+)/g, '<span style="color: #dcdcaa;">$1</span>')
+
+      // Numbers - light green
+      .replace(/\b(\d+\.?\d*[fLdD]?)\b/g, '<span style="color: #b5cea8;">$1</span>')
+
+      // Method calls - yellow
+      .replace(/\b([a-z_]\w*)\s*\(/g, '<span style="color: #dcdcaa;">$1</span>(')
+
+    // Restore protected content
+    protectedContent.forEach(({ id, replacement }) => {
+      highlighted = highlighted.replace(id, replacement)
+    })
+
+    return highlighted
+  }
+
+  return (
+    <pre style={{
+      margin: 0,
+      fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+      fontSize: '0.85rem',
+      lineHeight: '1.6',
+      color: '#d4d4d4',
+      whiteSpace: 'pre',
+      overflowX: 'auto',
+      textAlign: 'left',
+      padding: 0
+    }}>
+      <code dangerouslySetInnerHTML={{ __html: highlightJava(code) }} />
+    </pre>
+  )
+}
+
+const ModernDiagram = ({ components, onComponentClick, title, width = 1400, height = 800, containerWidth = 1800, focusedIndex }) => {
+  const [hoveredComponent, setHoveredComponent] = useState(null)
+
+  return (
+    <div style={{
+      width: '100%',
+      maxWidth: `${containerWidth}px`,
+      margin: '0 auto',
+      backgroundColor: '#f8fafc',
+      borderRadius: '16px',
+      padding: '2rem',
+      boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.1)',
+      border: '2px solid #e2e8f0'
+    }}>
+      <h3 style={{
+        textAlign: 'center',
+        marginBottom: '2rem',
+        fontSize: '1.75rem',
+        fontWeight: '800',
+        color: '#1e293b',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
+        {title}
+      </h3>
+
+      <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} style={{ overflow: 'visible' }}>
+        <defs>
+          <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#1e40af" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#10b981" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#059669" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ef4444" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#dc2626" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#d97706" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="tealGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#0d9488" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="indigoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#6366f1" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="pinkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ec4899" stopOpacity="0.8"/>
+            <stop offset="100%" stopColor="#db2777" stopOpacity="0.9"/>
+          </linearGradient>
+
+          {/* Arrow markers */}
+          <marker id="arrowSolid" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#1e293b" />
+          </marker>
+          <marker id="arrowDashed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#64748b" />
+          </marker>
+        </defs>
+
+        {/* Architectural layer backgrounds */}
+        <g opacity="0.1">
+          <rect x="50" y="180" width="420" height="200" rx="16" fill="#3b82f6" />
+          <text x="260" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="#1e40af" opacity="0.6">
+            Layer 1
+          </text>
+
+          <rect x="550" y="80" width="420" height="560" rx="16" fill="#10b981" />
+          <text x="760" y="110" textAnchor="middle" fontSize="14" fontWeight="700" fill="#059669" opacity="0.6">
+            Layer 2
+          </text>
+
+          <rect x="1050" y="180" width="420" height="520" rx="16" fill="#8b5cf6" />
+          <text x="1260" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="#7c3aed" opacity="0.6">
+            Layer 3
+          </text>
+        </g>
+
+        {/* Connecting lines with arrows and labels */}
+        <g fill="none">
+          <line x1="430" y1="300" x2="580" y2="200" stroke="#1e293b" strokeWidth="3" strokeOpacity="0.8" markerEnd="url(#arrowSolid)"/>
+          <text x="505" y="240" fontSize="11" fontWeight="600" fill="#1e293b" textAnchor="middle">
+            interacts
+          </text>
+
+          <line x1="430" y1="300" x2="580" y2="400" stroke="#1e293b" strokeWidth="3" strokeOpacity="0.8" markerEnd="url(#arrowSolid)"/>
+          <text x="505" y="360" fontSize="11" fontWeight="600" fill="#1e293b" textAnchor="middle">
+            uses
+          </text>
+
+          <line x1="930" y1="200" x2="1080" y2="300" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
+          <text x="1005" y="240" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
+            depends
+          </text>
+
+          <line x1="930" y1="400" x2="1080" y2="500" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
+          <text x="1005" y="460" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
+            provides
+          </text>
+
+          <line x1="430" y1="500" x2="580" y2="600" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
+          <text x="505" y="560" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
+            extends
+          </text>
+
+          <line x1="930" y1="500" x2="760" y2="600" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
+          <text x="845" y="560" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
+            integrates
+          </text>
+        </g>
+
+        {/* Component rectangles */}
+        {components.map((component, index) => {
+          const isFocused = focusedIndex === index
+          const isHovered = hoveredComponent === component.id
+          const isHighlighted = isFocused || isHovered
+
+          return (
+          <g key={component.id}>
+            {/* Focused ring indicator */}
+            {isFocused && (
+              <rect
+                x={component.x - 6}
+                y={component.y - 6}
+                width={component.width + 12}
+                height={component.height + 12}
+                rx="16"
+                ry="16"
+                fill="none"
+                stroke="#fbbf24"
+                strokeWidth="4"
+                style={{
+                  opacity: 0.9,
+                  filter: 'drop-shadow(0 0 12px rgba(251, 191, 36, 0.6))'
+                }}
+              />
+            )}
+            <rect
+              x={component.x}
+              y={component.y}
+              width={component.width}
+              height={component.height}
+              rx="12"
+              ry="12"
+              fill={`url(#${component.color}Gradient)`}
+              stroke={isHighlighted ? '#1e293b' : '#64748b'}
+              strokeWidth={isHighlighted ? '4' : '2'}
+              style={{
+                cursor: 'pointer',
+                filter: isHighlighted ? 'drop-shadow(0 8px 16px rgba(0,0,0,0.2))' : 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))',
+                transform: isHighlighted ? 'scale(1.05)' : 'scale(1)',
+                transformOrigin: `${component.x + component.width/2}px ${component.y + component.height/2}px`,
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={() => setHoveredComponent(component.id)}
+              onMouseLeave={() => setHoveredComponent(null)}
+              onClick={() => onComponentClick && onComponentClick(component)}
+            />
+
+            {/* Icon */}
+            <text
+              x={component.x + component.width/2}
+              y={component.y + 35}
+              textAnchor="middle"
+              fontSize="48"
+              style={{ userSelect: 'none', pointerEvents: 'none' }}
+            >
+              {component.icon}
+            </text>
+
+            {/* Title */}
+            <text
+              x={component.x + component.width/2}
+              y={component.y + 75}
+              textAnchor="middle"
+              fontSize="18"
+              fontWeight="700"
+              fill="white"
+              style={{ userSelect: 'none', pointerEvents: 'none' }}
+            >
+              {component.title}
+            </text>
+
+            {/* Details */}
+            {component.details && component.details.slice(0, 3).map((detail, idx) => (
+              <text
+                key={idx}
+                x={component.x + component.width/2}
+                y={component.y + 100 + (idx * 15)}
+                textAnchor="middle"
+                fontSize="10"
+                fontWeight="500"
+                fill="rgba(255,255,255,0.9)"
+                style={{ userSelect: 'none', pointerEvents: 'none' }}
+              >
+                {detail.name.length > 18 ? detail.name.substring(0, 15) + '...' : detail.name}
+              </text>
+            ))}
+            {component.details && component.details.length > 3 && (
+              <text
+                x={component.x + component.width/2}
+                y={component.y + 145}
+                textAnchor="middle"
+                fontSize="10"
+                fontWeight="500"
+                fill="rgba(255,255,255,0.7)"
+                style={{ userSelect: 'none', pointerEvents: 'none' }}
+              >
+                +{component.details.length - 3} more features...
+              </text>
+            )}
+          </g>
+        )})}
+      </svg>
+    </div>
+  )
+}
+
+function Java21({ onBack }) {
+  const [selectedComponent, setSelectedComponent] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedConcept, setSelectedConcept] = useState(null)
+  const [focusedComponentIndex, setFocusedComponentIndex] = useState(0)
+
+  const components = [
+    {
+      id: 'virtual-threads', x: 80, y: 240, width: 350, height: 160,
+      icon: '🧵', title: 'Virtual Threads (Project Loom)', color: 'blue',
+      details: [
+        {
+          name: 'Lightweight Threads',
+          explanation: 'Virtual threads are lightweight threads managed by JVM, not OS. Can create millions of virtual threads with minimal overhead. Each virtual thread uses only few KB of memory vs MB for platform threads. Revolutionary for concurrent programming.',
+          codeExample: `import java.time.Duration;
+
+// Creating millions of virtual threads - Java 21
+public class VirtualThreadsDemo {
+  public static void main(String[] args) throws InterruptedException {
+    // Old way - platform threads (limited scalability)
+    // Thread platformThread = new Thread(() -> {
+    //   System.out.println("Platform thread: " + Thread.currentThread());
+    // });
+    // platformThread.start();
+
+    // NEW in Java 21 - Virtual threads (unlimited scalability)
+    Thread virtualThread = Thread.startVirtualThread(() -> {
+      System.out.println("Virtual thread: " + Thread.currentThread());
+      System.out.println("Is virtual: " + Thread.currentThread().isVirtual());
+    });
+
+    virtualThread.join();
+
+    // Creating 1 MILLION virtual threads - impossible with platform threads!
+    long start = System.currentTimeMillis();
+    Thread[] threads = new Thread[1_000_000];
+
+    for (int i = 0; i < 1_000_000; i++) {
+      final int taskId = i;
+      threads[i] = Thread.startVirtualThread(() -> {
+        try {
+          Thread.sleep(Duration.ofMillis(100));
+          if (taskId % 100000 == 0) {
+            System.out.println("Task " + taskId + " completed");
+          }
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
+      });
+    }
+
+    // Wait for all threads to complete
+    for (Thread t : threads) {
+      t.join();
+    }
+
+    long duration = System.currentTimeMillis() - start;
+    System.out.println("Completed 1M tasks in " + duration + "ms");
+
+    // Output:
+    // Virtual thread: VirtualThread[#21]/runnable@ForkJoinPool-1-worker-1
+    // Is virtual: true
+    // Task 0 completed
+    // Task 100000 completed
+    // ...
+    // Completed 1M tasks in ~150ms (uses only ~10 platform threads!)
+  }
+}`
+        },
+        {
+          name: 'Simple Threading Model',
+          explanation: 'Write thread-per-request code that scales like async code. No need for reactive programming complexity. Blocking operations automatically yield the carrier thread. Simplifies concurrent code dramatically.',
+          codeExample: `import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+// Thread-per-request pattern with Virtual Threads - Java 21
+public class ThreadPerRequestDemo {
+  public static void main(String[] args) throws InterruptedException {
+    HttpClient client = HttpClient.newHttpClient();
+
+    // Create virtual thread executor - NEW in Java 21
+    // Perfect for handling thousands of concurrent requests
+    try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+
+      // Simulate 10,000 concurrent HTTP requests
+      for (int i = 0; i < 10_000; i++) {
+        final int requestId = i;
+
+        executor.submit(() -> {
+          try {
+            // Simple blocking code - no callbacks, no reactive complexity!
+            HttpRequest request = HttpRequest.newBuilder()
+              .uri(URI.create("https://api.example.com/data/" + requestId))
+              .build();
+
+            // This blocks the virtual thread, NOT the platform thread
+            HttpResponse<String> response = client.send(
+              request,
+              HttpResponse.BodyHandlers.ofString()
+            );
+
+            // More blocking operations - still efficient!
+            Thread.sleep(100); // Simulate processing
+
+            if (requestId % 1000 == 0) {
+              System.out.println("Request " + requestId +
+                " completed: " + response.statusCode());
+            }
+
+          } catch (Exception e) {
+            System.err.println("Request " + requestId + " failed: " + e);
+          }
+        });
+      }
+
+      // Executor closes automatically, waits for all tasks
+      System.out.println("All 10,000 requests submitted");
+    }
+
+    System.out.println("All requests completed!");
+
+    // Output:
+    // All 10,000 requests submitted
+    // Request 0 completed: 200
+    // Request 1000 completed: 200
+    // ...
+    // All requests completed!
+    //
+    // Benefits: Simple code, no callbacks, handles 10K concurrent requests
+    // with only ~10 platform threads instead of 10,000!
+  }
+}`
+        },
+        {
+          name: 'Thread.startVirtualThread()',
+          explanation: 'Create virtual threads with Thread.startVirtualThread(runnable) or Executors.newVirtualThreadPerTaskExecutor(). Drop-in replacement for platform threads. Existing blocking APIs work automatically without changes.',
+          codeExample: `import java.util.concurrent.*;
+
+// Different ways to create Virtual Threads - Java 21
+public class VirtualThreadCreation {
+  public static void main(String[] args) throws Exception {
+
+    // Method 1: Thread.startVirtualThread() - simple and direct
+    Thread vThread1 = Thread.startVirtualThread(() -> {
+      System.out.println("Method 1: " + Thread.currentThread());
+    });
+    vThread1.join();
+
+    // Method 2: Thread.ofVirtual() - more control
+    Thread vThread2 = Thread.ofVirtual()
+      .name("my-virtual-thread")
+      .unstarted(() -> {
+        System.out.println("Method 2: " + Thread.currentThread().getName());
+      });
+    vThread2.start();
+    vThread2.join();
+
+    // Method 3: Virtual thread executor - best for many tasks
+    try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+      Future<String> future = executor.submit(() -> {
+        System.out.println("Method 3: Running in " + Thread.currentThread());
+        return "Result from virtual thread";
+      });
+
+      System.out.println("Got result: " + future.get());
+    }
+
+    // Method 4: Thread.Builder for custom configuration
+    ThreadFactory factory = Thread.ofVirtual()
+      .name("worker-", 0)
+      .factory();
+
+    Thread vThread4 = factory.newThread(() -> {
+      System.out.println("Method 4: " + Thread.currentThread().getName());
+    });
+    vThread4.start();
+    vThread4.join();
+
+    // Method 5: Converting existing platform thread code
+    // OLD: new Thread(() -> doWork()).start();
+    // NEW: Thread.startVirtualThread(() -> doWork());
+
+    Thread.startVirtualThread(() -> doWork());
+
+    Thread.sleep(100); // Wait for completion
+
+    // Output:
+    // Method 1: VirtualThread[#21]/runnable@ForkJoinPool-1-worker-1
+    // Method 2: my-virtual-thread
+    // Method 3: Running in VirtualThread[#23]/runnable@ForkJoinPool-1-worker-2
+    // Got result: Result from virtual thread
+    // Method 4: worker-0
+    // Doing work in: VirtualThread[#25]/runnable@ForkJoinPool-1-worker-1
+  }
+
+  static void doWork() {
+    System.out.println("Doing work in: " + Thread.currentThread());
+  }
+}`
+        },
+        {
+          name: 'Carrier Threads',
+          explanation: 'Virtual threads run on carrier platform threads (ForkJoinPool). When virtual thread blocks, carrier thread is freed for other virtual threads. Automatic scheduling and work-stealing. Optimal CPU utilization.',
+          codeExample: `import java.time.Duration;
+import java.util.concurrent.locks.LockSupport;
+
+// Understanding Carrier Threads - Java 21
+public class CarrierThreadDemo {
+  public static void main(String[] args) throws InterruptedException {
+    System.out.println("Available processors: " +
+      Runtime.getRuntime().availableProcessors());
+
+    // Create 100 virtual threads, but only ~10 carrier threads
+    for (int i = 0; i < 100; i++) {
+      final int threadNum = i;
+
+      Thread.startVirtualThread(() -> {
+        // Print which carrier thread is being used
+        System.out.println("Virtual thread " + threadNum +
+          " running on: " + Thread.currentThread());
+
+        try {
+          // Simulate I/O operation (blocks virtual thread)
+          Thread.sleep(Duration.ofMillis(100));
+
+          // After waking up, might be on different carrier thread!
+          System.out.println("Virtual thread " + threadNum +
+            " resumed on: " + Thread.currentThread());
+
+          // CPU-bound work - stays on same carrier
+          long sum = 0;
+          for (long j = 0; j < 1_000_000; j++) {
+            sum += j;
+          }
+
+          // Another blocking operation
+          LockSupport.parkNanos(Duration.ofMillis(10).toNanos());
+
+          System.out.println("Virtual thread " + threadNum +
+            " finished on: " + Thread.currentThread());
+
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
+      });
+    }
+
+    Thread.sleep(2000); // Wait for all to complete
+
+    // Output (example):
+    // Available processors: 8
+    // Virtual thread 0 running on: VirtualThread[#21]/runnable@ForkJoinPool-1-worker-1
+    // Virtual thread 1 running on: VirtualThread[#22]/runnable@ForkJoinPool-1-worker-2
+    // ...
+    // Virtual thread 0 resumed on: VirtualThread[#21]/runnable@ForkJoinPool-1-worker-3
+    //   ^ Notice: Same virtual thread, different carrier (worker-3 vs worker-1)
+    //
+    // Key insight: 100 virtual threads sharing only ~8-10 carrier threads!
+    // When virtual thread blocks, carrier is freed for other virtual threads
+  }
+}`
+        },
+        {
+          name: 'Performance Benefits',
+          explanation: 'Handle millions of concurrent requests with modest hardware. Eliminates thread pool tuning complexity. Better resource utilization than thread pools. Ideal for I/O-bound workloads like web services.',
+          codeExample: `import java.time.Duration;
+import java.time.Instant;
+import java.util.concurrent.*;
+
+// Performance comparison: Platform vs Virtual Threads - Java 21
+public class PerformanceComparison {
+
+  static void simulateIoOperation() throws InterruptedException {
+    // Simulate I/O (database call, HTTP request, etc.)
+    Thread.sleep(Duration.ofMillis(100));
+  }
+
+  // OLD WAY: Platform thread pool (limited scalability)
+  static void platformThreadApproach() throws Exception {
+    Instant start = Instant.now();
+
+    // Can only handle ~1000 concurrent tasks efficiently
+    ExecutorService executor = Executors.newFixedThreadPool(1000);
+    CountDownLatch latch = new CountDownLatch(10_000);
+
+    for (int i = 0; i < 10_000; i++) {
+      executor.submit(() -> {
+        try {
+          simulateIoOperation();
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        } finally {
+          latch.countDown();
+        }
+      });
+    }
+
+    latch.await();
+    executor.shutdown();
+
+    Duration duration = Duration.between(start, Instant.now());
+    System.out.println("Platform threads (pool=1000): " +
+      duration.toMillis() + "ms");
+    // Result: ~1000ms (10 waves of 1000 threads)
+  }
+
+  // NEW WAY: Virtual threads (unlimited scalability)
+  static void virtualThreadApproach() throws Exception {
+    Instant start = Instant.now();
+
+    // Can handle millions of concurrent tasks!
+    ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+    CountDownLatch latch = new CountDownLatch(10_000);
+
+    for (int i = 0; i < 10_000; i++) {
+      executor.submit(() -> {
+        try {
+          simulateIoOperation();
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        } finally {
+          latch.countDown();
+        }
+      });
+    }
+
+    latch.await();
+    executor.shutdown();
+
+    Duration duration = Duration.between(start, Instant.now());
+    System.out.println("Virtual threads (unlimited): " +
+      duration.toMillis() + "ms");
+    // Result: ~100ms (all 10,000 run concurrently!)
+  }
+
+  public static void main(String[] args) throws Exception {
+    System.out.println("Testing 10,000 I/O-bound tasks...\n");
+
+    platformThreadApproach();
+    virtualThreadApproach();
+
+    // Output:
+    // Testing 10,000 I/O-bound tasks...
+    //
+    // Platform threads (pool=1000): 1050ms
+    // Virtual threads (unlimited): 105ms
+    //
+    // Virtual threads are 10x faster!
+    // - No thread pool tuning needed
+    // - Better resource utilization
+    // - Simpler code (thread-per-request model)
+  }
+}`
+        },
+        {
+          name: 'Debugging Support',
+          explanation: 'Full debugger and profiler support. JFR events for virtual threads. Thread dumps include virtual threads. ThreadLocal works but should be used carefully due to high thread count.',
+          codeExample: `import java.util.concurrent.Executors;
+
+// Debugging Virtual Threads - Java 21
+public class VirtualThreadDebugging {
+
+  // ThreadLocal works but use carefully - many virtual threads!
+  private static final ThreadLocal<String> threadLocal =
+    ThreadLocal.withInitial(() -> "default-value");
+
+  public static void main(String[] args) throws InterruptedException {
+
+    // 1. Checking if thread is virtual
+    Thread.startVirtualThread(() -> {
+      Thread current = Thread.currentThread();
+      System.out.println("Thread: " + current);
+      System.out.println("Is virtual: " + current.isVirtual());
+      System.out.println("Is daemon: " + current.isDaemon()); // Always true
+      System.out.println("Thread ID: " + current.threadId());
+    }).join();
+
+    // 2. Thread dumps include virtual threads
+    // Run: jcmd <pid> Thread.dump_to_file threads.txt
+    // Or programmatically:
+    Thread.getAllStackTraces().forEach((thread, stack) -> {
+      if (thread.isVirtual()) {
+        System.out.println("\nVirtual thread: " + thread);
+        // Stack trace available for debugging
+      }
+    });
+
+    // 3. ThreadLocal usage (be careful - many threads!)
+    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+      for (int i = 0; i < 10; i++) {
+        final int taskId = i;
+        executor.submit(() -> {
+          // Each virtual thread gets its own ThreadLocal value
+          threadLocal.set("task-" + taskId);
+          System.out.println("Task " + taskId + ": " + threadLocal.get());
+
+          // WARNING: With millions of virtual threads,
+          // ThreadLocal can use lots of memory!
+          // Consider using regular variables or scoped values instead
+        });
+      }
+    }
+
+    // 4. Profiling with JFR (Java Flight Recorder)
+    // jcmd <pid> JFR.start name=myrecording settings=profile
+    // Virtual threads show up in JFR with events:
+    // - jdk.VirtualThreadStart
+    // - jdk.VirtualThreadEnd
+    // - jdk.VirtualThreadPinned (when carrier thread is pinned)
+
+    Thread.sleep(100);
+
+    // 5. Monitoring virtual threads
+    Thread vThread = Thread.ofVirtual().name("monitored-thread").start(() -> {
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+    });
+
+    System.out.println("\nMonitoring virtual thread:");
+    System.out.println("Name: " + vThread.getName());
+    System.out.println("State: " + vThread.getState());
+    System.out.println("Alive: " + vThread.isAlive());
+
+    vThread.join();
+
+    // Output:
+    // Thread: VirtualThread[#21]/runnable@ForkJoinPool-1-worker-1
+    // Is virtual: true
+    // Is daemon: true
+    // Thread ID: 21
+    // ...
+    // Task 0: task-0
+    // Task 1: task-1
+    // ...
+    // Monitoring virtual thread:
+    // Name: monitored-thread
+    // State: TIMED_WAITING
+    // Alive: true
+  }
+}`
+        }
+      ],
+      description: 'Lightweight threads enabling millions of concurrent tasks with simple thread-per-request programming model from Project Loom.'
+    },
+    {
+      id: 'pattern-matching-switch', x: 580, y: 140, width: 350, height: 160,
+      icon: '🎯', title: 'Pattern Matching for Switch', color: 'green',
+      details: [
+        {
+          name: 'Type Patterns',
+          explanation: 'Switch on type patterns: case String s -> ... , case Integer i -> ... . Pattern variable automatically scoped and typed. Works with sealed classes for exhaustive checking. Eliminates cascading if-instanceof chains.',
+          codeExample: `// Type Patterns in Switch - Java 21
+public class TypePatternsDemo {
+
+  // OLD WAY: Ugly if-instanceof chains
+  static String formatOld(Object obj) {
+    if (obj instanceof String s) {
+      return "String: " + s.toUpperCase();
+    } else if (obj instanceof Integer i) {
+      return "Integer: " + (i * 2);
+    } else if (obj instanceof Double d) {
+      return "Double: " + String.format("%.2f", d);
+    } else if (obj == null) {
+      return "null";
+    } else {
+      return "Unknown: " + obj;
+    }
+  }
+
+  // NEW in Java 21: Pattern matching switch
+  static String formatNew(Object obj) {
+    return switch (obj) {
+      case String s  -> "String: " + s.toUpperCase();
+      case Integer i -> "Integer: " + (i * 2);
+      case Double d  -> "Double: " + String.format("%.2f", d);
+      case null      -> "null";
+      default        -> "Unknown: " + obj;
+    };
+  }
+
+  // Works with sealed types for exhaustiveness
+  sealed interface Shape permits Circle, Rectangle, Triangle {}
+  record Circle(double radius) implements Shape {}
+  record Rectangle(double width, double height) implements Shape {}
+  record Triangle(double base, double height) implements Shape {}
+
+  static double calculateArea(Shape shape) {
+    // No default needed - compiler knows all types!
+    return switch (shape) {
+      case Circle c -> Math.PI * c.radius() * c.radius();
+      case Rectangle r -> r.width() * r.height();
+      case Triangle t -> 0.5 * t.base() * t.height();
+    };
+  }
+
+  public static void main(String[] args) {
+    System.out.println(formatNew("hello"));
+    System.out.println(formatNew(42));
+    System.out.println(formatNew(3.14));
+    System.out.println(formatNew(null));
+
+    Shape circle = new Circle(5.0);
+    System.out.println("Circle area: " + calculateArea(circle));
+
+    // Output:
+    // String: HELLO
+    // Integer: 84
+    // Double: 3.14
+    // null
+    // Circle area: 78.53981633974483
+  }
+}`
+        },
+        {
+          name: 'Guarded Patterns',
+          explanation: 'Add conditions to patterns with when clause: case String s when s.length() > 5 -> ... . Combines type checking and value conditions. More expressive than separate if statements.',
+          codeExample: `// Guarded Patterns with 'when' clause - Java 21
+public class GuardedPatternsDemo {
+
+  static String categorize(Object obj) {
+    return switch (obj) {
+      // Guards with 'when' - NEW in Java 21
+      case String s when s.isEmpty()     -> "Empty string";
+      case String s when s.length() < 5  -> "Short string: " + s;
+      case String s when s.length() < 10 -> "Medium string: " + s;
+      case String s                      -> "Long string: " + s.substring(0, 10) + "...";
+
+      case Integer i when i < 0          -> "Negative: " + i;
+      case Integer i when i == 0         -> "Zero";
+      case Integer i when i < 100        -> "Small positive: " + i;
+      case Integer i                     -> "Large positive: " + i;
+
+      case null                          -> "null value";
+      default                            -> "Unknown type";
+    };
+  }
+
+  // Complex guards example
+  record Person(String name, int age, boolean isStudent) {}
+
+  static String describePersonStatus(Object obj) {
+    return switch (obj) {
+      case Person p when p.age() < 18 && p.isStudent() ->
+        p.name() + " is a minor student";
+
+      case Person p when p.age() < 18 ->
+        p.name() + " is a minor";
+
+      case Person p when p.age() >= 65 ->
+        p.name() + " is a senior citizen";
+
+      case Person p when p.isStudent() ->
+        p.name() + " is an adult student";
+
+      case Person p ->
+        p.name() + " is an adult";
+
+      case null -> "No person";
+      default   -> "Not a person";
+    };
+  }
+
+  public static void main(String[] args) {
+    System.out.println(categorize(""));
+    System.out.println(categorize("Hi"));
+    System.out.println(categorize("Hello World"));
+    System.out.println(categorize("This is a very long string"));
+    System.out.println(categorize(-5));
+    System.out.println(categorize(0));
+    System.out.println(categorize(42));
+    System.out.println(categorize(1000));
+
+    System.out.println(describePersonStatus(new Person("Alice", 16, true)));
+    System.out.println(describePersonStatus(new Person("Bob", 25, true)));
+    System.out.println(describePersonStatus(new Person("Carol", 70, false)));
+
+    // Output:
+    // Empty string
+    // Short string: Hi
+    // Medium string: Hello World
+    // Long string: This is a ...
+    // Negative: -5
+    // Zero
+    // Small positive: 42
+    // Large positive: 1000
+    // Alice is a minor student
+    // Bob is an adult student
+    // Carol is a senior citizen
+  }
+}`
+        },
+        {
+          name: 'Null Handling',
+          explanation: 'Explicit null case: case null -> ... or case null, default -> ... . Switch can now handle null without NullPointerException. Makes null handling explicit and safe.',
+          codeExample: `// Null Handling in Switch - Java 21
+public class NullHandlingDemo {
+
+  // OLD WAY: NullPointerException risk
+  static String processOld(String value) {
+    // This throws NPE if value is null!
+    // return switch (value) {
+    //   case "foo" -> "Found foo";
+    //   case "bar" -> "Found bar";
+    //   default -> "Other: " + value;
+    // };
+
+    // Had to check null separately
+    if (value == null) {
+      return "null value";
+    }
+    return switch (value) {
+      case "foo" -> "Found foo";
+      case "bar" -> "Found bar";
+      default -> "Other: " + value;
+    };
+  }
+
+  // NEW in Java 21: Built-in null handling
+  static String processNew(String value) {
+    return switch (value) {
+      case null  -> "null value";        // Explicit null case
+      case "foo" -> "Found foo";
+      case "bar" -> "Found bar";
+      default    -> "Other: " + value;
+    };
+  }
+
+  // Can combine null with default
+  static String processNullAsDefault(String value) {
+    return switch (value) {
+      case "foo" -> "Found foo";
+      case "bar" -> "Found bar";
+      case null, default -> "Not foo or bar"; // null and default together
+    };
+  }
+
+  // Null with type patterns
+  static String describeObject(Object obj) {
+    return switch (obj) {
+      case null           -> "Got null";
+      case String s       -> "String: " + s;
+      case Integer i      -> "Integer: " + i;
+      case Double d       -> "Double: " + d;
+      case Object o       -> "Other object: " + o.getClass().getSimpleName();
+    };
+  }
+
+  // Null with guards
+  static String categorizeString(String s) {
+    return switch (s) {
+      case null                        -> "null";
+      case String str when str.isEmpty() -> "empty";
+      case String str when str.isBlank() -> "blank";
+      case String str                    -> "value: " + str;
+    };
+  }
+
+  public static void main(String[] args) {
+    // Test explicit null case
+    System.out.println(processNew(null));
+    System.out.println(processNew("foo"));
+    System.out.println(processNew("bar"));
+    System.out.println(processNew("baz"));
+
+    // Test null with default
+    System.out.println(processNullAsDefault(null));
+    System.out.println(processNullAsDefault("hello"));
+
+    // Test with objects
+    System.out.println(describeObject(null));
+    System.out.println(describeObject("test"));
+    System.out.println(describeObject(42));
+
+    // Test null with guards
+    System.out.println(categorizeString(null));
+    System.out.println(categorizeString(""));
+    System.out.println(categorizeString("  "));
+    System.out.println(categorizeString("hello"));
+
+    // Output:
+    // null value
+    // Found foo
+    // Found bar
+    // Other: baz
+    // Not foo or bar
+    // Not foo or bar
+    // Got null
+    // String: test
+    // Integer: 42
+    // null
+    // empty
+    // blank
+    // value: hello
+  }
+}`
+        },
+        {
+          name: 'Record Patterns',
+          explanation: 'Destructure records in switch: case Point(int x, int y) -> ... . Nested patterns for complex types. Enables functional-style data extraction. Combines perfectly with sealed types.',
+          codeExample: `// Record Patterns in Switch - Java 21
+public class RecordPatternsSwitch {
+  record Point(int x, int y) {}
+  record Circle(Point center, int radius) {}
+  record Rectangle(Point topLeft, Point bottomRight) {}
+
+  // Simple record pattern
+  static String describe(Point p) {
+    return switch (p) {
+      case Point(int x, int y) when x == 0 && y == 0 -> "Origin";
+      case Point(int x, int y) when x == y -> "On diagonal at " + x;
+      case Point(int x, int y) when x == 0 -> "On Y-axis at " + y;
+      case Point(int x, int y) when y == 0 -> "On X-axis at " + x;
+      case Point(int x, int y) -> "Point at (" + x + ", " + y + ")";
+    };
+  }
+
+  // Nested record patterns - NEW in Java 21!
+  static String describeShape(Object shape) {
+    return switch (shape) {
+      // Destructure nested records in one line!
+      case Circle(Point(int x, int y), int r) when x == 0 && y == 0 ->
+        "Circle at origin with radius " + r;
+
+      case Circle(Point(int x, int y), int r) ->
+        "Circle at (" + x + ", " + y + ") with radius " + r;
+
+      case Rectangle(Point(int x1, int y1), Point(int x2, int y2)) ->
+        "Rectangle from (" + x1 + "," + y1 + ") to (" + x2 + "," + y2 + ")";
+
+      case Point(int x, int y) ->
+        "Just a point at (" + x + ", " + y + ")";
+
+      case null -> "null shape";
+      default -> "Unknown shape";
+    };
+  }
+
+  // Sealed types with record patterns
+  sealed interface JsonValue {}
+  record JsonString(String value) implements JsonValue {}
+  record JsonNumber(double value) implements JsonValue {}
+  record JsonBoolean(boolean value) implements JsonValue {}
+  record JsonArray(java.util.List<JsonValue> values) implements JsonValue {}
+  record JsonObject(java.util.Map<String, JsonValue> fields) implements JsonValue {}
+
+  static String formatJson(JsonValue json) {
+    // Exhaustive matching - no default needed!
+    return switch (json) {
+      case JsonString(String s)  -> "\"" + s + "\"";
+      case JsonNumber(double n)  -> String.valueOf(n);
+      case JsonBoolean(boolean b) -> String.valueOf(b);
+      case JsonArray(var values) -> values.toString();
+      case JsonObject(var fields) -> fields.toString();
+    };
+  }
+
+  public static void main(String[] args) {
+    Point origin = new Point(0, 0);
+    Point diagonal = new Point(5, 5);
+    Point onXAxis = new Point(3, 0);
+
+    System.out.println(describe(origin));
+    System.out.println(describe(diagonal));
+    System.out.println(describe(onXAxis));
+
+    Circle circle1 = new Circle(new Point(0, 0), 10);
+    Circle circle2 = new Circle(new Point(5, 5), 7);
+    Rectangle rect = new Rectangle(new Point(0, 0), new Point(10, 20));
+
+    System.out.println(describeShape(circle1));
+    System.out.println(describeShape(circle2));
+    System.out.println(describeShape(rect));
+
+    JsonValue str = new JsonString("hello");
+    JsonValue num = new JsonNumber(42.5);
+    JsonValue bool = new JsonBoolean(true);
+
+    System.out.println(formatJson(str));
+    System.out.println(formatJson(num));
+    System.out.println(formatJson(bool));
+
+    // Output:
+    // Origin
+    // On diagonal at 5
+    // On X-axis at 3
+    // Circle at origin with radius 10
+    // Circle at (5, 5) with radius 7
+    // Rectangle from (0,0) to (10,20)
+    // "hello"
+    // 42.5
+    // true
+  }
+}`
+        },
+        {
+          name: 'Exhaustiveness',
+          explanation: 'Compiler ensures all cases covered with sealed types. No default needed when all subtypes handled. Compile-time safety for pattern matching. Catches missing cases at compilation.',
+          codeExample: `// Exhaustiveness Checking - Java 21
+public class ExhaustivenessDemo {
+
+  // Sealed type hierarchy
+  sealed interface Animal permits Dog, Cat, Bird {}
+  record Dog(String name, String breed) implements Animal {}
+  record Cat(String name, boolean isIndoor) implements Animal {}
+  record Bird(String name, boolean canFly) implements Animal {}
+
+  // Exhaustive switch - no default needed!
+  static String describe(Animal animal) {
+    // Compiler verifies ALL subtypes are covered
+    return switch (animal) {
+      case Dog(String name, String breed) ->
+        name + " is a " + breed + " dog";
+      case Cat(String name, boolean isIndoor) ->
+        name + " is an " + (isIndoor ? "indoor" : "outdoor") + " cat";
+      case Bird(String name, boolean canFly) ->
+        name + " is a bird that " + (canFly ? "can fly" : "cannot fly");
+      // No default needed - compiler knows all cases covered!
+    };
+  }
+
+  // If you forget a case, compiler error!
+  // static String describeIncomplete(Animal animal) {
+  //   return switch (animal) {
+  //     case Dog d -> "Dog";
+  //     case Cat c -> "Cat";
+  //     // COMPILE ERROR: missing case for Bird!
+  //   };
+  // }
+
+  // Sealed types for payment methods
+  sealed interface PaymentMethod permits CreditCard, PayPal, BankTransfer {}
+  record CreditCard(String number, String cvv) implements PaymentMethod {}
+  record PayPal(String email) implements PaymentMethod {}
+  record BankTransfer(String accountNumber, String routingNumber) implements PaymentMethod {}
+
+  static String processPayment(PaymentMethod method, double amount) {
+    // Exhaustive - compiler ensures all payment types handled
+    return switch (method) {
+      case CreditCard(String num, String cvv) ->
+        "Charging $" + amount + " to card ending in " + num.substring(num.length() - 4);
+      case PayPal(String email) ->
+        "Charging $" + amount + " to PayPal account " + email;
+      case BankTransfer(String account, String routing) ->
+        "Transferring $" + amount + " from account " + account;
+    };
+  }
+
+  // Sealed types with nullable handling
+  static String describeWithNull(Animal animal) {
+    return switch (animal) {
+      case null -> "No animal";
+      case Dog d -> "Dog";
+      case Cat c -> "Cat";
+      case Bird b -> "Bird";
+      // Still exhaustive!
+    };
+  }
+
+  public static void main(String[] args) {
+    Animal dog = new Dog("Buddy", "Golden Retriever");
+    Animal cat = new Cat("Whiskers", true);
+    Animal bird = new Bird("Tweety", true);
+
+    System.out.println(describe(dog));
+    System.out.println(describe(cat));
+    System.out.println(describe(bird));
+
+    PaymentMethod card = new CreditCard("1234567890123456", "123");
+    PaymentMethod paypal = new PayPal("user@example.com");
+    PaymentMethod bank = new BankTransfer("9876543210", "123456789");
+
+    System.out.println(processPayment(card, 99.99));
+    System.out.println(processPayment(paypal, 49.99));
+    System.out.println(processPayment(bank, 199.99));
+
+    System.out.println(describeWithNull(null));
+    System.out.println(describeWithNull(dog));
+
+    // Output:
+    // Buddy is a Golden Retriever dog
+    // Whiskers is an indoor cat
+    // Tweety is a bird that can fly
+    // Charging $99.99 to card ending in 3456
+    // Charging $49.99 to PayPal account user@example.com
+    // Transferring $199.99 from account 9876543210
+    // No animal
+    // Dog
+  }
+}`
+        },
+        {
+          name: 'Arrow vs Colon',
+          explanation: 'Modern arrow syntax (case X -> ...) or traditional colon syntax (case X: ... break;). Arrow syntax prevents fall-through errors. Can return values directly. Cleaner and safer code.',
+          codeExample: `// Arrow vs Colon Syntax - Java 21
+public class ArrowVsColonDemo {
+
+  // OLD: Traditional colon syntax (error-prone)
+  static String getDayTypeOld(String day) {
+    String result;
+    switch (day) {
+      case "Monday":
+      case "Tuesday":
+      case "Wednesday":
+      case "Thursday":
+      case "Friday":
+        result = "Weekday";
+        break;
+      case "Saturday":
+      case "Sunday":
+        result = "Weekend";
+        break;
+      default:
+        result = "Invalid day";
+        break;
+    }
+    return result;
+  }
+
+  // NEW in Java 21: Arrow syntax (no fall-through, can return)
+  static String getDayTypeNew(String day) {
+    return switch (day) {
+      case "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" -> "Weekday";
+      case "Saturday", "Sunday" -> "Weekend";
+      default -> "Invalid day";
+    };
+  }
+
+  // Arrow syntax with multiple statements
+  static String analyzeNumber(int num) {
+    return switch (num) {
+      case 0 -> "Zero";
+
+      case 1, 2, 3, 4, 5 -> {
+        String result = "Small positive: " + num;
+        System.out.println("Processing: " + result);
+        yield result; // yield for block expressions
+      }
+
+      case -1, -2, -3, -4, -5 -> {
+        String result = "Small negative: " + num;
+        System.out.println("Processing: " + result);
+        yield result;
+      }
+
+      default -> {
+        if (num > 0) {
+          yield "Large positive: " + num;
+        } else {
+          yield "Large negative: " + num;
+        }
+      }
+    };
+  }
+
+  // Pattern matching with arrow syntax
+  static String formatValue(Object obj) {
+    return switch (obj) {
+      case null -> "null";
+      case String s -> "String of length " + s.length();
+      case Integer i when i < 0 -> "Negative integer";
+      case Integer i -> "Positive integer: " + i;
+      case Double d -> String.format("Double: %.2f", d);
+      case Object o -> "Unknown: " + o.getClass().getSimpleName();
+    };
+  }
+
+  // Can still use colon syntax if needed (not recommended)
+  static void demonstrateColonSyntax(int value) {
+    switch (value) {
+      case 1:
+        System.out.println("One");
+        break;
+      case 2:
+        System.out.println("Two");
+        break;
+      default:
+        System.out.println("Other");
+        break;
+    }
+  }
+
+  public static void main(String[] args) {
+    // Compare old vs new
+    System.out.println(getDayTypeOld("Monday"));
+    System.out.println(getDayTypeNew("Monday"));
+    System.out.println(getDayTypeNew("Saturday"));
+    System.out.println(getDayTypeNew("InvalidDay"));
+
+    // Multiple statements with yield
+    System.out.println(analyzeNumber(3));
+    System.out.println(analyzeNumber(-2));
+    System.out.println(analyzeNumber(100));
+    System.out.println(analyzeNumber(-100));
+
+    // Pattern matching
+    System.out.println(formatValue(null));
+    System.out.println(formatValue("Hello"));
+    System.out.println(formatValue(-5));
+    System.out.println(formatValue(42));
+    System.out.println(formatValue(3.14));
+
+    // Output:
+    // Weekday
+    // Weekday
+    // Weekend
+    // Invalid day
+    // Processing: Small positive: 3
+    // Small positive: 3
+    // Processing: Small negative: -2
+    // Small negative: -2
+    // Large positive: 100
+    // Large negative: -100
+    // null
+    // String of length 5
+    // Negative integer
+    // Positive integer: 42
+    // Double: 3.14
+  }
+}`
+        }
+      ],
+      description: 'Enhanced switch expressions with pattern matching, guards, null handling, and record patterns for expressive type-safe code.'
+    },
+    {
+      id: 'record-patterns', x: 580, y: 340, width: 350, height: 160,
+      icon: '📦', title: 'Record Patterns', color: 'purple',
+      details: [
+        {
+          name: 'Pattern Destructuring',
+          explanation: 'Destructure records directly in patterns: if (obj instanceof Point(int x, int y)). Extract components inline without explicit accessor calls. Makes data extraction concise and readable.',
+          codeExample: `// Record Pattern Destructuring - Java 21
+public class RecordDestructuringDemo {
+  record Point(int x, int y) {}
+  record Person(String name, int age) {}
+  record Employee(Person person, String department, double salary) {}
+
+  // OLD WAY: Manual accessor calls
+  static void printPointOld(Object obj) {
+    if (obj instanceof Point) {
+      Point p = (Point) obj;
+      int x = p.x();
+      int y = p.y();
+      System.out.println("Point at (" + x + ", " + y + ")");
+    }
+  }
+
+  // NEW in Java 21: Direct destructuring
+  static void printPointNew(Object obj) {
+    if (obj instanceof Point(int x, int y)) {
+      // x and y automatically extracted!
+      System.out.println("Point at (" + x + ", " + y + ")");
+    }
+  }
+
+  // Destructuring in if-statements
+  static String describeDistance(Object obj) {
+    if (obj instanceof Point(int x, int y)) {
+      double distance = Math.sqrt(x * x + y * y);
+      return "Distance from origin: " + distance;
+    }
+    return "Not a point";
+  }
+
+  // Multiple instanceof with destructuring
+  static String describe(Object obj) {
+    if (obj instanceof Point(int x, int y)) {
+      return "Point: x=" + x + ", y=" + y;
+    } else if (obj instanceof Person(String name, int age)) {
+      return "Person: " + name + ", age " + age;
+    } else if (obj instanceof Employee(Person(String name, int age), String dept, double salary)) {
+      return name + " (age " + age + ") works in " + dept + ", earns $" + salary;
+    }
+    return "Unknown";
+  }
+
+  // Destructuring with guards
+  static boolean isOnAxisOrOrigin(Object obj) {
+    return obj instanceof Point(int x, int y) && (x == 0 || y == 0);
+  }
+
+  static boolean isHighEarner(Object obj) {
+    return obj instanceof Employee(Person p, String dept, double salary)
+           && salary > 100000;
+  }
+
+  public static void main(String[] args) {
+    Point p1 = new Point(3, 4);
+    Point p2 = new Point(0, 5);
+    Person person = new Person("Alice", 30);
+    Employee emp = new Employee(new Person("Bob", 35), "Engineering", 120000);
+
+    printPointNew(p1);
+    System.out.println(describeDistance(p1));
+    System.out.println(isOnAxisOrOrigin(p2));
+
+    System.out.println(describe(p1));
+    System.out.println(describe(person));
+    System.out.println(describe(emp));
+
+    System.out.println("Is high earner? " + isHighEarner(emp));
+
+    // Output:
+    // Point at (3, 4)
+    // Distance from origin: 5.0
+    // true
+    // Point: x=3, y=4
+    // Person: Alice, age 30
+    // Bob (age 35) works in Engineering, earns $120000.0
+    // Is high earner? true
+  }
+}`
+        },
+        {
+          name: 'Nested Patterns',
+          explanation: 'Nest patterns for complex types: case Line(Point(int x1, int y1), Point(int x2, int y2)) -> ... . Arbitrary nesting depth. Destructure entire object graphs. Powerful for hierarchical data.',
+          codeExample: `// Nested Record Patterns - Java 21
+public class NestedPatternsDemo {
+  record Point(int x, int y) {}
+  record Line(Point start, Point end) {}
+  record Triangle(Point a, Point b, Point c) {}
+  record BoundingBox(Point topLeft, Point bottomRight) {}
+  record Shape(String name, BoundingBox box) {}
+
+  // Simple nesting
+  static double lineLength(Line line) {
+    // Destructure nested Point records!
+    if (line instanceof Line(Point(int x1, int y1), Point(int x2, int y2))) {
+      int dx = x2 - x1;
+      int dy = y2 - y1;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+    return 0;
+  }
+
+  // Deep nesting with switch
+  static String analyzeShape(Object obj) {
+    return switch (obj) {
+      // 3 levels deep!
+      case Shape(String name, BoundingBox(Point(int x1, int y1), Point(int x2, int y2))) -> {
+        int width = x2 - x1;
+        int height = y2 - y1;
+        yield name + " bounds: " + width + "x" + height +
+              " at (" + x1 + "," + y1 + ")";
+      }
+
+      case Triangle(Point(int x1, int y1), Point(int x2, int y2), Point(int x3, int y3)) -> {
+        // Calculate area using coordinates
+        double area = Math.abs((x1 * (y2 - y3) +
+                                x2 * (y3 - y1) +
+                                x3 * (y1 - y2)) / 2.0);
+        yield "Triangle area: " + area;
+      }
+
+      case Line(Point(int x1, int y1), Point(int x2, int y2))
+           when x1 == x2 ->
+        "Vertical line at x=" + x1;
+
+      case Line(Point(int x1, int y1), Point(int x2, int y2))
+           when y1 == y2 ->
+        "Horizontal line at y=" + y1;
+
+      case Line(Point(int x1, int y1), Point(int x2, int y2)) ->
+        "Diagonal line from (" + x1 + "," + y1 + ") to (" + x2 + "," + y2 + ")";
+
+      case Point(int x, int y) ->
+        "Point at (" + x + ", " + y + ")";
+
+      case null -> "null";
+      default -> "Unknown shape";
+    };
+  }
+
+  // Complex nested structure
+  record Company(String name, Employee ceo) {}
+  record Employee(Person person, Department dept) {}
+  record Person(String firstName, String lastName, int age) {}
+  record Department(String name, Location location) {}
+  record Location(String city, String country) {}
+
+  static String getCompanyInfo(Company company) {
+    // Destructure entire hierarchy!
+    if (company instanceof Company(
+         String companyName,
+         Employee(
+           Person(String firstName, String lastName, int age),
+           Department(String deptName, Location(String city, String country))
+         )
+       )) {
+      return companyName + " CEO: " + firstName + " " + lastName +
+             " (age " + age + "), " + deptName + " dept in " + city + ", " + country;
+    }
+    return "Invalid company";
+  }
+
+  public static void main(String[] args) {
+    Line line1 = new Line(new Point(0, 0), new Point(3, 4));
+    Line line2 = new Line(new Point(2, 5), new Point(2, 10));
+
+    System.out.println("Length: " + lineLength(line1));
+    System.out.println(analyzeShape(line1));
+    System.out.println(analyzeShape(line2));
+
+    Triangle tri = new Triangle(new Point(0, 0), new Point(4, 0), new Point(2, 3));
+    System.out.println(analyzeShape(tri));
+
+    Shape shape = new Shape("Rectangle",
+                            new BoundingBox(new Point(10, 20), new Point(50, 80)));
+    System.out.println(analyzeShape(shape));
+
+    Company company = new Company(
+      "TechCorp",
+      new Employee(
+        new Person("Jane", "Doe", 45),
+        new Department("Engineering", new Location("San Francisco", "USA"))
+      )
+    );
+    System.out.println(getCompanyInfo(company));
+
+    // Output:
+    // Length: 5.0
+    // Diagonal line from (0,0) to (3,4)
+    // Vertical line at x=2
+    // Triangle area: 6.0
+    // Rectangle bounds: 40x60 at (10,20)
+    // TechCorp CEO: Jane Doe (age 45), Engineering dept in San Francisco, USA
+  }
+}`
+        },
+        {
+          name: 'Switch Integration',
+          explanation: 'Use in switch expressions and statements. Combined with sealed types for exhaustive matching. case Circle(Point center, int radius) -> ... . Type-safe data extraction with compile-time verification.',
+          codeExample: `// Record Patterns in Switch - Java 21
+public class RecordSwitchIntegration {
+  record Point(int x, int y) {}
+  record Circle(Point center, int radius) {}
+  record Rectangle(Point corner, int width, int height) {}
+
+  // Sealed hierarchy with records
+  sealed interface Shape permits CircleShape, RectShape, TriangleShape {}
+  record CircleShape(Point center, double radius) implements Shape {}
+  record RectShape(Point topLeft, double width, double height) implements Shape {}
+  record TriangleShape(Point p1, Point p2, Point p3) implements Shape {}
+
+  // Switch with record patterns
+  static double calculateArea(Shape shape) {
+    // Exhaustive matching with destructuring!
+    return switch (shape) {
+      case CircleShape(Point center, double r) ->
+        Math.PI * r * r;
+
+      case RectShape(Point corner, double w, double h) ->
+        w * h;
+
+      case TriangleShape(Point(int x1, int y1), Point(int x2, int y2), Point(int x3, int y3)) -> {
+        // Heron's formula
+        double a = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+        double b = Math.sqrt(Math.pow(x3 - x2, 2) + Math.pow(y3 - y2, 2));
+        double c = Math.sqrt(Math.pow(x1 - x3, 2) + Math.pow(y1 - y3, 2));
+        double s = (a + b + c) / 2;
+        yield Math.sqrt(s * (s - a) * (s - b) * (s - c));
+      }
+    };
+  }
+
+  // Guards with record patterns
+  static String categorizeShape(Shape shape) {
+    return switch (shape) {
+      case CircleShape(Point(int x, int y), double r)
+           when x == 0 && y == 0 && r < 10 ->
+        "Small circle at origin";
+
+      case CircleShape(Point(int x, int y), double r)
+           when x == 0 && y == 0 ->
+        "Circle at origin, radius " + r;
+
+      case CircleShape(Point center, double r)
+           when r < 5 ->
+        "Small circle";
+
+      case CircleShape(Point center, double r) ->
+        "Circle with radius " + r;
+
+      case RectShape(Point corner, double w, double h)
+           when w == h ->
+        "Square " + w + "x" + h;
+
+      case RectShape(Point corner, double w, double h) ->
+        "Rectangle " + w + "x" + h;
+
+      case TriangleShape t ->
+        "Triangle";
+    };
+  }
+
+  // Complex example: Expression evaluation
+  sealed interface Expr {}
+  record Const(int value) implements Expr {}
+  record Add(Expr left, Expr right) implements Expr {}
+  record Mul(Expr left, Expr right) implements Expr {}
+  record Neg(Expr expr) implements Expr {}
+
+  static int eval(Expr expr) {
+    return switch (expr) {
+      case Const(int value) -> value;
+      case Neg(Expr e) -> -eval(e);
+      case Add(Expr left, Expr right) -> eval(left) + eval(right);
+      case Mul(Expr left, Expr right) -> eval(left) * eval(right);
+    };
+  }
+
+  public static void main(String[] args) {
+    Shape circle1 = new CircleShape(new Point(0, 0), 5.0);
+    Shape circle2 = new CircleShape(new Point(10, 10), 3.0);
+    Shape rect1 = new RectShape(new Point(0, 0), 5.0, 5.0);
+    Shape rect2 = new RectShape(new Point(0, 0), 10.0, 20.0);
+    Shape tri = new TriangleShape(new Point(0, 0), new Point(4, 0), new Point(2, 3));
+
+    System.out.println("Circle area: " + calculateArea(circle1));
+    System.out.println("Rectangle area: " + calculateArea(rect2));
+    System.out.println("Triangle area: " + calculateArea(tri));
+
+    System.out.println(categorizeShape(circle1));
+    System.out.println(categorizeShape(circle2));
+    System.out.println(categorizeShape(rect1));
+    System.out.println(categorizeShape(rect2));
+
+    // Expression evaluation
+    // (3 + 5) * 2
+    Expr expr = new Mul(new Add(new Const(3), new Const(5)), new Const(2));
+    System.out.println("Expression result: " + eval(expr));
+
+    // Output:
+    // Circle area: 78.53981633974483
+    // Rectangle area: 200.0
+    // Triangle area: 6.0
+    // Circle at origin, radius 5.0
+    // Small circle
+    // Square 5.0x5.0
+    // Rectangle 10.0x20.0
+    // Expression result: 16
+  }
+}`
+        },
+        {
+          name: 'Var in Patterns',
+          explanation: 'Use var for inferred types: case Point(var x, var y) when x == y -> ... . Reduces verbosity while maintaining type safety. Useful when exact type is obvious or doesn\'t matter.',
+          codeExample: `// Var in Record Patterns - Java 21
+public class VarInPatternsDemo {
+  record Point(int x, int y) {}
+  record Point3D(int x, int y, int z) {}
+  record Box<T>(T value, String label) {}
+  record Pair<A, B>(A first, B second) {}
+
+  // Using var instead of explicit types
+  static String describe(Object obj) {
+    return switch (obj) {
+      // var infers types automatically
+      case Point(var x, var y) ->
+        "Point at (" + x + ", " + y + ")";
+
+      case Point3D(var x, var y, var z) ->
+        "3D Point at (" + x + ", " + y + ", " + z + ")";
+
+      case Box(var value, var label) ->
+        "Box contains: " + value + " labeled '" + label + "'";
+
+      case Pair(var first, var second) ->
+        "Pair: " + first + " and " + second;
+
+      case null -> "null";
+      default -> "Unknown";
+    };
+  }
+
+  // Mixing var with explicit types
+  static String mixedTypes(Object obj) {
+    return switch (obj) {
+      // Can mix var and explicit types
+      case Point(int x, var y) ->
+        "x is explicitly int: " + x + ", y is inferred: " + y;
+
+      case Point3D(var x, int y, var z) ->
+        "Mixed types: " + x + ", " + y + ", " + z;
+
+      default -> "Other";
+    };
+  }
+
+  // Var with guards
+  static String categorizePoint(Object obj) {
+    return switch (obj) {
+      case Point(var x, var y) when x == y ->
+        "On diagonal at " + x;
+
+      case Point(var x, var y) when x == 0 ->
+        "On Y-axis at y=" + y;
+
+      case Point(var x, var y) when y == 0 ->
+        "On X-axis at x=" + x;
+
+      case Point(var x, var y) ->
+        "General point (" + x + ", " + y + ")";
+
+      default -> "Not a point";
+    };
+  }
+
+  // Var with generics
+  record Container<T>(T value, int count) {}
+
+  static <T> String describeContainer(Container<T> container) {
+    // var works with generic types!
+    if (container instanceof Container(var value, var count)) {
+      return "Container has " + count + " of: " + value +
+             " (type: " + value.getClass().getSimpleName() + ")";
+    }
+    return "Empty";
+  }
+
+  // Nested var patterns
+  record Line(Point start, Point end) {}
+
+  static String analyzeLine(Line line) {
+    return switch (line) {
+      case Line(Point(var x1, var y1), Point(var x2, var y2))
+           when x1 == x2 && y1 == y2 ->
+        "Point (degenerate line) at (" + x1 + ", " + y1 + ")";
+
+      case Line(Point(var x1, var y1), Point(var x2, var y2))
+           when x1 == x2 ->
+        "Vertical line at x=" + x1 + " from y=" + y1 + " to y=" + y2;
+
+      case Line(Point(var x1, var y1), Point(var x2, var y2))
+           when y1 == y2 ->
+        "Horizontal line at y=" + y1 + " from x=" + x1 + " to x=" + x2;
+
+      case Line(Point(var x1, var y1), Point(var x2, var y2)) -> {
+        double slope = (double)(y2 - y1) / (x2 - x1);
+        yield "Line with slope " + slope;
+      }
+    };
+  }
+
+  public static void main(String[] args) {
+    System.out.println(describe(new Point(5, 10)));
+    System.out.println(describe(new Point3D(1, 2, 3)));
+    System.out.println(describe(new Box<>("Hello", "greeting")));
+    System.out.println(describe(new Pair<>(42, "answer")));
+
+    System.out.println(mixedTypes(new Point(5, 10)));
+    System.out.println(mixedTypes(new Point3D(1, 2, 3)));
+
+    System.out.println(categorizePoint(new Point(5, 5)));
+    System.out.println(categorizePoint(new Point(0, 10)));
+    System.out.println(categorizePoint(new Point(7, 0)));
+
+    System.out.println(describeContainer(new Container<>("test", 5)));
+    System.out.println(describeContainer(new Container<>(42, 10)));
+
+    System.out.println(analyzeLine(new Line(new Point(2, 5), new Point(2, 10))));
+    System.out.println(analyzeLine(new Line(new Point(1, 3), new Point(8, 3))));
+    System.out.println(analyzeLine(new Line(new Point(0, 0), new Point(4, 3))));
+
+    // Output:
+    // Point at (5, 10)
+    // 3D Point at (1, 2, 3)
+    // Box contains: Hello labeled 'greeting'
+    // Pair: 42 and answer
+    // x is explicitly int: 5, y is inferred: 10
+    // Mixed types: 1, 2, 3
+    // On diagonal at 5
+    // On Y-axis at y=10
+    // On X-axis at x=7
+    // Container has 5 of: test (type: String)
+    // Container has 10 of: 42 (type: Integer)
+    // Vertical line at x=2 from y=5 to y=10
+    // Horizontal line at y=3 from x=1 to x=8
+    // Line with slope 0.75
+  }
+}`
+        },
+        {
+          name: 'Unnamed Patterns',
+          explanation: 'Use underscore _ for unused components: case Point(int x, _) -> ... . Explicitly ignore certain components. Makes intent clear. Helps with partial matching scenarios.',
+          codeExample: `// Unnamed Patterns with Underscore - Java 21
+public class UnnamedPatternsDemo {
+  record Point(int x, int y) {}
+  record Point3D(int x, int y, int z) {}
+  record Person(String name, int age, String email) {}
+  record RGB(int red, int green, int blue) {}
+
+  // Ignore unused components with _
+  static String describeX(Object obj) {
+    return switch (obj) {
+      // Only care about x, ignore y
+      case Point(int x, _) -> "x coordinate: " + x;
+      case Point3D(int x, _, _) -> "x coordinate: " + x;
+      default -> "Not a point";
+    };
+  }
+
+  static String describeY(Object obj) {
+    return switch (obj) {
+      // Only care about y, ignore x
+      case Point(_, int y) -> "y coordinate: " + y;
+      case Point3D(_, int y, _) -> "y coordinate: " + y;
+      default -> "Not a point";
+    };
+  }
+
+  // Partial matching with guards
+  static boolean isRed(RGB color) {
+    // Only check red, ignore green and blue
+    return switch (color) {
+      case RGB(int r, _, _) when r > 200 -> true;
+      case RGB(_, _, _) -> false;
+    };
+  }
+
+  static boolean isAdult(Person person) {
+    // Only care about age, ignore name and email
+    return switch (person) {
+      case Person(_, int age, _) when age >= 18 -> true;
+      case Person(_, _, _) -> false;
+    };
+  }
+
+  // Multiple unnamed patterns
+  record Matrix2D(int a, int b, int c, int d) {}
+
+  static int getDeterminant(Matrix2D matrix) {
+    // Extract only diagonal elements
+    if (matrix instanceof Matrix2D(int a, _, _, int d)) {
+      // Simplified for 2D: det = ad - bc
+      // But if we only care about diagonal: a * d
+      return a * d;
+    }
+    return 0;
+  }
+
+  // Nested unnamed patterns
+  record Line(Point start, Point end) {}
+
+  static boolean isHorizontal(Line line) {
+    // Only care about y coordinates
+    return switch (line) {
+      case Line(Point(_, int y1), Point(_, int y2)) when y1 == y2 -> true;
+      case Line(_, _) -> false;
+    };
+  }
+
+  static boolean isVertical(Line line) {
+    // Only care about x coordinates
+    return switch (line) {
+      case Line(Point(int x1, _), Point(int x2, _)) when x1 == x2 -> true;
+      case Line(_, _) -> false;
+    };
+  }
+
+  // Unnamed in complex patterns
+  record Employee(Person person, String department, double salary) {}
+
+  static String getEmployeeName(Employee emp) {
+    // Only extract name, ignore everything else
+    return switch (emp) {
+      case Employee(Person(String name, _, _), _, _) -> name;
+    };
+  }
+
+  static boolean isHighPaidEngineer(Employee emp) {
+    // Check department and salary, ignore person details
+    return switch (emp) {
+      case Employee(_, String dept, double salary)
+           when dept.equals("Engineering") && salary > 150000 -> true;
+      case Employee(_, _, _) -> false;
+    };
+  }
+
+  public static void main(String[] args) {
+    Point p = new Point(5, 10);
+    Point3D p3d = new Point3D(1, 2, 3);
+
+    System.out.println(describeX(p));
+    System.out.println(describeX(p3d));
+    System.out.println(describeY(p));
+    System.out.println(describeY(p3d));
+
+    RGB red = new RGB(255, 50, 50);
+    RGB blue = new RGB(50, 50, 255);
+    System.out.println("Is red? " + isRed(red));
+    System.out.println("Is red? " + isRed(blue));
+
+    Person child = new Person("Alice", 15, "alice@example.com");
+    Person adult = new Person("Bob", 25, "bob@example.com");
+    System.out.println("Alice is adult? " + isAdult(child));
+    System.out.println("Bob is adult? " + isAdult(adult));
+
+    Line horizontal = new Line(new Point(1, 5), new Point(10, 5));
+    Line vertical = new Line(new Point(3, 1), new Point(3, 10));
+    Line diagonal = new Line(new Point(0, 0), new Point(5, 5));
+
+    System.out.println("Is horizontal? " + isHorizontal(horizontal));
+    System.out.println("Is vertical? " + isVertical(vertical));
+    System.out.println("Is horizontal? " + isHorizontal(diagonal));
+
+    Employee emp = new Employee(
+      new Person("Carol", 30, "carol@example.com"),
+      "Engineering",
+      160000
+    );
+    System.out.println("Employee name: " + getEmployeeName(emp));
+    System.out.println("High paid engineer? " + isHighPaidEngineer(emp));
+
+    // Output:
+    // x coordinate: 5
+    // x coordinate: 1
+    // y coordinate: 10
+    // y coordinate: 2
+    // Is red? true
+    // Is red? false
+    // Alice is adult? false
+    // Bob is adult? true
+    // Is horizontal? true
+    // Is vertical? true
+    // Is horizontal? false
+    // Employee name: Carol
+    // High paid engineer? true
+  }
+}`
+        },
+        {
+          name: 'Type Inference',
+          explanation: 'Compiler infers pattern types from context. Works with generics and complex type hierarchies. Pattern variables properly scoped and typed. Safe and convenient data extraction.',
+          codeExample: `// Type Inference in Record Patterns - Java 21
+public class TypeInferenceDemo {
+  record Box<T>(T value) {}
+  record Pair<A, B>(A first, B second) {}
+  record Triple<A, B, C>(A first, B second, C third) {}
+
+  // Generic type inference
+  static <T> String describeBox(Box<T> box) {
+    // Type T is inferred from context
+    if (box instanceof Box(var value)) {
+      return "Box contains: " + value +
+             " (" + value.getClass().getSimpleName() + ")";
+    }
+    return "Empty box";
+  }
+
+  // Nested generic inference
+  static <A, B> String describePair(Pair<A, B> pair) {
+    if (pair instanceof Pair(var first, var second)) {
+      return "Pair: " + first + " (" + first.getClass().getSimpleName() +
+             ") and " + second + " (" + second.getClass().getSimpleName() + ")";
+    }
+    return "Empty pair";
+  }
+
+  // Complex generic patterns
+  record Container<T>(Box<T> box, String label) {}
+
+  static <T> String describeContainer(Container<T> container) {
+    // Nested generic type inference!
+    if (container instanceof Container(Box(var value), var label)) {
+      return label + ": " + value;
+    }
+    return "Empty";
+  }
+
+  // Inference with sealed types
+  sealed interface Result<T> {}
+  record Success<T>(T value) implements Result<T> {}
+  record Failure<T>(String error) implements Result<T> {}
+
+  static <T> String handleResult(Result<T> result) {
+    return switch (result) {
+      // Type T inferred for both cases
+      case Success(var value) ->
+        "Success: " + value;
+      case Failure(var error) ->
+        "Failure: " + error;
+    };
+  }
+
+  // Multiple type parameters
+  static <A, B, C> String describeTriple(Triple<A, B, C> triple) {
+    return switch (triple) {
+      case Triple(var a, var b, var c) ->
+        a + ", " + b + ", " + c;
+    };
+  }
+
+  // Inference with wildcards
+  static String describeWildcard(Box<?> box) {
+    if (box instanceof Box(var value)) {
+      // Type inferred as Object (upper bound of ?)
+      return "Contains: " + value;
+    }
+    return "Empty";
+  }
+
+  // Bounded type parameters
+  record NumberBox<T extends Number>(T value) {}
+
+  static <T extends Number> double getDoubleValue(NumberBox<T> box) {
+    if (box instanceof NumberBox(var value)) {
+      // value inferred as T extends Number
+      return value.doubleValue(); // Can call Number methods!
+    }
+    return 0.0;
+  }
+
+  // Complex nested inference
+  record Node<T>(T value, Box<Node<T>> next) {}
+
+  static <T> String describeNode(Node<T> node) {
+    return switch (node) {
+      case Node(var value, Box(var next)) when next != null ->
+        value + " -> " + next.value;
+      case Node(var value, Box(var next)) ->
+        value + " (end)";
+      case Node(var value, _) ->
+        value.toString();
+    };
+  }
+
+  public static void main(String[] args) {
+    // Basic generic inference
+    Box<String> strBox = new Box<>("Hello");
+    Box<Integer> intBox = new Box<>(42);
+    System.out.println(describeBox(strBox));
+    System.out.println(describeBox(intBox));
+
+    // Pair inference
+    Pair<String, Integer> pair = new Pair<>("answer", 42);
+    System.out.println(describePair(pair));
+
+    // Nested generics
+    Container<String> container = new Container<>(new Box<>("data"), "myLabel");
+    System.out.println(describeContainer(container));
+
+    // Result types
+    Result<Integer> success = new Success<>(100);
+    Result<Integer> failure = new Failure<>("Error occurred");
+    System.out.println(handleResult(success));
+    System.out.println(handleResult(failure));
+
+    // Triple
+    Triple<String, Integer, Boolean> triple = new Triple<>("test", 42, true);
+    System.out.println(describeTriple(triple));
+
+    // Wildcard
+    Box<?> wildcardBox = new Box<>(3.14);
+    System.out.println(describeWildcard(wildcardBox));
+
+    // Bounded types
+    NumberBox<Integer> numBox = new NumberBox<>(42);
+    System.out.println("Double value: " + getDoubleValue(numBox));
+
+    // Nested nodes
+    Node<String> node2 = new Node<>("World", new Box<>(null));
+    Node<String> node1 = new Node<>("Hello", new Box<>(node2));
+    System.out.println(describeNode(node1));
+    System.out.println(describeNode(node2));
+
+    // Output:
+    // Box contains: Hello (String)
+    // Box contains: 42 (Integer)
+    // Pair: answer (String) and 42 (Integer)
+    // myLabel: data
+    // Success: 100
+    // Failure: Error occurred
+    // test, 42, true
+    // Contains: 3.14
+    // Double value: 42.0
+    // Hello -> World
+    // World (end)
+  }
+}`
+        }
+      ],
+      description: 'Destructuring patterns for records enabling concise data extraction with nesting, type inference, and switch integration.'
+    },
+    {
+      id: 'sequenced-collections', x: 80, y: 440, width: 350, height: 160,
+      icon: '📋', title: 'Sequenced Collections', color: 'red',
+      details: [
+        {
+          name: 'Unified API',
+          explanation: 'New interfaces: SequencedCollection, SequencedSet, SequencedMap. Provide uniform operations for collections with defined encounter order. Fill gaps in Collections API design.',
+          codeExample: `import java.util.*;
+
+// Sequenced Collections Unified API - Java 21
+public class SequencedAPIDemo {
+  public static void main(String[] args) {
+    // NEW in Java 21: Sequenced Collection hierarchy
+    // SequencedCollection <- List, Deque
+    // SequencedSet <- LinkedHashSet, SortedSet
+    // SequencedMap <- LinkedHashMap, SortedMap
+
+    // Before Java 21: Different APIs for different collections
+    List<String> list = new ArrayList<>(List.of("A", "B", "C"));
+    Deque<String> deque = new ArrayDeque<>(List.of("A", "B", "C"));
+    LinkedHashSet<String> set = new LinkedHashSet<>(List.of("A", "B", "C"));
+
+    // OLD WAY: Inconsistent APIs
+    // list.get(0) - first element
+    // deque.getFirst() - first element
+    // set.iterator().next() - first element (awkward!)
+
+    // NEW in Java 21: Uniform API!
+    System.out.println("=== Uniform getFirst() ===");
+    System.out.println("List first: " + list.getFirst());
+    System.out.println("Deque first: " + deque.getFirst());
+    System.out.println("Set first: " + set.getFirst());
+
+    System.out.println("\n=== Uniform getLast() ===");
+    System.out.println("List last: " + list.getLast());
+    System.out.println("Deque last: " + deque.getLast());
+    System.out.println("Set last: " + set.getLast());
+
+    // Sequenced Map
+    LinkedHashMap<String, Integer> map = new LinkedHashMap<>();
+    map.put("first", 1);
+    map.put("second", 2);
+    map.put("third", 3);
+
+    System.out.println("\n=== Sequenced Map ===");
+    System.out.println("First entry: " + map.firstEntry());
+    System.out.println("Last entry: " + map.lastEntry());
+    System.out.println("First key: " + map.sequencedKeySet().getFirst());
+    System.out.println("Last key: " + map.sequencedKeySet().getLast());
+
+    // Output:
+    // === Uniform getFirst() ===
+    // List first: A
+    // Deque first: A
+    // Set first: A
+    //
+    // === Uniform getLast() ===
+    // List last: C
+    // Deque last: C
+    // Set last: C
+    //
+    // === Sequenced Map ===
+    // First entry: first=1
+    // Last entry: third=3
+    // First key: first
+    // Last key: third
+  }
+}`
+        },
+        {
+          name: 'Common Operations',
+          explanation: 'Methods: getFirst(), getLast(), addFirst(), addLast(), removeFirst(), removeLast(). Consistent across all ordered collections. Eliminates need for different patterns for different collection types.',
+          codeExample: `import java.util.*;
+
+// Common Operations on Sequenced Collections - Java 21
+public class SequencedOperationsDemo {
+  public static void main(String[] args) {
+    // All sequenced collections support the same operations!
+    List<String> list = new ArrayList<>();
+    Deque<String> deque = new LinkedList<>();
+    LinkedHashSet<String> set = new LinkedHashSet<>();
+
+    // addFirst() - works on all!
+    System.out.println("=== addFirst() ===");
+    list.addFirst("First");
+    deque.addFirst("First");
+    set.addFirst("First");
+    System.out.println("List: " + list);
+    System.out.println("Deque: " + deque);
+    System.out.println("Set: " + set);
+
+    // addLast() - works on all!
+    System.out.println("\n=== addLast() ===");
+    list.addLast("Last");
+    deque.addLast("Last");
+    set.addLast("Last");
+    System.out.println("List: " + list);
+    System.out.println("Deque: " + deque);
+    System.out.println("Set: " + set);
+
+    // Add middle elements
+    list.add("Middle");
+    deque.add("Middle");
+    set.add("Middle");
+
+    // getFirst() and getLast()
+    System.out.println("\n=== get operations ===");
+    System.out.println("List first: " + list.getFirst() + ", last: " + list.getLast());
+    System.out.println("Deque first: " + deque.getFirst() + ", last: " + deque.getLast());
+    System.out.println("Set first: " + set.getFirst() + ", last: " + set.getLast());
+
+    // removeFirst() and removeLast()
+    System.out.println("\n=== remove operations ===");
+    System.out.println("List removed first: " + list.removeFirst());
+    System.out.println("Deque removed last: " + deque.removeLast());
+    System.out.println("Set removed first: " + set.removeFirst());
+
+    System.out.println("\nAfter removals:");
+    System.out.println("List: " + list);
+    System.out.println("Deque: " + deque);
+    System.out.println("Set: " + set);
+
+    // Works with TreeSet too!
+    TreeSet<Integer> sortedSet = new TreeSet<>(List.of(5, 2, 8, 1, 9));
+    System.out.println("\n=== TreeSet (SequencedSet) ===");
+    System.out.println("First: " + sortedSet.getFirst());  // 1 (smallest)
+    System.out.println("Last: " + sortedSet.getLast());    // 9 (largest)
+    sortedSet.addFirst(0);  // Adds to set (maintains order)
+    System.out.println("After addFirst(0): " + sortedSet);
+
+    // Output:
+    // === addFirst() ===
+    // List: [First]
+    // Deque: [First]
+    // Set: [First]
+    //
+    // === addLast() ===
+    // List: [First, Last]
+    // Deque: [First, Last]
+    // Set: [First, Last]
+    //
+    // === get operations ===
+    // List first: First, last: Last
+    // Deque first: First, last: Last
+    // Set first: First, last: Last
+    //
+    // === remove operations ===
+    // List removed first: First
+    // Deque removed last: Last
+    // Set removed first: First
+    //
+    // After removals:
+    // List: [Middle, Last]
+    // Deque: [First, Middle]
+    // Set: [Last, Middle]
+    //
+    // === TreeSet (SequencedSet) ===
+    // First: 1
+    // Last: 9
+    // After addFirst(0): [0, 1, 2, 5, 8, 9]
+  }
+}`
+        },
+        {
+          name: 'Reversed Views',
+          explanation: 'reversed() method returns reversed view of collection. Backed by original collection - changes reflect in both. Efficient iteration in reverse without copying. Works with all sequenced collections.',
+          codeExample: `import java.util.*;
+
+// Reversed Views - Java 21
+public class ReversedViewsDemo {
+  public static void main(String[] args) {
+    List<String> list = new ArrayList<>(List.of("A", "B", "C", "D", "E"));
+
+    // NEW in Java 21: reversed() creates a view (not a copy!)
+    List<String> reversedView = list.reversed();
+
+    System.out.println("Original: " + list);
+    System.out.println("Reversed view: " + reversedView);
+
+    // Modifications to original reflect in reversed view
+    list.add("F");
+    System.out.println("\nAfter adding 'F' to original:");
+    System.out.println("Original: " + list);
+    System.out.println("Reversed view: " + reversedView);
+
+    // Modifications to reversed view reflect in original!
+    reversedView.addFirst("Z");  // Adds to end of original
+    System.out.println("\nAfter adding 'Z' to reversed view:");
+    System.out.println("Original: " + list);
+    System.out.println("Reversed view: " + reversedView);
+
+    // Efficient iteration in reverse (no copying!)
+    System.out.println("\n=== Iterate in reverse ===");
+    for (String s : reversedView) {
+      System.out.print(s + " ");
+    }
+
+    // Works with Deque
+    Deque<Integer> deque = new ArrayDeque<>(List.of(1, 2, 3, 4, 5));
+    Deque<Integer> reversedDeque = deque.reversed();
+    System.out.println("\n\n=== Deque ===");
+    System.out.println("Original deque: " + deque);
+    System.out.println("Reversed deque: " + reversedDeque);
+
+    // Works with LinkedHashMap
+    LinkedHashMap<String, Integer> map = new LinkedHashMap<>();
+    map.put("first", 1);
+    map.put("second", 2);
+    map.put("third", 3);
+
+    SequencedMap<String, Integer> reversedMap = map.reversed();
+    System.out.println("\n=== LinkedHashMap ===");
+    System.out.println("Original: " + map);
+    System.out.println("Reversed: " + reversedMap);
+
+    // Double reversal gives original
+    List<String> doubleReversed = list.reversed().reversed();
+    System.out.println("\n=== Double reversal ===");
+    System.out.println("Original: " + list);
+    System.out.println("Reversed twice: " + doubleReversed);
+    System.out.println("Same reference? " + (list == doubleReversed));
+
+    // Output:
+    // Original: [A, B, C, D, E]
+    // Reversed view: [E, D, C, B, A]
+    //
+    // After adding 'F' to original:
+    // Original: [A, B, C, D, E, F]
+    // Reversed view: [F, E, D, C, B, A]
+    //
+    // After adding 'Z' to reversed view:
+    // Original: [A, B, C, D, E, F, Z]
+    // Reversed view: [Z, F, E, D, C, B, A]
+    //
+    // === Iterate in reverse ===
+    // Z F E D C B A
+    //
+    // === Deque ===
+    // Original deque: [1, 2, 3, 4, 5]
+    // Reversed deque: [5, 4, 3, 2, 1]
+    //
+    // === LinkedHashMap ===
+    // Original: {first=1, second=2, third=3}
+    // Reversed: {third=3, second=2, first=1}
+    //
+    // === Double reversal ===
+    // Original: [A, B, C, D, E, F, Z]
+    // Reversed twice: [A, B, C, D, E, F, Z]
+    // Same reference? true
+  }
+}`
+        },
+        {
+          name: 'Retrofitted Collections',
+          explanation: 'Existing collections retrofitted: List, Deque, LinkedHashSet, SortedSet, LinkedHashMap, SortedMap. Maintains backward compatibility. No breaking changes to existing code.',
+          codeExample: `import java.util.*;
+
+// Retrofitted Collections - Java 21
+public class RetrofittedCollectionsDemo {
+  public static void main(String[] args) {
+    // All these existing collections now support Sequenced operations!
+
+    // 1. ArrayList (List -> SequencedCollection)
+    ArrayList<String> arrayList = new ArrayList<>(List.of("a", "b", "c"));
+    System.out.println("=== ArrayList ===");
+    System.out.println("First: " + arrayList.getFirst());
+    System.out.println("Last: " + arrayList.getLast());
+    System.out.println("Reversed: " + arrayList.reversed());
+
+    // 2. LinkedList (List, Deque -> SequencedCollection)
+    LinkedList<String> linkedList = new LinkedList<>(List.of("x", "y", "z"));
+    System.out.println("\n=== LinkedList ===");
+    linkedList.addFirst("w");
+    linkedList.addLast("!");
+    System.out.println("LinkedList: " + linkedList);
+
+    // 3. ArrayDeque (Deque -> SequencedCollection)
+    ArrayDeque<Integer> arrayDeque = new ArrayDeque<>(List.of(1, 2, 3));
+    System.out.println("\n=== ArrayDeque ===");
+    System.out.println("First: " + arrayDeque.getFirst());
+    System.out.println("Last: " + arrayDeque.getLast());
+
+    // 4. LinkedHashSet (Set -> SequencedSet)
+    LinkedHashSet<String> linkedHashSet = new LinkedHashSet<>(List.of("one", "two", "three"));
+    System.out.println("\n=== LinkedHashSet ===");
+    System.out.println("First: " + linkedHashSet.getFirst());
+    System.out.println("Last: " + linkedHashSet.getLast());
+    System.out.println("Reversed: " + linkedHashSet.reversed());
+
+    // 5. TreeSet (SortedSet -> SequencedSet)
+    TreeSet<Integer> treeSet = new TreeSet<>(List.of(5, 2, 8, 1, 9));
+    System.out.println("\n=== TreeSet ===");
+    System.out.println("First (min): " + treeSet.getFirst());
+    System.out.println("Last (max): " + treeSet.getLast());
+    System.out.println("Reversed: " + treeSet.reversed());
+
+    // 6. LinkedHashMap (Map -> SequencedMap)
+    LinkedHashMap<String, Integer> linkedHashMap = new LinkedHashMap<>();
+    linkedHashMap.put("A", 1);
+    linkedHashMap.put("B", 2);
+    linkedHashMap.put("C", 3);
+    System.out.println("\n=== LinkedHashMap ===");
+    System.out.println("First entry: " + linkedHashMap.firstEntry());
+    System.out.println("Last entry: " + linkedHashMap.lastEntry());
+    System.out.println("Reversed: " + linkedHashMap.reversed());
+
+    // 7. TreeMap (SortedMap -> SequencedMap)
+    TreeMap<String, Integer> treeMap = new TreeMap<>();
+    treeMap.put("Z", 26);
+    treeMap.put("A", 1);
+    treeMap.put("M", 13);
+    System.out.println("\n=== TreeMap ===");
+    System.out.println("First entry: " + treeMap.firstEntry());
+    System.out.println("Last entry: " + treeMap.lastEntry());
+    System.out.println("Reversed: " + treeMap.reversed());
+
+    // Backward compatibility - existing code works unchanged!
+    List<String> oldList = new ArrayList<>(List.of("old", "code"));
+    oldList.add("works");  // Existing API
+    oldList.addLast("new API");  // New API
+    System.out.println("\n=== Backward Compatibility ===");
+    System.out.println("Old and new API together: " + oldList);
+
+    // Output:
+    // === ArrayList ===
+    // First: a
+    // Last: c
+    // Reversed: [c, b, a]
+    //
+    // === LinkedList ===
+    // LinkedList: [w, x, y, z, !]
+    //
+    // === ArrayDeque ===
+    // First: 1
+    // Last: 3
+    //
+    // === LinkedHashSet ===
+    // First: one
+    // Last: three
+    // Reversed: [three, two, one]
+    //
+    // === TreeSet ===
+    // First (min): 1
+    // Last (max): 9
+    // Reversed: [9, 8, 5, 2, 1]
+    //
+    // === LinkedHashMap ===
+    // First entry: A=1
+    // Last entry: C=3
+    // Reversed: {C=3, B=2, A=1}
+    //
+    // === TreeMap ===
+    // First entry: A=1
+    // Last entry: Z=26
+    // Reversed: {Z=26, M=13, A=1}
+    //
+    // === Backward Compatibility ===
+    // Old and new API together: [old, code, works, new API]
+  }
+}`
+        },
+        {
+          name: 'Bidirectional Access',
+          explanation: 'Access elements from both ends uniformly. Simplifies code working with ordered collections. Common operations that were type-specific now uniform. Better API consistency.',
+          codeExample: `import java.util.*;
+
+// Bidirectional Access - Java 21
+public class BidirectionalAccessDemo {
+
+  // Generic method works with any SequencedCollection!
+  static <T> void processEnds(SequencedCollection<T> collection) {
+    System.out.println("First element: " + collection.getFirst());
+    System.out.println("Last element: " + collection.getLast());
+    System.out.println("Collection: " + collection);
+  }
+
+  // Process map ends
+  static <K, V> void processMapEnds(SequencedMap<K, V> map) {
+    System.out.println("First entry: " + map.firstEntry());
+    System.out.println("Last entry: " + map.lastEntry());
+  }
+
+  public static void main(String[] args) {
+    // Works with any sequenced collection!
+    System.out.println("=== List ===");
+    processEnds(new ArrayList<>(List.of(1, 2, 3, 4, 5)));
+
+    System.out.println("\n=== Deque ===");
+    processEnds(new ArrayDeque<>(List.of("A", "B", "C")));
+
+    System.out.println("\n=== LinkedHashSet ===");
+    processEnds(new LinkedHashSet<>(List.of("X", "Y", "Z")));
+
+    System.out.println("\n=== TreeSet ===");
+    processEnds(new TreeSet<>(List.of(10, 5, 15, 20, 1)));
+
+    // Bidirectional iteration
+    List<String> list = new ArrayList<>(List.of("A", "B", "C", "D", "E"));
+
+    System.out.println("\n=== Forward iteration ===");
+    for (String s : list) {
+      System.out.print(s + " ");
+    }
+
+    System.out.println("\n\n=== Backward iteration ===");
+    for (String s : list.reversed()) {
+      System.out.print(s + " ");
+    }
+
+    // Uniform access pattern for maps
+    System.out.println("\n\n=== LinkedHashMap ===");
+    LinkedHashMap<String, Integer> map1 = new LinkedHashMap<>();
+    map1.put("first", 1);
+    map1.put("second", 2);
+    map1.put("third", 3);
+    processMapEnds(map1);
+
+    System.out.println("\n=== TreeMap ===");
+    TreeMap<String, Integer> map2 = new TreeMap<>();
+    map2.put("Z", 26);
+    map2.put("A", 1);
+    map2.put("M", 13);
+    processMapEnds(map2);
+
+    // Remove from both ends uniformly
+    System.out.println("\n=== Remove from ends ===");
+    List<Integer> numbers = new ArrayList<>(List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+    System.out.println("Original: " + numbers);
+
+    numbers.removeFirst();  // Remove 1
+    numbers.removeLast();   // Remove 10
+    System.out.println("After removing ends: " + numbers);
+
+    numbers.removeFirst();  // Remove 2
+    numbers.removeLast();   // Remove 9
+    System.out.println("After removing ends again: " + numbers);
+
+    // Output:
+    // === List ===
+    // First element: 1
+    // Last element: 5
+    // Collection: [1, 2, 3, 4, 5]
+    //
+    // === Deque ===
+    // First element: A
+    // Last element: C
+    // Collection: [A, B, C]
+    //
+    // === LinkedHashSet ===
+    // First element: X
+    // Last element: Z
+    // Collection: [X, Y, Z]
+    //
+    // === TreeSet ===
+    // First element: 1
+    // Last element: 20
+    // Collection: [1, 5, 10, 15, 20]
+    //
+    // === Forward iteration ===
+    // A B C D E
+    //
+    // === Backward iteration ===
+    // E D C B A
+    //
+    // === LinkedHashMap ===
+    // First entry: first=1
+    // Last entry: third=3
+    //
+    // === TreeMap ===
+    // First entry: A=1
+    // Last entry: Z=26
+    //
+    // === Remove from ends ===
+    // Original: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    // After removing ends: [2, 3, 4, 5, 6, 7, 8, 9]
+    // After removing ends again: [3, 4, 5, 6, 7, 8]
+  }
+}`
+        },
+        {
+          name: 'Use Cases',
+          explanation: 'LRU caches (access both ends), queue processing, ordered data structures, bidirectional iteration. Simplifies algorithms working with ordered data. More intuitive collection operations.',
+          codeExample: `import java.util.*;
+
+// Sequenced Collections Use Cases - Java 21
+public class SequencedUseCasesDemo {
+
+  // Use Case 1: Simple LRU Cache using LinkedHashMap
+  static class LRUCache<K, V> {
+    private final int capacity;
+    private final LinkedHashMap<K, V> cache;
+
+    public LRUCache(int capacity) {
+      this.capacity = capacity;
+      this.cache = new LinkedHashMap<>();
+    }
+
+    public V get(K key) {
+      V value = cache.remove(key);
+      if (value != null) {
+        cache.put(key, value);  // Move to end (most recently used)
+      }
+      return value;
+    }
+
+    public void put(K key, V value) {
+      cache.remove(key);  // Remove if exists
+      cache.put(key, value);  // Add at end
+
+      // NEW in Java 21: Easy access to oldest entry!
+      if (cache.size() > capacity) {
+        cache.pollFirstEntry();  // Remove oldest (LRU)
+      }
+    }
+
+    public void display() {
+      System.out.println("Cache (MRU to LRU): " + cache.reversed());
+    }
+  }
+
+  // Use Case 2: Deque-based sliding window
+  static List<Integer> maxSlidingWindow(int[] nums, int k) {
+    List<Integer> result = new ArrayList<>();
+    Deque<Integer> deque = new ArrayDeque<>();
+
+    for (int i = 0; i < nums.length; i++) {
+      // Remove elements outside window
+      while (!deque.isEmpty() && deque.getFirst() < i - k + 1) {
+        deque.removeFirst();
+      }
+
+      // Remove smaller elements (not useful)
+      while (!deque.isEmpty() && nums[deque.getLast()] < nums[i]) {
+        deque.removeLast();
+      }
+
+      deque.addLast(i);
+
+      if (i >= k - 1) {
+        result.add(nums[deque.getFirst()]);
+      }
+    }
+    return result;
+  }
+
+  // Use Case 3: Undo/Redo stack
+  static class UndoRedoManager<T> {
+    private final Deque<T> undoStack = new ArrayDeque<>();
+    private final Deque<T> redoStack = new ArrayDeque<>();
+
+    public void execute(T action) {
+      undoStack.addLast(action);
+      redoStack.clear();
+      System.out.println("Executed: " + action);
+    }
+
+    public void undo() {
+      if (!undoStack.isEmpty()) {
+        T action = undoStack.removeLast();
+        redoStack.addLast(action);
+        System.out.println("Undid: " + action);
+      }
+    }
+
+    public void redo() {
+      if (!redoStack.isEmpty()) {
+        T action = redoStack.removeLast();
+        undoStack.addLast(action);
+        System.out.println("Redid: " + action);
+      }
+    }
+
+    public void showState() {
+      System.out.println("Can undo: " + !undoStack.isEmpty());
+      System.out.println("Can redo: " + !redoStack.isEmpty());
+      if (!undoStack.isEmpty()) {
+        System.out.println("Last action: " + undoStack.getLast());
+      }
+    }
+  }
+
+  public static void main(String[] args) {
+    // Use Case 1: LRU Cache
+    System.out.println("=== LRU Cache ===");
+    LRUCache<String, Integer> cache = new LRUCache<>(3);
+    cache.put("A", 1);
+    cache.put("B", 2);
+    cache.put("C", 3);
+    cache.display();
+
+    cache.get("A");  // Access A (moves to end)
+    cache.display();
+
+    cache.put("D", 4);  // Evicts B (least recently used)
+    cache.display();
+
+    // Use Case 2: Sliding Window Maximum
+    System.out.println("\n=== Sliding Window Maximum ===");
+    int[] nums = {1, 3, -1, -3, 5, 3, 6, 7};
+    int k = 3;
+    System.out.println("Array: " + Arrays.toString(nums));
+    System.out.println("Window size: " + k);
+    System.out.println("Max in each window: " + maxSlidingWindow(nums, k));
+
+    // Use Case 3: Undo/Redo
+    System.out.println("\n=== Undo/Redo Manager ===");
+    UndoRedoManager<String> manager = new UndoRedoManager<>();
+    manager.execute("Type 'Hello'");
+    manager.execute("Type ' World'");
+    manager.execute("Type '!'");
+    manager.showState();
+
+    System.out.println();
+    manager.undo();
+    manager.undo();
+    manager.showState();
+
+    System.out.println();
+    manager.redo();
+    manager.showState();
+
+    // Use Case 4: Bidirectional queue processing
+    System.out.println("\n=== Priority Queue Processing ===");
+    Deque<String> queue = new ArrayDeque<>();
+    queue.addLast("Normal task 1");
+    queue.addLast("Normal task 2");
+    queue.addFirst("HIGH PRIORITY");  // Add to front!
+    queue.addLast("Normal task 3");
+
+    System.out.println("Processing order:");
+    while (!queue.isEmpty()) {
+      System.out.println("  " + queue.removeFirst());
+    }
+
+    // Output:
+    // === LRU Cache ===
+    // Cache (MRU to LRU): {C=3, B=2, A=1}
+    // Cache (MRU to LRU): {A=1, C=3, B=2}
+    // Cache (MRU to LRU): {D=4, A=1, C=3}
+    //
+    // === Sliding Window Maximum ===
+    // Array: [1, 3, -1, -3, 5, 3, 6, 7]
+    // Window size: 3
+    // Max in each window: [3, 3, 5, 5, 6, 7]
+    //
+    // === Undo/Redo Manager ===
+    // Executed: Type 'Hello'
+    // Executed: Type ' World'
+    // Executed: Type '!'
+    // Can undo: true
+    // Can redo: false
+    // Last action: Type '!'
+    //
+    // Undid: Type '!'
+    // Undid: Type ' World'
+    // Can undo: true
+    // Can redo: true
+    // Last action: Type 'Hello'
+    //
+    // Redid: Type ' World'
+    // Can undo: true
+    // Can redo: true
+    // Last action: Type ' World'
+    //
+    // === Priority Queue Processing ===
+    // Processing order:
+    //   HIGH PRIORITY
+    //   Normal task 1
+    //   Normal task 2
+    //   Normal task 3
+  }
+}`
+        }
+      ],
+      description: 'New collection interfaces for uniform operations on ordered collections with first/last access and reversed views.'
+    },
+    {
+      id: 'string-templates', x: 580, y: 540, width: 350, height: 160,
+      icon: '💬', title: 'String Templates (Preview)', color: 'orange',
+      details: [
+        { name: 'Template Expressions', explanation: 'STR."Hello \\{name}, you are \\{age} years old" - embed expressions directly in strings. Type-safe string composition. Prevents injection attacks. Compile-time validation of expressions.' },
+        { name: 'Template Processors', explanation: 'STR (standard), FMT (formatted), RAW (raw template). Custom processors for domain-specific formatting. Extensible for JSON, SQL, XML. Type-safe by design unlike string concatenation.' },
+        { name: 'Multi-line Templates', explanation: 'Combine with text blocks for multi-line templates. Perfect for SQL queries, JSON, HTML with embedded values. Maintains readability while enabling dynamic content.' },
+        { name: 'Safety Features', explanation: 'Prevents SQL injection, XSS attacks through proper escaping. Template processors validate and sanitize inputs. Compile-time checking of template structure. Much safer than string concatenation.' },
+        { name: 'Expression Embedding', explanation: 'Embed any Java expression: \\{object.method()}, \\{calculation()}, \\{ternary ? a : b}. Full Java syntax support. Evaluated at runtime with proper scoping. Clean and readable.' },
+        { name: 'Preview Status', explanation: 'Preview feature in Java 21. May be refined in future releases based on feedback. Represents modern approach to string interpolation. Alternative to String.format() and concatenation.' }
+      ],
+      description: 'Safe and expressive string interpolation with template processors preventing injection attacks (preview feature).'
+    },
+    {
+      id: 'unnamed-patterns', x: 1080, y: 240, width: 350, height: 160,
+      icon: '⚪', title: 'Unnamed Patterns & Variables', color: 'teal',
+      details: [
+        { name: 'Underscore for Unused', explanation: 'Use _ (underscore) for unused variables and patterns. Makes intent explicit: case Point(int x, _) or catch (Exception _). Compiler doesn\'t warn about unused underscore variables.' },
+        { name: 'Pattern Matching', explanation: 'Ignore components in patterns: if (obj instanceof Point(_, int y)). Focus only on needed data. Improves readability by making which components matter clear. Works with records and deconstruction.' },
+        { name: 'Exception Handling', explanation: 'Catch exceptions without using variable: catch (IOException _). When you need to handle exception but don\'t need exception object. Common in multi-catch or simple recovery scenarios.' },
+        { name: 'Lambda Parameters', explanation: 'Unused lambda parameters: (_, y) -> y * 2 or BiFunction<Integer, Integer, Integer> f = (_, _) -> 42. Clear intent when parameter required by signature but not used in body.' },
+        { name: 'Enhanced Readability', explanation: 'Explicit unused markers improve code clarity. Shows what\'s intentionally ignored vs accidentally unused. Helps code reviewers understand intent. Reduces noise in code.' },
+        { name: 'Multiple Underscores', explanation: 'Each underscore is independent: (_, _) -> ... has two separate unused parameters. Not a single variable used twice. Prevents accidental reuse of supposedly unused variables.' }
+      ],
+      description: 'Underscore notation for explicitly unused variables and pattern components improving code clarity and intent.'
+    },
+    {
+      id: 'structured-concurrency', x: 1080, y: 440, width: 350, height: 160,
+      icon: '🏗️', title: 'Structured Concurrency (Preview)', color: 'indigo',
+      details: [
+        { name: 'Concurrent Task Management', explanation: 'StructuredTaskScope manages lifecycle of concurrent subtasks. Parent task waits for all children. Cancels remaining tasks when one fails. Treats concurrent operations as single unit of work.' },
+        { name: 'Error Propagation', explanation: 'Exceptions in subtasks propagate to parent. ShutdownOnFailure policy cancels all tasks when one fails. ShutdownOnSuccess policy cancels remaining when one succeeds. Proper error handling for concurrent operations.' },
+        { name: 'Resource Management', explanation: 'Try-with-resources ensures proper cleanup. All subtasks completed or cancelled before scope exits. No orphaned threads or leaked resources. Structured lifetime management.' },
+        { name: 'Use Cases', explanation: 'Perfect for fork-join patterns, parallel data processing, concurrent service calls, timeout handling. Replaces complex thread coordination with simple scoping. Especially useful with virtual threads.' },
+        { name: 'vs Traditional Threading', explanation: 'Unlike ExecutorService, enforces structured lifetime. Parent-child relationship clear. Automatic cancellation propagation. Simpler reasoning about concurrent code.' },
+        { name: 'Preview Feature', explanation: 'Incubating API in Java 21. May evolve based on feedback. Part of Project Loom\'s vision for simpler concurrency. Works seamlessly with virtual threads.' }
+      ],
+      description: 'Simplified concurrent programming with structured task scopes ensuring proper lifecycle and error handling (preview).'
+    },
+    {
+      id: 'other-features', x: 1080, y: 640, width: 350, height: 140,
+      icon: '🚀', title: 'Additional Enhancements', color: 'pink',
+      details: [
+        { name: 'Generational ZGC', explanation: 'ZGC now generational by default. Separate young and old generations. Lower overhead and better performance. Reduced allocation rate impact. Major improvement in GC efficiency.' },
+        { name: 'Key Encapsulation API', explanation: 'New Key Encapsulation Mechanism (KEM) API for public key encryption. Supports post-quantum cryptography algorithms. Preparation for quantum-safe security. Modern cryptographic standards support.' },
+        { name: 'Vector API (Sixth Incubator)', explanation: 'SIMD vector computations on CPU. Express vector computations that compile to optimal vector instructions. Significant performance gains for numeric algorithms. Machine learning and scientific computing.' },
+        { name: 'Foreign Function & Memory', explanation: 'Safely access foreign memory and call native libraries. Replaces JNI with safer, more efficient API. Interop with native code without JNI overhead. Panama project features.' },
+        { name: 'Deprecations & Removals', explanation: 'Finalization deprecated for removal. Windows 32-bit x86 port removed. Legacy features cleaned up. Preparing Java for modern computing landscape.' }
+      ],
+      description: 'Performance improvements, modern cryptography, vector API, foreign function access, and platform updates.'
+    }
+  ]
+
+  const handleComponentClick = (component) => {
+    setSelectedComponent(component)
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+    setSelectedComponent(null)
+    setSelectedConcept(null)
+
+
+  }
+
+  // Use refs to access current modal state in event handler
+  const selectedConceptRef = useRef(selectedConcept)
+  useEffect(() => {
+    selectedConceptRef.current = selectedConcept
+  }, [selectedConcept])
+
+
+  // Set initial focus on mount
+  useEffect(() => {
+    setFocusedComponentIndex(0)
+  }, [])
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const currentSelectedConcept = selectedConceptRef.current
+      // Handle Escape to close modal or go back to menu
+      if (e.key === 'Escape') {
+        if (currentSelectedConcept) {
+          e.preventDefault()
+          e.stopImmediatePropagation()
+          setSelectedConcept(null)
+          return
+        }
+        return
+      }
+
+      if (currentSelectedConcept) {
+        // Modal is open, don't handle other keys
+        return
+      }
+
+      // Navigation when modal is closed
+      const componentCount = components.length
+
+      switch(e.key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          e.preventDefault()
+          setFocusedComponentIndex((prev) => (prev + 1) % componentCount)
+          break
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          e.preventDefault()
+          setFocusedComponentIndex((prev) => (prev - 1 + componentCount) % componentCount)
+          break
+        case 'Enter':
+        case ' ':
+          e.preventDefault()
+          if (components[focusedComponentIndex]) {
+            handleComponentClick(components[focusedComponentIndex])
+          }
+          break
+        default:
+          break
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [focusedComponentIndex])
+
+  const handleConceptClick = (concept) => {
+    setSelectedConcept(concept)
+  }
+
+  return (
+    <div style={{
+      padding: '2rem',
+      maxWidth: '95%',
+      margin: '120px auto 0',
+      backgroundColor: 'white',
+      borderRadius: '16px',
+      boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
+      border: '3px solid rgba(34, 197, 94, 0.4)'
+    }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '2rem'
+      }}>
+        <button
+          onClick={onBack}
+          style={{
+            padding: '0.75rem 1.5rem',
+            fontSize: '1rem',
+            fontWeight: '600',
+            backgroundColor: '#6b7280',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          ← Back to Menu
+        </button>
+        <h1 style={{
+          fontSize: '2.5rem',
+          fontWeight: '800',
+          color: '#1f2937',
+          margin: 0,
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        }}>
+          🚀 Java 21 LTS Features
+        </h1>
+        <div style={{ width: '120px' }}></div>
+      </div>
+
+      <div style={{
+        backgroundColor: 'rgba(34, 197, 94, 0.05)',
+        padding: '2.5rem 10rem',
+        borderRadius: '16px',
+        border: '3px solid rgba(34, 197, 94, 0.3)',
+        marginBottom: '2rem'
+      }}>
+        <p style={{
+          fontSize: '1.3rem',
+          color: '#374151',
+          fontWeight: '500',
+          margin: 0,
+          lineHeight: '1.8',
+          textAlign: 'center'
+        }}>
+          Java 21 LTS: Revolutionary virtual threads from Project Loom enabling millions of concurrent tasks,
+          pattern matching for switch with guards and record patterns, sequenced collections API,
+          string templates, and structured concurrency. The next generation of Java development.
+        </p>
+      </div>
+
+      <ModernDiagram
+        components={components}
+        onComponentClick={handleComponentClick}
+        title="Java 21 LTS Revolutionary Features"
+        width={1400}
+        height={800}
+        containerWidth={1800}
+      
+        focusedIndex={focusedComponentIndex}
+      />
+
+      {/* Modal */}
+      {isModalOpen && selectedComponent && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 99999
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '2.5rem',
+            borderRadius: '16px',
+            maxWidth: '1400px',
+            width: '95%',
+            maxHeight: '85vh',
+            overflowY: 'auto',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            border: '3px solid rgba(34, 197, 94, 0.4)'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '2rem'
+            }}>
+              <h2 style={{
+                fontSize: '2rem',
+                fontWeight: '800',
+                color: '#1f2937',
+                margin: 0,
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+              }}>
+                {selectedComponent.icon} {selectedComponent.title}
+              </h2>
+              <button
+                onClick={closeModal}
+                style={{
+                  padding: '0.5rem 1rem',
+                  fontSize: '1.25rem',
+                  fontWeight: '600',
+                  backgroundColor: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{
+              backgroundColor: 'rgba(34, 197, 94, 0.05)',
+              padding: '1.5rem',
+              borderRadius: '12px',
+              border: '2px solid rgba(34, 197, 94, 0.2)',
+              marginBottom: '2rem'
+            }}>
+              <p style={{
+                fontSize: '1.1rem',
+                color: '#374151',
+                fontWeight: '500',
+                margin: 0,
+                lineHeight: '1.6'
+              }}>
+                {selectedComponent.description}
+              </p>
+            </div>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: selectedConcept ? '1fr 1fr' : '1fr',
+              gap: '2rem'
+            }}>
+              <div>
+                <h3 style={{
+                  fontSize: '1.25rem',
+                  fontWeight: '700',
+                  color: '#1f2937',
+                  marginBottom: '1rem'
+                }}>
+                  Key Features
+                </h3>
+                <div style={{
+                  display: 'grid',
+                  gap: '0.75rem'
+                }}>
+                  {selectedComponent.details.map((detail, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => handleConceptClick(detail)}
+                      style={{
+                        backgroundColor: selectedConcept?.name === detail.name
+                          ? 'rgba(34, 197, 94, 0.15)'
+                          : 'rgba(34, 197, 94, 0.1)',
+                        padding: '0.75rem',
+                        borderRadius: '8px',
+                        border: selectedConcept?.name === detail.name
+                          ? '2px solid rgba(34, 197, 94, 0.4)'
+                          : '2px solid rgba(34, 197, 94, 0.2)',
+                        fontSize: '0.95rem',
+                        fontWeight: '500',
+                        color: selectedConcept?.name === detail.name
+                          ? '#059669'
+                          : '#166534',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        transform: 'scale(1)'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (selectedConcept?.name !== detail.name) {
+                          e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.15)'
+                          e.target.style.transform = 'scale(1.02)'
+                          e.target.style.borderColor = 'rgba(34, 197, 94, 0.4)'
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (selectedConcept?.name !== detail.name) {
+                          e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.1)'
+                          e.target.style.transform = 'scale(1)'
+                          e.target.style.borderColor = 'rgba(34, 197, 94, 0.2)'
+                        }
+                      }}
+                    >
+                      • {detail.name}
+                      {selectedConcept?.name === detail.name && (
+                        <span style={{
+                          fontSize: '0.8rem',
+                          opacity: 0.8,
+                          marginLeft: '0.5rem',
+                          fontWeight: '600'
+                        }}>
+                          ← Selected
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {selectedConcept && (
+                <div>
+                  <h3 style={{
+                    fontSize: '1.25rem',
+                    fontWeight: '700',
+                    color: '#1f2937',
+                    marginBottom: '1rem'
+                  }}>
+                    {selectedConcept.name}
+                  </h3>
+
+                  <div style={{
+                    backgroundColor: 'rgba(34, 197, 94, 0.05)',
+                    padding: '1.5rem',
+                    borderRadius: '12px',
+                    border: '2px solid rgba(34, 197, 94, 0.2)',
+                    marginBottom: '1.5rem'
+                  }}>
+                    <p style={{
+                      fontSize: '1rem',
+                      color: '#374151',
+                      fontWeight: '500',
+                      margin: 0,
+                      lineHeight: '1.7',
+                      textAlign: 'justify'
+                    }}>
+                      {selectedConcept.explanation}
+                    </p>
+                  </div>
+
+                  {selectedConcept.codeExample && (
+                    <div style={{
+                      backgroundColor: '#1e293b',
+                      padding: '1.5rem',
+                      borderRadius: '12px',
+                      border: '2px solid #334155',
+                      marginBottom: '1.5rem'
+                    }}>
+                      <h4 style={{
+                        fontSize: '1rem',
+                        fontWeight: '700',
+                        color: '#60a5fa',
+                        margin: '0 0 1rem 0'
+                      }}>
+                        💻 Code Example
+                      </h4>
+                      <SyntaxHighlighter code={selectedConcept.codeExample} />
+                    </div>
+                  )}
+
+                  <div style={{
+                    backgroundColor: 'rgba(34, 197, 94, 0.05)',
+                    padding: '1.25rem',
+                    borderRadius: '12px',
+                    border: '2px solid rgba(34, 197, 94, 0.2)'
+                  }}>
+                    <h4 style={{
+                      fontSize: '1rem',
+                      fontWeight: '700',
+                      color: '#166534',
+                      margin: '0 0 0.75rem 0'
+                    }}>
+                      💡 Key Takeaway
+                    </h4>
+                    <p style={{
+                      fontSize: '0.9rem',
+                      color: '#166534',
+                      fontWeight: '500',
+                      margin: 0,
+                      lineHeight: '1.5',
+                      fontStyle: 'italic'
+                    }}>
+                      {selectedConcept.name} is a game-changing Java 21 LTS feature that transforms how developers write concurrent, expressive, and maintainable code for modern applications.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  )
+}
+
+export default Java21
