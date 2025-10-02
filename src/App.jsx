@@ -6,6 +6,8 @@ import TechnicalDetails from './TechnicalDetails.jsx'
 import TechnicalDetailsAdvanced from './TechnicalDetailsAdvanced.jsx'
 import DarkPoolMatchingEngine from './DarkPoolMatchingEngine.jsx'
 import DarkPoolMatchingEngineBasic from './DarkPoolMatchingEngineBasic.jsx'
+import MediHealth from './MediHealth.jsx'
+import DarkPoolEngine3 from './DarkPoolEngine3.jsx'
 import ApacheKafka from './ApacheKafka.jsx'
 import ApacheFlink from './ApacheFlink.jsx'
 import Solace from './Solace.jsx'
@@ -16,16 +18,29 @@ import Java11 from './Java11.jsx'
 import Java8 from './Java8.jsx'
 import Java15 from './Java15.jsx'
 import Java21 from './Java21.jsx'
+import Java24 from './Java24.jsx'
 import DesignPatterns from './DesignPatterns.jsx'
 import Spring from './Spring.jsx'
+import SpringBoot from './SpringBoot.jsx'
 import SQL from './SQL.jsx'
 import NoSQL from './NoSQL.jsx'
 import ORM from './ORM.jsx'
 import Module from './Module.jsx'
 import DevOps from './DevOps.jsx'
+import Deployment from './Deployment.jsx'
+import Docker from './Docker.jsx'
+import Kubernetes from './Kubernetes.jsx'
+import Testing from './Testing.jsx'
 import MicroservicePatterns from './MicroservicePatterns.jsx'
 import Class from './Class.jsx'
 import Interface from './Interface.jsx'
+import RestAPI from './RestAPI.jsx'
+import AgileScrum from './AgileScrum.jsx'
+import ProductionSupport from './ProductionSupport.jsx'
+import SecurityOWASP from './SecurityOWASP.jsx'
+import SystemDesign from './SystemDesign.jsx'
+import FinancialBanking from './FinancialBanking.jsx'
+import VarCvar3 from './VarCvar3.jsx'
 
 // Main category groups (defined outside component to prevent recreation)
 const categoryGroups = {
@@ -47,22 +62,37 @@ const categoryGroups = {
   'My Projects': {
     icon: '💼',
     color: '#10b981',
-    items: ['Var/CVar', 'Var/CVar - Advanced', 'Dark Pool Matching Engine', 'Dark Pool Matching Engine - Basic']
+    items: ['Var/CVar', 'Var/CVar - Advanced', 'Var/CVar 3', 'Dark Pool Matching Engine', 'Dark Pool Matching Engine - Basic', 'Medi/Health', 'Dark Pool Engine 3']
   },
   'Frameworks': {
     icon: '🌱',
     color: '#ec4899',
-    items: ['Spring', 'Kafka', 'Apache Flink', 'Module', 'Function', 'Interface']
+    items: ['Spring', 'Spring Boot', 'REST API', 'Kafka', 'Apache Flink']
   },
   'DevOps': {
     icon: '🛠️',
     color: '#0ea5e9',
-    items: ['DevOps']
+    items: ['DevOps', 'Deployment', 'Docker', 'Kubernetes', 'Testing', 'Agile Scrum', 'Production Support']
   },
   'Messaging': {
     icon: '📨',
     color: '#f43f5e',
     items: ['Kafka', 'Apache Flink', 'Solace', 'RabbitMQ']
+  },
+  'Security': {
+    icon: '🔒',
+    color: '#ef4444',
+    items: ['Security OWASP']
+  },
+  'Architecture': {
+    icon: '🏗️',
+    color: '#8b5cf6',
+    items: ['System Design', 'Module', 'Function', 'Interface']
+  },
+  'Domain Knowledge': {
+    icon: '💰',
+    color: '#f59e0b',
+    items: ['Financial Banking']
   }
 }
 
@@ -72,7 +102,7 @@ function App() {
   const [hoveredOption, setHoveredOption] = useState(null)
   const [expandedGroup, setExpandedGroup] = useState(null)
   const [focusedCategoryIndex, setFocusedCategoryIndex] = useState(0)
-  const [focusedItemIndex, setFocusedItemIndex] = useState(0)
+  const [focusedItemIndex, setFocusedItemIndex] = useState(-1)
 
   // Use ref to always have access to current selectedOption in event handlers
   const selectedOptionRef = useRef(selectedOption)
@@ -180,10 +210,26 @@ function App() {
       {
         value: 'Spring',
         label: '🌱 Spring Framework',
-        description: 'Enterprise Java development with Spring ecosystem including Spring Boot, Spring Security, Spring Data, and Spring Cloud. Covers dependency injection, AOP, microservices architecture, and reactive programming.',
-        metrics: ['Dependency Injection', 'Microservices', 'Security', 'Cloud Integration'],
+        description: 'Core Spring Framework providing IoC container, dependency injection, AOP, and resource management. Foundation for all Spring-based applications with comprehensive enterprise features.',
+        metrics: ['Dependency Injection', 'IoC Container', 'AOP', 'Transaction Management'],
         complexity: 'Intermediate to Advanced',
-        industry: 'Enterprise Java, Microservices'
+        industry: 'Enterprise Java, Application Framework'
+      },
+      {
+        value: 'Spring Boot',
+        label: '🚀 Spring Boot',
+        description: 'Opinionated framework built on Spring for rapid application development. Features auto-configuration, embedded servers, starter dependencies, production-ready actuators, and simplified deployment.',
+        metrics: ['Auto-Configuration', 'Embedded Servers', 'Starter Dependencies', 'Production Ready'],
+        complexity: 'Intermediate',
+        industry: 'Microservices, Rapid Development'
+      },
+      {
+        value: 'REST API',
+        label: '🌐 RESTful Web Services',
+        description: 'Design and implementation of RESTful APIs following REST principles. Covers HTTP methods, status codes, resource design, versioning, authentication, documentation with OpenAPI/Swagger, and best practices for scalable APIs.',
+        metrics: ['REST Principles', 'API Design', 'HTTP Methods', 'API Security'],
+        complexity: 'Intermediate',
+        industry: 'Web Services, Microservices, Integration'
       },
       {
         value: 'Kafka',
@@ -241,6 +287,84 @@ function App() {
         metrics: ['CI/CD', 'Containers', 'Orchestration', 'Test Automation'],
         complexity: 'Intermediate to Advanced',
         industry: 'Platform Engineering, Cloud-Native'
+      },
+      {
+        value: 'Deployment',
+        label: '🚀 Production Deployment',
+        description: 'Complete production deployment pipeline from build to release. Covers environment configuration, blue-green deployment, canary releases, rollback strategies, monitoring setup, and production readiness checklist.',
+        metrics: ['Build Pipeline', 'Release Strategy', 'Monitoring', 'Rollback Procedures'],
+        complexity: 'Intermediate to Advanced',
+        industry: 'DevOps, Site Reliability Engineering'
+      },
+      {
+        value: 'Docker',
+        label: '🐳 Docker',
+        description: 'Containerization with Docker including image creation, multi-stage builds, Docker Compose, networking, volumes, security best practices, and optimization techniques for production deployments.',
+        metrics: ['Containerization', 'Image Building', 'Orchestration', 'Security'],
+        complexity: 'Intermediate',
+        industry: 'DevOps, Cloud-Native'
+      },
+      {
+        value: 'Kubernetes',
+        label: '☸️ Kubernetes',
+        description: 'Container orchestration with Kubernetes covering pods, deployments, services, ingress, ConfigMaps, secrets, persistent volumes, auto-scaling, rolling updates, and production cluster management.',
+        metrics: ['Orchestration', 'Auto-Scaling', 'Service Discovery', 'Self-Healing'],
+        complexity: 'Advanced',
+        industry: 'Cloud-Native, DevOps, Microservices'
+      },
+      {
+        value: 'Testing',
+        label: '🧪 Testing',
+        description: 'Comprehensive testing strategies including unit testing with JUnit/Mockito, integration testing, contract testing, performance testing, test-driven development, and test automation frameworks.',
+        metrics: ['Unit Testing', 'Integration Testing', 'Test Automation', 'TDD/BDD'],
+        complexity: 'Intermediate to Advanced',
+        industry: 'Software Development, Quality Assurance'
+      },
+      {
+        value: 'Agile Scrum',
+        label: '🏃 Agile & Scrum',
+        description: 'Agile methodologies and Scrum framework including sprint planning, user stories, daily standups, retrospectives, estimation techniques, and agile best practices for iterative development.',
+        metrics: ['Sprint Planning', 'User Stories', 'Scrum Ceremonies', 'Agile Estimation'],
+        complexity: 'Beginner to Intermediate',
+        industry: 'Software Development, Project Management'
+      },
+      {
+        value: 'Production Support',
+        label: '🚨 Production Support',
+        description: 'Production support best practices including incident management, root cause analysis, troubleshooting techniques, on-call procedures, SLA management, and maintaining critical infrastructure applications.',
+        metrics: ['Incident Management', 'RCA', 'Troubleshooting', 'On-Call Support'],
+        complexity: 'Intermediate to Advanced',
+        industry: 'DevOps, Site Reliability Engineering'
+      }
+    ],
+    'Security & Compliance': [
+      {
+        value: 'Security OWASP',
+        label: '🔒 Security & OWASP',
+        description: 'Application security fundamentals covering OWASP Top 10 vulnerabilities, secure coding practices, authentication, authorization, encryption, SQL injection prevention, XSS protection, and security testing with static/dynamic analysis.',
+        metrics: ['OWASP Top 10', 'Secure Coding', 'Security Testing', 'Vulnerability Management'],
+        complexity: 'Intermediate to Advanced',
+        industry: 'Security, Compliance, Enterprise Development'
+      }
+    ],
+    'Architecture & Design': [
+      {
+        value: 'System Design',
+        label: '🏗️ System Design & Architecture',
+        description: 'Complex system design principles including scalability patterns, high availability, load balancing, caching strategies, N-tier architecture, disaster recovery, CAP theorem, and evaluating alternative architectural designs.',
+        metrics: ['Scalability', 'High Availability', 'System Architecture', 'Performance'],
+        complexity: 'Advanced to Expert',
+        industry: 'Enterprise Architecture, System Design'
+      }
+    ],
+    'Domain Knowledge': [
+      {
+        value: 'Financial Banking',
+        label: '💰 Financial & Banking Systems',
+        description: 'Financial transaction processing, payment systems, banking domain concepts, settlement processes, regulatory compliance, and critical infrastructure applications in the financial services industry.',
+        metrics: ['Payment Processing', 'Transaction Systems', 'Compliance', 'Financial Domain'],
+        complexity: 'Intermediate to Advanced',
+        industry: 'Financial Services, Banking, FinTech'
       }
     ],
     'Data & Persistence': [
@@ -285,6 +409,14 @@ function App() {
         industry: 'Investment Banking, Hedge Funds'
       },
       {
+        value: 'Var/CVar 3',
+        label: '💹 VaR/CVaR System 3',
+        description: 'Comprehensive risk management system with real-time VaR/CVaR calculations, portfolio analytics, stress testing, backtesting framework, and regulatory reporting. Features advanced Monte Carlo simulations and marginal risk analysis.',
+        metrics: ['Real-time VaR', 'Portfolio Analytics', 'Stress Testing', 'Backtesting'],
+        complexity: 'Expert Level',
+        industry: 'Risk Management, Investment Banking'
+      },
+      {
         value: 'Dark Pool Matching Engine',
         label: '🌊 Dark Pool Engine',
         description: 'Advanced dark pool trading system with sophisticated order matching algorithms, liquidity optimization, and minimal market impact execution. Features real-time order book management.',
@@ -299,6 +431,22 @@ function App() {
         metrics: ['Kafka Streaming', 'Real-time Risk', 'Apache Flink', 'Oracle Coherence'],
         complexity: 'Advanced to Expert',
         industry: 'Investment Banking, Trading Desk Operations'
+      },
+      {
+        value: 'Medi/Health',
+        label: '🏥 Medi/Health',
+        description: 'Healthcare management system with patient records, appointment scheduling, medical billing, and clinical workflows. Covers HIPAA compliance, HL7/FHIR standards, and healthcare interoperability.',
+        metrics: ['Patient Management', 'HIPAA Compliance', 'HL7/FHIR', 'Clinical Workflows'],
+        complexity: 'Intermediate to Advanced',
+        industry: 'Healthcare, Medical Technology'
+      },
+      {
+        value: 'Dark Pool Engine 3',
+        label: '🌊 Dark Pool Engine 3',
+        description: 'Advanced dark pool matching engine with sophisticated order matching algorithms, smart order routing, liquidity optimization, and minimal market impact execution. Features real-time order book management, IOI processing, and regulatory compliance.',
+        metrics: ['Order Matching', 'Smart Routing', 'Liquidity Optimization', 'Market Impact Analysis'],
+        complexity: 'Expert Level',
+        industry: 'High-Frequency Trading, Investment Banking, Alternative Trading Systems'
       }
     ]
   }
@@ -399,7 +547,7 @@ function App() {
           e.preventDefault()
           const categoryName = categoryNames[focusedCategoryIndex]
           setExpandedGroup(categoryName)
-          setFocusedItemIndex(0)
+          setFocusedItemIndex(-1)
         } else if (e.key === 'ArrowUp') {
           e.preventDefault()
           setFocusedCategoryIndex((prev) => (prev - 1 + categoryNames.length) % categoryNames.length)
@@ -407,7 +555,7 @@ function App() {
           e.preventDefault()
           const categoryName = categoryNames[focusedCategoryIndex]
           setExpandedGroup(expandedGroup === categoryName ? null : categoryName)
-          setFocusedItemIndex(0)
+          setFocusedItemIndex(-1)
         }
       } else {
         // Navigate between expanded items
@@ -422,20 +570,22 @@ function App() {
         } else if (e.key === 'ArrowUp') {
           e.preventDefault()
           // If on first item, go back to category buttons
-          if (focusedItemIndex === 0) {
+          if (focusedItemIndex <= 0) {
             setExpandedGroup(null)
-            setFocusedItemIndex(0)
+            setFocusedItemIndex(-1)
           } else {
             setFocusedItemIndex((prev) => prev - 1)
           }
         } else if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
-          const itemValue = items[focusedItemIndex]
-          setSelectedOptionAndRef(itemValue)
+          if (focusedItemIndex >= 0) {
+            const itemValue = items[focusedItemIndex]
+            setSelectedOptionAndRef(itemValue)
+          }
         } else if (e.key === 'Escape') {
           e.preventDefault()
           setExpandedGroup(null)
-          setFocusedItemIndex(0)
+          setFocusedItemIndex(-1)
         }
       }
     }
@@ -452,11 +602,17 @@ function App() {
     if (selectedOption === 'Var/CVar - Advanced') {
       return <TechnicalDetailsAdvanced onBack={() => setSelectedOptionAndRef('')} />
     }
+    if (selectedOption === 'Var/CVar 3') {
+      return <VarCvar3 onBack={() => setSelectedOptionAndRef('')} />
+    }
     if (selectedOption === 'Dark Pool Matching Engine') {
       return <DarkPoolMatchingEngine onBack={() => setSelectedOptionAndRef('')} />
     }
     if (selectedOption === 'Dark Pool Matching Engine - Basic') {
       return <DarkPoolMatchingEngineBasic onBack={() => setSelectedOptionAndRef('')} />
+    }
+    if (selectedOption === 'Medi/Health') {
+      return <MediHealth onBack={() => setSelectedOptionAndRef('')} />
     }
     if (selectedOption === 'Kafka') {
       return <ApacheKafka onBack={() => setSelectedOptionAndRef('')} />
@@ -491,6 +647,9 @@ function App() {
     if (selectedOption === 'Spring') {
       return <Spring onBack={() => setSelectedOptionAndRef('')} />
     }
+    if (selectedOption === 'Spring Boot') {
+      return <SpringBoot onBack={() => setSelectedOptionAndRef('')} />
+    }
     if (selectedOption === 'SQL') {
       return <SQL onBack={() => setSelectedOptionAndRef('')} />
     }
@@ -515,11 +674,44 @@ function App() {
     if (selectedOption === 'DevOps') {
       return <DevOps onBack={() => setSelectedOptionAndRef('')} />
     }
+    if (selectedOption === 'Deployment') {
+      return <Deployment onBack={() => setSelectedOptionAndRef('')} />
+    }
+    if (selectedOption === 'Docker') {
+      return <Docker onBack={() => setSelectedOptionAndRef('')} />
+    }
+    if (selectedOption === 'Kubernetes') {
+      return <Kubernetes onBack={() => setSelectedOptionAndRef('')} />
+    }
+    if (selectedOption === 'Testing') {
+      return <Testing onBack={() => setSelectedOptionAndRef('')} />
+    }
+    if (selectedOption === 'REST API') {
+      return <RestAPI onBack={() => setSelectedOptionAndRef('')} />
+    }
+    if (selectedOption === 'Agile Scrum') {
+      return <AgileScrum onBack={() => setSelectedOptionAndRef('')} />
+    }
+    if (selectedOption === 'Production Support') {
+      return <ProductionSupport onBack={() => setSelectedOptionAndRef('')} />
+    }
+    if (selectedOption === 'Security OWASP') {
+      return <SecurityOWASP onBack={() => setSelectedOptionAndRef('')} />
+    }
+    if (selectedOption === 'System Design') {
+      return <SystemDesign onBack={() => setSelectedOptionAndRef('')} />
+    }
+    if (selectedOption === 'Financial Banking') {
+      return <FinancialBanking onBack={() => setSelectedOptionAndRef('')} />
+    }
     if (selectedOption === 'Solace') {
       return <Solace onBack={() => setSelectedOptionAndRef('')} />
     }
     if (selectedOption === 'RabbitMQ') {
       return <RabbitMQ onBack={() => setSelectedOptionAndRef('')} />
+    }
+    if (selectedOption === 'Dark Pool Engine 3') {
+      return <DarkPoolEngine3 onBack={() => setSelectedOptionAndRef('')} />
     }
     return null
   }
@@ -572,7 +764,7 @@ function App() {
               onClick={(e) => {
                 setExpandedGroup(expandedGroup === groupName ? null : groupName)
                 setFocusedCategoryIndex(index)
-                setFocusedItemIndex(0)
+                setFocusedItemIndex(-1)
                 // Maintain focus after click
                 setTimeout(() => e.target.focus(), 0)
               }}

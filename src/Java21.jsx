@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 
 // Simple syntax highlighter for Java code
 const SyntaxHighlighter = ({ code }) => {
@@ -8,45 +8,29 @@ const SyntaxHighlighter = ({ code }) => {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
 
-    // Store protected content with placeholders
     const protectedContent = []
     let placeholder = 0
 
-    // Protect comments first
     highlighted = highlighted.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
       const id = `___COMMENT_${placeholder++}___`
       protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
       return id
     })
 
-    // Protect strings
     highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
       const id = `___STRING_${placeholder++}___`
       protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
       return id
     })
 
-    // Apply syntax highlighting to remaining code
     highlighted = highlighted
-      // Keywords - purple
-      .replace(/\b(public|private|protected|static|final|class|interface|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|import|package|void|abstract|synchronized|volatile|transient|native|strictfp|super|this|null|sealed|permits|record|var|when|instanceof|yield)\b/g, '<span style="color: #c586c0;">$1</span>')
-
-      // Boolean and primitives - blue
+      .replace(/\b(public|private|protected|static|final|class|interface|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|import|package|void|abstract|synchronized|volatile|transient|native|strictfp|super|this|null|sealed|permits|non-sealed|record|instanceof|var|default|yield)\b/g, '<span style="color: #c586c0;">$1</span>')
       .replace(/\b(true|false|int|double|float|long|short|byte|char|boolean)\b/g, '<span style="color: #569cd6;">$1</span>')
-
-      // Types and classes - light green
-      .replace(/\b(String|List|ArrayList|LinkedList|HashMap|TreeMap|HashSet|TreeSet|Map|Set|Queue|Deque|Collection|Arrays|Collections|Thread|Runnable|Executor|ExecutorService|CompletableFuture|Stream|Optional|Path|Files|Pattern|Matcher|StringBuilder|StringBuffer|Integer|Double|Float|Long|Short|Byte|Character|Boolean|Object|System|Math|Scanner|BufferedReader|FileReader|FileWriter|PrintWriter|InputStream|OutputStream|Exception|RuntimeException|IOException|SQLException|WeakReference|SoftReference|PhantomReference|ReferenceQueue|StructuredTaskScope|SequencedCollection|SequencedSet|SequencedMap|Duration|Instant)\b/g, '<span style="color: #4ec9b0;">$1</span>')
-
-      // Annotations - yellow
+      .replace(/\b(String|List|ArrayList|LinkedList|HashMap|TreeMap|HashSet|TreeSet|Map|Set|Queue|Deque|Collection|Arrays|Collections|Thread|Runnable|Executor|ExecutorService|CompletableFuture|Stream|Optional|Path|Files|Pattern|Matcher|StringBuilder|StringBuffer|Integer|Double|Float|Long|Short|Byte|Character|Boolean|Object|System|Math|Scanner|BufferedReader|FileReader|FileWriter|PrintWriter|InputStream|OutputStream|Exception|RuntimeException|IOException|SQLException|Function|Consumer|Supplier|Predicate|Comparator)\b/g, '<span style="color: #4ec9b0;">$1</span>')
       .replace(/(@\w+)/g, '<span style="color: #dcdcaa;">$1</span>')
-
-      // Numbers - light green
       .replace(/\b(\d+\.?\d*[fLdD]?)\b/g, '<span style="color: #b5cea8;">$1</span>')
-
-      // Method calls - yellow
       .replace(/\b([a-z_]\w*)\s*\(/g, '<span style="color: #dcdcaa;">$1</span>(')
 
-    // Restore protected content
     protectedContent.forEach(({ id, replacement }) => {
       highlighted = highlighted.replace(id, replacement)
     })
@@ -71,248 +55,81 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-const ModernDiagram = ({ components, onComponentClick, title, width = 1400, height = 800, containerWidth = 1800, focusedIndex }) => {
-  const [hoveredComponent, setHoveredComponent] = useState(null)
-
-  return (
-    <div style={{
-      width: '100%',
-      maxWidth: `${containerWidth}px`,
-      margin: '0 auto',
-      backgroundColor: '#f8fafc',
-      borderRadius: '16px',
-      padding: '2rem',
-      boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.1)',
-      border: '2px solid #e2e8f0'
-    }}>
-      <h3 style={{
-        textAlign: 'center',
-        marginBottom: '2rem',
-        fontSize: '1.75rem',
-        fontWeight: '800',
-        color: '#1e293b',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      }}>
-        {title}
-      </h3>
-
-      <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} style={{ overflow: 'visible' }}>
-        <defs>
-          <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#1e40af" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#10b981" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#059669" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ef4444" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#dc2626" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#d97706" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="tealGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#0d9488" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="indigoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#6366f1" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="pinkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ec4899" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#db2777" stopOpacity="0.9"/>
-          </linearGradient>
-
-          {/* Arrow markers */}
-          <marker id="arrowSolid" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-            <path d="M0,0 L0,6 L9,3 z" fill="#1e293b" />
-          </marker>
-          <marker id="arrowDashed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-            <path d="M0,0 L0,6 L9,3 z" fill="#64748b" />
-          </marker>
-        </defs>
-
-        {/* Architectural layer backgrounds */}
-        <g opacity="0.1">
-          <rect x="50" y="180" width="420" height="200" rx="16" fill="#3b82f6" />
-          <text x="260" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="#1e40af" opacity="0.6">
-            Layer 1
-          </text>
-
-          <rect x="550" y="80" width="420" height="560" rx="16" fill="#10b981" />
-          <text x="760" y="110" textAnchor="middle" fontSize="14" fontWeight="700" fill="#059669" opacity="0.6">
-            Layer 2
-          </text>
-
-          <rect x="1050" y="180" width="420" height="520" rx="16" fill="#8b5cf6" />
-          <text x="1260" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="#7c3aed" opacity="0.6">
-            Layer 3
-          </text>
-        </g>
-
-        {/* Connecting lines with arrows and labels */}
-        <g fill="none">
-          <line x1="430" y1="300" x2="580" y2="200" stroke="#1e293b" strokeWidth="3" strokeOpacity="0.8" markerEnd="url(#arrowSolid)"/>
-          <text x="505" y="240" fontSize="11" fontWeight="600" fill="#1e293b" textAnchor="middle">
-            interacts
-          </text>
-
-          <line x1="430" y1="300" x2="580" y2="400" stroke="#1e293b" strokeWidth="3" strokeOpacity="0.8" markerEnd="url(#arrowSolid)"/>
-          <text x="505" y="360" fontSize="11" fontWeight="600" fill="#1e293b" textAnchor="middle">
-            uses
-          </text>
-
-          <line x1="930" y1="200" x2="1080" y2="300" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="1005" y="240" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            depends
-          </text>
-
-          <line x1="930" y1="400" x2="1080" y2="500" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="1005" y="460" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            provides
-          </text>
-
-          <line x1="430" y1="500" x2="580" y2="600" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="505" y="560" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            extends
-          </text>
-
-          <line x1="930" y1="500" x2="760" y2="600" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="845" y="560" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            integrates
-          </text>
-        </g>
-
-        {/* Component rectangles */}
-        {components.map((component, index) => {
-          const isFocused = focusedIndex === index
-          const isHovered = hoveredComponent === component.id
-          const isHighlighted = isFocused || isHovered
-
-          return (
-          <g key={component.id}>
-            {/* Focused ring indicator */}
-            {isFocused && (
-              <rect
-                x={component.x - 6}
-                y={component.y - 6}
-                width={component.width + 12}
-                height={component.height + 12}
-                rx="16"
-                ry="16"
-                fill="none"
-                stroke="#fbbf24"
-                strokeWidth="4"
-                style={{
-                  opacity: 0.9,
-                  filter: 'drop-shadow(0 0 12px rgba(251, 191, 36, 0.6))'
-                }}
-              />
-            )}
-            <rect
-              x={component.x}
-              y={component.y}
-              width={component.width}
-              height={component.height}
-              rx="12"
-              ry="12"
-              fill={`url(#${component.color}Gradient)`}
-              stroke={isHighlighted ? '#1e293b' : '#64748b'}
-              strokeWidth={isHighlighted ? '4' : '2'}
-              style={{
-                cursor: 'pointer',
-                filter: isHighlighted ? 'drop-shadow(0 8px 16px rgba(0,0,0,0.2))' : 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))',
-                transform: isHighlighted ? 'scale(1.05)' : 'scale(1)',
-                transformOrigin: `${component.x + component.width/2}px ${component.y + component.height/2}px`,
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={() => setHoveredComponent(component.id)}
-              onMouseLeave={() => setHoveredComponent(null)}
-              onClick={() => onComponentClick && onComponentClick(component)}
-            />
-
-            {/* Icon */}
-            <text
-              x={component.x + component.width/2}
-              y={component.y + 35}
-              textAnchor="middle"
-              fontSize="48"
-              style={{ userSelect: 'none', pointerEvents: 'none' }}
-            >
-              {component.icon}
-            </text>
-
-            {/* Title */}
-            <text
-              x={component.x + component.width/2}
-              y={component.y + 75}
-              textAnchor="middle"
-              fontSize="18"
-              fontWeight="700"
-              fill="white"
-              style={{ userSelect: 'none', pointerEvents: 'none' }}
-            >
-              {component.title}
-            </text>
-
-            {/* Details */}
-            {component.details && component.details.slice(0, 3).map((detail, idx) => (
-              <text
-                key={idx}
-                x={component.x + component.width/2}
-                y={component.y + 100 + (idx * 15)}
-                textAnchor="middle"
-                fontSize="10"
-                fontWeight="500"
-                fill="rgba(255,255,255,0.9)"
-                style={{ userSelect: 'none', pointerEvents: 'none' }}
-              >
-                {detail.name.length > 18 ? detail.name.substring(0, 15) + '...' : detail.name}
-              </text>
-            ))}
-            {component.details && component.details.length > 3 && (
-              <text
-                x={component.x + component.width/2}
-                y={component.y + 145}
-                textAnchor="middle"
-                fontSize="10"
-                fontWeight="500"
-                fill="rgba(255,255,255,0.7)"
-                style={{ userSelect: 'none', pointerEvents: 'none' }}
-              >
-                +{component.details.length - 3} more features...
-              </text>
-            )}
-          </g>
-        )})}
-      </svg>
-    </div>
-  )
-}
-
 function Java21({ onBack }) {
-  const [selectedComponent, setSelectedComponent] = useState(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedConcept, setSelectedConcept] = useState(null)
-  const [focusedComponentIndex, setFocusedComponentIndex] = useState(0)
+  const [expandedSections, setExpandedSections] = useState({})
 
-  const components = [
+  const toggleSection = (sectionKey) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey]
+    }))
+  }
+
+  const parseCodeSections = (code) => {
+    const sections = []
+    const lines = code.split('\n')
+    let currentSection = null
+    let currentContent = []
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+
+      if (line.includes('// ═══════════════════════════════════════════════════════════════════════════')) {
+        if (currentSection) {
+          sections.push({
+            title: currentSection,
+            code: currentContent.join('\n')
+          })
+          currentContent = []
+        }
+
+        if (i + 1 < lines.length && lines[i + 1].includes('// ✦')) {
+          currentSection = lines[i + 1].replace('// ✦', '').trim()
+          i += 2
+          continue
+        }
+      }
+
+      if (currentSection) {
+        currentContent.push(line)
+      }
+    }
+
+    if (currentSection && currentContent.length > 0) {
+      sections.push({
+        title: currentSection,
+        code: currentContent.join('\n')
+      })
+    }
+
+    return sections
+  }
+
+  const handleConceptClick = (concept) => {
+    setSelectedConcept(concept)
+  }
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && selectedConcept) {
+        setSelectedConcept(null)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConcept])
+
+  const concepts = [
     {
-      id: 'virtual-threads', x: 80, y: 240, width: 350, height: 160,
-      icon: '🧵', title: 'Virtual Threads (Project Loom)', color: 'blue',
-      details: [
-        {
-          name: 'Lightweight Threads',
-          explanation: 'Virtual threads are lightweight threads managed by JVM, not OS. Can create millions of virtual threads with minimal overhead. Each virtual thread uses only few KB of memory vs MB for platform threads. Revolutionary for concurrent programming.',
-          codeExample: `import java.time.Duration;
+      name: 'Lightweight Threads',
+      icon: '🔹',
+      explanation: `Virtual threads are lightweight threads managed by JVM, not OS. Can create millions of virtual threads with minimal overhead. Each virtual thread uses only few KB of memory vs MB for platform threads. Revolutionary for concurrent programming.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Lightweight Threads - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.time.Duration;
 
 // Creating millions of virtual threads - Java 21
 public class VirtualThreadsDemo {
@@ -366,11 +183,16 @@ public class VirtualThreadsDemo {
     // Completed 1M tasks in ~150ms (uses only ~10 platform threads!)
   }
 }`
-        },
-        {
-          name: 'Simple Threading Model',
-          explanation: 'Write thread-per-request code that scales like async code. No need for reactive programming complexity. Blocking operations automatically yield the carrier thread. Simplifies concurrent code dramatically.',
-          codeExample: `import java.net.URI;
+    },
+    {
+      name: 'Simple Threading Model',
+      icon: '🔹',
+      explanation: `Write thread-per-request code that scales like async code. No need for reactive programming complexity. Blocking operations automatically yield the carrier thread. Simplifies concurrent code dramatically.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Simple Threading Model - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -434,11 +256,16 @@ public class ThreadPerRequestDemo {
     // with only ~10 platform threads instead of 10,000!
   }
 }`
-        },
-        {
-          name: 'Thread.startVirtualThread()',
-          explanation: 'Create virtual threads with Thread.startVirtualThread(runnable) or Executors.newVirtualThreadPerTaskExecutor(). Drop-in replacement for platform threads. Existing blocking APIs work automatically without changes.',
-          codeExample: `import java.util.concurrent.*;
+    },
+    {
+      name: 'Thread.startVirtualThread()',
+      icon: '🔹',
+      explanation: `Create virtual threads with Thread.startVirtualThread(runnable) or Executors.newVirtualThreadPerTaskExecutor(). Drop-in replacement for platform threads. Existing blocking APIs work automatically without changes.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Thread.startVirtualThread() - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.util.concurrent.*;
 
 // Different ways to create Virtual Threads - Java 21
 public class VirtualThreadCreation {
@@ -501,11 +328,16 @@ public class VirtualThreadCreation {
     System.out.println("Doing work in: " + Thread.currentThread());
   }
 }`
-        },
-        {
-          name: 'Carrier Threads',
-          explanation: 'Virtual threads run on carrier platform threads (ForkJoinPool). When virtual thread blocks, carrier thread is freed for other virtual threads. Automatic scheduling and work-stealing. Optimal CPU utilization.',
-          codeExample: `import java.time.Duration;
+    },
+    {
+      name: 'Carrier Threads',
+      icon: '🔹',
+      explanation: `Virtual threads run on carrier platform threads (ForkJoinPool). When virtual thread blocks, carrier thread is freed for other virtual threads. Automatic scheduling and work-stealing. Optimal CPU utilization.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Carrier Threads - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.time.Duration;
 import java.util.concurrent.locks.LockSupport;
 
 // Understanding Carrier Threads - Java 21
@@ -563,11 +395,16 @@ public class CarrierThreadDemo {
     // When virtual thread blocks, carrier is freed for other virtual threads
   }
 }`
-        },
-        {
-          name: 'Performance Benefits',
-          explanation: 'Handle millions of concurrent requests with modest hardware. Eliminates thread pool tuning complexity. Better resource utilization than thread pools. Ideal for I/O-bound workloads like web services.',
-          codeExample: `import java.time.Duration;
+    },
+    {
+      name: 'Performance Benefits',
+      icon: '🔹',
+      explanation: `Handle millions of concurrent requests with modest hardware. Eliminates thread pool tuning complexity. Better resource utilization than thread pools. Ideal for I/O-bound workloads like web services.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Performance Benefits - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.*;
 
@@ -655,11 +492,16 @@ public class PerformanceComparison {
     // - Simpler code (thread-per-request model)
   }
 }`
-        },
-        {
-          name: 'Debugging Support',
-          explanation: 'Full debugger and profiler support. JFR events for virtual threads. Thread dumps include virtual threads. ThreadLocal works but should be used carefully due to high thread count.',
-          codeExample: `import java.util.concurrent.Executors;
+    },
+    {
+      name: 'Debugging Support',
+      icon: '🔹',
+      explanation: `Full debugger and profiler support. JFR events for virtual threads. Thread dumps include virtual threads. ThreadLocal works but should be used carefully due to high thread count.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Debugging Support - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.util.concurrent.Executors;
 
 // Debugging Virtual Threads - Java 21
 public class VirtualThreadDebugging {
@@ -745,18 +587,16 @@ public class VirtualThreadDebugging {
     // Alive: true
   }
 }`
-        }
-      ],
-      description: 'Lightweight threads enabling millions of concurrent tasks with simple thread-per-request programming model from Project Loom.'
     },
     {
-      id: 'pattern-matching-switch', x: 580, y: 140, width: 350, height: 160,
-      icon: '🎯', title: 'Pattern Matching for Switch', color: 'green',
-      details: [
-        {
-          name: 'Type Patterns',
-          explanation: 'Switch on type patterns: case String s -> ... , case Integer i -> ... . Pattern variable automatically scoped and typed. Works with sealed classes for exhaustive checking. Eliminates cascading if-instanceof chains.',
-          codeExample: `// Type Patterns in Switch - Java 21
+      name: 'Type Patterns',
+      icon: '🔹',
+      explanation: `Switch on type patterns: case String s -> ... , case Integer i -> ... . Pattern variable automatically scoped and typed. Works with sealed classes for exhaustive checking. Eliminates cascading if-instanceof chains.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Type Patterns - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Type Patterns in Switch - Java 21
 public class TypePatternsDemo {
 
   // OLD WAY: Ugly if-instanceof chains
@@ -817,11 +657,16 @@ public class TypePatternsDemo {
     // Circle area: 78.53981633974483
   }
 }`
-        },
-        {
-          name: 'Guarded Patterns',
-          explanation: 'Add conditions to patterns with when clause: case String s when s.length() > 5 -> ... . Combines type checking and value conditions. More expressive than separate if statements.',
-          codeExample: `// Guarded Patterns with 'when' clause - Java 21
+    },
+    {
+      name: 'Guarded Patterns',
+      icon: '🔹',
+      explanation: `Add conditions to patterns with when clause: case String s when s.length() > 5 -> ... . Combines type checking and value conditions. More expressive than separate if statements.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Guarded Patterns - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Guarded Patterns with 'when' clause - Java 21
 public class GuardedPatternsDemo {
 
   static String categorize(Object obj) {
@@ -895,11 +740,16 @@ public class GuardedPatternsDemo {
     // Carol is a senior citizen
   }
 }`
-        },
-        {
-          name: 'Null Handling',
-          explanation: 'Explicit null case: case null -> ... or case null, default -> ... . Switch can now handle null without NullPointerException. Makes null handling explicit and safe.',
-          codeExample: `// Null Handling in Switch - Java 21
+    },
+    {
+      name: 'Null Handling',
+      icon: '🔹',
+      explanation: `Explicit null case: case null -> ... or case null, default -> ... . Switch can now handle null without NullPointerException. Makes null handling explicit and safe.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Null Handling - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Null Handling in Switch - Java 21
 public class NullHandlingDemo {
 
   // OLD WAY: NullPointerException risk
@@ -1000,11 +850,16 @@ public class NullHandlingDemo {
     // value: hello
   }
 }`
-        },
-        {
-          name: 'Record Patterns',
-          explanation: 'Destructure records in switch: case Point(int x, int y) -> ... . Nested patterns for complex types. Enables functional-style data extraction. Combines perfectly with sealed types.',
-          codeExample: `// Record Patterns in Switch - Java 21
+    },
+    {
+      name: 'Record Patterns',
+      icon: '🔹',
+      explanation: `Destructure records in switch: case Point(int x, int y) -> ... . Nested patterns for complex types. Enables functional-style data extraction. Combines perfectly with sealed types.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Record Patterns - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Record Patterns in Switch - Java 21
 public class RecordPatternsSwitch {
   record Point(int x, int y) {}
   record Circle(Point center, int radius) {}
@@ -1098,11 +953,16 @@ public class RecordPatternsSwitch {
     // true
   }
 }`
-        },
-        {
-          name: 'Exhaustiveness',
-          explanation: 'Compiler ensures all cases covered with sealed types. No default needed when all subtypes handled. Compile-time safety for pattern matching. Catches missing cases at compilation.',
-          codeExample: `// Exhaustiveness Checking - Java 21
+    },
+    {
+      name: 'Exhaustiveness',
+      icon: '🔹',
+      explanation: `Compiler ensures all cases covered with sealed types. No default needed when all subtypes handled. Compile-time safety for pattern matching. Catches missing cases at compilation.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Exhaustiveness - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Exhaustiveness Checking - Java 21
 public class ExhaustivenessDemo {
 
   // Sealed type hierarchy
@@ -1194,11 +1054,16 @@ public class ExhaustivenessDemo {
     // Dog
   }
 }`
-        },
-        {
-          name: 'Arrow vs Colon',
-          explanation: 'Modern arrow syntax (case X -> ...) or traditional colon syntax (case X: ... break;). Arrow syntax prevents fall-through errors. Can return values directly. Cleaner and safer code.',
-          codeExample: `// Arrow vs Colon Syntax - Java 21
+    },
+    {
+      name: 'Arrow vs Colon',
+      icon: '🔹',
+      explanation: `Modern arrow syntax (case X -> ...) or traditional colon syntax (case X: ... break;). Arrow syntax prevents fall-through errors. Can return values directly. Cleaner and safer code.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Arrow vs Colon - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Arrow vs Colon Syntax - Java 21
 public class ArrowVsColonDemo {
 
   // OLD: Traditional colon syntax (error-prone)
@@ -1324,18 +1189,16 @@ public class ArrowVsColonDemo {
     // Double: 3.14
   }
 }`
-        }
-      ],
-      description: 'Enhanced switch expressions with pattern matching, guards, null handling, and record patterns for expressive type-safe code.'
     },
     {
-      id: 'record-patterns', x: 580, y: 340, width: 350, height: 160,
-      icon: '📦', title: 'Record Patterns', color: 'purple',
-      details: [
-        {
-          name: 'Pattern Destructuring',
-          explanation: 'Destructure records directly in patterns: if (obj instanceof Point(int x, int y)). Extract components inline without explicit accessor calls. Makes data extraction concise and readable.',
-          codeExample: `// Record Pattern Destructuring - Java 21
+      name: 'Pattern Destructuring',
+      icon: '🔹',
+      explanation: `Destructure records directly in patterns: if (obj instanceof Point(int x, int y)). Extract components inline without explicit accessor calls. Makes data extraction concise and readable.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Pattern Destructuring - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Record Pattern Destructuring - Java 21
 public class RecordDestructuringDemo {
   record Point(int x, int y) {}
   record Person(String name, int age) {}
@@ -1416,11 +1279,16 @@ public class RecordDestructuringDemo {
     // Is high earner? true
   }
 }`
-        },
-        {
-          name: 'Nested Patterns',
-          explanation: 'Nest patterns for complex types: case Line(Point(int x1, int y1), Point(int x2, int y2)) -> ... . Arbitrary nesting depth. Destructure entire object graphs. Powerful for hierarchical data.',
-          codeExample: `// Nested Record Patterns - Java 21
+    },
+    {
+      name: 'Nested Patterns',
+      icon: '🔹',
+      explanation: `Nest patterns for complex types: case Line(Point(int x1, int y1), Point(int x2, int y2)) -> ... . Arbitrary nesting depth. Destructure entire object graphs. Powerful for hierarchical data.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Nested Patterns - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Nested Record Patterns - Java 21
 public class NestedPatternsDemo {
   record Point(int x, int y) {}
   record Line(Point start, Point end) {}
@@ -1532,11 +1400,16 @@ public class NestedPatternsDemo {
     // TechCorp CEO: Jane Doe (age 45), Engineering dept in San Francisco, USA
   }
 }`
-        },
-        {
-          name: 'Switch Integration',
-          explanation: 'Use in switch expressions and statements. Combined with sealed types for exhaustive matching. case Circle(Point center, int radius) -> ... . Type-safe data extraction with compile-time verification.',
-          codeExample: `// Record Patterns in Switch - Java 21
+    },
+    {
+      name: 'Switch Integration',
+      icon: '🔹',
+      explanation: `Use in switch expressions and statements. Combined with sealed types for exhaustive matching. case Circle(Point center, int radius) -> ... . Type-safe data extraction with compile-time verification.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Switch Integration - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Record Patterns in Switch - Java 21
 public class RecordSwitchIntegration {
   record Point(int x, int y) {}
   record Circle(Point center, int radius) {}
@@ -1647,149 +1520,16 @@ public class RecordSwitchIntegration {
     // Expression result: 16
   }
 }`
-        },
-        {
-          name: 'Var in Patterns',
-          explanation: 'Use var for inferred types: case Point(var x, var y) when x == y -> ... . Reduces verbosity while maintaining type safety. Useful when exact type is obvious or doesn\'t matter.',
-          codeExample: `// Var in Record Patterns - Java 21
-public class VarInPatternsDemo {
-  record Point(int x, int y) {}
-  record Point3D(int x, int y, int z) {}
-  record Box<T>(T value, String label) {}
-  record Pair<A, B>(A first, B second) {}
+    },
+    {
+      name: 'Unnamed Patterns',
+      icon: '🔹',
+      explanation: `Use underscore _ for unused components: case Point(int x, _) -> ... . Explicitly ignore certain components. Makes intent clear. Helps with partial matching scenarios.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Unnamed Patterns - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
 
-  // Using var instead of explicit types
-  static String describe(Object obj) {
-    return switch (obj) {
-      // var infers types automatically
-      case Point(var x, var y) ->
-        "Point at (" + x + ", " + y + ")";
-
-      case Point3D(var x, var y, var z) ->
-        "3D Point at (" + x + ", " + y + ", " + z + ")";
-
-      case Box(var value, var label) ->
-        "Box contains: " + value + " labeled '" + label + "'";
-
-      case Pair(var first, var second) ->
-        "Pair: " + first + " and " + second;
-
-      case null -> "null";
-      default -> "Unknown";
-    };
-  }
-
-  // Mixing var with explicit types
-  static String mixedTypes(Object obj) {
-    return switch (obj) {
-      // Can mix var and explicit types
-      case Point(int x, var y) ->
-        "x is explicitly int: " + x + ", y is inferred: " + y;
-
-      case Point3D(var x, int y, var z) ->
-        "Mixed types: " + x + ", " + y + ", " + z;
-
-      default -> "Other";
-    };
-  }
-
-  // Var with guards
-  static String categorizePoint(Object obj) {
-    return switch (obj) {
-      case Point(var x, var y) when x == y ->
-        "On diagonal at " + x;
-
-      case Point(var x, var y) when x == 0 ->
-        "On Y-axis at y=" + y;
-
-      case Point(var x, var y) when y == 0 ->
-        "On X-axis at x=" + x;
-
-      case Point(var x, var y) ->
-        "General point (" + x + ", " + y + ")";
-
-      default -> "Not a point";
-    };
-  }
-
-  // Var with generics
-  record Container<T>(T value, int count) {}
-
-  static <T> String describeContainer(Container<T> container) {
-    // var works with generic types!
-    if (container instanceof Container(var value, var count)) {
-      return "Container has " + count + " of: " + value +
-             " (type: " + value.getClass().getSimpleName() + ")";
-    }
-    return "Empty";
-  }
-
-  // Nested var patterns
-  record Line(Point start, Point end) {}
-
-  static String analyzeLine(Line line) {
-    return switch (line) {
-      case Line(Point(var x1, var y1), Point(var x2, var y2))
-           when x1 == x2 && y1 == y2 ->
-        "Point (degenerate line) at (" + x1 + ", " + y1 + ")";
-
-      case Line(Point(var x1, var y1), Point(var x2, var y2))
-           when x1 == x2 ->
-        "Vertical line at x=" + x1 + " from y=" + y1 + " to y=" + y2;
-
-      case Line(Point(var x1, var y1), Point(var x2, var y2))
-           when y1 == y2 ->
-        "Horizontal line at y=" + y1 + " from x=" + x1 + " to x=" + x2;
-
-      case Line(Point(var x1, var y1), Point(var x2, var y2)) -> {
-        double slope = (double)(y2 - y1) / (x2 - x1);
-        yield "Line with slope " + slope;
-      }
-    };
-  }
-
-  public static void main(String[] args) {
-    System.out.println(describe(new Point(5, 10)));
-    System.out.println(describe(new Point3D(1, 2, 3)));
-    System.out.println(describe(new Box<>("Hello", "greeting")));
-    System.out.println(describe(new Pair<>(42, "answer")));
-
-    System.out.println(mixedTypes(new Point(5, 10)));
-    System.out.println(mixedTypes(new Point3D(1, 2, 3)));
-
-    System.out.println(categorizePoint(new Point(5, 5)));
-    System.out.println(categorizePoint(new Point(0, 10)));
-    System.out.println(categorizePoint(new Point(7, 0)));
-
-    System.out.println(describeContainer(new Container<>("test", 5)));
-    System.out.println(describeContainer(new Container<>(42, 10)));
-
-    System.out.println(analyzeLine(new Line(new Point(2, 5), new Point(2, 10))));
-    System.out.println(analyzeLine(new Line(new Point(1, 3), new Point(8, 3))));
-    System.out.println(analyzeLine(new Line(new Point(0, 0), new Point(4, 3))));
-
-    // Output:
-    // Point at (5, 10)
-    // 3D Point at (1, 2, 3)
-    // Box contains: Hello labeled 'greeting'
-    // Pair: 42 and answer
-    // x is explicitly int: 5, y is inferred: 10
-    // Mixed types: 1, 2, 3
-    // On diagonal at 5
-    // On Y-axis at y=10
-    // On X-axis at x=7
-    // Container has 5 of: test (type: String)
-    // Container has 10 of: 42 (type: Integer)
-    // Vertical line at x=2 from y=5 to y=10
-    // Horizontal line at y=3 from x=1 to x=8
-    // Line with slope 0.75
-  }
-}`
-        },
-        {
-          name: 'Unnamed Patterns',
-          explanation: 'Use underscore _ for unused components: case Point(int x, _) -> ... . Explicitly ignore certain components. Makes intent clear. Helps with partial matching scenarios.',
-          codeExample: `// Unnamed Patterns with Underscore - Java 21
+// Unnamed Patterns with Underscore - Java 21
 public class UnnamedPatternsDemo {
   record Point(int x, int y) {}
   record Point3D(int x, int y, int z) {}
@@ -1934,11 +1674,16 @@ public class UnnamedPatternsDemo {
     // High paid engineer? true
   }
 }`
-        },
-        {
-          name: 'Type Inference',
-          explanation: 'Compiler infers pattern types from context. Works with generics and complex type hierarchies. Pattern variables properly scoped and typed. Safe and convenient data extraction.',
-          codeExample: `// Type Inference in Record Patterns - Java 21
+    },
+    {
+      name: 'Type Inference',
+      icon: '🔹',
+      explanation: `Compiler infers pattern types from context. Works with generics and complex type hierarchies. Pattern variables properly scoped and typed. Safe and convenient data extraction.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Type Inference - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Type Inference in Record Patterns - Java 21
 public class TypeInferenceDemo {
   record Box<T>(T value) {}
   record Pair<A, B>(A first, B second) {}
@@ -2084,18 +1829,16 @@ public class TypeInferenceDemo {
     // World (end)
   }
 }`
-        }
-      ],
-      description: 'Destructuring patterns for records enabling concise data extraction with nesting, type inference, and switch integration.'
     },
     {
-      id: 'sequenced-collections', x: 80, y: 440, width: 350, height: 160,
-      icon: '📋', title: 'Sequenced Collections', color: 'red',
-      details: [
-        {
-          name: 'Unified API',
-          explanation: 'New interfaces: SequencedCollection, SequencedSet, SequencedMap. Provide uniform operations for collections with defined encounter order. Fill gaps in Collections API design.',
-          codeExample: `import java.util.*;
+      name: 'Unified API',
+      icon: '🔹',
+      explanation: `New interfaces: SequencedCollection, SequencedSet, SequencedMap. Provide uniform operations for collections with defined encounter order. Fill gaps in Collections API design.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Unified API - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.util.*;
 
 // Sequenced Collections Unified API - Java 21
 public class SequencedAPIDemo {
@@ -2156,11 +1899,16 @@ public class SequencedAPIDemo {
     // Last key: third
   }
 }`
-        },
-        {
-          name: 'Common Operations',
-          explanation: 'Methods: getFirst(), getLast(), addFirst(), addLast(), removeFirst(), removeLast(). Consistent across all ordered collections. Eliminates need for different patterns for different collection types.',
-          codeExample: `import java.util.*;
+    },
+    {
+      name: 'Common Operations',
+      icon: '🔹',
+      explanation: `Methods: getFirst(), getLast(), addFirst(), addLast(), removeFirst(), removeLast(). Consistent across all ordered collections. Eliminates need for different patterns for different collection types.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Common Operations - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.util.*;
 
 // Common Operations on Sequenced Collections - Java 21
 public class SequencedOperationsDemo {
@@ -2250,11 +1998,16 @@ public class SequencedOperationsDemo {
     // After addFirst(0): [0, 1, 2, 5, 8, 9]
   }
 }`
-        },
-        {
-          name: 'Reversed Views',
-          explanation: 'reversed() method returns reversed view of collection. Backed by original collection - changes reflect in both. Efficient iteration in reverse without copying. Works with all sequenced collections.',
-          codeExample: `import java.util.*;
+    },
+    {
+      name: 'Reversed Views',
+      icon: '🔹',
+      explanation: `reversed() method returns reversed view of collection. Backed by original collection - changes reflect in both. Efficient iteration in reverse without copying. Works with all sequenced collections.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Reversed Views - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.util.*;
 
 // Reversed Views - Java 21
 public class ReversedViewsDemo {
@@ -2339,11 +2092,16 @@ public class ReversedViewsDemo {
     // Same reference? true
   }
 }`
-        },
-        {
-          name: 'Retrofitted Collections',
-          explanation: 'Existing collections retrofitted: List, Deque, LinkedHashSet, SortedSet, LinkedHashMap, SortedMap. Maintains backward compatibility. No breaking changes to existing code.',
-          codeExample: `import java.util.*;
+    },
+    {
+      name: 'Retrofitted Collections',
+      icon: '🔹',
+      explanation: `Existing collections retrofitted: List, Deque, LinkedHashSet, SortedSet, LinkedHashMap, SortedMap. Maintains backward compatibility. No breaking changes to existing code.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Retrofitted Collections - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.util.*;
 
 // Retrofitted Collections - Java 21
 public class RetrofittedCollectionsDemo {
@@ -2448,11 +2206,16 @@ public class RetrofittedCollectionsDemo {
     // Old and new API together: [old, code, works, new API]
   }
 }`
-        },
-        {
-          name: 'Bidirectional Access',
-          explanation: 'Access elements from both ends uniformly. Simplifies code working with ordered collections. Common operations that were type-specific now uniform. Better API consistency.',
-          codeExample: `import java.util.*;
+    },
+    {
+      name: 'Bidirectional Access',
+      icon: '🔹',
+      explanation: `Access elements from both ends uniformly. Simplifies code working with ordered collections. Common operations that were type-specific now uniform. Better API consistency.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Bidirectional Access - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.util.*;
 
 // Bidirectional Access - Java 21
 public class BidirectionalAccessDemo {
@@ -2566,11 +2329,16 @@ public class BidirectionalAccessDemo {
     // After removing ends again: [3, 4, 5, 6, 7, 8]
   }
 }`
-        },
-        {
-          name: 'Use Cases',
-          explanation: 'LRU caches (access both ends), queue processing, ordered data structures, bidirectional iteration. Simplifies algorithms working with ordered data. More intuitive collection operations.',
-          codeExample: `import java.util.*;
+    },
+    {
+      name: 'Use Cases',
+      icon: '🔹',
+      explanation: `LRU caches (access both ends), queue processing, ordered data structures, bidirectional iteration. Simplifies algorithms working with ordered data. More intuitive collection operations.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Use Cases - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.util.*;
 
 // Sequenced Collections Use Cases - Java 21
 public class SequencedUseCasesDemo {
@@ -2760,141 +2528,8 @@ public class SequencedUseCasesDemo {
     //   Normal task 3
   }
 }`
-        }
-      ],
-      description: 'New collection interfaces for uniform operations on ordered collections with first/last access and reversed views.'
-    },
-    {
-      id: 'string-templates', x: 580, y: 540, width: 350, height: 160,
-      icon: '💬', title: 'String Templates (Preview)', color: 'orange',
-      details: [
-        { name: 'Template Expressions', explanation: 'STR."Hello \\{name}, you are \\{age} years old" - embed expressions directly in strings. Type-safe string composition. Prevents injection attacks. Compile-time validation of expressions.' },
-        { name: 'Template Processors', explanation: 'STR (standard), FMT (formatted), RAW (raw template). Custom processors for domain-specific formatting. Extensible for JSON, SQL, XML. Type-safe by design unlike string concatenation.' },
-        { name: 'Multi-line Templates', explanation: 'Combine with text blocks for multi-line templates. Perfect for SQL queries, JSON, HTML with embedded values. Maintains readability while enabling dynamic content.' },
-        { name: 'Safety Features', explanation: 'Prevents SQL injection, XSS attacks through proper escaping. Template processors validate and sanitize inputs. Compile-time checking of template structure. Much safer than string concatenation.' },
-        { name: 'Expression Embedding', explanation: 'Embed any Java expression: \\{object.method()}, \\{calculation()}, \\{ternary ? a : b}. Full Java syntax support. Evaluated at runtime with proper scoping. Clean and readable.' },
-        { name: 'Preview Status', explanation: 'Preview feature in Java 21. May be refined in future releases based on feedback. Represents modern approach to string interpolation. Alternative to String.format() and concatenation.' }
-      ],
-      description: 'Safe and expressive string interpolation with template processors preventing injection attacks (preview feature).'
-    },
-    {
-      id: 'unnamed-patterns', x: 1080, y: 240, width: 350, height: 160,
-      icon: '⚪', title: 'Unnamed Patterns & Variables', color: 'teal',
-      details: [
-        { name: 'Underscore for Unused', explanation: 'Use _ (underscore) for unused variables and patterns. Makes intent explicit: case Point(int x, _) or catch (Exception _). Compiler doesn\'t warn about unused underscore variables.' },
-        { name: 'Pattern Matching', explanation: 'Ignore components in patterns: if (obj instanceof Point(_, int y)). Focus only on needed data. Improves readability by making which components matter clear. Works with records and deconstruction.' },
-        { name: 'Exception Handling', explanation: 'Catch exceptions without using variable: catch (IOException _). When you need to handle exception but don\'t need exception object. Common in multi-catch or simple recovery scenarios.' },
-        { name: 'Lambda Parameters', explanation: 'Unused lambda parameters: (_, y) -> y * 2 or BiFunction<Integer, Integer, Integer> f = (_, _) -> 42. Clear intent when parameter required by signature but not used in body.' },
-        { name: 'Enhanced Readability', explanation: 'Explicit unused markers improve code clarity. Shows what\'s intentionally ignored vs accidentally unused. Helps code reviewers understand intent. Reduces noise in code.' },
-        { name: 'Multiple Underscores', explanation: 'Each underscore is independent: (_, _) -> ... has two separate unused parameters. Not a single variable used twice. Prevents accidental reuse of supposedly unused variables.' }
-      ],
-      description: 'Underscore notation for explicitly unused variables and pattern components improving code clarity and intent.'
-    },
-    {
-      id: 'structured-concurrency', x: 1080, y: 440, width: 350, height: 160,
-      icon: '🏗️', title: 'Structured Concurrency (Preview)', color: 'indigo',
-      details: [
-        { name: 'Concurrent Task Management', explanation: 'StructuredTaskScope manages lifecycle of concurrent subtasks. Parent task waits for all children. Cancels remaining tasks when one fails. Treats concurrent operations as single unit of work.' },
-        { name: 'Error Propagation', explanation: 'Exceptions in subtasks propagate to parent. ShutdownOnFailure policy cancels all tasks when one fails. ShutdownOnSuccess policy cancels remaining when one succeeds. Proper error handling for concurrent operations.' },
-        { name: 'Resource Management', explanation: 'Try-with-resources ensures proper cleanup. All subtasks completed or cancelled before scope exits. No orphaned threads or leaked resources. Structured lifetime management.' },
-        { name: 'Use Cases', explanation: 'Perfect for fork-join patterns, parallel data processing, concurrent service calls, timeout handling. Replaces complex thread coordination with simple scoping. Especially useful with virtual threads.' },
-        { name: 'vs Traditional Threading', explanation: 'Unlike ExecutorService, enforces structured lifetime. Parent-child relationship clear. Automatic cancellation propagation. Simpler reasoning about concurrent code.' },
-        { name: 'Preview Feature', explanation: 'Incubating API in Java 21. May evolve based on feedback. Part of Project Loom\'s vision for simpler concurrency. Works seamlessly with virtual threads.' }
-      ],
-      description: 'Simplified concurrent programming with structured task scopes ensuring proper lifecycle and error handling (preview).'
-    },
-    {
-      id: 'other-features', x: 1080, y: 640, width: 350, height: 140,
-      icon: '🚀', title: 'Additional Enhancements', color: 'pink',
-      details: [
-        { name: 'Generational ZGC', explanation: 'ZGC now generational by default. Separate young and old generations. Lower overhead and better performance. Reduced allocation rate impact. Major improvement in GC efficiency.' },
-        { name: 'Key Encapsulation API', explanation: 'New Key Encapsulation Mechanism (KEM) API for public key encryption. Supports post-quantum cryptography algorithms. Preparation for quantum-safe security. Modern cryptographic standards support.' },
-        { name: 'Vector API (Sixth Incubator)', explanation: 'SIMD vector computations on CPU. Express vector computations that compile to optimal vector instructions. Significant performance gains for numeric algorithms. Machine learning and scientific computing.' },
-        { name: 'Foreign Function & Memory', explanation: 'Safely access foreign memory and call native libraries. Replaces JNI with safer, more efficient API. Interop with native code without JNI overhead. Panama project features.' },
-        { name: 'Deprecations & Removals', explanation: 'Finalization deprecated for removal. Windows 32-bit x86 port removed. Legacy features cleaned up. Preparing Java for modern computing landscape.' }
-      ],
-      description: 'Performance improvements, modern cryptography, vector API, foreign function access, and platform updates.'
     }
   ]
-
-  const handleComponentClick = (component) => {
-    setSelectedComponent(component)
-    setIsModalOpen(true)
-  }
-
-  const closeModal = () => {
-    setIsModalOpen(false)
-    setSelectedComponent(null)
-    setSelectedConcept(null)
-
-
-  }
-
-  // Use refs to access current modal state in event handler
-  const selectedConceptRef = useRef(selectedConcept)
-  useEffect(() => {
-    selectedConceptRef.current = selectedConcept
-  }, [selectedConcept])
-
-
-  // Set initial focus on mount
-  useEffect(() => {
-    setFocusedComponentIndex(0)
-  }, [])
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      const currentSelectedConcept = selectedConceptRef.current
-      // Handle Escape to close modal or go back to menu
-      if (e.key === 'Escape') {
-        if (currentSelectedConcept) {
-          e.preventDefault()
-          e.stopImmediatePropagation()
-          setSelectedConcept(null)
-          return
-        }
-        return
-      }
-
-      if (currentSelectedConcept) {
-        // Modal is open, don't handle other keys
-        return
-      }
-
-      // Navigation when modal is closed
-      const componentCount = components.length
-
-      switch(e.key) {
-        case 'ArrowRight':
-        case 'ArrowDown':
-          e.preventDefault()
-          setFocusedComponentIndex((prev) => (prev + 1) % componentCount)
-          break
-        case 'ArrowLeft':
-        case 'ArrowUp':
-          e.preventDefault()
-          setFocusedComponentIndex((prev) => (prev - 1 + componentCount) % componentCount)
-          break
-        case 'Enter':
-        case ' ':
-          e.preventDefault()
-          if (components[focusedComponentIndex]) {
-            handleComponentClick(components[focusedComponentIndex])
-          }
-          break
-        default:
-          break
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [focusedComponentIndex])
-
-  const handleConceptClick = (concept) => {
-    setSelectedConcept(concept)
-  }
 
   return (
     <div style={{
@@ -2904,7 +2539,7 @@ public class SequencedUseCasesDemo {
       backgroundColor: 'white',
       borderRadius: '16px',
       boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-      border: '3px solid rgba(34, 197, 94, 0.4)'
+      border: '3px solid rgba(16, 185, 129, 0.4)'
     }}>
       <div style={{
         display: 'flex',
@@ -2912,295 +2547,151 @@ public class SequencedUseCasesDemo {
         alignItems: 'center',
         marginBottom: '2rem'
       }}>
-        <button
-          onClick={onBack}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            fontWeight: '600',
-            backgroundColor: '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-        >
+        <button onClick={onBack} style={{
+            padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600',
+            backgroundColor: '#6b7280', color: 'white', border: 'none',
+            borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease'
+          }}>
           ← Back to Menu
         </button>
         <h1 style={{
-          fontSize: '2.5rem',
-          fontWeight: '800',
-          color: '#1f2937',
-          margin: 0,
+          fontSize: '2.5rem', fontWeight: '800', color: '#1f2937', margin: 0,
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
         }}>
-          🚀 Java 21 LTS Features
+          ⚡ Java 21 LTS Features
         </h1>
         <div style={{ width: '120px' }}></div>
       </div>
 
       <div style={{
-        backgroundColor: 'rgba(34, 197, 94, 0.05)',
-        padding: '2.5rem 10rem',
-        borderRadius: '16px',
-        border: '3px solid rgba(34, 197, 94, 0.3)',
-        marginBottom: '2rem'
+        backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '2.5rem 10rem',
+        borderRadius: '16px', border: '3px solid rgba(16, 185, 129, 0.3)', marginBottom: '2rem'
       }}>
         <p style={{
-          fontSize: '1.3rem',
-          color: '#374151',
-          fontWeight: '500',
-          margin: 0,
-          lineHeight: '1.8',
-          textAlign: 'center'
+          fontSize: '1.3rem', color: '#374151', fontWeight: '500', margin: 0,
+          lineHeight: '1.8', textAlign: 'center'
         }}>
-          Java 21 LTS: Revolutionary virtual threads from Project Loom enabling millions of concurrent tasks,
-          pattern matching for switch with guards and record patterns, sequenced collections API,
-          string templates, and structured concurrency. The next generation of Java development.
+          Experience Java 21 LTS with Virtual Threads, Pattern Matching for switch, Record Patterns, and Sequenced Collections.
         </p>
       </div>
 
-      <ModernDiagram
-        components={components}
-        onComponentClick={handleComponentClick}
-        title="Java 21 LTS Revolutionary Features"
-        width={1400}
-        height={800}
-        containerWidth={1800}
-      
-        focusedIndex={focusedComponentIndex}
-      />
-
-      {/* Modal */}
-      {isModalOpen && selectedComponent && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 99999
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            padding: '2.5rem',
-            borderRadius: '16px',
-            maxWidth: '1400px',
-            width: '95%',
-            maxHeight: '85vh',
-            overflowY: 'auto',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-            border: '3px solid rgba(34, 197, 94, 0.4)'
-          }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '2rem'
-            }}>
-              <h2 style={{
-                fontSize: '2rem',
-                fontWeight: '800',
-                color: '#1f2937',
-                margin: 0,
-                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: selectedConcept ? '350px 1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '2rem'
+      }}>
+        {!selectedConcept ? (
+          concepts.map((concept, idx) => (
+            <div key={idx} onClick={() => handleConceptClick(concept)} style={{
+                backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '2rem',
+                borderRadius: '16px', border: '3px solid rgba(16, 185, 129, 0.3)',
+                cursor: 'pointer', transition: 'all 0.3s ease',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)'
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.15)'
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.5)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.3)'
               }}>
-                {selectedComponent.icon} {selectedComponent.title}
-              </h2>
-              <button
-                onClick={closeModal}
-                style={{
-                  padding: '0.5rem 1rem',
-                  fontSize: '1.25rem',
-                  fontWeight: '600',
-                  backgroundColor: '#ef4444',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div style={{
-              backgroundColor: 'rgba(34, 197, 94, 0.05)',
-              padding: '1.5rem',
-              borderRadius: '12px',
-              border: '2px solid rgba(34, 197, 94, 0.2)',
-              marginBottom: '2rem'
-            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>
+                {concept.icon || '🔹'}
+              </div>
+              <h3 style={{
+                fontSize: '1.5rem', fontWeight: '700', color: '#047857',
+                marginBottom: '1rem', textAlign: 'center'
+              }}>{concept.name}</h3>
               <p style={{
-                fontSize: '1.1rem',
-                color: '#374151',
-                fontWeight: '500',
-                margin: 0,
-                lineHeight: '1.6'
+                fontSize: '1rem', color: '#6b7280', lineHeight: '1.6', textAlign: 'center'
               }}>
-                {selectedComponent.description}
+                {concept.explanation?.substring(0, 150) || ''}...
               </p>
             </div>
-
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: selectedConcept ? '1fr 1fr' : '1fr',
-              gap: '2rem'
-            }}>
-              <div>
-                <h3 style={{
-                  fontSize: '1.25rem',
-                  fontWeight: '700',
-                  color: '#1f2937',
-                  marginBottom: '1rem'
+          ))
+        ) : (
+          <>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <button onClick={() => setSelectedConcept(null)} style={{
+                  padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600',
+                  backgroundColor: '#6b7280', color: 'white', border: 'none',
+                  borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease'
                 }}>
-                  Key Features
-                </h3>
-                <div style={{
-                  display: 'grid',
-                  gap: '0.75rem'
-                }}>
-                  {selectedComponent.details.map((detail, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => handleConceptClick(detail)}
-                      style={{
-                        backgroundColor: selectedConcept?.name === detail.name
-                          ? 'rgba(34, 197, 94, 0.15)'
-                          : 'rgba(34, 197, 94, 0.1)',
-                        padding: '0.75rem',
-                        borderRadius: '8px',
-                        border: selectedConcept?.name === detail.name
-                          ? '2px solid rgba(34, 197, 94, 0.4)'
-                          : '2px solid rgba(34, 197, 94, 0.2)',
-                        fontSize: '0.95rem',
-                        fontWeight: '500',
-                        color: selectedConcept?.name === detail.name
-                          ? '#059669'
-                          : '#166534',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        transform: 'scale(1)'
-                      }}
-                      onMouseEnter={(e) => {
-                        if (selectedConcept?.name !== detail.name) {
-                          e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.15)'
-                          e.target.style.transform = 'scale(1.02)'
-                          e.target.style.borderColor = 'rgba(34, 197, 94, 0.4)'
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (selectedConcept?.name !== detail.name) {
-                          e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.1)'
-                          e.target.style.transform = 'scale(1)'
-                          e.target.style.borderColor = 'rgba(34, 197, 94, 0.2)'
-                        }
-                      }}
-                    >
-                      • {detail.name}
-                      {selectedConcept?.name === detail.name && (
-                        <span style={{
-                          fontSize: '0.8rem',
-                          opacity: 0.8,
-                          marginLeft: '0.5rem',
-                          fontWeight: '600'
-                        }}>
-                          ← Selected
-                        </span>
-                      )}
-                    </div>
-                  ))}
+                ← Back to All Concepts
+              </button>
+              {concepts.map((concept, idx) => (
+                <div key={idx} onClick={() => handleConceptClick(concept)} style={{
+                    padding: '1rem',
+                    backgroundColor: selectedConcept?.name === concept.name ? 'rgba(16, 185, 129, 0.15)' : 'rgba(243, 244, 246, 1)',
+                    borderRadius: '8px',
+                    border: selectedConcept?.name === concept.name ? '2px solid rgba(16, 185, 129, 0.5)' : '2px solid transparent',
+                    cursor: 'pointer', transition: 'all 0.2s ease'
+                  }}>
+                  <span style={{ fontWeight: '600', color: '#047857' }}>
+                    {concept.icon || '🔹'} {concept.name}
+                  </span>
                 </div>
+              ))}
+            </div>
+
+            <div>
+              <h2 style={{ fontSize: '2rem', fontWeight: '700', color: '#047857', marginBottom: '1.5rem' }}>
+                {selectedConcept.icon || '🔹'} {selectedConcept.name}
+              </h2>
+
+              <div style={{
+                backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '1.5rem',
+                borderRadius: '12px', border: '2px solid rgba(16, 185, 129, 0.2)', marginBottom: '2rem'
+              }}>
+                <p style={{ fontSize: '1.1rem', color: '#374151', lineHeight: '1.8', margin: 0 }}>
+                  {selectedConcept.explanation}
+                </p>
               </div>
 
-              {selectedConcept && (
-                <div>
-                  <h3 style={{
-                    fontSize: '1.25rem',
-                    fontWeight: '700',
-                    color: '#1f2937',
-                    marginBottom: '1rem'
-                  }}>
-                    {selectedConcept.name}
-                  </h3>
-
-                  <div style={{
-                    backgroundColor: 'rgba(34, 197, 94, 0.05)',
-                    padding: '1.5rem',
-                    borderRadius: '12px',
-                    border: '2px solid rgba(34, 197, 94, 0.2)',
-                    marginBottom: '1.5rem'
-                  }}>
-                    <p style={{
-                      fontSize: '1rem',
-                      color: '#374151',
-                      fontWeight: '500',
-                      margin: 0,
-                      lineHeight: '1.7',
-                      textAlign: 'justify'
-                    }}>
-                      {selectedConcept.explanation}
-                    </p>
+              {selectedConcept.codeExample && (() => {
+                const sections = parseCodeSections(selectedConcept.codeExample)
+                return sections.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {sections.map((section, idx) => {
+                      const sectionKey = `${selectedConcept.name}-${idx}`
+                      const isExpanded = expandedSections[sectionKey]
+                      return (
+                        <div key={idx} style={{
+                          backgroundColor: '#1e293b', borderRadius: '12px',
+                          overflow: 'hidden', border: '2px solid #334155'
+                        }}>
+                          <button onClick={() => toggleSection(sectionKey)} style={{
+                              width: '100%', padding: '1rem 1.5rem', backgroundColor: '#334155',
+                              border: 'none', color: '#60a5fa', fontSize: '1rem', fontWeight: '600',
+                              cursor: 'pointer', display: 'flex', justifyContent: 'space-between',
+                              alignItems: 'center', transition: 'all 0.2s ease'
+                            }}>
+                            <span>💻 {section.title}</span>
+                            <span style={{ fontSize: '1.2rem' }}>{isExpanded ? '▼' : '▶'}</span>
+                          </button>
+                          {isExpanded && (
+                            <div style={{ padding: '1.5rem' }}>
+                              <SyntaxHighlighter code={section.code} />
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
                   </div>
-
-                  {selectedConcept.codeExample && (
-                    <div style={{
-                      backgroundColor: '#1e293b',
-                      padding: '1.5rem',
-                      borderRadius: '12px',
-                      border: '2px solid #334155',
-                      marginBottom: '1.5rem'
-                    }}>
-                      <h4 style={{
-                        fontSize: '1rem',
-                        fontWeight: '700',
-                        color: '#60a5fa',
-                        margin: '0 0 1rem 0'
-                      }}>
-                        💻 Code Example
-                      </h4>
-                      <SyntaxHighlighter code={selectedConcept.codeExample} />
-                    </div>
-                  )}
-
-                  <div style={{
-                    backgroundColor: 'rgba(34, 197, 94, 0.05)',
-                    padding: '1.25rem',
-                    borderRadius: '12px',
-                    border: '2px solid rgba(34, 197, 94, 0.2)'
-                  }}>
-                    <h4 style={{
-                      fontSize: '1rem',
-                      fontWeight: '700',
-                      color: '#166534',
-                      margin: '0 0 0.75rem 0'
-                    }}>
-                      💡 Key Takeaway
-                    </h4>
-                    <p style={{
-                      fontSize: '0.9rem',
-                      color: '#166534',
-                      fontWeight: '500',
-                      margin: 0,
-                      lineHeight: '1.5',
-                      fontStyle: 'italic'
-                    }}>
-                      {selectedConcept.name} is a game-changing Java 21 LTS feature that transforms how developers write concurrent, expressive, and maintainable code for modern applications.
-                    </p>
+                ) : (
+                  <div style={{ backgroundColor: '#1e293b', padding: '1.5rem',
+                    borderRadius: '12px', border: '2px solid #334155' }}>
+                    <SyntaxHighlighter code={selectedConcept.codeExample} />
                   </div>
-                </div>
-              )}
+                )
+              })()}
             </div>
-          </div>
-        </div>
-      )}
-
+          </>
+        )}
+      </div>
     </div>
   )
 }

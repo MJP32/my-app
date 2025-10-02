@@ -296,75 +296,20 @@ const ModernDiagram = ({ components, onComponentClick, title, width = 1400, heig
 }
 
 function ApacheKafka({ onBack }) {
-  const [selectedConcept, setSelectedConcept] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
+  const [selectedComponent, setSelectedComponent] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [focusedComponentIndex, setFocusedComponentIndex] = useState(0)
 
-  const toggleSection = (sectionKey) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [sectionKey]: !prev[sectionKey]
-    }))
-  }
-
-  const parseCodeSections = (code) => {
-    const sections = []
-    const lines = code.split('\n')
-    let currentSection = null
-    let currentContent = []
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
-
-      if (line.includes('// ═══════════════════════════════════════════════════════════════════════════')) {
-        if (currentSection) {
-          sections.push({
-            title: currentSection,
-            code: currentContent.join('\n')
-          })
-          currentContent = []
-        }
-
-        if (i + 1 < lines.length && lines[i + 1].includes('// ✦')) {
-          currentSection = lines[i + 1].replace('// ✦', '').trim()
-          i += 2
-          continue
-        }
-      }
-
-      if (currentSection) {
-        currentContent.push(line)
-      }
-    }
-
-    if (currentSection && currentContent.length > 0) {
-      sections.push({
-        title: currentSection,
-        code: currentContent.join('\n')
-      })
-    }
-
-    return sections
-  }
-
-  const concepts = [
+  const components = [
     {
       id: 'producers', x: 80, y: 140, width: 350, height: 200,
       icon: '📤', title: 'Kafka Producers', color: 'blue',
-      subtopics: [
-        { name: 'High Throughput APIs', codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Import Statements and Class Setup
-// ═══════════════════════════════════════════════════════════════════════════
-
-import org.apache.kafka.clients.producer.*;
+      details: [
+        { name: 'High Throughput APIs', codeExample: `import org.apache.kafka.clients.producer.*;
 import java.util.Properties;
 
 public class HighThroughputProducer {
   public static void main(String[] args) {
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Producer Configuration for High Throughput
-// ═══════════════════════════════════════════════════════════════════════════
-
     Properties props = new Properties();
     props.put("bootstrap.servers", "localhost:9092");
     props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
@@ -374,10 +319,6 @@ public class HighThroughputProducer {
     props.put("linger.ms", 10); // Wait 10ms to batch more messages
 
     KafkaProducer<String, String> producer = new KafkaProducer<>(props);
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Asynchronous Message Sending Loop
-// ═══════════════════════════════════════════════════════════════════════════
 
     // Send 10,000 messages asynchronously
     for (int i = 0; i < 10000; i++) {
@@ -392,38 +333,21 @@ public class HighThroughputProducer {
       });
     }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Cleanup and Resource Management
-// ═══════════════════════════════════════════════════════════════════════════
-
     producer.flush();
     producer.close();
   }
 }
 // Output: Sent to partition 0 at offset 1234
 // Output: Sent to partition 1 at offset 5678` },
-        { name: 'Batching & Compression', codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Import Statements and Class Definition
-// ═══════════════════════════════════════════════════════════════════════════
-
-import org.apache.kafka.clients.producer.*;
+        { name: 'Batching & Compression', codeExample: `import org.apache.kafka.clients.producer.*;
 import java.util.Properties;
 
 public class BatchedCompressedProducer {
   public static void main(String[] args) {
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Basic Producer Configuration
-// ═══════════════════════════════════════════════════════════════════════════
-
     Properties props = new Properties();
     props.put("bootstrap.servers", "localhost:9092");
     props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
     props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Batching and Compression Configuration
-// ═══════════════════════════════════════════════════════════════════════════
 
     // Batching configuration
     props.put("batch.size", 65536); // 64KB batches
@@ -435,10 +359,6 @@ public class BatchedCompressedProducer {
 
     KafkaProducer<String, String> producer = new KafkaProducer<>(props);
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Bulk Message Sending with Performance Tracking
-// ═══════════════════════════════════════════════════════════════════════════
-
     long startTime = System.currentTimeMillis();
     for (int i = 0; i < 50000; i++) {
       String largeMessage = "A".repeat(1000); // 1KB message
@@ -446,10 +366,6 @@ public class BatchedCompressedProducer {
         new ProducerRecord<>("compressed-topic", "key-" + i, largeMessage);
       producer.send(record);
     }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Performance Metrics and Cleanup
-// ═══════════════════════════════════════════════════════════════════════════
 
     producer.flush();
     long duration = System.currentTimeMillis() - startTime;
@@ -647,7 +563,7 @@ public class CustomSerializerProducer {
     {
       id: 'kafka-cluster', x: 580, y: 240, width: 350, height: 200,
       icon: '🏗️', title: 'Kafka Cluster', color: 'green',
-      subtopics: [
+      details: [
         { name: 'Distributed Brokers', codeExample: `import org.apache.kafka.clients.admin.*;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -917,7 +833,7 @@ public class RetentionPolicyManager {
     {
       id: 'consumers', x: 1080, y: 140, width: 350, height: 200,
       icon: '📥', title: 'Kafka Consumers', color: 'purple',
-      subtopics: [
+      details: [
         { name: 'Consumer Groups', codeExample: `import org.apache.kafka.clients.consumer.*;
 import java.time.Duration;
 import java.util.*;
@@ -1260,7 +1176,7 @@ public class RebalanceListenerExample {
     {
       id: 'stream-processing', x: 580, y: 480, width: 350, height: 200,
       icon: '🌊', title: 'Kafka Streams', color: 'red',
-      subtopics: [
+      details: [
         { name: 'Stateful Processing', codeExample: `import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.*;
@@ -1663,7 +1579,7 @@ public class TopologyOptimization {
     {
       id: 'schema-registry', x: 280, y: 620, width: 350, height: 160,
       icon: '📋', title: 'Schema Registry', color: 'orange',
-      subtopics: [
+      details: [
         { name: 'Schema Evolution', codeExample: `import io.confluent.kafka.schemaregistry.client.*;
 import io.confluent.kafka.serializers.*;
 import org.apache.avro.Schema;
@@ -2002,7 +1918,7 @@ public class SchemaValidationExample {
     {
       id: 'connect', x: 680, y: 620, width: 350, height: 160,
       icon: '🔌', title: 'Kafka Connect', color: 'teal',
-      subtopics: [
+      details: [
         { name: 'Source Connectors', codeExample: `import org.apache.kafka.connect.source.*;
 import org.apache.kafka.connect.data.*;
 import java.util.*;
@@ -2342,7 +2258,7 @@ public class SchemaIntegrationExample {
     {
       id: 'monitoring', x: 1080, y: 620, width: 350, height: 160,
       icon: '📊', title: 'Monitoring & Ops', color: 'indigo',
-      subtopics: [
+      details: [
         { name: 'JMX Metrics', codeExample: `import javax.management.*;
 import javax.management.remote.*;
 import java.util.*;
@@ -2764,41 +2680,83 @@ public class AlertManager {
   ]
 
   // Set initial focus on mount
-  // Use ref to access current selectedConcept in event handler
-  const selectedConceptRef = useRef(selectedConcept)
   useEffect(() => {
-    selectedConceptRef.current = selectedConcept
-  }, [selectedConcept])
+    setFocusedComponentIndex(0)
+  }, [])
 
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
-      const currentSelectedConcept = selectedConceptRef.current
+      const currentIsModalOpen = isModalOpenRef.current
+      console.log(' KeyDown:', e.key, 'isModalOpen:', currentIsModalOpen)
 
-      // Handle Escape to go back
+      // Handle Escape to close modal or go back to menu
       if (e.key === 'Escape') {
-        if (currentSelectedConcept) {
+        if (currentIsModalOpen) {
           e.preventDefault()
           e.stopImmediatePropagation()
-          setSelectedConcept(null)
+          closeModal()
           return
         }
+        return
+      }
+
+      if (isModalOpen) {
+        // Modal is open, don't handle other keys
+        return
+      }
+
+      // Navigation when modal is closed
+      const componentCount = components.length
+
+      switch(e.key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          e.preventDefault()
+          setFocusedComponentIndex((prev) => (prev + 1) % componentCount)
+          break
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          e.preventDefault()
+          setFocusedComponentIndex((prev) => (prev - 1 + componentCount) % componentCount)
+          break
+        case 'Enter':
+        case ' ':
+          e.preventDefault()
+          if (components[focusedComponentIndex]) {
+            handleComponentClick(components[focusedComponentIndex].id)
+          }
+          break
+        default:
+          break
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
+  }, [focusedComponentIndex])
 
-  const handleConceptClick = (concept) => {
-    setSelectedConcept(concept)
+  const handleComponentClick = (component) => {
+    setSelectedComponent(component)
+    setIsModalOpen(true)
   }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+    setSelectedComponent(null)
+  }
+
+  // Use refs to access current modal state in event handler
+  const isModalOpenRef = useRef(isModalOpen)
+  useEffect(() => {
+    isModalOpenRef.current = isModalOpen
+  }, [isModalOpen])
 
 
   return (
     <div style={{
       padding: '2rem',
-      maxWidth: '95%',
+      maxWidth: '2000px',
       margin: '120px auto 0',
       backgroundColor: 'white',
       borderRadius: '16px',
@@ -2841,17 +2799,17 @@ public class AlertManager {
 
       <div style={{
         backgroundColor: 'rgba(59, 130, 246, 0.05)',
-        padding: '2.5rem 10rem',
-        borderRadius: '16px',
-        border: '3px solid rgba(59, 130, 246, 0.3)',
+        padding: '1.5rem',
+        borderRadius: '12px',
+        border: '2px solid rgba(59, 130, 246, 0.2)',
         marginBottom: '2rem'
       }}>
         <p style={{
-          fontSize: '1.3rem',
+          fontSize: '1.1rem',
           color: '#374151',
           fontWeight: '500',
           margin: 0,
-          lineHeight: '1.8',
+          lineHeight: '1.6',
           textAlign: 'center'
         }}>
           Distributed event streaming platform for high-throughput, fault-tolerant messaging systems.
@@ -2860,312 +2818,202 @@ public class AlertManager {
         </p>
       </div>
 
+      <ModernDiagram
+        components={components}
+        onComponentClick={handleComponentClick}
+        title="Kafka Ecosystem Architecture"
+        width={1400}
+        height={800}
+        containerWidth={1800}
+      
+        focusedIndex={focusedComponentIndex}
+      />
+
       <div style={{
+        marginTop: '3rem',
         display: 'grid',
-        gridTemplateColumns: selectedConcept ? '350px 1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '2rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+        gap: '1.5rem'
       }}>
-        {!selectedConcept ? (
-          concepts.map((concept, idx) => (
-            <div
-              key={idx}
-              onClick={() => handleConceptClick(concept)}
-              style={{
-                backgroundColor: 'rgba(59, 130, 246, 0.05)',
-                padding: '2rem',
-                borderRadius: '12px',
-                border: '2px solid rgba(59, 130, 246, 0.2)',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                height: '200px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.1)'
-                e.currentTarget.style.borderColor = '#3b82f6'
-                e.currentTarget.style.transform = 'translateY(-4px)'
-                e.currentTarget.style.boxShadow = '0 8px 16px rgba(59, 130, 246, 0.2)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.05)'
-                e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.2)'
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
-            >
-              <div>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{concept.icon}</div>
-                <h3 style={{
-                  fontSize: '1.3rem',
-                  fontWeight: '700',
-                  color: '#3b82f6',
-                  margin: '0 0 0.5rem 0'
-                }}>
-                  {concept.title}
-                </h3>
-                <p style={{
-                  fontSize: '0.9rem',
-                  color: '#6b7280',
-                  margin: 0,
-                  lineHeight: '1.5'
-                }}>
-                  {concept.description ? concept.description.substring(0, 100) + '...' : 'Click to explore'}
-                </p>
-              </div>
-              <div style={{
-                fontSize: '0.85rem',
-                fontWeight: '600',
-                color: '#3b82f6',
-                marginTop: '1rem'
+        <div style={{
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          padding: '1.5rem',
+          borderRadius: '12px',
+          border: '2px solid rgba(59, 130, 246, 0.3)'
+        }}>
+          <h3 style={{
+            color: '#1e40af',
+            fontSize: '1.25rem',
+            fontWeight: '700',
+            marginBottom: '1rem'
+          }}>
+            🔧 Key Features
+          </h3>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr',
+            gap: '0.5rem',
+            fontSize: '0.9rem'
+          }}>
+            <div>• Distributed Event Streaming</div>
+            <div>• Exactly-Once Processing</div>
+            <div>• Horizontal Scalability</div>
+            <div>• Fault Tolerance & HA</div>
+            <div>• Schema Evolution Support</div>
+            <div>• Stream Processing (Kafka Streams)</div>
+          </div>
+        </div>
+
+        <div style={{
+          backgroundColor: 'rgba(139, 92, 246, 0.1)',
+          padding: '1.5rem',
+          borderRadius: '12px',
+          border: '2px solid rgba(139, 92, 246, 0.3)'
+        }}>
+          <h3 style={{
+            color: '#7c3aed',
+            fontSize: '1.25rem',
+            fontWeight: '700',
+            marginBottom: '1rem'
+          }}>
+            🌐 Use Cases
+          </h3>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr',
+            gap: '0.5rem',
+            fontSize: '0.9rem'
+          }}>
+            <div>• Real-time Analytics Pipelines</div>
+            <div>• Event-Driven Microservices</div>
+            <div>• Log Aggregation & Monitoring</div>
+            <div>• Stream Processing Applications</div>
+            <div>• Data Integration & ETL</div>
+            <div>• IoT & Sensor Data Processing</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal */}
+      {isModalOpen && selectedComponent && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 99999
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '2.5rem',
+            borderRadius: '16px',
+            maxWidth: '1000px',
+            width: '90%',
+            maxHeight: '80vh',
+            overflowY: 'auto',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            border: '3px solid rgba(59, 130, 246, 0.4)'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '2rem'
+            }}>
+              <h2 style={{
+                fontSize: '2rem',
+                fontWeight: '800',
+                color: '#1f2937',
+                margin: 0,
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
               }}>
-                Click to explore →
-              </div>
+                {selectedComponent.icon} {selectedComponent.title}
+              </h2>
+              <button
+                onClick={closeModal}
+                style={{
+                  padding: '0.5rem 1rem',
+                  fontSize: '1.25rem',
+                  fontWeight: '600',
+                  backgroundColor: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                ✕
+              </button>
             </div>
-          ))
-        ) : (
-          <>
+
+            <div style={{
+              backgroundColor: 'rgba(59, 130, 246, 0.05)',
+              padding: '1.5rem',
+              borderRadius: '12px',
+              border: '2px solid rgba(59, 130, 246, 0.2)',
+              marginBottom: '2rem'
+            }}>
+              <p style={{
+                fontSize: '1.1rem',
+                color: '#374151',
+                fontWeight: '500',
+                margin: 0,
+                lineHeight: '1.6'
+              }}>
+                {selectedComponent.description}
+              </p>
+            </div>
+
             <div>
               <h3 style={{
-                fontSize: '1.5rem',
+                fontSize: '1.25rem',
                 fontWeight: '700',
                 color: '#1f2937',
-                marginBottom: '1.5rem'
+                marginBottom: '1rem'
               }}>
-                Kafka Concepts
+                Code Examples
               </h3>
-              <div style={{ display: 'grid', gap: '1rem' }}>
-                {concepts.map((concept, idx) => (
-                  <div
-                    key={idx}
-                    onClick={() => handleConceptClick(concept)}
-                    style={{
-                      backgroundColor: selectedConcept?.title === concept.title
-                        ? 'rgba(59, 130, 246, 0.15)'
-                        : 'rgba(59, 130, 246, 0.05)',
-                      padding: '1rem',
-                      borderRadius: '8px',
-                      border: selectedConcept?.title === concept.title
-                        ? '3px solid #3b82f6'
-                        : '2px solid rgba(59, 130, 246, 0.2)',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (selectedConcept?.title !== concept.title) {
-                        e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.1)'
-                        e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)'
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (selectedConcept?.title !== concept.title) {
-                        e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.05)'
-                        e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.2)'
-                      }
-                    }}
-                  >
-                    <div style={{
+              <div style={{
+                display: 'grid',
+                gap: '1.5rem'
+              }}>
+                {selectedComponent.details.map((detail, idx) => (
+                  <div key={idx}>
+                    <h4 style={{
+                      fontSize: '1.1rem',
+                      fontWeight: '600',
+                      color: '#1f2937',
+                      marginBottom: '0.75rem',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.75rem'
+                      gap: '0.5rem'
                     }}>
-                      <span style={{ fontSize: '1.5rem' }}>{concept.icon}</span>
-                      <div style={{
-                        fontSize: '1rem',
-                        fontWeight: '700',
-                        color: selectedConcept?.title === concept.title ? '#3b82f6' : '#1f2937'
+                      <span style={{
+                        backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                        color: '#166534',
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: '6px',
+                        fontSize: '0.9rem',
+                        fontWeight: '600'
                       }}>
-                        {concept.title}
-                      </div>
-                    </div>
+                        {idx + 1}
+                      </span>
+                      {detail.name}
+                    </h4>
+                    <SyntaxHighlighter code={detail.codeExample} />
                   </div>
                 ))}
               </div>
             </div>
-
-            <div>
-              <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: '#3b82f6',
-                marginBottom: '1.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem'
-              }}>
-                <span style={{ fontSize: '2rem' }}>{selectedConcept.icon}</span>
-                {selectedConcept.title}
-              </h3>
-
-              <div style={{
-                backgroundColor: 'rgba(59, 130, 246, 0.08)',
-                padding: '1.5rem',
-                borderRadius: '12px',
-                border: '2px solid rgba(59, 130, 246, 0.3)',
-                marginBottom: '1.5rem'
-              }}>
-                <p style={{
-                  fontSize: '1rem',
-                  color: '#374151',
-                  fontWeight: '500',
-                  margin: 0,
-                  lineHeight: '1.7',
-                  textAlign: 'justify'
-                }}>
-                  {selectedConcept.description}
-                </p>
-              </div>
-
-              <div>
-                <h4 style={{
-                  fontSize: '1.1rem',
-                  fontWeight: '700',
-                  color: '#3b82f6',
-                  margin: '0 0 1rem 0'
-                }}>
-                  💻 Code Examples
-                </h4>
-                <div style={{ display: 'grid', gap: '1.5rem' }}>
-                  {selectedConcept.subtopics.map((subtopic, idx) => {
-                    const sections = parseCodeSections(subtopic.codeExample)
-
-                    if (sections.length === 0) {
-                      // No sections found, render as single block
-                      return (
-                        <div key={idx}>
-                          <h5 style={{
-                            fontSize: '1rem',
-                            fontWeight: '600',
-                            color: '#1f2937',
-                            marginBottom: '0.75rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem'
-                          }}>
-                            <span style={{
-                              backgroundColor: 'rgba(34, 197, 94, 0.2)',
-                              color: '#166534',
-                              padding: '0.25rem 0.75rem',
-                              borderRadius: '6px',
-                              fontSize: '0.9rem',
-                              fontWeight: '600'
-                            }}>
-                              {idx + 1}
-                            </span>
-                            {subtopic.name}
-                          </h5>
-                          <div style={{
-                            backgroundColor: '#1e293b',
-                            padding: '1.5rem',
-                            borderRadius: '12px',
-                            border: '2px solid #334155'
-                          }}>
-                            <SyntaxHighlighter code={subtopic.codeExample} />
-                          </div>
-                        </div>
-                      )
-                    }
-
-                    // Render with collapsible sections
-                    return (
-                      <div key={idx}>
-                        <h5 style={{
-                          fontSize: '1rem',
-                          fontWeight: '600',
-                          color: '#1f2937',
-                          marginBottom: '0.75rem',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem'
-                        }}>
-                          <span style={{
-                            backgroundColor: 'rgba(34, 197, 94, 0.2)',
-                            color: '#166534',
-                            padding: '0.25rem 0.75rem',
-                            borderRadius: '6px',
-                            fontSize: '0.9rem',
-                            fontWeight: '600'
-                          }}>
-                            {idx + 1}
-                          </span>
-                          {subtopic.name}
-                        </h5>
-                        <div style={{ display: 'grid', gap: '1rem' }}>
-                          {sections.map((section, sectionIdx) => {
-                            const sectionKey = `${selectedConcept.title}-${idx}-${sectionIdx}`
-                            const isExpanded = expandedSections[sectionKey]
-                            return (
-                              <div
-                                key={sectionIdx}
-                                style={{
-                                  backgroundColor: 'white',
-                                  borderRadius: '12px',
-                                  border: '2px solid rgba(59, 130, 246, 0.3)',
-                                  overflow: 'hidden'
-                                }}
-                              >
-                                <button
-                                  onClick={() => toggleSection(sectionKey)}
-                                  style={{
-                                    width: '100%',
-                                    padding: '1.25rem',
-                                    backgroundColor: isExpanded ? 'rgba(59, 130, 246, 0.15)' : 'white',
-                                    border: 'none',
-                                    borderBottom: isExpanded ? '2px solid rgba(59, 130, 246, 0.3)' : 'none',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    transition: 'all 0.2s ease',
-                                    textAlign: 'left'
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.15)'
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    if (!isExpanded) {
-                                      e.currentTarget.style.backgroundColor = 'white'
-                                    }
-                                  }}
-                                >
-                                  <span style={{
-                                    fontSize: '1.05rem',
-                                    fontWeight: '700',
-                                    color: '#3b82f6'
-                                  }}>
-                                    {section.title}
-                                  </span>
-                                  <span style={{
-                                    fontSize: '1.5rem',
-                                    color: '#3b82f6',
-                                    transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                                    transition: 'transform 0.2s ease'
-                                  }}>
-                                    ▼
-                                  </span>
-                                </button>
-                                {isExpanded && (
-                                  <div style={{
-                                    backgroundColor: '#1e293b',
-                                    padding: '1.5rem'
-                                  }}>
-                                    <SyntaxHighlighter code={section.code} />
-                                  </div>
-                                )}
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

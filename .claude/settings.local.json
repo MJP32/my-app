@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//private/tmp/**)",
+      "Bash(npm run lint)",
+      "Bash(timeout 10 npm run dev:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(node:*)",
+      "Bash(npm run lint:*)",
+      "Read(///**)",
+      "Bash(grep:*)",
+      "Bash(timeout 5 npm run dev)",
+      "Bash(cat:*)",
+      "Bash(pkill:*)",
+      "Bash(paste:*)",
+      "Bash(for line in 628 741 846 952)",
+      "Bash(do echo \"=== Line $line ===\")",
+      "Bash(done)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

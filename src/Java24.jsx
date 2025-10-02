@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 
 // Simple syntax highlighter for Java code
 const SyntaxHighlighter = ({ code }) => {
@@ -8,45 +8,29 @@ const SyntaxHighlighter = ({ code }) => {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
 
-    // Store protected content with placeholders
     const protectedContent = []
     let placeholder = 0
 
-    // Protect comments first
     highlighted = highlighted.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
       const id = `___COMMENT_${placeholder++}___`
       protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
       return id
     })
 
-    // Protect strings
     highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
       const id = `___STRING_${placeholder++}___`
       protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
       return id
     })
 
-    // Apply syntax highlighting to remaining code
     highlighted = highlighted
-      // Keywords - purple
-      .replace(/\b(public|private|protected|static|final|class|interface|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|import|package|void|abstract|synchronized|volatile|transient|native|strictfp|super|this|null)\b/g, '<span style="color: #c586c0;">$1</span>')
-
-      // Boolean and primitives - blue
+      .replace(/\b(public|private|protected|static|final|class|interface|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|import|package|void|abstract|synchronized|volatile|transient|native|strictfp|super|this|null|sealed|permits|non-sealed|record|instanceof|var|default|yield)\b/g, '<span style="color: #c586c0;">$1</span>')
       .replace(/\b(true|false|int|double|float|long|short|byte|char|boolean)\b/g, '<span style="color: #569cd6;">$1</span>')
-
-      // Types and classes - light green
-      .replace(/\b(String|List|ArrayList|LinkedList|HashMap|TreeMap|HashSet|TreeSet|Map|Set|Queue|Deque|Collection|Arrays|Collections|Thread|Runnable|Executor|ExecutorService|CompletableFuture|Stream|Optional|Path|Files|Pattern|Matcher|StringBuilder|StringBuffer|Integer|Double|Float|Long|Short|Byte|Character|Boolean|Object|System|Math|Scanner|BufferedReader|FileReader|FileWriter|PrintWriter|InputStream|OutputStream|Exception|RuntimeException|IOException|SQLException|WeakReference|SoftReference|PhantomReference|ReferenceQueue)\b/g, '<span style="color: #4ec9b0;">$1</span>')
-
-      // Annotations - yellow
+      .replace(/\b(String|List|ArrayList|LinkedList|HashMap|TreeMap|HashSet|TreeSet|Map|Set|Queue|Deque|Collection|Arrays|Collections|Thread|Runnable|Executor|ExecutorService|CompletableFuture|Stream|Optional|Path|Files|Pattern|Matcher|StringBuilder|StringBuffer|Integer|Double|Float|Long|Short|Byte|Character|Boolean|Object|System|Math|Scanner|BufferedReader|FileReader|FileWriter|PrintWriter|InputStream|OutputStream|Exception|RuntimeException|IOException|SQLException|Function|Consumer|Supplier|Predicate|Comparator)\b/g, '<span style="color: #4ec9b0;">$1</span>')
       .replace(/(@\w+)/g, '<span style="color: #dcdcaa;">$1</span>')
-
-      // Numbers - light green
       .replace(/\b(\d+\.?\d*[fLdD]?)\b/g, '<span style="color: #b5cea8;">$1</span>')
-
-      // Method calls - yellow
       .replace(/\b([a-z_]\w*)\s*\(/g, '<span style="color: #dcdcaa;">$1</span>(')
 
-    // Restore protected content
     protectedContent.forEach(({ id, replacement }) => {
       highlighted = highlighted.replace(id, replacement)
     })
@@ -71,252 +55,81 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-const ModernDiagram = ({ components, onComponentClick, title, width = 1400, height = 800, containerWidth = 1800, focusedIndex }) => {
-  const [hoveredComponent, setHoveredComponent] = useState(null)
-
-  return (
-    <div style={{
-      width: '100%',
-      maxWidth: `${containerWidth}px`,
-      margin: '0 auto',
-      backgroundColor: '#f8fafc',
-      borderRadius: '16px',
-      padding: '2rem',
-      boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.1)',
-      border: '2px solid #e2e8f0'
-    }}>
-      <h3 style={{
-        textAlign: 'center',
-        marginBottom: '2rem',
-        fontSize: '1.75rem',
-        fontWeight: '800',
-        color: '#1e293b',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      }}>
-        {title}
-      </h3>
-
-      <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} style={{ overflow: 'visible' }}>
-        <defs>
-          <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#1e40af" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#10b981" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#059669" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ef4444" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#dc2626" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#d97706" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="tealGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#0d9488" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="indigoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#6366f1" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="pinkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ec4899" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#db2777" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="cyanGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#0891b2" stopOpacity="0.9"/>
-          </linearGradient>
-
-          {/* Arrow markers */}
-          <marker id="arrowSolid" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-            <path d="M0,0 L0,6 L9,3 z" fill="#1e293b" />
-          </marker>
-          <marker id="arrowDashed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-            <path d="M0,0 L0,6 L9,3 z" fill="#64748b" />
-          </marker>
-        </defs>
-
-        {/* Architectural layer backgrounds */}
-        <g opacity="0.1">
-          <rect x="50" y="180" width="420" height="200" rx="16" fill="#3b82f6" />
-          <text x="260" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="#1e40af" opacity="0.6">
-            Layer 1
-          </text>
-
-          <rect x="550" y="80" width="420" height="560" rx="16" fill="#10b981" />
-          <text x="760" y="110" textAnchor="middle" fontSize="14" fontWeight="700" fill="#059669" opacity="0.6">
-            Layer 2
-          </text>
-
-          <rect x="1050" y="180" width="420" height="520" rx="16" fill="#8b5cf6" />
-          <text x="1260" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="#7c3aed" opacity="0.6">
-            Layer 3
-          </text>
-        </g>
-
-        {/* Connecting lines with arrows and labels */}
-        <g fill="none">
-          <line x1="430" y1="300" x2="580" y2="200" stroke="#1e293b" strokeWidth="3" strokeOpacity="0.8" markerEnd="url(#arrowSolid)"/>
-          <text x="505" y="240" fontSize="11" fontWeight="600" fill="#1e293b" textAnchor="middle">
-            interacts
-          </text>
-
-          <line x1="430" y1="300" x2="580" y2="400" stroke="#1e293b" strokeWidth="3" strokeOpacity="0.8" markerEnd="url(#arrowSolid)"/>
-          <text x="505" y="360" fontSize="11" fontWeight="600" fill="#1e293b" textAnchor="middle">
-            uses
-          </text>
-
-          <line x1="930" y1="200" x2="1080" y2="300" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="1005" y="240" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            depends
-          </text>
-
-          <line x1="930" y1="400" x2="1080" y2="500" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="1005" y="460" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            provides
-          </text>
-
-          <line x1="430" y1="500" x2="580" y2="600" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="505" y="560" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            extends
-          </text>
-
-          <line x1="930" y1="500" x2="760" y2="600" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="845" y="560" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            integrates
-          </text>
-        </g>
-
-        {/* Component rectangles */}
-        {components.map((component, index) => {
-          const isFocused = focusedIndex === index
-          const isHovered = hoveredComponent === component.id
-          const isHighlighted = isFocused || isHovered
-
-          return (
-          <g key={component.id}>
-            {/* Focused ring indicator */}
-            {isFocused && (
-              <rect
-                x={component.x - 6}
-                y={component.y - 6}
-                width={component.width + 12}
-                height={component.height + 12}
-                rx="16"
-                ry="16"
-                fill="none"
-                stroke="#fbbf24"
-                strokeWidth="4"
-                style={{
-                  opacity: 0.9,
-                  filter: 'drop-shadow(0 0 12px rgba(251, 191, 36, 0.6))'
-                }}
-              />
-            )}
-            <rect
-              x={component.x}
-              y={component.y}
-              width={component.width}
-              height={component.height}
-              rx="12"
-              ry="12"
-              fill={`url(#${component.color}Gradient)`}
-              stroke={isHighlighted ? '#1e293b' : '#64748b'}
-              strokeWidth={isHighlighted ? '4' : '2'}
-              style={{
-                cursor: 'pointer',
-                filter: isHighlighted ? 'drop-shadow(0 8px 16px rgba(0,0,0,0.2))' : 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))',
-                transform: isHighlighted ? 'scale(1.05)' : 'scale(1)',
-                transformOrigin: `${component.x + component.width/2}px ${component.y + component.height/2}px`,
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={() => setHoveredComponent(component.id)}
-              onMouseLeave={() => setHoveredComponent(null)}
-              onClick={() => onComponentClick && onComponentClick(component)}
-            />
-
-            {/* Icon */}
-            <text
-              x={component.x + component.width/2}
-              y={component.y + 35}
-              textAnchor="middle"
-              fontSize="48"
-              style={{ userSelect: 'none', pointerEvents: 'none' }}
-            >
-              {component.icon}
-            </text>
-
-            {/* Title */}
-            <text
-              x={component.x + component.width/2}
-              y={component.y + 75}
-              textAnchor="middle"
-              fontSize="18"
-              fontWeight="700"
-              fill="white"
-              style={{ userSelect: 'none', pointerEvents: 'none' }}
-            >
-              {component.title}
-            </text>
-
-            {/* Details */}
-            {component.details && component.details.slice(0, 3).map((detail, idx) => (
-              <text
-                key={idx}
-                x={component.x + component.width/2}
-                y={component.y + 100 + (idx * 15)}
-                textAnchor="middle"
-                fontSize="10"
-                fontWeight="500"
-                fill="rgba(255,255,255,0.9)"
-                style={{ userSelect: 'none', pointerEvents: 'none' }}
-              >
-                {detail.name.length > 18 ? detail.name.substring(0, 15) + '...' : detail.name}
-              </text>
-            ))}
-            {component.details && component.details.length > 3 && (
-              <text
-                x={component.x + component.width/2}
-                y={component.y + 145}
-                textAnchor="middle"
-                fontSize="10"
-                fontWeight="500"
-                fill="rgba(255,255,255,0.7)"
-                style={{ userSelect: 'none', pointerEvents: 'none' }}
-              >
-                +{component.details.length - 3} more features...
-              </text>
-            )}
-          </g>
-        )})}
-      </svg>
-    </div>
-  )
-}
-
 function Java24({ onBack }) {
-  const [selectedComponent, setSelectedComponent] = useState(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedConcept, setSelectedConcept] = useState(null)
-  const [focusedComponentIndex, setFocusedComponentIndex] = useState(0)
+  const [expandedSections, setExpandedSections] = useState({})
 
-  const components = [
+  const toggleSection = (sectionKey) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey]
+    }))
+  }
+
+  const parseCodeSections = (code) => {
+    const sections = []
+    const lines = code.split('\n')
+    let currentSection = null
+    let currentContent = []
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+
+      if (line.includes('// ═══════════════════════════════════════════════════════════════════════════')) {
+        if (currentSection) {
+          sections.push({
+            title: currentSection,
+            code: currentContent.join('\n')
+          })
+          currentContent = []
+        }
+
+        if (i + 1 < lines.length && lines[i + 1].includes('// ✦')) {
+          currentSection = lines[i + 1].replace('// ✦', '').trim()
+          i += 2
+          continue
+        }
+      }
+
+      if (currentSection) {
+        currentContent.push(line)
+      }
+    }
+
+    if (currentSection && currentContent.length > 0) {
+      sections.push({
+        title: currentSection,
+        code: currentContent.join('\n')
+      })
+    }
+
+    return sections
+  }
+
+  const handleConceptClick = (concept) => {
+    setSelectedConcept(concept)
+  }
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && selectedConcept) {
+        setSelectedConcept(null)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConcept])
+
+  const concepts = [
     {
-      id: 'module-import', x: 80, y: 240, width: 350, height: 160,
-      icon: '📦', title: 'Module Import Declarations (Preview)', color: 'blue',
-      details: [
-        {
-          name: 'Simplified Imports',
-          explanation: 'Import entire modules with single declaration: import module java.base. Makes all public APIs from module available without individual import statements. Reduces boilerplate for module-heavy code.',
-          codeExample: `// Java 24 Preview: Module Import Declarations
+      name: 'Simplified Imports',
+      icon: '🔹',
+      explanation: `Import entire modules with single declaration: import module java.base. Makes all public APIs from module available without individual import statements. Reduces boilerplate for module-heavy code.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Simplified Imports - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Java 24 Preview: Module Import Declarations
 // Compile with: javac --enable-preview --release 24 ModuleImportExample.java
 
 // Traditional way - verbose
@@ -357,11 +170,16 @@ public class ModuleImportExample {
 // Names: [Alice, Bob]
 // Ages: {Alice=30, Bob=25}
 // File content: Module imports rock!`
-        },
-        {
-          name: 'Namespace Access',
-          explanation: 'Access types from imported module without full qualification. Module acts as implicit import scope. Simplifies working with modular libraries and frameworks.',
-          codeExample: `// Namespace Access with Module Imports
+    },
+    {
+      name: 'Namespace Access',
+      icon: '🔹',
+      explanation: `Access types from imported module without full qualification. Module acts as implicit import scope. Simplifies working with modular libraries and frameworks.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Namespace Access - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Namespace Access with Module Imports
 import module java.base;  // All java.base types available
 
 public class NamespaceExample {
@@ -405,11 +223,16 @@ public class NamespaceExample {
 // Result: apple
 // Future: 42
 // Data: {fruits=[apple, banana, orange], colors=[red, green, blue]}`
-        },
-        {
-          name: 'Conflict Resolution',
-          explanation: 'Explicit imports take precedence over module imports. On-demand imports from packages override module imports. Clear precedence rules prevent ambiguity.',
-          codeExample: `// Conflict Resolution with Module Imports
+    },
+    {
+      name: 'Conflict Resolution',
+      icon: '🔹',
+      explanation: `Explicit imports take precedence over module imports. On-demand imports from packages override module imports. Clear precedence rules prevent ambiguity.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Conflict Resolution - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Conflict Resolution with Module Imports
 import module java.base;
 
 // Explicit import takes precedence over module import
@@ -452,11 +275,16 @@ public class ConflictResolution {
 // Output:
 // Standard list: [Using java.util.List]
 // Custom list items: 3`
-        },
-        {
-          name: 'Use Cases',
-          explanation: 'Perfect for working with large module APIs, scripting with Java modules, educational code examples, and rapid prototyping with modular libraries.',
-          codeExample: `// Use Cases for Module Imports
+    },
+    {
+      name: 'Use Cases',
+      icon: '🔹',
+      explanation: `Perfect for working with large module APIs, scripting with Java modules, educational code examples, and rapid prototyping with modular libraries.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Use Cases - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Use Cases for Module Imports
 
 // Use Case 1: Educational Code - Simpler for learners
 import module java.base;
@@ -520,11 +348,16 @@ public class DataProcessor {
     });
   }
 }`
-        },
-        {
-          name: 'Preview Feature',
-          explanation: 'Preview in Java 24 for community feedback. May be refined based on usage patterns. Part of ongoing module system evolution.',
-          codeExample: `// Module Import Declarations - Preview Feature Status
+    },
+    {
+      name: 'Preview Feature',
+      icon: '🔹',
+      explanation: `Preview in Java 24 for community feedback. May be refined based on usage patterns. Part of ongoing module system evolution.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Preview Feature - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Module Import Declarations - Preview Feature Status
 
 // Compile with preview features enabled:
 // javac --enable-preview --release 24 PreviewExample.java
@@ -572,18 +405,16 @@ public class PreviewExample {
 //   - Better scripting support
 //
 // Feedback welcome at openjdk.org!`
-        }
-      ],
-      description: 'Concise module-level imports simplifying access to entire module APIs with single import declaration (preview).'
     },
     {
-      id: 'scoped-values', x: 580, y: 140, width: 350, height: 160,
-      icon: '🔐', title: 'Scoped Values (Preview)', color: 'green',
-      details: [
-        {
-          name: 'Better Than ThreadLocal',
-          explanation: 'Scoped values are immutable and have bounded lifetime. Share data safely within thread execution scope. More efficient than ThreadLocal, especially with virtual threads.',
-          codeExample: `// Scoped Values vs ThreadLocal (Preview)
+      name: 'Better Than ThreadLocal',
+      icon: '🔹',
+      explanation: `Scoped values are immutable and have bounded lifetime. Share data safely within thread execution scope. More efficient than ThreadLocal, especially with virtual threads.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Better Than ThreadLocal - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Scoped Values vs ThreadLocal (Preview)
 import java.lang.ScopedValue;
 import java.util.concurrent.*;
 
@@ -644,11 +475,16 @@ public class ScopedValueVsThreadLocal {
 // ThreadLocal user: user123
 // ScopedValue user: user456
 // Audit log for: user456`
-        },
-        {
-          name: 'Immutable Sharing',
-          explanation: 'Once set, values cannot be changed. Prevents accidental mutation bugs. Safe to share across method calls without defensive copying. Natural fit for functional programming style.',
-          codeExample: `// Immutable Context Sharing with Scoped Values
+    },
+    {
+      name: 'Immutable Sharing',
+      icon: '🔹',
+      explanation: `Once set, values cannot be changed. Prevents accidental mutation bugs. Safe to share across method calls without defensive copying. Natural fit for functional programming style.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Immutable Sharing - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Immutable Context Sharing with Scoped Values
 import java.lang.ScopedValue;
 
 public record RequestContext(
@@ -713,11 +549,16 @@ public class ImmutableSharing {
 // User: alice
 // Processing for alice at 1234567890123
 // Saving results for: req-12345`
-        },
-        {
-          name: 'Performance Benefits',
-          explanation: 'No cleanup needed - automatically released when scope ends. Much faster than ThreadLocal with virtual threads. Lower memory overhead. Designed for millions of virtual threads.',
-          codeExample: `// Performance with Virtual Threads
+    },
+    {
+      name: 'Performance Benefits',
+      icon: '🔹',
+      explanation: `No cleanup needed - automatically released when scope ends. Much faster than ThreadLocal with virtual threads. Lower memory overhead. Designed for millions of virtual threads.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Performance Benefits - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Performance with Virtual Threads
 import java.lang.ScopedValue;
 import java.util.concurrent.*;
 
@@ -787,11 +628,16 @@ public class PerformanceBenchmark {
 // ...
 // Processed 1,000,000 tasks in 5,234 ms
 // Average: 0.005 ms per task`
-        },
-        {
-          name: 'API Design',
-          explanation: 'ScopedValue.where(key, value).run(() -> ...) pattern. Clear scope boundaries. Nested scopes supported. Type-safe access with compile-time checking.',
-          codeExample: `// ScopedValue API Patterns
+    },
+    {
+      name: 'API Design',
+      icon: '🔹',
+      explanation: `ScopedValue.where(key, value).run(() -> ...) pattern. Clear scope boundaries. Nested scopes supported. Type-safe access with compile-time checking.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ API Design - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ScopedValue API Patterns
 import java.lang.ScopedValue;
 
 public class ApiPatterns {
@@ -890,11 +736,16 @@ public class ApiPatterns {
 // Tenant: tenant-123
 // Level: 1
 // Nested level: 2`
-        },
-        {
-          name: 'Migration Path',
-          explanation: 'Replace ThreadLocal for immutable context data. Particularly beneficial with virtual threads. Simpler lifecycle than ThreadLocal. Encourages better design patterns.',
-          codeExample: `// Migrating from ThreadLocal to ScopedValue
+    },
+    {
+      name: 'Migration Path',
+      icon: '🔹',
+      explanation: `Replace ThreadLocal for immutable context data. Particularly beneficial with virtual threads. Simpler lifecycle than ThreadLocal. Encourages better design patterns.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Migration Path - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Migrating from ThreadLocal to ScopedValue
 
 // BEFORE: ThreadLocal (old approach)
 class LegacyContextManager {
@@ -969,11 +820,16 @@ class ModernContextManager {
 // 3. Better with virtual threads - lower overhead
 // 4. Clearer scope boundaries
 // 5. Less error-prone code`
-        },
-        {
-          name: 'Use Cases',
-          explanation: 'User identity, transaction context, request tracking, security principals, configuration settings. Any immutable context that flows through call stack.',
-          codeExample: `// Real-World Use Cases for Scoped Values
+    },
+    {
+      name: 'Use Cases',
+      icon: '🔹',
+      explanation: `User identity, transaction context, request tracking, security principals, configuration settings. Any immutable context that flows through call stack.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Use Cases - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Real-World Use Cases for Scoped Values
 import java.lang.ScopedValue;
 
 // Use Case 1: Request Tracking
@@ -1069,18 +925,16 @@ class TransactionManager {
 // - Type-safe access
 // - No parameter passing needed
 // - Automatic cleanup`
-        }
-      ],
-      description: 'Efficient immutable thread-scoped data sharing replacing ThreadLocal with better performance for virtual threads (preview).'
     },
     {
-      id: 'stream-gatherers', x: 580, y: 340, width: 350, height: 160,
-      icon: '🌊', title: 'Stream Gatherers (Preview)', color: 'purple',
-      details: [
-        {
-          name: 'Custom Stream Operations',
-          explanation: 'Gatherers enable custom intermediate stream operations beyond built-in ones. More flexible than Collectors. Can transform, filter, map, and aggregate in custom ways. Extends Stream API power.',
-          codeExample: `// Stream Gatherers - Custom Operations (Preview)
+      name: 'Custom Stream Operations',
+      icon: '🔹',
+      explanation: `Gatherers enable custom intermediate stream operations beyond built-in ones. More flexible than Collectors. Can transform, filter, map, and aggregate in custom ways. Extends Stream API power.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Custom Stream Operations - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Stream Gatherers - Custom Operations (Preview)
 import java.util.stream.*;
 
 public class CustomStreamOperations {
@@ -1128,11 +982,16 @@ public class CustomStreamOperations {
 // Fixed windows: [6, 15, 24]
 // Sliding averages: [2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]
 // Running totals: [1, 3, 6, 10, 15, 21, 28, 36, 45, 55]`
-        },
-        {
-          name: 'Stateful Processing',
-          explanation: 'Maintain state across stream elements. Implement sliding windows, running totals, custom buffering. More powerful than stateless map/filter operations.',
-          codeExample: `// Stateful Stream Processing with Gatherers
+    },
+    {
+      name: 'Stateful Processing',
+      icon: '🔹',
+      explanation: `Maintain state across stream elements. Implement sliding windows, running totals, custom buffering. More powerful than stateless map/filter operations.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Stateful Processing - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Stateful Stream Processing with Gatherers
 import java.util.stream.*;
 
 public class StatefulProcessing {
@@ -1188,11 +1047,16 @@ public class StatefulProcessing {
 //
 // Running min: [5, 2, 2, 1, 1, 1, 1]
 // Running max: [5, 5, 8, 8, 9, 9, 9]`
-        },
-        {
-          name: 'Built-in Gatherers',
-          explanation: 'Standard gatherers: fold (custom reduction), scan (running accumulation), windowFixed (fixed-size windows), windowSliding (overlapping windows). Ready-to-use common patterns.',
-          codeExample: `// Built-in Gatherers API
+    },
+    {
+      name: 'Built-in Gatherers',
+      icon: '🔹',
+      explanation: `Standard gatherers: fold (custom reduction), scan (running accumulation), windowFixed (fixed-size windows), windowSliding (overlapping windows). Ready-to-use common patterns.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Built-in Gatherers - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Built-in Gatherers API
 import java.util.stream.*;
 
 public class BuiltInGatherers {
@@ -1260,11 +1124,16 @@ public class BuiltInGatherers {
 //   [fox, jumps, over]
 //   [jumps, over, lazy]
 //   [over, lazy, dog]`
-        },
-        {
-          name: 'Custom Gatherers',
-          explanation: 'Implement custom gatherers with Gatherer interface. Define initialization, integration, and finalization logic. Composable with other stream operations. Fully type-safe.',
-          codeExample: `// Custom Gatherer Implementation
+    },
+    {
+      name: 'Custom Gatherers',
+      icon: '🔹',
+      explanation: `Implement custom gatherers with Gatherer interface. Define initialization, integration, and finalization logic. Composable with other stream operations. Fully type-safe.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Custom Gatherers - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Custom Gatherer Implementation
 import java.util.stream.*;
 import java.util.function.*;
 
@@ -1347,11 +1216,16 @@ public class CustomGatherer {
 // Batched: [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]]
 //
 // Batch sums: [28, 44, 52]`
-        },
-        {
-          name: 'Performance',
-          explanation: 'Efficient pipeline execution. Lazy evaluation like other stream operations. Can short-circuit when appropriate. Integrates seamlessly with parallel streams.',
-          codeExample: `// Gatherer Performance and Lazy Evaluation
+    },
+    {
+      name: 'Performance',
+      icon: '🔹',
+      explanation: `Efficient pipeline execution. Lazy evaluation like other stream operations. Can short-circuit when appropriate. Integrates seamlessly with parallel streams.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Performance - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Gatherer Performance and Lazy Evaluation
 import java.util.stream.*;
 
 public class GathererPerformance {
@@ -1421,11 +1295,16 @@ public class GathererPerformance {
 //
 // === Short-Circuiting ===
 // Processed only 60 elements (short-circuited)`
-        },
-        {
-          name: 'Use Cases',
-          explanation: 'Time-series analysis, moving averages, batching, deduplication with state, custom aggregations. Any complex stream transformation beyond map/filter/reduce.',
-          codeExample: `// Real-World Use Cases for Stream Gatherers
+    },
+    {
+      name: 'Use Cases',
+      icon: '🔹',
+      explanation: `Time-series analysis, moving averages, batching, deduplication with state, custom aggregations. Any complex stream transformation beyond map/filter/reduce.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Use Cases - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Real-World Use Cases for Stream Gatherers
 import java.util.stream.*;
 import java.time.*;
 
@@ -1517,18 +1396,16 @@ class EventDeduplicator {
 // Saved batch of 100 transactions
 // Window: min=99.8, max=102.5, avg=100.8
 // Window: min=99.8, max=105.2, avg=102.5`
-        }
-      ],
-      description: 'Extensible intermediate stream operations enabling custom stateful transformations and complex data processing (preview).'
     },
     {
-      id: 'class-file-api', x: 80, y: 440, width: 350, height: 160,
-      icon: '⚙️', title: 'Class-File API (Preview)', color: 'red',
-      details: [
-        {
-          name: 'Standard Bytecode API',
-          explanation: 'Official API for parsing, transforming, and generating class files. Replaces ASM and other bytecode libraries. Maintained by JDK team. Synchronized with JVM evolution.',
-          codeExample: `// Class-File API - Standard Bytecode Manipulation (Preview)
+      name: 'Standard Bytecode API',
+      icon: '🔹',
+      explanation: `Official API for parsing, transforming, and generating class files. Replaces ASM and other bytecode libraries. Maintained by JDK team. Synchronized with JVM evolution.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Standard Bytecode API - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Class-File API - Standard Bytecode Manipulation (Preview)
 import java.lang.classfile.*;
 import java.lang.classfile.attribute.*;
 import java.lang.constant.*;
@@ -1583,11 +1460,16 @@ public class StandardBytecodeAPI {
 // Fields:
 //   name : Ljava/lang/String;
 //   count : I`
-        },
-        {
-          name: 'High-Level Abstractions',
-          explanation: 'Work with Java concepts (methods, fields, attributes) not raw bytecode. Type-safe API with builder patterns. Much easier than manual bytecode manipulation.',
-          codeExample: `// High-Level Class File Abstractions
+    },
+    {
+      name: 'High-Level Abstractions',
+      icon: '🔹',
+      explanation: `Work with Java concepts (methods, fields, attributes) not raw bytecode. Type-safe API with builder patterns. Much easier than manual bytecode manipulation.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ High-Level Abstractions - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// High-Level Class File Abstractions
 import java.lang.classfile.*;
 import java.lang.constant.*;
 
@@ -1676,11 +1558,16 @@ public class HighLevelAPI {
     // Can now load and instantiate the generated class
   }
 }`
-        },
-        {
-          name: 'Read and Write',
-          explanation: 'Parse existing class files into structured model. Transform methods, fields, attributes. Generate new class files. Round-trip transformation support.',
-          codeExample: `// Read, Transform, and Write Class Files
+    },
+    {
+      name: 'Read and Write',
+      icon: '🔹',
+      explanation: `Parse existing class files into structured model. Transform methods, fields, attributes. Generate new class files. Round-trip transformation support.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Read and Write - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Read, Transform, and Write Class Files
 import java.lang.classfile.*;
 import java.lang.classfile.instruction.*;
 
@@ -1751,11 +1638,16 @@ public class ReadWriteTransform {
     System.out.println("Round-trip successful");
   }
 }`
-        },
-        {
-          name: 'Framework Support',
-          explanation: 'Essential for frameworks doing bytecode manipulation: Spring, Hibernate, Mockito. Enables JVM languages, agents, profilers. Official support for ecosystem tools.',
-          codeExample: `// Framework Use: Dynamic Proxy Generation
+    },
+    {
+      name: 'Framework Support',
+      icon: '🔹',
+      explanation: `Essential for frameworks doing bytecode manipulation: Spring, Hibernate, Mockito. Enables JVM languages, agents, profilers. Official support for ecosystem tools.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Framework Support - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Framework Use: Dynamic Proxy Generation
 import java.lang.classfile.*;
 import java.lang.constant.*;
 
@@ -1844,11 +1736,16 @@ public class ProxyGenerator {
 // - Mockito mock generation
 // - JPA entity weaving
 // - Java agent instrumentation`
-        },
-        {
-          name: 'Future-Proof',
-          explanation: 'Automatically updated with JVM changes. No lag between JVM features and bytecode library support. Backward and forward compatible with class file versions.',
-          codeExample: `// Future-Proof Class File API
+    },
+    {
+      name: 'Future-Proof',
+      icon: '🔹',
+      explanation: `Automatically updated with JVM changes. No lag between JVM features and bytecode library support. Backward and forward compatible with class file versions.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Future-Proof - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Future-Proof Class File API
 import java.lang.classfile.*;
 
 public class FutureProofAPI {
@@ -1926,11 +1823,16 @@ public class FutureProofAPI {
 // 3. Handles all class file versions
 // 4. Future JVM features supported automatically
 // 5. No breaking changes for framework developers`
-        },
-        {
-          name: 'Use Cases',
-          explanation: 'Code generation, bytecode enhancement, instrumentation, JVM language implementations, analysis tools. Any framework manipulating bytecode.',
-          codeExample: `// Real-World Use Cases for Class-File API
+    },
+    {
+      name: 'Use Cases',
+      icon: '🔹',
+      explanation: `Code generation, bytecode enhancement, instrumentation, JVM language implementations, analysis tools. Any framework manipulating bytecode.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Use Cases - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Real-World Use Cases for Class-File API
 
 // Use Case 1: Code Generation (Annotation Processing)
 class EntityGenerator {
@@ -2033,150 +1935,8 @@ class KotlinCompiler {
 // - No external dependencies
 // - Future-proof implementation
 // - High-level, type-safe API`
-        }
-      ],
-      description: 'Standard API for parsing, generating, and transforming Java class files replacing external bytecode libraries (preview).'
-    },
-    {
-      id: 'primitive-patterns', x: 580, y: 540, width: 350, height: 160,
-      icon: '🔢', title: 'Primitive Type Patterns (Preview)', color: 'orange',
-      details: [
-        { name: 'Pattern Matching Primitives', explanation: 'Pattern match on primitive types in switch and instanceof. case int i when i > 0 -> ... . Eliminates manual type checking and casting for primitives.' },
-        { name: 'Numeric Narrowing', explanation: 'Automatic safe narrowing in patterns: case byte b -> ... on int switch. Compiler checks value range. Pattern fails if value out of range. Type-safe primitive conversions.' },
-        { name: 'Enhanced Switch', explanation: 'Switch on any primitive type with patterns. Combine with guards for range checking. More expressive than traditional switch. Works with sealed types containing primitives.' },
-        { name: 'Use Cases', explanation: 'Numeric range validation, type-safe conversions, protocol parsing, state machines with numeric states. Any code with complex primitive type logic.' },
-        { name: 'Integration', explanation: 'Works with other pattern matching features: records, sealed classes, guards. Completes pattern matching story for all Java types. Unified pattern matching across type system.' }
-      ],
-      description: 'Pattern matching extended to primitive types enabling type-safe conversions and range checking (preview).'
-    },
-    {
-      id: 'markdown-javadoc', x: 1080, y: 240, width: 350, height: 160,
-      icon: '📝', title: 'Markdown in Javadoc', color: 'teal',
-      details: [
-        { name: 'Modern Documentation', explanation: 'Write Javadoc comments in Markdown syntax. More readable and maintainable than HTML. Familiar syntax for developers. Better tool support.' },
-        { name: 'Markdown Syntax', explanation: 'Use # for headings, * for lists, ``` for code blocks, **bold**, *italic*. Tables, links, images all supported. Standard Markdown features available.' },
-        { name: 'Opt-in Feature', explanation: 'Use /// comment style or @Markdown tag for Markdown Javadoc. Regular Javadoc still supported. Gradual migration possible. Choose appropriate style per comment.' },
-        { name: 'Code Examples', explanation: 'Better syntax for code examples with ``` fences. Language-specific highlighting hints. Multi-line code without HTML escaping. More readable in source.' },
-        { name: 'Generated HTML', explanation: 'Markdown converted to HTML during Javadoc generation. Output quality same or better than hand-written HTML. Standard Javadoc tools work unchanged.' },
-        { name: 'Tooling Support', explanation: 'IDEs and editors recognize Markdown in Javadoc. Live preview while editing. Better syntax highlighting. Improved documentation writing experience.' }
-      ],
-      description: 'Write Javadoc comments using Markdown syntax for more readable and maintainable documentation.'
-    },
-    {
-      id: 'flexible-constructors', x: 1080, y: 440, width: 350, height: 160,
-      icon: '🏗️', title: 'Flexible Constructor Bodies (Preview)', color: 'indigo',
-      details: [
-        { name: 'Pre-Super Statements', explanation: 'Execute statements before super()/this() call in constructors. Validate arguments, compute values, prepare context. More flexible constructor logic while maintaining safety.' },
-        { name: 'Validation Before Super', explanation: 'Validate constructor arguments before calling superclass. Fail fast with meaningful errors. No need for factory methods just for validation. Cleaner object initialization.' },
-        { name: 'Computed Arguments', explanation: 'Compute complex arguments for super() call. Use helper methods, perform calculations. Pass results to super(). More readable than inline expressions.' },
-        { name: 'Safety Guarantees', explanation: 'Cannot access instance members before super()/this(). Compiler enforces safety. Fields initialized in correct order. Prevents subtle initialization bugs.' },
-        { name: 'Use Cases', explanation: 'Argument validation, null checking, default value computation, complex super() arguments, builder pattern internals. Cleaner constructor design patterns.' },
-        { name: 'Preview Status', explanation: 'Preview feature for feedback on relaxing constructor restrictions. Enables long-requested flexibility. Maintains Java safety guarantees.' }
-      ],
-      description: 'Allow statements before super()/this() calls in constructors for validation and computation while maintaining safety (preview).'
-    },
-    {
-      id: 'deprecations', x: 1080, y: 640, width: 350, height: 140,
-      icon: '⚠️', title: 'Deprecations & Removals', color: 'pink',
-      details: [
-        { name: 'Deprecated for Removal', explanation: 'Additional legacy APIs marked for removal in future releases. Security Manager fully removed. Obsolete threading APIs deprecated. Cleanup continues.' },
-        { name: 'JNI Limitations', explanation: 'JNI Global References limited by default. Prepare for Foreign Function & Memory API. Migration path provided. Modern native interop preferred.' },
-        { name: 'Vector API Evolution', explanation: 'Vector API continues in incubator. Moving toward finalization. SIMD operations for Java. Performance improvements for numeric code.' },
-        { name: 'Platform Support', explanation: 'Continued platform support evolution. Container awareness improvements. Cloud-native optimizations. Modern deployment targets prioritized.' }
-      ],
-      description: 'Continued cleanup of legacy APIs, JNI evolution, Vector API progress, and platform modernization.'
-    },
-    {
-      id: 'experimental', x: 80, y: 640, width: 350, height: 140,
-      icon: '🔬', title: 'Experimental & Incubating', color: 'cyan',
-      details: [
-        { name: 'Project Valhalla Progress', explanation: 'Value objects and primitive classes continue development. Inline types for performance. Specialized generics. Future Java revolution in progress.' },
-        { name: 'Project Panama', explanation: 'Foreign Function & Memory API refinements. Better native interop. Vector API improvements. Preparing for finalization in coming releases.' },
-        { name: 'Project Loom Enhancements', explanation: 'Virtual threads refinements based on production usage. Structured concurrency improvements. Scoped values evolution. Making concurrency simple.' },
-        { name: 'Pattern Matching Evolution', explanation: 'Continued pattern matching enhancements. Array patterns future work. Completeness and consistency across features. Unified pattern matching vision.' }
-      ],
-      description: 'Ongoing experimental features: Valhalla value objects, Panama foreign APIs, Loom enhancements, pattern matching evolution.'
     }
   ]
-
-  const handleComponentClick = (component) => {
-    setSelectedComponent(component)
-    setIsModalOpen(true)
-  }
-
-  const closeModal = () => {
-    setIsModalOpen(false)
-    setSelectedComponent(null)
-    setSelectedConcept(null)
-
-
-  }
-
-  // Use refs to access current modal state in event handler
-  const selectedConceptRef = useRef(selectedConcept)
-  useEffect(() => {
-    selectedConceptRef.current = selectedConcept
-  }, [selectedConcept])
-
-
-  // Set initial focus on mount
-  useEffect(() => {
-    setFocusedComponentIndex(0)
-  }, [])
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      const currentSelectedConcept = selectedConceptRef.current
-      // Handle Escape to close modal or go back to menu
-      if (e.key === 'Escape') {
-        if (currentSelectedConcept) {
-          e.preventDefault()
-          e.stopImmediatePropagation()
-          setSelectedConcept(null)
-          return
-        }
-        return
-      }
-
-      if (currentSelectedConcept) {
-        // Modal is open, don't handle other keys
-        return
-      }
-
-      // Navigation when modal is closed
-      const componentCount = components.length
-
-      switch(e.key) {
-        case 'ArrowRight':
-        case 'ArrowDown':
-          e.preventDefault()
-          setFocusedComponentIndex((prev) => (prev + 1) % componentCount)
-          break
-        case 'ArrowLeft':
-        case 'ArrowUp':
-          e.preventDefault()
-          setFocusedComponentIndex((prev) => (prev - 1 + componentCount) % componentCount)
-          break
-        case 'Enter':
-        case ' ':
-          e.preventDefault()
-          if (components[focusedComponentIndex]) {
-            handleComponentClick(components[focusedComponentIndex])
-          }
-          break
-        default:
-          break
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [focusedComponentIndex])
-
-  const handleConceptClick = (concept) => {
-    setSelectedConcept(concept)
-  }
 
   return (
     <div style={{
@@ -2186,7 +1946,7 @@ class KotlinCompiler {
       backgroundColor: 'white',
       borderRadius: '16px',
       boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-      border: '3px solid rgba(236, 72, 153, 0.4)'
+      border: '3px solid rgba(16, 185, 129, 0.4)'
     }}>
       <div style={{
         display: 'flex',
@@ -2194,300 +1954,151 @@ class KotlinCompiler {
         alignItems: 'center',
         marginBottom: '2rem'
       }}>
-        <button
-          onClick={onBack}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            fontWeight: '600',
-            backgroundColor: '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-        >
+        <button onClick={onBack} style={{
+            padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600',
+            backgroundColor: '#6b7280', color: 'white', border: 'none',
+            borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease'
+          }}>
           ← Back to Menu
         </button>
         <h1 style={{
-          fontSize: '2.5rem',
-          fontWeight: '800',
-          color: '#1f2937',
-          margin: 0,
+          fontSize: '2.5rem', fontWeight: '800', color: '#1f2937', margin: 0,
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
         }}>
-          🔮 Java 24 Preview Features
+          🌟 Java 24 Features
         </h1>
         <div style={{ width: '120px' }}></div>
       </div>
 
       <div style={{
-        backgroundColor: 'rgba(236, 72, 153, 0.05)',
-        padding: '2.5rem 10rem',
-        borderRadius: '16px',
-        border: '3px solid rgba(236, 72, 153, 0.3)',
-        marginBottom: '2rem'
+        backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '2.5rem 10rem',
+        borderRadius: '16px', border: '3px solid rgba(16, 185, 129, 0.3)', marginBottom: '2rem'
       }}>
         <p style={{
-          fontSize: '1.3rem',
-          color: '#374151',
-          fontWeight: '500',
-          margin: 0,
-          lineHeight: '1.8',
-          textAlign: 'center'
+          fontSize: '1.3rem', color: '#374151', fontWeight: '500', margin: 0,
+          lineHeight: '1.8', textAlign: 'center'
         }}>
-          Java 24 preview features: Module import declarations, scoped values for virtual threads,
-          stream gatherers for custom operations, class-file API for bytecode manipulation,
-          primitive type patterns, Markdown in Javadoc, and flexible constructor bodies.
-          The cutting edge of Java evolution.
+          Discover the latest Java 24 features including advanced pattern matching, structured concurrency, and modern APIs.
         </p>
       </div>
 
-      <ModernDiagram
-        components={components}
-        onComponentClick={handleComponentClick}
-        title="Java 24 Preview & Experimental Features"
-        width={1400}
-        height={800}
-        containerWidth={1800}
-      
-        focusedIndex={focusedComponentIndex}
-      />
-
-      {/* Modal */}
-      {isModalOpen && selectedComponent && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 99999
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            padding: '2.5rem',
-            borderRadius: '16px',
-            maxWidth: '1400px',
-            width: '95%',
-            maxHeight: '85vh',
-            overflowY: 'auto',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-            border: '3px solid rgba(236, 72, 153, 0.4)'
-          }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '2rem'
-            }}>
-              <h2 style={{
-                fontSize: '2rem',
-                fontWeight: '800',
-                color: '#1f2937',
-                margin: 0,
-                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: selectedConcept ? '350px 1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '2rem'
+      }}>
+        {!selectedConcept ? (
+          concepts.map((concept, idx) => (
+            <div key={idx} onClick={() => handleConceptClick(concept)} style={{
+                backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '2rem',
+                borderRadius: '16px', border: '3px solid rgba(16, 185, 129, 0.3)',
+                cursor: 'pointer', transition: 'all 0.3s ease',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)'
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.15)'
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.5)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.3)'
               }}>
-                {selectedComponent.icon} {selectedComponent.title}
-              </h2>
-              <button
-                onClick={closeModal}
-                style={{
-                  padding: '0.5rem 1rem',
-                  fontSize: '1.25rem',
-                  fontWeight: '600',
-                  backgroundColor: '#ef4444',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div style={{
-              backgroundColor: 'rgba(236, 72, 153, 0.05)',
-              padding: '1.5rem',
-              borderRadius: '12px',
-              border: '2px solid rgba(236, 72, 153, 0.2)',
-              marginBottom: '2rem'
-            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>
+                {concept.icon || '🔹'}
+              </div>
+              <h3 style={{
+                fontSize: '1.5rem', fontWeight: '700', color: '#047857',
+                marginBottom: '1rem', textAlign: 'center'
+              }}>{concept.name}</h3>
               <p style={{
-                fontSize: '1.1rem',
-                color: '#374151',
-                fontWeight: '500',
-                margin: 0,
-                lineHeight: '1.6'
+                fontSize: '1rem', color: '#6b7280', lineHeight: '1.6', textAlign: 'center'
               }}>
-                {selectedComponent.description}
+                {concept.explanation?.substring(0, 150) || ''}...
               </p>
             </div>
-
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: selectedConcept ? '1fr 1fr' : '1fr',
-              gap: '2rem'
-            }}>
-              <div>
-                <h3 style={{
-                  fontSize: '1.25rem',
-                  fontWeight: '700',
-                  color: '#1f2937',
-                  marginBottom: '1rem'
+          ))
+        ) : (
+          <>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <button onClick={() => setSelectedConcept(null)} style={{
+                  padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600',
+                  backgroundColor: '#6b7280', color: 'white', border: 'none',
+                  borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease'
                 }}>
-                  Key Features
-                </h3>
-                <div style={{
-                  display: 'grid',
-                  gap: '0.75rem'
-                }}>
-                  {selectedComponent.details.map((detail, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => handleConceptClick(detail)}
-                      style={{
-                        backgroundColor: selectedConcept?.name === detail.name
-                          ? 'rgba(236, 72, 153, 0.15)'
-                          : 'rgba(34, 197, 94, 0.1)',
-                        padding: '0.75rem',
-                        borderRadius: '8px',
-                        border: selectedConcept?.name === detail.name
-                          ? '2px solid rgba(236, 72, 153, 0.4)'
-                          : '2px solid rgba(34, 197, 94, 0.2)',
-                        fontSize: '0.95rem',
-                        fontWeight: '500',
-                        color: selectedConcept?.name === detail.name
-                          ? '#db2777'
-                          : '#166534',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        transform: 'scale(1)'
-                      }}
-                      onMouseEnter={(e) => {
-                        if (selectedConcept?.name !== detail.name) {
-                          e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.15)'
-                          e.target.style.transform = 'scale(1.02)'
-                          e.target.style.borderColor = 'rgba(34, 197, 94, 0.4)'
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (selectedConcept?.name !== detail.name) {
-                          e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.1)'
-                          e.target.style.transform = 'scale(1)'
-                          e.target.style.borderColor = 'rgba(34, 197, 94, 0.2)'
-                        }
-                      }}
-                    >
-                      • {detail.name}
-                      {selectedConcept?.name === detail.name && (
-                        <span style={{
-                          fontSize: '0.8rem',
-                          opacity: 0.8,
-                          marginLeft: '0.5rem',
-                          fontWeight: '600'
-                        }}>
-                          ← Selected
-                        </span>
-                      )}
-                    </div>
-                  ))}
+                ← Back to All Concepts
+              </button>
+              {concepts.map((concept, idx) => (
+                <div key={idx} onClick={() => handleConceptClick(concept)} style={{
+                    padding: '1rem',
+                    backgroundColor: selectedConcept?.name === concept.name ? 'rgba(16, 185, 129, 0.15)' : 'rgba(243, 244, 246, 1)',
+                    borderRadius: '8px',
+                    border: selectedConcept?.name === concept.name ? '2px solid rgba(16, 185, 129, 0.5)' : '2px solid transparent',
+                    cursor: 'pointer', transition: 'all 0.2s ease'
+                  }}>
+                  <span style={{ fontWeight: '600', color: '#047857' }}>
+                    {concept.icon || '🔹'} {concept.name}
+                  </span>
                 </div>
+              ))}
+            </div>
+
+            <div>
+              <h2 style={{ fontSize: '2rem', fontWeight: '700', color: '#047857', marginBottom: '1.5rem' }}>
+                {selectedConcept.icon || '🔹'} {selectedConcept.name}
+              </h2>
+
+              <div style={{
+                backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '1.5rem',
+                borderRadius: '12px', border: '2px solid rgba(16, 185, 129, 0.2)', marginBottom: '2rem'
+              }}>
+                <p style={{ fontSize: '1.1rem', color: '#374151', lineHeight: '1.8', margin: 0 }}>
+                  {selectedConcept.explanation}
+                </p>
               </div>
 
-              {selectedConcept && (
-                <div>
-                  <h3 style={{
-                    fontSize: '1.25rem',
-                    fontWeight: '700',
-                    color: '#1f2937',
-                    marginBottom: '1rem'
-                  }}>
-                    {selectedConcept.name}
-                  </h3>
-
-                  <div style={{
-                    backgroundColor: 'rgba(236, 72, 153, 0.05)',
-                    padding: '1.5rem',
-                    borderRadius: '12px',
-                    border: '2px solid rgba(236, 72, 153, 0.2)',
-                    marginBottom: '1.5rem'
-                  }}>
-                    <p style={{
-                      fontSize: '1rem',
-                      color: '#374151',
-                      fontWeight: '500',
-                      margin: 0,
-                      lineHeight: '1.7',
-                      textAlign: 'justify'
-                    }}>
-                      {selectedConcept.explanation}
-                    </p>
+              {selectedConcept.codeExample && (() => {
+                const sections = parseCodeSections(selectedConcept.codeExample)
+                return sections.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {sections.map((section, idx) => {
+                      const sectionKey = `${selectedConcept.name}-${idx}`
+                      const isExpanded = expandedSections[sectionKey]
+                      return (
+                        <div key={idx} style={{
+                          backgroundColor: '#1e293b', borderRadius: '12px',
+                          overflow: 'hidden', border: '2px solid #334155'
+                        }}>
+                          <button onClick={() => toggleSection(sectionKey)} style={{
+                              width: '100%', padding: '1rem 1.5rem', backgroundColor: '#334155',
+                              border: 'none', color: '#60a5fa', fontSize: '1rem', fontWeight: '600',
+                              cursor: 'pointer', display: 'flex', justifyContent: 'space-between',
+                              alignItems: 'center', transition: 'all 0.2s ease'
+                            }}>
+                            <span>💻 {section.title}</span>
+                            <span style={{ fontSize: '1.2rem' }}>{isExpanded ? '▼' : '▶'}</span>
+                          </button>
+                          {isExpanded && (
+                            <div style={{ padding: '1.5rem' }}>
+                              <SyntaxHighlighter code={section.code} />
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
                   </div>
-
-                  {selectedConcept.codeExample && (
-                    <div style={{
-                      backgroundColor: '#1e1e1e',
-                      padding: '1.5rem',
-                      borderRadius: '12px',
-                      border: '2px solid rgba(139, 92, 246, 0.3)',
-                      marginBottom: '1.5rem',
-                      maxHeight: '500px',
-                      overflowY: 'auto'
-                    }}>
-                      <h4 style={{
-                        fontSize: '0.9rem',
-                        fontWeight: '700',
-                        color: '#9ca3af',
-                        margin: '0 0 1rem 0',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em'
-                      }}>
-                        Code Example
-                      </h4>
-                      <SyntaxHighlighter code={selectedConcept.codeExample} />
-                    </div>
-                  )}
-
-                  <div style={{
-                    backgroundColor: 'rgba(139, 92, 246, 0.05)',
-                    padding: '1.25rem',
-                    borderRadius: '12px',
-                    border: '2px solid rgba(139, 92, 246, 0.2)'
-                  }}>
-                    <h4 style={{
-                      fontSize: '1rem',
-                      fontWeight: '700',
-                      color: '#7c3aed',
-                      margin: '0 0 0.75rem 0'
-                    }}>
-                      💡 Key Takeaway
-                    </h4>
-                    <p style={{
-                      fontSize: '0.9rem',
-                      color: '#7c3aed',
-                      fontWeight: '500',
-                      margin: 0,
-                      lineHeight: '1.5',
-                      fontStyle: 'italic'
-                    }}>
-                      {selectedConcept.name} represents the cutting edge of Java evolution, showcasing experimental features that may shape the future of Java development.
-                    </p>
+                ) : (
+                  <div style={{ backgroundColor: '#1e293b', padding: '1.5rem',
+                    borderRadius: '12px', border: '2px solid #334155' }}>
+                    <SyntaxHighlighter code={selectedConcept.codeExample} />
                   </div>
-                </div>
-              )}
+                )
+              })()}
             </div>
-          </div>
-        </div>
-      )}
-
+          </>
+        )}
+      </div>
     </div>
   )
 }

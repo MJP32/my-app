@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 
 // Simple syntax highlighter for Java code
 const SyntaxHighlighter = ({ code }) => {
@@ -8,45 +8,29 @@ const SyntaxHighlighter = ({ code }) => {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
 
-    // Store protected content with placeholders
     const protectedContent = []
     let placeholder = 0
 
-    // Protect comments first
     highlighted = highlighted.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
       const id = `___COMMENT_${placeholder++}___`
       protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
       return id
     })
 
-    // Protect strings
     highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
       const id = `___STRING_${placeholder++}___`
       protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
       return id
     })
 
-    // Apply syntax highlighting to remaining code
     highlighted = highlighted
-      // Keywords - purple
-      .replace(/\b(public|private|protected|static|final|class|interface|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|import|package|void|abstract|synchronized|volatile|transient|native|strictfp|super|this|null|var)\b/g, '<span style="color: #c586c0;">$1</span>')
-
-      // Boolean and primitives - blue
+      .replace(/\b(public|private|protected|static|final|class|interface|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|import|package|void|abstract|synchronized|volatile|transient|native|strictfp|super|this|null|sealed|permits|non-sealed|record|instanceof|var|default|yield)\b/g, '<span style="color: #c586c0;">$1</span>')
       .replace(/\b(true|false|int|double|float|long|short|byte|char|boolean)\b/g, '<span style="color: #569cd6;">$1</span>')
-
-      // Types and classes - light green
-      .replace(/\b(String|List|ArrayList|LinkedList|HashMap|TreeMap|HashSet|TreeSet|Map|Set|Queue|Deque|Collection|Arrays|Collections|Thread|Runnable|Executor|ExecutorService|CompletableFuture|Stream|Optional|Path|Files|Pattern|Matcher|StringBuilder|StringBuffer|Integer|Double|Float|Long|Short|Byte|Character|Boolean|Object|System|Math|Scanner|BufferedReader|FileReader|FileWriter|PrintWriter|InputStream|OutputStream|Exception|RuntimeException|IOException|SQLException|WeakReference|SoftReference|PhantomReference|ReferenceQueue|HttpClient|HttpRequest|HttpResponse|URI|Duration|Charset|StandardCharsets)\b/g, '<span style="color: #4ec9b0;">$1</span>')
-
-      // Annotations - yellow
+      .replace(/\b(String|List|ArrayList|LinkedList|HashMap|TreeMap|HashSet|TreeSet|Map|Set|Queue|Deque|Collection|Arrays|Collections|Thread|Runnable|Executor|ExecutorService|CompletableFuture|Stream|Optional|Path|Files|Pattern|Matcher|StringBuilder|StringBuffer|Integer|Double|Float|Long|Short|Byte|Character|Boolean|Object|System|Math|Scanner|BufferedReader|FileReader|FileWriter|PrintWriter|InputStream|OutputStream|Exception|RuntimeException|IOException|SQLException|Function|Consumer|Supplier|Predicate|Comparator)\b/g, '<span style="color: #4ec9b0;">$1</span>')
       .replace(/(@\w+)/g, '<span style="color: #dcdcaa;">$1</span>')
-
-      // Numbers - light green
       .replace(/\b(\d+\.?\d*[fLdD]?)\b/g, '<span style="color: #b5cea8;">$1</span>')
-
-      // Method calls - yellow
       .replace(/\b([a-z_]\w*)\s*\(/g, '<span style="color: #dcdcaa;">$1</span>(')
 
-    // Restore protected content
     protectedContent.forEach(({ id, replacement }) => {
       highlighted = highlighted.replace(id, replacement)
     })
@@ -71,248 +55,81 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-const ModernDiagram = ({ components, onComponentClick, title, width = 1400, height = 800, containerWidth = 1800, focusedIndex }) => {
-  const [hoveredComponent, setHoveredComponent] = useState(null)
-
-  return (
-    <div style={{
-      width: '100%',
-      maxWidth: `${containerWidth}px`,
-      margin: '0 auto',
-      backgroundColor: '#f8fafc',
-      borderRadius: '16px',
-      padding: '2rem',
-      boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.1)',
-      border: '2px solid #e2e8f0'
-    }}>
-      <h3 style={{
-        textAlign: 'center',
-        marginBottom: '2rem',
-        fontSize: '1.75rem',
-        fontWeight: '800',
-        color: '#1e293b',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      }}>
-        {title}
-      </h3>
-
-      <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} style={{ overflow: 'visible' }}>
-        <defs>
-          <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#1e40af" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#10b981" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#059669" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ef4444" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#dc2626" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#d97706" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="tealGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#0d9488" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="indigoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#6366f1" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="pinkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ec4899" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#db2777" stopOpacity="0.9"/>
-          </linearGradient>
-
-          {/* Arrow markers */}
-          <marker id="arrowSolid" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-            <path d="M0,0 L0,6 L9,3 z" fill="#1e293b" />
-          </marker>
-          <marker id="arrowDashed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-            <path d="M0,0 L0,6 L9,3 z" fill="#64748b" />
-          </marker>
-        </defs>
-
-        {/* Architectural layer backgrounds */}
-        <g opacity="0.1">
-          <rect x="50" y="180" width="420" height="200" rx="16" fill="#3b82f6" />
-          <text x="260" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="#1e40af" opacity="0.6">
-            Layer 1
-          </text>
-
-          <rect x="550" y="80" width="420" height="560" rx="16" fill="#10b981" />
-          <text x="760" y="110" textAnchor="middle" fontSize="14" fontWeight="700" fill="#059669" opacity="0.6">
-            Layer 2
-          </text>
-
-          <rect x="1050" y="180" width="420" height="520" rx="16" fill="#8b5cf6" />
-          <text x="1260" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="#7c3aed" opacity="0.6">
-            Layer 3
-          </text>
-        </g>
-
-        {/* Connecting lines with arrows and labels */}
-        <g fill="none">
-          <line x1="430" y1="300" x2="580" y2="200" stroke="#1e293b" strokeWidth="3" strokeOpacity="0.8" markerEnd="url(#arrowSolid)"/>
-          <text x="505" y="240" fontSize="11" fontWeight="600" fill="#1e293b" textAnchor="middle">
-            interacts
-          </text>
-
-          <line x1="430" y1="300" x2="580" y2="400" stroke="#1e293b" strokeWidth="3" strokeOpacity="0.8" markerEnd="url(#arrowSolid)"/>
-          <text x="505" y="360" fontSize="11" fontWeight="600" fill="#1e293b" textAnchor="middle">
-            uses
-          </text>
-
-          <line x1="930" y1="200" x2="1080" y2="300" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="1005" y="240" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            depends
-          </text>
-
-          <line x1="930" y1="400" x2="1080" y2="500" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="1005" y="460" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            provides
-          </text>
-
-          <line x1="430" y1="500" x2="580" y2="600" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="505" y="560" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            extends
-          </text>
-
-          <line x1="930" y1="500" x2="760" y2="600" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="845" y="560" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            integrates
-          </text>
-        </g>
-
-        {/* Component rectangles */}
-        {components.map((component, index) => {
-          const isFocused = focusedIndex === index
-          const isHovered = hoveredComponent === component.id
-          const isHighlighted = isFocused || isHovered
-
-          return (
-          <g key={component.id}>
-            {/* Focused ring indicator */}
-            {isFocused && (
-              <rect
-                x={component.x - 6}
-                y={component.y - 6}
-                width={component.width + 12}
-                height={component.height + 12}
-                rx="16"
-                ry="16"
-                fill="none"
-                stroke="#fbbf24"
-                strokeWidth="4"
-                style={{
-                  opacity: 0.9,
-                  filter: 'drop-shadow(0 0 12px rgba(251, 191, 36, 0.6))'
-                }}
-              />
-            )}
-            <rect
-              x={component.x}
-              y={component.y}
-              width={component.width}
-              height={component.height}
-              rx="12"
-              ry="12"
-              fill={`url(#${component.color}Gradient)`}
-              stroke={isHighlighted ? '#1e293b' : '#64748b'}
-              strokeWidth={isHighlighted ? '4' : '2'}
-              style={{
-                cursor: 'pointer',
-                filter: isHighlighted ? 'drop-shadow(0 8px 16px rgba(0,0,0,0.2))' : 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))',
-                transform: isHighlighted ? 'scale(1.05)' : 'scale(1)',
-                transformOrigin: `${component.x + component.width/2}px ${component.y + component.height/2}px`,
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={() => setHoveredComponent(component.id)}
-              onMouseLeave={() => setHoveredComponent(null)}
-              onClick={() => onComponentClick && onComponentClick(component)}
-            />
-
-            {/* Icon */}
-            <text
-              x={component.x + component.width/2}
-              y={component.y + 35}
-              textAnchor="middle"
-              fontSize="48"
-              style={{ userSelect: 'none', pointerEvents: 'none' }}
-            >
-              {component.icon}
-            </text>
-
-            {/* Title */}
-            <text
-              x={component.x + component.width/2}
-              y={component.y + 75}
-              textAnchor="middle"
-              fontSize="18"
-              fontWeight="700"
-              fill="white"
-              style={{ userSelect: 'none', pointerEvents: 'none' }}
-            >
-              {component.title}
-            </text>
-
-            {/* Details */}
-            {component.details && component.details.slice(0, 3).map((detail, idx) => (
-              <text
-                key={idx}
-                x={component.x + component.width/2}
-                y={component.y + 100 + (idx * 15)}
-                textAnchor="middle"
-                fontSize="10"
-                fontWeight="500"
-                fill="rgba(255,255,255,0.9)"
-                style={{ userSelect: 'none', pointerEvents: 'none' }}
-              >
-                {detail.name.length > 18 ? detail.name.substring(0, 15) + '...' : detail.name}
-              </text>
-            ))}
-            {component.details && component.details.length > 3 && (
-              <text
-                x={component.x + component.width/2}
-                y={component.y + 145}
-                textAnchor="middle"
-                fontSize="10"
-                fontWeight="500"
-                fill="rgba(255,255,255,0.7)"
-                style={{ userSelect: 'none', pointerEvents: 'none' }}
-              >
-                +{component.details.length - 3} more features...
-              </text>
-            )}
-          </g>
-        )})}
-      </svg>
-    </div>
-  )
-}
-
 function Java11({ onBack }) {
-  const [selectedComponent, setSelectedComponent] = useState(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedConcept, setSelectedConcept] = useState(null)
-  const [focusedComponentIndex, setFocusedComponentIndex] = useState(0)
+  const [expandedSections, setExpandedSections] = useState({})
 
-  const components = [
+  const toggleSection = (sectionKey) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey]
+    }))
+  }
+
+  const parseCodeSections = (code) => {
+    const sections = []
+    const lines = code.split('\n')
+    let currentSection = null
+    let currentContent = []
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+
+      if (line.includes('// ═══════════════════════════════════════════════════════════════════════════')) {
+        if (currentSection) {
+          sections.push({
+            title: currentSection,
+            code: currentContent.join('\n')
+          })
+          currentContent = []
+        }
+
+        if (i + 1 < lines.length && lines[i + 1].includes('// ✦')) {
+          currentSection = lines[i + 1].replace('// ✦', '').trim()
+          i += 2
+          continue
+        }
+      }
+
+      if (currentSection) {
+        currentContent.push(line)
+      }
+    }
+
+    if (currentSection && currentContent.length > 0) {
+      sections.push({
+        title: currentSection,
+        code: currentContent.join('\n')
+      })
+    }
+
+    return sections
+  }
+
+  const handleConceptClick = (concept) => {
+    setSelectedConcept(concept)
+  }
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && selectedConcept) {
+        setSelectedConcept(null)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConcept])
+
+  const concepts = [
     {
-      id: 'local-variable-inference', x: 80, y: 240, width: 350, height: 160,
-      icon: '🎯', title: 'Local Variable Type Inference', color: 'blue',
-      details: [
-        {
-          name: 'var Keyword',
-          explanation: 'Introduced in Java 10 and enhanced in Java 11, the var keyword enables local variable type inference. The compiler automatically infers the type from the initializer, reducing boilerplate while maintaining strong static typing. Works with local variables, for-loops, and try-with-resources.',
-          codeExample: `// Basic var usage - type inference
+      name: 'var Keyword',
+      icon: '🔹',
+      explanation: `Introduced in Java 10 and enhanced in Java 11, the var keyword enables local variable type inference. The compiler automatically infers the type from the initializer, reducing boilerplate while maintaining strong static typing. Works with local variables, for-loops, and try-with-resources.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ var Keyword - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Basic var usage - type inference
 var message = "Hello Java 11";  // Inferred as String
 var count = 100;                // Inferred as int
 var price = 19.99;              // Inferred as double
@@ -346,11 +163,16 @@ students.add("Alice");
 // 4
 // 5
 // (file content)`
-        },
-        {
-          name: 'Lambda Parameters',
-          explanation: 'Java 11 allows var in lambda expressions for parameters, enabling the use of annotations on inferred types. This provides consistency between different contexts where var can be used while maintaining type safety.',
-          codeExample: `import java.util.*;
+    },
+    {
+      name: 'Lambda Parameters',
+      icon: '🔹',
+      explanation: `Java 11 allows var in lambda expressions for parameters, enabling the use of annotations on inferred types. This provides consistency between different contexts where var can be used while maintaining type safety.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Lambda Parameters - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.util.*;
 import java.util.function.*;
 
 // Java 11: var in lambda parameters
@@ -386,11 +208,16 @@ System.out.println(checker.test("Hello", 3));
 // CHARLIE
 // JAVA 11
 // true`
-        },
-        {
-          name: 'Best Practices',
-          explanation: 'Use var when the type is obvious from the right-hand side, improving readability. Avoid when it makes code less clear. Combine with meaningful variable names. Works best with complex generic types and diamond operators.',
-          codeExample: `// GOOD: Type is clear from right side
+    },
+    {
+      name: 'Best Practices',
+      icon: '🔹',
+      explanation: `Use var when the type is obvious from the right-hand side, improving readability. Avoid when it makes code less clear. Combine with meaningful variable names. Works best with complex generic types and diamond operators.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Best Practices - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// GOOD: Type is clear from right side
 var customer = new Customer("John");
 var totalPrice = calculatePrice(items);
 var userList = getUsersFromDatabase();
@@ -430,11 +257,16 @@ System.out.println("Best practices demonstrated");
 
 // Output:
 // Best practices demonstrated`
-        },
-        {
-          name: 'Limitations',
-          explanation: 'Cannot be used for fields, method parameters, or return types. Requires initialization at declaration. Not available for variables initialized to null. Must have a clear and unambiguous type that can be inferred.',
-          codeExample: `// VALID: Local variable with initialization
+    },
+    {
+      name: 'Limitations',
+      icon: '🔹',
+      explanation: `Cannot be used for fields, method parameters, or return types. Requires initialization at declaration. Not available for variables initialized to null. Must have a clear and unambiguous type that can be inferred.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Limitations - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// VALID: Local variable with initialization
 public void method() {
   var name = "John";  // OK
 }
@@ -480,18 +312,16 @@ System.out.println("var limitations demonstrated");
 
 // Output:
 // var limitations demonstrated`
-        }
-      ],
-      description: 'Enhanced local variable type inference with var keyword for cleaner, more concise code while maintaining type safety.'
     },
     {
-      id: 'http-client', x: 580, y: 140, width: 350, height: 160,
-      icon: '🌐', title: 'HTTP Client API', color: 'green',
-      details: [
-        {
-          name: 'Modern HTTP/2',
-          explanation: 'Native support for HTTP/2 protocol with multiplexing, server push, and header compression. Provides better performance than legacy HttpURLConnection. Includes automatic connection pooling and redirect handling.',
-          codeExample: `import java.net.http.*;
+      name: 'Modern HTTP/2',
+      icon: '🔹',
+      explanation: `Native support for HTTP/2 protocol with multiplexing, server push, and header compression. Provides better performance than legacy HttpURLConnection. Includes automatic connection pooling and redirect handling.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Modern HTTP/2 - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.net.http.*;
 import java.net.*;
 
 // Create HTTP Client with HTTP/2 support
@@ -531,11 +361,16 @@ System.out.println("Created: " + postResponse.statusCode());
 // Status: 200
 // Body: [{"id":1,"name":"Alice"},{"id":2,"name":"Bob"}]
 // Created: 201`
-        },
-        {
-          name: 'Async Operations',
-          explanation: 'Built-in support for asynchronous and synchronous requests using CompletableFuture. Non-blocking I/O operations for better resource utilization. Supports request and response timeouts with fine-grained control.',
-          codeExample: `import java.net.http.*;
+    },
+    {
+      name: 'Async Operations',
+      icon: '🔹',
+      explanation: `Built-in support for asynchronous and synchronous requests using CompletableFuture. Non-blocking I/O operations for better resource utilization. Supports request and response timeouts with fine-grained control.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Async Operations - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.net.http.*;
 import java.net.*;
 import java.time.Duration;
 import java.util.concurrent.*;
@@ -584,11 +419,16 @@ System.out.println("All requests completed");
 // Request sent, doing other work...
 // Response: {"status":"ok","data":[...]}
 // All requests completed`
-        },
-        {
-          name: 'WebSocket Support',
-          explanation: 'Native WebSocket client implementation for bidirectional communication. Supports text and binary messages, ping/pong frames, and connection lifecycle management with automatic reconnection strategies.',
-          codeExample: `import java.net.http.*;
+    },
+    {
+      name: 'WebSocket Support',
+      icon: '🔹',
+      explanation: `Native WebSocket client implementation for bidirectional communication. Supports text and binary messages, ping/pong frames, and connection lifecycle management with automatic reconnection strategies.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ WebSocket Support - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.net.http.*;
 import java.net.*;
 import java.util.concurrent.*;
 
@@ -645,11 +485,16 @@ webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "Goodbye");
 // WebSocket opened
 // Received: Hello WebSocket
 // Received: Java 11 WebSocket`
-        },
-        {
-          name: 'Request/Response',
-          explanation: 'Fluent builder API for constructing HTTP requests with headers, body, and method. Flexible response handling with BodyHandlers for strings, files, streams, and custom processors. Cookie management and authentication support.',
-          codeExample: `import java.net.http.*;
+    },
+    {
+      name: 'Request/Response',
+      icon: '🔹',
+      explanation: `Fluent builder API for constructing HTTP requests with headers, body, and method. Flexible response handling with BodyHandlers for strings, files, streams, and custom processors. Cookie management and authentication support.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Request/Response - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.net.http.*;
 import java.net.*;
 import java.nio.file.*;
 
@@ -710,18 +555,16 @@ deleteResponse.headers().map().forEach((k, v) ->
 // String body: {"status":"success","data":[...]}
 // Saved to: response.json
 // Upload status: 200`
-        }
-      ],
-      description: 'Standardized HTTP Client API with HTTP/2 support, async operations, and WebSocket capabilities replacing legacy HttpURLConnection.'
     },
     {
-      id: 'string-methods', x: 580, y: 340, width: 350, height: 160,
-      icon: '📝', title: 'String Enhancements', color: 'purple',
-      details: [
-        {
-          name: 'isBlank() & strip()',
-          explanation: 'isBlank() checks if string is empty or contains only whitespace. strip(), stripLeading(), and stripTrailing() remove Unicode whitespace, superior to trim() which only handles ASCII.',
-          codeExample: `// isBlank() - checks for empty or whitespace-only strings
+      name: 'isBlank() & strip()',
+      icon: '🔹',
+      explanation: `isBlank() checks if string is empty or contains only whitespace. strip(), stripLeading(), and stripTrailing() remove Unicode whitespace, superior to trim() which only handles ASCII.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ isBlank() & strip() - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// isBlank() - checks for empty or whitespace-only strings
 String empty = "";
 String spaces = "   ";
 String text = "  Hello  ";
@@ -765,11 +608,16 @@ if (input.isBlank()) {
 // true
 // false
 // Input cannot be blank!`
-        },
-        {
-          name: 'lines() Stream',
-          explanation: 'lines() method returns a Stream<String> of lines extracted from the string, split by line terminators. Enables functional processing of multi-line strings with Stream API operations.',
-          codeExample: `import java.util.stream.*;
+    },
+    {
+      name: 'lines() Stream',
+      icon: '🔹',
+      explanation: `lines() method returns a Stream<String> of lines extracted from the string, split by line terminators. Enables functional processing of multi-line strings with Stream API operations.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ lines() Stream - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.util.stream.*;
 
 // Multi-line string processing
 String multiline = """
@@ -827,11 +675,16 @@ System.out.println("Contains 'Second': " + hasSecond);
 // 3. Third line
 // 4. Fourth line
 // Contains 'Second': true`
-        },
-        {
-          name: 'repeat()',
-          explanation: 'repeat(int count) method returns a string whose value is the concatenation of this string repeated count times. Efficient implementation for string duplication without manual loops.',
-          codeExample: `// Basic repeat usage
+    },
+    {
+      name: 'repeat()',
+      icon: '🔹',
+      explanation: `repeat(int count) method returns a string whose value is the concatenation of this string repeated count times. Efficient implementation for string duplication without manual loops.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ repeat() - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Basic repeat usage
 String star = "*";
 System.out.println(star.repeat(10));
 
@@ -887,11 +740,16 @@ System.out.println("Java".repeat(5));
 // [██████████] 100%
 // JavaJavaJavaJavaJava
 // JavaJavaJavaJavaJava`
-        },
-        {
-          name: 'Unicode Support',
-          explanation: 'Enhanced Unicode support for string operations. Better handling of surrogate pairs and Unicode whitespace characters. Improved normalization and comparison methods for international text.',
-          codeExample: `// Unicode whitespace characters
+    },
+    {
+      name: 'Unicode Support',
+      icon: '🔹',
+      explanation: `Enhanced Unicode support for string operations. Better handling of surrogate pairs and Unicode whitespace characters. Improved normalization and comparison methods for international text.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Unicode Support - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Unicode whitespace characters
 String unicodeSpaces = "\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005";
 System.out.println("Has Unicode spaces: " + !unicodeSpaces.isBlank());
 System.out.println("After strip: '" + unicodeSpaces.strip() + "'");
@@ -947,18 +805,16 @@ System.out.println("Code point count: "
 // German: Hallo
 // Japanese: こんにちは
 // ❤️❤️❤️❤️❤️`
-        }
-      ],
-      description: 'New String methods for enhanced text processing including isBlank(), strip(), lines(), and repeat() with better Unicode support.'
     },
     {
-      id: 'flight-recorder', x: 80, y: 440, width: 350, height: 160,
-      icon: '📊', title: 'Java Flight Recorder', color: 'red',
-      details: [
-        {
-          name: 'Low-Overhead Profiling',
-          explanation: 'Production-grade profiling tool with minimal performance impact (<1% overhead). Continuously collects diagnostic and profiling data about the running JVM and Java application for performance analysis.',
-          codeExample: `// JFR Command Line Options
+      name: 'Low-Overhead Profiling',
+      icon: '🔹',
+      explanation: `Production-grade profiling tool with minimal performance impact (<1% overhead). Continuously collects diagnostic and profiling data about the running JVM and Java application for performance analysis.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Low-Overhead Profiling - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// JFR Command Line Options
 // Start JVM with JFR enabled:
 // java -XX:StartFlightRecording=duration=60s,filename=recording.jfr MyApp
 
@@ -1010,11 +866,16 @@ public class JFRExample {
 // Output:
 // JFR Recording started
 // Recording saved to myapp-recording.jfr`
-        },
-        {
-          name: 'Event Recording',
-          explanation: 'Records events like GC pauses, thread locks, I/O operations, exceptions, and method profiling. Custom events can be created for application-specific monitoring. Circular buffer keeps recent data.',
-          codeExample: `import jdk.jfr.*;
+    },
+    {
+      name: 'Event Recording',
+      icon: '🔹',
+      explanation: `Records events like GC pauses, thread locks, I/O operations, exceptions, and method profiling. Custom events can be created for application-specific monitoring. Circular buffer keeps recent data.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Event Recording - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import jdk.jfr.*;
 
 // Custom JFR Event
 @Name("com.example.UserLogin")
@@ -1088,11 +949,16 @@ public class JFREventExample {
 
 // Output:
 // Events recorded to events.jfr`
-        },
-        {
-          name: 'JFR Analysis',
-          explanation: 'Rich data format analyzable with JDK Mission Control (JMC). Provides insights into CPU usage, memory allocation, synchronization bottlenecks, and I/O performance. Supports automated issue detection.',
-          codeExample: `import jdk.jfr.consumer.*;
+    },
+    {
+      name: 'JFR Analysis',
+      icon: '🔹',
+      explanation: `Rich data format analyzable with JDK Mission Control (JMC). Provides insights into CPU usage, memory allocation, synchronization bottlenecks, and I/O performance. Supports automated issue detection.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ JFR Analysis - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import jdk.jfr.consumer.*;
 
 // Programmatic analysis of JFR recordings
 public class JFRAnalyzer {
@@ -1158,11 +1024,16 @@ public class JFRAnalyzer {
 // CPU Sample:
 //   com.example.MyApp.processData()
 // Analysis complete`
-        },
-        {
-          name: 'Production Ready',
-          explanation: 'Now free and open-sourced in Java 11 (previously commercial). Designed for continuous use in production environments. Integrates with monitoring tools and can be triggered on-demand or scheduled.',
-          codeExample: `// Production JFR Configuration
+    },
+    {
+      name: 'Production Ready',
+      icon: '🔹',
+      explanation: `Now free and open-sourced in Java 11 (previously commercial). Designed for continuous use in production environments. Integrates with monitoring tools and can be triggered on-demand or scheduled.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Production Ready - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Production JFR Configuration
 
 // 1. Continuous recording (circular buffer)
 // java -XX:StartFlightRecording=disk=true,
@@ -1238,18 +1109,16 @@ public class ProductionJFR {
 // Output:
 // Production JFR monitoring started
 // Application running with JFR monitoring`
-        }
-      ],
-      description: 'Open-source Java Flight Recorder for low-overhead production profiling, performance monitoring, and diagnostics.'
     },
     {
-      id: 'file-methods', x: 580, y: 540, width: 350, height: 160,
-      icon: '📁', title: 'File I/O Enhancements', color: 'orange',
-      details: [
-        {
-          name: 'readString() & writeString()',
-          explanation: 'Convenient methods to read entire file content as a String and write String to file. Files.readString(Path) and Files.writeString(Path, String) simplify common file operations without verbose Stream handling.',
-          codeExample: `import java.nio.file.*;
+      name: 'readString() & writeString()',
+      icon: '🔹',
+      explanation: `Convenient methods to read entire file content as a String and write String to file. Files.readString(Path) and Files.writeString(Path, String) simplify common file operations without verbose Stream handling.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ readString() & writeString() - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.nio.file.*;
 import java.nio.charset.StandardCharsets;
 
 // Write string to file - simple one-liner
@@ -1306,11 +1175,16 @@ System.out.println("JSON: " + jsonData);
 // File I/O is easy!
 // UTF-8 content: 你好
 // JSON: {"name":"John","age":30}`
-        },
-        {
-          name: 'Path Operations',
-          explanation: 'Enhanced Path API with better methods for file and directory manipulation. Improved error handling and atomic operations. Support for file attributes and metadata access.',
-          codeExample: `import java.nio.file.*;
+    },
+    {
+      name: 'Path Operations',
+      icon: '🔹',
+      explanation: `Enhanced Path API with better methods for file and directory manipulation. Improved error handling and atomic operations. Support for file attributes and metadata access.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Path Operations - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.nio.file.*;
 import java.nio.file.attribute.*;
 
 // Path creation and manipulation
@@ -1380,11 +1254,16 @@ System.out.println("File deleted");
 // Directory contents:
 //   test.txt
 // File deleted`
-        },
-        {
-          name: 'Unicode Support',
-          explanation: 'Better handling of different character encodings and Unicode text files. Explicit charset specification prevents encoding issues. BOM (Byte Order Mark) detection and handling.',
-          codeExample: `import java.nio.file.*;
+    },
+    {
+      name: 'Unicode Support',
+      icon: '🔹',
+      explanation: `Better handling of different character encodings and Unicode text files. Explicit charset specification prevents encoding issues. BOM (Byte Order Mark) detection and handling.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Unicode Support - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.nio.file.*;
 import java.nio.charset.*;
 
 // UTF-8 encoding (default in Java 11+)
@@ -1454,11 +1333,16 @@ Files.writeString(japaneseFile, "こんにちは", shiftJIS);
 // String length: 52
 // UTF-8 bytes: 64
 // File size: 64`
-        },
-        {
-          name: 'Performance',
-          explanation: 'Optimized implementations for reading and writing files. Memory-efficient processing of large files. Better buffer management and reduced system call overhead.',
-          codeExample: `import java.nio.file.*;
+    },
+    {
+      name: 'Performance',
+      icon: '🔹',
+      explanation: `Optimized implementations for reading and writing files. Memory-efficient processing of large files. Better buffer management and reduced system call overhead.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Performance - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.nio.file.*;
 import java.util.stream.*;
 
 // Efficient reading of large files
@@ -1532,18 +1416,16 @@ System.out.println("File size: " + fileSize + " bytes");
 // Lines counted: 10000
 // Word count: 20000
 // File size: 78894 bytes`
-        }
-      ],
-      description: 'Simplified file I/O with readString() and writeString() methods for convenient file content manipulation.'
     },
     {
-      id: 'collection-methods', x: 1080, y: 240, width: 350, height: 160,
-      icon: '📚', title: 'Collection Factory Methods', color: 'teal',
-      details: [
-        {
-          name: 'toArray() Enhancement',
-          explanation: 'Collection.toArray(IntFunction<T[]>) allows creating arrays of the correct type without reflection. More convenient and type-safe than the older toArray(T[]) method. Reduces boilerplate code.',
-          codeExample: `import java.util.*;
+      name: 'toArray() Enhancement',
+      icon: '🔹',
+      explanation: `Collection.toArray(IntFunction<T[]>) allows creating arrays of the correct type without reflection. More convenient and type-safe than the older toArray(T[]) method. Reduces boilerplate code.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ toArray() Enhancement - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.util.*;
 
 // Java 11: toArray() with generator function
 List<String> names = List.of("Alice", "Bob", "Charlie");
@@ -1592,11 +1474,16 @@ System.out.println("Auto: " + Arrays.toString(autoArray));
 // People: [John, Jane]
 // Filtered: [Alice, Charlie]
 // Auto: [A, B, C]`
-        },
-        {
-          name: 'Immutable Collections',
-          explanation: 'List.of(), Set.of(), and Map.of() create immutable collections (from Java 9). Java 11 continues this pattern with better performance and null-hostile behavior. Compact memory footprint.',
-          codeExample: `import java.util.*;
+    },
+    {
+      name: 'Immutable Collections',
+      icon: '🔹',
+      explanation: `List.of(), Set.of(), and Map.of() create immutable collections (from Java 9). Java 11 continues this pattern with better performance and null-hostile behavior. Compact memory footprint.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Immutable Collections - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.util.*;
 
 // Immutable Lists
 List<String> immutableList = List.of("A", "B", "C");
@@ -1668,11 +1555,16 @@ System.out.println("List size: " + immutableList.size());
 // Original: [X, Y, Z]
 // Copy unchanged: [X, Y]
 // List size: 3`
-        },
-        {
-          name: 'Predicate Methods',
-          explanation: 'Predicate.not() method provides negation of predicates in a more readable way when used with method references. Improves Stream API expressiveness and functional programming style.',
-          codeExample: `import java.util.*;
+    },
+    {
+      name: 'Predicate Methods',
+      icon: '🔹',
+      explanation: `Predicate.not() method provides negation of predicates in a more readable way when used with method references. Improves Stream API expressiveness and functional programming style.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Predicate Methods - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.*;
 
@@ -1775,11 +1667,16 @@ users.stream()
 // Not empty: false
 // Non-blank words: [Java, Python, C++]
 // Bob`
-        },
-        {
-          name: 'Optional Enhancement',
-          explanation: 'Optional.isEmpty() method complements isPresent() for more readable code. Better integration with Stream API and functional programming patterns.',
-          codeExample: `import java.util.*;
+    },
+    {
+      name: 'Optional Enhancement',
+      icon: '🔹',
+      explanation: `Optional.isEmpty() method complements isPresent() for more readable code. Better integration with Stream API and functional programming patterns.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Optional Enhancement - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.util.*;
 
 // Java 11: Optional.isEmpty()
 Optional<String> empty = Optional.empty();
@@ -1873,96 +1770,16 @@ if (optional.isEmpty()) {
 // Values: [A, B, C]
 // Flat values: [A, B, C]
 // Null converted to empty Optional`
-        }
-      ],
-      description: 'Enhanced collection and Optional APIs with improved toArray(), Predicate.not(), and Optional.isEmpty() methods.'
     },
     {
-      id: 'nest-based-access', x: 1080, y: 440, width: 350, height: 160,
-      icon: '🔐', title: 'Nest-Based Access Control', color: 'indigo',
-      details: [
-        {
-          name: 'Nested Classes',
-          explanation: 'Improved access control for nested classes without synthetic bridge methods. Classes in the same nest can access each other\'s private members efficiently. Reduces bytecode size and improves performance.',
-          codeExample: `// Nest-based access control (Java 11+)
-public class Outer {
-  private String outerSecret = "Outer's private data";
+      name: 'Reflection API',
+      icon: '🔹',
+      explanation: `New reflection APIs to work with nests: Class.getNestHost(), Class.getNestMembers(), and Class.isNestmateOf(). Enables runtime introspection of nest membership and access control.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Reflection API - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
 
-  private void outerMethod() {
-    System.out.println("Outer private method");
-  }
-
-  // Inner class can access outer's private members directly
-  class Inner {
-    private String innerSecret = "Inner's private data";
-
-    void accessOuter() {
-      // Direct access - no synthetic bridge methods!
-      System.out.println(outerSecret);
-      outerMethod();
-    }
-
-    private void innerMethod() {
-      System.out.println("Inner private method");
-    }
-  }
-
-  // Outer can access inner's private members
-  void accessInner() {
-    Inner inner = new Inner();
-    // Direct private access in same nest
-    System.out.println(inner.innerSecret);
-    inner.innerMethod();
-  }
-
-  // Static nested class
-  static class StaticNested {
-    private String staticSecret = "Static nested data";
-
-    private void staticMethod() {
-      System.out.println("Static nested private method");
-    }
-  }
-
-  public static void main(String[] args) {
-    Outer outer = new Outer();
-    outer.accessInner();
-
-    System.out.println("---");
-
-    Outer.Inner inner = outer.new Inner();
-    inner.accessOuter();
-
-    System.out.println("---");
-
-    // Before Java 11: compiler generated bridge methods
-    // After Java 11: direct private access via nest-based access
-    StaticNested nested = new StaticNested();
-    System.out.println("Accessed: " + nested.staticSecret);
-    nested.staticMethod();
-  }
-}
-
-// Benefits:
-// - No synthetic bridge methods
-// - Smaller bytecode
-// - Better performance
-// - Clearer security model
-
-// Output:
-// Inner's private data
-// Inner private method
-// ---
-// Outer's private data
-// Outer private method
-// ---
-// Accessed: Static nested data
-// Static nested private method`
-        },
-        {
-          name: 'Reflection API',
-          explanation: 'New reflection APIs to work with nests: Class.getNestHost(), Class.getNestMembers(), and Class.isNestmateOf(). Enables runtime introspection of nest membership and access control.',
-          codeExample: `// Nest reflection APIs
+// Nest reflection APIs
 public class NestReflectionDemo {
 
   private String data = "host data";
@@ -2037,11 +1854,16 @@ public class NestReflectionDemo {
 //   - StaticNested
 // Accessed private field: inner1 data
 // InnerOne and InnerTwo share same nest`
-        },
-        {
-          name: 'Performance',
-          explanation: 'Eliminates need for compiler-generated bridge methods for private access between nested classes. Reduces class file size and improves startup time. Better JIT optimization opportunities.',
-          codeExample: `// Performance comparison: Before vs After Java 11
+    },
+    {
+      name: 'Performance',
+      icon: '🔹',
+      explanation: `Eliminates need for compiler-generated bridge methods for private access between nested classes. Reduces class file size and improves startup time. Better JIT optimization opportunities.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Performance - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Performance comparison: Before vs After Java 11
 
 // Before Java 11: Compiler generated synthetic bridge methods
 // Example (pseudocode of what compiler generated):
@@ -2128,11 +1950,16 @@ public class PerformanceDemo {
 // - No synthetic bridge methods
 // - Reduced class file size
 // - Cleaner stack traces`
-        },
-        {
-          name: 'Security',
-          explanation: 'More aligned with JVM access control model. Closes security vulnerabilities related to synthetic bridge methods. Provides clearer semantics for private access within class hierarchies.',
-          codeExample: `// Security improvements with nest-based access
+    },
+    {
+      name: 'Security',
+      icon: '🔹',
+      explanation: `More aligned with JVM access control model. Closes security vulnerabilities related to synthetic bridge methods. Provides clearer semantics for private access within class hierarchies.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Security - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Security improvements with nest-based access
 
 // Before Java 11: Security issues with synthetic bridges
 class SecurityOld {
@@ -2231,104 +2058,16 @@ public class SecurityDemo {
 // - True private encapsulation
 // - Better reflection security
 // - Closes security vulnerabilities`
-        }
-      ],
-      description: 'Nest-based access control for better performance and security in nested class private member access.'
     },
     {
-      id: 'epsilon-gc', x: 1080, y: 640, width: 350, height: 140,
-      icon: '🗑️', title: 'Epsilon & ZGC', color: 'pink',
-      details: [
-        {
-          name: 'Epsilon GC',
-          explanation: 'No-op garbage collector that handles memory allocation but doesn\'t reclaim memory. Useful for performance testing, short-lived jobs, and understanding GC overhead. VM fails when heap is exhausted.',
-          codeExample: `// Epsilon GC - No-Op Garbage Collector (Java 11)
+      name: 'ZGC Improvements',
+      icon: '🔹',
+      explanation: `Experimental Z Garbage Collector for low-latency applications. Sub-millisecond pause times regardless of heap size. Concurrent garbage collection with minimal stop-the-world phases.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ ZGC Improvements - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
 
-// Enable Epsilon GC with JVM flags:
-// java -XX:+UnlockExperimentalVMOptions
-//      -XX:+UseEpsilonGC
-//      -Xms1g -Xmx1g MyApp
-
-public class EpsilonGCDemo {
-  public static void main(String[] args) {
-    System.out.println("Running with Epsilon GC");
-    System.out.println("Heap size: " +
-      Runtime.getRuntime().maxMemory() / 1024 / 1024 + "MB");
-
-    // Use case 1: Performance testing
-    // Measure pure application performance without GC overhead
-    long start = System.currentTimeMillis();
-    performWork();
-    long elapsed = System.currentTimeMillis() - start;
-    System.out.println("Work completed in: " + elapsed + "ms");
-    System.out.println("(No GC pauses!)");
-
-    // Use case 2: Short-lived jobs
-    // Jobs that complete before heap exhaustion
-    processShortJob();
-
-    // Use case 3: Memory-footprint testing
-    // Understand true memory requirements
-    measureMemoryUsage();
-
-    System.out.println("Job completed successfully");
-    // Note: No garbage collection occurred!
-  }
-
-  static void performWork() {
-    // Simulate work - no GC overhead
-    for (int i = 0; i < 1000000; i++) {
-      String temp = "Iteration " + i;
-    }
-  }
-
-  static void processShortJob() {
-    // Short-lived job that doesn't need GC
-    int sum = 0;
-    for (int i = 0; i < 10000; i++) {
-      sum += i;
-    }
-    System.out.println("Sum: " + sum);
-  }
-
-  static void measureMemoryUsage() {
-    Runtime runtime = Runtime.getRuntime();
-    long used = runtime.totalMemory() - runtime.freeMemory();
-    System.out.println("Memory used: " + used / 1024 / 1024 + "MB");
-  }
-}
-
-// Benefits:
-// - Zero GC overhead
-// - Predictable performance
-// - Useful for benchmarking
-// - Good for very short-lived processes
-
-// Limitations:
-// - No memory reclamation
-// - Process crashes when heap exhausted
-// - Not for long-running applications
-// - Experimental feature
-
-// Use cases:
-// 1. Performance testing (eliminate GC variable)
-// 2. Ultra-low latency requirements
-// 3. Short batch jobs
-// 4. Memory footprint analysis
-
-// Output:
-// Running with Epsilon GC
-// Heap size: 1024MB
-// Work completed in: 45ms
-// (No GC pauses!)
-// Sum: 49995000
-// Memory used: 128MB
-// Job completed successfully`
-        },
-        {
-          name: 'ZGC Improvements',
-          explanation: 'Experimental Z Garbage Collector for low-latency applications. Sub-millisecond pause times regardless of heap size. Concurrent garbage collection with minimal stop-the-world phases.',
-          codeExample: `// ZGC - Z Garbage Collector (Experimental in Java 11)
+// ZGC - Z Garbage Collector (Experimental in Java 11)
 
 // Enable ZGC with JVM flags:
 // java -XX:+UnlockExperimentalVMOptions
@@ -2426,11 +2165,16 @@ public class ZGCDemo {
 // Processed 90 requests
 // All requests completed
 // ZGC kept pauses under 10ms!`
-        },
-        {
-          name: 'GC Interface',
-          explanation: 'Unified GC interface for better GC implementation and experimentation. Allows for easier development of new garbage collectors. Improved GC logging and monitoring capabilities.',
-          codeExample: `import java.lang.management.*;
+    },
+    {
+      name: 'GC Interface',
+      icon: '🔹',
+      explanation: `Unified GC interface for better GC implementation and experimentation. Allows for easier development of new garbage collectors. Improved GC logging and monitoring capabilities.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ GC Interface - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import java.lang.management.*;
 import java.util.*;
 
 // Unified GC Interface and Monitoring (Java 11+)
@@ -2561,90 +2305,8 @@ public class GCInterfaceDemo {
 //   Collection count: 0
 //   Collection time: 0ms
 // ... (continues with memory pools and workload)`
-        }
-      ],
-      description: 'New garbage collection options including Epsilon GC for testing and experimental ZGC for low-latency applications.'
     }
   ]
-
-  const handleComponentClick = (component) => {
-    setSelectedComponent(component)
-    setIsModalOpen(true)
-  }
-
-  const closeModal = () => {
-    setIsModalOpen(false)
-    setSelectedComponent(null)
-    setSelectedConcept(null)
-
-
-  }
-
-  // Use refs to access current modal state in event handler
-  const selectedConceptRef = useRef(selectedConcept)
-  useEffect(() => {
-    selectedConceptRef.current = selectedConcept
-  }, [selectedConcept])
-
-
-  // Set initial focus on mount
-  useEffect(() => {
-    setFocusedComponentIndex(0)
-  }, [])
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      const currentSelectedConcept = selectedConceptRef.current
-      // Handle Escape to close modal or go back to menu
-      if (e.key === 'Escape') {
-        if (currentSelectedConcept) {
-          e.preventDefault()
-          e.stopImmediatePropagation()
-          setSelectedConcept(null)
-          return
-        }
-        return
-      }
-
-      if (currentSelectedConcept) {
-        // Modal is open, don't handle other keys
-        return
-      }
-
-      // Navigation when modal is closed
-      const componentCount = components.length
-
-      switch(e.key) {
-        case 'ArrowRight':
-        case 'ArrowDown':
-          e.preventDefault()
-          setFocusedComponentIndex((prev) => (prev + 1) % componentCount)
-          break
-        case 'ArrowLeft':
-        case 'ArrowUp':
-          e.preventDefault()
-          setFocusedComponentIndex((prev) => (prev - 1 + componentCount) % componentCount)
-          break
-        case 'Enter':
-        case ' ':
-          e.preventDefault()
-          if (components[focusedComponentIndex]) {
-            handleComponentClick(components[focusedComponentIndex])
-          }
-          break
-        default:
-          break
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [focusedComponentIndex])
-
-  const handleConceptClick = (concept) => {
-    setSelectedConcept(concept)
-  }
 
   return (
     <div style={{
@@ -2654,7 +2316,7 @@ public class GCInterfaceDemo {
       backgroundColor: 'white',
       borderRadius: '16px',
       boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-      border: '3px solid rgba(99, 102, 241, 0.4)'
+      border: '3px solid rgba(16, 185, 129, 0.4)'
     }}>
       <div style={{
         display: 'flex',
@@ -2662,294 +2324,151 @@ public class GCInterfaceDemo {
         alignItems: 'center',
         marginBottom: '2rem'
       }}>
-        <button
-          onClick={onBack}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            fontWeight: '600',
-            backgroundColor: '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-        >
+        <button onClick={onBack} style={{
+            padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600',
+            backgroundColor: '#6b7280', color: 'white', border: 'none',
+            borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease'
+          }}>
           ← Back to Menu
         </button>
         <h1 style={{
-          fontSize: '2.5rem',
-          fontWeight: '800',
-          color: '#1f2937',
-          margin: 0,
+          fontSize: '2.5rem', fontWeight: '800', color: '#1f2937', margin: 0,
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
         }}>
-          🔧 Java 11 LTS Features
+          📋 Java 11 Features
         </h1>
         <div style={{ width: '120px' }}></div>
       </div>
 
       <div style={{
-        backgroundColor: 'rgba(99, 102, 241, 0.05)',
-        padding: '2.5rem 10rem',
-        borderRadius: '16px',
-        border: '3px solid rgba(99, 102, 241, 0.3)',
-        marginBottom: '2rem'
+        backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '2.5rem 10rem',
+        borderRadius: '16px', border: '3px solid rgba(16, 185, 129, 0.3)', marginBottom: '2rem'
       }}>
         <p style={{
-          fontSize: '1.3rem',
-          color: '#374151',
-          fontWeight: '500',
-          margin: 0,
-          lineHeight: '1.8',
-          textAlign: 'center'
+          fontSize: '1.3rem', color: '#374151', fontWeight: '500', margin: 0,
+          lineHeight: '1.8', textAlign: 'center'
         }}>
-          Java 11 Long Term Support (LTS) release featuring HTTP Client API, local variable type inference enhancements,
-          new String methods, Flight Recorder, and improved garbage collection. Essential features for modern enterprise Java development.
+          Discover Java 11 enhancements including var in lambdas, new String methods, HTTP Client API, and performance improvements.
         </p>
       </div>
 
-      <ModernDiagram
-        components={components}
-        onComponentClick={handleComponentClick}
-        title="Java 11 LTS Features & Enhancements"
-        width={1400}
-        height={800}
-        containerWidth={1800}
-      
-        focusedIndex={focusedComponentIndex}
-      />
-
-      {/* Modal */}
-      {isModalOpen && selectedComponent && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 99999
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            padding: '2.5rem',
-            borderRadius: '16px',
-            maxWidth: '1400px',
-            width: '95%',
-            maxHeight: '85vh',
-            overflowY: 'auto',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-            border: '3px solid rgba(99, 102, 241, 0.4)'
-          }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '2rem'
-            }}>
-              <h2 style={{
-                fontSize: '2rem',
-                fontWeight: '800',
-                color: '#1f2937',
-                margin: 0,
-                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: selectedConcept ? '350px 1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '2rem'
+      }}>
+        {!selectedConcept ? (
+          concepts.map((concept, idx) => (
+            <div key={idx} onClick={() => handleConceptClick(concept)} style={{
+                backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '2rem',
+                borderRadius: '16px', border: '3px solid rgba(16, 185, 129, 0.3)',
+                cursor: 'pointer', transition: 'all 0.3s ease',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)'
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.15)'
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.5)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.3)'
               }}>
-                {selectedComponent.icon} {selectedComponent.title}
-              </h2>
-              <button
-                onClick={closeModal}
-                style={{
-                  padding: '0.5rem 1rem',
-                  fontSize: '1.25rem',
-                  fontWeight: '600',
-                  backgroundColor: '#ef4444',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div style={{
-              backgroundColor: 'rgba(99, 102, 241, 0.05)',
-              padding: '1.5rem',
-              borderRadius: '12px',
-              border: '2px solid rgba(99, 102, 241, 0.2)',
-              marginBottom: '2rem'
-            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>
+                {concept.icon || '🔹'}
+              </div>
+              <h3 style={{
+                fontSize: '1.5rem', fontWeight: '700', color: '#047857',
+                marginBottom: '1rem', textAlign: 'center'
+              }}>{concept.name}</h3>
               <p style={{
-                fontSize: '1.1rem',
-                color: '#374151',
-                fontWeight: '500',
-                margin: 0,
-                lineHeight: '1.6'
+                fontSize: '1rem', color: '#6b7280', lineHeight: '1.6', textAlign: 'center'
               }}>
-                {selectedComponent.description}
+                {concept.explanation?.substring(0, 150) || ''}...
               </p>
             </div>
-
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: selectedConcept ? '1fr 1fr' : '1fr',
-              gap: '2rem'
-            }}>
-              <div>
-                <h3 style={{
-                  fontSize: '1.25rem',
-                  fontWeight: '700',
-                  color: '#1f2937',
-                  marginBottom: '1rem'
+          ))
+        ) : (
+          <>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <button onClick={() => setSelectedConcept(null)} style={{
+                  padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600',
+                  backgroundColor: '#6b7280', color: 'white', border: 'none',
+                  borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease'
                 }}>
-                  Key Features
-                </h3>
-                <div style={{
-                  display: 'grid',
-                  gap: '0.75rem'
-                }}>
-                  {selectedComponent.details.map((detail, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => handleConceptClick(detail)}
-                      style={{
-                        backgroundColor: selectedConcept?.name === detail.name
-                          ? 'rgba(99, 102, 241, 0.15)'
-                          : 'rgba(34, 197, 94, 0.1)',
-                        padding: '0.75rem',
-                        borderRadius: '8px',
-                        border: selectedConcept?.name === detail.name
-                          ? '2px solid rgba(99, 102, 241, 0.4)'
-                          : '2px solid rgba(34, 197, 94, 0.2)',
-                        fontSize: '0.95rem',
-                        fontWeight: '500',
-                        color: selectedConcept?.name === detail.name
-                          ? '#4f46e5'
-                          : '#166534',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        transform: 'scale(1)'
-                      }}
-                      onMouseEnter={(e) => {
-                        if (selectedConcept?.name !== detail.name) {
-                          e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.15)'
-                          e.target.style.transform = 'scale(1.02)'
-                          e.target.style.borderColor = 'rgba(34, 197, 94, 0.4)'
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (selectedConcept?.name !== detail.name) {
-                          e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.1)'
-                          e.target.style.transform = 'scale(1)'
-                          e.target.style.borderColor = 'rgba(34, 197, 94, 0.2)'
-                        }
-                      }}
-                    >
-                      • {detail.name}
-                      {selectedConcept?.name === detail.name && (
-                        <span style={{
-                          fontSize: '0.8rem',
-                          opacity: 0.8,
-                          marginLeft: '0.5rem',
-                          fontWeight: '600'
-                        }}>
-                          ← Selected
-                        </span>
-                      )}
-                    </div>
-                  ))}
+                ← Back to All Concepts
+              </button>
+              {concepts.map((concept, idx) => (
+                <div key={idx} onClick={() => handleConceptClick(concept)} style={{
+                    padding: '1rem',
+                    backgroundColor: selectedConcept?.name === concept.name ? 'rgba(16, 185, 129, 0.15)' : 'rgba(243, 244, 246, 1)',
+                    borderRadius: '8px',
+                    border: selectedConcept?.name === concept.name ? '2px solid rgba(16, 185, 129, 0.5)' : '2px solid transparent',
+                    cursor: 'pointer', transition: 'all 0.2s ease'
+                  }}>
+                  <span style={{ fontWeight: '600', color: '#047857' }}>
+                    {concept.icon || '🔹'} {concept.name}
+                  </span>
                 </div>
+              ))}
+            </div>
+
+            <div>
+              <h2 style={{ fontSize: '2rem', fontWeight: '700', color: '#047857', marginBottom: '1.5rem' }}>
+                {selectedConcept.icon || '🔹'} {selectedConcept.name}
+              </h2>
+
+              <div style={{
+                backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '1.5rem',
+                borderRadius: '12px', border: '2px solid rgba(16, 185, 129, 0.2)', marginBottom: '2rem'
+              }}>
+                <p style={{ fontSize: '1.1rem', color: '#374151', lineHeight: '1.8', margin: 0 }}>
+                  {selectedConcept.explanation}
+                </p>
               </div>
 
-              {selectedConcept && (
-                <div>
-                  <h3 style={{
-                    fontSize: '1.25rem',
-                    fontWeight: '700',
-                    color: '#1f2937',
-                    marginBottom: '1rem'
-                  }}>
-                    {selectedConcept.name}
-                  </h3>
-
-                  <div style={{
-                    backgroundColor: 'rgba(99, 102, 241, 0.05)',
-                    padding: '1.5rem',
-                    borderRadius: '12px',
-                    border: '2px solid rgba(99, 102, 241, 0.2)',
-                    marginBottom: '1.5rem'
-                  }}>
-                    <p style={{
-                      fontSize: '1rem',
-                      color: '#374151',
-                      fontWeight: '500',
-                      margin: 0,
-                      lineHeight: '1.7',
-                      textAlign: 'justify'
-                    }}>
-                      {selectedConcept.explanation}
-                    </p>
+              {selectedConcept.codeExample && (() => {
+                const sections = parseCodeSections(selectedConcept.codeExample)
+                return sections.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {sections.map((section, idx) => {
+                      const sectionKey = `${selectedConcept.name}-${idx}`
+                      const isExpanded = expandedSections[sectionKey]
+                      return (
+                        <div key={idx} style={{
+                          backgroundColor: '#1e293b', borderRadius: '12px',
+                          overflow: 'hidden', border: '2px solid #334155'
+                        }}>
+                          <button onClick={() => toggleSection(sectionKey)} style={{
+                              width: '100%', padding: '1rem 1.5rem', backgroundColor: '#334155',
+                              border: 'none', color: '#60a5fa', fontSize: '1rem', fontWeight: '600',
+                              cursor: 'pointer', display: 'flex', justifyContent: 'space-between',
+                              alignItems: 'center', transition: 'all 0.2s ease'
+                            }}>
+                            <span>💻 {section.title}</span>
+                            <span style={{ fontSize: '1.2rem' }}>{isExpanded ? '▼' : '▶'}</span>
+                          </button>
+                          {isExpanded && (
+                            <div style={{ padding: '1.5rem' }}>
+                              <SyntaxHighlighter code={section.code} />
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
                   </div>
-
-                  {selectedConcept.codeExample && (
-                    <div style={{
-                      backgroundColor: '#1e293b',
-                      padding: '1.5rem',
-                      borderRadius: '12px',
-                      border: '2px solid #334155',
-                      marginBottom: '1.5rem'
-                    }}>
-                      <h4 style={{
-                        fontSize: '1rem',
-                        fontWeight: '700',
-                        color: '#60a5fa',
-                        margin: '0 0 1rem 0'
-                      }}>
-                        💻 Code Example
-                      </h4>
-                      <SyntaxHighlighter code={selectedConcept.codeExample} />
-                    </div>
-                  )}
-
-                  <div style={{
-                    backgroundColor: 'rgba(34, 197, 94, 0.05)',
-                    padding: '1.25rem',
-                    borderRadius: '12px',
-                    border: '2px solid rgba(34, 197, 94, 0.2)'
-                  }}>
-                    <h4 style={{
-                      fontSize: '1rem',
-                      fontWeight: '700',
-                      color: '#166534',
-                      margin: '0 0 0.75rem 0'
-                    }}>
-                      💡 Key Takeaway
-                    </h4>
-                    <p style={{
-                      fontSize: '0.9rem',
-                      color: '#15803d',
-                      fontWeight: '500',
-                      margin: 0,
-                      lineHeight: '1.5',
-                      fontStyle: 'italic'
-                    }}>
-                      {selectedConcept.name} is a crucial Java 11 LTS feature that enhances developer productivity and application performance in enterprise environments.
-                    </p>
+                ) : (
+                  <div style={{ backgroundColor: '#1e293b', padding: '1.5rem',
+                    borderRadius: '12px', border: '2px solid #334155' }}>
+                    <SyntaxHighlighter code={selectedConcept.codeExample} />
                   </div>
-                </div>
-              )}
+                )
+              })()}
             </div>
-          </div>
-        </div>
-      )}
-
+          </>
+        )}
+      </div>
     </div>
   )
 }

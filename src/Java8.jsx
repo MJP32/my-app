@@ -1,247 +1,152 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 
-const ModernDiagram = ({ components, onComponentClick, title, width = 1400, height = 800, containerWidth = 1800, focusedIndex }) => {
-  const [hoveredComponent, setHoveredComponent] = useState(null)
+// Simple syntax highlighter for Java code
+const SyntaxHighlighter = ({ code }) => {
+  const highlightJava = (code) => {
+    let highlighted = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+
+    // Store protected content with placeholders
+    const protectedContent = []
+    let placeholder = 0
+
+    // Protect comments first
+    highlighted = highlighted.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
+      const id = `___COMMENT_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
+      return id
+    })
+
+    // Protect strings
+    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
+      const id = `___STRING_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
+      return id
+    })
+
+    // Apply syntax highlighting to remaining code
+    highlighted = highlighted
+      // Keywords - purple
+      .replace(/\b(public|private|protected|static|final|class|interface|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|import|package|void|abstract|synchronized|volatile|transient|native|strictfp|super|this|null|sealed|permits|non-sealed|record|instanceof|var|default)\b/g, '<span style="color: #c586c0;">$1</span>')
+
+      // Boolean and primitives - blue
+      .replace(/\b(true|false|int|double|float|long|short|byte|char|boolean)\b/g, '<span style="color: #569cd6;">$1</span>')
+
+      // Types and classes - light green
+      .replace(/\b(String|List|ArrayList|LinkedList|HashMap|TreeMap|HashSet|TreeSet|Map|Set|Queue|Deque|Collection|Arrays|Collections|Thread|Runnable|Executor|ExecutorService|CompletableFuture|Stream|Optional|Path|Files|Pattern|Matcher|StringBuilder|StringBuffer|Integer|Double|Float|Long|Short|Byte|Character|Boolean|Object|System|Math|Scanner|BufferedReader|FileReader|FileWriter|PrintWriter|InputStream|OutputStream|Exception|RuntimeException|IOException|SQLException|WeakReference|SoftReference|PhantomReference|ReferenceQueue|Function|Consumer|Supplier|Predicate|Comparator)\b/g, '<span style="color: #4ec9b0;">$1</span>')
+
+      // Annotations - yellow
+      .replace(/(@\w+)/g, '<span style="color: #dcdcaa;">$1</span>')
+
+      // Numbers - light green
+      .replace(/\b(\d+\.?\d*[fLdD]?)\b/g, '<span style="color: #b5cea8;">$1</span>')
+
+      // Method calls - yellow
+      .replace(/\b([a-z_]\w*)\s*\(/g, '<span style="color: #dcdcaa;">$1</span>(')
+
+    // Restore protected content
+    protectedContent.forEach(({ id, replacement }) => {
+      highlighted = highlighted.replace(id, replacement)
+    })
+
+    return highlighted
+  }
 
   return (
-    <div style={{
-      width: '100%',
-      maxWidth: `${containerWidth}px`,
-      margin: '0 auto',
-      backgroundColor: '#f8fafc',
-      borderRadius: '16px',
-      padding: '2rem',
-      boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.1)',
-      border: '2px solid #e2e8f0'
+    <pre style={{
+      margin: 0,
+      fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+      fontSize: '0.85rem',
+      lineHeight: '1.6',
+      color: '#d4d4d4',
+      whiteSpace: 'pre',
+      overflowX: 'auto',
+      textAlign: 'left',
+      padding: 0
     }}>
-      <h3 style={{
-        textAlign: 'center',
-        marginBottom: '2rem',
-        fontSize: '1.75rem',
-        fontWeight: '800',
-        color: '#1e293b',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      }}>
-        {title}
-      </h3>
-
-      <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} style={{ overflow: 'visible' }}>
-        <defs>
-          <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#1e40af" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#10b981" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#059669" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ef4444" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#dc2626" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#d97706" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="tealGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#0d9488" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="indigoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#6366f1" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="pinkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ec4899" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#db2777" stopOpacity="0.9"/>
-          </linearGradient>
-
-          {/* Arrow markers */}
-          <marker id="arrowSolid" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-            <path d="M0,0 L0,6 L9,3 z" fill="#1e293b" />
-          </marker>
-          <marker id="arrowDashed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-            <path d="M0,0 L0,6 L9,3 z" fill="#64748b" />
-          </marker>
-        </defs>
-
-        {/* Architectural layer backgrounds */}
-        <g opacity="0.1">
-          <rect x="50" y="180" width="420" height="200" rx="16" fill="#3b82f6" />
-          <text x="260" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="#1e40af" opacity="0.6">
-            Layer 1
-          </text>
-
-          <rect x="550" y="80" width="420" height="560" rx="16" fill="#10b981" />
-          <text x="760" y="110" textAnchor="middle" fontSize="14" fontWeight="700" fill="#059669" opacity="0.6">
-            Layer 2
-          </text>
-
-          <rect x="1050" y="180" width="420" height="520" rx="16" fill="#8b5cf6" />
-          <text x="1260" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="#7c3aed" opacity="0.6">
-            Layer 3
-          </text>
-        </g>
-
-        {/* Connecting lines with arrows and labels */}
-        <g fill="none">
-          <line x1="430" y1="300" x2="580" y2="200" stroke="#1e293b" strokeWidth="3" strokeOpacity="0.8" markerEnd="url(#arrowSolid)"/>
-          <text x="505" y="240" fontSize="11" fontWeight="600" fill="#1e293b" textAnchor="middle">
-            interacts
-          </text>
-
-          <line x1="430" y1="300" x2="580" y2="400" stroke="#1e293b" strokeWidth="3" strokeOpacity="0.8" markerEnd="url(#arrowSolid)"/>
-          <text x="505" y="360" fontSize="11" fontWeight="600" fill="#1e293b" textAnchor="middle">
-            uses
-          </text>
-
-          <line x1="930" y1="200" x2="1080" y2="300" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="1005" y="240" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            depends
-          </text>
-
-          <line x1="930" y1="400" x2="1080" y2="500" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="1005" y="460" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            provides
-          </text>
-
-          <line x1="430" y1="500" x2="580" y2="600" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="505" y="560" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            extends
-          </text>
-
-          <line x1="930" y1="500" x2="760" y2="600" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="845" y="560" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            integrates
-          </text>
-        </g>
-
-        {/* Component rectangles */}
-        {components.map((component, index) => {
-          const isFocused = focusedIndex === index
-          const isHovered = hoveredComponent === component.id
-          const isHighlighted = isFocused || isHovered
-
-          return (
-          <g key={component.id}>
-            {/* Focused ring indicator */}
-            {isFocused && (
-              <rect
-                x={component.x - 6}
-                y={component.y - 6}
-                width={component.width + 12}
-                height={component.height + 12}
-                rx="16"
-                ry="16"
-                fill="none"
-                stroke="#fbbf24"
-                strokeWidth="4"
-                style={{
-                  opacity: 0.9,
-                  filter: 'drop-shadow(0 0 12px rgba(251, 191, 36, 0.6))'
-                }}
-              />
-            )}
-            <rect
-              x={component.x}
-              y={component.y}
-              width={component.width}
-              height={component.height}
-              rx="12"
-              ry="12"
-              fill={`url(#${component.color}Gradient)`}
-              stroke={isHighlighted ? '#1e293b' : '#64748b'}
-              strokeWidth={isHighlighted ? '4' : '2'}
-              style={{
-                cursor: 'pointer',
-                filter: isHighlighted ? 'drop-shadow(0 8px 16px rgba(0,0,0,0.2))' : 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))',
-                transform: isHighlighted ? 'scale(1.05)' : 'scale(1)',
-                transformOrigin: `${component.x + component.width/2}px ${component.y + component.height/2}px`,
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={() => setHoveredComponent(component.id)}
-              onMouseLeave={() => setHoveredComponent(null)}
-              onClick={() => onComponentClick && onComponentClick(component)}
-            />
-
-            {/* Icon */}
-            <text
-              x={component.x + component.width/2}
-              y={component.y + 35}
-              textAnchor="middle"
-              fontSize="48"
-              style={{ userSelect: 'none', pointerEvents: 'none' }}
-            >
-              {component.icon}
-            </text>
-
-            {/* Title */}
-            <text
-              x={component.x + component.width/2}
-              y={component.y + 75}
-              textAnchor="middle"
-              fontSize="18"
-              fontWeight="700"
-              fill="white"
-              style={{ userSelect: 'none', pointerEvents: 'none' }}
-            >
-              {component.title}
-            </text>
-
-            {/* Details */}
-            {component.details && component.details.slice(0, 3).map((detail, idx) => (
-              <text
-                key={idx}
-                x={component.x + component.width/2}
-                y={component.y + 100 + (idx * 15)}
-                textAnchor="middle"
-                fontSize="10"
-                fontWeight="500"
-                fill="rgba(255,255,255,0.9)"
-                style={{ userSelect: 'none', pointerEvents: 'none' }}
-              >
-                {detail.name.length > 18 ? detail.name.substring(0, 15) + '...' : detail.name}
-              </text>
-            ))}
-            {component.details && component.details.length > 3 && (
-              <text
-                x={component.x + component.width/2}
-                y={component.y + 145}
-                textAnchor="middle"
-                fontSize="10"
-                fontWeight="500"
-                fill="rgba(255,255,255,0.7)"
-                style={{ userSelect: 'none', pointerEvents: 'none' }}
-              >
-                +{component.details.length - 3} more features...
-              </text>
-            )}
-          </g>
-        )})}
-      </svg>
-    </div>
+      <code dangerouslySetInnerHTML={{ __html: highlightJava(code) }} />
+    </pre>
   )
 }
 
 function Java8({ onBack }) {
-  const [selectedComponent, setSelectedComponent] = useState(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedConcept, setSelectedConcept] = useState(null)
-  const [focusedComponentIndex, setFocusedComponentIndex] = useState(0)
+  const [expandedSections, setExpandedSections] = useState({})
 
-  const components = [
+  const toggleSection = (sectionKey) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey]
+    }))
+  }
+
+  const parseCodeSections = (code) => {
+    const sections = []
+    const lines = code.split('\n')
+    let currentSection = null
+    let currentContent = []
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+
+      if (line.includes('// ═══════════════════════════════════════════════════════════════════════════')) {
+        if (currentSection) {
+          sections.push({
+            title: currentSection,
+            code: currentContent.join('\n')
+          })
+          currentContent = []
+        }
+
+        if (i + 1 < lines.length && lines[i + 1].includes('// ✦')) {
+          currentSection = lines[i + 1].replace('// ✦', '').trim()
+          i += 2
+          continue
+        }
+      }
+
+      if (currentSection) {
+        currentContent.push(line)
+      }
+    }
+
+    if (currentSection && currentContent.length > 0) {
+      sections.push({
+        title: currentSection,
+        code: currentContent.join('\n')
+      })
+    }
+
+    return sections
+  }
+
+  const handleConceptClick = (concept) => {
+    setSelectedConcept(concept)
+  }
+
+  // Keyboard navigation - Escape to deselect
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && selectedConcept) {
+        setSelectedConcept(null)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConcept])
+
+  const concepts = [
     {
-      id: 'lambda-expressions', x: 80, y: 240, width: 350, height: 160,
-      icon: '⚡', title: 'Lambda Expressions', color: 'blue',
-      details: [
-        {
-          name: 'Syntax & Structure',
-          explanation: 'Lambda expressions provide a concise way to represent anonymous functions. Syntax: (parameters) -> expression or (parameters) -> { statements; }. Enable functional programming style in Java, reducing boilerplate code significantly.',
-          codeExample: `// Before Java 8 - Anonymous class
+      name: 'Syntax & Structure',
+      icon: '🔹',
+      explanation: `Lambda expressions provide a concise way to represent anonymous functions. Syntax: (parameters) -> expression or (parameters) -> { statements; }. Enable functional programming style in Java, reducing boilerplate code significantly.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Syntax & Structure - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Before Java 8 - Anonymous class
 Runnable r1 = new Runnable() {
 @Override
 public void run() {
@@ -263,11 +168,16 @@ return sum;
 
 // Output:
 // Hello World`
-        },
-        {
-          name: 'Functional Interfaces',
-          explanation: 'Lambdas work with functional interfaces (interfaces with single abstract method). Common ones: Predicate<T>, Function<T,R>, Consumer<T>, Supplier<T>, BiFunction<T,U,R>. @FunctionalInterface annotation ensures interface has exactly one abstract method.',
-          codeExample: `// Predicate - boolean test
+    },
+    {
+      name: 'Functional Interfaces',
+      icon: '🔹',
+      explanation: `Lambdas work with functional interfaces (interfaces with single abstract method). Common ones: Predicate<T>, Function<T,R>, Consumer<T>, Supplier<T>, BiFunction<T,U,R>. @FunctionalInterface annotation ensures interface has exactly one abstract method.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Functional Interfaces - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Predicate - boolean test
 Predicate<String> isEmpty = s -> s.isEmpty();
 boolean result = isEmpty.test("");
 // Result: true
@@ -295,11 +205,16 @@ int calculate(int a, int b);
 }
 Calculator add = (a, b) -> a + b;
 // Result: add.calculate(5, 3) returns 8`
-        },
-        {
-          name: 'Method References',
-          explanation: 'Shorthand notation for lambdas that call existing methods. Four types: static methods (Class::staticMethod), instance methods (instance::instanceMethod), constructor references (Class::new), and arbitrary object instance methods (Class::instanceMethod).',
-          codeExample: `List<String> names = Arrays.asList("Alice", "Bob", "Charlie");
+    },
+    {
+      name: 'Method References',
+      icon: '🔹',
+      explanation: `Shorthand notation for lambdas that call existing methods. Four types: static methods (Class::staticMethod), instance methods (instance::instanceMethod), constructor references (Class::new), and arbitrary object instance methods (Class::instanceMethod).`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Method References - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+List<String> names = Arrays.asList("Alice", "Bob", "Charlie");
 
 // Static method reference
 names.forEach(System.out::println);
@@ -330,11 +245,16 @@ String upperCase = upper.apply("hello");
 // Sorting with method reference
 names.sort(String::compareToIgnoreCase);
 // Result: ["Alice", "Bob", "Charlie"] (sorted case-insensitively)`
-        },
-        {
-          name: 'Closure & Scope',
-          explanation: 'Lambdas can capture variables from enclosing scope (closure). Captured variables must be effectively final. Enables powerful functional composition patterns while maintaining thread safety.',
-          codeExample: `int multiplier = 10; // effectively final
+    },
+    {
+      name: 'Closure & Scope',
+      icon: '🔹',
+      explanation: `Lambdas can capture variables from enclosing scope (closure). Captured variables must be effectively final. Enables powerful functional composition patterns while maintaining thread safety.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Closure & Scope - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+int multiplier = 10; // effectively final
 
 // Lambda captures 'multiplier' from enclosing scope
 Function<Integer, Integer> multiply = x -> x * multiplier;
@@ -361,11 +281,16 @@ Calculator calc = new Calculator();
 Function<Integer, Integer> adder = calc.getAdder();
 int sum = adder.apply(50);
 // Result: 150`
-        },
-        {
-          name: 'Use Cases',
-          explanation: 'Event handlers, collection processing, asynchronous callbacks, custom sorting, conditional filtering, and anywhere anonymous classes were used. Makes code more readable and maintainable.',
-          codeExample: `// Event handler
+    },
+    {
+      name: 'Use Cases',
+      icon: '🔹',
+      explanation: `Event handlers, collection processing, asynchronous callbacks, custom sorting, conditional filtering, and anywhere anonymous classes were used. Makes code more readable and maintainable.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Use Cases - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Event handler
 button.addActionListener(e -> System.out.println("Clicked!"));
 // Output: "Clicked!" (when button is clicked)
 
@@ -394,18 +319,16 @@ new Thread(() -> {
 System.out.println("Running in thread");
 }).start();
 // Output: "Running in thread" (in separate thread)`
-        }
-      ],
-      description: 'Anonymous functions enabling functional programming style with concise syntax, method references, and closure support.'
     },
     {
-      id: 'streams-api', x: 580, y: 140, width: 350, height: 180,
-      icon: '🌊', title: 'Streams API', color: 'green',
-      details: [
-        {
-          name: 'map() Transformation',
-          explanation: 'map() transforms each element in the stream using a function. One-to-one transformation where each input produces exactly one output. Essential for data transformation pipelines.',
-          codeExample: `// Basic map - transform strings to uppercase
+      name: 'map() Transformation',
+      icon: '🔹',
+      explanation: `map() transforms each element in the stream using a function. One-to-one transformation where each input produces exactly one output. Essential for data transformation pipelines.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ map() Transformation - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Basic map - transform strings to uppercase
 List<String> names = Arrays.asList("alice", "bob", "charlie");
 List<String> upper = names.stream()
 .map(String::toUpperCase)
@@ -440,11 +363,16 @@ List<String> strings = numbers.stream()
 .map(Object::toString)
 .collect(Collectors.toList());
 // Result: ["1", "2", "3", "4", "5"]`
-        },
-        {
-          name: 'flatMap() Flattening',
-          explanation: 'flatMap() transforms each element into a stream and flattens all streams into one. One-to-many transformation. Essential for working with nested collections and optional values.',
-          codeExample: `// Flatten nested lists
+    },
+    {
+      name: 'flatMap() Flattening',
+      icon: '🔹',
+      explanation: `flatMap() transforms each element into a stream and flattens all streams into one. One-to-many transformation. Essential for working with nested collections and optional values.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ flatMap() Flattening - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Flatten nested lists
 List<List<Integer>> nested = Arrays.asList(
 Arrays.asList(1, 2, 3),
 Arrays.asList(4, 5),
@@ -490,11 +418,16 @@ List<String> combinations = colors.stream()
 .map(size -> color + "-" + size))
 .collect(Collectors.toList());
 // Result: [Red-S, Red-M, Red-L, Blue-S, Blue-M, Blue-L]`
-        },
-        {
-          name: 'teeing() Collector (Java 12+)',
-          explanation: 'Teeing collector allows you to apply two different collectors to the same stream and combine their results. Process stream elements with two collectors simultaneously and merge results with a function.',
-          codeExample: `// Calculate average and count simultaneously
+    },
+    {
+      name: 'teeing() Collector (Java 12+)',
+      icon: '🔹',
+      explanation: `Teeing collector allows you to apply two different collectors to the same stream and combine their results. Process stream elements with two collectors simultaneously and merge results with a function.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ teeing() Collector (Java 12+) - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Calculate average and count simultaneously
 List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
 String result = numbers.stream()
@@ -555,11 +488,16 @@ Collectors.filtering(n -> n < 0, Collectors.summingInt(Integer::intValue)),
 SumStats::new
 ));
 // Result: SumStats[positive=15, negative=-8]`
-        },
-        {
-          name: 'Stream Operations',
-          explanation: 'Streams provide declarative way to process collections. Intermediate operations (filter, map, flatMap, distinct, sorted, limit, skip) return streams for chaining. Terminal operations (forEach, collect, reduce, count, anyMatch) produce results.',
-          codeExample: `List<String> names = Arrays.asList("Alice", "Bob", "Charlie", "David", "Eve");
+    },
+    {
+      name: 'Stream Operations',
+      icon: '🔹',
+      explanation: `Streams provide declarative way to process collections. Intermediate operations (filter, map, flatMap, distinct, sorted, limit, skip) return streams for chaining. Terminal operations (forEach, collect, reduce, count, anyMatch) produce results.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Stream Operations - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+List<String> names = Arrays.asList("Alice", "Bob", "Charlie", "David", "Eve");
 
 // Filter and map - intermediate operations
 List<String> result = names.stream()
@@ -587,11 +525,16 @@ List<Integer> unique = Arrays.asList(1, 2, 2, 3, 3, 3, 4, 5)
 .limit(3)      // Take first 3
 .collect(Collectors.toList());
 // Result: [1, 2, 3]`
-        },
-        {
-          name: 'Lazy Evaluation',
-          explanation: 'Intermediate operations are lazy - not executed until terminal operation called. Enables optimization and short-circuit evaluation. Streams process elements on-demand, improving performance for large datasets.',
-          codeExample: `List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+    },
+    {
+      name: 'Lazy Evaluation',
+      icon: '🔹',
+      explanation: `Intermediate operations are lazy - not executed until terminal operation called. Enables optimization and short-circuit evaluation. Streams process elements on-demand, improving performance for large datasets.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Lazy Evaluation - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
 // Intermediate operations are not executed yet
 Stream<Integer> stream = numbers.stream()
@@ -626,11 +569,16 @@ boolean hasEven = numbers.stream()
 // Processing: 1
 // Processing: 2
 // Result: true (stops after finding first even number)`
-        },
-        {
-          name: 'Parallel Streams',
-          explanation: 'parallelStream() enables parallel processing using ForkJoinPool. Automatically splits data, processes in parallel, and combines results. Best for CPU-intensive operations on large datasets. Be aware of thread safety and ordering.',
-          codeExample: `// Sequential stream
+    },
+    {
+      name: 'Parallel Streams',
+      icon: '🔹',
+      explanation: `parallelStream() enables parallel processing using ForkJoinPool. Automatically splits data, processes in parallel, and combines results. Best for CPU-intensive operations on large datasets. Be aware of thread safety and ordering.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Parallel Streams - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Sequential stream
 long start = System.currentTimeMillis();
 long count1 = IntStream.range(1, 1000000)
 .filter(n -> n % 2 == 0)
@@ -663,11 +611,16 @@ numbers.parallelStream()
 .collect(Collectors.toList())
 ).join();
 // Result: processed list using 4 threads`
-        },
-        {
-          name: 'Collectors',
-          explanation: 'Collectors.toList(), toSet(), toMap(), groupingBy(), partitioningBy(), joining(), summarizing statistics. Custom collectors can be created for specialized aggregations. Powerful tool for data transformation.',
-          codeExample: `List<Person> people = Arrays.asList(
+    },
+    {
+      name: 'Collectors',
+      icon: '🔹',
+      explanation: `Collectors.toList(), toSet(), toMap(), groupingBy(), partitioningBy(), joining(), summarizing statistics. Custom collectors can be created for specialized aggregations. Powerful tool for data transformation.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Collectors - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+List<Person> people = Arrays.asList(
 new Person("Alice", 30, "Engineering"),
 new Person("Bob", 25, "Marketing"),
 new Person("Charlie", 30, "Engineering"),
@@ -703,11 +656,16 @@ System.out.println("Max age: " + stats.getMax());
 // Output:
 // Average age: 30.0
 // Max age: 35`
-        },
-        {
-          name: 'Stream Creation',
-          explanation: 'Create from collections (list.stream()), arrays (Arrays.stream()), values (Stream.of()), ranges (IntStream.range()), files (Files.lines()), or custom sources. Infinite streams with Stream.generate() and Stream.iterate().',
-          codeExample: `// From collection
+    },
+    {
+      name: 'Stream Creation',
+      icon: '🔹',
+      explanation: `Create from collections (list.stream()), arrays (Arrays.stream()), values (Stream.of()), ranges (IntStream.range()), files (Files.lines()), or custom sources. Infinite streams with Stream.generate() and Stream.iterate().`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Stream Creation - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// From collection
 List<String> list = Arrays.asList("a", "b", "c");
 Stream<String> stream1 = list.stream();
 
@@ -742,11 +700,16 @@ f -> new int[]{f[1], f[0] + f[1]}
 ).map(f -> f[0])
 .limit(10);  // First 10 Fibonacci numbers
 // Result: [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]`
-        },
-        {
-          name: 'Primitive Streams',
-          explanation: 'IntStream, LongStream, DoubleStream for primitive types. Avoid boxing overhead and provide specialized methods like sum(), average(), max(), min(). Methods like mapToInt() convert from object streams.',
-          codeExample: `// IntStream with specialized operations
+    },
+    {
+      name: 'Primitive Streams',
+      icon: '🔹',
+      explanation: `IntStream, LongStream, DoubleStream for primitive types. Avoid boxing overhead and provide specialized methods like sum(), average(), max(), min(). Methods like mapToInt() convert from object streams.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Primitive Streams - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// IntStream with specialized operations
 IntStream numbers = IntStream.range(1, 100);
 int sum = numbers.sum();  // More efficient than boxed Integer
 // Result: 4950
@@ -785,18 +748,16 @@ List<Integer> boxed = IntStream.range(1, 5)
 .boxed()  // IntStream -> Stream<Integer>
 .collect(Collectors.toList());
 // Result: [1, 2, 3, 4]`
-        }
-      ],
-      description: 'Declarative functional-style operations on sequences of elements with lazy evaluation, parallel processing, and powerful collectors.'
     },
     {
-      id: 'optional', x: 580, y: 340, width: 350, height: 160,
-      icon: '🎁', title: 'Optional Class', color: 'purple',
-      details: [
-        {
-          name: 'Null Safety',
-          explanation: 'Container object that may or may not contain non-null value. Explicitly represents absence of value, replacing null references. Reduces NullPointerExceptions and makes null-handling explicit in API.',
-          codeExample: `// Before Optional - prone to NullPointerException
+      name: 'Null Safety',
+      icon: '🔹',
+      explanation: `Container object that may or may not contain non-null value. Explicitly represents absence of value, replacing null references. Reduces NullPointerExceptions and makes null-handling explicit in API.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Null Safety - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Before Optional - prone to NullPointerException
 public String getUserEmail(int userId) {
 User user = findUser(userId);
 if (user != null) {
@@ -828,11 +789,16 @@ System.out.println("Found: " + user.get().getName());
 System.out.println("User not found");
 }
 // Output: "Found: John Doe" or "User not found"`
-        },
-        {
-          name: 'Creation Methods',
-          explanation: 'Optional.of(value) for non-null values, Optional.ofNullable(value) for potentially null values, Optional.empty() for empty optional. Throws NullPointerException if Optional.of() receives null.',
-          codeExample: `// Optional.of() - use when value is guaranteed non-null
+    },
+    {
+      name: 'Creation Methods',
+      icon: '🔹',
+      explanation: `Optional.of(value) for non-null values, Optional.ofNullable(value) for potentially null values, Optional.empty() for empty optional. Throws NullPointerException if Optional.of() receives null.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Creation Methods - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Optional.of() - use when value is guaranteed non-null
 String name = "Alice";
 Optional<String> opt1 = Optional.of(name);
 // Optional.of(null); // Throws NullPointerException
@@ -855,11 +821,16 @@ return Optional.ofNullable(user);  // user might be null
 Optional<String> config = Optional.ofNullable(System.getProperty("config"));
 String configValue = config.orElse("default-config.xml");
 // Result: system property value or "default-config.xml"`
-        },
-        {
-          name: 'Value Access',
-          explanation: 'get() retrieves value (throws if empty), orElse(default) provides default value, orElseGet(supplier) lazily provides default, orElseThrow() throws custom exception. isPresent() checks if value exists.',
-          codeExample: `Optional<String> opt = Optional.of("Hello");
+    },
+    {
+      name: 'Value Access',
+      icon: '🔹',
+      explanation: `get() retrieves value (throws if empty), orElse(default) provides default value, orElseGet(supplier) lazily provides default, orElseThrow() throws custom exception. isPresent() checks if value exists.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Value Access - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+Optional<String> opt = Optional.of("Hello");
 
 // get() - avoid if possible, throws NoSuchElementException if empty
 if (opt.isPresent()) {
@@ -899,11 +870,16 @@ value -> System.out.println("Found: " + value),
 () -> System.out.println("Not found")
 );
 // Output: Found: Hello`
-        },
-        {
-          name: 'Functional Operations',
-          explanation: 'map() transforms contained value, flatMap() transforms to another Optional, filter() conditionally keeps value. Enables functional chaining for null-safe operations without explicit null checks.',
-          codeExample: `// map() - transform the value if present
+    },
+    {
+      name: 'Functional Operations',
+      icon: '🔹',
+      explanation: `map() transforms contained value, flatMap() transforms to another Optional, filter() conditionally keeps value. Enables functional chaining for null-safe operations without explicit null checks.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Functional Operations - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// map() - transform the value if present
 Optional<String> name = Optional.of("alice");
 Optional<String> upper = name.map(String::toUpperCase);
 // Result: Optional["ALICE"]
@@ -941,11 +917,16 @@ Optional<Integer> evenNumber = Optional.of(42)
 Optional<Integer> oddNumber = Optional.of(43)
 .filter(n -> n % 2 == 0);  // Empty optional
 // Result: Optional.empty()`
-        },
-        {
-          name: 'Best Practices',
-          explanation: 'Use as return types, not fields or parameters. Never return null Optional. Avoid get() without checking isPresent(). Prefer orElse/orElseGet over isPresent() + get(). Use ifPresent() for side effects.',
-          codeExample: `// GOOD - Optional as return type
+    },
+    {
+      name: 'Best Practices',
+      icon: '🔹',
+      explanation: `Use as return types, not fields or parameters. Never return null Optional. Avoid get() without checking isPresent(). Prefer orElse/orElseGet over isPresent() + get(). Use ifPresent() for side effects.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Best Practices - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// GOOD - Optional as return type
 public Optional<User> findUser(int id) {
 User user = database.find(id);
 return Optional.ofNullable(user);
@@ -985,18 +966,16 @@ findUser(123)
 .filter(name -> name.length() > 3)
 .ifPresent(System.out::println);
 // Output: user name (if present and length > 3)`
-        }
-      ],
-      description: 'Container for optional values providing null-safe operations and eliminating NullPointerException with functional approach.'
     },
     {
-      id: 'date-time-api', x: 80, y: 440, width: 350, height: 160,
-      icon: '📅', title: 'Date & Time API', color: 'red',
-      details: [
-        {
-          name: 'Core Classes',
-          explanation: 'LocalDate (date without time), LocalTime (time without date), LocalDateTime (date and time), ZonedDateTime (with timezone), Instant (timestamp). All immutable and thread-safe, unlike old Date/Calendar.',
-          codeExample: `// LocalDate - date without time
+      name: 'Core Classes',
+      icon: '🔹',
+      explanation: `LocalDate (date without time), LocalTime (time without date), LocalDateTime (date and time), ZonedDateTime (with timezone), Instant (timestamp). All immutable and thread-safe, unlike old Date/Calendar.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Core Classes - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// LocalDate - date without time
 LocalDate today = LocalDate.now();
 LocalDate birthday = LocalDate.of(1990, Month.JANUARY, 15);
 LocalDate parsed = LocalDate.parse("2023-12-25");
@@ -1027,11 +1006,16 @@ Instant epoch = Instant.ofEpochSecond(1609459200);
 LocalDate date = LocalDate.now();
 LocalDate tomorrow = date.plusDays(1);  // Returns new instance
 // 'date' is unchanged - thread-safe!`
-        },
-        {
-          name: 'Period & Duration',
-          explanation: 'Period for date-based amounts (years, months, days). Duration for time-based amounts (hours, minutes, seconds). Used for calculating differences and performing date arithmetic with clear semantics.',
-          codeExample: `// Period - date-based amounts
+    },
+    {
+      name: 'Period & Duration',
+      icon: '🔹',
+      explanation: `Period for date-based amounts (years, months, days). Duration for time-based amounts (hours, minutes, seconds). Used for calculating differences and performing date arithmetic with clear semantics.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Period & Duration - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Period - date-based amounts
 Period oneYear = Period.ofYears(1);
 Period threeMonths = Period.ofMonths(3);
 Period tenDays = Period.ofDays(10);
@@ -1063,11 +1047,16 @@ System.out.println("Minutes: " + duration.toMinutes());
 LocalDate futureDate = LocalDate.now().plus(Period.ofWeeks(2));
 LocalTime futureTime = LocalTime.now().plus(Duration.ofHours(3));
 // Result: dates/times 2 weeks / 3 hours in the future`
-        },
-        {
-          name: 'Formatting & Parsing',
-          explanation: 'DateTimeFormatter for parsing and formatting. Predefined formatters (ISO_LOCAL_DATE) or custom patterns. Thread-safe replacement for SimpleDateFormat. Supports locale-specific formatting.',
-          codeExample: `// Predefined formatters
+    },
+    {
+      name: 'Formatting & Parsing',
+      icon: '🔹',
+      explanation: `DateTimeFormatter for parsing and formatting. Predefined formatters (ISO_LOCAL_DATE) or custom patterns. Thread-safe replacement for SimpleDateFormat. Supports locale-specific formatting.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Formatting & Parsing - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Predefined formatters
 LocalDate date = LocalDate.now();
 String iso = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
 // Output: "2023-12-25"
@@ -1099,11 +1088,16 @@ String usDate = date.format(usFormat);
 // Thread-safe (unlike SimpleDateFormat!)
 DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 // Safe to use in multiple threads`
-        },
-        {
-          name: 'Timezone Handling',
-          explanation: 'ZoneId for timezone identification, ZoneOffset for fixed offsets. ZonedDateTime handles DST transitions. Clock abstraction for testing. Proper handling of complex timezone rules.',
-          codeExample: `// ZoneId - timezone identification
+    },
+    {
+      name: 'Timezone Handling',
+      icon: '🔹',
+      explanation: `ZoneId for timezone identification, ZoneOffset for fixed offsets. ZonedDateTime handles DST transitions. Clock abstraction for testing. Proper handling of complex timezone rules.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Timezone Handling - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ZoneId - timezone identification
 ZoneId newYork = ZoneId.of("America/New_York");
 ZoneId tokyo = ZoneId.of("Asia/Tokyo");
 ZoneId utc = ZoneId.of("UTC");
@@ -1138,177 +1132,16 @@ newYork
 Clock fixed = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 LocalDateTime testTime = LocalDateTime.now(fixed);
 // Always returns same time - great for testing!`
-        },
-        {
-          name: 'Temporal Adjusters',
-          explanation: 'TemporalAdjusters for common manipulations: firstDayOfMonth(), lastDayOfYear(), next(DayOfWeek). Custom adjusters possible. Enables readable date calculations like "next Monday" or "last day of quarter".',
-          codeExample: `LocalDate date = LocalDate.of(2023, 6, 15);
-
-// First and last day of month
-LocalDate firstDay = date.with(TemporalAdjusters.firstDayOfMonth());
-// Result: 2023-06-01
-LocalDate lastDay = date.with(TemporalAdjusters.lastDayOfMonth());
-// Result: 2023-06-30
-
-// First and last day of year
-LocalDate firstOfYear = date.with(TemporalAdjusters.firstDayOfYear());
-// Result: 2023-01-01
-LocalDate lastOfYear = date.with(TemporalAdjusters.lastDayOfYear());
-// Result: 2023-12-31
-
-// Next/Previous day of week
-LocalDate nextMonday = date.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
-// Result: 2023-06-19 (next Monday after June 15)
-LocalDate prevFriday = date.with(TemporalAdjusters.previous(DayOfWeek.FRIDAY));
-// Result: 2023-06-09 (previous Friday before June 15)
-
-// Next or same day of week
-LocalDate nextOrSameMonday = date.with(
-TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY)
-);
-
-// First day of next month/year
-LocalDate nextMonth = date.with(TemporalAdjusters.firstDayOfNextMonth());
-// Result: 2023-07-01
-LocalDate nextYear = date.with(TemporalAdjusters.firstDayOfNextYear());
-// Result: 2024-01-01
-
-// Custom adjuster - next business day
-TemporalAdjuster nextBusinessDay = temporal -> {
-LocalDate result = LocalDate.from(temporal).plusDays(1);
-while (result.getDayOfWeek() == DayOfWeek.SATURDAY ||
-result.getDayOfWeek() == DayOfWeek.SUNDAY) {
-result = result.plusDays(1);
-}
-return result;
-};
-LocalDate nextBizDay = date.with(nextBusinessDay);
-// Result: next business day (skips weekends)`
-        }
-      ],
-      description: 'Modern immutable date-time API with timezone support, clear semantics, and thread-safety replacing legacy Date/Calendar.'
     },
     {
-      id: 'default-methods', x: 580, y: 540, width: 350, height: 160,
-      icon: '🔧', title: 'Default & Static Methods', color: 'orange',
-      details: [
-        {
-          name: 'Default Methods',
-          explanation: 'Interface methods with implementation using "default" keyword. Enable interface evolution without breaking implementations. Used extensively in Collections API (forEach, stream, removeIf). Allow multiple inheritance of behavior.',
-          codeExample: `// Interface with default method
-interface Vehicle {
-// Abstract method - must be implemented
-String getType();
+      name: 'Diamond Problem',
+      icon: '🔹',
+      explanation: `When class implements multiple interfaces with same default method. Resolved by: 1) Class implementation wins, 2) More specific interface wins, 3) Explicit override required. Compiler enforces resolution.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Diamond Problem - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
 
-// Default method - has implementation
-default void start() {
-System.out.println(getType() + " is starting...");
-}
-
-default void stop() {
-System.out.println(getType() + " is stopping...");
-}
-}
-
-// Implementation inherits default methods
-class Car implements Vehicle {
-@Override
-public String getType() {
-return "Car";
-}
-// start() and stop() inherited automatically
-}
-
-Car car = new Car();
-car.start();
-// Output: Car is starting...
-
-// Can override default methods if needed
-class ElectricCar implements Vehicle {
-@Override
-public String getType() {
-return "Electric Car";
-}
-
-@Override
-public void start() {
-System.out.println("Electric car silently powers on");
-}
-}
-
-ElectricCar eCar = new ElectricCar();
-eCar.start();
-// Output: Electric car silently powers on
-
-// Real-world example from Collections API
-List<String> list = Arrays.asList("a", "b", "c");
-list.forEach(System.out::println);  // forEach is default method
-// Output:
-// a
-// b
-// c`
-        },
-        {
-          name: 'Static Interface Methods',
-          explanation: 'Utility methods in interfaces using "static" keyword. No need for separate utility classes. Example: Comparator.comparing(), Stream.of(). Provide helper methods logically grouped with interface.',
-          codeExample: `// Interface with static methods
-interface MathUtils {
-// Static method in interface
-static int add(int a, int b) {
-return a + b;
-}
-
-static int multiply(int a, int b) {
-return a * b;
-}
-
-// Can combine with default methods
-default int square(int n) {
-return multiply(n, n);  // Calling static method
-}
-}
-
-// Call static methods on interface
-int sum = MathUtils.add(5, 3);
-// Result: 8
-int product = MathUtils.multiply(4, 7);
-// Result: 28
-
-// Real-world examples from Java API
-// Comparator.comparing()
-List<Person> people = getPeople();
-people.sort(Comparator.comparing(Person::getName));
-// Result: people sorted by name
-
-// Stream.of()
-Stream<String> stream = Stream.of("a", "b", "c");
-// Result: Stream of 3 elements
-
-// Collections.emptyList() - old way
-List<String> empty1 = Collections.emptyList();
-// Could now be: List.empty() - cleaner!
-
-// Custom example
-interface Parser {
-Object parse(String input);
-
-static Parser stringParser() {
-return input -> input;
-}
-
-static Parser intParser() {
-return Integer::parseInt;
-}
-}
-
-Parser parser = Parser.intParser();
-int value = (int) parser.parse("42");
-// Result: 42`
-        },
-        {
-          name: 'Diamond Problem',
-          explanation: 'When class implements multiple interfaces with same default method. Resolved by: 1) Class implementation wins, 2) More specific interface wins, 3) Explicit override required. Compiler enforces resolution.',
-          codeExample: `interface A {
+interface A {
 default void hello() {
 System.out.println("Hello from A");
 }
@@ -1377,11 +1210,16 @@ class MyPet extends Pet implements Animal {
 MyPet myPet = new MyPet();
 myPet.move();
 // Output: Pet moves`
-        },
-        {
-          name: 'Evolution Strategy',
-          explanation: 'Add new methods to interfaces without breaking existing implementations. Critical for Java API evolution. Example: Collection.stream() added without modifying all collection implementations.',
-          codeExample: `// Before Java 8 - couldn't add methods to interfaces
+    },
+    {
+      name: 'Evolution Strategy',
+      icon: '🔹',
+      explanation: `Add new methods to interfaces without breaking existing implementations. Critical for Java API evolution. Example: Collection.stream() added without modifying all collection implementations.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Evolution Strategy - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Before Java 8 - couldn't add methods to interfaces
 interface OldCollection {
 int size();
 boolean isEmpty();
@@ -1434,11 +1272,16 @@ list.stream();     // Added in Java 8
 list.forEach(System.out::println); // Added in Java 8
 list.removeIf(s -> s.isEmpty());// Added in Java 8
 // ArrayList didn't need to change!`
-        },
-        {
-          name: 'Use Cases',
-          explanation: 'API evolution, optional functionality, template methods in interfaces, utility methods. Enables richer interfaces while maintaining backward compatibility. Bridge between traditional OOP and functional programming.',
-          codeExample: `// 1. API Evolution
+    },
+    {
+      name: 'Use Cases',
+      icon: '🔹',
+      explanation: `API evolution, optional functionality, template methods in interfaces, utility methods. Enables richer interfaces while maintaining backward compatibility. Bridge between traditional OOP and functional programming.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Use Cases - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// 1. API Evolution
 interface Repository<T> {
 T findById(Long id);
 List<T> findAll();
@@ -1520,18 +1363,16 @@ Processor<String> addExclaim = s -> s + "!";
 Processor<String> combined = upper.andThen(addExclaim);
 String result = combined.process("hello");
 // Result: "HELLO!"`
-        }
-      ],
-      description: 'Interface methods with implementation enabling interface evolution, multiple inheritance of behavior, and utility methods.'
     },
     {
-      id: 'completable-future', x: 1080, y: 240, width: 350, height: 160,
-      icon: '🔮', title: 'CompletableFuture', color: 'teal',
-      details: [
-        {
-          name: 'Async Programming',
-          explanation: 'Enhanced Future for asynchronous programming. Methods: supplyAsync(), runAsync() for starting async tasks. Non-blocking with callback-based completion. Uses ForkJoinPool.commonPool() by default or custom Executor.',
-          codeExample: `// supplyAsync - returns a value
+      name: 'Async Programming',
+      icon: '🔹',
+      explanation: `Enhanced Future for asynchronous programming. Methods: supplyAsync(), runAsync() for starting async tasks. Non-blocking with callback-based completion. Uses ForkJoinPool.commonPool() by default or custom Executor.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Async Programming - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// supplyAsync - returns a value
 CompletableFuture<String> future1 = CompletableFuture.supplyAsync(() -> {
 // Simulating expensive operation
 sleep(1000);
@@ -1574,11 +1415,16 @@ CompletableFuture<User> userFuture = CompletableFuture.supplyAsync(() ->
 restTemplate.getForObject("http://api.com/user/123", User.class)
 );
 // Result: User object fetched asynchronously`
-        },
-        {
-          name: 'Composition',
-          explanation: 'Chain operations with thenApply(), thenCompose(), thenCombine(). Handle both success and failure paths. Enable complex async workflows without callback hell. Functional composition of async operations.',
-          codeExample: `// thenApply - transform result (synchronous)
+    },
+    {
+      name: 'Composition',
+      icon: '🔹',
+      explanation: `Chain operations with thenApply(), thenCompose(), thenCombine(). Handle both success and failure paths. Enable complex async workflows without callback hell. Functional composition of async operations.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Composition - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// thenApply - transform result (synchronous)
 CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> "42")
 .thenApply(Integer::parseInt)        // String -> Integer
 .thenApply(num -> num * 2);          // Integer -> Integer
@@ -1617,11 +1463,16 @@ future.thenAccept(result -> System.out.println("Got: " + result));
 // thenRun - run action after completion
 future.thenRun(() -> System.out.println("Task completed"));
 // Output: Task completed`
-        },
-        {
-          name: 'Combination',
-          explanation: 'Combine multiple futures: allOf() waits for all, anyOf() waits for first. thenCombine() combines two futures. Enables parallel execution with result aggregation. Control complex async dependencies.',
-          codeExample: `// allOf - wait for all futures to complete
+    },
+    {
+      name: 'Combination',
+      icon: '🔹',
+      explanation: `Combine multiple futures: allOf() waits for all, anyOf() waits for first. thenCombine() combines two futures. Enables parallel execution with result aggregation. Control complex async dependencies.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Combination - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// allOf - wait for all futures to complete
 CompletableFuture<String> future1 = CompletableFuture.supplyAsync(() -> "Task 1");
 CompletableFuture<String> future2 = CompletableFuture.supplyAsync(() -> "Task 2");
 CompletableFuture<String> future3 = CompletableFuture.supplyAsync(() -> "Task 3");
@@ -1661,65 +1512,16 @@ CompletableFuture<List<String>> allResults = CompletableFuture
 .collect(Collectors.toList())
 );
 // Result: List of all fetched data`
-        },
-        {
-          name: 'Error Handling',
-          explanation: 'exceptionally() handles exceptions, handle() processes both success and failure. whenComplete() performs side effects. Exceptions don\'t break the chain - propagated through composition.',
-          codeExample: `// exceptionally - provide fallback on error
-CompletableFuture<String> future = CompletableFuture
-.supplyAsync(() -> {
-if (Math.random() > 0.5) {
-throw new RuntimeException("Random failure!");
-}
-return "Success";
-})
-.exceptionally(ex -> {
-System.err.println("Error: " + ex.getMessage());
-return "Default value";  // Fallback
-});
-// Result: either "Success" or "Default value"
+    },
+    {
+      name: 'Completion',
+      icon: '🔹',
+      explanation: `Complete manually with complete(), completeExceptionally(). Check status with isDone(), isCompletedExceptionally(). Cancel with cancel(). Get results with get(), join(), or getNow().`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Completion - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
 
-// handle - process both success and failure
-CompletableFuture<String> handled = CompletableFuture
-.supplyAsync(() -> riskyOperation())
-.handle((result, exception) -> {
-if (exception != null) {
-return "Error: " + exception.getMessage();
-}
-return "Success: " + result;
-});
-// Result: "Success: data" or "Error: message"
-
-// whenComplete - side effects (doesn't change result)
-CompletableFuture<String> withLogging = CompletableFuture
-.supplyAsync(() -> fetchData())
-.whenComplete((result, exception) -> {
-if (exception != null) {
-log.error("Failed", exception);
-} else {
-log.info("Success: " + result);
-}
-});
-// Log output: "Success: data" or error log
-
-// Complex error handling chain
-CompletableFuture<User> userFuture = CompletableFuture
-.supplyAsync(() -> fetchUser(123))
-.exceptionally(ex -> {
-log.warn("Using cached user", ex);
-return getCachedUser(123);
-})
-.thenApply(user -> enrichUserData(user))
-.exceptionally(ex -> {
-log.error("Enrichment failed", ex);
-return user;  // Return basic user
-});
-// Result: enriched user or fallback to cached/basic user`
-        },
-        {
-          name: 'Completion',
-          explanation: 'Complete manually with complete(), completeExceptionally(). Check status with isDone(), isCompletedExceptionally(). Cancel with cancel(). Get results with get(), join(), or getNow().',
-          codeExample: `// Manual completion
+// Manual completion
 CompletableFuture<String> future = new CompletableFuture<>();
 
 // Complete from another thread
@@ -1774,18 +1576,16 @@ pollTask.complete(status);
 pollTask.orTimeout(30, TimeUnit.SECONDS)
 .exceptionally(ex -> "TIMEOUT");
 // Result: "COMPLETE" or "TIMEOUT"`
-        }
-      ],
-      description: 'Advanced asynchronous programming with composable futures, error handling, and parallel execution support.'
     },
     {
-      id: 'nashorn', x: 1080, y: 440, width: 350, height: 160,
-      icon: '⚙️', title: 'Nashorn JavaScript Engine', color: 'indigo',
-      details: [
-        {
-          name: 'JavaScript Engine',
-          explanation: 'High-performance JavaScript engine replacing Rhino. Executes JavaScript code from Java. Implements ECMAScript 5.1 specification. Invokable via javax.script API. Better performance through JIT compilation.',
-          codeExample: `import javax.script.*;
+      name: 'JavaScript Engine',
+      icon: '🔹',
+      explanation: `High-performance JavaScript engine replacing Rhino. Executes JavaScript code from Java. Implements ECMAScript 5.1 specification. Invokable via javax.script API. Better performance through JIT compilation.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ JavaScript Engine - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+import javax.script.*;
 
 // Get Nashorn engine
 ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
@@ -1825,11 +1625,16 @@ System.out.println(person.get("name"));
 engine.put("javaVar", "Value from Java");
 engine.eval("print(javaVar)");
 // Output: Value from Java`
-        },
-        {
-          name: 'Java-JavaScript Interop',
-          explanation: 'Call Java from JavaScript and vice versa. Access Java objects, call methods, create instances from JavaScript. Pass data between languages seamlessly. Enable scripting capabilities in Java applications.',
-          codeExample: `ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+    },
+    {
+      name: 'Java-JavaScript Interop',
+      icon: '🔹',
+      explanation: `Call Java from JavaScript and vice versa. Access Java objects, call methods, create instances from JavaScript. Pass data between languages seamlessly. Enable scripting capabilities in Java applications.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Java-JavaScript Interop - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
 
 // Pass Java object to JavaScript
 List<String> javaList = new ArrayList<>();
@@ -1877,11 +1682,16 @@ engine.eval(
 "var content = Files.readAllLines(Paths.get('data.txt'));"
 );
 // Result: content contains lines from data.txt`
-        },
-        {
-          name: 'Command Line Tool',
-          explanation: 'jjs command-line tool for executing JavaScript. REPL for interactive JavaScript. Scripting with shebang support. Useful for testing and quick scripts combining Java and JavaScript.',
-          codeExample: `// Execute JavaScript file
+    },
+    {
+      name: 'Command Line Tool',
+      icon: '🔹',
+      explanation: `jjs command-line tool for executing JavaScript. REPL for interactive JavaScript. Scripting with shebang support. Useful for testing and quick scripts combining Java and JavaScript.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Command Line Tool - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Execute JavaScript file
 // $ jjs script.js
 
 // REPL mode
@@ -1931,11 +1741,16 @@ print("Arg " + i + ": " + $ARG[i]);
 // Arg 0: arg1
 // Arg 1: arg2
 // Arg 2: arg3`
-        },
-        {
-          name: 'Deprecated Notice',
-          explanation: 'Deprecated in Java 11, removed in Java 15. Replaced by GraalVM for better performance and modern JavaScript support. Historical importance for Java 8 era applications.',
-          codeExample: `// Nashorn lifecycle
+    },
+    {
+      name: 'Deprecated Notice',
+      icon: '🔹',
+      explanation: `Deprecated in Java 11, removed in Java 15. Replaced by GraalVM for better performance and modern JavaScript support. Historical importance for Java 8 era applications.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Deprecated Notice - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Nashorn lifecycle
 // Java 8 (2014) - Introduced as modern JavaScript engine
 ScriptEngine engine = new ScriptEngineManager()
 .getEngineByName("nashorn");
@@ -1975,18 +1790,16 @@ System.out.println(result.asInt());
 // - Configuration scripts
 
 // Legacy code may still use it in Java 8-10 projects`
-        }
-      ],
-      description: 'JavaScript engine for Java enabling scripting, Java-JavaScript interop, and dynamic execution (deprecated in Java 11).'
     },
     {
-      id: 'improvements', x: 1080, y: 640, width: 350, height: 140,
-      icon: '🚀', title: 'JVM & Performance', color: 'pink',
-      details: [
-        {
-          name: 'PermGen Removal',
-          explanation: 'Permanent Generation replaced with Metaspace in native memory. Eliminates OutOfMemoryError: PermGen. Automatic memory management for class metadata. More flexible memory allocation.',
-          codeExample: `// Before Java 8 - PermGen issues
+      name: 'PermGen Removal',
+      icon: '🔹',
+      explanation: `Permanent Generation replaced with Metaspace in native memory. Eliminates OutOfMemoryError: PermGen. Automatic memory management for class metadata. More flexible memory allocation.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ PermGen Removal - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Before Java 8 - PermGen issues
 // JVM args: -XX:PermSize=64m -XX:MaxPermSize=256m
 // OutOfMemoryError: PermGen space (common in app servers)
 
@@ -2033,11 +1846,16 @@ Class<?> clazz = loader.loadClass("DynamicClass" + i);
 // In Java 7: would eventually hit PermGen limit
 // In Java 8+: Metaspace grows automatically
 }`
-        },
-        {
-          name: 'Parallel Operations',
-          explanation: 'Arrays.parallelSort() for parallel sorting. Parallel streams leverage multiple cores. ForkJoinPool improvements. Better utilization of modern multi-core processors.',
-          codeExample: `// Arrays.parallelSort() - parallel sorting
+    },
+    {
+      name: 'Parallel Operations',
+      icon: '🔹',
+      explanation: `Arrays.parallelSort() for parallel sorting. Parallel streams leverage multiple cores. ForkJoinPool improvements. Better utilization of modern multi-core processors.`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Parallel Operations - Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Arrays.parallelSort() - parallel sorting
 int[] array = new int[1000000];
 Arrays.fill(array, (int) (Math.random() * 1000));
 
@@ -2105,179 +1923,8 @@ return leftResult + rightResult;
 
 Long sum = pool.invoke(new SumTask(array, 0, array.length));
 // Result: sum of all array elements`
-        },
-        {
-          name: 'Compact Profiles',
-          explanation: 'Smaller runtime profiles for embedded devices: compact1, compact2, compact3. Reduce footprint for applications that don\'t need full Java SE. Enable Java in resource-constrained environments.',
-          codeExample: `// Compact Profiles - subset of Java SE
-// Designed for embedded devices and resource-constrained environments
-
-// Compact1 (~11 MB) - minimal profile
-// Includes:
-// - java.lang
-// - java.io
-// - java.nio
-// - java.text
-// - java.math
-// - java.util (core)
-// - java.util.logging
-// - javax.crypto
-
-// Example Compact1 application
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
-
-public class Compact1App {
-public static void main(String[] args) throws IOException {
-// Basic I/O
-List<String> lines = Files.readAllLines(Paths.get("data.txt"));
-
-// Collections
-List<String> list = new ArrayList<>();
-Map<String, Integer> map = new HashMap<>();
-
-// Logging
-Logger logger = Logger.getLogger("App");
-logger.info("Application started");
-}
-}
-// Output: Application started
-
-// Compact2 (~18 MB) - includes Compact1 +
-// - JDBC
-// - RMI
-// - XML
-// - javax.sql
-// - javax.xml
-
-// Compact3 (~23 MB) - includes Compact2 +
-// - Security APIs
-// - Management
-// - Naming
-// - javax.security
-// - javax.management
-// - javax.naming
-
-// Full Java SE (~50+ MB) - includes Compact3 +
-// - Swing/AWT
-// - JavaBeans
-// - Applets
-// - CORBA
-
-// Compile for specific profile
-// javac -profile compact1 MyApp.java
-
-// Run with profile verification
-// java -Djava.security.properties=compact1.properties MyApp
-
-// Check if running on compact profile
-String profile = System.getProperty("java.runtime.profile");
-if (profile != null) {
-System.out.println("Running on: " + profile);
-} else {
-System.out.println("Running on full Java SE");
-}
-// Output: "Running on: compact1" or "Running on full Java SE"
-
-// Use case: IoT devices
-// - Temperature sensors
-// - Smart home controllers
-// - Industrial automation
-// - Mobile embedded systems`
-        }
-      ],
-      description: 'JVM improvements including PermGen removal, parallel operations, and compact profiles for better performance and flexibility.'
     }
   ]
-
-  const handleComponentClick = (component) => {
-    setSelectedComponent(component)
-    setIsModalOpen(true)
-  }
-
-  const closeModal = () => {
-    setIsModalOpen(false)
-    setSelectedComponent(null)
-    setSelectedConcept(null)
-  }
-
-  // Use refs to access current modal state in event handler
-  const isModalOpenRef = useRef(isModalOpen)
-  const selectedConceptRef = useRef(selectedConcept)
-  useEffect(() => {
-    isModalOpenRef.current = isModalOpen
-    selectedConceptRef.current = selectedConcept
-  }, [isModalOpen, selectedConcept])
-
-  // Set initial focus on mount
-  useEffect(() => {
-    setFocusedComponentIndex(0)
-  }, [])
-
-  // Keyboard navigation
-  useEffect(() => {
-    console.log('Java8.jsx: Keyboard navigation useEffect running')
-
-    const handleKeyDown = (e) => {
-      const currentIsModalOpen = isModalOpenRef.current
-      const currentSelectedConcept = selectedConceptRef.current
-      console.log('Java8.jsx KeyDown:', e.key, 'isModalOpen:', currentIsModalOpen, 'selectedConcept:', currentSelectedConcept, 'focusedIndex:', focusedComponentIndex)
-
-      // Handle Escape to close modal or go back to menu
-      if (e.key === 'Escape') {
-        if (currentIsModalOpen || currentSelectedConcept) {
-          e.preventDefault()
-          e.stopImmediatePropagation()
-          closeModal()
-          return
-        }
-        return
-      }
-
-      if (currentIsModalOpen || currentSelectedConcept) {
-        // Modal is open, don't handle other keys
-        return
-      }
-
-      // Navigation when modal is closed
-      const componentCount = components.length
-
-      switch(e.key) {
-        case 'ArrowRight':
-        case 'ArrowDown':
-          e.preventDefault()
-          setFocusedComponentIndex((prev) => (prev + 1) % componentCount)
-          break
-        case 'ArrowLeft':
-        case 'ArrowUp':
-          e.preventDefault()
-          setFocusedComponentIndex((prev) => (prev - 1 + componentCount) % componentCount)
-          break
-        case 'Enter':
-        case ' ':
-          e.preventDefault()
-          console.log('Java8.jsx: Enter pressed, opening component:', components[focusedComponentIndex])
-          if (components[focusedComponentIndex]) {
-            handleComponentClick(components[focusedComponentIndex])
-          }
-          break
-        default:
-          break
-      }
-    }
-
-    console.log('Java8.jsx: Adding keyboard event listener')
-    window.addEventListener('keydown', handleKeyDown)
-    return () => {
-      console.log('Java8.jsx: Removing keyboard event listener')
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [focusedComponentIndex])
-
-  const handleConceptClick = (concept) => {
-    setSelectedConcept(concept)
-  }
 
   return (
     <div style={{
@@ -2287,7 +1934,7 @@ System.out.println("Running on full Java SE");
       backgroundColor: 'white',
       borderRadius: '16px',
       boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-      border: '3px solid rgba(59, 130, 246, 0.4)'
+      border: '3px solid rgba(16, 185, 129, 0.4)'
     }}>
       <div style={{
         display: 'flex',
@@ -2318,16 +1965,16 @@ System.out.println("Running on full Java SE");
           margin: 0,
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
         }}>
-          🎯 Java 8 Features
+          🚀 Java 8 Features
         </h1>
         <div style={{ width: '120px' }}></div>
       </div>
 
       <div style={{
-        backgroundColor: 'rgba(59, 130, 246, 0.05)',
+        backgroundColor: 'rgba(16, 185, 129, 0.05)',
         padding: '2.5rem 10rem',
         borderRadius: '16px',
-        border: '3px solid rgba(59, 130, 246, 0.3)',
+        border: '3px solid rgba(16, 185, 129, 0.3)',
         marginBottom: '2rem'
       }}>
         <p style={{
@@ -2338,70 +1985,72 @@ System.out.println("Running on full Java SE");
           lineHeight: '1.8',
           textAlign: 'center'
         }}>
-          Revolutionary Java 8 release introducing functional programming with lambda expressions, Streams API,
-          Optional class, modern Date-Time API, and CompletableFuture for asynchronous programming.
-          The most significant Java release transforming how developers write Java code.
+          Explore the revolutionary features of Java 8 including Lambdas, Streams API, Optional, and functional programming capabilities.
         </p>
       </div>
 
-      <ModernDiagram
-        components={components}
-        onComponentClick={handleComponentClick}
-        title="Java 8 Revolutionary Features"
-        width={1400}
-        height={800}
-        containerWidth={1800}
-      
-        focusedIndex={focusedComponentIndex}
-      />
-
-      {/* Modal */}
-      {isModalOpen && selectedComponent && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 99999
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            padding: '2.5rem',
-            borderRadius: '16px',
-            maxWidth: '1400px',
-            width: '95%',
-            maxHeight: '85vh',
-            overflowY: 'auto',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-            border: '3px solid rgba(59, 130, 246, 0.4)'
-          }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '2rem'
-            }}>
-              <h2 style={{
-                fontSize: '2rem',
-                fontWeight: '800',
-                color: '#1f2937',
-                margin: 0,
-                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: selectedConcept ? '350px 1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '2rem'
+      }}>
+        {!selectedConcept ? (
+          concepts.map((concept, idx) => (
+            <div
+              key={idx}
+              onClick={() => handleConceptClick(concept)}
+              style={{
+                backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                padding: '2rem',
+                borderRadius: '16px',
+                border: '3px solid rgba(16, 185, 129, 0.3)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)'
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.15)'
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.5)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.3)'
+              }}
+            >
+              <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>
+                {concept.icon || '🔹'}
+              </div>
+              <h3 style={{
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                color: '#047857',
+                marginBottom: '1rem',
+                textAlign: 'center'
               }}>
-                {selectedComponent.icon} {selectedComponent.title}
-              </h2>
+                {concept.name}
+              </h3>
+              <p style={{
+                fontSize: '1rem',
+                color: '#6b7280',
+                lineHeight: '1.6',
+                textAlign: 'center'
+              }}>
+                {concept.explanation?.substring(0, 150) || ''}...
+              </p>
+            </div>
+          ))
+        ) : (
+          <>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <button
-                onClick={closeModal}
+                onClick={() => setSelectedConcept(null)}
                 style={{
-                  padding: '0.5rem 1rem',
-                  fontSize: '1.25rem',
+                  padding: '0.75rem 1.5rem',
+                  fontSize: '1rem',
                   fontWeight: '600',
-                  backgroundColor: '#ef4444',
+                  backgroundColor: '#6b7280',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
@@ -2409,195 +2058,122 @@ System.out.println("Running on full Java SE");
                   transition: 'all 0.2s ease'
                 }}
               >
-                ✕
+                ← Back to All Concepts
               </button>
-            </div>
-
-            <div style={{
-              backgroundColor: 'rgba(59, 130, 246, 0.05)',
-              padding: '1.5rem',
-              borderRadius: '12px',
-              border: '2px solid rgba(59, 130, 246, 0.2)',
-              marginBottom: '2rem'
-            }}>
-              <p style={{
-                fontSize: '1.1rem',
-                color: '#374151',
-                fontWeight: '500',
-                margin: 0,
-                lineHeight: '1.6'
-              }}>
-                {selectedComponent.description}
-              </p>
-            </div>
-
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: selectedConcept ? '1fr 1fr' : '1fr',
-              gap: '2rem'
-            }}>
-              <div>
-                <h3 style={{
-                  fontSize: '1.25rem',
-                  fontWeight: '700',
-                  color: '#1f2937',
-                  marginBottom: '1rem'
-                }}>
-                  Key Features
-                </h3>
-                <div style={{
-                  display: 'grid',
-                  gap: '0.75rem'
-                }}>
-                  {selectedComponent.details.map((detail, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => handleConceptClick(detail)}
-                      style={{
-                        backgroundColor: selectedConcept?.name === detail.name
-                          ? 'rgba(59, 130, 246, 0.15)'
-                          : 'rgba(34, 197, 94, 0.1)',
-                        padding: '0.75rem',
-                        borderRadius: '8px',
-                        border: selectedConcept?.name === detail.name
-                          ? '2px solid rgba(59, 130, 246, 0.4)'
-                          : '2px solid rgba(34, 197, 94, 0.2)',
-                        fontSize: '0.95rem',
-                        fontWeight: '500',
-                        color: selectedConcept?.name === detail.name
-                          ? '#1e40af'
-                          : '#166534',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        transform: 'scale(1)'
-                      }}
-                      onMouseEnter={(e) => {
-                        if (selectedConcept?.name !== detail.name) {
-                          e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.15)'
-                          e.target.style.transform = 'scale(1.02)'
-                          e.target.style.borderColor = 'rgba(34, 197, 94, 0.4)'
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (selectedConcept?.name !== detail.name) {
-                          e.target.style.backgroundColor = 'rgba(34, 197, 94, 0.1)'
-                          e.target.style.transform = 'scale(1)'
-                          e.target.style.borderColor = 'rgba(34, 197, 94, 0.2)'
-                        }
-                      }}
-                    >
-                      • {detail.name}
-                      {selectedConcept?.name === detail.name && (
-                        <span style={{
-                          fontSize: '0.8rem',
-                          opacity: 0.8,
-                          marginLeft: '0.5rem',
-                          fontWeight: '600'
-                        }}>
-                          ← Selected
-                        </span>
-                      )}
-                    </div>
-                  ))}
+              
+              {concepts.map((concept, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => handleConceptClick(concept)}
+                  style={{
+                    padding: '1rem',
+                    backgroundColor: selectedConcept?.name === concept.name 
+                      ? 'rgba(16, 185, 129, 0.15)' 
+                      : 'rgba(243, 244, 246, 1)',
+                    borderRadius: '8px',
+                    border: selectedConcept?.name === concept.name 
+                      ? '2px solid rgba(16, 185, 129, 0.5)' 
+                      : '2px solid transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <span style={{ fontWeight: '600', color: '#047857' }}>
+                    {concept.icon || '🔹'} {concept.name}
+                  </span>
                 </div>
+              ))}
+            </div>
+
+            <div>
+              <h2 style={{
+                fontSize: '2rem',
+                fontWeight: '700',
+                color: '#047857',
+                marginBottom: '1.5rem'
+              }}>
+                {selectedConcept.icon || '🔹'} {selectedConcept.name}
+              </h2>
+
+              <div style={{
+                backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                padding: '1.5rem',
+                borderRadius: '12px',
+                border: '2px solid rgba(16, 185, 129, 0.2)',
+                marginBottom: '2rem'
+              }}>
+                <p style={{
+                  fontSize: '1.1rem',
+                  color: '#374151',
+                  lineHeight: '1.8',
+                  margin: 0
+                }}>
+                  {selectedConcept.explanation}
+                </p>
               </div>
 
-              {selectedConcept && (
-                <div>
-                  <h3 style={{
-                    fontSize: '1.25rem',
-                    fontWeight: '700',
-                    color: '#1f2937',
-                    marginBottom: '1rem'
-                  }}>
-                    {selectedConcept.name}
-                  </h3>
-
+              {selectedConcept.codeExample && (() => {
+                const sections = parseCodeSections(selectedConcept.codeExample)
+                return sections.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {sections.map((section, idx) => {
+                      const sectionKey = `${selectedConcept.name}-${idx}`
+                      const isExpanded = expandedSections[sectionKey]
+                      
+                      return (
+                        <div key={idx} style={{
+                          backgroundColor: '#1e293b',
+                          borderRadius: '12px',
+                          overflow: 'hidden',
+                          border: '2px solid #334155'
+                        }}>
+                          <button
+                            onClick={() => toggleSection(sectionKey)}
+                            style={{
+                              width: '100%',
+                              padding: '1rem 1.5rem',
+                              backgroundColor: '#334155',
+                              border: 'none',
+                              color: '#60a5fa',
+                              fontSize: '1rem',
+                              fontWeight: '600',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            <span>💻 {section.title}</span>
+                            <span style={{ fontSize: '1.2rem' }}>
+                              {isExpanded ? '▼' : '▶'}
+                            </span>
+                          </button>
+                          
+                          {isExpanded && (
+                            <div style={{ padding: '1.5rem' }}>
+                              <SyntaxHighlighter code={section.code} />
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
                   <div style={{
-                    backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                    backgroundColor: '#1e293b',
                     padding: '1.5rem',
                     borderRadius: '12px',
-                    border: '2px solid rgba(59, 130, 246, 0.2)',
-                    marginBottom: '1.5rem'
+                    border: '2px solid #334155'
                   }}>
-                    <p style={{
-                      fontSize: '1rem',
-                      color: '#374151',
-                      fontWeight: '500',
-                      margin: 0,
-                      lineHeight: '1.7',
-                      textAlign: 'justify'
-                    }}>
-                      {selectedConcept.explanation}
-                    </p>
+                    <SyntaxHighlighter code={selectedConcept.codeExample} />
                   </div>
-
-                  {selectedConcept.codeExample && (
-                    <div style={{
-                      backgroundColor: '#1e293b',
-                      padding: '1.5rem',
-                      borderRadius: '12px',
-                      marginBottom: '1.5rem',
-                      border: '2px solid #334155',
-                      overflowX: 'auto'
-                    }}>
-                      <h4 style={{
-                        fontSize: '0.95rem',
-                        fontWeight: '700',
-                        color: '#10b981',
-                        margin: '0 0 1rem 0',
-                        letterSpacing: '0.5px'
-                      }}>
-                        ⚡ CODE EXAMPLE
-                      </h4>
-                      <pre style={{
-                        margin: 0,
-                        fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
-                        fontSize: '0.85rem',
-                        lineHeight: '1.6',
-                        color: '#e2e8f0',
-                        whiteSpace: 'pre',
-                        overflowX: 'auto',
-                        textAlign: 'left',
-                        padding: 0
-                      }}>
-{selectedConcept.codeExample}
-                      </pre>
-                    </div>
-                  )}
-
-                  <div style={{
-                    backgroundColor: 'rgba(34, 197, 94, 0.05)',
-                    padding: '1.25rem',
-                    borderRadius: '12px',
-                    border: '2px solid rgba(34, 197, 94, 0.2)'
-                  }}>
-                    <h4 style={{
-                      fontSize: '1rem',
-                      fontWeight: '700',
-                      color: '#166534',
-                      margin: '0 0 0.75rem 0'
-                    }}>
-                      💡 Key Takeaway
-                    </h4>
-                    <p style={{
-                      fontSize: '0.9rem',
-                      color: '#15803d',
-                      fontWeight: '500',
-                      margin: 0,
-                      lineHeight: '1.5',
-                      fontStyle: 'italic'
-                    }}>
-                      {selectedConcept.name} is a fundamental Java 8 feature that revolutionized Java development by enabling functional programming patterns and more expressive code.
-                    </p>
-                  </div>
-                </div>
-              )}
+                )
+              })()}
             </div>
-          </div>
-        </div>
-      )}
-
+          </>
+        )}
+      </div>
     </div>
   )
 }

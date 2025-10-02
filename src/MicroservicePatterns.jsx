@@ -1,1949 +1,2286 @@
 import { useState, useEffect, useRef } from 'react'
 
-// Pattern diagram component for microservice patterns
-const PatternDiagram = ({ patternName }) => {
-  const diagrams = {
-    'API Gateway': (
-      <svg width="700" height="450" viewBox="0 0 700 450" style={{ maxWidth: '100%', height: 'auto' }}>
-        <rect x="80" y="30" width="120" height="80" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="3"/>
-        <text x="140" y="65" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Mobile</text>
-        <text x="140" y="85" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Client</text>
-
-        <rect x="230" y="30" width="120" height="80" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="3"/>
-        <text x="290" y="65" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Web</text>
-        <text x="290" y="85" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Client</text>
-
-        <rect x="380" y="30" width="120" height="80" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="3"/>
-        <text x="440" y="65" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Third-Party</text>
-        <text x="440" y="85" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Client</text>
-
-        <line x1="140" y1="110" x2="290" y2="180" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowGateway)"/>
-        <line x1="290" y1="110" x2="290" y2="180" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowGateway)"/>
-        <line x1="440" y1="110" x2="290" y2="180" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowGateway)"/>
-
-        <rect x="200" y="180" width="180" height="100" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-        <text x="290" y="210" textAnchor="middle" fontSize="18" fontWeight="700" fill="white">API Gateway</text>
-        <text x="290" y="235" textAnchor="middle" fontSize="13" fill="white">- Routing</text>
-        <text x="290" y="255" textAnchor="middle" fontSize="13" fill="white">- Authentication</text>
-
-        <line x1="200" y1="280" x2="100" y2="350" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrowService)"/>
-        <line x1="290" y1="280" x2="290" y2="350" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrowService)"/>
-        <line x1="380" y1="280" x2="480" y2="350" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrowService)"/>
-
-        <rect x="40" y="350" width="120" height="70" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-        <text x="100" y="380" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">User</text>
-        <text x="100" y="400" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Service</text>
-
-        <rect x="230" y="350" width="120" height="70" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-        <text x="290" y="380" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Order</text>
-        <text x="290" y="400" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Service</text>
-
-        <rect x="420" y="350" width="120" height="70" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-        <text x="480" y="380" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Payment</text>
-        <text x="480" y="400" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Service</text>
-
-        <defs>
-          <marker id="arrowGateway" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-          </marker>
-          <marker id="arrowService" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
-          </marker>
-        </defs>
-      </svg>
-    ),
-
-    'Circuit Breaker': (
-      <svg width="700" height="400" viewBox="0 0 700 400" style={{ maxWidth: '100%', height: 'auto' }}>
-        <ellipse cx="150" cy="100" rx="100" ry="70" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-        <text x="150" y="95" textAnchor="middle" fontSize="18" fontWeight="700" fill="white">CLOSED</text>
-        <text x="150" y="115" textAnchor="middle" fontSize="13" fill="white">Normal Operation</text>
-
-        <ellipse cx="550" cy="100" rx="100" ry="70" fill="#ef4444" stroke="#dc2626" strokeWidth="3"/>
-        <text x="550" y="95" textAnchor="middle" fontSize="18" fontWeight="700" fill="white">OPEN</text>
-        <text x="550" y="115" textAnchor="middle" fontSize="13" fill="white">Failing Fast</text>
-
-        <ellipse cx="350" cy="280" rx="110" ry="70" fill="#f59e0b" stroke="#d97706" strokeWidth="3"/>
-        <text x="350" y="275" textAnchor="middle" fontSize="18" fontWeight="700" fill="white">HALF-OPEN</text>
-        <text x="350" y="295" textAnchor="middle" fontSize="13" fill="white">Testing Recovery</text>
-
-        <path d="M 230 120 L 470 120" fill="none" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowCB)"/>
-        <text x="350" y="110" textAnchor="middle" fontSize="13" fontWeight="700" fill="#3b82f6">threshold exceeded</text>
-
-        <path d="M 480 160 Q 430 220 400 260" fill="none" stroke="#8b5cf6" strokeWidth="3" markerEnd="url(#arrowCB2)"/>
-        <text x="460" y="215" textAnchor="middle" fontSize="13" fontWeight="700" fill="#8b5cf6">timeout</text>
-
-        <path d="M 300 260 Q 250 220 220 160" fill="none" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowCB3)"/>
-        <text x="240" y="215" textAnchor="middle" fontSize="13" fontWeight="700" fill="#10b981">success</text>
-
-        <path d="M 350 220 L 350 200" fill="none" stroke="#ef4444" strokeWidth="3" markerEnd="url(#arrowCB4)"/>
-        <text x="420" y="245" textAnchor="middle" fontSize="13" fontWeight="700" fill="#ef4444">failure</text>
-
-        <defs>
-          <marker id="arrowCB" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-          </marker>
-          <marker id="arrowCB2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#8b5cf6"/>
-          </marker>
-          <marker id="arrowCB3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-          </marker>
-          <marker id="arrowCB4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/>
-          </marker>
-        </defs>
-      </svg>
-    ),
-
-    'Saga': (
-      <svg width="700" height="450" viewBox="0 0 700 450" style={{ maxWidth: '100%', height: 'auto' }}>
-        <rect x="250" y="30" width="200" height="80" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="3"/>
-        <text x="350" y="60" textAnchor="middle" fontSize="18" fontWeight="700" fill="white">Saga</text>
-        <text x="350" y="85" textAnchor="middle" fontSize="18" fontWeight="700" fill="white">Orchestrator</text>
-
-        <line x1="200" y1="110" x2="150" y2="170" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowSaga1)"/>
-        <line x1="350" y1="110" x2="350" y2="170" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowSaga1)"/>
-        <line x1="500" y1="110" x2="550" y2="170" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowSaga1)"/>
-
-        <text x="180" y="145" textAnchor="middle" fontSize="12" fontWeight="700" fill="#10b981">1. Create</text>
-        <text x="350" y="145" textAnchor="middle" fontSize="12" fontWeight="700" fill="#10b981">2. Reserve</text>
-        <text x="520" y="145" textAnchor="middle" fontSize="12" fontWeight="700" fill="#10b981">3. Charge</text>
-
-        <rect x="70" y="170" width="160" height="80" rx="8" fill="#10b981" stroke="#059669" strokeWidth="2"/>
-        <text x="150" y="200" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Order</text>
-        <text x="150" y="220" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Service</text>
-
-        <rect x="270" y="170" width="160" height="80" rx="8" fill="#10b981" stroke="#059669" strokeWidth="2"/>
-        <text x="350" y="200" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Inventory</text>
-        <text x="350" y="220" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Service</text>
-
-        <rect x="470" y="170" width="160" height="80" rx="8" fill="#10b981" stroke="#059669" strokeWidth="2"/>
-        <text x="550" y="200" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Payment</text>
-        <text x="550" y="220" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Service</text>
-
-        <line x1="150" y1="250" x2="150" y2="310" stroke="#ef4444" strokeWidth="3" strokeDasharray="5,5" markerEnd="url(#arrowSaga2)"/>
-        <line x1="350" y1="250" x2="350" y2="310" stroke="#ef4444" strokeWidth="3" strokeDasharray="5,5" markerEnd="url(#arrowSaga2)"/>
-        <line x1="550" y1="250" x2="550" y2="310" stroke="#ef4444" strokeWidth="3" strokeDasharray="5,5" markerEnd="url(#arrowSaga2)"/>
-
-        <text x="350" y="285" textAnchor="middle" fontSize="14" fontWeight="700" fill="#ef4444">On Failure: Compensate</text>
-
-        <rect x="70" y="310" width="160" height="80" rx="8" fill="#ef4444" stroke="#dc2626" strokeWidth="2"/>
-        <text x="150" y="340" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Cancel</text>
-        <text x="150" y="360" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Order</text>
-
-        <rect x="270" y="310" width="160" height="80" rx="8" fill="#ef4444" stroke="#dc2626" strokeWidth="2"/>
-        <text x="350" y="340" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Release</text>
-        <text x="350" y="360" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Inventory</text>
-
-        <rect x="470" y="310" width="160" height="80" rx="8" fill="#ef4444" stroke="#dc2626" strokeWidth="2"/>
-        <text x="550" y="340" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Refund</text>
-        <text x="550" y="360" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Payment</text>
-
-        <defs>
-          <marker id="arrowSaga1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-          </marker>
-          <marker id="arrowSaga2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/>
-          </marker>
-        </defs>
-      </svg>
-    ),
-
-    'CQRS': (
-      <svg width="700" height="400" viewBox="0 0 700 400" style={{ maxWidth: '100%', height: 'auto' }}>
-        <rect x="50" y="150" width="140" height="80" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="3"/>
-        <text x="120" y="185" textAnchor="middle" fontSize="18" fontWeight="700" fill="white">Client</text>
-
-        <line x1="190" y1="170" x2="260" y2="110" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowCQRS1)"/>
-        <text x="225" y="135" textAnchor="middle" fontSize="13" fontWeight="700" fill="#3b82f6">Commands</text>
-
-        <line x1="190" y1="210" x2="260" y2="270" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowCQRS2)"/>
-        <text x="225" y="250" textAnchor="middle" fontSize="13" fontWeight="700" fill="#10b981">Queries</text>
-
-        <rect x="260" y="70" width="180" height="80" rx="8" fill="#8b5cf6" stroke="#7c3aed" strokeWidth="3"/>
-        <text x="350" y="100" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Command Model</text>
-        <text x="350" y="125" textAnchor="middle" fontSize="13" fill="white">Write Operations</text>
-
-        <rect x="260" y="230" width="180" height="80" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-        <text x="350" y="260" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Query Model</text>
-        <text x="350" y="285" textAnchor="middle" fontSize="13" fill="white">Read Operations</text>
-
-        <line x1="440" y1="110" x2="510" y2="110" stroke="#64748b" strokeWidth="3" markerEnd="url(#arrowCQRS3)"/>
-        <line x1="440" y1="270" x2="510" y2="270" stroke="#64748b" strokeWidth="3" markerEnd="url(#arrowCQRS3)"/>
-
-        <rect x="510" y="70" width="140" height="80" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-        <text x="580" y="100" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Write DB</text>
-        <text x="580" y="120" textAnchor="middle" fontSize="13" fill="white">(Normalized)</text>
-
-        <rect x="510" y="230" width="140" height="80" rx="8" fill="#14b8a6" stroke="#0d9488" strokeWidth="2"/>
-        <text x="580" y="260" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Read DB</text>
-        <text x="580" y="280" textAnchor="middle" fontSize="13" fill="white">(Denormalized)</text>
-
-        <path d="M 580 150 L 580 230" fill="none" stroke="#3b82f6" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowCQRS4)"/>
-        <text x="620" y="195" textAnchor="middle" fontSize="13" fontWeight="700" fill="#3b82f6">Events</text>
-
-        <defs>
-          <marker id="arrowCQRS1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-          </marker>
-          <marker id="arrowCQRS2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-          </marker>
-          <marker id="arrowCQRS3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
-          </marker>
-          <marker id="arrowCQRS4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-          </marker>
-        </defs>
-      </svg>
-    ),
-
-    'Event Sourcing': (
-      <svg width="700" height="450" viewBox="0 0 700 450" style={{ maxWidth: '100%', height: 'auto' }}>
-        <rect x="50" y="40" width="140" height="80" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="3"/>
-        <text x="120" y="75" textAnchor="middle" fontSize="18" fontWeight="700" fill="white">Command</text>
-
-        <line x1="190" y1="80" x2="260" y2="80" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowES1)"/>
-
-        <rect x="260" y="40" width="180" height="80" rx="8" fill="#8b5cf6" stroke="#7c3aed" strokeWidth="3"/>
-        <text x="350" y="70" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Aggregate</text>
-        <text x="350" y="95" textAnchor="middle" fontSize="13" fill="white">Business Logic</text>
-
-        <line x1="350" y1="120" x2="350" y2="180" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowES2)"/>
-        <text x="380" y="155" textAnchor="middle" fontSize="13" fontWeight="700" fill="#10b981">emits</text>
-
-        <rect x="260" y="180" width="180" height="140" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-        <text x="350" y="210" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Event Store</text>
-        <text x="350" y="235" textAnchor="middle" fontSize="13" fill="white">Event 1: OrderCreated</text>
-        <text x="350" y="255" textAnchor="middle" fontSize="13" fill="white">Event 2: ItemAdded</text>
-        <text x="350" y="275" textAnchor="middle" fontSize="13" fill="white">Event 3: OrderPaid</text>
-        <text x="350" y="295" textAnchor="middle" fontSize="13" fill="white">Event 4: OrderShipped</text>
-
-        <line x1="440" y1="250" x2="510" y2="250" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowES3)"/>
-        <text x="475" y="240" textAnchor="middle" fontSize="13" fontWeight="700" fill="#f59e0b">replay</text>
-
-        <rect x="510" y="210" width="140" height="80" rx="8" fill="#ef4444" stroke="#dc2626" strokeWidth="2"/>
-        <text x="580" y="240" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Current State</text>
-        <text x="580" y="260" textAnchor="middle" fontSize="13" fill="white">Rebuilt from</text>
-        <text x="580" y="275" textAnchor="middle" fontSize="13" fill="white">events</text>
-
-        <line x1="350" y1="320" x2="350" y2="370" stroke="#14b8a6" strokeWidth="3" markerEnd="url(#arrowES4)"/>
-        <text x="380" y="350" textAnchor="middle" fontSize="13" fontWeight="700" fill="#14b8a6">projects</text>
-
-        <rect x="260" y="370" width="180" height="60" rx="8" fill="#14b8a6" stroke="#0d9488" strokeWidth="2"/>
-        <text x="350" y="400" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Read Models</text>
-        <text x="350" y="418" textAnchor="middle" fontSize="13" fill="white">Projections</text>
-
-        <defs>
-          <marker id="arrowES1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-          </marker>
-          <marker id="arrowES2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-          </marker>
-          <marker id="arrowES3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/>
-          </marker>
-          <marker id="arrowES4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#14b8a6"/>
-          </marker>
-        </defs>
-      </svg>
-    ),
-
-    'Service Discovery': (
-      <svg width="700" height="450" viewBox="0 0 700 450" style={{ maxWidth: '100%', height: 'auto' }}>
-        <rect x="250" y="30" width="200" height="100" rx="8" fill="#8b5cf6" stroke="#7c3aed" strokeWidth="3"/>
-        <text x="350" y="60" textAnchor="middle" fontSize="18" fontWeight="700" fill="white">Service Registry</text>
-        <text x="350" y="85" textAnchor="middle" fontSize="13" fill="white">(Consul, Eureka)</text>
-        <text x="350" y="105" textAnchor="middle" fontSize="13" fill="white">Service Locations</text>
-
-        <line x1="200" y1="130" x2="150" y2="200" stroke="#10b981" strokeWidth="3" strokeDasharray="5,5" markerEnd="url(#arrowSD1)"/>
-        <text x="170" y="170" textAnchor="middle" fontSize="12" fontWeight="700" fill="#10b981">register</text>
-
-        <line x1="500" y1="130" x2="550" y2="200" stroke="#10b981" strokeWidth="3" strokeDasharray="5,5" markerEnd="url(#arrowSD1)"/>
-        <text x="530" y="170" textAnchor="middle" fontSize="12" fontWeight="700" fill="#10b981">register</text>
-
-        <line x1="120" y1="80" x2="260" y2="80" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowSD2)"/>
-        <text x="190" y="70" textAnchor="middle" fontSize="12" fontWeight="700" fill="#3b82f6">lookup</text>
-
-        <rect x="20" y="40" width="100" height="80" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-        <text x="70" y="75" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Client</text>
-
-        <rect x="70" y="200" width="160" height="80" rx="8" fill="#10b981" stroke="#059669" strokeWidth="2"/>
-        <text x="150" y="230" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Service A</text>
-        <text x="150" y="250" textAnchor="middle" fontSize="12" fill="white">instance-1</text>
-
-        <rect x="270" y="200" width="160" height="80" rx="8" fill="#10b981" stroke="#059669" strokeWidth="2"/>
-        <text x="350" y="230" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Service A</text>
-        <text x="350" y="250" textAnchor="middle" fontSize="12" fill="white">instance-2</text>
-
-        <rect x="470" y="200" width="160" height="80" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-        <text x="550" y="230" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Service B</text>
-        <text x="550" y="250" textAnchor="middle" fontSize="12" fill="white">instance-1</text>
-
-        <line x1="70" y1="120" x2="150" y2="200" stroke="#ef4444" strokeWidth="3" markerEnd="url(#arrowSD3)"/>
-        <text x="100" y="165" textAnchor="middle" fontSize="12" fontWeight="700" fill="#ef4444">call</text>
-
-        <rect x="250" y="330" width="200" height="90" rx="8" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="2" strokeDasharray="5,5"/>
-        <text x="350" y="360" textAnchor="middle" fontSize="14" fontWeight="700" fill="#64748b">Health Checks</text>
-        <text x="350" y="380" textAnchor="middle" fontSize="12" fill="#64748b">Heartbeat monitoring</text>
-        <text x="350" y="400" textAnchor="middle" fontSize="12" fill="#64748b">Auto deregistration</text>
-
-        <defs>
-          <marker id="arrowSD1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-          </marker>
-          <marker id="arrowSD2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-          </marker>
-          <marker id="arrowSD3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/>
-          </marker>
-        </defs>
-      </svg>
-    ),
-
-    'Config Server': (
-      <svg width="700" height="400" viewBox="0 0 700 400" style={{ maxWidth: '100%', height: 'auto' }}>
-        <rect x="50" y="40" width="140" height="80" rx="8" fill="#8b5cf6" stroke="#7c3aed" strokeWidth="3"/>
-        <text x="120" y="70" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Git Repository</text>
-        <text x="120" y="95" textAnchor="middle" fontSize="13" fill="white">Config Files</text>
-
-        <line x1="190" y1="80" x2="260" y2="80" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowConfig1)"/>
-        <text x="225" y="70" textAnchor="middle" fontSize="12" fontWeight="700" fill="#3b82f6">reads</text>
-
-        <rect x="260" y="40" width="180" height="80" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-        <text x="350" y="70" textAnchor="middle" fontSize="18" fontWeight="700" fill="white">Config Server</text>
-        <text x="350" y="95" textAnchor="middle" fontSize="13" fill="white">Centralized Config</text>
-
-        <line x1="350" y1="120" x2="200" y2="200" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowConfig2)"/>
-        <line x1="350" y1="120" x2="350" y2="200" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowConfig2)"/>
-        <line x1="350" y1="120" x2="500" y2="200" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowConfig2)"/>
-
-        <text x="350" y="165" textAnchor="middle" fontSize="13" fontWeight="700" fill="#f59e0b">distributes config</text>
-
-        <rect x="100" y="200" width="200" height="80" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-        <text x="200" y="230" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Service A</text>
-        <text x="200" y="255" textAnchor="middle" fontSize="13" fill="white">dev config</text>
-
-        <rect x="250" y="200" width="200" height="80" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-        <text x="350" y="230" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Service B</text>
-        <text x="350" y="255" textAnchor="middle" fontSize="13" fill="white">dev config</text>
-
-        <rect x="400" y="200" width="200" height="80" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-        <text x="500" y="230" textAnchor="middle" fontSize="15" fontWeight="700" fill="white">Service C</text>
-        <text x="500" y="255" textAnchor="middle" fontSize="13" fill="white">prod config</text>
-
-        <rect x="470" y="40" width="180" height="80" rx="8" fill="#ef4444" stroke="#dc2626" strokeWidth="2"/>
-        <text x="560" y="70" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Vault</text>
-        <text x="560" y="95" textAnchor="middle" fontSize="13" fill="white">Secrets Storage</text>
-
-        <line x1="440" y1="80" x2="470" y2="80" stroke="#64748b" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowConfig3)"/>
-        <text x="455" y="70" textAnchor="middle" fontSize="12" fontWeight="700" fill="#64748b">fetches</text>
-
-        <defs>
-          <marker id="arrowConfig1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-          </marker>
-          <marker id="arrowConfig2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/>
-          </marker>
-          <marker id="arrowConfig3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
-          </marker>
-        </defs>
-      </svg>
-    ),
-
-    'Sidecar': (
-      <svg width="700" height="400" viewBox="0 0 700 400" style={{ maxWidth: '100%', height: 'auto' }}>
-        <rect x="100" y="80" width="500" height="240" rx="12" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="3" strokeDasharray="10,5"/>
-        <text x="350" y="60" textAnchor="middle" fontSize="16" fontWeight="700" fill="#64748b">Pod / Container Group</text>
-
-        <rect x="140" y="120" width="180" height="160" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="3"/>
-        <text x="230" y="150" textAnchor="middle" fontSize="18" fontWeight="700" fill="white">Main Application</text>
-        <text x="230" y="180" textAnchor="middle" fontSize="13" fill="white">Business Logic</text>
-        <text x="230" y="200" textAnchor="middle" fontSize="13" fill="white">Core Service</text>
-        <text x="230" y="220" textAnchor="middle" fontSize="13" fill="white">Port: 8080</text>
-
-        <rect x="380" y="120" width="180" height="160" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-        <text x="470" y="150" textAnchor="middle" fontSize="18" fontWeight="700" fill="white">Sidecar Proxy</text>
-        <text x="470" y="180" textAnchor="middle" fontSize="13" fill="white">- Logging</text>
-        <text x="470" y="200" textAnchor="middle" fontSize="13" fill="white">- Monitoring</text>
-        <text x="470" y="220" textAnchor="middle" fontSize="13" fill="white">- Security</text>
-        <text x="470" y="240" textAnchor="middle" fontSize="13" fill="white">- Service Mesh</text>
-
-        <line x1="320" y1="200" x2="380" y2="200" stroke="#3b82f6" strokeWidth="3" strokeDasharray="5,5"/>
-        <text x="350" y="190" textAnchor="middle" fontSize="12" fontWeight="700" fill="#3b82f6">localhost</text>
-
-        <line x1="50" y1="200" x2="140" y2="200" stroke="#ef4444" strokeWidth="3" markerEnd="url(#arrowSidecar1)"/>
-        <text x="95" y="190" textAnchor="middle" fontSize="12" fontWeight="700" fill="#ef4444">External</text>
-
-        <line x1="560" y1="200" x2="650" y2="200" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowSidecar2)"/>
-        <text x="605" y="190" textAnchor="middle" fontSize="12" fontWeight="700" fill="#f59e0b">Outbound</text>
-
-        <text x="350" y="350" textAnchor="middle" fontSize="14" fontWeight="600" fill="#64748b">Shared lifecycle, network namespace</text>
-
-        <defs>
-          <marker id="arrowSidecar1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/>
-          </marker>
-          <marker id="arrowSidecar2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/>
-          </marker>
-        </defs>
-      </svg>
-    )
+// Simple syntax highlighter for Java code
+const SyntaxHighlighter = ({ code }) => {
+  const highlightJava = (code) => {
+    let highlighted = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+
+    // Store protected content with placeholders
+    const protectedContent = []
+    let placeholder = 0
+
+    // Protect comments first
+    highlighted = highlighted.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
+      const id = `___COMMENT_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
+      return id
+    })
+
+    // Protect strings
+    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
+      const id = `___STRING_${placeholder++}___`
+      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
+      return id
+    })
+
+    // Apply syntax highlighting to remaining code
+    highlighted = highlighted
+      // Keywords - purple
+      .replace(/\b(public|private|protected|static|final|class|interface|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|import|package|void|abstract|synchronized|volatile|transient|native|strictfp|super|this|null)\b/g, '<span style="color: #c586c0;">$1</span>')
+
+      // Boolean and primitives - blue
+      .replace(/\b(true|false|int|double|float|long|short|byte|char|boolean)\b/g, '<span style="color: #569cd6;">$1</span>')
+
+      // Types and classes - light green
+      .replace(/\b(String|List|ArrayList|LinkedList|HashMap|TreeMap|HashSet|TreeSet|Map|Set|Queue|Deque|Collection|Arrays|Collections|Thread|Runnable|Executor|ExecutorService|CompletableFuture|Stream|Optional|Path|Files|Pattern|Matcher|StringBuilder|StringBuffer|Integer|Double|Float|Long|Short|Byte|Character|Boolean|Object|System|Math|Scanner|BufferedReader|FileReader|FileWriter|PrintWriter|InputStream|OutputStream|Exception|RuntimeException|IOException|SQLException|WeakReference|SoftReference|PhantomReference|ReferenceQueue)\b/g, '<span style="color: #4ec9b0;">$1</span>')
+
+      // Annotations - yellow
+      .replace(/(@\w+)/g, '<span style="color: #dcdcaa;">$1</span>')
+
+      // Numbers - light green
+      .replace(/\b(\d+\.?\d*[fLdD]?)\b/g, '<span style="color: #b5cea8;">$1</span>')
+
+      // Method calls - yellow
+      .replace(/\b([a-z_]\w*)\s*\(/g, '<span style="color: #dcdcaa;">$1</span>(')
+
+    // Restore protected content
+    protectedContent.forEach(({ id, replacement }) => {
+      highlighted = highlighted.replace(id, replacement)
+    })
+
+    return highlighted
   }
-
-  return diagrams[patternName] || null
-}
-
-// Detail Diagram component for individual feature details
-const DetailDiagram = ({ patternName, featureName }) => {
-  const diagrams = {
-    'API Gateway Pattern': {
-      'Single Entry Point': (
-        <svg width="650" height="350" viewBox="0 0 650 350" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="50" y="30" width="100" height="70" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="100" y="60" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Mobile</text>
-          <text x="100" y="78" textAnchor="middle" fontSize="12" fill="white">Client</text>
-
-          <rect x="50" y="140" width="100" height="70" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="100" y="170" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Web</text>
-          <text x="100" y="188" textAnchor="middle" fontSize="12" fill="white">Client</text>
-
-          <rect x="50" y="250" width="100" height="70" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="100" y="280" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">IoT</text>
-          <text x="100" y="298" textAnchor="middle" fontSize="12" fill="white">Device</text>
-
-          <line x1="150" y1="65" x2="240" y2="175" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowDetail1)"/>
-          <line x1="150" y1="175" x2="240" y2="175" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowDetail1)"/>
-          <line x1="150" y1="285" x2="240" y2="175" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowDetail1)"/>
-
-          <rect x="240" y="140" width="140" height="70" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-          <text x="310" y="170" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">API Gateway</text>
-          <text x="310" y="190" textAnchor="middle" fontSize="12" fill="white">Single Entry</text>
-
-          <line x1="380" y1="155" x2="460" y2="80" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrowDetail2)"/>
-          <line x1="380" y1="175" x2="460" y2="175" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrowDetail2)"/>
-          <line x1="380" y1="195" x2="460" y2="270" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrowDetail2)"/>
-
-          <rect x="460" y="50" width="140" height="60" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-          <text x="530" y="78" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">User Service</text>
-          <text x="530" y="94" textAnchor="middle" fontSize="11" fill="white">:8081</text>
-
-          <rect x="460" y="145" width="140" height="60" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-          <text x="530" y="173" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Order Service</text>
-          <text x="530" y="189" textAnchor="middle" fontSize="11" fill="white">:8082</text>
-
-          <rect x="460" y="240" width="140" height="60" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-          <text x="530" y="268" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Payment Service</text>
-          <text x="530" y="284" textAnchor="middle" fontSize="11" fill="white">:8083</text>
-
-          <defs>
-            <marker id="arrowDetail1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-            <marker id="arrowDetail2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
-            </marker>
-          </defs>
-        </svg>
-      ),
-      'Request Routing': (
-        <svg width="650" height="380" viewBox="0 0 650 380" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="30" y="170" width="100" height="60" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="80" y="195" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Client</text>
-          <text x="80" y="213" textAnchor="middle" fontSize="11" fill="white">Request</text>
-
-          <line x1="130" y1="200" x2="200" y2="200" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowRoute1)"/>
-
-          <rect x="200" y="150" width="160" height="100" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-          <text x="280" y="180" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Gateway Router</text>
-          <text x="280" y="202" textAnchor="middle" fontSize="11" fill="white">/users/* → User</text>
-          <text x="280" y="218" textAnchor="middle" fontSize="11" fill="white">/orders/* → Order</text>
-          <text x="280" y="234" textAnchor="middle" fontSize="11" fill="white">/payments/* → Pay</text>
-
-          <line x1="360" y1="170" x2="440" y2="80" stroke="#ef4444" strokeWidth="3" markerEnd="url(#arrowRoute2)"/>
-          <text x="400" y="120" textAnchor="middle" fontSize="12" fontWeight="700" fill="#ef4444">/users/*</text>
-
-          <line x1="360" y1="200" x2="440" y2="200" stroke="#8b5cf6" strokeWidth="3" markerEnd="url(#arrowRoute3)"/>
-          <text x="400" y="190" textAnchor="middle" fontSize="12" fontWeight="700" fill="#8b5cf6">/orders/*</text>
-
-          <line x1="360" y1="230" x2="440" y2="320" stroke="#14b8a6" strokeWidth="3" markerEnd="url(#arrowRoute4)"/>
-          <text x="400" y="280" textAnchor="middle" fontSize="12" fontWeight="700" fill="#14b8a6">/payments/*</text>
-
-          <rect x="440" y="50" width="140" height="60" rx="8" fill="#ef4444" stroke="#dc2626" strokeWidth="2"/>
-          <text x="510" y="78" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">User Service</text>
-          <text x="510" y="94" textAnchor="middle" fontSize="11" fill="white">10.0.1.5:8081</text>
-
-          <rect x="440" y="170" width="140" height="60" rx="8" fill="#8b5cf6" stroke="#7c3aed" strokeWidth="2"/>
-          <text x="510" y="198" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Order Service</text>
-          <text x="510" y="214" textAnchor="middle" fontSize="11" fill="white">10.0.1.6:8082</text>
-
-          <rect x="440" y="290" width="140" height="60" rx="8" fill="#14b8a6" stroke="#0d9488" strokeWidth="2"/>
-          <text x="510" y="318" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Payment Service</text>
-          <text x="510" y="334" textAnchor="middle" fontSize="11" fill="white">10.0.1.7:8083</text>
-
-          <defs>
-            <marker id="arrowRoute1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-            <marker id="arrowRoute2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/>
-            </marker>
-            <marker id="arrowRoute3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#8b5cf6"/>
-            </marker>
-            <marker id="arrowRoute4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#14b8a6"/>
-            </marker>
-          </defs>
-        </svg>
-      ),
-      'Authentication & Authorization': (
-        <svg width="650" height="400" viewBox="0 0 650 400" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="30" y="180" width="100" height="60" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="80" y="205" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Client</text>
-          <text x="80" y="223" textAnchor="middle" fontSize="11" fill="white">+ JWT Token</text>
-
-          <line x1="130" y1="210" x2="200" y2="210" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowAuth1)"/>
-          <text x="165" y="200" textAnchor="middle" fontSize="11" fontWeight="700" fill="#3b82f6">Request</text>
-
-          <rect x="200" y="160" width="180" height="100" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-          <text x="290" y="190" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">API Gateway</text>
-          <text x="290" y="210" textAnchor="middle" fontSize="11" fill="white">1. Validate JWT</text>
-          <text x="290" y="226" textAnchor="middle" fontSize="11" fill="white">2. Check Permissions</text>
-          <text x="290" y="242" textAnchor="middle" fontSize="11" fill="white">3. Forward Request</text>
-
-          <line x1="290" y1="160" x2="290" y2="80" stroke="#8b5cf6" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowAuth2)"/>
-          <text x="330" y="115" textAnchor="middle" fontSize="11" fontWeight="700" fill="#8b5cf6">validate</text>
-
-          <rect x="220" y="30" width="140" height="50" rx="8" fill="#8b5cf6" stroke="#7c3aed" strokeWidth="2"/>
-          <text x="290" y="54" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Auth Service</text>
-          <text x="290" y="70" textAnchor="middle" fontSize="11" fill="white">OAuth2/JWT</text>
-
-          <line x1="380" y1="210" x2="450" y2="210" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowAuth3)"/>
-          <text x="415" y="200" textAnchor="middle" fontSize="11" fontWeight="700" fill="#10b981">Authorized</text>
-
-          <rect x="450" y="180" width="140" height="60" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-          <text x="520" y="205" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Backend</text>
-          <text x="520" y="223" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Service</text>
-
-          <line x1="290" y1="260" x2="290" y2="320" stroke="#ef4444" strokeWidth="3" strokeDasharray="5,5" markerEnd="url(#arrowAuth4)"/>
-          <text x="340" y="295" textAnchor="middle" fontSize="11" fontWeight="700" fill="#ef4444">if invalid</text>
-
-          <rect x="220" y="320" width="140" height="50" rx="8" fill="#ef4444" stroke="#dc2626" strokeWidth="2"/>
-          <text x="290" y="344" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">401 Unauthorized</text>
-          <text x="290" y="360" textAnchor="middle" fontSize="11" fill="white">Access Denied</text>
-
-          <defs>
-            <marker id="arrowAuth1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-            <marker id="arrowAuth2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#8b5cf6"/>
-            </marker>
-            <marker id="arrowAuth3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-            </marker>
-            <marker id="arrowAuth4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/>
-            </marker>
-          </defs>
-        </svg>
-      )
-    },
-    'Circuit Breaker Pattern': {
-      'Failure Detection': (
-        <svg width="650" height="350" viewBox="0 0 650 350" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="50" y="140" width="120" height="80" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="110" y="175" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Service A</text>
-          <text x="110" y="193" textAnchor="middle" fontSize="11" fill="white">Calling</text>
-
-          <line x1="170" y1="180" x2="240" y2="180" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowFail1)"/>
-          <text x="205" y="170" textAnchor="middle" fontSize="11" fontWeight="700" fill="#3b82f6">requests</text>
-
-          <rect x="240" y="120" width="160" height="120" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-          <text x="320" y="150" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Circuit Breaker</text>
-          <text x="320" y="175" textAnchor="middle" fontSize="11" fill="white">Success: 45</text>
-          <text x="320" y="193" textAnchor="middle" fontSize="11" fill="white">Failures: 8</text>
-          <text x="320" y="211" textAnchor="middle" fontSize="11" fontWeight="700" fill="#ef4444">Rate: 15%</text>
-          <text x="320" y="228" textAnchor="middle" fontSize="10" fill="white">Threshold: 50%</text>
-
-          <line x1="400" y1="160" x2="470" y2="120" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowFail2)"/>
-          <text x="435" y="135" textAnchor="middle" fontSize="11" fontWeight="700" fill="#10b981">pass</text>
-
-          <line x1="400" y1="200" x2="470" y2="240" stroke="#ef4444" strokeWidth="3" strokeDasharray="5,5" markerEnd="url(#arrowFail3)"/>
-          <text x="435" y="225" textAnchor="middle" fontSize="11" fontWeight="700" fill="#ef4444">failures</text>
-
-          <rect x="470" y="90" width="120" height="60" rx="8" fill="#10b981" stroke="#059669" strokeWidth="2"/>
-          <text x="530" y="115" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Service B</text>
-          <text x="530" y="133" textAnchor="middle" fontSize="11" fill="white">✓ Healthy</text>
-
-          <rect x="470" y="210" width="120" height="60" rx="8" fill="#ef4444" stroke="#dc2626" strokeWidth="2"/>
-          <text x="530" y="235" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Failure</text>
-          <text x="530" y="253" textAnchor="middle" fontSize="11" fill="white">Timeout/Error</text>
-
-          <rect x="240" y="280" width="160" height="50" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-          <text x="320" y="302" textAnchor="middle" fontSize="12" fontWeight="700" fill="white">Monitoring Window</text>
-          <text x="320" y="318" textAnchor="middle" fontSize="10" fill="white">Last 60 seconds</text>
-
-          <defs>
-            <marker id="arrowFail1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-            <marker id="arrowFail2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-            </marker>
-            <marker id="arrowFail3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/>
-            </marker>
-          </defs>
-        </svg>
-      ),
-      'Circuit States': (
-        <svg width="650" height="380" viewBox="0 0 650 380" style={{ maxWidth: '100%', height: 'auto' }}>
-          <ellipse cx="140" cy="100" rx="90" ry="60" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-          <text x="140" y="95" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">CLOSED</text>
-          <text x="140" y="115" textAnchor="middle" fontSize="12" fill="white">Normal Flow</text>
-
-          <rect x="90" y="140" width="100" height="35" rx="6" fill="rgba(255,255,255,0.2)" stroke="white" strokeWidth="1"/>
-          <text x="140" y="160" textAnchor="middle" fontSize="10" fontWeight="700" fill="white">Success: 95%</text>
-
-          <ellipse cx="510" cy="100" rx="90" ry="60" fill="#ef4444" stroke="#dc2626" strokeWidth="3"/>
-          <text x="510" y="95" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">OPEN</text>
-          <text x="510" y="115" textAnchor="middle" fontSize="12" fill="white">Fail Fast</text>
-
-          <rect x="460" y="140" width="100" height="35" rx="6" fill="rgba(255,255,255,0.2)" stroke="white" strokeWidth="1"/>
-          <text x="510" y="160" textAnchor="middle" fontSize="10" fontWeight="700" fill="white">Failures: 60%</text>
-
-          <ellipse cx="325" cy="280" rx="100" ry="60" fill="#f59e0b" stroke="#d97706" strokeWidth="3"/>
-          <text x="325" y="275" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">HALF-OPEN</text>
-          <text x="325" y="295" textAnchor="middle" fontSize="12" fill="white">Testing</text>
-
-          <rect x="270" y="320" width="110" height="35" rx="6" fill="rgba(255,255,255,0.2)" stroke="white" strokeWidth="1"/>
-          <text x="325" y="340" textAnchor="middle" fontSize="10" fontWeight="700" fill="white">Trial Requests</text>
-
-          <path d="M 220 110 L 430 110" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowState1)"/>
-          <text x="325" y="100" textAnchor="middle" fontSize="11" fontWeight="700" fill="#3b82f6">Threshold</text>
-          <text x="325" y="130" textAnchor="middle" fontSize="10" fill="#64748b">errors &gt; 50%</text>
-
-          <path d="M 450 155 Q 400 220 380 260" stroke="#8b5cf6" strokeWidth="3" markerEnd="url(#arrowState2)"/>
-          <text x="440" y="210" textAnchor="middle" fontSize="11" fontWeight="700" fill="#8b5cf6">Timeout</text>
-          <text x="440" y="225" textAnchor="middle" fontSize="10" fill="#64748b">30s elapsed</text>
-
-          <path d="M 270 260 Q 220 220 200 155" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowState3)"/>
-          <text x="210" y="210" textAnchor="middle" fontSize="11" fontWeight="700" fill="#10b981">Success</text>
-          <text x="210" y="225" textAnchor="middle" fontSize="10" fill="#64748b">tests pass</text>
-
-          <path d="M 380 250 L 430 130" stroke="#ef4444" strokeWidth="3" strokeDasharray="5,5" markerEnd="url(#arrowState4)"/>
-          <text x="435" y="190" textAnchor="middle" fontSize="11" fontWeight="700" fill="#ef4444">Fail</text>
-          <text x="435" y="205" textAnchor="middle" fontSize="10" fill="#64748b">tests fail</text>
-
-          <defs>
-            <marker id="arrowState1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-            <marker id="arrowState2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#8b5cf6"/>
-            </marker>
-            <marker id="arrowState3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-            </marker>
-            <marker id="arrowState4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/>
-            </marker>
-          </defs>
-        </svg>
-      ),
-      'Fallback Mechanisms': (
-        <svg width="650" height="350" viewBox="0 0 650 350" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="30" y="140" width="100" height="60" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="80" y="165" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Client</text>
-          <text x="80" y="183" textAnchor="middle" fontSize="11" fill="white">Request</text>
-
-          <line x1="130" y1="170" x2="200" y2="170" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowFallback1)"/>
-
-          <rect x="200" y="130" width="140" height="80" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-          <text x="270" y="160" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Circuit Breaker</text>
-          <text x="270" y="178" textAnchor="middle" fontSize="11" fill="white">State: OPEN</text>
-          <text x="270" y="194" textAnchor="middle" fontSize="10" fontWeight="700" fill="#ef4444">Circuit Tripped!</text>
-
-          <line x1="340" y1="150" x2="420" y2="90" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowFallback2)"/>
-          <text x="380" y="115" textAnchor="middle" fontSize="11" fontWeight="700" fill="#10b981">Primary</text>
-          <text x="380" y="130" textAnchor="middle" fontSize="10" fill="#64748b">(blocked)</text>
-
-          <line x1="340" y1="190" x2="420" y2="250" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowFallback3)"/>
-          <text x="380" y="215" textAnchor="middle" fontSize="11" fontWeight="700" fill="#f59e0b">Fallback</text>
-          <text x="380" y="230" textAnchor="middle" fontSize="10" fill="#64748b">(active)</text>
-
-          <rect x="420" y="60" width="160" height="60" rx="8" fill="#64748b" stroke="#475569" strokeWidth="2" opacity="0.5"/>
-          <text x="500" y="85" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Primary Service</text>
-          <text x="500" y="103" textAnchor="middle" fontSize="11" fill="white">✗ Unavailable</text>
-
-          <rect x="420" y="220" width="160" height="80" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="3"/>
-          <text x="500" y="245" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Fallback Strategy</text>
-          <text x="500" y="263" textAnchor="middle" fontSize="11" fill="white">• Cached Data</text>
-          <text x="500" y="278" textAnchor="middle" fontSize="11" fill="white">• Default Response</text>
-          <text x="500" y="293" textAnchor="middle" fontSize="11" fill="white">• Degraded Mode</text>
-
-          <defs>
-            <marker id="arrowFallback1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-            <marker id="arrowFallback2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-            </marker>
-            <marker id="arrowFallback3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/>
-            </marker>
-          </defs>
-        </svg>
-      )
-    },
-    'Service Discovery Pattern': {
-      'Service Registry': (
-        <svg width="650" height="380" viewBox="0 0 650 380" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="220" y="30" width="200" height="120" rx="8" fill="#8b5cf6" stroke="#7c3aed" strokeWidth="3"/>
-          <text x="320" y="60" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Service Registry</text>
-          <text x="320" y="80" textAnchor="middle" fontSize="12" fill="white">Consul / Eureka</text>
-          <rect x="240" y="95" width="160" height="45" rx="6" fill="rgba(255,255,255,0.2)" stroke="white" strokeWidth="1"/>
-          <text x="320" y="112" textAnchor="middle" fontSize="10" fill="white">UserService: 10.0.1.5:8081</text>
-          <text x="320" y="126" textAnchor="middle" fontSize="10" fill="white">OrderService: 10.0.1.6:8082</text>
-          <text x="320" y="140" textAnchor="middle" fontSize="10" fill="white">PaymentService: 10.0.1.7:8083</text>
-
-          <line x1="220" y1="180" x2="140" y2="250" stroke="#10b981" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowRegistry1)"/>
-          <text x="165" y="210" textAnchor="middle" fontSize="11" fontWeight="700" fill="#10b981">register</text>
-
-          <line x1="320" y1="150" x2="320" y2="250" stroke="#10b981" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowRegistry1)"/>
-          <text x="350" y="200" textAnchor="middle" fontSize="11" fontWeight="700" fill="#10b981">register</text>
-
-          <line x1="420" y1="180" x2="500" y2="250" stroke="#10b981" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowRegistry1)"/>
-          <text x="475" y="210" textAnchor="middle" fontSize="11" fontWeight="700" fill="#10b981">register</text>
-
-          <rect x="60" y="250" width="160" height="70" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="140" y="278" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">User Service</text>
-          <text x="140" y="296" textAnchor="middle" fontSize="11" fill="white">10.0.1.5:8081</text>
-          <text x="140" y="310" textAnchor="middle" fontSize="10" fill="white">Status: UP</text>
-
-          <rect x="240" y="250" width="160" height="70" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="320" y="278" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Order Service</text>
-          <text x="320" y="296" textAnchor="middle" fontSize="11" fill="white">10.0.1.6:8082</text>
-          <text x="320" y="310" textAnchor="middle" fontSize="10" fill="white">Status: UP</text>
-
-          <rect x="420" y="250" width="160" height="70" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="500" y="278" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Payment Service</text>
-          <text x="500" y="296" textAnchor="middle" fontSize="11" fill="white">10.0.1.7:8083</text>
-          <text x="500" y="310" textAnchor="middle" fontSize="10" fill="white">Status: UP</text>
-
-          <defs>
-            <marker id="arrowRegistry1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-            </marker>
-          </defs>
-        </svg>
-      ),
-      'Client-Side Discovery': (
-        <svg width="650" height="350" viewBox="0 0 650 350" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="30" y="140" width="100" height="60" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="80" y="165" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Client</text>
-          <text x="80" y="183" textAnchor="middle" fontSize="11" fill="white">Smart Client</text>
-
-          <line x1="130" y1="150" x2="220" y2="90" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowClient1)"/>
-          <text x="175" y="115" textAnchor="middle" fontSize="11" fontWeight="700" fill="#3b82f6">1. Query</text>
-
-          <rect x="220" y="60" width="160" height="60" rx="8" fill="#8b5cf6" stroke="#7c3aed" strokeWidth="2"/>
-          <text x="300" y="85" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Service Registry</text>
-          <text x="300" y="103" textAnchor="middle" fontSize="11" fill="white">Return Locations</text>
-
-          <line x1="220" y1="110" x2="130" y2="160" stroke="#10b981" strokeWidth="3" strokeDasharray="5,5" markerEnd="url(#arrowClient2)"/>
-          <text x="175" y="140" textAnchor="middle" fontSize="11" fontWeight="700" fill="#10b981">2. List</text>
-
-          <line x1="130" y1="190" x2="440" y2="245" stroke="#ef4444" strokeWidth="3" markerEnd="url(#arrowClient3)"/>
-          <text x="285" y="210" textAnchor="middle" fontSize="11" fontWeight="700" fill="#ef4444">3. Direct Call</text>
-          <text x="285" y="225" textAnchor="middle" fontSize="10" fill="#64748b">(Load Balance)</text>
-
-          <rect x="440" y="220" width="150" height="60" rx="8" fill="#10b981" stroke="#059669" strokeWidth="2"/>
-          <text x="515" y="245" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Service Instance</text>
-          <text x="515" y="263" textAnchor="middle" fontSize="11" fill="white">10.0.1.5:8081</text>
-
-          <rect x="80" y="250" width="80" height="40" rx="6" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-          <text x="120" y="270" textAnchor="middle" fontSize="11" fontWeight="700" fill="white">Ribbon</text>
-          <text x="120" y="284" textAnchor="middle" fontSize="9" fill="white">Load Balancer</text>
-
-          <defs>
-            <marker id="arrowClient1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-            <marker id="arrowClient2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-            </marker>
-            <marker id="arrowClient3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/>
-            </marker>
-          </defs>
-        </svg>
-      ),
-      'Server-Side Discovery': (
-        <svg width="650" height="350" viewBox="0 0 650 350" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="30" y="140" width="100" height="60" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="80" y="165" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Client</text>
-          <text x="80" y="183" textAnchor="middle" fontSize="11" fill="white">Simple Client</text>
-
-          <line x1="130" y1="170" x2="220" y2="170" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowServer1)"/>
-          <text x="175" y="160" textAnchor="middle" fontSize="11" fontWeight="700" fill="#3b82f6">1. Request</text>
-
-          <rect x="220" y="130" width="140" height="80" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-          <text x="290" y="160" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Load Balancer</text>
-          <text x="290" y="178" textAnchor="middle" fontSize="11" fill="white">AWS ELB</text>
-          <text x="290" y="194" textAnchor="middle" fontSize="11" fill="white">NGINX</text>
-
-          <line x1="290" y1="130" x2="290" y2="60" stroke="#8b5cf6" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowServer2)"/>
-          <text x="330" y="90" textAnchor="middle" fontSize="11" fontWeight="700" fill="#8b5cf6">2. Query</text>
-
-          <rect x="210" y="20" width="160" height="40" rx="8" fill="#8b5cf6" stroke="#7c3aed" strokeWidth="2"/>
-          <text x="290" y="45" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Service Registry</text>
-
-          <line x1="360" y1="150" x2="440" y2="110" stroke="#ef4444" strokeWidth="3" markerEnd="url(#arrowServer3)"/>
-          <text x="405" y="125" textAnchor="middle" fontSize="11" fontWeight="700" fill="#ef4444">3. Route</text>
-
-          <line x1="360" y1="190" x2="440" y2="230" stroke="#ef4444" strokeWidth="3" markerEnd="url(#arrowServer3)"/>
-          <text x="405" y="215" textAnchor="middle" fontSize="11" fontWeight="700" fill="#ef4444">3. Route</text>
-
-          <rect x="440" y="80" width="140" height="60" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-          <text x="510" y="105" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Service A</text>
-          <text x="510" y="123" textAnchor="middle" fontSize="11" fill="white">Instance 1</text>
-
-          <rect x="440" y="200" width="140" height="60" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-          <text x="510" y="225" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Service A</text>
-          <text x="510" y="243" textAnchor="middle" fontSize="11" fill="white">Instance 2</text>
-
-          <defs>
-            <marker id="arrowServer1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-            <marker id="arrowServer2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#8b5cf6"/>
-            </marker>
-            <marker id="arrowServer3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/>
-            </marker>
-          </defs>
-        </svg>
-      )
-    },
-    'Config Server Pattern': {
-      'Externalized Configuration': (
-        <svg width="650" height="350" viewBox="0 0 650 350" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="40" y="30" width="140" height="60" rx="8" fill="#8b5cf6" stroke="#7c3aed" strokeWidth="2"/>
-          <text x="110" y="55" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Git Repository</text>
-          <text x="110" y="73" textAnchor="middle" fontSize="11" fill="white">config-repo/</text>
-
-          <line x1="180" y1="60" x2="250" y2="60" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowConfig1)"/>
-          <text x="215" y="50" textAnchor="middle" fontSize="11" fontWeight="700" fill="#3b82f6">pull</text>
-
-          <rect x="250" y="30" width="160" height="60" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-          <text x="330" y="55" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Config Server</text>
-          <text x="330" y="73" textAnchor="middle" fontSize="11" fill="white">:8888</text>
-
-          <line x1="330" y1="90" x2="150" y2="180" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowConfig2)"/>
-          <text x="240" y="130" textAnchor="middle" fontSize="11" fontWeight="700" fill="#f59e0b">fetch config</text>
-
-          <line x1="330" y1="90" x2="330" y2="180" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowConfig2)"/>
-          <text x="365" y="135" textAnchor="middle" fontSize="11" fontWeight="700" fill="#f59e0b">fetch</text>
-
-          <line x1="330" y1="90" x2="510" y2="180" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowConfig2)"/>
-          <text x="420" y="130" textAnchor="middle" fontSize="11" fontWeight="700" fill="#f59e0b">fetch config</text>
-
-          <rect x="60" y="180" width="180" height="80" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="150" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">User Service</text>
-          <text x="150" y="228" textAnchor="middle" fontSize="10" fill="white">application-dev.yml</text>
-          <text x="150" y="243" textAnchor="middle" fontSize="10" fill="white">db.host=dev-db:5432</text>
-
-          <rect x="250" y="180" width="160" height="80" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="330" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Order Service</text>
-          <text x="330" y="228" textAnchor="middle" fontSize="10" fill="white">application-dev.yml</text>
-          <text x="330" y="243" textAnchor="middle" fontSize="10" fill="white">db.host=dev-db:5432</text>
-
-          <rect x="420" y="180" width="180" height="80" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="510" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Payment Service</text>
-          <text x="510" y="228" textAnchor="middle" fontSize="10" fill="white">application-prod.yml</text>
-          <text x="510" y="243" textAnchor="middle" fontSize="10" fill="white">db.host=prod-db:5432</text>
-
-          <rect x="220" y="290" width="220" height="40" rx="6" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-          <text x="330" y="312" textAnchor="middle" fontSize="11" fontWeight="700" fill="white">No Code Changes Required!</text>
-
-          <defs>
-            <marker id="arrowConfig1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-            <marker id="arrowConfig2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/>
-            </marker>
-          </defs>
-        </svg>
-      ),
-      'Dynamic Refresh': (
-        <svg width="650" height="380" viewBox="0 0 650 380" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="220" y="30" width="200" height="70" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-          <text x="320" y="58" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Config Server</text>
-          <text x="320" y="78" textAnchor="middle" fontSize="11" fill="white">Config Changed!</text>
-          <text x="320" y="93" textAnchor="middle" fontSize="10" fill="white">max_connections: 200</text>
-
-          <line x1="220" y1="120" x2="140" y2="200" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowRefresh1)"/>
-          <text x="165" y="155" textAnchor="middle" fontSize="11" fontWeight="700" fill="#3b82f6">webhook</text>
-
-          <line x1="320" y1="100" x2="320" y2="200" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowRefresh1)"/>
-          <text x="355" y="150" textAnchor="middle" fontSize="11" fontWeight="700" fill="#3b82f6">push</text>
-
-          <line x1="420" y1="120" x2="500" y2="200" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowRefresh1)"/>
-          <text x="475" y="155" textAnchor="middle" fontSize="11" fontWeight="700" fill="#3b82f6">notify</text>
-
-          <rect x="60" y="200" width="160" height="90" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="140" y="230" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Service A</text>
-          <text x="140" y="248" textAnchor="middle" fontSize="11" fill="white">@RefreshScope</text>
-          <text x="140" y="263" textAnchor="middle" fontSize="10" fill="white">Old: max=100</text>
-          <text x="140" y="280" textAnchor="middle" fontSize="10" fontWeight="700" fill="#10b981">New: max=200</text>
-
-          <rect x="240" y="200" width="160" height="90" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="320" y="230" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Service B</text>
-          <text x="320" y="248" textAnchor="middle" fontSize="11" fill="white">@RefreshScope</text>
-          <text x="320" y="263" textAnchor="middle" fontSize="10" fill="white">Old: max=100</text>
-          <text x="320" y="280" textAnchor="middle" fontSize="10" fontWeight="700" fill="#10b981">New: max=200</text>
-
-          <rect x="420" y="200" width="160" height="90" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="500" y="230" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Service C</text>
-          <text x="500" y="248" textAnchor="middle" fontSize="11" fill="white">@RefreshScope</text>
-          <text x="500" y="263" textAnchor="middle" fontSize="10" fill="white">Old: max=100</text>
-          <text x="500" y="280" textAnchor="middle" fontSize="10" fontWeight="700" fill="#10b981">New: max=200</text>
-
-          <rect x="220" y="320" width="200" height="40" rx="6" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-          <text x="320" y="342" textAnchor="middle" fontSize="11" fontWeight="700" fill="white">No Restart Required!</text>
-
-          <defs>
-            <marker id="arrowRefresh1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-          </defs>
-        </svg>
-      ),
-      'Encryption & Secrets': (
-        <svg width="650" height="350" viewBox="0 0 650 350" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="40" y="140" width="120" height="60" rx="8" fill="#ef4444" stroke="#dc2626" strokeWidth="3"/>
-          <text x="100" y="165" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Vault</text>
-          <text x="100" y="183" textAnchor="middle" fontSize="11" fill="white">Secrets Store</text>
-
-          <line x1="160" y1="170" x2="230" y2="170" stroke="#ef4444" strokeWidth="3" markerEnd="url(#arrowSecret1)"/>
-          <text x="195" y="160" textAnchor="middle" fontSize="11" fontWeight="700" fill="#ef4444">fetch</text>
-
-          <rect x="230" y="120" width="170" height="100" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-          <text x="315" y="150" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Config Server</text>
-          <text x="315" y="170" textAnchor="middle" fontSize="11" fill="white">Decrypt secrets</text>
-          <rect x="250" y="180" width="130" height="30" rx="6" fill="rgba(255,255,255,0.2)" stroke="white" strokeWidth="1"/>
-          <text x="315" y="200" textAnchor="middle" fontSize="10" fill="white">db.password={'{'}{'{cipher}'}{'}'}</text>
-
-          <line x1="400" y1="170" x2="470" y2="170" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowSecret2)"/>
-          <text x="435" y="160" textAnchor="middle" fontSize="11" fontWeight="700" fill="#10b981">provide</text>
-
-          <rect x="470" y="120" width="140" height="100" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="540" y="150" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Service</text>
-          <text x="540" y="168" textAnchor="middle" fontSize="11" fill="white">Receives plaintext</text>
-          <rect x="490" y="180" width="100" height="30" rx="6" fill="rgba(255,255,255,0.3)" stroke="white" strokeWidth="1"/>
-          <text x="540" y="200" textAnchor="middle" fontSize="10" fill="white">db.pass=secret123</text>
-
-          <rect x="190" y="260" width="280" height="60" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-          <text x="330" y="285" textAnchor="middle" fontSize="12" fontWeight="700" fill="white">Security Flow</text>
-          <text x="330" y="302" textAnchor="middle" fontSize="10" fill="white">Vault → Encrypted Config → Server Decrypts → Service</text>
-
-          <defs>
-            <marker id="arrowSecret1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/>
-            </marker>
-            <marker id="arrowSecret2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-            </marker>
-          </defs>
-        </svg>
-      )
-    },
-    'Saga Pattern': {
-      'Orchestration-Based': (
-        <svg width="650" height="400" viewBox="0 0 650 400" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="250" y="30" width="150" height="60" rx="8" fill="#8b5cf6" stroke="#7c3aed" strokeWidth="3"/>
-          <text x="325" y="55" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Saga</text>
-          <text x="325" y="73" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Orchestrator</text>
-
-          <line x1="250" y1="90" x2="140" y2="150" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowOrch1)"/>
-          <text x="185" y="115" textAnchor="middle" fontSize="11" fontWeight="700" fill="#10b981">1. Create</text>
-
-          <line x1="325" y1="90" x2="325" y2="150" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowOrch1)"/>
-          <text x="355" y="120" textAnchor="middle" fontSize="11" fontWeight="700" fill="#10b981">2. Reserve</text>
-
-          <line x1="400" y1="90" x2="510" y2="150" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowOrch1)"/>
-          <text x="465" y="115" textAnchor="middle" fontSize="11" fontWeight="700" fill="#10b981">3. Charge</text>
-
-          <rect x="60" y="150" width="160" height="70" rx="8" fill="#10b981" stroke="#059669" strokeWidth="2"/>
-          <text x="140" y="180" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Order Service</text>
-          <text x="140" y="198" textAnchor="middle" fontSize="11" fill="white">createOrder()</text>
-
-          <rect x="245" y="150" width="160" height="70" rx="8" fill="#10b981" stroke="#059669" strokeWidth="2"/>
-          <text x="325" y="180" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Inventory</text>
-          <text x="325" y="198" textAnchor="middle" fontSize="11" fill="white">reserveItems()</text>
-
-          <rect x="430" y="150" width="160" height="70" rx="8" fill="#10b981" stroke="#059669" strokeWidth="2"/>
-          <text x="510" y="180" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Payment</text>
-          <text x="510" y="198" textAnchor="middle" fontSize="11" fill="white">chargeCard()</text>
-
-          <line x1="140" y1="220" x2="140" y2="280" stroke="#ef4444" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowOrch2)"/>
-          <line x1="325" y1="220" x2="325" y2="280" stroke="#ef4444" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowOrch2)"/>
-          <line x1="510" y1="220" x2="510" y2="280" stroke="#ef4444" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowOrch2)"/>
-
-          <text x="325" y="255" textAnchor="middle" fontSize="12" fontWeight="700" fill="#ef4444">On Failure: Compensate All</text>
-
-          <rect x="60" y="280" width="160" height="70" rx="8" fill="#ef4444" stroke="#dc2626" strokeWidth="2"/>
-          <text x="140" y="310" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Compensation</text>
-          <text x="140" y="328" textAnchor="middle" fontSize="11" fill="white">cancelOrder()</text>
-
-          <rect x="245" y="280" width="160" height="70" rx="8" fill="#ef4444" stroke="#dc2626" strokeWidth="2"/>
-          <text x="325" y="310" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Compensation</text>
-          <text x="325" y="328" textAnchor="middle" fontSize="11" fill="white">releaseItems()</text>
-
-          <rect x="430" y="280" width="160" height="70" rx="8" fill="#ef4444" stroke="#dc2626" strokeWidth="2"/>
-          <text x="510" y="310" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Compensation</text>
-          <text x="510" y="328" textAnchor="middle" fontSize="11" fill="white">refundCard()</text>
-
-          <defs>
-            <marker id="arrowOrch1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-            </marker>
-            <marker id="arrowOrch2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/>
-            </marker>
-          </defs>
-        </svg>
-      ),
-      'Choreography-Based': (
-        <svg width="650" height="380" viewBox="0 0 650 380" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="60" y="60" width="160" height="70" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="140" y="88" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Order Service</text>
-          <text x="140" y="106" textAnchor="middle" fontSize="11" fill="white">Creates Order</text>
-          <text x="140" y="121" textAnchor="middle" fontSize="10" fontWeight="700" fill="#10b981">Emit: OrderCreated</text>
-
-          <line x1="220" y1="95" x2="280" y2="180" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowChor1)"/>
-          <text x="255" y="135" textAnchor="middle" fontSize="11" fontWeight="700" fill="#10b981">event</text>
-
-          <rect x="280" y="160" width="160" height="70" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="360" y="188" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Inventory</text>
-          <text x="360" y="206" textAnchor="middle" fontSize="11" fill="white">Reserve Items</text>
-          <text x="360" y="221" textAnchor="middle" fontSize="10" fontWeight="700" fill="#10b981">Emit: ItemsReserved</text>
-
-          <line x1="440" y1="195" x2="500" y2="270" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowChor1)"/>
-          <text x="475" y="230" textAnchor="middle" fontSize="11" fontWeight="700" fill="#10b981">event</text>
-
-          <rect x="430" y="260" width="160" height="70" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="510" y="288" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Payment</text>
-          <text x="510" y="306" textAnchor="middle" fontSize="11" fill="white">Charge Card</text>
-          <text x="510" y="321" textAnchor="middle" fontSize="10" fontWeight="700" fill="#10b981">Emit: PaymentDone</text>
-
-          <rect x="220" y="40" width="200" height="50" rx="8" fill="#14b8a6" stroke="#0d9488" strokeWidth="2"/>
-          <text x="320" y="62" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Event Bus</text>
-          <text x="320" y="80" textAnchor="middle" fontSize="11" fill="white">Kafka / RabbitMQ</text>
-
-          <line x1="140" y1="60" x2="280" y2="70" stroke="#3b82f6" strokeWidth="2" strokeDasharray="5,5"/>
-          <line x1="360" y1="160" x2="360" y2="90" stroke="#3b82f6" strokeWidth="2" strokeDasharray="5,5"/>
-          <line x1="510" y1="260" x2="420" y2="75" stroke="#3b82f6" strokeWidth="2" strokeDasharray="5,5"/>
-
-          <text x="320" y="350" textAnchor="middle" fontSize="12" fontWeight="700" fill="#64748b">No Central Coordinator - Services React to Events</text>
-
-          <defs>
-            <marker id="arrowChor1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-            </marker>
-          </defs>
-        </svg>
-      ),
-      'Compensating Transactions': (
-        <svg width="650" height="400" viewBox="0 0 650 400" style={{ maxWidth: '100%', height: 'auto' }}>
-          <text x="325" y="25" textAnchor="middle" fontSize="14" fontWeight="700" fill="#1e293b">Success Path</text>
-          <rect x="60" y="40" width="140" height="60" rx="8" fill="#10b981" stroke="#059669" strokeWidth="2"/>
-          <text x="130" y="65" textAnchor="middle" fontSize="13" fontWeight="700" fill="white">Step 1</text>
-          <text x="130" y="83" textAnchor="middle" fontSize="11" fill="white">Create Order</text>
-
-          <line x1="200" y1="70" x2="250" y2="70" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowComp1)"/>
-
-          <rect x="250" y="40" width="140" height="60" rx="8" fill="#10b981" stroke="#059669" strokeWidth="2"/>
-          <text x="320" y="65" textAnchor="middle" fontSize="13" fontWeight="700" fill="white">Step 2</text>
-          <text x="320" y="83" textAnchor="middle" fontSize="11" fill="white">Reserve Items</text>
-
-          <line x1="390" y1="70" x2="440" y2="70" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowComp1)"/>
-
-          <rect x="440" y="40" width="140" height="60" rx="8" fill="#10b981" stroke="#059669" strokeWidth="2"/>
-          <text x="510" y="65" textAnchor="middle" fontSize="13" fontWeight="700" fill="white">Step 3</text>
-          <text x="510" y="83" textAnchor="middle" fontSize="11" fill="white">Charge Card</text>
-
-          <text x="325" y="145" textAnchor="middle" fontSize="14" fontWeight="700" fill="#ef4444">Failure at Step 3</text>
-
-          <rect x="440" y="160" width="140" height="60" rx="8" fill="#ef4444" stroke="#dc2626" strokeWidth="3"/>
-          <text x="510" y="185" textAnchor="middle" fontSize="13" fontWeight="700" fill="white">Step 3 FAILS</text>
-          <text x="510" y="203" textAnchor="middle" fontSize="11" fill="white">Card Declined</text>
-
-          <line x1="440" y1="190" x2="390" y2="190" stroke="#ef4444" strokeWidth="3" markerEnd="url(#arrowComp2)"/>
-          <text x="415" y="180" textAnchor="middle" fontSize="11" fontWeight="700" fill="#ef4444">trigger</text>
-
-          <text x="325" y="255" textAnchor="middle" fontSize="14" fontWeight="700" fill="#1e293b">Compensation Path</text>
-
-          <rect x="250" y="270" width="140" height="60" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-          <text x="320" y="295" textAnchor="middle" fontSize="13" fontWeight="700" fill="white">Compensate 2</text>
-          <text x="320" y="313" textAnchor="middle" fontSize="11" fill="white">Release Items</text>
-
-          <line x1="250" y1="300" x2="200" y2="300" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowComp3)"/>
-
-          <rect x="60" y="270" width="140" height="60" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-          <text x="130" y="295" textAnchor="middle" fontSize="13" fontWeight="700" fill="white">Compensate 1</text>
-          <text x="130" y="313" textAnchor="middle" fontSize="11" fill="white">Cancel Order</text>
-
-          <text x="325" y="370" textAnchor="middle" fontSize="12" fontWeight="700" fill="#64748b">Compensations Undo Completed Steps in Reverse Order</text>
-
-          <defs>
-            <marker id="arrowComp1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-            </marker>
-            <marker id="arrowComp2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/>
-            </marker>
-            <marker id="arrowComp3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/>
-            </marker>
-          </defs>
-        </svg>
-      )
-    },
-    'CQRS Pattern': {
-      'Separation of Concerns': (
-        <svg width="650" height="350" viewBox="0 0 650 350" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="30" y="140" width="100" height="60" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="80" y="165" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Client</text>
-
-          <line x1="130" y1="150" x2="200" y2="90" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowSep1)"/>
-          <text x="165" y="115" textAnchor="middle" fontSize="11" fontWeight="700" fill="#3b82f6">Commands</text>
-
-          <line x1="130" y1="190" x2="200" y2="250" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowSep2)"/>
-          <text x="165" y="225" textAnchor="middle" fontSize="11" fontWeight="700" fill="#10b981">Queries</text>
-
-          <rect x="200" y="60" width="170" height="60" rx="8" fill="#8b5cf6" stroke="#7c3aed" strokeWidth="3"/>
-          <text x="285" y="85" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Command Side</text>
-          <text x="285" y="103" textAnchor="middle" fontSize="11" fill="white">Write Model</text>
-
-          <rect x="200" y="220" width="170" height="60" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-          <text x="285" y="245" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Query Side</text>
-          <text x="285" y="263" textAnchor="middle" fontSize="11" fill="white">Read Model</text>
-
-          <line x1="370" y1="90" x2="440" y2="90" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrowSep3)"/>
-
-          <rect x="440" y="60" width="140" height="60" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-          <text x="510" y="85" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Write DB</text>
-          <text x="510" y="103" textAnchor="middle" fontSize="11" fill="white">PostgreSQL</text>
-
-          <line x1="370" y1="250" x2="440" y2="250" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrowSep3)"/>
-
-          <rect x="440" y="220" width="140" height="60" rx="8" fill="#14b8a6" stroke="#0d9488" strokeWidth="2"/>
-          <text x="510" y="245" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Read DB</text>
-          <text x="510" y="263" textAnchor="middle" fontSize="11" fill="white">MongoDB</text>
-
-          <path d="M 510 120 L 510 220" stroke="#3b82f6" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowSep4)"/>
-          <text x="550" y="170" textAnchor="middle" fontSize="11" fontWeight="700" fill="#3b82f6">Events</text>
-
-          <defs>
-            <marker id="arrowSep1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-            <marker id="arrowSep2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-            </marker>
-            <marker id="arrowSep3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
-            </marker>
-            <marker id="arrowSep4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-          </defs>
-        </svg>
-      ),
-      'Command Model': (
-        <svg width="650" height="350" viewBox="0 0 650 350" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="30" y="140" width="100" height="60" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="80" y="165" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Client</text>
-          <text x="80" y="183" textAnchor="middle" fontSize="11" fill="white">CreateOrder</text>
-
-          <line x1="130" y1="170" x2="200" y2="170" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowCmd1)"/>
-          <text x="165" y="160" textAnchor="middle" fontSize="11" fontWeight="700" fill="#3b82f6">command</text>
-
-          <rect x="200" y="120" width="160" height="100" rx="8" fill="#8b5cf6" stroke="#7c3aed" strokeWidth="3"/>
-          <text x="280" y="150" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Command Model</text>
-          <text x="280" y="170" textAnchor="middle" fontSize="11" fill="white">1. Validate</text>
-          <text x="280" y="186" textAnchor="middle" fontSize="11" fill="white">2. Apply Business Rules</text>
-          <text x="280" y="202" textAnchor="middle" fontSize="11" fill="white">3. Persist Changes</text>
-
-          <line x1="360" y1="170" x2="430" y2="170" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowCmd2)"/>
-          <text x="395" y="160" textAnchor="middle" fontSize="11" fontWeight="700" fill="#10b981">save</text>
-
-          <rect x="430" y="120" width="160" height="100" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-          <text x="510" y="150" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Write Database</text>
-          <text x="510" y="168" textAnchor="middle" fontSize="11" fill="white">Normalized Schema</text>
-          <text x="510" y="186" textAnchor="middle" fontSize="10" fill="white">ACID Transactions</text>
-          <text x="510" y="202" textAnchor="middle" fontSize="10" fill="white">Strong Consistency</text>
-
-          <line x1="510" y1="220" x2="510" y2="270" stroke="#14b8a6" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowCmd3)"/>
-          <text x="550" y="250" textAnchor="middle" fontSize="11" fontWeight="700" fill="#14b8a6">publish</text>
-
-          <rect x="430" y="270" width="160" height="50" rx="8" fill="#14b8a6" stroke="#0d9488" strokeWidth="2"/>
-          <text x="510" y="292" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Domain Events</text>
-          <text x="510" y="308" textAnchor="middle" fontSize="11" fill="white">OrderCreated</text>
-
-          <defs>
-            <marker id="arrowCmd1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-            <marker id="arrowCmd2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-            </marker>
-            <marker id="arrowCmd3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#14b8a6"/>
-            </marker>
-          </defs>
-        </svg>
-      ),
-      'Query Model': (
-        <svg width="650" height="350" viewBox="0 0 650 350" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="30" y="180" width="100" height="60" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="80" y="205" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Client</text>
-          <text x="80" y="223" textAnchor="middle" fontSize="11" fill="white">GetOrders</text>
-
-          <line x1="130" y1="210" x2="200" y2="210" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowQry1)"/>
-          <text x="165" y="200" textAnchor="middle" fontSize="11" fontWeight="700" fill="#3b82f6">query</text>
-
-          <rect x="200" y="160" width="160" height="100" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-          <text x="280" y="190" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Query Model</text>
-          <text x="280" y="210" textAnchor="middle" fontSize="11" fill="white">No Business Logic</text>
-          <text x="280" y="226" textAnchor="middle" fontSize="11" fill="white">Simple Data Access</text>
-          <text x="280" y="242" textAnchor="middle" fontSize="11" fill="white">Fast Reads</text>
-
-          <line x1="360" y1="210" x2="430" y2="210" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowQry2)"/>
-          <text x="395" y="200" textAnchor="middle" fontSize="11" fontWeight="700" fill="#10b981">fetch</text>
-
-          <rect x="430" y="160" width="160" height="100" rx="8" fill="#14b8a6" stroke="#0d9488" strokeWidth="2"/>
-          <text x="510" y="190" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Read Database</text>
-          <text x="510" y="208" textAnchor="middle" fontSize="11" fill="white">Denormalized</text>
-          <text x="510" y="226" textAnchor="middle" fontSize="10" fill="white">Optimized for Reads</text>
-          <text x="510" y="242" textAnchor="middle" fontSize="10" fill="white">Eventually Consistent</text>
-
-          <rect x="200" y="30" width="180" height="80" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-          <text x="290" y="58" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Event Processor</text>
-          <text x="290" y="76" textAnchor="middle" fontSize="11" fill="white">Subscribes to Events</text>
-          <text x="290" y="92" textAnchor="middle" fontSize="11" fill="white">Updates Read Models</text>
-
-          <line x1="380" y1="85" x2="470" y2="160" stroke="#f59e0b" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowQry3)"/>
-          <text x="440" y="115" textAnchor="middle" fontSize="11" fontWeight="700" fill="#f59e0b">update</text>
-
-          <defs>
-            <marker id="arrowQry1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-            <marker id="arrowQry2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-            </marker>
-            <marker id="arrowQry3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/>
-            </marker>
-          </defs>
-        </svg>
-      )
-    },
-    'Event Sourcing Pattern': {
-      'Event Store': (
-        <svg width="650" height="380" viewBox="0 0 650 380" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="30" y="40" width="120" height="60" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="90" y="65" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Command</text>
-          <text x="90" y="83" textAnchor="middle" fontSize="11" fill="white">Create Order</text>
-
-          <line x1="150" y1="70" x2="220" y2="70" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowES1)"/>
-
-          <rect x="220" y="40" width="140" height="60" rx="8" fill="#8b5cf6" stroke="#7c3aed" strokeWidth="2"/>
-          <text x="290" y="65" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Aggregate</text>
-          <text x="290" y="83" textAnchor="middle" fontSize="11" fill="white">Business Logic</text>
-
-          <line x1="290" y1="100" x2="290" y2="160" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowES2)"/>
-          <text x="325" y="135" textAnchor="middle" fontSize="11" fontWeight="700" fill="#10b981">append</text>
-
-          <rect x="180" y="160" width="220" height="150" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-          <text x="290" y="185" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Event Store</text>
-          <text x="290" y="203" textAnchor="middle" fontSize="12" fill="white">(Append-Only Log)</text>
-          <rect x="200" y="215" width="180" height="85" rx="6" fill="rgba(255,255,255,0.2)" stroke="white" strokeWidth="1"/>
-          <text x="290" y="235" textAnchor="middle" fontSize="11" fill="white">1. OrderCreated (t=0)</text>
-          <text x="290" y="252" textAnchor="middle" fontSize="11" fill="white">2. ItemAdded (t=1)</text>
-          <text x="290" y="269" textAnchor="middle" fontSize="11" fill="white">3. OrderPaid (t=2)</text>
-          <text x="290" y="286" textAnchor="middle" fontSize="11" fill="white">4. OrderShipped (t=3)</text>
-
-          <line x1="400" y1="235" x2="470" y2="235" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowES3)"/>
-          <text x="435" y="225" textAnchor="middle" fontSize="11" fontWeight="700" fill="#f59e0b">replay</text>
-
-          <rect x="470" y="200" width="140" height="70" rx="8" fill="#ef4444" stroke="#dc2626" strokeWidth="2"/>
-          <text x="540" y="225" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Current State</text>
-          <text x="540" y="243" textAnchor="middle" fontSize="11" fill="white">Order: Shipped</text>
-          <text x="540" y="258" textAnchor="middle" fontSize="10" fill="white">Computed from events</text>
-
-          <defs>
-            <marker id="arrowES1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-            <marker id="arrowES2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-            </marker>
-            <marker id="arrowES3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/>
-            </marker>
-          </defs>
-        </svg>
-      ),
-      'Event Replay': (
-        <svg width="650" height="380" viewBox="0 0 650 380" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="30" y="160" width="180" height="120" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-          <text x="120" y="185" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Event Store</text>
-          <rect x="45" y="200" width="150" height="70" rx="6" fill="rgba(255,255,255,0.2)" stroke="white" strokeWidth="1"/>
-          <text x="120" y="218" textAnchor="middle" fontSize="10" fill="white">OrderCreated (v=0)</text>
-          <text x="120" y="233" textAnchor="middle" fontSize="10" fill="white">ItemAdded (v=1)</text>
-          <text x="120" y="248" textAnchor="middle" fontSize="10" fill="white">OrderPaid (v=2)</text>
-          <text x="120" y="263" textAnchor="middle" fontSize="10" fill="white">OrderShipped (v=3)</text>
-
-          <line x1="210" y1="200" x2="280" y2="140" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowReplay1)"/>
-          <text x="245" y="165" textAnchor="middle" fontSize="11" fontWeight="700" fill="#3b82f6">replay</text>
-
-          <rect x="280" y="60" width="140" height="160" rx="8" fill="#8b5cf6" stroke="#7c3aed" strokeWidth="2"/>
-          <text x="350" y="85" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Replay Process</text>
-          <rect x="295" y="95" width="110" height="115" rx="6" fill="rgba(255,255,255,0.2)" stroke="white" strokeWidth="1"/>
-          <text x="350" y="112" textAnchor="middle" fontSize="10" fill="white">State = {}</text>
-          <text x="350" y="130" textAnchor="middle" fontSize="10" fill="white">→ Apply Event 1</text>
-          <text x="350" y="148" textAnchor="middle" fontSize="10" fill="white">→ Apply Event 2</text>
-          <text x="350" y="166" textAnchor="middle" fontSize="10" fill="white">→ Apply Event 3</text>
-          <text x="350" y="184" textAnchor="middle" fontSize="10" fill="white">→ Apply Event 4</text>
-          <text x="350" y="202" textAnchor="middle" fontSize="10" fontWeight="700" fill="white">= Current State</text>
-
-          <line x1="420" y1="140" x2="490" y2="140" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowReplay2)"/>
-
-          <rect x="490" y="100" width="130" height="80" rx="8" fill="#10b981" stroke="#059669" strokeWidth="2"/>
-          <text x="555" y="130" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">State (v=3)</text>
-          <text x="555" y="148" textAnchor="middle" fontSize="11" fill="white">Status: Shipped</text>
-          <text x="555" y="163" textAnchor="middle" fontSize="11" fill="white">Items: [...]</text>
-
-          <line x1="210" y1="250" x2="280" y2="310" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowReplay3)"/>
-          <text x="245" y="285" textAnchor="middle" fontSize="11" fontWeight="700" fill="#f59e0b">replay to t=1</text>
-
-          <rect x="280" y="280" width="130" height="70" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-          <text x="345" y="308" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">State (v=1)</text>
-          <text x="345" y="326" textAnchor="middle" fontSize="11" fill="white">Time Travel!</text>
-
-          <defs>
-            <marker id="arrowReplay1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-            <marker id="arrowReplay2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
-            </marker>
-            <marker id="arrowReplay3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/>
-            </marker>
-          </defs>
-        </svg>
-      ),
-      'Projections & Views': (
-        <svg width="650" height="380" viewBox="0 0 650 380" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="40" y="150" width="180" height="100" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-          <text x="130" y="175" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Event Store</text>
-          <text x="130" y="193" textAnchor="middle" fontSize="11" fill="white">Event Stream</text>
-          <rect x="55" y="205" width="150" height="35" rx="6" fill="rgba(255,255,255,0.2)" stroke="white" strokeWidth="1"/>
-          <text x="130" y="220" textAnchor="middle" fontSize="10" fill="white">OrderCreated</text>
-          <text x="130" y="234" textAnchor="middle" fontSize="10" fill="white">ItemAdded, OrderPaid...</text>
-
-          <line x1="220" y1="170" x2="290" y2="100" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowProj1)"/>
-          <text x="255" y="130" textAnchor="middle" fontSize="11" fontWeight="700" fill="#3b82f6">project</text>
-
-          <line x1="220" y1="200" x2="290" y2="200" stroke="#8b5cf6" strokeWidth="3" markerEnd="url(#arrowProj2)"/>
-          <text x="255" y="190" textAnchor="middle" fontSize="11" fontWeight="700" fill="#8b5cf6">project</text>
-
-          <line x1="220" y1="230" x2="290" y2="300" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowProj3)"/>
-          <text x="255" y="270" textAnchor="middle" fontSize="11" fontWeight="700" fill="#f59e0b">project</text>
-
-          <rect x="290" y="60" width="150" height="80" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="365" y="88" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Order Summary</text>
-          <text x="365" y="106" textAnchor="middle" fontSize="11" fill="white">PostgreSQL</text>
-          <text x="365" y="121" textAnchor="middle" fontSize="10" fill="white">For dashboards</text>
-
-          <rect x="290" y="160" width="150" height="80" rx="8" fill="#8b5cf6" stroke="#7c3aed" strokeWidth="2"/>
-          <text x="365" y="188" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Search Index</text>
-          <text x="365" y="206" textAnchor="middle" fontSize="11" fill="white">Elasticsearch</text>
-          <text x="365" y="221" textAnchor="middle" fontSize="10" fill="white">For text search</text>
-
-          <rect x="290" y="260" width="150" height="80" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2"/>
-          <text x="365" y="288" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Analytics View</text>
-          <text x="365" y="306" textAnchor="middle" fontSize="11" fill="white">MongoDB</text>
-          <text x="365" y="321" textAnchor="middle" fontSize="10" fill="white">For reporting</text>
-
-          <rect x="470" y="160" width="150" height="80" rx="8" fill="#14b8a6" stroke="#0d9488" strokeWidth="2"/>
-          <text x="545" y="188" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Real-Time View</text>
-          <text x="545" y="206" textAnchor="middle" fontSize="11" fill="white">Redis Cache</text>
-          <text x="545" y="221" textAnchor="middle" fontSize="10" fill="white">For fast reads</text>
-
-          <line x1="440" y1="200" x2="470" y2="200" stroke="#14b8a6" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowProj4)"/>
-
-          <defs>
-            <marker id="arrowProj1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-            <marker id="arrowProj2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#8b5cf6"/>
-            </marker>
-            <marker id="arrowProj3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/>
-            </marker>
-            <marker id="arrowProj4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#14b8a6"/>
-            </marker>
-          </defs>
-        </svg>
-      )
-    },
-    'Sidecar Pattern': {
-      'Co-Located Helper': (
-        <svg width="650" height="350" viewBox="0 0 650 350" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="80" y="60" width="480" height="240" rx="12" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="3" strokeDasharray="10,5"/>
-          <text x="320" y="40" textAnchor="middle" fontSize="14" fontWeight="700" fill="#64748b">Kubernetes Pod / Container Group</text>
-
-          <rect x="120" y="100" width="180" height="160" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="3"/>
-          <text x="210" y="130" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Main Application</text>
-          <text x="210" y="152" textAnchor="middle" fontSize="12" fill="white">Business Logic</text>
-          <text x="210" y="170" textAnchor="middle" fontSize="12" fill="white">Core Service</text>
-          <text x="210" y="188" textAnchor="middle" fontSize="12" fill="white">Port: 8080</text>
-          <rect x="135" y="205" width="150" height="45" rx="6" fill="rgba(255,255,255,0.2)" stroke="white" strokeWidth="1"/>
-          <text x="210" y="225" textAnchor="middle" fontSize="11" fill="white">Java/Python/Node</text>
-          <text x="210" y="241" textAnchor="middle" fontSize="11" fill="white">Your Code</text>
-
-          <rect x="340" y="100" width="180" height="160" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-          <text x="430" y="130" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Sidecar Proxy</text>
-          <text x="430" y="152" textAnchor="middle" fontSize="12" fill="white">• Logging Agent</text>
-          <text x="430" y="170" textAnchor="middle" fontSize="12" fill="white">• Metrics Collector</text>
-          <text x="430" y="188" textAnchor="middle" fontSize="12" fill="white">• Security Proxy</text>
-          <rect x="355" y="205" width="150" height="45" rx="6" fill="rgba(255,255,255,0.2)" stroke="white" strokeWidth="1"/>
-          <text x="430" y="225" textAnchor="middle" fontSize="11" fill="white">Envoy/Linkerd</text>
-          <text x="430" y="241" textAnchor="middle" fontSize="11" fill="white">Service Mesh</text>
-
-          <line x1="300" y1="180" x2="340" y2="180" stroke="#3b82f6" strokeWidth="3" strokeDasharray="5,5"/>
-          <text x="320" y="170" textAnchor="middle" fontSize="11" fontWeight="700" fill="#3b82f6">localhost</text>
-
-          <text x="320" y="325" textAnchor="middle" fontSize="12" fontWeight="700" fill="#64748b">Shared: Network, Storage, Lifecycle</text>
-
-          <defs>
-            <marker id="arrowSide1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-          </defs>
-        </svg>
-      ),
-      'Communication Patterns': (
-        <svg width="650" height="380" viewBox="0 0 650 380" style={{ maxWidth: '100%', height: 'auto' }}>
-          <rect x="30" y="140" width="100" height="70" rx="8" fill="#ef4444" stroke="#dc2626" strokeWidth="2"/>
-          <text x="80" y="165" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">External</text>
-          <text x="80" y="183" textAnchor="middle" fontSize="11" fill="white">Client</text>
-          <text x="80" y="198" textAnchor="middle" fontSize="10" fill="white">10.0.1.100</text>
-
-          <line x1="130" y1="175" x2="200" y2="175" stroke="#ef4444" strokeWidth="3" markerEnd="url(#arrowComm1)"/>
-          <text x="165" y="165" textAnchor="middle" fontSize="11" fontWeight="700" fill="#ef4444">request</text>
-
-          <rect x="200" y="130" width="140" height="90" rx="8" fill="#10b981" stroke="#059669" strokeWidth="3"/>
-          <text x="270" y="160" textAnchor="middle" fontSize="16" fontWeight="700" fill="white">Sidecar</text>
-          <text x="270" y="178" textAnchor="middle" fontSize="11" fill="white">Proxy/Filter</text>
-          <text x="270" y="194" textAnchor="middle" fontSize="11" fill="white">TLS Termination</text>
-          <text x="270" y="210" textAnchor="middle" fontSize="11" fill="white">Auth Check</text>
-
-          <line x1="340" y1="175" x2="410" y2="175" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#arrowComm2)"/>
-          <text x="375" y="165" textAnchor="middle" fontSize="11" fontWeight="700" fill="#3b82f6">localhost</text>
-
-          <rect x="410" y="130" width="140" height="90" rx="8" fill="#6366f1" stroke="#4f46e5" strokeWidth="2"/>
-          <text x="480" y="160" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">Main App</text>
-          <text x="480" y="178" textAnchor="middle" fontSize="11" fill="white">Business Logic</text>
-          <text x="480" y="194" textAnchor="middle" fontSize="11" fill="white">Port: 8080</text>
-
-          <line x1="480" y1="220" x2="480" y2="280" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowComm3)"/>
-          <text x="520" y="255" textAnchor="middle" fontSize="11" fontWeight="700" fill="#f59e0b">outbound</text>
-
-          <rect x="410" y="280" width="140" height="70" rx="8" fill="#8b5cf6" stroke="#7c3aed" strokeWidth="2"/>
-          <text x="480" y="308" textAnchor="middle" fontSize="14" fontWeight="700" fill="white">External API</text>
-          <text x="480" y="326" textAnchor="middle" fontSize="11" fill="white">Remote Service</text>
-
-          <path d="M 340 190 Q 375 235 410 280" stroke="#f59e0b" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowComm4)"/>
-          <text x="330" y="240" textAnchor="middle" fontSize="11" fontWeight="700" fill="#f59e0b">intercept</text>
-
-          <defs>
-            <marker id="arrowComm1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/>
-            </marker>
-            <marker id="arrowComm2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/>
-            </marker>
-            <marker id="arrowComm3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/>
-            </marker>
-            <marker id="arrowComm4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/>
-            </marker>
-          </defs>
-        </svg>
-      )
-    }
-  }
-
-  return diagrams[patternName]?.[featureName] || null
-}
-
-const ModernDiagram = ({ components, onComponentClick, title, width = 1400, height = 800, containerWidth = 1800, focusedIndex }) => {
-  const [hoveredComponent, setHoveredComponent] = useState(null)
 
   return (
-    <div style={{
-      width: '100%',
-      maxWidth: `${containerWidth}px`,
-      margin: '0 auto',
-      backgroundColor: '#f8fafc',
-      borderRadius: '16px',
-      padding: '2rem',
-      boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.1)',
-      border: '2px solid #e2e8f0'
+    <pre style={{
+      margin: 0,
+      fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+      fontSize: '0.85rem',
+      lineHeight: '1.6',
+      color: '#d4d4d4',
+      whiteSpace: 'pre',
+      overflowX: 'auto',
+      textAlign: 'left',
+      padding: 0
     }}>
-      <h3 style={{
-        textAlign: 'center',
-        marginBottom: '2rem',
-        fontSize: '1.75rem',
-        fontWeight: '800',
-        color: '#1e293b',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      }}>
-        {title}
-      </h3>
-
-      <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} style={{ overflow: 'visible' }}>
-        <defs>
-          <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#1e40af" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#10b981" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#059669" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ef4444" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#dc2626" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#d97706" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="tealGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#0d9488" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="indigoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#6366f1" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.9"/>
-          </linearGradient>
-          <linearGradient id="pinkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ec4899" stopOpacity="0.8"/>
-            <stop offset="100%" stopColor="#db2777" stopOpacity="0.9"/>
-          </linearGradient>
-
-          {/* Arrow markers */}
-          <marker id="arrowSolid" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-            <path d="M0,0 L0,6 L9,3 z" fill="#1e293b" />
-          </marker>
-          <marker id="arrowDashed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-            <path d="M0,0 L0,6 L9,3 z" fill="#64748b" />
-          </marker>
-        </defs>
-
-        {/* Architectural layer backgrounds */}
-        <g opacity="0.1">
-          <rect x="50" y="180" width="420" height="200" rx="16" fill="#6366f1" />
-          <text x="260" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="#4f46e5" opacity="0.6">
-            API Layer
-          </text>
-
-          <rect x="550" y="80" width="420" height="280" rx="16" fill="#6366f1" />
-          <text x="760" y="110" textAnchor="middle" fontSize="14" fontWeight="700" fill="#4f46e5" opacity="0.6">
-            Resilience Layer
-          </text>
-
-          <rect x="50" y="400" width="420" height="200" rx="16" fill="#6366f1" />
-          <text x="260" y="430" textAnchor="middle" fontSize="14" fontWeight="700" fill="#4f46e5" opacity="0.6">
-            Configuration
-          </text>
-
-          <rect x="550" y="480" width="420" height="180" rx="16" fill="#6366f1" />
-          <text x="760" y="510" textAnchor="middle" fontSize="14" fontWeight="700" fill="#4f46e5" opacity="0.6">
-            Transaction Layer
-          </text>
-
-          <rect x="1050" y="180" width="420" height="280" rx="16" fill="#6366f1" />
-          <text x="1260" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="#4f46e5" opacity="0.6">
-            Data Layer
-          </text>
-
-          <rect x="1050" y="480" width="420" height="180" rx="16" fill="#6366f1" />
-          <text x="1260" y="510" textAnchor="middle" fontSize="14" fontWeight="700" fill="#4f46e5" opacity="0.6">
-            Sidecar Pattern
-          </text>
-        </g>
-
-        {/* Connecting lines with arrows and labels */}
-        <g fill="none">
-          <line x1="430" y1="300" x2="580" y2="200" stroke="#1e293b" strokeWidth="3" strokeOpacity="0.8" markerEnd="url(#arrowSolid)"/>
-          <text x="505" y="240" fontSize="11" fontWeight="600" fill="#1e293b" textAnchor="middle">
-            routes
-          </text>
-
-          <line x1="430" y1="300" x2="580" y2="320" stroke="#1e293b" strokeWidth="3" strokeOpacity="0.8" markerEnd="url(#arrowSolid)"/>
-          <text x="505" y="320" fontSize="11" fontWeight="600" fill="#1e293b" textAnchor="middle">
-            protects
-          </text>
-
-          <line x1="930" y1="200" x2="1080" y2="300" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="1005" y="240" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            uses
-          </text>
-
-          <line x1="930" y1="320" x2="1080" y2="400" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="1005" y="370" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            stores
-          </text>
-
-          <line x1="430" y1="500" x2="580" y2="560" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="505" y="540" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            configures
-          </text>
-
-          <line x1="930" y1="560" x2="1080" y2="580" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="1005" y="580" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
-            proxies
-          </text>
-        </g>
-
-        {/* Component rectangles */}
-        {components.map((component, index) => {
-          const isFocused = focusedIndex === index
-          const isHovered = hoveredComponent === component.id
-          const isHighlighted = isFocused || isHovered
-
-          return (
-          <g key={component.id}>
-            {/* Focused ring indicator */}
-            {isFocused && (
-              <rect
-                x={component.x - 6}
-                y={component.y - 6}
-                width={component.width + 12}
-                height={component.height + 12}
-                rx="16"
-                ry="16"
-                fill="none"
-                stroke="#fbbf24"
-                strokeWidth="4"
-                style={{
-                  opacity: 0.9,
-                  filter: 'drop-shadow(0 0 12px rgba(251, 191, 36, 0.6))'
-                }}
-              />
-            )}
-            <rect
-              x={component.x}
-              y={component.y}
-              width={component.width}
-              height={component.height}
-              rx="12"
-              ry="12"
-              fill={`url(#${component.color}Gradient)`}
-              stroke={isHighlighted ? '#1e293b' : '#64748b'}
-              strokeWidth={isHighlighted ? '4' : '2'}
-              style={{
-                cursor: 'pointer',
-                filter: isHighlighted ? 'drop-shadow(0 8px 16px rgba(0,0,0,0.2))' : 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))',
-                transform: isHighlighted ? 'scale(1.05)' : 'scale(1)',
-                transformOrigin: `${component.x + component.width/2}px ${component.y + component.height/2}px`,
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={() => setHoveredComponent(component.id)}
-              onMouseLeave={() => setHoveredComponent(null)}
-              onClick={() => onComponentClick && onComponentClick(component)}
-            />
-
-            {/* Icon */}
-            <text
-              x={component.x + component.width/2}
-              y={component.y + 35}
-              textAnchor="middle"
-              fontSize="48"
-              style={{ userSelect: 'none', pointerEvents: 'none' }}
-            >
-              {component.icon}
-            </text>
-
-            {/* Title */}
-            <text
-              x={component.x + component.width/2}
-              y={component.y + 75}
-              textAnchor="middle"
-              fontSize="18"
-              fontWeight="700"
-              fill="white"
-              style={{ userSelect: 'none', pointerEvents: 'none' }}
-            >
-              {component.title}
-            </text>
-
-            {/* Details */}
-            {component.details && component.details.slice(0, 3).map((detail, idx) => (
-              <text
-                key={idx}
-                x={component.x + component.width/2}
-                y={component.y + 100 + (idx * 15)}
-                textAnchor="middle"
-                fontSize="10"
-                fontWeight="500"
-                fill="rgba(255,255,255,0.9)"
-                style={{ userSelect: 'none', pointerEvents: 'none' }}
-              >
-                {detail.name.length > 18 ? detail.name.substring(0, 15) + '...' : detail.name}
-              </text>
-            ))}
-            {component.details && component.details.length > 3 && (
-              <text
-                x={component.x + component.width/2}
-                y={component.y + 145}
-                textAnchor="middle"
-                fontSize="10"
-                fontWeight="500"
-                fill="rgba(255,255,255,0.7)"
-                style={{ userSelect: 'none', pointerEvents: 'none' }}
-              >
-                +{component.details.length - 3} more features...
-              </text>
-            )}
-          </g>
-        )})}
-      </svg>
-    </div>
+      <code dangerouslySetInnerHTML={{ __html: highlightJava(code) }} />
+    </pre>
   )
 }
 
 function MicroservicePatterns({ onBack }) {
-  const [selectedComponent, setSelectedComponent] = useState(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedConcept, setSelectedConcept] = useState(null)
-  const [focusedComponentIndex, setFocusedComponentIndex] = useState(0)
+  const [expandedSections, setExpandedSections] = useState({})
 
-  const components = [
+  const toggleSection = (sectionKey) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey]
+    }))
+  }
+
+  const parseCodeSections = (code) => {
+    const sections = []
+    const lines = code.split('\n')
+    let currentSection = null
+    let currentContent = []
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+
+      if (line.includes('// ═══════════════════════════════════════════════════════════════════════════')) {
+        if (currentSection) {
+          sections.push({
+            title: currentSection,
+            code: currentContent.join('\n')
+          })
+          currentContent = []
+        }
+
+        if (i + 1 < lines.length && lines[i + 1].includes('// ✦')) {
+          currentSection = lines[i + 1].replace('// ✦', '').trim()
+          i += 2
+          continue
+        }
+      }
+
+      if (currentSection) {
+        currentContent.push(line)
+      }
+    }
+
+    if (currentSection && currentContent.length > 0) {
+      sections.push({
+        title: currentSection,
+        code: currentContent.join('\n')
+      })
+    }
+
+    return sections
+  }
+
+  const microservicePatterns = [
     {
-      id: 'api-gateway', x: 80, y: 240, width: 350, height: 160,
-      icon: '🚪', title: 'API Gateway Pattern', color: 'indigo',
-      details: [
-        { name: 'Single Entry Point', explanation: 'Unified entry point for all clients. Routes requests to appropriate microservices. Simplifies client code. Reduces coupling between clients and services. Protocol translation. Client doesn\'t need to know service topology.' },
-        { name: 'Request Routing', explanation: 'Routes based on URL, headers, method. Path-based routing: /users/* to user service. Load balancing across service instances. Version-based routing. A/B testing. Canary deployments. Dynamic routing rules.' },
-        { name: 'Authentication & Authorization', explanation: 'Centralized security enforcement. JWT validation. OAuth2/OIDC integration. API key management. Rate limiting per client. Security policies. Single place for auth logic. Reduces duplication across services.' },
-        { name: 'Request Aggregation', explanation: 'Combine multiple service calls into single response. Reduces client-side complexity. Parallel service invocation. Data composition. Backend for Frontend (BFF) pattern. Mobile-specific aggregations. Optimized for client needs.' },
-        { name: 'Cross-Cutting Concerns', explanation: 'Logging, monitoring, metrics collection. Distributed tracing correlation IDs. Request/response transformation. Caching. Compression. SSL termination. Error handling. Protocol translation (REST to gRPC).' },
-        { name: 'Technologies', explanation: 'Kong, NGINX, AWS API Gateway, Azure API Management, Spring Cloud Gateway, Zuul. Service mesh integration (Istio, Linkerd). Cloud-native gateways. Programmable gateways. Open source and commercial options.' }
-      ],
-      description: 'Single entry point for clients that routes requests, handles cross-cutting concerns, and aggregates responses.'
+      name: 'API Gateway',
+      icon: '🚪',
+      explanation: `Single entry point for all client requests that routes to appropriate microservices. Handles cross-cutting concerns like authentication, authorization, rate limiting, request/response transformation, and protocol translation. Reduces client complexity by providing unified interface and aggregating responses from multiple services. Essential for microservices architectures to simplify client communication.
+
+Key Benefits:
+• Single entry point for all clients (mobile, web, third-party)
+• Centralized authentication and authorization
+• Request routing and load balancing
+• Response aggregation (Backend for Frontend pattern)
+• Protocol translation (REST to gRPC)
+• Rate limiting and throttling
+• Request/response transformation
+• SSL termination and security enforcement
+
+Technologies: Kong, NGINX, AWS API Gateway, Azure API Management, Spring Cloud Gateway, Netflix Zuul, Istio/Envoy service mesh integration.`,
+      diagram: () => (
+        <svg viewBox="0 0 700 400" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '2rem auto', display: 'block' }}>
+          <defs>
+            <linearGradient id="apiGatewayGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#4f46e5', stopOpacity: 1 }} />
+            </linearGradient>
+            <linearGradient id="serviceBoxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#818cf8', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrow1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <polygon points="0 0, 10 3, 0 6" fill="#6366f1" />
+            </marker>
+          </defs>
+          <rect x="50" y="20" width="100" height="50" rx="8" fill="#e0e7ff" stroke="#6366f1" strokeWidth="2" />
+          <text x="100" y="50" fontSize="14" fontWeight="600" fill="#6366f1" textAnchor="middle">Mobile</text>
+          <rect x="200" y="20" width="100" height="50" rx="8" fill="#e0e7ff" stroke="#6366f1" strokeWidth="2" />
+          <text x="250" y="50" fontSize="14" fontWeight="600" fill="#6366f1" textAnchor="middle">Web</text>
+          <rect x="350" y="20" width="100" height="50" rx="8" fill="#e0e7ff" stroke="#6366f1" strokeWidth="2" />
+          <text x="400" y="50" fontSize="14" fontWeight="600" fill="#6366f1" textAnchor="middle">Desktop</text>
+          <rect x="150" y="130" width="200" height="80" rx="12" fill="url(#apiGatewayGrad)" stroke="#4f46e5" strokeWidth="3" />
+          <text x="250" y="165" fontSize="18" fontWeight="bold" fill="white" textAnchor="middle">API Gateway</text>
+          <text x="250" y="190" fontSize="12" fill="white" opacity="0.9" textAnchor="middle">Route • Auth • Rate Limit</text>
+          <line x1="100" y1="70" x2="200" y2="130" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow1)" />
+          <line x1="250" y1="70" x2="250" y2="130" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow1)" />
+          <line x1="400" y1="70" x2="300" y2="130" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow1)" />
+          <rect x="50" y="280" width="120" height="60" rx="8" fill="url(#serviceBoxGrad)" />
+          <text x="110" y="310" fontSize="14" fontWeight="600" fill="white" textAnchor="middle">User Service</text>
+          <rect x="210" y="280" width="120" height="60" rx="8" fill="url(#serviceBoxGrad)" />
+          <text x="270" y="310" fontSize="14" fontWeight="600" fill="white" textAnchor="middle">Order Service</text>
+          <rect x="370" y="280" width="130" height="60" rx="8" fill="url(#serviceBoxGrad)" />
+          <text x="435" y="305" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">Payment</text>
+          <text x="435" y="325" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">Service</text>
+          <line x1="200" y1="210" x2="110" y2="280" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow1)" />
+          <line x1="250" y1="210" x2="270" y2="280" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow1)" />
+          <line x1="300" y1="210" x2="435" y2="280" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow1)" />
+          <text x="250" y="380" fontSize="12" fill="#6b7280" textAnchor="middle" fontStyle="italic">
+            Single entry point routing to multiple microservices
+          </text>
+        </svg>
+      ),
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Spring Cloud Gateway Configuration
+// ═══════════════════════════════════════════════════════════════════════════
+
+// API Gateway with Spring Cloud Gateway
+@SpringBootApplication
+public class ApiGatewayApplication {
+  public static void main(String[] args) {
+    SpringApplication.run(ApiGatewayApplication.class, args);
+  }
+}
+
+// application.yml - Gateway routing configuration
+/*
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - RewritePath=/api/users/(?<segment>.*), /\${segment}
+
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/orders/**
+          filters:
+            - AddRequestHeader=X-Service, order-service
+*/
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Custom Filters and Authentication
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Custom authentication filter
+@Component
+public class AuthenticationFilter implements GatewayFilter {
+
+  @Autowired
+  private JwtUtil jwtUtil;
+
+  @Override
+  public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+    ServerHttpRequest request = exchange.getRequest();
+
+    if (!request.getHeaders().containsKey("Authorization")) {
+      throw new RuntimeException("Missing authorization header");
+    }
+
+    String token = request.getHeaders().get("Authorization").get(0);
+    if (token != null && token.startsWith("Bearer ")) {
+      token = token.substring(7);
+    }
+
+    try {
+      jwtUtil.validateToken(token);
+    } catch (Exception e) {
+      throw new RuntimeException("Invalid token");
+    }
+
+    return chain.filter(exchange);
+  }
+}
+// Output: Validates JWT token before routing to services
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Rate Limiting and Circuit Breaker
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Rate limiting filter
+@Configuration
+public class GatewayConfig {
+
+  @Bean
+  public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
+    return builder.routes()
+      .route("rate_limited_route", r -> r.path("/api/public/**")
+        .filters(f -> f
+          .requestRateLimiter(config -> config
+            .setRateLimiter(redisRateLimiter())
+            .setKeyResolver(userKeyResolver()))
+          .circuitBreaker(config -> config
+            .setName("myCircuitBreaker")
+            .setFallbackUri("/fallback/public")))
+        .uri("lb://PUBLIC-SERVICE"))
+      .build();
+  }
+
+  @Bean
+  public RedisRateLimiter redisRateLimiter() {
+    return new RedisRateLimiter(10, 20); // 10 requests per second, burst 20
+  }
+
+  @Bean
+  public KeyResolver userKeyResolver() {
+    return exchange -> Mono.just(
+      exchange.getRequest().getRemoteAddress().getAddress().getHostAddress()
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Request Aggregation Pattern
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Backend for Frontend - Aggregate responses
+@RestController
+@RequestMapping("/api/aggregate")
+public class AggregationController {
+
+  @Autowired
+  private WebClient.Builder webClientBuilder;
+
+  @GetMapping("/user-profile/{userId}")
+  public Mono<UserProfile> getUserProfile(@PathVariable String userId) {
+    Mono<User> userMono = webClientBuilder.build()
+      .get()
+      .uri("http://USER-SERVICE/users/" + userId)
+      .retrieve()
+      .bodyToMono(User.class);
+
+    Mono<List<Order>> ordersMono = webClientBuilder.build()
+      .get()
+      .uri("http://ORDER-SERVICE/orders?userId=" + userId)
+      .retrieve()
+      .bodyToFlux(Order.class)
+      .collectList();
+
+    Mono<Preferences> prefsMono = webClientBuilder.build()
+      .get()
+      .uri("http://PREFS-SERVICE/preferences/" + userId)
+      .retrieve()
+      .bodyToMono(Preferences.class);
+
+    return Mono.zip(userMono, ordersMono, prefsMono)
+      .map(tuple -> new UserProfile(
+        tuple.getT1(),
+        tuple.getT2(),
+        tuple.getT3()
+      ));
+  }
+}
+// Output: Single response with user, orders, and preferences data`
     },
     {
-      id: 'circuit-breaker', x: 580, y: 140, width: 350, height: 160,
-      icon: '🔌', title: 'Circuit Breaker Pattern', color: 'indigo',
-      details: [
-        { name: 'Failure Detection', explanation: 'Monitors service call failures. Tracks success/failure rates. Timeout detection. Exceptions monitoring. Configurable thresholds. Prevents cascading failures. Fast failure instead of waiting. Protects downstream services.' },
-        { name: 'Circuit States', explanation: 'Closed: normal operation, requests pass through. Open: threshold exceeded, fail fast without calling service. Half-Open: test if service recovered. Automatic state transitions. Configurable timeout before testing recovery.' },
-        { name: 'Fallback Mechanisms', explanation: 'Default response when circuit open. Cached data. Degraded functionality. Static content. Queuing for later processing. Graceful degradation. User-friendly error messages. Maintain partial system functionality.' },
-        { name: 'Health Checks', explanation: 'Periodic health checks in half-open state. Successful calls close circuit. Failed calls reopen circuit. Configurable probe frequency. Active vs passive health checks. Service discovery integration. Automatic recovery.' },
-        { name: 'Metrics & Monitoring', explanation: 'Track circuit state changes. Failure rates. Response times. Recovery metrics. Alerting on circuit open. Dashboard visibility. Identify problem services quickly. Historical data for analysis.' },
-        { name: 'Implementation', explanation: 'Netflix Hystrix (deprecated but influential). Resilience4j (modern replacement). Spring Cloud Circuit Breaker abstraction. Istio/Envoy service mesh. Polly (.NET). Configuration per service. Annotations or programmatic.' }
-      ],
-      description: 'Prevents cascading failures by detecting faults and stopping calls to failing services until recovery.'
+      name: 'Circuit Breaker',
+      icon: '🔌',
+      explanation: `Prevents cascading failures by monitoring service calls and stopping requests to failing services. Implements three states: Closed (normal operation), Open (failing fast), and Half-Open (testing recovery). Provides fallback mechanisms for graceful degradation when services are unavailable. Essential for building resilient microservices that handle failures gracefully.
+
+Circuit States:
+• Closed: Normal operation, all requests pass through
+• Open: Threshold exceeded, fail fast without calling service (return fallback)
+• Half-Open: After timeout, test if service recovered with limited requests
+
+Key Features:
+• Failure detection and threshold monitoring
+• Automatic state transitions
+• Fallback mechanisms (cached data, default responses)
+• Health checks and automatic recovery
+• Metrics and monitoring integration
+• Prevent cascading failures across services
+
+Implementation: Resilience4j, Spring Cloud Circuit Breaker, Istio/Envoy service mesh, Netflix Hystrix (deprecated).`,
+      diagram: () => (
+        <svg viewBox="0 0 700 450" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '2rem auto', display: 'block' }}>
+          <defs>
+            <linearGradient id="closedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
+            </linearGradient>
+            <linearGradient id="openGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#ef4444', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#dc2626', stopOpacity: 1 }} />
+            </linearGradient>
+            <linearGradient id="halfOpenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrow2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <polygon points="0 0, 10 3, 0 6" fill="#6b7280" />
+            </marker>
+          </defs>
+          <rect x="50" y="50" width="150" height="100" rx="12" fill="url(#closedGrad)" stroke="#059669" strokeWidth="3" />
+          <text x="125" y="85" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">CLOSED</text>
+          <text x="125" y="110" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Normal Operation</text>
+          <text x="125" y="130" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Requests Pass</text>
+          <rect x="275" y="50" width="150" height="100" rx="12" fill="url(#openGrad)" stroke="#dc2626" strokeWidth="3" />
+          <text x="350" y="85" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">OPEN</text>
+          <text x="350" y="110" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Failures Detected</text>
+          <text x="350" y="130" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Fail Fast</text>
+          <rect x="162" y="250" width="150" height="100" rx="12" fill="url(#halfOpenGrad)" stroke="#d97706" strokeWidth="3" />
+          <text x="237" y="285" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">HALF-OPEN</text>
+          <text x="237" y="310" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Testing Recovery</text>
+          <text x="237" y="330" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Limited Requests</text>
+          <line x1="200" y1="100" x2="275" y2="100" stroke="#6b7280" strokeWidth="2" markerEnd="url(#arrow2)" />
+          <text x="237" y="90" fontSize="10" fill="#374151" textAnchor="middle">Threshold</text>
+          <text x="237" y="105" fontSize="10" fill="#374151" textAnchor="middle">Exceeded</text>
+          <line x1="350" y1="150" x2="280" y2="250" stroke="#6b7280" strokeWidth="2" markerEnd="url(#arrow2)" />
+          <text x="330" y="210" fontSize="10" fill="#374151" textAnchor="middle">After</text>
+          <text x="330" y="225" fontSize="10" fill="#374151" textAnchor="middle">Timeout</text>
+          <line x1="190" y1="300" x2="125" y2="150" stroke="#6b7280" strokeWidth="2" markerEnd="url(#arrow2)" />
+          <text x="140" y="220" fontSize="10" fill="#374151" textAnchor="middle">Success</text>
+          <line x1="284" y1="300" x2="350" y2="150" stroke="#6b7280" strokeWidth="2" markerEnd="url(#arrow2)" />
+          <text x="335" y="220" fontSize="10" fill="#374151" textAnchor="middle">Failure</text>
+          <text x="237" y="420" fontSize="12" fill="#6b7280" textAnchor="middle" fontStyle="italic">
+            Circuit Breaker State Machine - Prevents Cascading Failures
+          </text>
+        </svg>
+      ),
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Resilience4j Circuit Breaker Setup
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Add Resilience4j dependency
+/*
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
+</dependency>
+*/
+
+// application.yml - Circuit breaker configuration
+/*
+resilience4j:
+  circuitbreaker:
+    instances:
+      paymentService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: 2s
+*/
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Circuit Breaker with Fallback
+// ═══════════════════════════════════════════════════════════════════════════
+
+@Service
+public class PaymentService {
+
+  @Autowired
+  private RestTemplate restTemplate;
+
+  @Autowired
+  private CircuitBreakerFactory circuitBreakerFactory;
+
+  public PaymentResponse processPayment(PaymentRequest request) {
+    CircuitBreaker circuitBreaker = circuitBreakerFactory.create("paymentService");
+
+    return circuitBreaker.run(
+      () -> {
+        // Call external payment service
+        return restTemplate.postForObject(
+          "http://PAYMENT-SERVICE/api/payments",
+          request,
+          PaymentResponse.class
+        );
+      },
+      throwable -> {
+        // Fallback method
+        System.out.println("Circuit breaker activated, using fallback");
+        return getPaymentFallback(request);
+      }
+    );
+  }
+
+  private PaymentResponse getPaymentFallback(PaymentRequest request) {
+    PaymentResponse fallback = new PaymentResponse();
+    fallback.setStatus("PENDING");
+    fallback.setMessage("Payment service temporarily unavailable. Request queued.");
+    fallback.setTransactionId("FALLBACK-" + UUID.randomUUID());
+    return fallback;
+  }
+}
+// Output: Returns fallback when payment service fails
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Annotation-Based Circuit Breaker
+// ═══════════════════════════════════════════════════════════════════════════
+
+@Service
+public class OrderService {
+
+  @Autowired
+  private RestTemplate restTemplate;
+
+  @CircuitBreaker(name = "orderService", fallbackMethod = "getOrderFallback")
+  @Retry(name = "orderService")
+  @TimeLimiter(name = "orderService")
+  public CompletableFuture<Order> getOrder(Long orderId) {
+    return CompletableFuture.supplyAsync(() ->
+      restTemplate.getForObject(
+        "http://ORDER-SERVICE/orders/" + orderId,
+        Order.class
+      )
+    );
+  }
+
+  private CompletableFuture<Order> getOrderFallback(Long orderId, Exception ex) {
+    System.out.println("Circuit breaker fallback for order: " + orderId);
+    Order fallbackOrder = new Order();
+    fallbackOrder.setId(orderId);
+    fallbackOrder.setStatus("UNAVAILABLE");
+    return CompletableFuture.completedFuture(fallbackOrder);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Circuit Breaker Events and Monitoring
+// ═══════════════════════════════════════════════════════════════════════════
+
+@Component
+public class CircuitBreakerEventListener {
+
+  @EventListener
+  public void onCircuitBreakerEvent(CircuitBreakerOnStateTransitionEvent event) {
+    System.out.println("Circuit Breaker State Transition: " +
+      event.getStateTransition().getFromState() + " -> " +
+      event.getStateTransition().getToState());
+
+    // Send alert when circuit opens
+    if (event.getStateTransition().getToState() == CircuitBreaker.State.OPEN) {
+      alertService.sendAlert("Circuit breaker opened for: " +
+        event.getCircuitBreakerName());
+    }
+  }
+
+  @EventListener
+  public void onCircuitBreakerError(CircuitBreakerOnErrorEvent event) {
+    System.out.println("Circuit Breaker Error: " +
+      event.getThrowable().getMessage());
+    metricsService.incrementErrorCount(event.getCircuitBreakerName());
+  }
+}
+
+// Actuator endpoint for circuit breaker status
+// GET /actuator/circuitbreakers
+/*
+{
+  "circuitBreakers": {
+    "paymentService": {
+      "state": "CLOSED",
+      "failureRate": "10.0%",
+      "slowCallRate": "5.0%",
+      "bufferedCalls": 10,
+      "failedCalls": 1
+    }
+  }
+}
+*/`
     },
     {
-      id: 'service-discovery', x: 580, y: 340, width: 350, height: 160,
-      icon: '🔍', title: 'Service Discovery Pattern', color: 'indigo',
-      details: [
-        { name: 'Service Registry', explanation: 'Centralized database of service instances. Service location information: host, port, protocol. Metadata tags. Health status. Dynamic inventory of running services. Services register on startup. Consul, Eureka, etcd, ZooKeeper.' },
-        { name: 'Service Registration', explanation: 'Self-registration: service registers itself. Third-party registration: platform registers service. Heartbeats to maintain registration. Deregistration on shutdown. Automatic cleanup of dead instances. Metadata updates. Health check endpoints.' },
-        { name: 'Client-Side Discovery', explanation: 'Client queries service registry. Client selects instance (load balancing). Direct communication to service. Netflix Eureka pattern. More network hops. Client-side load balancing. Ribbon, Spring Cloud LoadBalancer. Smart clients.' },
-        { name: 'Server-Side Discovery', explanation: 'Client calls load balancer/router. Load balancer queries registry. Load balancer routes to service. AWS ELB, NGINX. Simpler clients. Centralized load balancing. Additional network hop. Better for diverse clients.' },
-        { name: 'Health Checks', explanation: 'Service health monitoring. Active checks by registry. Passive health monitoring. TTL-based registration. Multiple health indicators. Graceful shutdown. Only route to healthy instances. Remove unhealthy from rotation.' },
-        { name: 'Service Mesh Integration', explanation: 'Istio, Linkerd handle discovery transparently. Sidecar proxies. Automatic service registration. Traffic management. No application code changes. Platform-level discovery. Cloud-native approach. Kubernetes service discovery.' }
-      ],
-      description: 'Enables automatic detection of service instances through dynamic registry for location transparency.'
+      name: 'Service Discovery',
+      icon: '🔍',
+      explanation: `Enables automatic detection and location of service instances in a microservices architecture. Services register themselves with a central registry on startup and deregister on shutdown. Clients query the registry to find available service instances, enabling dynamic scaling and load balancing. Essential for cloud-native applications where service instances are constantly changing.
+
+Discovery Patterns:
+• Client-Side Discovery: Client queries registry and selects instance (Netflix Eureka, Ribbon)
+• Server-Side Discovery: Load balancer queries registry and routes (AWS ELB, Kubernetes Service)
+• Service Mesh: Platform-level discovery with sidecar proxies (Istio, Linkerd)
+
+Key Features:
+• Dynamic service registration and deregistration
+• Health checks and automatic instance removal
+• Load balancing across service instances
+• Metadata and versioning support
+• Multi-datacenter awareness
+• Integration with service mesh
+
+Technologies: Netflix Eureka, Consul, etcd, ZooKeeper, Kubernetes Service Discovery, AWS Cloud Map.`,
+      diagram: () => (
+        <svg viewBox="0 0 800 450" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '2rem auto', display: 'block' }}>
+          <defs>
+            <linearGradient id="registryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#4f46e5', stopOpacity: 1 }} />
+            </linearGradient>
+            <linearGradient id="serviceInstGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#818cf8', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrow3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <polygon points="0 0, 10 3, 0 6" fill="#6366f1" />
+            </marker>
+          </defs>
+          <rect x="300" y="20" width="200" height="80" rx="12" fill="url(#registryGrad)" stroke="#4f46e5" strokeWidth="3" />
+          <text x="400" y="55" fontSize="18" fontWeight="bold" fill="white" textAnchor="middle">Service Registry</text>
+          <text x="400" y="80" fontSize="12" fill="white" opacity="0.9" textAnchor="middle">Eureka • Consul</text>
+          <rect x="50" y="180" width="140" height="70" rx="8" fill="url(#serviceInstGrad)" stroke="#6366f1" strokeWidth="2" />
+          <text x="120" y="210" fontSize="14" fontWeight="600" fill="white" textAnchor="middle">Service A</text>
+          <text x="120" y="230" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Instance 1</text>
+          <rect x="220" y="180" width="140" height="70" rx="8" fill="url(#serviceInstGrad)" stroke="#6366f1" strokeWidth="2" />
+          <text x="290" y="210" fontSize="14" fontWeight="600" fill="white" textAnchor="middle">Service A</text>
+          <text x="290" y="230" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Instance 2</text>
+          <rect x="440" y="180" width="140" height="70" rx="8" fill="url(#serviceInstGrad)" stroke="#6366f1" strokeWidth="2" />
+          <text x="510" y="210" fontSize="14" fontWeight="600" fill="white" textAnchor="middle">Service B</text>
+          <text x="510" y="230" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Instance 1</text>
+          <rect x="610" y="180" width="140" height="70" rx="8" fill="url(#serviceInstGrad)" stroke="#6366f1" strokeWidth="2" />
+          <text x="680" y="210" fontSize="14" fontWeight="600" fill="white" textAnchor="middle">Service B</text>
+          <text x="680" y="230" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Instance 2</text>
+          <line x1="120" y1="180" x2="350" y2="100" stroke="#10b981" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrow3)" />
+          <text x="200" y="135" fontSize="10" fill="#10b981" fontWeight="600">Register</text>
+          <line x1="290" y1="180" x2="380" y2="100" stroke="#10b981" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrow3)" />
+          <line x1="510" y1="180" x2="420" y2="100" stroke="#10b981" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrow3)" />
+          <line x1="680" y1="180" x2="450" y2="100" stroke="#10b981" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrow3)" />
+          <rect x="320" y="330" width="160" height="70" rx="8" fill="#e0e7ff" stroke="#6366f1" strokeWidth="2" />
+          <text x="400" y="360" fontSize="15" fontWeight="600" fill="#6366f1" textAnchor="middle">Client Service</text>
+          <text x="400" y="380" fontSize="11" fill="#6b7280" textAnchor="middle">Query Registry</text>
+          <line x1="400" y1="100" x2="400" y2="330" stroke="#f59e0b" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrow3)" />
+          <text x="420" y="220" fontSize="10" fill="#f59e0b" fontWeight="600">Discover</text>
+          <text x="400" y="430" fontSize="12" fill="#6b7280" textAnchor="middle" fontStyle="italic">
+            Service Registry with Dynamic Registration and Discovery
+          </text>
+        </svg>
+      ),
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Eureka Server Setup
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Eureka Server
+@SpringBootApplication
+@EnableEurekaServer
+public class EurekaServerApplication {
+  public static void main(String[] args) {
+    SpringApplication.run(EurekaServerApplication.class, args);
+  }
+}
+
+// application.yml - Eureka Server config
+/*
+server:
+  port: 8761
+
+eureka:
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+  server:
+    enableSelfPreservation: false
+*/
+// Output: Eureka dashboard at http://localhost:8761
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Service Registration (Client)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Service registration with Eureka
+@SpringBootApplication
+@EnableEurekaClient
+public class UserServiceApplication {
+  public static void main(String[] args) {
+    SpringApplication.run(UserServiceApplication.class, args);
+  }
+}
+
+// application.yml - Service registration config
+/*
+spring:
+  application:
+    name: USER-SERVICE
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    registerWithEureka: true
+    fetchRegistry: true
+  instance:
+    hostname: localhost
+    preferIpAddress: true
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 30
+    metadataMap:
+      version: 1.0
+      environment: production
+*/
+// Output: USER-SERVICE registered with Eureka
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Service Discovery and Load Balancing
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Client-side load balancing with Spring Cloud LoadBalancer
+@Configuration
+public class LoadBalancerConfig {
+
+  @Bean
+  @LoadBalanced
+  public RestTemplate restTemplate() {
+    return new RestTemplate();
+  }
+
+  @Bean
+  @LoadBalanced
+  public WebClient.Builder webClientBuilder() {
+    return WebClient.builder();
+  }
+}
+
+@Service
+public class OrderService {
+
+  @Autowired
+  private RestTemplate restTemplate;
+
+  public User getUserById(Long userId) {
+    // Service name instead of hostname:port
+    // LoadBalancer automatically discovers instances
+    return restTemplate.getForObject(
+      "http://USER-SERVICE/api/users/" + userId,
+      User.class
+    );
+  }
+}
+// Output: Automatically discovers and load balances across USER-SERVICE instances
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Health Checks and Custom Metadata
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Custom health check
+@Component
+public class CustomHealthCheck implements HealthIndicator {
+
+  @Override
+  public Health health() {
+    boolean databaseUp = checkDatabaseConnection();
+    boolean cacheUp = checkCacheConnection();
+
+    if (databaseUp && cacheUp) {
+      return Health.up()
+        .withDetail("database", "connected")
+        .withDetail("cache", "connected")
+        .build();
+    }
+    return Health.down()
+      .withDetail("database", databaseUp ? "connected" : "down")
+      .withDetail("cache", cacheUp ? "connected" : "down")
+      .build();
+  }
+
+  private boolean checkDatabaseConnection() {
+    return true; // Check database
+  }
+
+  private boolean checkCacheConnection() {
+    return true; // Check cache
+  }
+}
+
+// Programmatic instance metadata
+@Component
+public class EurekaInstanceConfigurer {
+
+  @Autowired
+  private EurekaInstanceConfig eurekaInstanceConfig;
+
+  @PostConstruct
+  public void addMetadata() {
+    Map<String, String> metadata = eurekaInstanceConfig.getMetadataMap();
+    metadata.put("region", "us-east-1");
+    metadata.put("zone", "us-east-1a");
+    metadata.put("capabilities", "payments,notifications");
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Discovery Client API
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Using DiscoveryClient API directly
+@Service
+public class ServiceDiscoveryHelper {
+
+  @Autowired
+  private DiscoveryClient discoveryClient;
+
+  public List<String> getAvailableServices() {
+    return discoveryClient.getServices();
+  }
+
+  public List<ServiceInstance> getInstances(String serviceName) {
+    return discoveryClient.getInstances(serviceName);
+  }
+
+  public void printServiceInfo(String serviceName) {
+    List<ServiceInstance> instances = discoveryClient.getInstances(serviceName);
+
+    for (ServiceInstance instance : instances) {
+      System.out.println("Service ID: " + instance.getServiceId());
+      System.out.println("Host: " + instance.getHost());
+      System.out.println("Port: " + instance.getPort());
+      System.out.println("URI: " + instance.getUri());
+      System.out.println("Metadata: " + instance.getMetadata());
+      System.out.println("---");
+    }
+  }
+}
+// Output: Lists all registered service instances with details`
     },
     {
-      id: 'config-server', x: 80, y: 440, width: 350, height: 160,
-      icon: '⚙️', title: 'Config Server Pattern', color: 'indigo',
-      details: [
-        { name: 'Externalized Configuration', explanation: 'Configuration outside application code. Environment-specific properties. No rebuilding for config changes. Version controlled configuration. Centralized management. Application, service, environment-specific configs. Separation of concerns.' },
-        { name: 'Configuration Storage', explanation: 'Git repository backend (Spring Cloud Config). Database storage. Consul KV store. etcd. AWS Parameter Store. Azure App Configuration. Vault for secrets. Version history. Rollback capability. Audit trail.' },
-        { name: 'Dynamic Refresh', explanation: 'Update config without restart. Push updates via webhook. Pull-based periodic refresh. @RefreshScope in Spring. Feature flags. A/B testing configurations. Gradual rollout of changes. Hot reloading properties.' },
-        { name: 'Environment Profiles', explanation: 'Different configs for dev, test, prod. Profile-specific property files. Inheritance and overrides. Common base configuration. Environment-specific secrets. Consistency across environments. Reduced configuration errors.' },
-        { name: 'Encryption & Secrets', explanation: 'Encrypt sensitive properties. Integration with HashiCorp Vault. AWS KMS. Azure Key Vault. Decrypt on service startup. Separate secret management. Never commit secrets to git. Rotation policies. Audit access.' },
-        { name: 'High Availability', explanation: 'Cluster config servers. Caching in services. Graceful degradation if config server down. Fast fail for critical configs. Service starts with cached/default config. Retry mechanisms. Multiple config sources.' }
-      ],
-      description: 'Centralized external configuration management for microservices across all environments.'
+      name: 'Saga Pattern',
+      icon: '🔄',
+      explanation: `Manages distributed transactions across multiple microservices using a sequence of local transactions with compensating actions. Unlike traditional two-phase commit, sagas provide eventual consistency through either orchestration (centralized coordinator) or choreography (event-driven). Essential for complex business processes that span multiple services like order processing, payment, inventory, and shipping.
+
+Saga Types:
+• Orchestration-Based: Central coordinator (Saga Execution Coordinator) manages the workflow
+• Choreography-Based: Services coordinate through events, no central controller
+
+Compensating Transactions:
+• Semantic undo operations (not ACID rollback)
+• RefundPayment compensates ChargePayment
+• CancelReservation compensates ReserveInventory
+• Must be idempotent and handle partial failures
+
+Use Cases: E-commerce checkout, travel booking, financial transactions, order fulfillment, multi-step workflows.
+
+Technologies: Axon Framework, Eventuate, Camunda, Apache Camel, Spring Cloud, custom implementations.`,
+      diagram: () => (
+        <svg viewBox="0 0 750 450" style={{ width: '100%', maxWidth: '750px', height: 'auto', margin: '2rem auto', display: 'block' }}>
+          <defs>
+            <linearGradient id="sagaOrcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#4f46e5', stopOpacity: 1 }} />
+            </linearGradient>
+            <linearGradient id="sagaStepGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#818cf8', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrow4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <polygon points="0 0, 10 3, 0 6" fill="#6366f1" />
+            </marker>
+            <marker id="arrowComp" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <polygon points="0 0, 10 3, 0 6" fill="#ef4444" />
+            </marker>
+          </defs>
+          <text x="375" y="30" fontSize="16" fontWeight="bold" fill="#6366f1" textAnchor="middle">Orchestration-Based Saga</text>
+          <rect x="280" y="50" width="190" height="70" rx="10" fill="url(#sagaOrcGrad)" stroke="#4f46e5" strokeWidth="2" />
+          <text x="375" y="80" fontSize="15" fontWeight="bold" fill="white" textAnchor="middle">Saga Coordinator</text>
+          <text x="375" y="100" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Controls Workflow</text>
+          <rect x="50" y="200" width="130" height="60" rx="8" fill="url(#sagaStepGrad)" />
+          <text x="115" y="225" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">Reserve</text>
+          <text x="115" y="245" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">Inventory</text>
+          <rect x="220" y="200" width="130" height="60" rx="8" fill="url(#sagaStepGrad)" />
+          <text x="285" y="225" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">Process</text>
+          <text x="285" y="245" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">Payment</text>
+          <rect x="390" y="200" width="130" height="60" rx="8" fill="url(#sagaStepGrad)" />
+          <text x="455" y="225" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">Schedule</text>
+          <text x="455" y="245" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">Shipping</text>
+          <rect x="560" y="200" width="130" height="60" rx="8" fill="url(#sagaStepGrad)" />
+          <text x="625" y="230" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">Complete</text>
+          <line x1="320" y1="120" x2="115" y2="200" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow4)" />
+          <line x1="360" y1="120" x2="285" y2="200" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow4)" />
+          <line x1="400" y1="120" x2="455" y2="200" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow4)" />
+          <line x1="440" y1="120" x2="625" y2="200" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow4)" />
+          <text x="230" y="175" fontSize="10" fill="#6366f1" fontWeight="600">Step 1</text>
+          <text x="315" y="175" fontSize="10" fill="#6366f1" fontWeight="600">Step 2</text>
+          <text x="460" y="175" fontSize="10" fill="#6366f1" fontWeight="600">Step 3</text>
+          <text x="545" y="175" fontSize="10" fill="#6366f1" fontWeight="600">Step 4</text>
+          <rect x="50" y="330" width="130" height="55" rx="8" fill="#fee2e2" stroke="#ef4444" strokeWidth="2" />
+          <text x="115" y="355" fontSize="12" fontWeight="600" fill="#ef4444" textAnchor="middle">Cancel</text>
+          <text x="115" y="372" fontSize="12" fontWeight="600" fill="#ef4444" textAnchor="middle">Inventory</text>
+          <rect x="220" y="330" width="130" height="55" rx="8" fill="#fee2e2" stroke="#ef4444" strokeWidth="2" />
+          <text x="285" y="355" fontSize="12" fontWeight="600" fill="#ef4444" textAnchor="middle">Refund</text>
+          <text x="285" y="372" fontSize="12" fontWeight="600" fill="#ef4444" textAnchor="middle">Payment</text>
+          <line x1="115" y1="260" x2="115" y2="330" stroke="#ef4444" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowComp)" />
+          <line x1="285" y1="260" x2="285" y2="330" stroke="#ef4444" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowComp)" />
+          <text x="50" y="320" fontSize="10" fill="#ef4444" fontWeight="600">Compensate</text>
+          <text x="220" y="320" fontSize="10" fill="#ef4444" fontWeight="600">Compensate</text>
+          <text x="375" y="430" fontSize="12" fill="#6b7280" textAnchor="middle" fontStyle="italic">
+            Orchestrated Transaction with Compensating Actions
+          </text>
+        </svg>
+      ),
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Orchestration-Based Saga with State Machine
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Saga coordinator using state machine
+@Service
+public class OrderSagaOrchestrator {
+
+  @Autowired
+  private InventoryService inventoryService;
+
+  @Autowired
+  private PaymentService paymentService;
+
+  @Autowired
+  private ShippingService shippingService;
+
+  @Autowired
+  private SagaStateRepository sagaStateRepository;
+
+  public OrderResult processOrder(Order order) {
+    SagaState saga = new SagaState(order.getId());
+    saga.setState("STARTED");
+    sagaStateRepository.save(saga);
+
+    try {
+      // Step 1: Reserve Inventory
+      saga.setState("RESERVING_INVENTORY");
+      ReservationResult reservation = inventoryService.reserveItems(order.getItems());
+      saga.setReservationId(reservation.getId());
+      sagaStateRepository.save(saga);
+
+      // Step 2: Process Payment
+      saga.setState("PROCESSING_PAYMENT");
+      PaymentResult payment = paymentService.chargePayment(order.getPaymentInfo());
+      saga.setPaymentId(payment.getId());
+      sagaStateRepository.save(saga);
+
+      // Step 3: Schedule Shipping
+      saga.setState("SCHEDULING_SHIPPING");
+      ShippingResult shipping = shippingService.scheduleShipping(order.getShippingAddress());
+      saga.setShippingId(shipping.getId());
+      sagaStateRepository.save(saga);
+
+      // Success
+      saga.setState("COMPLETED");
+      sagaStateRepository.save(saga);
+      return new OrderResult(true, "Order completed successfully");
+
+    } catch (Exception e) {
+      // Compensate in reverse order
+      compensate(saga);
+      return new OrderResult(false, "Order failed: " + e.getMessage());
+    }
+  }
+
+  private void compensate(SagaState saga) {
+    saga.setState("COMPENSATING");
+
+    if (saga.getShippingId() != null) {
+      shippingService.cancelShipping(saga.getShippingId());
+    }
+
+    if (saga.getPaymentId() != null) {
+      paymentService.refundPayment(saga.getPaymentId());
+    }
+
+    if (saga.getReservationId() != null) {
+      inventoryService.releaseReservation(saga.getReservationId());
+    }
+
+    saga.setState("COMPENSATED");
+    sagaStateRepository.save(saga);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Choreography-Based Saga with Events
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Event-driven saga with Kafka/RabbitMQ
+@Service
+public class OrderEventHandler {
+
+  @Autowired
+  private KafkaTemplate<String, Object> kafkaTemplate;
+
+  @Autowired
+  private OrderRepository orderRepository;
+
+  // Step 1: Create order and publish event
+  public void createOrder(Order order) {
+    order.setStatus("PENDING");
+    orderRepository.save(order);
+
+    OrderCreatedEvent event = new OrderCreatedEvent(
+      order.getId(),
+      order.getItems(),
+      order.getTotalAmount()
+    );
+    kafkaTemplate.send("order-events", event);
+  }
+
+  // Step 2: Listen to inventory reserved event
+  @KafkaListener(topics = "inventory-events")
+  public void handleInventoryReserved(InventoryReservedEvent event) {
+    System.out.println("Inventory reserved: " + event.getOrderId());
+
+    // Trigger payment
+    PaymentRequestEvent paymentEvent = new PaymentRequestEvent(
+      event.getOrderId(),
+      event.getAmount()
+    );
+    kafkaTemplate.send("payment-events", paymentEvent);
+  }
+
+  // Step 3: Listen to payment processed event
+  @KafkaListener(topics = "payment-events")
+  public void handlePaymentProcessed(PaymentProcessedEvent event) {
+    System.out.println("Payment processed: " + event.getOrderId());
+
+    // Trigger shipping
+    ShippingRequestEvent shippingEvent = new ShippingRequestEvent(
+      event.getOrderId(),
+      event.getAddress()
+    );
+    kafkaTemplate.send("shipping-events", shippingEvent);
+  }
+
+  // Handle failures - compensate
+  @KafkaListener(topics = "payment-failed-events")
+  public void handlePaymentFailed(PaymentFailedEvent event) {
+    System.out.println("Payment failed, compensating: " + event.getOrderId());
+
+    // Release inventory
+    InventoryReleaseEvent releaseEvent = new InventoryReleaseEvent(
+      event.getOrderId()
+    );
+    kafkaTemplate.send("inventory-events", releaseEvent);
+
+    // Update order status
+    Order order = orderRepository.findById(event.getOrderId()).get();
+    order.setStatus("FAILED");
+    orderRepository.save(order);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Saga State Persistence and Recovery
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Saga state entity
+@Entity
+@Table(name = "saga_state")
+public class SagaState {
+  @Id
+  private String sagaId;
+
+  private String orderId;
+  private String state;
+  private String reservationId;
+  private String paymentId;
+  private String shippingId;
+
+  private LocalDateTime startTime;
+  private LocalDateTime lastUpdateTime;
+
+  @ElementCollection
+  private List<String> completedSteps = new ArrayList<>();
+
+  // Getters and setters
+}
+
+// Saga recovery service
+@Service
+public class SagaRecoveryService {
+
+  @Autowired
+  private SagaStateRepository sagaStateRepository;
+
+  @Scheduled(fixedDelay = 60000) // Every minute
+  public void recoverStuckSagas() {
+    LocalDateTime timeout = LocalDateTime.now().minusMinutes(10);
+
+    List<SagaState> stuckSagas = sagaStateRepository
+      .findByStateNotInAndLastUpdateTimeBefore(
+        Arrays.asList("COMPLETED", "COMPENSATED"),
+        timeout
+      );
+
+    for (SagaState saga : stuckSagas) {
+      System.out.println("Recovering stuck saga: " + saga.getSagaId());
+
+      // Retry or compensate based on state
+      if (saga.getState().startsWith("PROCESSING")) {
+        retrySaga(saga);
+      } else {
+        compensateSaga(saga);
+      }
+    }
+  }
+
+  private void retrySaga(SagaState saga) {
+    // Retry logic based on current state
+  }
+
+  private void compensateSaga(SagaState saga) {
+    // Compensate completed steps
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Idempotent Operations and Deduplication
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Idempotent payment service
+@Service
+public class IdempotentPaymentService {
+
+  @Autowired
+  private PaymentRepository paymentRepository;
+
+  public PaymentResult chargePayment(String idempotencyKey, PaymentInfo info) {
+    // Check if already processed
+    Optional<Payment> existing = paymentRepository
+      .findByIdempotencyKey(idempotencyKey);
+
+    if (existing.isPresent()) {
+      System.out.println("Duplicate payment request, returning existing result");
+      return new PaymentResult(existing.get());
+    }
+
+    // Process payment
+    Payment payment = new Payment();
+    payment.setIdempotencyKey(idempotencyKey);
+    payment.setAmount(info.getAmount());
+    payment.setStatus("COMPLETED");
+    paymentRepository.save(payment);
+
+    return new PaymentResult(payment);
+  }
+
+  public void refundPayment(String paymentId) {
+    Payment payment = paymentRepository.findById(paymentId).get();
+
+    // Check if already refunded
+    if ("REFUNDED".equals(payment.getStatus())) {
+      System.out.println("Payment already refunded");
+      return;
+    }
+
+    payment.setStatus("REFUNDED");
+    paymentRepository.save(payment);
+  }
+}`
     },
     {
-      id: 'saga-pattern', x: 580, y: 540, width: 350, height: 160,
-      icon: '🔄', title: 'Saga Pattern', color: 'indigo',
-      details: [
-        { name: 'Distributed Transaction', explanation: 'Sequence of local transactions across services. No two-phase commit. Eventual consistency. Each service updates own database. Publishes events or sends commands. Long-running business processes. Order, payment, inventory, shipping coordination.' },
-        { name: 'Orchestration-Based', explanation: 'Central orchestrator coordinates saga. Saga Execution Coordinator (SEC). Defines saga flow. Sends commands to participants. Handles responses. State machine for process. Easier to understand and debug. Single point of coordination.' },
-        { name: 'Choreography-Based', explanation: 'Decentralized coordination via events. Each service subscribes to events and publishes new events. No central coordinator. Event-driven architecture. More loosely coupled. Harder to visualize flow. No single point of failure. Event sourcing integration.' },
-        { name: 'Compensating Transactions', explanation: 'Semantic undo for completed steps. Not ACID rollback. Business logic compensation. RefundPayment for ChargePayment. CancelReservation for ReserveInventory. Idempotent compensation. May not restore exact previous state. Best-effort rollback.' },
-        { name: 'Failure Handling', explanation: 'Backward recovery: compensate all completed steps. Forward recovery: retry until success. Timeout handling. Manual intervention for unrecoverable errors. Dead letter queues. Saga log for tracking state. Alerting and monitoring. Correlation IDs.' },
-        { name: 'Implementation Considerations', explanation: 'Idempotency of operations. Duplicate message handling. Saga state persistence. Exactly-once semantics. Timeout configuration. Monitoring saga execution. Testing strategies. Frameworks: Axon, Eventuate, Camunda. Message infrastructure.' }
-      ],
-      description: 'Manages distributed transactions across microservices using sequence of local transactions with compensations.'
+      name: 'CQRS',
+      icon: '📊',
+      explanation: `Command Query Responsibility Segregation separates read and write operations into distinct models. Commands change state without returning data, while queries return data without changing state. Enables independent optimization and scaling of read and write workloads. Often combined with Event Sourcing for event-driven architectures.
+
+Key Principles:
+• Commands: State changes, business logic validation, domain events
+• Queries: Read-optimized models, denormalized views, no business logic
+• Different databases for reads and writes (polyglot persistence)
+• Eventual consistency between command and query models
+
+Benefits:
+• Independent scaling of reads and writes
+• Optimized data models for each use case
+• Better security (separate read/write permissions)
+• Multiple specialized read models from same data
+• Simplified queries with denormalized views
+
+Technologies: Axon Framework, Event Store, Kafka, separate RDBMS/NoSQL databases, materialized views, search engines (Elasticsearch).`,
+      diagram: () => (
+        <svg viewBox="0 0 750 400" style={{ width: '100%', maxWidth: '750px', height: 'auto', margin: '2rem auto', display: 'block' }}>
+          <defs>
+            <linearGradient id="commandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#4f46e5', stopOpacity: 1 }} />
+            </linearGradient>
+            <linearGradient id="queryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrow5" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <polygon points="0 0, 10 3, 0 6" fill="#6366f1" />
+            </marker>
+            <marker id="arrowSync" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <polygon points="0 0, 10 3, 0 6" fill="#f59e0b" />
+            </marker>
+          </defs>
+          <text x="375" y="30" fontSize="18" fontWeight="bold" fill="#6366f1" textAnchor="middle">CQRS Pattern</text>
+          <rect x="50" y="70" width="280" height="100" rx="12" fill="url(#commandGrad)" stroke="#4f46e5" strokeWidth="3" />
+          <text x="190" y="105" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">Command Side (Write)</text>
+          <text x="190" y="130" fontSize="12" fill="white" opacity="0.9" textAnchor="middle">Business Logic</text>
+          <text x="190" y="150" fontSize="12" fill="white" opacity="0.9" textAnchor="middle">State Changes</text>
+          <rect x="420" y="70" width="280" height="100" rx="12" fill="url(#queryGrad)" stroke="#059669" strokeWidth="3" />
+          <text x="560" y="105" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">Query Side (Read)</text>
+          <text x="560" y="130" fontSize="12" fill="white" opacity="0.9" textAnchor="middle">Optimized Views</text>
+          <text x="560" y="150" fontSize="12" fill="white" opacity="0.9" textAnchor="middle">Denormalized Data</text>
+          <rect x="80" y="230" width="220" height="60" rx="8" fill="#ddd6fe" stroke="#6366f1" strokeWidth="2" />
+          <text x="190" y="255" fontSize="14" fontWeight="600" fill="#6366f1" textAnchor="middle">Write Database</text>
+          <text x="190" y="275" fontSize="11" fill="#6b7280" textAnchor="middle">PostgreSQL • MySQL</text>
+          <rect x="450" y="230" width="220" height="60" rx="8" fill="#d1fae5" stroke="#10b981" strokeWidth="2" />
+          <text x="560" y="255" fontSize="14" fontWeight="600" fill="#10b981" textAnchor="middle">Read Database</text>
+          <text x="560" y="275" fontSize="11" fill="#6b7280" textAnchor="middle">MongoDB • Elasticsearch</text>
+          <line x1="190" y1="170" x2="190" y2="230" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow5)" />
+          <line x1="560" y1="170" x2="560" y2="230" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrow5)" />
+          <line x1="300" y1="260" x2="450" y2="260" stroke="#f59e0b" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowSync)" />
+          <text x="375" y="250" fontSize="11" fill="#f59e0b" fontWeight="600">Event</text>
+          <text x="375" y="265" fontSize="11" fill="#f59e0b" fontWeight="600">Sync</text>
+          <rect x="50" y="330" width="110" height="40" rx="6" fill="#e0e7ff" stroke="#6366f1" strokeWidth="1.5" />
+          <text x="105" y="355" fontSize="12" fontWeight="600" fill="#6366f1" textAnchor="middle">CreateOrder</text>
+          <rect x="180" y="330" width="110" height="40" rx="6" fill="#e0e7ff" stroke="#6366f1" strokeWidth="1.5" />
+          <text x="235" y="355" fontSize="12" fontWeight="600" fill="#6366f1" textAnchor="middle">UpdateUser</text>
+          <rect x="470" y="330" width="100" height="40" rx="6" fill="#d1fae5" stroke="#10b981" strokeWidth="1.5" />
+          <text x="520" y="355" fontSize="12" fontWeight="600" fill="#10b981" textAnchor="middle">GetOrders</text>
+          <rect x="590" y="330" width="100" height="40" rx="6" fill="#d1fae5" stroke="#10b981" strokeWidth="1.5" />
+          <text x="640" y="355" fontSize="12" fontWeight="600" fill="#10b981" textAnchor="middle">GetUsers</text>
+          <text x="375" y="395" fontSize="12" fill="#6b7280" textAnchor="middle" fontStyle="italic">
+            Separate models for Write and Read operations
+          </text>
+        </svg>
+      ),
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Command Model (Write Side)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Command - represents state change intent
+public class CreateOrderCommand {
+  private final String orderId;
+  private final String customerId;
+  private final List<OrderItem> items;
+  private final BigDecimal totalAmount;
+
+  // Constructor, getters
+}
+
+public class UpdateOrderStatusCommand {
+  private final String orderId;
+  private final String newStatus;
+
+  // Constructor, getters
+}
+
+// Command Handler - processes commands
+@Service
+public class OrderCommandHandler {
+
+  @Autowired
+  private OrderRepository orderRepository;
+
+  @Autowired
+  private EventPublisher eventPublisher;
+
+  @Transactional
+  public void handle(CreateOrderCommand command) {
+    // Validate business rules
+    if (command.getTotalAmount().compareTo(BigDecimal.ZERO) <= 0) {
+      throw new InvalidOrderException("Total amount must be positive");
+    }
+
+    // Create aggregate
+    Order order = new Order(
+      command.getOrderId(),
+      command.getCustomerId(),
+      command.getItems()
+    );
+
+    // Save to write database
+    orderRepository.save(order);
+
+    // Publish domain event
+    OrderCreatedEvent event = new OrderCreatedEvent(
+      order.getId(),
+      order.getCustomerId(),
+      order.getItems(),
+      order.getTotalAmount(),
+      LocalDateTime.now()
+    );
+    eventPublisher.publish(event);
+  }
+
+  @Transactional
+  public void handle(UpdateOrderStatusCommand command) {
+    Order order = orderRepository.findById(command.getOrderId())
+      .orElseThrow(() -> new OrderNotFoundException());
+
+    order.updateStatus(command.getNewStatus());
+    orderRepository.save(order);
+
+    eventPublisher.publish(new OrderStatusUpdatedEvent(
+      order.getId(),
+      command.getNewStatus(),
+      LocalDateTime.now()
+    ));
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Query Model (Read Side)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Query DTOs - optimized for reads
+public class OrderSummaryDto {
+  private String orderId;
+  private String customerName;
+  private String status;
+  private BigDecimal totalAmount;
+  private LocalDateTime createdAt;
+  private int itemCount;
+
+  // Getters and setters
+}
+
+public class CustomerOrderHistoryDto {
+  private String customerId;
+  private String customerName;
+  private List<OrderSummaryDto> orders;
+  private BigDecimal totalSpent;
+
+  // Getters and setters
+}
+
+// Query Repository - denormalized read model
+@Repository
+public interface OrderQueryRepository extends JpaRepository<OrderReadModel, String> {
+  List<OrderReadModel> findByCustomerId(String customerId);
+  List<OrderReadModel> findByStatus(String status);
+  List<OrderReadModel> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+}
+
+// Query Handler
+@Service
+public class OrderQueryHandler {
+
+  @Autowired
+  private OrderQueryRepository queryRepository;
+
+  public OrderSummaryDto getOrderSummary(String orderId) {
+    OrderReadModel model = queryRepository.findById(orderId)
+      .orElseThrow(() -> new OrderNotFoundException());
+
+    return mapToSummaryDto(model);
+  }
+
+  public CustomerOrderHistoryDto getCustomerOrderHistory(String customerId) {
+    List<OrderReadModel> orders = queryRepository.findByCustomerId(customerId);
+
+    CustomerOrderHistoryDto dto = new CustomerOrderHistoryDto();
+    dto.setCustomerId(customerId);
+    dto.setCustomerName(orders.get(0).getCustomerName());
+    dto.setOrders(orders.stream()
+      .map(this::mapToSummaryDto)
+      .collect(Collectors.toList()));
+    dto.setTotalSpent(orders.stream()
+      .map(OrderReadModel::getTotalAmount)
+      .reduce(BigDecimal.ZERO, BigDecimal::add));
+
+    return dto;
+  }
+
+  private OrderSummaryDto mapToSummaryDto(OrderReadModel model) {
+    OrderSummaryDto dto = new OrderSummaryDto();
+    dto.setOrderId(model.getId());
+    dto.setCustomerName(model.getCustomerName());
+    dto.setStatus(model.getStatus());
+    dto.setTotalAmount(model.getTotalAmount());
+    dto.setCreatedAt(model.getCreatedAt());
+    dto.setItemCount(model.getItemCount());
+    return dto;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Event-Driven Synchronization
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Event listener updates read model
+@Service
+public class OrderReadModelProjection {
+
+  @Autowired
+  private OrderQueryRepository queryRepository;
+
+  @Autowired
+  private CustomerService customerService;
+
+  @EventListener
+  @Async
+  public void on(OrderCreatedEvent event) {
+    // Build denormalized read model
+    Customer customer = customerService.getCustomer(event.getCustomerId());
+
+    OrderReadModel readModel = new OrderReadModel();
+    readModel.setId(event.getOrderId());
+    readModel.setCustomerId(event.getCustomerId());
+    readModel.setCustomerName(customer.getName());
+    readModel.setCustomerEmail(customer.getEmail());
+    readModel.setStatus("PENDING");
+    readModel.setTotalAmount(event.getTotalAmount());
+    readModel.setItemCount(event.getItems().size());
+    readModel.setCreatedAt(event.getTimestamp());
+
+    // Save to read database (could be different DB)
+    queryRepository.save(readModel);
+
+    System.out.println("Read model updated for order: " + event.getOrderId());
+  }
+
+  @EventListener
+  @Async
+  public void on(OrderStatusUpdatedEvent event) {
+    OrderReadModel readModel = queryRepository.findById(event.getOrderId())
+      .orElseThrow();
+
+    readModel.setStatus(event.getNewStatus());
+    readModel.setLastModifiedAt(event.getTimestamp());
+
+    queryRepository.save(readModel);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Separate Controllers for Commands and Queries
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Command Controller - write operations
+@RestController
+@RequestMapping("/api/orders/commands")
+public class OrderCommandController {
+
+  @Autowired
+  private OrderCommandHandler commandHandler;
+
+  @PostMapping
+  public ResponseEntity<Void> createOrder(@RequestBody CreateOrderRequest request) {
+    CreateOrderCommand command = new CreateOrderCommand(
+      UUID.randomUUID().toString(),
+      request.getCustomerId(),
+      request.getItems(),
+      request.getTotalAmount()
+    );
+
+    commandHandler.handle(command);
+
+    return ResponseEntity.accepted().build(); // 202 Accepted
+  }
+
+  @PutMapping("/{orderId}/status")
+  public ResponseEntity<Void> updateStatus(
+      @PathVariable String orderId,
+      @RequestBody UpdateStatusRequest request) {
+
+    UpdateOrderStatusCommand command = new UpdateOrderStatusCommand(
+      orderId,
+      request.getNewStatus()
+    );
+
+    commandHandler.handle(command);
+
+    return ResponseEntity.accepted().build();
+  }
+}
+
+// Query Controller - read operations
+@RestController
+@RequestMapping("/api/orders/queries")
+public class OrderQueryController {
+
+  @Autowired
+  private OrderQueryHandler queryHandler;
+
+  @GetMapping("/{orderId}")
+  public ResponseEntity<OrderSummaryDto> getOrder(@PathVariable String orderId) {
+    OrderSummaryDto order = queryHandler.getOrderSummary(orderId);
+    return ResponseEntity.ok(order);
+  }
+
+  @GetMapping("/customer/{customerId}")
+  public ResponseEntity<CustomerOrderHistoryDto> getCustomerOrders(
+      @PathVariable String customerId) {
+    CustomerOrderHistoryDto history = queryHandler
+      .getCustomerOrderHistory(customerId);
+    return ResponseEntity.ok(history);
+  }
+}
+// Output: Commands return 202 Accepted, Queries return 200 OK with data`
     },
     {
-      id: 'cqrs-pattern', x: 1080, y: 240, width: 350, height: 160,
-      icon: '📊', title: 'CQRS Pattern', color: 'indigo',
-      details: [
-        { name: 'Separation of Concerns', explanation: 'Commands: change state, no return value. Queries: read data, no state change. Different models for read and write. Separate databases possible. Independent scaling. Optimized data structures for each. Clear intent in code.' },
-        { name: 'Command Model', explanation: 'Handles state changes. Domain-driven design aggregates. Business logic and validation. Normalized schema. ACID transactions. Publishes domain events. Optimized for writes. Ensures consistency and invariants. Single source of truth.' },
-        { name: 'Query Model', explanation: 'Optimized for reads. Denormalized views. Eventually consistent. Multiple specialized read models. No business logic. Materialized views. Different storage technology (NoSQL, search engines). Fast queries. Cache-friendly.' },
-        { name: 'Event-Driven Sync', explanation: 'Command side publishes events. Query side subscribes and updates read models. Message queue or event stream (Kafka). Asynchronous processing. Eventual consistency. Multiple subscribers possible. Replay events to rebuild views.' },
-        { name: 'Scalability Benefits', explanation: 'Scale reads and writes independently. Most systems are read-heavy. Read replicas of query models. Write model can be highly consistent. Read models can sacrifice consistency for speed. Geographic distribution of read models.' },
-        { name: 'Use Cases & Trade-offs', explanation: 'Complex domains with different read/write patterns. High read volume. Collaborative systems. Event sourcing synergy. Trade-offs: increased complexity, eventual consistency, duplicate data. Not needed for simple CRUD. Consider carefully.' }
-      ],
-      description: 'Separates read and write operations into distinct models for independent optimization and scaling.'
+      name: 'Event Sourcing',
+      icon: '📜',
+      explanation: `Stores all changes to application state as a sequence of immutable events rather than just the current state. Events are facts that happened in the past and cannot be changed. Current state is derived by replaying events from the event store. Provides complete audit trail, temporal queries, and ability to rebuild state at any point in time.
+
+Core Concepts:
+• Event Store: Append-only log of domain events (OrderCreated, ItemAdded, OrderShipped)
+• Event Replay: Rebuild aggregate state by replaying events in sequence
+• Snapshots: Performance optimization, periodic state captures
+• Projections: Derive read models from event stream
+
+Benefits:
+• Complete audit trail and history
+• Time travel - query state at any point
+• Event-driven integration
+• Debugging and troubleshooting
+• What-if analysis and replay
+
+Challenges: Complexity, eventual consistency, event versioning, query difficulty, steep learning curve.
+
+Technologies: Event Store DB, Axon Framework, Kafka, custom implementations, Greg Young's Event Store.`,
+      diagram: () => (
+        <svg viewBox="0 0 800 400" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '2rem auto', display: 'block' }}>
+          <defs>
+            <linearGradient id="eventStoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#4f46e5', stopOpacity: 1 }} />
+            </linearGradient>
+            <linearGradient id="eventGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#818cf8', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrow6" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <polygon points="0 0, 10 3, 0 6" fill="#6366f1" />
+            </marker>
+          </defs>
+          <text x="400" y="30" fontSize="18" fontWeight="bold" fill="#6366f1" textAnchor="middle">Event Sourcing Pattern</text>
+          <rect x="50" y="60" width="700" height="120" rx="10" fill="url(#eventStoreGrad)" stroke="#4f46e5" strokeWidth="3" />
+          <text x="400" y="90" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">Event Store - Append-Only Log</text>
+          <rect x="70" y="110" width="130" height="50" rx="6" fill="url(#eventGrad)" />
+          <text x="135" y="135" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">Event 1:</text>
+          <text x="135" y="150" fontSize="10" fill="white" opacity="0.9" textAnchor="middle">OrderCreated</text>
+          <rect x="220" y="110" width="130" height="50" rx="6" fill="url(#eventGrad)" />
+          <text x="285" y="135" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">Event 2:</text>
+          <text x="285" y="150" fontSize="10" fill="white" opacity="0.9" textAnchor="middle">ItemAdded</text>
+          <rect x="370" y="110" width="130" height="50" rx="6" fill="url(#eventGrad)" />
+          <text x="435" y="135" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">Event 3:</text>
+          <text x="435" y="150" fontSize="10" fill="white" opacity="0.9" textAnchor="middle">PaymentMade</text>
+          <rect x="520" y="110" width="130" height="50" rx="6" fill="url(#eventGrad)" />
+          <text x="585" y="135" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">Event 4:</text>
+          <text x="585" y="150" fontSize="10" fill="white" opacity="0.9" textAnchor="middle">OrderShipped</text>
+          <text x="680" y="140" fontSize="18" fontWeight="bold" fill="white" textAnchor="middle">→</text>
+          <line x1="400" y1="180" x2="400" y2="230" stroke="#6366f1" strokeWidth="3" markerEnd="url(#arrow6)" />
+          <text x="420" y="210" fontSize="12" fill="#6366f1" fontWeight="600">Replay Events</text>
+          <rect x="250" y="250" width="300" height="80" rx="10" fill="#e0e7ff" stroke="#6366f1" strokeWidth="2" />
+          <text x="400" y="280" fontSize="15" fontWeight="bold" fill="#6366f1" textAnchor="middle">Current State</text>
+          <text x="400" y="305" fontSize="12" fill="#6b7280" textAnchor="middle">Order: Shipped</text>
+          <text x="400" y="322" fontSize="12" fill="#6b7280" textAnchor="middle">Items: [Product A], Payment: Completed</text>
+          <rect x="600" y="250" width="150" height="80" rx="10" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2" />
+          <text x="675" y="280" fontSize="13" fontWeight="bold" fill="#f59e0b" textAnchor="middle">Snapshot</text>
+          <text x="675" y="302" fontSize="10" fill="#6b7280" textAnchor="middle">(Performance</text>
+          <text x="675" y="318" fontSize="10" fill="#6b7280" textAnchor="middle">Optimization)</text>
+          <text x="400" y="380" fontSize="12" fill="#6b7280" textAnchor="middle" fontStyle="italic">
+            Event Stream → Current State (Complete Audit Trail)
+          </text>
+        </svg>
+      ),
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Domain Events Definition
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Domain events - immutable facts
+public class OrderCreatedEvent {
+  private final String orderId;
+  private final String customerId;
+  private final LocalDateTime timestamp;
+
+  public OrderCreatedEvent(String orderId, String customerId, LocalDateTime timestamp) {
+    this.orderId = orderId;
+    this.customerId = customerId;
+    this.timestamp = timestamp;
+  }
+
+  // Only getters, no setters (immutable)
+  public String getOrderId() { return orderId; }
+  public String getCustomerId() { return customerId; }
+  public LocalDateTime getTimestamp() { return timestamp; }
+}
+
+public class ItemAddedEvent {
+  private final String orderId;
+  private final String productId;
+  private final int quantity;
+  private final BigDecimal price;
+  private final LocalDateTime timestamp;
+
+  // Constructor and getters only
+}
+
+public class OrderShippedEvent {
+  private final String orderId;
+  private final String trackingNumber;
+  private final LocalDateTime timestamp;
+
+  // Constructor and getters only
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Event Store Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Event store entity
+@Entity
+@Table(name = "event_store")
+public class StoredEvent {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long sequence;
+
+  private String aggregateId;
+  private String eventType;
+
+  @Lob
+  private String eventData; // JSON serialized event
+
+  private LocalDateTime timestamp;
+  private Long version;
+
+  // Getters and setters
+}
+
+// Event store repository
+@Repository
+public interface EventStoreRepository extends JpaRepository<StoredEvent, Long> {
+  List<StoredEvent> findByAggregateIdOrderByVersionAsc(String aggregateId);
+  List<StoredEvent> findByAggregateIdAndVersionGreaterThanOrderByVersionAsc(
+    String aggregateId, Long version
+  );
+}
+
+// Event store service
+@Service
+public class EventStore {
+
+  @Autowired
+  private EventStoreRepository repository;
+
+  @Autowired
+  private ObjectMapper objectMapper;
+
+  @Autowired
+  private ApplicationEventPublisher eventPublisher;
+
+  @Transactional
+  public void saveEvent(String aggregateId, Object event) {
+    StoredEvent storedEvent = new StoredEvent();
+    storedEvent.setAggregateId(aggregateId);
+    storedEvent.setEventType(event.getClass().getSimpleName());
+    storedEvent.setEventData(serializeEvent(event));
+    storedEvent.setTimestamp(LocalDateTime.now());
+    storedEvent.setVersion(getNextVersion(aggregateId));
+
+    repository.save(storedEvent);
+
+    // Publish event for projections
+    eventPublisher.publishEvent(event);
+  }
+
+  public List<Object> getEvents(String aggregateId) {
+    return repository.findByAggregateIdOrderByVersionAsc(aggregateId)
+      .stream()
+      .map(this::deserializeEvent)
+      .collect(Collectors.toList());
+  }
+
+  private String serializeEvent(Object event) {
+    try {
+      return objectMapper.writeValueAsString(event);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to serialize event", e);
+    }
+  }
+
+  private Object deserializeEvent(StoredEvent stored) {
+    try {
+      Class<?> eventClass = Class.forName("com.example.events." + stored.getEventType());
+      return objectMapper.readValue(stored.getEventData(), eventClass);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to deserialize event", e);
+    }
+  }
+
+  private Long getNextVersion(String aggregateId) {
+    return repository.findByAggregateIdOrderByVersionAsc(aggregateId)
+      .stream()
+      .mapToLong(StoredEvent::getVersion)
+      .max()
+      .orElse(0L) + 1;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Event-Sourced Aggregate
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Aggregate root - state from events
+public class Order {
+  private String id;
+  private String customerId;
+  private List<OrderItem> items = new ArrayList<>();
+  private String status;
+  private BigDecimal totalAmount = BigDecimal.ZERO;
+
+  private List<Object> uncommittedEvents = new ArrayList<>();
+
+  // Replay events to rebuild state
+  public void replay(List<Object> events) {
+    for (Object event : events) {
+      apply(event);
+    }
+  }
+
+  // Apply event to change state
+  private void apply(Object event) {
+    if (event instanceof OrderCreatedEvent) {
+      OrderCreatedEvent e = (OrderCreatedEvent) event;
+      this.id = e.getOrderId();
+      this.customerId = e.getCustomerId();
+      this.status = "CREATED";
+    } else if (event instanceof ItemAddedEvent) {
+      ItemAddedEvent e = (ItemAddedEvent) event;
+      this.items.add(new OrderItem(e.getProductId(), e.getQuantity(), e.getPrice()));
+      this.totalAmount = this.totalAmount.add(e.getPrice().multiply(
+        BigDecimal.valueOf(e.getQuantity())
+      ));
+    } else if (event instanceof OrderShippedEvent) {
+      this.status = "SHIPPED";
+    }
+  }
+
+  // Command methods that generate events
+  public void create(String customerId) {
+    OrderCreatedEvent event = new OrderCreatedEvent(
+      this.id,
+      customerId,
+      LocalDateTime.now()
+    );
+    apply(event);
+    uncommittedEvents.add(event);
+  }
+
+  public void addItem(String productId, int quantity, BigDecimal price) {
+    ItemAddedEvent event = new ItemAddedEvent(
+      this.id,
+      productId,
+      quantity,
+      price,
+      LocalDateTime.now()
+    );
+    apply(event);
+    uncommittedEvents.add(event);
+  }
+
+  public List<Object> getUncommittedEvents() {
+    return uncommittedEvents;
+  }
+
+  public void markEventsAsCommitted() {
+    uncommittedEvents.clear();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Aggregate Repository with Event Sourcing
+// ═══════════════════════════════════════════════════════════════════════════
+
+@Service
+public class OrderRepository {
+
+  @Autowired
+  private EventStore eventStore;
+
+  public Order findById(String orderId) {
+    List<Object> events = eventStore.getEvents(orderId);
+
+    if (events.isEmpty()) {
+      return null;
+    }
+
+    Order order = new Order();
+    order.replay(events);
+    return order;
+  }
+
+  @Transactional
+  public void save(Order order) {
+    List<Object> events = order.getUncommittedEvents();
+
+    for (Object event : events) {
+      eventStore.saveEvent(order.getId(), event);
+    }
+
+    order.markEventsAsCommitted();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Snapshots for Performance
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Snapshot entity
+@Entity
+@Table(name = "snapshots")
+public class Snapshot {
+  @Id
+  private String aggregateId;
+
+  @Lob
+  private String state;
+
+  private Long version;
+  private LocalDateTime timestamp;
+
+  // Getters and setters
+}
+
+// Snapshot repository
+@Repository
+public interface SnapshotRepository extends JpaRepository<Snapshot, String> {
+}
+
+// Enhanced repository with snapshots
+@Service
+public class OptimizedOrderRepository {
+
+  @Autowired
+  private EventStore eventStore;
+
+  @Autowired
+  private SnapshotRepository snapshotRepository;
+
+  @Autowired
+  private ObjectMapper objectMapper;
+
+  private static final int SNAPSHOT_FREQUENCY = 100;
+
+  public Order findById(String orderId) {
+    // Load from snapshot if available
+    Optional<Snapshot> snapshot = snapshotRepository.findById(orderId);
+
+    Order order = new Order();
+    Long fromVersion = 0L;
+
+    if (snapshot.isPresent()) {
+      order = deserializeSnapshot(snapshot.get());
+      fromVersion = snapshot.get().getVersion();
+    }
+
+    // Load events after snapshot
+    List<Object> events = eventStore.getEventsAfterVersion(orderId, fromVersion);
+    order.replay(events);
+
+    return order;
+  }
+
+  @Transactional
+  public void save(Order order) {
+    List<Object> events = order.getUncommittedEvents();
+
+    for (Object event : events) {
+      eventStore.saveEvent(order.getId(), event);
+    }
+
+    // Create snapshot periodically
+    Long totalEvents = eventStore.getEventCount(order.getId());
+    if (totalEvents % SNAPSHOT_FREQUENCY == 0) {
+      createSnapshot(order, totalEvents);
+    }
+
+    order.markEventsAsCommitted();
+  }
+
+  private void createSnapshot(Order order, Long version) {
+    Snapshot snapshot = new Snapshot();
+    snapshot.setAggregateId(order.getId());
+    snapshot.setState(serializeOrder(order));
+    snapshot.setVersion(version);
+    snapshot.setTimestamp(LocalDateTime.now());
+
+    snapshotRepository.save(snapshot);
+    System.out.println("Snapshot created at version: " + version);
+  }
+
+  private String serializeOrder(Order order) {
+    try {
+      return objectMapper.writeValueAsString(order);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to serialize snapshot", e);
+    }
+  }
+
+  private Order deserializeSnapshot(Snapshot snapshot) {
+    try {
+      return objectMapper.readValue(snapshot.getState(), Order.class);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to deserialize snapshot", e);
+    }
+  }
+}
+// Output: Snapshots reduce event replay time for long event streams`
     },
     {
-      id: 'event-sourcing', x: 1080, y: 440, width: 350, height: 160,
-      icon: '📜', title: 'Event Sourcing Pattern', color: 'indigo',
-      details: [
-        { name: 'Event Store', explanation: 'Append-only log of domain events. Events are immutable facts. Complete history of all changes. Event store is database. Never update/delete events. Only append new events. OrderCreated, ItemAdded, OrderShipped. Current state derived from events.' },
-        { name: 'Event Replay', explanation: 'Rebuild aggregate state by replaying events. Load events for aggregate. Apply each event in sequence. Compute current state. Time travel to any point. Debugging capabilities. Create new projections. What-if analysis possible.' },
-        { name: 'Snapshots', explanation: 'Performance optimization for long event streams. Periodic state captures. Load snapshot then apply subsequent events. Configurable snapshot frequency. Reduce replay time. Trade-off: storage vs performance. Automatic snapshot creation.' },
-        { name: 'Event Versioning', explanation: 'Events schema evolves over time. Upcasting old events to new versions. Multiple versions coexist. Event transformers. Weak schema flexibility. Migration strategies. Backward compatibility. Versioned event types. Tolerant readers.' },
-        { name: 'Projections & Views', explanation: 'Derive read models from events. Multiple projections from same events. Real-time or batch processing. Materialized views. Subscribe to event stream. Update projections. Different databases per view. Specialized for queries.' },
-        { name: 'Benefits & Challenges', explanation: 'Benefits: audit trail, temporal queries, debugging, event-driven integration. Challenges: complexity, eventual consistency, query difficulty, steep learning curve. Event store technology: EventStore, Kafka, custom. Not for all domains.' }
-      ],
-      description: 'Stores all changes as sequence of immutable events rather than current state for complete audit trail.'
-    },
-    {
-      id: 'sidecar-pattern', x: 1080, y: 640, width: 350, height: 140,
-      icon: '🛸', title: 'Sidecar Pattern', color: 'indigo',
-      details: [
-        { name: 'Co-Located Helper', explanation: 'Helper component deployed alongside main application. Separate process but same host/pod. Shares resources with main app. Provides supporting features. Decouples cross-cutting concerns. Polyglot microservices support. Service mesh foundation.' },
-        { name: 'Common Use Cases', explanation: 'Service mesh proxies (Envoy, Linkerd). Logging and monitoring agents. Configuration watchers. Security enforcers. Circuit breakers. Service discovery clients. Protocol translation. TLS termination. Observability instrumentation.' },
-        { name: 'Communication Patterns', explanation: 'Localhost communication between app and sidecar. Fast IPC. Sidecar handles network calls. Transparent to application. Intercepts inbound/outbound traffic. Proxy pattern. Application unaware of sidecar functionality. Protocol bridging.' },
-        { name: 'Deployment', explanation: 'Kubernetes sidecar containers. Docker Compose multi-container. Same lifecycle as main app. Started and stopped together. Shared volumes. Network namespace sharing. Resource allocation. Health checks for both containers.' },
-        { name: 'Benefits', explanation: 'Technology agnostic (any language). Reusable across services. Independent versioning. Reduces application complexity. Centralized configuration. Easy updates to cross-cutting concerns. Consistent behavior across services. Separation of concerns.' }
-      ],
-      description: 'Helper component deployed alongside application providing supporting features like logging, monitoring, and proxying.'
+      name: 'Sidecar Pattern',
+      icon: '🛸',
+      explanation: `Deploys a helper component alongside the main application in the same host/pod to provide supporting features. The sidecar runs in a separate process but shares resources with the main application. Decouples cross-cutting concerns from application code, enabling polyglot microservices. Foundation for service mesh architectures.
+
+Common Use Cases:
+• Service mesh proxies (Envoy, Linkerd)
+• Logging and monitoring agents
+• Configuration watchers and reloaders
+• Security enforcers and authentication
+• Circuit breakers and retry logic
+• Protocol translation and TLS termination
+• Service discovery clients
+
+Benefits:
+• Technology agnostic (works with any language)
+• Reusable across all services
+• Independent versioning and updates
+• Reduces application complexity
+• Centralized configuration
+• Consistent behavior across services
+
+Deployment: Kubernetes sidecar containers, Docker Compose multi-container, same lifecycle management.`,
+      diagram: () => (
+        <svg viewBox="0 0 700 450" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '2rem auto', display: 'block' }}>
+          <defs>
+            <linearGradient id="podGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#e0e7ff', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#c7d2fe', stopOpacity: 1 }} />
+            </linearGradient>
+            <linearGradient id="mainAppGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#4f46e5', stopOpacity: 1 }} />
+            </linearGradient>
+            <linearGradient id="sidecarAppGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#818cf8', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrow7" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <polygon points="0 0, 10 3, 0 6" fill="#6366f1" />
+            </marker>
+          </defs>
+          <text x="350" y="30" fontSize="18" fontWeight="bold" fill="#6366f1" textAnchor="middle">Sidecar Pattern - Kubernetes Pod</text>
+          <rect x="50" y="60" width="600" height="330" rx="15" fill="url(#podGrad)" stroke="#6366f1" strokeWidth="3" strokeDasharray="10,5" />
+          <text x="350" y="90" fontSize="14" fontWeight="600" fill="#6366f1" textAnchor="middle">Pod (Shared Resources & Network)</text>
+          <rect x="100" y="120" width="220" height="230" rx="12" fill="url(#mainAppGrad)" stroke="#4f46e5" strokeWidth="3" />
+          <text x="210" y="155" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">Main Application</text>
+          <text x="210" y="180" fontSize="12" fill="white" opacity="0.9" textAnchor="middle">Business Logic</text>
+          <rect x="120" y="200" width="180" height="40" rx="6" fill="#e0e7ff" stroke="#6366f1" strokeWidth="1.5" />
+          <text x="210" y="225" fontSize="11" fontWeight="600" fill="#6366f1" textAnchor="middle">Core Functionality</text>
+          <rect x="120" y="255" width="180" height="40" rx="6" fill="#e0e7ff" stroke="#6366f1" strokeWidth="1.5" />
+          <text x="210" y="280" fontSize="11" fontWeight="600" fill="#6366f1" textAnchor="middle">REST API</text>
+          <rect x="120" y="310" width="180" height="30" rx="6" fill="#e0e7ff" stroke="#6366f1" strokeWidth="1.5" />
+          <text x="210" y="330" fontSize="10" fontWeight="600" fill="#6366f1" textAnchor="middle">Port: 8080</text>
+          <rect x="380" y="120" width="220" height="230" rx="12" fill="url(#sidecarAppGrad)" stroke="#6366f1" strokeWidth="3" />
+          <text x="490" y="155" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">Sidecar Container</text>
+          <text x="490" y="180" fontSize="12" fill="white" opacity="0.9" textAnchor="middle">Cross-Cutting Concerns</text>
+          <rect x="400" y="200" width="180" height="30" rx="6" fill="#ddd6fe" stroke="#6366f1" strokeWidth="1.5" />
+          <text x="490" y="220" fontSize="10" fontWeight="600" fill="#4f46e5" textAnchor="middle">Logging Agent</text>
+          <rect x="400" y="240" width="180" height="30" rx="6" fill="#ddd6fe" stroke="#6366f1" strokeWidth="1.5" />
+          <text x="490" y="260" fontSize="10" fontWeight="600" fill="#4f46e5" textAnchor="middle">Metrics Collector</text>
+          <rect x="400" y="280" width="180" height="30" rx="6" fill="#ddd6fe" stroke="#6366f1" strokeWidth="1.5" />
+          <text x="490" y="300" fontSize="10" fontWeight="600" fill="#4f46e5" textAnchor="middle">Service Mesh Proxy</text>
+          <rect x="400" y="320" width="180" height="20" rx="4" fill="#ddd6fe" stroke="#6366f1" strokeWidth="1.5" />
+          <text x="490" y="334" fontSize="9" fontWeight="600" fill="#4f46e5" textAnchor="middle">Config Watcher</text>
+          <line x1="320" y1="250" x2="380" y2="250" stroke="#6366f1" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrow7)" />
+          <text x="350" y="240" fontSize="10" fill="#6366f1" fontWeight="600">Shared</text>
+          <text x="350" y="253" fontSize="10" fill="#6366f1" fontWeight="600">Volume</text>
+          <text x="350" y="420" fontSize="12" fill="#6b7280" textAnchor="middle" fontStyle="italic">
+            Main App + Sidecar sharing same Pod resources
+          </text>
+        </svg>
+      ),
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Kubernetes Sidecar Container Configuration
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Kubernetes Deployment with Sidecar
+/*
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+      # Main application container
+      - name: order-service
+        image: order-service:1.0
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: shared-logs
+          mountPath: /var/log/app
+
+      # Logging sidecar
+      - name: log-aggregator
+        image: fluentd:latest
+        volumeMounts:
+        - name: shared-logs
+          mountPath: /var/log/app
+        env:
+        - name: FLUENT_ELASTICSEARCH_HOST
+          value: "elasticsearch.default.svc.cluster.local"
+
+      # Envoy proxy sidecar
+      - name: envoy-proxy
+        image: envoyproxy/envoy:latest
+        ports:
+        - containerPort: 9901
+        volumeMounts:
+        - name: envoy-config
+          mountPath: /etc/envoy
+
+      volumes:
+      - name: shared-logs
+        emptyDir: {}
+      - name: envoy-config
+        configMap:
+          name: envoy-config
+*/
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Main Application with Sidecar Communication
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Main application - unaware of sidecar
+@RestController
+@RequestMapping("/api/orders")
+public class OrderController {
+
+  @Autowired
+  private OrderService orderService;
+
+  @GetMapping("/{id}")
+  public Order getOrder(@PathVariable String id) {
+    // Application logic only
+    // Sidecar handles:
+    // - Request logging
+    // - Metrics collection
+    // - Distributed tracing
+    // - Authentication (via service mesh)
+    return orderService.getOrder(id);
+  }
+
+  @PostMapping
+  public Order createOrder(@RequestBody CreateOrderRequest request) {
+    // Sidecar automatically:
+    // - Adds correlation ID
+    // - Enforces rate limits
+    // - Handles retries
+    // - Circuit breaking
+    return orderService.createOrder(request);
+  }
+}
+
+// Service calls go through sidecar proxy
+@Service
+public class OrderService {
+
+  // Call other services via localhost sidecar
+  private static final String INVENTORY_SERVICE = "http://localhost:15001/api/inventory";
+
+  @Autowired
+  private RestTemplate restTemplate;
+
+  public Order createOrder(CreateOrderRequest request) {
+    // Sidecar intercepts this call and:
+    // 1. Resolves service discovery
+    // 2. Load balances across instances
+    // 3. Handles TLS encryption
+    // 4. Adds tracing headers
+    InventoryResponse inventory = restTemplate.getForObject(
+      INVENTORY_SERVICE + "/check?productId=" + request.getProductId(),
+      InventoryResponse.class
+    );
+
+    // Create order logic
+    Order order = new Order();
+    order.setId(UUID.randomUUID().toString());
+    order.setProductId(request.getProductId());
+    return order;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Envoy Proxy Sidecar Configuration
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Envoy sidecar configuration (envoy.yaml)
+/*
+static_resources:
+  listeners:
+  - name: listener_0
+    address:
+      socket_address:
+        address: 0.0.0.0
+        port_value: 15001
+    filter_chains:
+    - filters:
+      - name: envoy.filters.network.http_connection_manager
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          stat_prefix: ingress_http
+          route_config:
+            name: local_route
+            virtual_hosts:
+            - name: inventory_service
+              domains: ["*"]
+              routes:
+              - match:
+                  prefix: "/api/inventory"
+                route:
+                  cluster: inventory_cluster
+          http_filters:
+          - name: envoy.filters.http.router
+
+  clusters:
+  - name: inventory_cluster
+    connect_timeout: 0.25s
+    type: STRICT_DNS
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: inventory_cluster
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: inventory-service.default.svc.cluster.local
+                port_value: 8080
+*/
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Logging Sidecar Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Docker Compose with logging sidecar
+/*
+version: '3.8'
+
+services:
+  # Main application
+  order-service:
+    image: order-service:1.0
+    ports:
+      - "8080:8080"
+    volumes:
+      - shared-logs:/var/log/app
+    environment:
+      - LOG_PATH=/var/log/app/application.log
+
+  # Logging sidecar
+  fluentd:
+    image: fluentd:latest
+    volumes:
+      - shared-logs:/var/log/app
+      - ./fluentd.conf:/fluentd/etc/fluent.conf
+    depends_on:
+      - order-service
+    environment:
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+
+volumes:
+  shared-logs:
+*/
+
+// Fluentd configuration (fluentd.conf)
+/*
+<source>
+  @type tail
+  path /var/log/app/*.log
+  pos_file /var/log/app/fluentd.pos
+  tag app.logs
+  <parse>
+    @type json
+    time_key timestamp
+    time_format %Y-%m-%dT%H:%M:%S.%L%z
+  </parse>
+</source>
+
+<filter app.logs>
+  @type record_transformer
+  <record>
+    service_name "order-service"
+    environment "production"
+  </record>
+</filter>
+
+<match app.logs>
+  @type elasticsearch
+  host \#{ENV['ELASTICSEARCH_HOST']}
+  port \#{ENV['ELASTICSEARCH_PORT']}
+  logstash_format true
+  logstash_prefix app-logs
+</match>
+*/
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Config Watcher Sidecar
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Config watcher sidecar - watches for config changes
+public class ConfigWatcherSidecar {
+
+  private static final String SHARED_CONFIG_PATH = "/etc/config/application.yml";
+  private static final String APP_RELOAD_URL = "http://localhost:8080/actuator/refresh";
+
+  public static void main(String[] args) throws Exception {
+    WatchService watchService = FileSystems.getDefault().newWatchService();
+    Path configDir = Paths.get("/etc/config");
+
+    configDir.register(
+      watchService,
+      StandardWatchEventKinds.ENTRY_MODIFY
+    );
+
+    System.out.println("Config watcher sidecar started");
+
+    while (true) {
+      WatchKey key = watchService.take();
+
+      for (WatchEvent<?> event : key.pollEvents()) {
+        if (event.context().toString().equals("application.yml")) {
+          System.out.println("Config file changed, reloading app...");
+
+          // Trigger app reload via HTTP
+          HttpClient client = HttpClient.newHttpClient();
+          HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(APP_RELOAD_URL))
+            .POST(HttpRequest.BodyPublishers.noBody())
+            .build();
+
+          HttpResponse<String> response = client.send(
+            request,
+            HttpResponse.BodyHandlers.ofString()
+          );
+
+          System.out.println("App reload response: " + response.statusCode());
+        }
+      }
+
+      key.reset();
+    }
+  }
+}
+
+// Kubernetes ConfigMap mount for sidecar
+/*
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  application.yml: |
+    server:
+      port: 8080
+    app:
+      feature:
+        enabled: true
+---
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  template:
+    spec:
+      containers:
+      - name: order-service
+        volumeMounts:
+        - name: config
+          mountPath: /etc/config
+
+      - name: config-watcher
+        image: config-watcher:latest
+        volumeMounts:
+        - name: config
+          mountPath: /etc/config
+
+      volumes:
+      - name: config
+        configMap:
+          name: app-config
+*/`
     }
   ]
 
-  const handleComponentClick = (component) => {
-    setSelectedComponent(component)
-    setIsModalOpen(true)
-  }
-
-  const closeModal = () => {
-    setIsModalOpen(false)
-    setSelectedComponent(null)
-    setSelectedConcept(null)
-
-
-  }
-
-  // Use refs to access current modal state in event handler
+  // Use ref to access current selectedConcept in event handler
   const selectedConceptRef = useRef(selectedConcept)
   useEffect(() => {
     selectedConceptRef.current = selectedConcept
   }, [selectedConcept])
 
-
-  // Set initial focus on mount
-  useEffect(() => {
-    setFocusedComponentIndex(0)
-  }, [])
-
   // Keyboard navigation
   useEffect(() => {
-    console.log('MicroservicePatterns: Setting up keyboard listener, selectedConcept:', selectedConcept)
-
     const handleKeyDown = (e) => {
       const currentSelectedConcept = selectedConceptRef.current
-      console.log('MicroservicePatterns KeyDown:', e.key, 'selectedConcept:', selectedConcept)
 
-      // Handle Escape to close modal or go back to menu
+      // Handle Escape to go back
       if (e.key === 'Escape') {
         if (currentSelectedConcept) {
-          console.log('MicroservicePatterns: Closing modal')
           e.preventDefault()
           e.stopImmediatePropagation()
           setSelectedConcept(null)
           return
         }
-        console.log('MicroservicePatterns: No modal open, returning')
-        return
-      }
-
-      if (currentSelectedConcept) {
-        // Modal is open, don't handle other keys
-        return
-      }
-
-      // Navigation when modal is closed
-      const componentCount = components.length
-
-      switch(e.key) {
-        case 'ArrowRight':
-        case 'ArrowDown':
-          e.preventDefault()
-          setFocusedComponentIndex((prev) => (prev + 1) % componentCount)
-          break
-        case 'ArrowLeft':
-        case 'ArrowUp':
-          e.preventDefault()
-          setFocusedComponentIndex((prev) => (prev - 1 + componentCount) % componentCount)
-          break
-        case 'Enter':
-        case ' ':
-          e.preventDefault()
-          if (components[focusedComponentIndex]) {
-            handleComponentClick(components[focusedComponentIndex])
-          }
-          break
-        default:
-          break
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [focusedComponentIndex])
+  }, [])
 
   const handleConceptClick = (concept) => {
     setSelectedConcept(concept)
@@ -1988,7 +2325,7 @@ function MicroservicePatterns({ onBack }) {
           margin: 0,
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
         }}>
-          Microservice Design Patterns
+          🏗️ Microservice Patterns
         </h1>
         <div style={{ width: '120px' }}></div>
       </div>
@@ -2008,258 +2345,279 @@ function MicroservicePatterns({ onBack }) {
           lineHeight: '1.8',
           textAlign: 'center'
         }}>
-          Microservice Design Patterns: API Gateway for unified entry, Circuit Breaker for resilience,
-          Service Discovery for dynamic location, Config Server for centralized configuration,
-          Saga for distributed transactions, CQRS for read/write separation, Event Sourcing, and Sidecar pattern.
+          Microservice patterns are proven architectural solutions for building distributed systems.
+          These patterns address common challenges like service communication, data management, resilience, and deployment.
         </p>
       </div>
 
-      <ModernDiagram
-        components={components}
-        onComponentClick={handleComponentClick}
-        title="Essential Microservice Design Patterns"
-        width={1400}
-        height={800}
-        containerWidth={1800}
-      
-        focusedIndex={focusedComponentIndex}
-      />
 
-      {/* Modal */}
-      {isModalOpen && selectedComponent && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 99999
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            padding: '2.5rem',
-            borderRadius: '16px',
-            maxWidth: '1400px',
-            width: '95%',
-            maxHeight: '85vh',
-            overflowY: 'auto',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-            border: '3px solid rgba(99, 102, 241, 0.4)'
-          }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '2rem'
-            }}>
-              <h2 style={{
-                fontSize: '2rem',
-                fontWeight: '800',
-                color: '#1f2937',
-                margin: 0,
-                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-              }}>
-                {selectedComponent.icon} {selectedComponent.title}
-              </h2>
-              <button
-                onClick={closeModal}
-                style={{
-                  padding: '0.5rem 1rem',
-                  fontSize: '1.25rem',
-                  fontWeight: '600',
-                  backgroundColor: '#ef4444',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div style={{
-              backgroundColor: 'rgba(99, 102, 241, 0.05)',
-              padding: '1.5rem',
-              borderRadius: '12px',
-              border: '2px solid rgba(99, 102, 241, 0.2)',
-              marginBottom: '2rem'
-            }}>
-              <p style={{
-                fontSize: '1.1rem',
-                color: '#374151',
-                fontWeight: '500',
-                margin: 0,
-                lineHeight: '1.6'
-              }}>
-                {selectedComponent.description}
-              </p>
-            </div>
-
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: selectedConcept ? '1fr 1fr' : '1fr',
-              gap: '2rem'
-            }}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: selectedConcept ? '350px 1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '2rem'
+      }}>
+        {!selectedConcept ? (
+          microservicePatterns.map((pattern, idx) => (
+            <div
+              key={idx}
+              onClick={() => handleConceptClick(pattern)}
+              style={{
+                backgroundColor: 'rgba(99, 102, 241, 0.05)',
+                padding: '2rem',
+                borderRadius: '12px',
+                border: '2px solid rgba(99, 102, 241, 0.2)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                height: '200px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.1)'
+                e.currentTarget.style.borderColor = '#6366f1'
+                e.currentTarget.style.transform = 'translateY(-4px)'
+                e.currentTarget.style.boxShadow = '0 8px 16px rgba(99, 102, 241, 0.2)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.05)'
+                e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)'
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+            >
               <div>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{pattern.icon}</div>
                 <h3 style={{
-                  fontSize: '1.25rem',
+                  fontSize: '1.3rem',
                   fontWeight: '700',
-                  color: '#1f2937',
-                  marginBottom: '1rem'
+                  color: '#6366f1',
+                  margin: '0 0 0.5rem 0'
                 }}>
-                  Key Features
+                  {pattern.name}
                 </h3>
-                <div style={{
-                  display: 'grid',
-                  gap: '0.75rem'
+                <p style={{
+                  fontSize: '0.9rem',
+                  color: '#6b7280',
+                  margin: 0,
+                  lineHeight: '1.5'
                 }}>
-                  {selectedComponent.details.map((detail, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => handleConceptClick(detail)}
-                      style={{
-                        backgroundColor: selectedConcept?.name === detail.name
-                          ? 'rgba(99, 102, 241, 0.15)'
-                          : 'rgba(99, 102, 241, 0.1)',
-                        padding: '0.75rem',
-                        borderRadius: '8px',
-                        border: selectedConcept?.name === detail.name
-                          ? '2px solid rgba(99, 102, 241, 0.4)'
-                          : '2px solid rgba(99, 102, 241, 0.2)',
-                        fontSize: '0.95rem',
-                        fontWeight: '500',
-                        color: selectedConcept?.name === detail.name
-                          ? '#4f46e5'
-                          : '#3730a3',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        transform: 'scale(1)'
-                      }}
-                      onMouseEnter={(e) => {
-                        if (selectedConcept?.name !== detail.name) {
-                          e.target.style.backgroundColor = 'rgba(99, 102, 241, 0.15)'
-                          e.target.style.transform = 'scale(1.02)'
-                          e.target.style.borderColor = 'rgba(99, 102, 241, 0.4)'
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (selectedConcept?.name !== detail.name) {
-                          e.target.style.backgroundColor = 'rgba(99, 102, 241, 0.1)'
-                          e.target.style.transform = 'scale(1)'
-                          e.target.style.borderColor = 'rgba(99, 102, 241, 0.2)'
-                        }
-                      }}
-                    >
-                      • {detail.name}
-                      {selectedConcept?.name === detail.name && (
-                        <span style={{
-                          fontSize: '0.8rem',
-                          opacity: 0.8,
-                          marginLeft: '0.5rem',
-                          fontWeight: '600'
-                        }}>
-                          ← Selected
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                  {pattern.explanation.substring(0, 100)}...
+                </p>
               </div>
-
-              {selectedConcept && (
-                <div>
-                  <h3 style={{
-                    fontSize: '1.25rem',
-                    fontWeight: '700',
-                    color: '#1f2937',
-                    marginBottom: '1rem'
-                  }}>
-                    {selectedConcept.name}
-                  </h3>
-
-                  <div style={{
-                    backgroundColor: 'rgba(99, 102, 241, 0.05)',
-                    padding: '1.5rem',
-                    borderRadius: '12px',
-                    border: '2px solid rgba(99, 102, 241, 0.2)',
-                    marginBottom: '1.5rem'
-                  }}>
-                    <p style={{
-                      fontSize: '1rem',
-                      color: '#374151',
-                      fontWeight: '500',
-                      margin: 0,
-                      lineHeight: '1.7',
-                      textAlign: 'justify'
-                    }}>
-                      {selectedConcept.explanation}
-                    </p>
-                  </div>
-
-                  {DetailDiagram({ patternName: selectedComponent.title, featureName: selectedConcept.name }) && (
+              <div style={{
+                fontSize: '0.85rem',
+                fontWeight: '600',
+                color: '#6366f1',
+                marginTop: '1rem'
+              }}>
+                Click to explore →
+              </div>
+            </div>
+          ))
+        ) : (
+          <>
+            <div>
+              <h3 style={{
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                color: '#1f2937',
+                marginBottom: '1.5rem'
+              }}>
+                Microservice Patterns
+              </h3>
+              <div style={{ display: 'grid', gap: '1rem' }}>
+                {microservicePatterns.map((pattern, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => handleConceptClick(pattern)}
+                    style={{
+                      backgroundColor: selectedConcept?.name === pattern.name
+                        ? 'rgba(99, 102, 241, 0.15)'
+                        : 'rgba(99, 102, 241, 0.05)',
+                      padding: '1rem',
+                      borderRadius: '8px',
+                      border: selectedConcept?.name === pattern.name
+                        ? '3px solid #6366f1'
+                        : '2px solid rgba(99, 102, 241, 0.2)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (selectedConcept?.name !== pattern.name) {
+                        e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.1)'
+                        e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.4)'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedConcept?.name !== pattern.name) {
+                        e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.05)'
+                        e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)'
+                      }
+                    }}
+                  >
                     <div style={{
-                      backgroundColor: '#f8fafc',
-                      padding: '1.5rem',
-                      borderRadius: '12px',
-                      border: '2px solid #e2e8f0',
-                      marginBottom: '1.5rem',
                       display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center'
+                      alignItems: 'center',
+                      gap: '0.75rem'
                     }}>
-                      <div style={{ width: '100%' }}>
-                        <h4 style={{
-                          fontSize: '1rem',
-                          fontWeight: '700',
-                          color: '#1e293b',
-                          margin: '0 0 1rem 0',
-                          textAlign: 'center'
-                        }}>
-                          How It Works
-                        </h4>
-                        <DetailDiagram patternName={selectedComponent.title} featureName={selectedConcept.name} />
+                      <span style={{ fontSize: '1.5rem' }}>{pattern.icon}</span>
+                      <div style={{
+                        fontSize: '1rem',
+                        fontWeight: '700',
+                        color: selectedConcept?.name === pattern.name ? '#6366f1' : '#1f2937'
+                      }}>
+                        {pattern.name}
                       </div>
                     </div>
-                  )}
-
-                  <div style={{
-                    backgroundColor: 'rgba(59, 130, 246, 0.05)',
-                    padding: '1.25rem',
-                    borderRadius: '12px',
-                    border: '2px solid rgba(59, 130, 246, 0.2)'
-                  }}>
-                    <h4 style={{
-                      fontSize: '1rem',
-                      fontWeight: '700',
-                      color: '#1e40af',
-                      margin: '0 0 0.75rem 0'
-                    }}>
-                      💡 Key Takeaway
-                    </h4>
-                    <p style={{
-                      fontSize: '0.9rem',
-                      color: '#1e40af',
-                      fontWeight: '500',
-                      margin: 0,
-                      lineHeight: '1.5',
-                      fontStyle: 'italic'
-                    }}>
-                      {selectedConcept.name} is a critical microservice pattern that enables resilient, scalable, and maintainable distributed systems.
-                    </p>
                   </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 style={{
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                color: '#6366f1',
+                marginBottom: '1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem'
+              }}>
+                <span style={{ fontSize: '2rem' }}>{selectedConcept.icon}</span>
+                {selectedConcept.name}
+              </h3>
+
+              {selectedConcept.diagram && (
+                <div style={{
+                  backgroundColor: 'white',
+                  padding: '2rem',
+                  borderRadius: '12px',
+                  border: '2px solid rgba(99, 102, 241, 0.2)',
+                  marginBottom: '1.5rem'
+                }}>
+                  {selectedConcept.diagram()}
                 </div>
               )}
-            </div>
-          </div>
-        </div>
-      )}
 
+              <div style={{
+                backgroundColor: 'rgba(99, 102, 241, 0.08)',
+                padding: '1.5rem',
+                borderRadius: '12px',
+                border: '2px solid rgba(99, 102, 241, 0.3)',
+                marginBottom: '1.5rem'
+              }}>
+                <p style={{
+                  fontSize: '1rem',
+                  color: '#374151',
+                  fontWeight: '500',
+                  margin: 0,
+                  lineHeight: '1.7',
+                  whiteSpace: 'pre-line',
+                  textAlign: 'justify'
+                }}>
+                  {selectedConcept.explanation}
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{
+                  fontSize: '1.1rem',
+                  fontWeight: '700',
+                  color: '#6366f1',
+                  margin: '0 0 1rem 0'
+                }}>
+                  💻 Code Examples
+                </h4>
+                {(() => {
+                  const sections = parseCodeSections(selectedConcept.codeExample)
+                  if (sections.length === 0) {
+                    return (
+                      <div style={{
+                        backgroundColor: '#1e293b',
+                        padding: '1.5rem',
+                        borderRadius: '12px',
+                        border: '2px solid #334155'
+                      }}>
+                        <SyntaxHighlighter code={selectedConcept.codeExample} />
+                      </div>
+                    )
+                  }
+                  return (
+                    <div style={{ display: 'grid', gap: '1rem' }}>
+                      {sections.map((section, index) => {
+                        const sectionKey = `${selectedConcept.name}-${index}`
+                        const isExpanded = expandedSections[sectionKey]
+                        return (
+                          <div
+                            key={index}
+                            style={{
+                              backgroundColor: 'white',
+                              borderRadius: '12px',
+                              border: '2px solid rgba(99, 102, 241, 0.3)',
+                              overflow: 'hidden'
+                            }}
+                          >
+                            <button
+                              onClick={() => toggleSection(sectionKey)}
+                              style={{
+                                width: '100%',
+                                padding: '1.25rem',
+                                backgroundColor: isExpanded ? 'rgba(99, 102, 241, 0.15)' : 'white',
+                                border: 'none',
+                                borderBottom: isExpanded ? '2px solid rgba(99, 102, 241, 0.3)' : 'none',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                transition: 'all 0.2s ease',
+                                textAlign: 'left'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.15)'
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!isExpanded) {
+                                  e.currentTarget.style.backgroundColor = 'white'
+                                }
+                              }}
+                            >
+                              <span style={{
+                                fontSize: '1.05rem',
+                                fontWeight: '700',
+                                color: '#6366f1'
+                              }}>
+                                {section.title}
+                              </span>
+                              <span style={{
+                                fontSize: '1.5rem',
+                                color: '#6366f1',
+                                transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.2s ease'
+                              }}>
+                                ▼
+                              </span>
+                            </button>
+                            {isExpanded && (
+                              <div style={{
+                                backgroundColor: '#1e293b',
+                                padding: '1.5rem'
+                              }}>
+                                <SyntaxHighlighter code={section.code} />
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )
+                })()}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   )
 }
