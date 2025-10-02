@@ -152,12 +152,9 @@ function DarkPoolEngine3({ onBack }) {
             {/* Layer 1: Trading Clients */}
             <rect x="50" y="20" width="1100" height="80" fill="url(#darkBlueGradient)" rx="8" />
             <text x="600" y="50" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">Layer 1: Trading Clients</text>
-            <rect x="150" y="70" width="250" height="20" fill="#1e40af" rx="4" />
-            <text x="275" y="85" textAnchor="middle" fill="white" fontSize="12">Web Terminal</text>
-            <rect x="475" y="70" width="250" height="20" fill="#1e40af" rx="4" />
-            <text x="600" y="85" textAnchor="middle" fill="white" fontSize="12">Mobile App</text>
-            <rect x="800" y="70" width="250" height="20" fill="#1e40af" rx="4" />
-            <text x="925" y="85" textAnchor="middle" fill="white" fontSize="12">FIX Gateway</text>
+            <text x="275" y="75" textAnchor="middle" fill="white" fontSize="14">💻 Web Terminal</text>
+            <text x="600" y="75" textAnchor="middle" fill="white" fontSize="14">📱 Mobile App</text>
+            <text x="925" y="75" textAnchor="middle" fill="white" fontSize="14">🔌 FIX Gateway</text>
 
             {/* Layer 2: API Gateway + WebSocket */}
             <rect x="50" y="120" width="1100" height="60" fill="url(#cyanGradient)" rx="8" />
@@ -167,18 +164,12 @@ function DarkPoolEngine3({ onBack }) {
             {/* Layer 3: Trading Services */}
             <rect x="50" y="200" width="1100" height="100" fill="url(#darkBlueGradient)" rx="8" />
             <text x="600" y="225" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">Layer 3: Trading Services</text>
-            <rect x="70" y="240" width="165" height="40" fill="#1e40af" rx="4" />
-            <text x="152" y="265" textAnchor="middle" fill="white" fontSize="10">Order Match</text>
-            <rect x="250" y="240" width="165" height="40" fill="#1e40af" rx="4" />
-            <text x="332" y="265" textAnchor="middle" fill="white" fontSize="10">Smart Route</text>
-            <rect x="430" y="240" width="165" height="40" fill="#1e40af" rx="4" />
-            <text x="512" y="265" textAnchor="middle" fill="white" fontSize="10">Liquidity</text>
-            <rect x="610" y="240" width="165" height="40" fill="#1e40af" rx="4" />
-            <text x="692" y="265" textAnchor="middle" fill="white" fontSize="10">Pre-Trade Risk</text>
-            <rect x="790" y="240" width="165" height="40" fill="#1e40af" rx="4" />
-            <text x="872" y="265" textAnchor="middle" fill="white" fontSize="10">Market Data</text>
-            <rect x="970" y="240" width="165" height="40" fill="#1e40af" rx="4" />
-            <text x="1052" y="265" textAnchor="middle" fill="white" fontSize="10">Position Mgmt</text>
+            <text x="152" y="260" textAnchor="middle" fill="white" fontSize="12">Order Match</text>
+            <text x="332" y="260" textAnchor="middle" fill="white" fontSize="12">Smart Route</text>
+            <text x="512" y="260" textAnchor="middle" fill="white" fontSize="12">Liquidity</text>
+            <text x="692" y="260" textAnchor="middle" fill="white" fontSize="12">Pre-Trade Risk</text>
+            <text x="332" y="285" textAnchor="middle" fill="white" fontSize="12">Market Data</text>
+            <text x="692" y="285" textAnchor="middle" fill="white" fontSize="12">Position Mgmt</text>
 
             {/* Layer 4: Kafka Streaming */}
             <rect x="50" y="320" width="1100" height="60" fill="url(#cyanGradient)" rx="8" />
@@ -187,14 +178,11 @@ function DarkPoolEngine3({ onBack }) {
             {/* Layer 5: Databases */}
             <rect x="50" y="400" width="1100" height="100" fill="url(#darkBlueGradient)" rx="8" />
             <text x="600" y="425" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">Layer 5: Data Storage</text>
-            <rect x="120" y="440" width="220" height="40" fill="#1e40af" rx="4" />
-            <text x="230" y="465" textAnchor="middle" fill="white" fontSize="12">PostgreSQL</text>
-            <rect x="360" y="440" width="220" height="40" fill="#1e40af" rx="4" />
-            <text x="470" y="465" textAnchor="middle" fill="white" fontSize="12">TimescaleDB</text>
-            <rect x="600" y="440" width="220" height="40" fill="#1e40af" rx="4" />
-            <text x="710" y="465" textAnchor="middle" fill="white" fontSize="12">Redis</text>
-            <rect x="840" y="440" width="220" height="40" fill="#1e40af" rx="4" />
-            <text x="950" y="465" textAnchor="middle" fill="white" fontSize="12">Coherence</text>
+            <text x="180" y="455" textAnchor="middle" fill="white" fontSize="13">PostgreSQL</text>
+            <text x="380" y="455" textAnchor="middle" fill="white" fontSize="13">Oracle</text>
+            <text x="580" y="455" textAnchor="middle" fill="white" fontSize="13">TimescaleDB</text>
+            <text x="780" y="455" textAnchor="middle" fill="white" fontSize="13">Redis</text>
+            <text x="980" y="455" textAnchor="middle" fill="white" fontSize="13">Coherence</text>
 
             {/* Layer 6: Compliance */}
             <rect x="50" y="520" width="1100" height="60" fill="url(#cyanGradient)" rx="8" />
@@ -1817,7 +1805,7 @@ public class ExecutionReportConsumer {
     return (
       <div style={{
         padding: '2rem',
-        maxWidth: '1400px',
+        maxWidth: '1600px',
         margin: '0 auto',
         backgroundColor: '#f9fafb',
         minHeight: '100vh'
@@ -1855,6 +1843,71 @@ public class ExecutionReportConsumer {
           <span style={{ fontSize: '1.2rem' }}>←</span>
           <span>Back to Topics</span>
         </button>
+
+        {/* Two-column layout: Sidebar + Content */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '320px 1fr',
+          gap: '2rem'
+        }}>
+          {/* Left sidebar - Topic list */}
+          <div style={{ position: 'sticky', top: '2rem', height: 'fit-content' }}>
+            <h3 style={{
+              fontSize: '1.25rem',
+              fontWeight: '700',
+              color: '#1f2937',
+              marginBottom: '1rem'
+            }}>
+              Dark Pool Topics
+            </h3>
+            <div style={{ display: 'grid', gap: '0.75rem' }}>
+              {topics.map((t) => (
+                <div
+                  key={t.id}
+                  onClick={() => setSelectedTopic(t.id)}
+                  style={{
+                    backgroundColor: selectedTopic === t.id ? `${t.color}15` : 'white',
+                    padding: '1rem',
+                    borderRadius: '8px',
+                    border: selectedTopic === t.id ? `3px solid ${t.color}` : '2px solid #e5e7eb',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseOver={(e) => {
+                    if (selectedTopic !== t.id) {
+                      e.currentTarget.style.backgroundColor = '#f9fafb'
+                      e.currentTarget.style.borderColor = t.color
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (selectedTopic !== t.id) {
+                      e.currentTarget.style.backgroundColor = 'white'
+                      e.currentTarget.style.borderColor = '#e5e7eb'
+                    }
+                  }}
+                >
+                  <div style={{
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    color: selectedTopic === t.id ? t.color : '#374151',
+                    marginBottom: '0.25rem'
+                  }}>
+                    {t.title}
+                  </div>
+                  <div style={{
+                    fontSize: '0.8rem',
+                    color: '#6b7280',
+                    lineHeight: '1.3'
+                  }}>
+                    {t.description.substring(0, 60)}...
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right content area */}
+          <div>
 
         {/* Topic header */}
         <div style={{
@@ -2194,6 +2247,8 @@ public class ExecutionReportConsumer {
           >
             Collapse All
           </button>
+        </div>
+          </div>
         </div>
       </div>
     )

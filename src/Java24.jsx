@@ -56,6 +56,7 @@ const SyntaxHighlighter = ({ code }) => {
 }
 
 function Java24({ onBack }) {
+  const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedConcept, setSelectedConcept] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
 
@@ -112,13 +113,17 @@ function Java24({ onBack }) {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && selectedConcept) {
-        setSelectedConcept(null)
+      if (e.key === 'Escape') {
+        if (selectedConcept) {
+          setSelectedConcept(null)
+        } else if (selectedCategory) {
+          setSelectedCategory(null)
+        }
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [selectedConcept])
+  }, [selectedConcept, selectedCategory])
 
   const concepts = [
     {
@@ -1938,6 +1943,41 @@ class KotlinCompiler {
     }
   ]
 
+  const categories = [
+    {
+      id: 'module-imports',
+      name: 'Module Import Declarations',
+      icon: '📦',
+      color: '#8b5cf6',
+      description: 'Simplified imports with module-level declarations',
+      conceptIds: [0, 1, 2, 3, 4]
+    },
+    {
+      id: 'scoped-values',
+      name: 'Scoped Values',
+      icon: '🔐',
+      color: '#3b82f6',
+      description: 'Better alternative to ThreadLocal for sharing immutable data',
+      conceptIds: [5, 6, 7, 8, 9, 10]
+    },
+    {
+      id: 'stream-gatherers',
+      name: 'Stream Gatherers',
+      icon: '🌊',
+      color: '#10b981',
+      description: 'Custom intermediate operations for Stream API',
+      conceptIds: [11, 12, 13, 14, 15, 16]
+    },
+    {
+      id: 'class-file-api',
+      name: 'Class-File API',
+      icon: '⚙️',
+      color: '#f59e0b',
+      description: 'Standard API for parsing, generating, and transforming bytecode',
+      conceptIds: [17, 18, 19, 20, 21, 22]
+    }
+  ]
+
   return (
     <div style={{
       padding: '2rem',
@@ -1984,41 +2024,126 @@ class KotlinCompiler {
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: selectedConcept ? '350px 1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+        gridTemplateColumns: selectedConcept ? '350px 1fr' : selectedCategory ? '350px 1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
         gap: '2rem'
       }}>
-        {!selectedConcept ? (
-          concepts.map((concept, idx) => (
-            <div key={idx} onClick={() => handleConceptClick(concept)} style={{
-                backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '2rem',
-                borderRadius: '16px', border: '3px solid rgba(16, 185, 129, 0.3)',
+        {!selectedCategory && !selectedConcept ? (
+          categories.map((category) => (
+            <div key={category.id} onClick={() => setSelectedCategory(category)} style={{
+                backgroundColor: `${category.color}10`, padding: '2rem',
+                borderRadius: '16px', border: `3px solid ${category.color}30`,
                 cursor: 'pointer', transition: 'all 0.3s ease',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-4px)'
                 e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.15)'
-                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.5)'
+                e.currentTarget.style.borderColor = `${category.color}60`
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.3)'
+                e.currentTarget.style.borderColor = `${category.color}30`
               }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>
-                {concept.icon || '🔹'}
+                {category.icon}
               </div>
               <h3 style={{
-                fontSize: '1.5rem', fontWeight: '700', color: '#047857',
+                fontSize: '1.5rem', fontWeight: '700', color: category.color,
                 marginBottom: '1rem', textAlign: 'center'
-              }}>{concept.name}</h3>
+              }}>{category.name}</h3>
               <p style={{
                 fontSize: '1rem', color: '#6b7280', lineHeight: '1.6', textAlign: 'center'
               }}>
-                {concept.explanation?.substring(0, 150) || ''}...
+                {category.description}
               </p>
             </div>
           ))
+        ) : selectedCategory && !selectedConcept ? (
+          <>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <button onClick={() => setSelectedCategory(null)} style={{
+                  padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600',
+                  backgroundColor: '#6b7280', color: 'white', border: 'none',
+                  borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease'
+                }}>
+                ← Back to Categories
+              </button>
+              {selectedCategory.conceptIds.map((conceptId) => {
+                const concept = concepts[conceptId]
+                return (
+                  <div key={conceptId} onClick={() => handleConceptClick(concept)} style={{
+                      padding: '1rem',
+                      backgroundColor: `${selectedCategory.color}15`,
+                      borderRadius: '8px',
+                      border: `2px solid ${selectedCategory.color}40`,
+                      cursor: 'pointer', transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = `${selectedCategory.color}25`
+                      e.currentTarget.style.borderColor = `${selectedCategory.color}60`
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = `${selectedCategory.color}15`
+                      e.currentTarget.style.borderColor = `${selectedCategory.color}40`
+                    }}>
+                    <span style={{ fontWeight: '600', color: selectedCategory.color }}>
+                      {concept.icon || '🔹'} {concept.name}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+
+            <div>
+              <h2 style={{ fontSize: '2rem', fontWeight: '700', color: selectedCategory.color, marginBottom: '1.5rem' }}>
+                {selectedCategory.icon} {selectedCategory.name}
+              </h2>
+              <div style={{
+                backgroundColor: `${selectedCategory.color}10`, padding: '1.5rem',
+                borderRadius: '12px', border: `2px solid ${selectedCategory.color}30`, marginBottom: '2rem'
+              }}>
+                <p style={{ fontSize: '1.1rem', color: '#374151', lineHeight: '1.8', margin: 0 }}>
+                  {selectedCategory.description}
+                </p>
+              </div>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                gap: '1rem'
+              }}>
+                {selectedCategory.conceptIds.map((conceptId) => {
+                  const concept = concepts[conceptId]
+                  return (
+                    <div key={conceptId} onClick={() => handleConceptClick(concept)} style={{
+                        backgroundColor: `${selectedCategory.color}10`, padding: '1.5rem',
+                        borderRadius: '12px', border: `2px solid ${selectedCategory.color}30`,
+                        cursor: 'pointer', transition: 'all 0.3s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-4px)'
+                        e.currentTarget.style.borderColor = `${selectedCategory.color}60`
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.borderColor = `${selectedCategory.color}30`
+                      }}>
+                      <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>
+                        {concept.icon || '🔹'}
+                      </div>
+                      <h4 style={{
+                        fontSize: '1.1rem', fontWeight: '600', color: selectedCategory.color,
+                        marginBottom: '0.5rem'
+                      }}>{concept.name}</h4>
+                      <p style={{ fontSize: '0.9rem', color: '#6b7280', lineHeight: '1.4' }}>
+                        {concept.explanation?.substring(0, 100) || ''}...
+                      </p>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </>
         ) : (
           <>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -2027,31 +2152,34 @@ class KotlinCompiler {
                   backgroundColor: '#6b7280', color: 'white', border: 'none',
                   borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease'
                 }}>
-                ← Back to All Concepts
+                ← Back to Concepts
               </button>
-              {concepts.map((concept, idx) => (
-                <div key={idx} onClick={() => handleConceptClick(concept)} style={{
-                    padding: '1rem',
-                    backgroundColor: selectedConcept?.name === concept.name ? 'rgba(16, 185, 129, 0.15)' : 'rgba(243, 244, 246, 1)',
-                    borderRadius: '8px',
-                    border: selectedConcept?.name === concept.name ? '2px solid rgba(16, 185, 129, 0.5)' : '2px solid transparent',
-                    cursor: 'pointer', transition: 'all 0.2s ease'
-                  }}>
-                  <span style={{ fontWeight: '600', color: '#047857' }}>
-                    {concept.icon || '🔹'} {concept.name}
-                  </span>
-                </div>
-              ))}
+              {selectedCategory.conceptIds.map((conceptId) => {
+                const concept = concepts[conceptId]
+                return (
+                  <div key={conceptId} onClick={() => handleConceptClick(concept)} style={{
+                      padding: '1rem',
+                      backgroundColor: selectedConcept?.name === concept.name ? `${selectedCategory.color}25` : 'rgba(243, 244, 246, 1)',
+                      borderRadius: '8px',
+                      border: selectedConcept?.name === concept.name ? `2px solid ${selectedCategory.color}` : '2px solid transparent',
+                      cursor: 'pointer', transition: 'all 0.2s ease'
+                    }}>
+                    <span style={{ fontWeight: '600', color: selectedCategory.color }}>
+                      {concept.icon || '🔹'} {concept.name}
+                    </span>
+                  </div>
+                )
+              })}
             </div>
 
             <div>
-              <h2 style={{ fontSize: '2rem', fontWeight: '700', color: '#047857', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '2rem', fontWeight: '700', color: selectedCategory.color, marginBottom: '1.5rem' }}>
                 {selectedConcept.icon || '🔹'} {selectedConcept.name}
               </h2>
 
               <div style={{
-                backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '1.5rem',
-                borderRadius: '12px', border: '2px solid rgba(16, 185, 129, 0.2)', marginBottom: '2rem'
+                backgroundColor: `${selectedCategory.color}10`, padding: '1.5rem',
+                borderRadius: '12px', border: `2px solid ${selectedCategory.color}30`, marginBottom: '2rem'
               }}>
                 <p style={{ fontSize: '1.1rem', color: '#374151', lineHeight: '1.8', margin: 0 }}>
                   {selectedConcept.explanation}

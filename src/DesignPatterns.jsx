@@ -245,6 +245,61 @@ Desktop desktop = Desktop.getDesktop();
       name: 'Factory Method',
       icon: '🏭',
       description: 'Defines interface for creating objects, letting subclasses decide which class to instantiate. Defers instantiation to subclasses. Promotes loose coupling. Common in frameworks - DocumentFactory, ConnectionFactory. Alternative to direct constructor calls.',
+      diagram: () => (
+        <svg viewBox="0 0 700 400" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '2rem auto', display: 'block' }}>
+          <defs>
+            <linearGradient id="factoryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrowFactory" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <polygon points="0 0, 10 3, 0 6" fill="#10b981" />
+            </marker>
+          </defs>
+
+          <text x="350" y="30" fontSize="18" fontWeight="bold" fill="#10b981" textAnchor="middle">Factory Method Pattern</text>
+
+          {/* Creator Abstract Class */}
+          <rect x="250" y="60" width="200" height="100" rx="10" fill="#d1fae5" stroke="#10b981" strokeWidth="2" />
+          <text x="350" y="85" fontSize="14" fontWeight="bold" fill="#047857" textAnchor="middle">«abstract»</text>
+          <text x="350" y="105" fontSize="15" fontWeight="bold" fill="#047857" textAnchor="middle">Creator</text>
+          <line x1="260" y1="115" x2="440" y2="115" stroke="#10b981" strokeWidth="1.5" />
+          <text x="350" y="135" fontSize="12" fill="#047857" textAnchor="middle">+ factoryMethod()</text>
+          <text x="350" y="150" fontSize="12" fill="#047857" textAnchor="middle">+ operation()</text>
+
+          {/* Concrete Creators */}
+          <rect x="100" y="220" width="160" height="80" rx="8" fill="url(#factoryGrad)" stroke="#059669" strokeWidth="2" />
+          <text x="180" y="245" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">PDFCreator</text>
+          <line x1="110" y1="255" x2="250" y2="255" stroke="white" strokeWidth="1" />
+          <text x="180" y="275" fontSize="11" fill="white" textAnchor="middle">+ factoryMethod()</text>
+          <text x="180" y="290" fontSize="10" fill="#d1fae5" textAnchor="middle">return PDFDoc</text>
+
+          <rect x="440" y="220" width="160" height="80" rx="8" fill="url(#factoryGrad)" stroke="#059669" strokeWidth="2" />
+          <text x="520" y="245" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">WordCreator</text>
+          <line x1="450" y1="255" x2="590" y2="255" stroke="white" strokeWidth="1" />
+          <text x="520" y="275" fontSize="11" fill="white" textAnchor="middle">+ factoryMethod()</text>
+          <text x="520" y="290" fontSize="10" fill="#d1fae5" textAnchor="middle">return WordDoc</text>
+
+          {/* Inheritance arrows */}
+          <line x1="180" y1="220" x2="300" y2="160" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowFactory)" strokeDasharray="none" />
+          <polygon points="295,165 300,160 305,165" fill="white" stroke="#10b981" strokeWidth="2" />
+          <line x1="520" y1="220" x2="400" y2="160" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowFactory)" strokeDasharray="none" />
+          <polygon points="395,165 400,160 405,165" fill="white" stroke="#10b981" strokeWidth="2" />
+
+          {/* Product boxes */}
+          <rect x="120" y="330" width="120" height="50" rx="6" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2" />
+          <text x="180" y="352" fontSize="13" fontWeight="600" fill="#f59e0b" textAnchor="middle">PDFDocument</text>
+          <text x="180" y="368" fontSize="10" fill="#92400e" textAnchor="middle">Product A</text>
+
+          <rect x="460" y="330" width="120" height="50" rx="6" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2" />
+          <text x="520" y="352" fontSize="13" fontWeight="600" fill="#f59e0b" textAnchor="middle">WordDocument</text>
+          <text x="520" y="368" fontSize="10" fill="#92400e" textAnchor="middle">Product B</text>
+
+          {/* Creation arrows */}
+          <line x1="180" y1="300" x2="180" y2="330" stroke="#f59e0b" strokeWidth="2" strokeDasharray="5,3" markerEnd="url(#arrowFactory)" />
+          <line x1="520" y1="300" x2="520" y2="330" stroke="#f59e0b" strokeWidth="2" strokeDasharray="5,3" markerEnd="url(#arrowFactory)" />
+        </svg>
+      ),
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
 // ✦ Abstract Creator and Product
 // ═══════════════════════════════════════════════════════════════════════════
@@ -328,6 +383,53 @@ DocumentBuilder builder = factory.newDocumentBuilder();`
       name: 'Builder',
       icon: '🏗️',
       description: 'Constructs complex objects step by step. Separates object construction from representation. Same construction process can create different representations. Useful for objects with many optional parameters. Fluent API pattern.',
+      diagram: () => (
+        <svg viewBox="0 0 650 350" style={{ width: '100%', maxWidth: '650px', height: 'auto', margin: '2rem auto', display: 'block' }}>
+          <defs>
+            <linearGradient id="builderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrowBuilder" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <polygon points="0 0, 10 3, 0 6" fill="#f59e0b" />
+            </marker>
+          </defs>
+
+          <text x="325" y="30" fontSize="18" fontWeight="bold" fill="#f59e0b" textAnchor="middle">Builder Pattern</text>
+
+          {/* Client */}
+          <rect x="40" y="80" width="120" height="60" rx="8" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2" />
+          <text x="100" y="107" fontSize="14" fontWeight="bold" fill="#92400e" textAnchor="middle">Client</text>
+          <text x="100" y="125" fontSize="11" fill="#92400e" textAnchor="middle">Uses Builder</text>
+
+          {/* Builder */}
+          <rect x="240" y="70" width="160" height="110" rx="8" fill="url(#builderGrad)" stroke="#d97706" strokeWidth="2" />
+          <text x="320" y="95" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">Builder</text>
+          <line x1="250" y1="105" x2="390" y2="105" stroke="white" strokeWidth="1" />
+          <text x="320" y="125" fontSize="11" fill="white" textAnchor="middle">setName()</text>
+          <text x="320" y="142" fontSize="11" fill="white" textAnchor="middle">setAge()</text>
+          <text x="320" y="159" fontSize="11" fill="white" textAnchor="middle">setEmail()</text>
+          <text x="320" y="176" fontSize="11" fill="white" textAnchor="middle">build()</text>
+
+          {/* Product */}
+          <rect x="480" y="80" width="130" height="100" rx="8" fill="#dbeafe" stroke="#3b82f6" strokeWidth="2" />
+          <text x="545" y="105" fontSize="14" fontWeight="bold" fill="#1e40af" textAnchor="middle">Product</text>
+          <line x1="490" y1="115" x2="600" y2="115" stroke="#3b82f6" strokeWidth="1" />
+          <text x="545" y="135" fontSize="10" fill="#1e40af" textAnchor="middle">- name</text>
+          <text x="545" y="150" fontSize="10" fill="#1e40af" textAnchor="middle">- age</text>
+          <text x="545" y="165" fontSize="10" fill="#1e40af" textAnchor="middle">- email</text>
+
+          {/* Construction steps */}
+          <rect x="200" y="230" width="250" height="90" rx="8" fill="#f3f4f6" stroke="#6b7280" strokeWidth="1.5" strokeDasharray="3,3" />
+          <text x="325" y="252" fontSize="13" fontWeight="600" fill="#374151" textAnchor="middle">Construction Steps</text>
+          <text x="230" y="272" fontSize="11" fill="#6b7280">1. new Builder()</text>
+          <text x="230" y="288" fontSize="11" fill="#6b7280">2. setName("John")</text>
+          <text x="230" y="304" fontSize="11" fill="#6b7280">3. setAge(30)</text>
+          <line x1="160" y1="110" x2="240" y2="110" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#arrowBuilder)" />
+          <line x1="400" y1="130" x2="480" y2="130" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrowBuilder)" />
+          <text x="440" y="125" fontSize="10" fill="#3b82f6">builds</text>
+        </svg>
+      ),
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
 // ✦ Product Class with Private Constructor
 // ═══════════════════════════════════════════════════════════════════════════
@@ -453,6 +555,64 @@ Stream<String> stream = Stream.<String>builder()
       name: 'Prototype',
       icon: '🧬',
       description: 'Creates objects by cloning existing instances. Avoids expensive initialization. Useful when object creation is costly. Implements Cloneable interface in Java. Shallow vs deep copy considerations.',
+      diagram: () => (
+        <svg viewBox="0 0 700 380" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '20px 0' }}>
+          <defs>
+            <linearGradient id="prototypeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#06b6d4', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#0891b2', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrowPrototype" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#0891b2" />
+            </marker>
+          </defs>
+
+          {/* Prototype Interface */}
+          <rect x="250" y="30" width="200" height="80" fill="url(#prototypeGrad)" stroke="#0891b2" strokeWidth="2" rx="5" />
+          <text x="350" y="55" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">«interface»</text>
+          <text x="350" y="75" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">Cloneable</text>
+          <line x1="260" y1="85" x2="440" y2="85" stroke="white" strokeWidth="1" />
+          <text x="350" y="102" textAnchor="middle" fill="white" fontSize="14">+ clone(): Object</text>
+
+          {/* Concrete Prototype */}
+          <rect x="250" y="160" width="200" height="100" fill="url(#prototypeGrad)" stroke="#0891b2" strokeWidth="2" rx="5" />
+          <text x="350" y="185" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">Shape</text>
+          <line x1="260" y1="195" x2="440" y2="195" stroke="white" strokeWidth="1" />
+          <text x="265" y="212" fill="white" fontSize="13">- type: String</text>
+          <text x="265" y="228" fill="white" fontSize="13">- color: String</text>
+          <line x1="260" y1="235" x2="440" y2="235" stroke="white" strokeWidth="1" />
+          <text x="265" y="252" fill="white" fontSize="13">+ clone(): Shape</text>
+
+          {/* Implements arrow */}
+          <line x1="350" y1="110" x2="350" y2="160" stroke="#0891b2" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowPrototype)" />
+
+          {/* Original Object */}
+          <rect x="50" y="300" width="150" height="70" fill="#ecfeff" stroke="#06b6d4" strokeWidth="2" rx="5" />
+          <text x="125" y="325" textAnchor="middle" fill="#0891b2" fontSize="14" fontWeight="bold">Original</text>
+          <text x="125" y="345" textAnchor="middle" fill="#0e7490" fontSize="12">type: "Circle"</text>
+          <text x="125" y="360" textAnchor="middle" fill="#0e7490" fontSize="12">color: "red"</text>
+
+          {/* Clone Arrow 1 */}
+          <path d="M 200 335 L 280 220" stroke="#06b6d4" strokeWidth="2" markerEnd="url(#arrowPrototype)" />
+          <text x="230" y="270" fill="#0891b2" fontSize="13" fontWeight="bold">clone()</text>
+
+          {/* Cloned Objects */}
+          <rect x="280" y="300" width="150" height="70" fill="#ecfeff" stroke="#06b6d4" strokeWidth="2" rx="5" />
+          <text x="355" y="325" textAnchor="middle" fill="#0891b2" fontSize="14" fontWeight="bold">Clone 1</text>
+          <text x="355" y="345" textAnchor="middle" fill="#0e7490" fontSize="12">type: "Circle"</text>
+          <text x="355" y="360" textAnchor="middle" fill="#0e7490" fontSize="12">color: "blue"</text>
+
+          <rect x="500" y="300" width="150" height="70" fill="#ecfeff" stroke="#06b6d4" strokeWidth="2" rx="5" />
+          <text x="575" y="325" textAnchor="middle" fill="#0891b2" fontSize="14" fontWeight="bold">Clone 2</text>
+          <text x="575" y="345" textAnchor="middle" fill="#0e7490" fontSize="12">type: "Circle"</text>
+          <text x="575" y="360" textAnchor="middle" fill="#0e7490" fontSize="12">color: "green"</text>
+
+          {/* Clone Arrows */}
+          <path d="M 360 260 L 355 300" stroke="#06b6d4" strokeWidth="2" markerEnd="url(#arrowPrototype)" />
+          <path d="M 380 230 L 575 300" stroke="#06b6d4" strokeWidth="2" markerEnd="url(#arrowPrototype)" />
+          <text x="440" y="260" fill="#0891b2" fontSize="13" fontWeight="bold">clone()</text>
+        </svg>
+      ),
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
 // ✦ Prototype Interface and Implementation
 // ═══════════════════════════════════════════════════════════════════════════
@@ -581,6 +741,92 @@ Shape redCircle2 = registry.getShape("redCircle");
       name: 'Abstract Factory',
       icon: '🏢',
       description: 'Provides interface for creating families of related objects without specifying concrete classes. Factory of factories. Ensures created objects are compatible. Used in UI toolkits (Windows/Mac widgets), database access layers.',
+      diagram: () => (
+        <svg viewBox="0 0 800 500" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '20px 0' }}>
+          <defs>
+            <linearGradient id="abstractFactoryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#7c3aed', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#6d28d9', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrowAbstractFactory" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#6d28d9" />
+            </marker>
+          </defs>
+
+          {/* Abstract Factory */}
+          <rect x="300" y="20" width="200" height="90" fill="url(#abstractFactoryGrad)" stroke="#6d28d9" strokeWidth="2" rx="5" />
+          <text x="400" y="45" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">«interface»</text>
+          <text x="400" y="65" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">GUIFactory</text>
+          <line x1="310" y1="75" x2="490" y2="75" stroke="white" strokeWidth="1" />
+          <text x="315" y="92" fill="white" fontSize="13">+ createButton(): Button</text>
+          <text x="315" y="105" fill="white" fontSize="13">+ createCheckbox(): Checkbox</text>
+
+          {/* Concrete Factories */}
+          <rect x="120" y="170" width="180" height="90" fill="url(#abstractFactoryGrad)" stroke="#6d28d9" strokeWidth="2" rx="5" />
+          <text x="210" y="195" textAnchor="middle" fill="white" fontSize="17" fontWeight="bold">WindowsFactory</text>
+          <line x1="130" y1="205" x2="290" y2="205" stroke="white" strokeWidth="1" />
+          <text x="130" y="222" fill="white" fontSize="12">+ createButton(): Button</text>
+          <text x="130" y="237" fill="white" fontSize="12">+ createCheckbox(): Checkbox</text>
+          <text x="135" y="253" fill="#ddd6fe" fontSize="11" fontStyle="italic">→ new WindowsButton()</text>
+
+          <rect x="500" y="170" width="180" height="90" fill="url(#abstractFactoryGrad)" stroke="#6d28d9" strokeWidth="2" rx="5" />
+          <text x="590" y="195" textAnchor="middle" fill="white" fontSize="17" fontWeight="bold">MacFactory</text>
+          <line x1="510" y1="205" x2="670" y2="205" stroke="white" strokeWidth="1" />
+          <text x="510" y="222" fill="white" fontSize="12">+ createButton(): Button</text>
+          <text x="510" y="237" fill="white" fontSize="12">+ createCheckbox(): Checkbox</text>
+          <text x="515" y="253" fill="#ddd6fe" fontSize="11" fontStyle="italic">→ new MacButton()</text>
+
+          {/* Inheritance arrows from concrete factories to abstract */}
+          <line x1="210" y1="170" x2="350" y2="110" stroke="#6d28d9" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowAbstractFactory)" />
+          <line x1="590" y1="170" x2="450" y2="110" stroke="#6d28d9" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowAbstractFactory)" />
+
+          {/* Abstract Products */}
+          <rect x="90" y="330" width="150" height="70" fill="#ede9fe" stroke="#7c3aed" strokeWidth="2" rx="5" />
+          <text x="165" y="355" textAnchor="middle" fill="#6d28d9" fontSize="15" fontWeight="bold">«interface»</text>
+          <text x="165" y="375" textAnchor="middle" fill="#6d28d9" fontSize="16" fontWeight="bold">Button</text>
+          <text x="100" y="392" fill="#5b21b6" fontSize="12">+ render()</text>
+
+          <rect x="280" y="330" width="150" height="70" fill="#ede9fe" stroke="#7c3aed" strokeWidth="2" rx="5" />
+          <text x="355" y="355" textAnchor="middle" fill="#6d28d9" fontSize="15" fontWeight="bold">«interface»</text>
+          <text x="355" y="375" textAnchor="middle" fill="#6d28d9" fontSize="16" fontWeight="bold">Checkbox</text>
+          <text x="290" y="392" fill="#5b21b6" fontSize="12">+ check()</text>
+
+          {/* Concrete Products - Windows */}
+          <rect x="50" y="440" width="150" height="50" fill="#ede9fe" stroke="#7c3aed" strokeWidth="2" rx="5" />
+          <text x="125" y="460" textAnchor="middle" fill="#6d28d9" fontSize="14" fontWeight="bold">WindowsButton</text>
+          <text x="60" y="478" fill="#5b21b6" fontSize="11">Windows-style UI</text>
+
+          <rect x="220" y="440" width="150" height="50" fill="#ede9fe" stroke="#7c3aed" strokeWidth="2" rx="5" />
+          <text x="295" y="460" textAnchor="middle" fill="#6d28d9" fontSize="14" fontWeight="bold">WindowsCheckbox</text>
+          <text x="230" y="478" fill="#5b21b6" fontSize="11">Windows-style UI</text>
+
+          {/* Concrete Products - Mac */}
+          <rect x="430" y="440" width="150" height="50" fill="#ede9fe" stroke="#7c3aed" strokeWidth="2" rx="5" />
+          <text x="505" y="460" textAnchor="middle" fill="#6d28d9" fontSize="14" fontWeight="bold">MacButton</text>
+          <text x="450" y="478" fill="#5b21b6" fontSize="11">Mac-style UI</text>
+
+          <rect x="600" y="440" width="150" height="50" fill="#ede9fe" stroke="#7c3aed" strokeWidth="2" rx="5" />
+          <text x="675" y="460" textAnchor="middle" fill="#6d28d9" fontSize="14" fontWeight="bold">MacCheckbox</text>
+          <text x="620" y="478" fill="#5b21b6" fontSize="11">Mac-style UI</text>
+
+          {/* Create arrows from factories to products */}
+          <path d="M 210 260 L 125 330" stroke="#7c3aed" strokeWidth="1.5" strokeDasharray="3,3" markerEnd="url(#arrowAbstractFactory)" />
+          <path d="M 210 260 L 295 330" stroke="#7c3aed" strokeWidth="1.5" strokeDasharray="3,3" markerEnd="url(#arrowAbstractFactory)" />
+
+          <path d="M 590 260 L 505 330" stroke="#7c3aed" strokeWidth="1.5" strokeDasharray="3,3" markerEnd="url(#arrowAbstractFactory)" />
+          <path d="M 590 260 L 675 330" stroke="#7c3aed" strokeWidth="1.5" strokeDasharray="3,3" markerEnd="url(#arrowAbstractFactory)" />
+
+          {/* Implementation arrows from concrete products to interfaces */}
+          <line x1="125" y1="440" x2="145" y2="400" stroke="#7c3aed" strokeWidth="1.5" strokeDasharray="5,5" />
+          <line x1="295" y1="440" x2="340" y2="400" stroke="#7c3aed" strokeWidth="1.5" strokeDasharray="5,5" />
+          <line x1="505" y1="440" x2="185" y2="400" stroke="#7c3aed" strokeWidth="1.5" strokeDasharray="5,5" />
+          <line x1="675" y1="440" x2="370" y2="400" stroke="#7c3aed" strokeWidth="1.5" strokeDasharray="5,5" />
+
+          {/* Labels */}
+          <text x="150" y="295" fill="#6d28d9" fontSize="12" fontWeight="bold">creates →</text>
+          <text x="530" y="295" fill="#6d28d9" fontSize="12" fontWeight="bold">creates →</text>
+        </svg>
+      ),
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
 // ✦ Abstract Products
 // ═══════════════════════════════════════════════════════════════════════════
@@ -711,6 +957,67 @@ app.render();
       name: 'Adapter',
       icon: '🔌',
       description: 'Converts interface of class into another interface clients expect. Allows incompatible interfaces to work together. Class adapter (inheritance) vs Object adapter (composition). Used in legacy code integration, third-party library wrapping.',
+      diagram: () => (
+        <svg viewBox="0 0 700 400" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '20px 0' }}>
+          <defs>
+            <linearGradient id="adapterGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrowAdapter" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#d97706" />
+            </marker>
+          </defs>
+
+          {/* Client */}
+          <rect x="30" y="150" width="140" height="70" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2" rx="5" />
+          <text x="100" y="175" textAnchor="middle" fill="#d97706" fontSize="16" fontWeight="bold">Client</text>
+          <line x1="40" y1="185" x2="160" y2="185" stroke="#f59e0b" strokeWidth="1" />
+          <text x="45" y="202" fill="#b45309" fontSize="13">Uses Target</text>
+          <text x="45" y="215" fill="#b45309" fontSize="13">Interface</text>
+
+          {/* Target Interface */}
+          <rect x="250" y="30" width="180" height="80" fill="url(#adapterGrad)" stroke="#d97706" strokeWidth="2" rx="5" />
+          <text x="340" y="55" textAnchor="middle" fill="white" fontSize="15" fontWeight="bold">«interface»</text>
+          <text x="340" y="75" textAnchor="middle" fill="white" fontSize="17" fontWeight="bold">MediaPlayer</text>
+          <line x1="260" y1="85" x2="420" y2="85" stroke="white" strokeWidth="1" />
+          <text x="265" y="102" fill="white" fontSize="13">+ play(type, file)</text>
+
+          {/* Adapter */}
+          <rect x="250" y="160" width="180" height="100" fill="url(#adapterGrad)" stroke="#d97706" strokeWidth="2" rx="5" />
+          <text x="340" y="185" textAnchor="middle" fill="white" fontSize="17" fontWeight="bold">MediaAdapter</text>
+          <line x1="260" y1="195" x2="420" y2="195" stroke="white" strokeWidth="1" />
+          <text x="265" y="212" fill="white" fontSize="12">- adaptee: AdvancedMediaPlayer</text>
+          <line x1="260" y1="220" x2="420" y2="220" stroke="white" strokeWidth="1" />
+          <text x="265" y="237" fill="white" fontSize="12">+ play(type, file)</text>
+          <text x="270" y="252" fill="#fef3c7" fontSize="11" fontStyle="italic">→ adaptee.playMp4()</text>
+
+          {/* Adaptee */}
+          <rect x="500" y="160" width="180" height="100" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2" rx="5" />
+          <text x="590" y="185" textAnchor="middle" fill="#d97706" fontSize="16" fontWeight="bold">AdvancedMediaPlayer</text>
+          <line x1="510" y1="195" x2="670" y2="195" stroke="#f59e0b" strokeWidth="1" />
+          <text x="515" y="212" fill="#b45309" fontSize="12">(Incompatible Interface)</text>
+          <line x1="510" y1="220" x2="670" y2="220" stroke="#f59e0b" strokeWidth="1" />
+          <text x="515" y="237" fill="#b45309" fontSize="12">+ playMp4(file)</text>
+          <text x="515" y="252" fill="#b45309" fontSize="12">+ playVlc(file)</text>
+
+          {/* Client uses Target */}
+          <path d="M 170 185 L 250 70" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#arrowAdapter)" />
+          <text x="185" y="120" fill="#d97706" fontSize="12" fontWeight="bold">uses</text>
+
+          {/* Adapter implements Target */}
+          <line x1="340" y1="110" x2="340" y2="160" stroke="#d97706" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowAdapter)" />
+
+          {/* Adapter wraps Adaptee */}
+          <path d="M 430 210 L 500 210" stroke="#d97706" strokeWidth="2" markerEnd="url(#arrowAdapter)" />
+          <text x="440" y="200" fill="#d97706" fontSize="12" fontWeight="bold">wraps</text>
+
+          {/* Labels */}
+          <text x="250" y="320" fill="#92400e" fontSize="14" fontWeight="bold">Adapter Pattern:</text>
+          <text x="250" y="340" fill="#78350f" fontSize="12">Converts AdvancedMediaPlayer interface</text>
+          <text x="250" y="355" fill="#78350f" fontSize="12">to MediaPlayer interface that client expects</text>
+        </svg>
+      ),
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
 // ✦ Target Interface and Adaptee
 // ═══════════════════════════════════════════════════════════════════════════
@@ -801,6 +1108,79 @@ Enumeration<String> enumeration = Collections.enumeration(list);`
       name: 'Decorator',
       icon: '🎨',
       description: 'Attaches additional responsibilities to object dynamically. Flexible alternative to subclassing. Wraps objects in decorator classes. Chain multiple decorators. Used in I/O streams (BufferedReader, InputStreamReader).',
+      diagram: () => (
+        <svg viewBox="0 0 750 450" style={{ width: '100%', maxWidth: '750px', height: 'auto', margin: '20px 0' }}>
+          <defs>
+            <linearGradient id="decoratorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrowDecorator" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#059669" />
+            </marker>
+          </defs>
+
+          {/* Component Interface */}
+          <rect x="280" y="20" width="190" height="80" fill="url(#decoratorGrad)" stroke="#059669" strokeWidth="2" rx="5" />
+          <text x="375" y="45" textAnchor="middle" fill="white" fontSize="15" fontWeight="bold">«interface»</text>
+          <text x="375" y="65" textAnchor="middle" fill="white" fontSize="17" fontWeight="bold">Coffee</text>
+          <line x1="290" y1="75" x2="460" y2="75" stroke="white" strokeWidth="1" />
+          <text x="295" y="92" fill="white" fontSize="12">+ getDescription()</text>
+
+          {/* Concrete Component */}
+          <rect x="80" y="170" width="160" height="70" fill="#d1fae5" stroke="#10b981" strokeWidth="2" rx="5" />
+          <text x="160" y="195" textAnchor="middle" fill="#059669" fontSize="16" fontWeight="bold">SimpleCoffee</text>
+          <line x1="90" y1="205" x2="230" y2="205" stroke="#10b981" strokeWidth="1" />
+          <text x="95" y="222" fill="#047857" fontSize="12">+ getDescription()</text>
+          <text x="95" y="235" fill="#047857" fontSize="11">"Simple coffee"</text>
+
+          {/* Abstract Decorator */}
+          <rect x="310" y="170" width="130" height="90" fill="url(#decoratorGrad)" stroke="#059669" strokeWidth="2" rx="5" />
+          <text x="375" y="195" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">«abstract»</text>
+          <text x="375" y="212" textAnchor="middle" fill="white" fontSize="15" fontWeight="bold">Decorator</text>
+          <line x1="320" y1="222" x2="430" y2="222" stroke="white" strokeWidth="1" />
+          <text x="320" y="237" fill="white" fontSize="11">- coffee: Coffee</text>
+          <line x1="320" y1="242" x2="430" y2="242" stroke="white" strokeWidth="1" />
+          <text x="320" y="256" fill="white" fontSize="11">+ getDescription()</text>
+
+          {/* Concrete Decorators */}
+          <rect x="490" y="300" width="120" height="65" fill="#d1fae5" stroke="#10b981" strokeWidth="2" rx="5" />
+          <text x="550" y="322" textAnchor="middle" fill="#059669" fontSize="14" fontWeight="bold">MilkDecorator</text>
+          <line x1="500" y1="330" x2="600" y2="330" stroke="#10b981" strokeWidth="1" />
+          <text x="505" y="345" fill="#047857" fontSize="11">+ getDescription()</text>
+          <text x="505" y="358" fill="#047857" fontSize="10">+ " + Milk"</text>
+
+          <rect x="630" y="300" width="110" height="65" fill="#d1fae5" stroke="#10b981" strokeWidth="2" rx="5" />
+          <text x="685" y="322" textAnchor="middle" fill="#059669" fontSize="14" fontWeight="bold">SugarDecorator</text>
+          <line x1="640" y1="330" x2="730" y2="330" stroke="#10b981" strokeWidth="1" />
+          <text x="645" y="345" fill="#047857" fontSize="11">+ getDescription()</text>
+          <text x="645" y="358" fill="#047857" fontSize="10">+ " + Sugar"</text>
+
+          {/* Implements arrows */}
+          <line x1="160" y1="170" x2="320" y2="100" stroke="#059669" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowDecorator)" />
+          <line x1="375" y1="100" x2="375" y2="170" stroke="#059669" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowDecorator)" />
+
+          {/* Decorator extends arrows */}
+          <line x1="550" y1="300" x2="400" y2="260" stroke="#059669" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowDecorator)" />
+          <line x1="685" y1="300" x2="420" y2="260" stroke="#059669" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowDecorator)" />
+
+          {/* Has-a composition */}
+          <path d="M 310 215 L 240 205" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowDecorator)" />
+          <text x="255" y="200" fill="#059669" fontSize="11" fontWeight="bold">wraps</text>
+
+          {/* Wrapping Example */}
+          <rect x="50" y="350" width="380" height="80" fill="#f0fdf4" stroke="#10b981" strokeWidth="2" rx="5" strokeDasharray="5,5" />
+          <text x="60" y="370" fill="#047857" fontSize="13" fontWeight="bold">Wrapping Example:</text>
+          <text x="60" y="388" fill="#065f46" fontSize="12">Coffee c = new SimpleCoffee();</text>
+          <text x="60" y="403" fill="#065f46" fontSize="12">c = new MilkDecorator(c);</text>
+          <text x="60" y="418" fill="#065f46" fontSize="12">c = new SugarDecorator(c);</text>
+
+          <text x="240" y="370" fill="#047857" fontSize="13" fontWeight="bold">Result:</text>
+          <text x="240" y="388" fill="#065f46" fontSize="12">"Simple coffee"</text>
+          <text x="240" y="403" fill="#065f46" fontSize="12">"Simple coffee + Milk"</text>
+          <text x="240" y="418" fill="#065f46" fontSize="12">"... + Milk + Sugar"</text>
+        </svg>
+      ),
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
 // ✦ Component Interface and Concrete Component
 // ═══════════════════════════════════════════════════════════════════════════
@@ -932,6 +1312,80 @@ BufferedReader reader = new BufferedReader(
       name: 'Facade',
       icon: '🎭',
       description: 'Provides simplified interface to complex subsystem. Hides complexity from clients. Decouples client from subsystem components. Used in library APIs, framework integration. Makes subsystem easier to use.',
+      diagram: () => (
+        <svg viewBox="0 0 700 420" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '20px 0' }}>
+          <defs>
+            <linearGradient id="facadeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#2563eb', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrowFacade" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#2563eb" />
+            </marker>
+          </defs>
+
+          {/* Client */}
+          <rect x="30" y="180" width="120" height="60" fill="#dbeafe" stroke="#3b82f6" strokeWidth="2" rx="5" />
+          <text x="90" y="205" textAnchor="middle" fill="#2563eb" fontSize="16" fontWeight="bold">Client</text>
+          <text x="90" y="225" textAnchor="middle" fill="#1e40af" fontSize="12">Simple API</text>
+
+          {/* Facade */}
+          <rect x="240" y="150" width="180" height="120" fill="url(#facadeGrad)" stroke="#2563eb" strokeWidth="2" rx="5" />
+          <text x="330" y="180" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">ComputerFacade</text>
+          <line x1="250" y1="190" x2="410" y2="190" stroke="white" strokeWidth="1" />
+          <text x="255" y="207" fill="white" fontSize="13">- cpu: CPU</text>
+          <text x="255" y="222" fill="white" fontSize="13">- memory: Memory</text>
+          <text x="255" y="237" fill="white" fontSize="13">- hardDrive: HardDrive</text>
+          <line x1="250" y1="243" x2="410" y2="243" stroke="white" strokeWidth="1" />
+          <text x="255" y="260" fill="white" fontSize="13">+ start()</text>
+
+          {/* Complex Subsystem */}
+          <rect x="500" y="40" width="180" height="350" fill="#f0f9ff" stroke="#3b82f6" strokeWidth="2" rx="5" strokeDasharray="5,5" />
+          <text x="590" y="30" textAnchor="middle" fill="#1e40af" fontSize="14" fontWeight="bold">Complex Subsystem</text>
+
+          {/* CPU */}
+          <rect x="520" y="60" width="140" height="80" fill="#dbeafe" stroke="#3b82f6" strokeWidth="2" rx="5" />
+          <text x="590" y="85" textAnchor="middle" fill="#2563eb" fontSize="15" fontWeight="bold">CPU</text>
+          <line x1="530" y1="95" x2="650" y2="95" stroke="#3b82f6" strokeWidth="1" />
+          <text x="535" y="110" fill="#1e40af" fontSize="11">+ freeze()</text>
+          <text x="535" y="124" fill="#1e40af" fontSize="11">+ jump(position)</text>
+          <text x="535" y="137" fill="#1e40af" fontSize="11">+ execute()</text>
+
+          {/* Memory */}
+          <rect x="520" y="160" width="140" height="65" fill="#dbeafe" stroke="#3b82f6" strokeWidth="2" rx="5" />
+          <text x="590" y="183" textAnchor="middle" fill="#2563eb" fontSize="15" fontWeight="bold">Memory</text>
+          <line x1="530" y1="193" x2="650" y2="193" stroke="#3b82f6" strokeWidth="1" />
+          <text x="535" y="207" fill="#1e40af" fontSize="11">+ load(pos, data)</text>
+          <text x="535" y="220" fill="#1e40af" fontSize="11">+ read()</text>
+
+          {/* HardDrive */}
+          <rect x="520" y="245" width="140" height="65" fill="#dbeafe" stroke="#3b82f6" strokeWidth="2" rx="5" />
+          <text x="590" y="268" textAnchor="middle" fill="#2563eb" fontSize="15" fontWeight="bold">HardDrive</text>
+          <line x1="530" y1="278" x2="650" y2="278" stroke="#3b82f6" strokeWidth="1" />
+          <text x="535" y="292" fill="#1e40af" fontSize="11">+ read(lba, size)</text>
+          <text x="535" y="305" fill="#1e40af" fontSize="11">+ write()</text>
+
+          {/* Graphics */}
+          <rect x="520" y="330" width="140" height="45" fill="#dbeafe" stroke="#3b82f6" strokeWidth="2" rx="5" />
+          <text x="590" y="350" textAnchor="middle" fill="#2563eb" fontSize="15" fontWeight="bold">Graphics</text>
+          <text x="535" y="368" fill="#1e40af" fontSize="11">+ render()</text>
+
+          {/* Client uses Facade */}
+          <path d="M 150 210 L 240 210" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrowFacade)" />
+          <text x="165" y="200" fill="#2563eb" fontSize="12" fontWeight="bold">uses</text>
+
+          {/* Facade coordinates subsystems */}
+          <path d="M 420 180 L 520 100" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrowFacade)" />
+          <path d="M 420 200 L 520 192" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrowFacade)" />
+          <path d="M 420 220 L 520 277" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrowFacade)" />
+          <path d="M 420 240 L 520 352" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrowFacade)" />
+
+          {/* Label */}
+          <text x="30" y="350" fill="#1e3a8a" fontSize="13" fontWeight="bold">Benefit:</text>
+          <text x="30" y="368" fill="#1e40af" fontSize="12">Client calls one simple method: start()</text>
+          <text x="30" y="384" fill="#1e40af" fontSize="12">Facade coordinates all complex subsystems</text>
+        </svg>
+      ),
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
 // ✦ Complex Subsystem Classes
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1079,6 +1533,67 @@ bank.withdraw("1234", 500);
       name: 'Proxy',
       icon: '🛡️',
       description: 'Provides placeholder/surrogate for another object to control access. Virtual proxy (lazy loading), Protection proxy (access control), Remote proxy (remote objects), Cache proxy. Used in ORM frameworks, security layers, lazy initialization.',
+      diagram: () => (
+        <svg viewBox="0 0 700 380" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '20px 0' }}>
+          <defs>
+            <linearGradient id="proxyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#ef4444', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#dc2626', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrowProxy" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#dc2626" />
+            </marker>
+          </defs>
+
+          {/* Subject Interface */}
+          <rect x="280" y="20" width="150" height="70" fill="url(#proxyGrad)" stroke="#dc2626" strokeWidth="2" rx="5" />
+          <text x="355" y="45" textAnchor="middle" fill="white" fontSize="15" fontWeight="bold">«interface»</text>
+          <text x="355" y="65" textAnchor="middle" fill="white" fontSize="17" fontWeight="bold">Image</text>
+          <text x="290" y="85" fill="white" fontSize="13">+ display()</text>
+
+          {/* Proxy */}
+          <rect x="100" y="170" width="180" height="110" fill="url(#proxyGrad)" stroke="#dc2626" strokeWidth="2" rx="5" />
+          <text x="190" y="195" textAnchor="middle" fill="white" fontSize="17" fontWeight="bold">ImageProxy</text>
+          <line x1="110" y1="205" x2="270" y2="205" stroke="white" strokeWidth="1" />
+          <text x="115" y="222" fill="white" fontSize="12">- filename: String</text>
+          <text x="115" y="237" fill="white" fontSize="12">- realImage: RealImage</text>
+          <line x1="110" y1="243" x2="270" y2="243" stroke="white" strokeWidth="1" />
+          <text x="115" y="260" fill="white" fontSize="12">+ display()</text>
+          <text x="120" y="274" fill="#fee2e2" fontSize="11" fontStyle="italic">Lazy loading control</text>
+
+          {/* Real Subject */}
+          <rect x="430" y="170" width="180" height="110" fill="#fee2e2" stroke="#ef4444" strokeWidth="2" rx="5" />
+          <text x="520" y="195" textAnchor="middle" fill="#dc2626" fontSize="17" fontWeight="bold">RealImage</text>
+          <line x1="440" y1="205" x2="600" y2="205" stroke="#ef4444" strokeWidth="1" />
+          <text x="445" y="222" fill="#b91c1c" fontSize="12">- filename: String</text>
+          <line x1="440" y1="228" x2="600" y2="228" stroke="#ef4444" strokeWidth="1" />
+          <text x="445" y="245" fill="#b91c1c" fontSize="12">- loadFromDisk()</text>
+          <text x="445" y="260" fill="#b91c1c" fontSize="12">+ display()</text>
+          <text x="450" y="274" fill="#991b1b" fontSize="11" fontStyle="italic">Expensive to create</text>
+
+          {/* Client */}
+          <rect x="30" y="40" width="130" height="60" fill="#fee2e2" stroke="#ef4444" strokeWidth="2" rx="5" />
+          <text x="95" y="65" textAnchor="middle" fill="#dc2626" fontSize="16" fontWeight="bold">Client</text>
+          <text x="95" y="85" textAnchor="middle" fill="#b91c1c" fontSize="11">Uses Image</text>
+
+          {/* Implements arrows */}
+          <line x1="190" y1="170" x2="310" y2="90" stroke="#dc2626" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowProxy)" />
+          <line x1="520" y1="170" x2="400" y2="90" stroke="#dc2626" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowProxy)" />
+
+          {/* Client uses Image */}
+          <path d="M 160 70 L 280 55" stroke="#ef4444" strokeWidth="2" markerEnd="url(#arrowProxy)" />
+          <text x="195" y="60" fill="#dc2626" fontSize="11" fontWeight="bold">uses</text>
+
+          {/* Proxy delegates to RealSubject */}
+          <path d="M 280 225 L 430 225" stroke="#dc2626" strokeWidth="2" markerEnd="url(#arrowProxy)" />
+          <text x="320" y="215" fill="#dc2626" fontSize="12" fontWeight="bold">delegates to</text>
+
+          {/* Flow diagram */}
+          <rect x="50" y="320" width="600" height="50" fill="#fef2f2" stroke="#ef4444" strokeWidth="2" rx="5" strokeDasharray="5,5" />
+          <text x="60" y="340" fill="#991b1b" fontSize="13" fontWeight="bold">Flow:</text>
+          <text x="60" y="357" fill="#7f1d1d" fontSize="12">1. Client → Proxy.display()  2. Proxy checks if realImage exists  3. If not, create RealImage  4. Delegate to realImage.display()</text>
+        </svg>
+      ),
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
 // ✦ Subject Interface and Real Subject
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1246,6 +1761,57 @@ service.getData("user123");  // Returns from cache`
       name: 'Observer',
       icon: '👁️',
       description: 'Defines one-to-many dependency between objects. When one object changes state, all dependents notified automatically. Publisher-Subscriber model. Used in event handling systems, MVC architecture, reactive programming.',
+      diagram: () => (
+        <svg viewBox="0 0 700 400" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '2rem auto', display: 'block' }}>
+          <defs>
+            <linearGradient id="observerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#7c3aed', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrowObserver" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <polygon points="0 0, 10 3, 0 6" fill="#8b5cf6" />
+            </marker>
+          </defs>
+
+          <text x="350" y="30" fontSize="18" fontWeight="bold" fill="#8b5cf6" textAnchor="middle">Observer Pattern</text>
+
+          {/* Subject */}
+          <rect x="250" y="70" width="200" height="100" rx="10" fill="url(#observerGrad)" stroke="#7c3aed" strokeWidth="2" />
+          <text x="350" y="95" fontSize="15" fontWeight="bold" fill="white" textAnchor="middle">Subject</text>
+          <line x1="260" y1="105" x2="440" y2="105" stroke="white" strokeWidth="1" />
+          <text x="350" y="125" fontSize="11" fill="white" textAnchor="middle">+ attach(Observer)</text>
+          <text x="350" y="142" fontSize="11" fill="white" textAnchor="middle">+ detach(Observer)</text>
+          <text x="350" y="159" fontSize="11" fill="white" textAnchor="middle">+ notify()</text>
+
+          {/* Observers */}
+          <rect x="80" y="250" width="140" height="80" rx="8" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="2" />
+          <text x="150" y="275" fontSize="14" fontWeight="bold" fill="#6d28d9" textAnchor="middle">Observer A</text>
+          <line x1="90" y1="285" x2="210" y2="285" stroke="#8b5cf6" strokeWidth="1" />
+          <text x="150" y="305" fontSize="11" fill="#6d28d9" textAnchor="middle">+ update()</text>
+
+          <rect x="280" y="250" width="140" height="80" rx="8" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="2" />
+          <text x="350" y="275" fontSize="14" fontWeight="bold" fill="#6d28d9" textAnchor="middle">Observer B</text>
+          <line x1="290" y1="285" x2="410" y2="285" stroke="#8b5cf6" strokeWidth="1" />
+          <text x="350" y="305" fontSize="11" fill="#6d28d9" textAnchor="middle">+ update()</text>
+
+          <rect x="480" y="250" width="140" height="80" rx="8" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="2" />
+          <text x="550" y="275" fontSize="14" fontWeight="bold" fill="#6d28d9" textAnchor="middle">Observer C</text>
+          <line x1="490" y1="285" x2="610" y2="285" stroke="#8b5cf6" strokeWidth="1" />
+          <text x="550" y="305" fontSize="11" fill="#6d28d9" textAnchor="middle">+ update()</text>
+
+          {/* Notification arrows */}
+          <line x1="150" y1="250" x2="300" y2="170" stroke="#ef4444" strokeWidth="2.5" markerEnd="url(#arrowObserver)" strokeDasharray="5,3" />
+          <line x1="350" y1="250" x2="350" y2="170" stroke="#ef4444" strokeWidth="2.5" markerEnd="url(#arrowObserver)" strokeDasharray="5,3" />
+          <line x1="550" y1="250" x2="400" y2="170" stroke="#ef4444" strokeWidth="2.5" markerEnd="url(#arrowObserver)" strokeDasharray="5,3" />
+
+          <text x="200" y="210" fontSize="11" fill="#ef4444" fontWeight="600">notify()</text>
+          <text x="420" y="210" fontSize="11" fill="#ef4444" fontWeight="600">notify()</text>
+
+          {/* Note */}
+          <rect x="200" y="355" width="300" height="35" rx="6" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.5" />
+          <text x="350" y="377" fontSize="12" fill="#92400e" textAnchor="middle">When Subject changes, all Observers are notified</text>
+        </svg>
+      ),
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
 // ✦ Observer Interface and Subject
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1409,6 +1975,67 @@ support.addPropertyChangeListener(evt -> {
       name: 'Strategy',
       icon: '🎯',
       description: 'Defines family of algorithms, encapsulates each one, makes them interchangeable. Algorithm varies independently from clients. Eliminates conditional statements. Used in sorting algorithms, payment processing, compression algorithms.',
+      diagram: () => (
+        <svg viewBox="0 0 650 380" style={{ width: '100%', maxWidth: '650px', height: 'auto', margin: '2rem auto', display: 'block' }}>
+          <defs>
+            <linearGradient id="strategyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#ec4899', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#db2777', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrowStrategy" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <polygon points="0 0, 10 3, 0 6" fill="#ec4899" />
+            </marker>
+          </defs>
+
+          <text x="325" y="30" fontSize="18" fontWeight="bold" fill="#ec4899" textAnchor="middle">Strategy Pattern</text>
+
+          {/* Context */}
+          <rect x="40" y="80" width="140" height="90" rx="8" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2" />
+          <text x="110" y="105" fontSize="14" fontWeight="bold" fill="#92400e" textAnchor="middle">Context</text>
+          <line x1="50" y1="115" x2="170" y2="115" stroke="#f59e0b" strokeWidth="1" />
+          <text x="110" y="135" fontSize="11" fill="#92400e" textAnchor="middle">- strategy</text>
+          <text x="110" y="153" fontSize="11" fill="#92400e" textAnchor="middle">+ setStrategy()</text>
+          <text x="110" y="167" fontSize="11" fill="#92400e" textAnchor="middle">+ execute()</text>
+
+          {/* Strategy Interface */}
+          <rect x="260" y="80" width="150" height="70" rx="8" fill="#fce7f3" stroke="#ec4899" strokeWidth="2" />
+          <text x="335" y="105" fontSize="13" fontWeight="bold" fill="#9f1239" textAnchor="middle">«interface»</text>
+          <text x="335" y="125" fontSize="14" fontWeight="bold" fill="#9f1239" textAnchor="middle">Strategy</text>
+          <text x="335" y="143" fontSize="11" fill="#9f1239" textAnchor="middle">+ execute()</text>
+
+          {/* Concrete Strategies */}
+          <rect x="120" y="240" width="130" height="70" rx="8" fill="url(#strategyGrad)" stroke="#db2777" strokeWidth="2" />
+          <text x="185" y="265" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">StrategyA</text>
+          <line x1="130" y1="275" x2="240" y2="275" stroke="white" strokeWidth="1" />
+          <text x="185" y="295" fontSize="11" fill="white" textAnchor="middle">+ execute()</text>
+
+          <rect x="270" y="240" width="130" height="70" rx="8" fill="url(#strategyGrad)" stroke="#db2777" strokeWidth="2" />
+          <text x="335" y="265" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">StrategyB</text>
+          <line x1="280" y1="275" x2="390" y2="275" stroke="white" strokeWidth="1" />
+          <text x="335" y="295" fontSize="11" fill="white" textAnchor="middle">+ execute()</text>
+
+          <rect x="420" y="240" width="130" height="70" rx="8" fill="url(#strategyGrad)" stroke="#db2777" strokeWidth="2" />
+          <text x="485" y="265" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">StrategyC</text>
+          <line x1="430" y1="275" x2="540" y2="275" stroke="white" strokeWidth="1" />
+          <text x="485" y="295" fontSize="11" fill="white" textAnchor="middle">+ execute()</text>
+
+          {/* Relationships */}
+          <line x1="180" y1="125" x2="260" y2="125" stroke="#ec4899" strokeWidth="2" markerEnd="url(#arrowStrategy)" />
+          <text x="220" y="115" fontSize="10" fill="#ec4899">uses</text>
+
+          {/* Implements arrows */}
+          <line x1="185" y1="240" x2="300" y2="150" stroke="#ec4899" strokeWidth="2" strokeDasharray="5,5" />
+          <polygon points="295,155 300,150 305,155" fill="white" stroke="#ec4899" strokeWidth="2" />
+          <line x1="335" y1="240" x2="335" y2="150" stroke="#ec4899" strokeWidth="2" strokeDasharray="5,5" />
+          <polygon points="330,155 335,150 340,155" fill="white" stroke="#ec4899" strokeWidth="2" />
+          <line x1="485" y1="240" x2="370" y2="150" stroke="#ec4899" strokeWidth="2" strokeDasharray="5,5" />
+          <polygon points="365,155 370,150 375,155" fill="white" stroke="#ec4899" strokeWidth="2" />
+
+          {/* Note */}
+          <rect x="180" y="340" width="290" height="30" rx="6" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1.5" />
+          <text x="325" y="360" fontSize="11" fill="#1e40af" textAnchor="middle">Algorithms can be switched at runtime</text>
+        </svg>
+      ),
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
 // ✦ Strategy Interface and Concrete Strategies
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1595,6 +2222,89 @@ sorter.performSort(data);  // Output: Sorting using Quick Sort`
       name: 'Command',
       icon: '⚡',
       description: 'Encapsulates request as an object. Parameterizes clients with different requests. Queue or log requests. Support undoable operations. Used in GUI actions, transaction systems, macro recording.',
+      diagram: () => (
+        <svg viewBox="0 0 750 450" style={{ width: '100%', maxWidth: '750px', height: 'auto', margin: '20px 0' }}>
+          <defs>
+            <linearGradient id="commandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#64748b', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#475569', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrowCommand" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#475569" />
+            </marker>
+          </defs>
+
+          {/* Command Interface */}
+          <rect x="300" y="20" width="150" height="80" fill="url(#commandGrad)" stroke="#475569" strokeWidth="2" rx="5" />
+          <text x="375" y="45" textAnchor="middle" fill="white" fontSize="15" fontWeight="bold">«interface»</text>
+          <text x="375" y="65" textAnchor="middle" fill="white" fontSize="17" fontWeight="bold">Command</text>
+          <line x1="310" y1="75" x2="440" y2="75" stroke="white" strokeWidth="1" />
+          <text x="315" y="92" fill="white" fontSize="12">+ execute()</text>
+
+          {/* Concrete Commands */}
+          <rect x="150" y="160" width="140" height="90" fill="#e2e8f0" stroke="#64748b" strokeWidth="2" rx="5" />
+          <text x="220" y="185" textAnchor="middle" fill="#475569" fontSize="15" fontWeight="bold">WriteCommand</text>
+          <line x1="160" y1="195" x2="280" y2="195" stroke="#64748b" strokeWidth="1" />
+          <text x="165" y="210" fill="#334155" fontSize="11">- receiver: TextEditor</text>
+          <text x="165" y="224" fill="#334155" fontSize="11">- content: String</text>
+          <line x1="160" y1="230" x2="280" y2="230" stroke="#64748b" strokeWidth="1" />
+          <text x="165" y="244" fill="#334155" fontSize="11">+ execute()</text>
+
+          <rect x="310" y="160" width="130" height="90" fill="#e2e8f0" stroke="#64748b" strokeWidth="2" rx="5" />
+          <text x="375" y="185" textAnchor="middle" fill="#475569" fontSize="15" fontWeight="bold">CopyCommand</text>
+          <line x1="320" y1="195" x2="430" y2="195" stroke="#64748b" strokeWidth="1" />
+          <text x="325" y="210" fill="#334155" fontSize="11">- receiver: TextEditor</text>
+          <line x1="320" y1="216" x2="430" y2="216" stroke="#64748b" strokeWidth="1" />
+          <text x="325" y="230" fill="#334155" fontSize="11">+ execute()</text>
+          <text x="325" y="244" fill="#334155" fontSize="11">+ undo()</text>
+
+          <rect x="460" y="160" width="140" height="90" fill="#e2e8f0" stroke="#64748b" strokeWidth="2" rx="5" />
+          <text x="530" y="185" textAnchor="middle" fill="#475569" fontSize="15" fontWeight="bold">DeleteCommand</text>
+          <line x1="470" y1="195" x2="590" y2="195" stroke="#64748b" strokeWidth="1" />
+          <text x="475" y="210" fill="#334155" fontSize="11">- receiver: TextEditor</text>
+          <line x1="470" y1="216" x2="590" y2="216" stroke="#64748b" strokeWidth="1" />
+          <text x="475" y="230" fill="#334155" fontSize="11">+ execute()</text>
+          <text x="475" y="244" fill="#334155" fontSize="11">+ undo()</text>
+
+          {/* Implements arrows */}
+          <line x1="220" y1="160" x2="340" y2="100" stroke="#475569" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowCommand)" />
+          <line x1="375" y1="100" x2="375" y2="160" stroke="#475569" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowCommand)" />
+          <line x1="530" y1="160" x2="410" y2="100" stroke="#475569" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowCommand)" />
+
+          {/* Invoker */}
+          <rect x="50" y="180" width="130" height="70" fill="url(#commandGrad)" stroke="#475569" strokeWidth="2" rx="5" />
+          <text x="115" y="205" textAnchor="middle" fill="white" fontSize="15" fontWeight="bold">Invoker</text>
+          <line x1="60" y1="215" x2="170" y2="215" stroke="white" strokeWidth="1" />
+          <text x="65" y="230" fill="white" fontSize="11">- command: Command</text>
+          <text x="65" y="244" fill="white" fontSize="11">+ executeCommand()</text>
+
+          {/* Receiver */}
+          <rect x="550" y="320" width="150" height="90" fill="url(#commandGrad)" stroke="#475569" strokeWidth="2" rx="5" />
+          <text x="625" y="345" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">TextEditor</text>
+          <text x="560" y="365" fill="white" fontSize="12">(Receiver)</text>
+          <line x1="560" y1="372" x2="690" y2="372" stroke="white" strokeWidth="1" />
+          <text x="565" y="387" fill="white" fontSize="11">+ write(content)</text>
+          <text x="565" y="402" fill="white" fontSize="11">+ delete(length)</text>
+
+          {/* Invoker holds command */}
+          <path d="M 150 215 L 310 205" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrowCommand)" />
+          <text x="210" y="205" fill="#475569" fontSize="11" fontWeight="bold">holds</text>
+
+          {/* Commands call receiver */}
+          <path d="M 290 225 L 550 355" stroke="#64748b" strokeWidth="1.5" strokeDasharray="3,3" markerEnd="url(#arrowCommand)" />
+          <path d="M 440 225 L 550 355" stroke="#64748b" strokeWidth="1.5" strokeDasharray="3,3" markerEnd="url(#arrowCommand)" />
+          <path d="M 590 250 L 615 320" stroke="#64748b" strokeWidth="1.5" strokeDasharray="3,3" markerEnd="url(#arrowCommand)" />
+          <text x="450" y="290" fill="#475569" fontSize="11" fontWeight="bold">calls →</text>
+
+          {/* Flow */}
+          <rect x="50" y="320" width="450" height="90" fill="#f8fafc" stroke="#64748b" strokeWidth="2" rx="5" strokeDasharray="5,5" />
+          <text x="60" y="340" fill="#1e293b" fontSize="13" fontWeight="bold">Command Pattern Flow:</text>
+          <text x="60" y="358" fill="#334155" fontSize="11">1. Client creates Command object with Receiver reference</text>
+          <text x="60" y="372" fill="#334155" fontSize="11">2. Client passes Command to Invoker</text>
+          <text x="60" y="386" fill="#334155" fontSize="11">3. Invoker.executeCommand() calls command.execute()</text>
+          <text x="60" y="400" fill="#334155" fontSize="11">4. Command calls appropriate method on Receiver</text>
+        </svg>
+      ),
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
 // ✦ Command Interface and Receiver
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1811,6 +2521,68 @@ remote.undo();
       name: 'Template Method',
       icon: '📋',
       description: 'Defines skeleton of algorithm in base class, letting subclasses override specific steps. Invariant parts in base class, variant parts in subclasses. Hollywood Principle: "Don\'t call us, we\'ll call you". Used in frameworks, abstract classes.',
+      diagram: () => (
+        <svg viewBox="0 0 700 450" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '20px 0' }}>
+          <defs>
+            <linearGradient id="templateGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#fb923c', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#f97316', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrowTemplate" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#f97316" />
+            </marker>
+          </defs>
+
+          {/* Abstract Class */}
+          <rect x="230" y="30" width="240" height="180" fill="url(#templateGrad)" stroke="#f97316" strokeWidth="2" rx="5" />
+          <text x="350" y="55" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">«abstract»</text>
+          <text x="350" y="75" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">DataProcessor</text>
+          <line x1="240" y1="85" x2="460" y2="85" stroke="white" strokeWidth="1" />
+          <text x="245" y="102" fill="white" fontSize="13" fontWeight="bold">+ process() {'{'}</text>
+          <text x="255" y="117" fill="#fed7aa" fontSize="11">loadData();</text>
+          <text x="255" y="130" fill="#fed7aa" fontSize="11">validateData();</text>
+          <text x="255" y="143" fill="#fed7aa" fontSize="11">processData();</text>
+          <text x="255" y="156" fill="#fed7aa" fontSize="11">saveData();</text>
+          <text x="245" y="170" fill="white" fontSize="13" fontWeight="bold">{'}'}</text>
+          <line x1="240" y1="175" x2="460" y2="175" stroke="white" strokeWidth="1" />
+          <text x="245" y="190" fill="white" fontSize="11">+ validateData() - concrete</text>
+          <text x="245" y="203" fill="#fed7aa" fontSize="11" fontStyle="italic">+ loadData() - abstract</text>
+
+          {/* Concrete Classes */}
+          <rect x="80" y="280" width="200" height="100" fill="#ffedd5" stroke="#fb923c" strokeWidth="2" rx="5" />
+          <text x="180" y="305" textAnchor="middle" fill="#f97316" fontSize="16" fontWeight="bold">CSVDataProcessor</text>
+          <line x1="90" y1="315" x2="270" y2="315" stroke="#fb923c" strokeWidth="1" />
+          <text x="95" y="332" fill="#c2410c" fontSize="12">+ loadData()</text>
+          <text x="105" y="347" fill="#9a3412" fontSize="11" fontStyle="italic">→ Load from CSV</text>
+          <text x="95" y="362" fill="#c2410c" fontSize="12">+ processData()</text>
+          <text x="95" y="375" fill="#c2410c" fontSize="12">+ saveData()</text>
+
+          <rect x="320" y="280" width="200" height="100" fill="#ffedd5" stroke="#fb923c" strokeWidth="2" rx="5" />
+          <text x="420" y="305" textAnchor="middle" fill="#f97316" fontSize="16" fontWeight="bold">XMLDataProcessor</text>
+          <line x1="330" y1="315" x2="510" y2="315" stroke="#fb923c" strokeWidth="1" />
+          <text x="335" y="332" fill="#c2410c" fontSize="12">+ loadData()</text>
+          <text x="345" y="347" fill="#9a3412" fontSize="11" fontStyle="italic">→ Load from XML</text>
+          <text x="335" y="362" fill="#c2410c" fontSize="12">+ processData()</text>
+          <text x="335" y="375" fill="#c2410c" fontSize="12">+ saveData()</text>
+
+          <rect x="560" y="280" width="120" height="100" fill="#ffedd5" stroke="#fb923c" strokeWidth="2" rx="5" />
+          <text x="620" y="305" textAnchor="middle" fill="#f97316" fontSize="15" fontWeight="bold">JSONData</text>
+          <text x="620" y="321" textAnchor="middle" fill="#f97316" fontSize="15" fontWeight="bold">Processor</text>
+          <line x1="570" y1="330" x2="670" y2="330" stroke="#fb923c" strokeWidth="1" />
+          <text x="575" y="347" fill="#c2410c" fontSize="11">+ loadData()</text>
+          <text x="575" y="360" fill="#9a3412" fontSize="10" fontStyle="italic">→ Load JSON</text>
+          <text x="575" y="372" fill="#c2410c" fontSize="11">+ processData()</text>
+
+          {/* Inheritance arrows */}
+          <line x1="180" y1="280" x2="300" y2="210" stroke="#f97316" strokeWidth="2" markerEnd="url(#arrowTemplate)" />
+          <line x1="420" y1="280" x2="370" y2="210" stroke="#f97316" strokeWidth="2" markerEnd="url(#arrowTemplate)" />
+          <line x1="620" y1="280" x2="440" y2="210" stroke="#f97316" strokeWidth="2" markerEnd="url(#arrowTemplate)" />
+
+          {/* Algorithm flow */}
+          <rect x="50" y="410" width="600" height="30" fill="#fff7ed" stroke="#fb923c" strokeWidth="2" rx="5" strokeDasharray="5,5" />
+          <text x="60" y="428" fill="#9a3412" fontSize="12" fontWeight="bold">Template Method defines algorithm structure; Subclasses provide specific implementations</text>
+        </svg>
+      ),
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
 // ✦ Abstract Class with Template Method
 // ═══════════════════════════════════════════════════════════════════════════
@@ -2018,6 +2790,86 @@ coffee.prepareRecipe();
       name: 'State',
       icon: '🔄',
       description: 'Allows object to alter behavior when internal state changes. Object appears to change its class. Encapsulates state-specific behavior. Eliminates large conditional statements. Used in workflow engines, game character states, TCP connections.',
+      diagram: () => (
+        <svg viewBox="0 0 700 480" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '20px 0' }}>
+          <defs>
+            <linearGradient id="stateGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#84cc16', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#65a30d', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrowState" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#65a30d" />
+            </marker>
+          </defs>
+
+          {/* Context */}
+          <rect x="280" y="20" width="140" height="80" fill="url(#stateGrad)" stroke="#65a30d" strokeWidth="2" rx="5" />
+          <text x="350" y="45" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">VendingMachine</text>
+          <text x="290" y="62" fill="white" fontSize="11">(Context)</text>
+          <line x1="290" y1="70" x2="410" y2="70" stroke="white" strokeWidth="1" />
+          <text x="295" y="85" fill="white" fontSize="11">- currentState</text>
+          <text x="295" y="96" fill="white" fontSize="11">+ insertCoin()</text>
+
+          {/* State Interface */}
+          <rect x="280" y="140" width="140" height="70" fill="#ecfccb" stroke="#84cc16" strokeWidth="2" rx="5" />
+          <text x="350" y="160" textAnchor="middle" fill="#65a30d" fontSize="14" fontWeight="bold">«interface»</text>
+          <text x="350" y="178" textAnchor="middle" fill="#65a30d" fontSize="15" fontWeight="bold">State</text>
+          <line x1="290" y1="188" x2="410" y2="188" stroke="#84cc16" strokeWidth="1" />
+          <text x="295" y="202" fill="#4d7c0f" fontSize="11">+ handle()</text>
+
+          {/* Concrete States */}
+          <rect x="50" y="270" width="130" height="70" fill="#ecfccb" stroke="#84cc16" strokeWidth="2" rx="5" />
+          <text x="115" y="295" textAnchor="middle" fill="#65a30d" fontSize="14" fontWeight="bold">NoCoinState</text>
+          <line x1="60" y1="305" x2="170" y2="305" stroke="#84cc16" strokeWidth="1" />
+          <text x="65" y="320" fill="#4d7c0f" fontSize="11">+ insertCoin()</text>
+          <text x="70" y="333" fill="#3f6212" fontSize="10" fontStyle="italic">→ HasCoinState</text>
+
+          <rect x="200" y="270" width="130" height="70" fill="#ecfccb" stroke="#84cc16" strokeWidth="2" rx="5" />
+          <text x="265" y="295" textAnchor="middle" fill="#65a30d" fontSize="14" fontWeight="bold">HasCoinState</text>
+          <line x1="210" y1="305" x2="320" y2="305" stroke="#84cc16" strokeWidth="1" />
+          <text x="215" y="320" fill="#4d7c0f" fontSize="11">+ selectProduct()</text>
+          <text x="220" y="333" fill="#3f6212" fontSize="10" fontStyle="italic">→ SoldState</text>
+
+          <rect x="350" y="270" width="130" height="70" fill="#ecfccb" stroke="#84cc16" strokeWidth="2" rx="5" />
+          <text x="415" y="295" textAnchor="middle" fill="#65a30d" fontSize="14" fontWeight="bold">SoldState</text>
+          <line x1="360" y1="305" x2="470" y2="305" stroke="#84cc16" strokeWidth="1" />
+          <text x="365" y="320" fill="#4d7c0f" fontSize="11">+ dispense()</text>
+          <text x="370" y="333" fill="#3f6212" fontSize="10" fontStyle="italic">→ NoCoinState</text>
+
+          <rect x="500" y="270" width="130" height="70" fill="#ecfccb" stroke="#84cc16" strokeWidth="2" rx="5" />
+          <text x="565" y="295" textAnchor="middle" fill="#65a30d" fontSize="14" fontWeight="bold">SoldOutState</text>
+          <line x1="510" y1="305" x2="620" y2="305" stroke="#84cc16" strokeWidth="1" />
+          <text x="515" y="320" fill="#4d7c0f" fontSize="11">+ insertCoin()</text>
+          <text x="520" y="333" fill="#3f6212" fontSize="10" fontStyle="italic">→ Error msg</text>
+
+          {/* Context has State */}
+          <path d="M 350 100 L 350 140" stroke="#65a30d" strokeWidth="2" markerEnd="url(#arrowState)" />
+          <text x="360" y="125" fill="#65a30d" fontSize="11" fontWeight="bold">has</text>
+
+          {/* Implements arrows */}
+          <line x1="115" y1="270" x2="300" y2="210" stroke="#65a30d" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowState)" />
+          <line x1="265" y1="270" x2="330" y2="210" stroke="#65a30d" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowState)" />
+          <line x1="415" y1="270" x2="370" y2="210" stroke="#65a30d" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowState)" />
+          <line x1="565" y1="270" x2="400" y2="210" stroke="#65a30d" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowState)" />
+
+          {/* State transitions */}
+          <path d="M 180 295 L 200 295" stroke="#84cc16" strokeWidth="2" markerEnd="url(#arrowState)" />
+          <text x="185" y="288" fill="#65a30d" fontSize="9">insert</text>
+
+          <path d="M 330 295 L 350 295" stroke="#84cc16" strokeWidth="2" markerEnd="url(#arrowState)" />
+          <text x="335" y="288" fill="#65a30d" fontSize="9">select</text>
+
+          <path d="M 415 340 Q 265 380 115 340" stroke="#84cc16" strokeWidth="2" markerEnd="url(#arrowState)" fill="none" />
+          <text x="240" y="395" fill="#65a30d" fontSize="9">dispense (if items left)</text>
+
+          {/* Note */}
+          <rect x="50" y="390" width="600" height="80" fill="#f7fee7" stroke="#84cc16" strokeWidth="2" rx="5" strokeDasharray="5,5" />
+          <text x="60" y="410" fill="#3f6212" fontSize="13" fontWeight="bold">State Pattern Benefits:</text>
+          <text x="60" y="428" fill="#4d7c0f" fontSize="11">• Each state is encapsulated in its own class</text>
+          <text x="60" y="443" fill="#4d7c0f" fontSize="11">• State-specific behavior is localized and easy to modify</text>
+          <text x="60" y="458" fill="#4d7c0f" fontSize="11">• State transitions are explicit and controlled by state objects</text>
+        </svg>
+      ),
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
 // ✦ State Interface and Context
 // ═══════════════════════════════════════════════════════════════════════════
@@ -2214,6 +3066,78 @@ machine.insertCoin();
       name: 'Chain of Responsibility',
       icon: '⛓️',
       description: 'Passes request along chain of handlers. Each handler decides to process or pass to next. Decouples sender and receiver. Dynamic chain configuration. Used in event bubbling, logging frameworks, authorization chains.',
+      diagram: () => (
+        <svg viewBox="0 0 750 400" style={{ width: '100%', maxWidth: '750px', height: 'auto', margin: '20px 0' }}>
+          <defs>
+            <linearGradient id="chainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#b45309', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrowChain" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#b45309" />
+            </marker>
+          </defs>
+
+          {/* Handler Interface */}
+          <rect x="300" y="20" width="150" height="80" fill="url(#chainGrad)" stroke="#b45309" strokeWidth="2" rx="5" />
+          <text x="375" y="45" textAnchor="middle" fill="white" fontSize="15" fontWeight="bold">«interface»</text>
+          <text x="375" y="65" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">Handler</text>
+          <line x1="310" y1="75" x2="440" y2="75" stroke="white" strokeWidth="1" />
+          <text x="315" y="92" fill="white" fontSize="12">+ handleRequest()</text>
+
+          {/* Concrete Handlers */}
+          <rect x="50" y="170" width="150" height="90" fill="#fef3c7" stroke="#d97706" strokeWidth="2" rx="5" />
+          <text x="125" y="195" textAnchor="middle" fill="#d97706" fontSize="15" fontWeight="bold">Level1Support</text>
+          <line x1="60" y1="205" x2="190" y2="205" stroke="#d97706" strokeWidth="1" />
+          <text x="65" y="220" fill="#92400e" fontSize="11">- nextHandler</text>
+          <line x1="60" y1="226" x2="190" y2="226" stroke="#d97706" strokeWidth="1" />
+          <text x="65" y="241" fill="#92400e" fontSize="11">+ handleRequest()</text>
+          <text x="70" y="254" fill="#78350f" fontSize="10" fontStyle="italic">Priority ≤ 1</text>
+
+          <rect x="250" y="170" width="150" height="90" fill="#fef3c7" stroke="#d97706" strokeWidth="2" rx="5" />
+          <text x="325" y="195" textAnchor="middle" fill="#d97706" fontSize="15" fontWeight="bold">Level2Support</text>
+          <line x1="260" y1="205" x2="390" y2="205" stroke="#d97706" strokeWidth="1" />
+          <text x="265" y="220" fill="#92400e" fontSize="11">- nextHandler</text>
+          <line x1="260" y1="226" x2="390" y2="226" stroke="#d97706" strokeWidth="1" />
+          <text x="265" y="241" fill="#92400e" fontSize="11">+ handleRequest()</text>
+          <text x="270" y="254" fill="#78350f" fontSize="10" fontStyle="italic">Priority ≤ 2</text>
+
+          <rect x="450" y="170" width="150" height="90" fill="#fef3c7" stroke="#d97706" strokeWidth="2" rx="5" />
+          <text x="525" y="195" textAnchor="middle" fill="#d97706" fontSize="15" fontWeight="bold">Level3Support</text>
+          <line x1="460" y1="205" x2="590" y2="205" stroke="#d97706" strokeWidth="1" />
+          <text x="465" y="220" fill="#92400e" fontSize="11">- nextHandler</text>
+          <line x1="460" y1="226" x2="590" y2="226" stroke="#d97706" strokeWidth="1" />
+          <text x="465" y="241" fill="#92400e" fontSize="11">+ handleRequest()</text>
+          <text x="470" y="254" fill="#78350f" fontSize="10" fontStyle="italic">All priorities</text>
+
+          {/* Implements arrows */}
+          <line x1="125" y1="170" x2="320" y2="100" stroke="#b45309" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowChain)" />
+          <line x1="325" y1="170" x2="360" y2="100" stroke="#b45309" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowChain)" />
+          <line x1="525" y1="170" x2="410" y2="100" stroke="#b45309" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowChain)" />
+
+          {/* Chain connections */}
+          <path d="M 200 215 L 250 215" stroke="#d97706" strokeWidth="3" markerEnd="url(#arrowChain)" />
+          <path d="M 400 215 L 450 215" stroke="#d97706" strokeWidth="3" markerEnd="url(#arrowChain)" />
+
+          <text x="210" y="210" fill="#d97706" fontSize="11" fontWeight="bold">next</text>
+          <text x="410" y="210" fill="#d97706" fontSize="11" fontWeight="bold">next</text>
+
+          {/* Client */}
+          <ellipse cx="125" cy="330" rx="70" ry="35" fill="url(#chainGrad)" stroke="#b45309" strokeWidth="2" />
+          <text x="125" y="335" textAnchor="middle" fill="white" fontSize="15" fontWeight="bold">Client</text>
+
+          {/* Client sends request */}
+          <path d="M 125 295 L 125 260" stroke="#d97706" strokeWidth="2" markerEnd="url(#arrowChain)" />
+          <text x="135" y="280" fill="#d97706" fontSize="12" fontWeight="bold">request</text>
+
+          {/* Flow description */}
+          <rect x="250" y="310" width="450" height="80" fill="#fffbeb" stroke="#d97706" strokeWidth="2" rx="5" strokeDasharray="5,5" />
+          <text x="260" y="330" fill="#78350f" fontSize="13" fontWeight="bold">Chain Flow:</text>
+          <text x="260" y="348" fill="#92400e" fontSize="11">1. Request enters at Level1Support</text>
+          <text x="260" y="363" fill="#92400e" fontSize="11">2. If handler can't process, passes to next handler</text>
+          <text x="260" y="378" fill="#92400e" fontSize="11">3. Process continues until a handler processes it or chain ends</text>
+        </svg>
+      ),
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
 // ✦ Handler Interface and Abstract Handler
 // ═══════════════════════════════════════════════════════════════════════════
@@ -2406,6 +3330,74 @@ consoleLogger.logMessage(Logger.ERROR, "This is an error");
       name: 'Mediator',
       icon: '🤝',
       description: 'Defines object that encapsulates how set of objects interact. Promotes loose coupling by keeping objects from referring to each other explicitly. Centralizes complex communications. Used in chat applications, air traffic control, UI components.',
+      diagram: () => (
+        <svg viewBox="0 0 700 450" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '20px 0' }}>
+          <defs>
+            <linearGradient id="mediatorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#a855f7', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#9333ea', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrowMediator" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#9333ea" />
+            </marker>
+          </defs>
+
+          {/* Mediator */}
+          <rect x="275" y="180" width="150" height="90" fill="url(#mediatorGrad)" stroke="#9333ea" strokeWidth="3" rx="5" />
+          <text x="350" y="205" textAnchor="middle" fill="white" fontSize="17" fontWeight="bold">ChatMediator</text>
+          <text x="285" y="222" fill="white" fontSize="12">(Central Hub)</text>
+          <line x1="285" y1="230" x2="415" y2="230" stroke="white" strokeWidth="1" />
+          <text x="290" y="247" fill="white" fontSize="11">- users: List</text>
+          <text x="290" y="260" fill="white" fontSize="11">+ sendMessage()</text>
+
+          {/* Colleague/User classes */}
+          <rect x="50" y="50" width="120" height="70" fill="#f3e8ff" stroke="#a855f7" strokeWidth="2" rx="5" />
+          <text x="110" y="75" textAnchor="middle" fill="#9333ea" fontSize="14" fontWeight="bold">User: Alice</text>
+          <line x1="60" y1="85" x2="160" y2="85" stroke="#a855f7" strokeWidth="1" />
+          <text x="65" y="100" fill="#7e22ce" fontSize="11">+ send(msg)</text>
+          <text x="65" y="113" fill="#7e22ce" fontSize="11">+ receive(msg)</text>
+
+          <rect x="530" y="50" width="120" height="70" fill="#f3e8ff" stroke="#a855f7" strokeWidth="2" rx="5" />
+          <text x="590" y="75" textAnchor="middle" fill="#9333ea" fontSize="14" fontWeight="bold">User: Bob</text>
+          <line x1="540" y1="85" x2="640" y2="85" stroke="#a855f7" strokeWidth="1" />
+          <text x="545" y="100" fill="#7e22ce" fontSize="11">+ send(msg)</text>
+          <text x="545" y="113" fill="#7e22ce" fontSize="11">+ receive(msg)</text>
+
+          <rect x="50" y="330" width="120" height="70" fill="#f3e8ff" stroke="#a855f7" strokeWidth="2" rx="5" />
+          <text x="110" y="355" textAnchor="middle" fill="#9333ea" fontSize="14" fontWeight="bold">User: Charlie</text>
+          <line x1="60" y1="365" x2="160" y2="365" stroke="#a855f7" strokeWidth="1" />
+          <text x="65" y="380" fill="#7e22ce" fontSize="11">+ send(msg)</text>
+          <text x="65" y="393" fill="#7e22ce" fontSize="11">+ receive(msg)</text>
+
+          <rect x="530" y="330" width="120" height="70" fill="#f3e8ff" stroke="#a855f7" strokeWidth="2" rx="5" />
+          <text x="590" y="355" textAnchor="middle" fill="#9333ea" fontSize="14" fontWeight="bold">User: Diana</text>
+          <line x1="540" y1="365" x2="640" y2="365" stroke="#a855f7" strokeWidth="1" />
+          <text x="545" y="380" fill="#7e22ce" fontSize="11">+ send(msg)</text>
+          <text x="545" y="393" fill="#7e22ce" fontSize="11">+ receive(msg)</text>
+
+          {/* Communication arrows - from users to mediator */}
+          <path d="M 170 85 L 275 210" stroke="#a855f7" strokeWidth="2" markerEnd="url(#arrowMediator)" />
+          <path d="M 530 85 L 425 210" stroke="#a855f7" strokeWidth="2" markerEnd="url(#arrowMediator)" />
+          <path d="M 170 365 L 275 240" stroke="#a855f7" strokeWidth="2" markerEnd="url(#arrowMediator)" />
+          <path d="M 530 365 L 425 240" stroke="#a855f7" strokeWidth="2" markerEnd="url(#arrowMediator)" />
+
+          {/* Broadcast arrows - from mediator to users */}
+          <path d="M 300 180 L 150 120" stroke="#9333ea" strokeWidth="1.5" strokeDasharray="5,5" markerEnd="url(#arrowMediator)" />
+          <path d="M 400 180 L 550 120" stroke="#9333ea" strokeWidth="1.5" strokeDasharray="5,5" markerEnd="url(#arrowMediator)" />
+          <path d="M 300 270 L 150 330" stroke="#9333ea" strokeWidth="1.5" strokeDasharray="5,5" markerEnd="url(#arrowMediator)" />
+          <path d="M 400 270 L 550 330" stroke="#9333ea" strokeWidth="1.5" strokeDasharray="5,5" markerEnd="url(#arrowMediator)" />
+
+          {/* Labels */}
+          <text x="195" y="140" fill="#a855f7" fontSize="10" fontWeight="bold">send</text>
+          <text x="460" y="140" fill="#a855f7" fontSize="10" fontWeight="bold">send</text>
+          <text x="190" y="295" fill="#9333ea" fontSize="9" fontStyle="italic">broadcast</text>
+          <text x="465" y="295" fill="#9333ea" fontSize="9" fontStyle="italic">broadcast</text>
+
+          {/* Note */}
+          <text x="250" y="20" fill="#7e22ce" fontSize="13" fontWeight="bold">All communication goes through Mediator</text>
+          <text x="220" y="37" fill="#6b21a8" fontSize="11">Users don't communicate directly with each other</text>
+        </svg>
+      ),
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
 // ✦ Mediator Interface and Concrete Mediator
 // ═══════════════════════════════════════════════════════════════════════════
@@ -2591,6 +3583,100 @@ flight2.requestLanding();
       name: 'Memento',
       icon: '💾',
       description: 'Captures and externalizes object\'s internal state without violating encapsulation. Allows object to be restored to previous state. Used in undo mechanisms, transaction rollback, game save points.',
+      diagram: () => (
+        <svg viewBox="0 0 700 420" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '20px 0' }}>
+          <defs>
+            <linearGradient id="mementoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#ec4899', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#db2777', stopOpacity: 1 }} />
+            </linearGradient>
+            <marker id="arrowMemento" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#db2777" />
+            </marker>
+          </defs>
+
+          {/* Originator */}
+          <rect x="50" y="150" width="180" height="120" fill="url(#mementoGrad)" stroke="#db2777" strokeWidth="2" rx="5" />
+          <text x="140" y="175" textAnchor="middle" fill="white" fontSize="17" fontWeight="bold">TextEditor</text>
+          <text x="60" y="192" fill="white" fontSize="12">(Originator)</text>
+          <line x1="60" y1="200" x2="220" y2="200" stroke="white" strokeWidth="1" />
+          <text x="65" y="217" fill="white" fontSize="12">- content: String</text>
+          <text x="65" y="232" fill="white" fontSize="12">- cursor: int</text>
+          <line x1="60" y1="238" x2="220" y2="238" stroke="white" strokeWidth="1" />
+          <text x="65" y="253" fill="white" fontSize="12">+ save(): Memento</text>
+          <text x="65" y="266" fill="white" fontSize="12">+ restore(Memento)</text>
+
+          {/* Memento */}
+          <rect x="310" y="150" width="160" height="120" fill="#fce7f3" stroke="#ec4899" strokeWidth="2" rx="5" />
+          <text x="390" y="175" textAnchor="middle" fill="#ec4899" fontSize="17" fontWeight="bold">EditorMemento</text>
+          <text x="320" y="192" fill="#db2777" fontSize="12">(Memento)</text>
+          <line x1="320" y1="200" x2="460" y2="200" stroke="#ec4899" strokeWidth="1" />
+          <text x="325" y="217" fill="#be185d" fontSize="12">- content: String</text>
+          <text x="325" y="232" fill="#be185d" fontSize="12">- cursor: int</text>
+          <line x1="320" y1="238" x2="460" y2="238" stroke="#ec4899" strokeWidth="1" />
+          <text x="325" y="253" fill="#be185d" fontSize="12">+ getContent()</text>
+          <text x="325" y="266" fill="#be185d" fontSize="12">+ getCursor()</text>
+
+          {/* Caretaker */}
+          <rect x="510" y="165" width="160" height="90" fill="url(#mementoGrad)" stroke="#db2777" strokeWidth="2" rx="5" />
+          <text x="590" y="190" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">History</text>
+          <text x="520" y="207" fill="white" fontSize="12">(Caretaker)</text>
+          <line x1="520" y1="215" x2="660" y2="215" stroke="white" strokeWidth="1" />
+          <text x="525" y="232" fill="white" fontSize="11">- mementos: Stack</text>
+          <text x="525" y="246" fill="white" fontSize="11">+ push(Memento)</text>
+
+          {/* Creates arrow */}
+          <path d="M 230 210 L 310 210" stroke="#ec4899" strokeWidth="2" markerEnd="url(#arrowMemento)" />
+          <text x="250" y="202" fill="#db2777" fontSize="12" fontWeight="bold">creates</text>
+
+          {/* Caretaker stores Memento */}
+          <path d="M 510 210 L 470 210" stroke="#ec4899" strokeWidth="2" markerEnd="url(#arrowMemento)" />
+          <text x="475" y="202" fill="#db2777" fontSize="12" fontWeight="bold">stores</text>
+
+          {/* Flow diagram */}
+          <rect x="50" y="300" width="620" height="100" fill="#fdf2f8" stroke="#ec4899" strokeWidth="2" rx="5" strokeDasharray="5,5" />
+          <text x="60" y="320" fill="#9f1239" fontSize="13" fontWeight="bold">Memento Pattern Flow:</text>
+
+          <text x="60" y="340" fill="#be185d" fontSize="12" fontWeight="bold">Save State:</text>
+          <text x="60" y="355" fill="#9f1239" fontSize="11">1. Client calls editor.save() → 2. Originator creates Memento with current state →</text>
+          <text x="60" y="368" fill="#9f1239" fontSize="11">3. Caretaker stores Memento in history</text>
+
+          <text x="380" y="340" fill="#be185d" fontSize="12" fontWeight="bold">Restore State:</text>
+          <text x="380" y="355" fill="#9f1239" fontSize="11">1. Caretaker retrieves Memento →</text>
+          <text x="380" y="368" fill="#9f1239" fontSize="11">2. editor.restore(memento) →</text>
+          <text x="380" y="381" fill="#9f1239" fontSize="11">3. Originator restores its state</text>
+
+          {/* Timeline */}
+          <rect x="70" y="30" width="560" height="80" fill="#fef2f9" stroke="#f9a8d4" strokeWidth="2" rx="5" />
+          <text x="340" y="50" textAnchor="middle" fill="#be185d" fontSize="14" fontWeight="bold">Timeline (Undo/Redo)</text>
+
+          <circle cx="110" cy="75" r="15" fill="#fce7f3" stroke="#ec4899" strokeWidth="2" />
+          <text x="110" y="81" textAnchor="middle" fill="#db2777" fontSize="11" fontWeight="bold">T1</text>
+
+          <circle cx="230" cy="75" r="15" fill="#fce7f3" stroke="#ec4899" strokeWidth="2" />
+          <text x="230" y="81" textAnchor="middle" fill="#db2777" fontSize="11" fontWeight="bold">T2</text>
+
+          <circle cx="350" cy="75" r="15" fill="#fce7f3" stroke="#ec4899" strokeWidth="2" />
+          <text x="350" y="81" textAnchor="middle" fill="#db2777" fontSize="11" fontWeight="bold">T3</text>
+
+          <circle cx="470" cy="75" r="15" fill="#ec4899" stroke="#db2777" strokeWidth="2" />
+          <text x="470" y="81" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">T4</text>
+
+          <circle cx="590" cy="75" r="15" fill="#fce7f3" stroke="#ec4899" strokeWidth="2" />
+          <text x="590" y="81" textAnchor="middle" fill="#db2777" fontSize="11" fontWeight="bold">T5</text>
+
+          <path d="M 125 75 L 215 75" stroke="#ec4899" strokeWidth="2" markerEnd="url(#arrowMemento)" />
+          <path d="M 245 75 L 335 75" stroke="#ec4899" strokeWidth="2" markerEnd="url(#arrowMemento)" />
+          <path d="M 365 75 L 455 75" stroke="#ec4899" strokeWidth="2" markerEnd="url(#arrowMemento)" />
+          <path d="M 485 75 L 575 75" stroke="#ec4899" strokeWidth="2" strokeDasharray="3,3" />
+
+          <text x="80" y="105" fill="#9f1239" fontSize="10">State 1</text>
+          <text x="200" y="105" fill="#9f1239" fontSize="10">State 2</text>
+          <text x="320" y="105" fill="#9f1239" fontSize="10">State 3</text>
+          <text x="430" y="105" fill="#9f1239" fontSize="10" fontWeight="bold">Current</text>
+          <text x="560" y="105" fill="#9f1239" fontSize="10">Future</text>
+        </svg>
+      ),
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
 // ✦ Memento, Originator, and Caretaker
 // ═══════════════════════════════════════════════════════════════════════════

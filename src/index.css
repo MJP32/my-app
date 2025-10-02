@@ -49,9 +49,73 @@ button {
 button:hover {
   border-color: #646cff;
 }
+/* Enhanced focus indicators for accessibility */
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+/* Global focus styles for all interactive elements */
+*:focus,
+*:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+/* Remove default focus styles to use our custom ones */
+*:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Ensure focus is visible for keyboard users */
+.keyboard-focus {
+  outline: 3px solid #3b82f6 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* High contrast focus for better visibility */
+@media (prefers-contrast: high) {
+  *:focus,
+  *:focus-visible,
+  .keyboard-focus {
+    outline: 4px solid #000000;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px #ffffff;
+  }
+}
+
+/* Focus styles for different element types */
+[role="button"]:focus,
+[role="menuitem"]:focus,
+[tabindex="0"]:focus {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+  transform: scale(1.02);
+  transition: all 0.2s ease;
+}
+
+/* Skip link for keyboard navigation */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: #3b82f6;
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 9999;
+  font-weight: bold;
+}
+
+.skip-link:focus {
+  top: 6px;
 }
 
 pre, code {

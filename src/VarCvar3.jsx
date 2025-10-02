@@ -153,12 +153,9 @@ function VarCvar3({ onBack }) {
             {/* Layer 1: Client Apps */}
             <rect x="50" y="20" width="1100" height="80" fill="url(#purpleGradient)" rx="8" />
             <text x="600" y="50" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">Layer 1: Client Applications</text>
-            <rect x="100" y="70" width="280" height="20" fill="#7c3aed" rx="4" />
-            <text x="240" y="85" textAnchor="middle" fill="white" fontSize="12">Risk Dashboard</text>
-            <rect x="460" y="70" width="280" height="20" fill="#7c3aed" rx="4" />
-            <text x="600" y="85" textAnchor="middle" fill="white" fontSize="12">Mobile App</text>
-            <rect x="820" y="70" width="280" height="20" fill="#7c3aed" rx="4" />
-            <text x="960" y="85" textAnchor="middle" fill="white" fontSize="12">Admin Portal</text>
+            <text x="240" y="75" textAnchor="middle" fill="white" fontSize="14">📊 Risk Dashboard</text>
+            <text x="600" y="75" textAnchor="middle" fill="white" fontSize="14">📱 Mobile App</text>
+            <text x="960" y="75" textAnchor="middle" fill="white" fontSize="14">🔧 Admin Portal</text>
 
             {/* Layer 2: API Gateway */}
             <rect x="50" y="120" width="1100" height="60" fill="url(#indigoGradient)" rx="8" />
@@ -167,18 +164,12 @@ function VarCvar3({ onBack }) {
             {/* Layer 3: Microservices */}
             <rect x="50" y="200" width="1100" height="100" fill="url(#purpleGradient)" rx="8" />
             <text x="600" y="225" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">Layer 3: Microservices</text>
-            <rect x="80" y="240" width="160" height="40" fill="#7c3aed" rx="4" />
-            <text x="160" y="265" textAnchor="middle" fill="white" fontSize="11">VaR Calc</text>
-            <rect x="260" y="240" width="160" height="40" fill="#7c3aed" rx="4" />
-            <text x="340" y="265" textAnchor="middle" fill="white" fontSize="11">Portfolio</text>
-            <rect x="440" y="240" width="160" height="40" fill="#7c3aed" rx="4" />
-            <text x="520" y="265" textAnchor="middle" fill="white" fontSize="11">Market Data</text>
-            <rect x="620" y="240" width="160" height="40" fill="#7c3aed" rx="4" />
-            <text x="700" y="265" textAnchor="middle" fill="white" fontSize="11">Risk Reporting</text>
-            <rect x="800" y="240" width="160" height="40" fill="#7c3aed" rx="4" />
-            <text x="880" y="265" textAnchor="middle" fill="white" fontSize="11">Backtesting</text>
-            <rect x="980" y="240" width="160" height="40" fill="#7c3aed" rx="4" />
-            <text x="1060" y="265" textAnchor="middle" fill="white" fontSize="11">Stress Testing</text>
+            <text x="160" y="260" textAnchor="middle" fill="white" fontSize="12">VaR Calc</text>
+            <text x="340" y="260" textAnchor="middle" fill="white" fontSize="12">Portfolio</text>
+            <text x="520" y="260" textAnchor="middle" fill="white" fontSize="12">Market Data</text>
+            <text x="700" y="260" textAnchor="middle" fill="white" fontSize="12">Risk Reporting</text>
+            <text x="160" y="285" textAnchor="middle" fill="white" fontSize="12">Backtesting</text>
+            <text x="520" y="285" textAnchor="middle" fill="white" fontSize="12">Stress Testing</text>
 
             {/* Layer 4: Kafka */}
             <rect x="50" y="320" width="1100" height="60" fill="url(#indigoGradient)" rx="8" />
@@ -187,16 +178,12 @@ function VarCvar3({ onBack }) {
             {/* Layer 5: Databases */}
             <rect x="50" y="400" width="1100" height="100" fill="url(#purpleGradient)" rx="8" />
             <text x="600" y="425" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">Layer 5: Data & Caching</text>
-            <rect x="120" y="440" width="180" height="40" fill="#7c3aed" rx="4" />
-            <text x="210" y="465" textAnchor="middle" fill="white" fontSize="11">PostgreSQL</text>
-            <rect x="330" y="440" width="180" height="40" fill="#7c3aed" rx="4" />
-            <text x="420" y="465" textAnchor="middle" fill="white" fontSize="11">TimescaleDB</text>
-            <rect x="540" y="440" width="180" height="40" fill="#7c3aed" rx="4" />
-            <text x="630" y="465" textAnchor="middle" fill="white" fontSize="11">Redis</text>
-            <rect x="750" y="440" width="180" height="40" fill="#7c3aed" rx="4" />
-            <text x="840" y="465" textAnchor="middle" fill="white" fontSize="11">S3</text>
-            <rect x="960" y="440" width="180" height="40" fill="#7c3aed" rx="4" />
-            <text x="1050" y="465" textAnchor="middle" fill="white" fontSize="11">Elasticsearch</text>
+            <text x="160" y="455" textAnchor="middle" fill="white" fontSize="13">PostgreSQL</text>
+            <text x="340" y="455" textAnchor="middle" fill="white" fontSize="13">Oracle</text>
+            <text x="520" y="455" textAnchor="middle" fill="white" fontSize="13">TimescaleDB</text>
+            <text x="700" y="455" textAnchor="middle" fill="white" fontSize="13">Redis</text>
+            <text x="880" y="455" textAnchor="middle" fill="white" fontSize="13">S3</text>
+            <text x="1040" y="455" textAnchor="middle" fill="white" fontSize="13">Elasticsearch</text>
 
             {/* Layer 6: Security */}
             <rect x="50" y="520" width="1100" height="60" fill="url(#indigoGradient)" rx="8" />
@@ -205,12 +192,9 @@ function VarCvar3({ onBack }) {
             {/* Layer 7: Monitoring */}
             <rect x="50" y="600" width="1100" height="80" fill="url(#purpleGradient)" rx="8" />
             <text x="600" y="625" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">Layer 7: Monitoring & Observability</text>
-            <rect x="200" y="650" width="250" height="20" fill="#7c3aed" rx="4" />
-            <text x="325" y="665" textAnchor="middle" fill="white" fontSize="12">Prometheus</text>
-            <rect x="475" y="650" width="250" height="20" fill="#7c3aed" rx="4" />
-            <text x="600" y="665" textAnchor="middle" fill="white" fontSize="12">Grafana</text>
-            <rect x="750" y="650" width="250" height="20" fill="#7c3aed" rx="4" />
-            <text x="875" y="665" textAnchor="middle" fill="white" fontSize="12">ELK Stack</text>
+            <text x="325" y="655" textAnchor="middle" fill="white" fontSize="14">📊 Prometheus</text>
+            <text x="600" y="655" textAnchor="middle" fill="white" fontSize="14">📈 Grafana</text>
+            <text x="875" y="655" textAnchor="middle" fill="white" fontSize="14">🔍 ELK Stack</text>
 
             {/* Arrows showing data flow */}
             <path d="M 600 100 L 600 120" stroke="#a855f7" strokeWidth="3" markerEnd="url(#arrowhead)" />
@@ -1147,7 +1131,7 @@ public class MarginalVarService {
     return (
       <div style={{
         padding: '2rem',
-        maxWidth: '1400px',
+        maxWidth: '1600px',
         margin: '0 auto',
         backgroundColor: '#f9fafb',
         minHeight: '100vh'
@@ -1185,6 +1169,71 @@ public class MarginalVarService {
           <span style={{ fontSize: '1.2rem' }}>←</span>
           <span>Back to Topics</span>
         </button>
+
+        {/* Two-column layout: Sidebar + Content */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '320px 1fr',
+          gap: '2rem'
+        }}>
+          {/* Left sidebar - Topic list */}
+          <div style={{ position: 'sticky', top: '2rem', height: 'fit-content' }}>
+            <h3 style={{
+              fontSize: '1.25rem',
+              fontWeight: '700',
+              color: '#1f2937',
+              marginBottom: '1rem'
+            }}>
+              VaR/CVaR Topics
+            </h3>
+            <div style={{ display: 'grid', gap: '0.75rem' }}>
+              {topics.map((t) => (
+                <div
+                  key={t.id}
+                  onClick={() => setSelectedTopic(t.id)}
+                  style={{
+                    backgroundColor: selectedTopic === t.id ? `${t.color}15` : 'white',
+                    padding: '1rem',
+                    borderRadius: '8px',
+                    border: selectedTopic === t.id ? `3px solid ${t.color}` : '2px solid #e5e7eb',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseOver={(e) => {
+                    if (selectedTopic !== t.id) {
+                      e.currentTarget.style.backgroundColor = '#f9fafb'
+                      e.currentTarget.style.borderColor = t.color
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (selectedTopic !== t.id) {
+                      e.currentTarget.style.backgroundColor = 'white'
+                      e.currentTarget.style.borderColor = '#e5e7eb'
+                    }
+                  }}
+                >
+                  <div style={{
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    color: selectedTopic === t.id ? t.color : '#374151',
+                    marginBottom: '0.25rem'
+                  }}>
+                    {t.title}
+                  </div>
+                  <div style={{
+                    fontSize: '0.8rem',
+                    color: '#6b7280',
+                    lineHeight: '1.3'
+                  }}>
+                    {t.description.substring(0, 60)}...
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right content area */}
+          <div>
 
         {/* Topic header */}
         <div style={{
@@ -1524,6 +1573,8 @@ public class MarginalVarService {
           >
             Collapse All
           </button>
+        </div>
+          </div>
         </div>
       </div>
     )

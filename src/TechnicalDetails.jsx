@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, ChevronRight, Code, Database, Cloud, Monitor, Zap, Server, GitBranch, BarChart, Target, Settings, AlertCircle, ArrowLeft } from 'lucide-react';
+import { KEYS, FocusManager, AriaUtils } from './utils/keyboardNavigation.js';
+import { FocusManager as FocusManagerUtil } from './utils/focusManagement.js';
 
 const highlightCode = (code) => {
   // Clean input: remove legacy inline HTML markup from code strings (e.g., <span>, <font>, style/color attributes)
@@ -71,6 +73,11 @@ const TechnicalDetails = ({ onBack }) => {
   const [expandedItems, setExpandedItems] = useState({});
   const [expandedSubItems, setExpandedSubItems] = useState({});
   const [selectedPattern, setSelectedPattern] = useState(null);
+  const [focusedItemIndex, setFocusedItemIndex] = useState(0);
+  const [isKeyboardUser, setIsKeyboardUser] = useState(false);
+  const backButtonRef = useRef(null);
+  const itemRefs = useRef([]);
+  const componentRef = useRef(null);
 
   const toggleExpand = (index) => {
     setExpandedItems(prev => ({
@@ -86,6 +93,84 @@ const TechnicalDetails = ({ onBack }) => {
       [key]: !prev[key]
     }));
   };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Don't handle if typing in input fields
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        return;
+      }
+
+      // Don't handle if the event is coming from a button click
+      // This prevents keyboard handlers from interfering with button interactions
+      if (e.target.tagName === 'BUTTON' && (e.key === KEYS.ENTER || e.key === KEYS.SPACE)) {
+        return;
+      }
+
+      // Don't handle if we're in the middle of a click event
+      if (e.isTrusted === false) {
+        return;
+      }
+
+      // Back button shortcut
+      if ((e.key === 'b' || e.key === 'B') && backButtonRef.current) {
+        e.preventDefault();
+        backButtonRef.current.focus();
+        return;
+      }
+
+      // Escape to go back
+      if (e.key === KEYS.ESCAPE) {
+        e.preventDefault();
+        onBack();
+        return;
+      }
+
+      // Arrow key navigation for technical points
+      if (e.key === KEYS.ARROW_DOWN) {
+        e.preventDefault();
+        setFocusedItemIndex(prev => Math.min(prev + 1, technicalPoints.length - 1));
+      } else if (e.key === KEYS.ARROW_UP) {
+        e.preventDefault();
+        setFocusedItemIndex(prev => Math.max(prev - 1, 0));
+      } else if (e.key === KEYS.ENTER || e.key === KEYS.SPACE) {
+        e.preventDefault();
+        toggleExpand(focusedItemIndex);
+        AriaUtils.announce(expandedItems[focusedItemIndex] ? 'Section collapsed' : 'Section expanded');
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [focusedItemIndex, expandedItems, onBack]);
+
+  // Auto-focus is handled by App.jsx - no need to duplicate here
+  // useEffect(() => {
+  //   if (componentRef.current) {
+  //     // Focus the back button as the first interactive element
+  //     setTimeout(() => {
+  //       if (backButtonRef.current) {
+  //         backButtonRef.current.focus();
+  //         FocusManagerUtil.announce('VaR/CVaR technical details loaded. Use arrow keys to navigate sections, Enter to expand, B for back button, Escape to return to main menu.', 'polite');
+  //       }
+  //     }, 150);
+  //   }
+  // }, []);
+
+  // Detect keyboard usage
+  useEffect(() => {
+    const handleKeyDown = () => setIsKeyboardUser(true);
+    const handleMouseDown = () => setIsKeyboardUser(false);
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('mousedown', handleMouseDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleMouseDown);
+    };
+  }, []);
 
   // Color themes for different topics
   const topicColors = [
@@ -1011,14 +1096,16 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
   const techStack = ["Java 15", "Spring Boot", "Oracle", "PL/SQL", "RabbitMQ", "AWS", "Docker", "Kubernetes", "Microservices"];
 
   return (
-    <div style={{
-      maxWidth: '1400px',
-      margin: '0 auto',
-      padding: '2rem',
-      backgroundColor: '#f8fafc',
-      minHeight: '100vh',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    }}>
+    <div
+      ref={componentRef}
+      style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
+        padding: '2rem',
+        backgroundColor: '#f8fafc',
+        minHeight: '100vh',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
       <div style={{ marginBottom: '3rem' }}>
         <div style={{
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -1031,7 +1118,12 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
         }}>
           {onBack && (
             <button
-              onClick={onBack}
+              ref={backButtonRef}
+              onClick={(e) => {
+                e.stopPropagation();
+                onBack();
+              }}
+              aria-label="Go back to main menu"
               style={{
                 position: 'absolute',
                 top: '1.5rem',
@@ -1048,7 +1140,11 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                 fontSize: '0.875rem',
                 fontWeight: '600',
                 transition: 'all 0.2s ease',
-                backdropFilter: 'blur(10px)'
+                backdropFilter: 'blur(10px)',
+                ...(isKeyboardUser && {
+                  outline: '3px solid rgba(255, 255, 255, 0.8)',
+                  outlineOffset: '2px'
+                })
               }}
               onMouseEnter={(e) => {
                 e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
@@ -1058,6 +1154,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                 e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
                 e.target.style.transform = 'translateY(0)';
               }}
+              onFocus={() => setIsKeyboardUser(true)}
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Menu
@@ -1114,7 +1211,13 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
             transition: 'all 0.3s ease'
           }}>
             <button
-              onClick={() => toggleExpand(index)}
+              ref={el => itemRefs.current[index] = el}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleExpand(index);
+              }}
+              aria-expanded={expandedItems[index]}
+              aria-label={`${point.title} - ${expandedItems[index] ? 'Expanded' : 'Collapsed'}`}
               style={{
                 width: '100%',
                 padding: '1.5rem',
@@ -1122,10 +1225,13 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 backgroundColor: expandedItems[index] ? `${point.colorTheme.secondary}` : 'white',
-                border: 'none',
+                border: focusedItemIndex === index && isKeyboardUser ? `3px solid ${point.colorTheme.primary}` : 'none',
                 cursor: 'pointer',
-                transition: 'background-color 0.2s ease',
-                borderBottom: expandedItems[index] ? `2px solid ${point.colorTheme.primary}40` : 'none'
+                transition: 'all 0.2s ease',
+                borderBottom: expandedItems[index] ? `2px solid ${point.colorTheme.primary}40` : 'none',
+                outline: focusedItemIndex === index && isKeyboardUser ? `2px solid ${point.colorTheme.primary}` : 'none',
+                outlineOffset: '2px',
+                transform: focusedItemIndex === index && isKeyboardUser ? 'scale(1.02)' : 'scale(1)'
               }}
               onMouseEnter={(e) => {
                 if (!expandedItems[index]) {
@@ -1172,7 +1278,10 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                     borderBottom: subIndex < point.subSections.length - 1 ? '1px solid #f3f4f6' : 'none'
                   }}>
                     <button
-                      onClick={() => toggleSubExpand(index, subIndex)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleSubExpand(index, subIndex);
+                      }}
                       style={{
                         width: '100%',
                         padding: '1.25rem 1.5rem',

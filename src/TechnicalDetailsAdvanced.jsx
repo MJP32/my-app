@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, ChevronRight, Code, Database, Cloud, Monitor, Zap, Server, GitBranch, BarChart, Target, Settings, AlertCircle, ArrowLeft, Info } from 'lucide-react';
 import './idea-syntax-darcula.css';
+import { FocusManager as FocusManagerUtil } from './utils/focusManagement.js';
 
 // IntelliJ IDEA Darcula theme CSS is imported from external file
 
@@ -658,7 +659,10 @@ const ModernDiagram = ({ diagramType, title, onComponentClick }) => {
                   }}
                   onMouseEnter={() => !isContainer && setHoveredComponent(comp.id)}
                   onMouseLeave={() => setHoveredComponent(null)}
-                  onClick={() => !isContainer && handleComponentClick(comp)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!isContainer) handleComponentClick(comp);
+                  }}
                 >
                   {isSelected && !isContainer && (
                     <animate
@@ -895,6 +899,8 @@ const TechnicalDetailsAdvanced = ({ onBack }) => {
   const [showComponentModal, setShowComponentModal] = useState(false);
   const [animatedFlows, setAnimatedFlows] = useState(true);
   const [focusedComponentIndex, setFocusedComponentIndex] = useState(0);
+  const backButtonRef = useRef(null);
+  const componentRef = useRef(null);
 
   const toggleExpand = (index) => {
     setExpandedItems(prev => ({
@@ -922,9 +928,38 @@ const TechnicalDetailsAdvanced = ({ onBack }) => {
     setFocusedComponentIndex(0)
   }, [])
 
+  // Auto-focus is handled by App.jsx - no need to duplicate here
+  // useEffect(() => {
+  //   if (componentRef.current) {
+  //     // Focus the back button as the first interactive element
+  //     setTimeout(() => {
+  //       if (backButtonRef.current) {
+  //         backButtonRef.current.focus();
+  //         FocusManagerUtil.announce('VaR/CVaR Advanced technical details loaded. Use arrow keys to navigate sections, Enter to expand, B for back button, Escape to return to main menu.', 'polite');
+  //       }
+  //     }, 150);
+  //   }
+  // }, []);
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Don't handle if typing in input fields
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        return;
+      }
+
+      // Don't handle if the event is coming from a button click
+      // This prevents keyboard handlers from interfering with button interactions
+      if (e.target.tagName === 'BUTTON' && (e.key === 'Enter' || e.key === ' ')) {
+        return;
+      }
+
+      // Don't handle if we're in the middle of a click event
+      if (e.isTrusted === false) {
+        return;
+      }
+
       const currentShowComponentModal = showComponentModalRef.current
 
       if (currentShowComponentModal) {
@@ -3537,9 +3572,12 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
     <>
       {/* IntelliJ IDEA Darcula theme CSS is imported from external file */}
 
-      <div style={{ padding: '3rem 4rem', maxWidth: 1800, margin: '0 auto' }}>
+      <div
+        ref={componentRef}
+        style={{ padding: '3rem 4rem', maxWidth: 1800, margin: '0 auto' }}>
         {/* Back Button */}
         <button
+          ref={backButtonRef}
           onClick={onBack}
           style={{
             display: 'flex',
@@ -3703,7 +3741,10 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
               }}>
                 <div
-                  onClick={() => toggleExpand(index)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleExpand(index);
+                  }}
                   style={{
                     padding: '2rem',
                     cursor: 'pointer',
@@ -3795,7 +3836,10 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                           overflow: 'hidden'
                         }}>
                           <div
-                            onClick={() => toggleSubExpand(index, subIndex)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleSubExpand(index, subIndex);
+                            }}
                             style={{
                               padding: '1.5rem',
                               cursor: 'pointer',

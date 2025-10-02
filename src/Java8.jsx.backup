@@ -72,7 +72,6 @@ const SyntaxHighlighter = ({ code }) => {
 }
 
 function Java8({ onBack }) {
-  const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedConcept, setSelectedConcept] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
 
@@ -130,84 +129,13 @@ function Java8({ onBack }) {
   // Keyboard navigation - Escape to deselect
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        if (selectedConcept) {
-          setSelectedConcept(null)
-        } else if (selectedCategory) {
-          setSelectedCategory(null)
-        }
+      if (e.key === 'Escape' && selectedConcept) {
+        setSelectedConcept(null)
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [selectedConcept, selectedCategory])
-
-  const categories = [
-    {
-      id: 'lambda',
-      name: 'Lambda Expressions',
-      icon: '🔹',
-      color: '#8b5cf6',
-      description: 'Functional programming with lambda expressions, method references, and closures',
-      conceptIds: [0, 1, 2, 3, 4]
-    },
-    {
-      id: 'streams',
-      name: 'Stream API',
-      icon: '🌊',
-      color: '#3b82f6',
-      description: 'Powerful stream operations for collection processing and data manipulation',
-      conceptIds: [5, 6, 7, 8, 9, 10, 11, 12, 13]
-    },
-    {
-      id: 'optional',
-      name: 'Optional',
-      icon: '🎯',
-      color: '#10b981',
-      description: 'Null-safe programming with Optional class',
-      conceptIds: [14, 15, 16, 17, 18]
-    },
-    {
-      id: 'datetime',
-      name: 'Date/Time API',
-      icon: '🕐',
-      color: '#f59e0b',
-      description: 'Modern date and time handling with java.time package',
-      conceptIds: [19, 20, 21, 22]
-    },
-    {
-      id: 'default-methods',
-      name: 'Default Methods',
-      icon: '🔧',
-      color: '#ec4899',
-      description: 'Interface evolution with default and static methods',
-      conceptIds: [23, 24, 25]
-    },
-    {
-      id: 'completablefuture',
-      name: 'CompletableFuture',
-      icon: '⚡',
-      color: '#ef4444',
-      description: 'Asynchronous programming and non-blocking operations',
-      conceptIds: [26, 27, 28, 29]
-    },
-    {
-      id: 'nashorn',
-      name: 'Nashorn JavaScript',
-      icon: '🔶',
-      color: '#f97316',
-      description: 'JavaScript engine integration (deprecated in Java 11+)',
-      conceptIds: [30, 31, 32, 33]
-    },
-    {
-      id: 'jvm',
-      name: 'JVM Improvements',
-      icon: '⚙️',
-      color: '#6366f1',
-      description: 'Performance enhancements and memory improvements',
-      conceptIds: [34, 35]
-    }
-  ]
+  }, [selectedConcept])
 
   const concepts = [
     {
@@ -2061,22 +1989,21 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
         </p>
       </div>
 
-      {/* Show categories first */}
-      {!selectedCategory && !selectedConcept && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-          gap: '2rem'
-        }}>
-          {categories.map((category) => (
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: selectedConcept ? '350px 1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '2rem'
+      }}>
+        {!selectedConcept ? (
+          concepts.map((concept, idx) => (
             <div
-              key={category.id}
-              onClick={() => setSelectedCategory(category)}
+              key={idx}
+              onClick={() => handleConceptClick(concept)}
               style={{
+                backgroundColor: 'rgba(16, 185, 129, 0.05)',
                 padding: '2rem',
-                backgroundColor: `${category.color}10`,
-                border: `3px solid ${category.color}40`,
                 borderRadius: '16px',
+                border: '3px solid rgba(16, 185, 129, 0.3)',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
@@ -2084,295 +2011,169 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-4px)'
                 e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.15)'
-                e.currentTarget.style.borderColor = `${category.color}80`
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.5)'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                e.currentTarget.style.borderColor = `${category.color}40`
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.3)'
               }}
             >
-              <div style={{ fontSize: '3.5rem', marginBottom: '1rem', textAlign: 'center' }}>
-                {category.icon}
+              <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>
+                {concept.icon || '🔹'}
               </div>
               <h3 style={{
-                fontSize: '1.75rem',
+                fontSize: '1.5rem',
                 fontWeight: '700',
-                color: category.color,
-                marginBottom: '0.75rem',
+                color: '#047857',
+                marginBottom: '1rem',
                 textAlign: 'center'
               }}>
-                {category.name}
+                {concept.name}
               </h3>
               <p style={{
                 fontSize: '1rem',
                 color: '#6b7280',
                 lineHeight: '1.6',
-                textAlign: 'center',
-                marginBottom: '1rem'
-              }}>
-                {category.description}
-              </p>
-              <p style={{
-                fontSize: '0.85rem',
-                color: category.color,
-                fontWeight: '600',
                 textAlign: 'center'
               }}>
-                {category.conceptIds.length} {category.conceptIds.length === 1 ? 'concept' : 'concepts'}
+                {concept.explanation?.substring(0, 150) || ''}...
               </p>
             </div>
-          ))}
-        </div>
-      )}
-
-      {/* Show concepts within selected category */}
-      {selectedCategory && !selectedConcept && (
-        <div>
-          <button
-            onClick={() => setSelectedCategory(null)}
-            style={{
-              padding: '0.75rem 1.5rem',
-              fontSize: '1rem',
-              fontWeight: '600',
-              backgroundColor: '#6b7280',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              marginBottom: '2rem'
-            }}
-          >
-            ← Back to Categories
-          </button>
-
-          <div style={{
-            backgroundColor: `${selectedCategory.color}10`,
-            padding: '2rem',
-            borderRadius: '16px',
-            border: `3px solid ${selectedCategory.color}40`,
-            marginBottom: '2rem'
-          }}>
-            <h2 style={{
-              fontSize: '2rem',
-              fontWeight: '700',
-              color: selectedCategory.color,
-              margin: '0 0 0.5rem 0',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem'
-            }}>
-              {selectedCategory.icon} {selectedCategory.name}
-            </h2>
-            <p style={{
-              fontSize: '1.1rem',
-              color: '#6b7280',
-              margin: 0,
-              lineHeight: '1.6'
-            }}>
-              {selectedCategory.description}
-            </p>
-          </div>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '1.5rem'
-          }}>
-            {selectedCategory.conceptIds.map((conceptId) => {
-              const concept = concepts[conceptId]
-              return (
+          ))
+        ) : (
+          <>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <button
+                onClick={() => setSelectedConcept(null)}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  backgroundColor: '#6b7280',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                ← Back to All Concepts
+              </button>
+              
+              {concepts.map((concept, idx) => (
                 <div
-                  key={conceptId}
-                  onClick={() => handleConceptClick(concept)}
-                  style={{
-                    backgroundColor: `${selectedCategory.color}10`,
-                    padding: '1.5rem',
-                    borderRadius: '12px',
-                    border: `2px solid ${selectedCategory.color}40`,
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-4px)'
-                    e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.1)'
-                    e.currentTarget.style.borderColor = `${selectedCategory.color}80`
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)'
-                    e.currentTarget.style.borderColor = `${selectedCategory.color}40`
-                  }}
-                >
-                  <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem', textAlign: 'center' }}>
-                    {concept.icon || '🔹'}
-                  </div>
-                  <h3 style={{
-                    fontSize: '1.25rem',
-                    fontWeight: '700',
-                    color: selectedCategory.color,
-                    marginBottom: '0.5rem',
-                    textAlign: 'center'
-                  }}>
-                    {concept.name}
-                  </h3>
-                  <p style={{
-                    fontSize: '0.9rem',
-                    color: '#6b7280',
-                    lineHeight: '1.5',
-                    textAlign: 'center'
-                  }}>
-                    {concept.explanation?.substring(0, 100) || ''}...
-                  </p>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Show selected concept details */}
-      {selectedConcept && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '350px 1fr',
-          gap: '2rem'
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <button
-              onClick={() => setSelectedConcept(null)}
-              style={{
-                padding: '0.75rem 1.5rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: '#6b7280',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              ← Back to {selectedCategory.name}
-            </button>
-
-            {selectedCategory.conceptIds.map((conceptId) => {
-              const concept = concepts[conceptId]
-              return (
-                <div
-                  key={conceptId}
+                  key={idx}
                   onClick={() => handleConceptClick(concept)}
                   style={{
                     padding: '1rem',
-                    backgroundColor: selectedConcept?.name === concept.name
-                      ? `${selectedCategory.color}20`
+                    backgroundColor: selectedConcept?.name === concept.name 
+                      ? 'rgba(16, 185, 129, 0.15)' 
                       : 'rgba(243, 244, 246, 1)',
                     borderRadius: '8px',
-                    border: selectedConcept?.name === concept.name
-                      ? `2px solid ${selectedCategory.color}`
+                    border: selectedConcept?.name === concept.name 
+                      ? '2px solid rgba(16, 185, 129, 0.5)' 
                       : '2px solid transparent',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
                 >
-                  <span style={{ fontWeight: '600', color: selectedCategory.color }}>
+                  <span style={{ fontWeight: '600', color: '#047857' }}>
                     {concept.icon || '🔹'} {concept.name}
                   </span>
                 </div>
-              )
-            })}
-          </div>
-
-          <div>
-            <h2 style={{
-              fontSize: '2rem',
-              fontWeight: '700',
-              color: selectedCategory.color,
-              marginBottom: '1.5rem'
-            }}>
-              {selectedConcept.icon || '🔹'} {selectedConcept.name}
-            </h2>
-
-            <div style={{
-              backgroundColor: `${selectedCategory.color}10`,
-              padding: '1.5rem',
-              borderRadius: '12px',
-              border: `2px solid ${selectedCategory.color}40`,
-              marginBottom: '2rem'
-            }}>
-              <p style={{
-                fontSize: '1.1rem',
-                color: '#374151',
-                lineHeight: '1.8',
-                margin: 0
-              }}>
-                {selectedConcept.explanation}
-              </p>
+              ))}
             </div>
 
-            {selectedConcept.codeExample && (() => {
-              const sections = parseCodeSections(selectedConcept.codeExample)
-              return sections.length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {sections.map((section, idx) => {
-                    const sectionKey = `${selectedConcept.name}-${idx}`
-                    const isExpanded = expandedSections[sectionKey]
+            <div>
+              <h2 style={{
+                fontSize: '2rem',
+                fontWeight: '700',
+                color: '#047857',
+                marginBottom: '1.5rem'
+              }}>
+                {selectedConcept.icon || '🔹'} {selectedConcept.name}
+              </h2>
 
-                    return (
-                      <div key={idx} style={{
-                        backgroundColor: '#1e293b',
-                        borderRadius: '12px',
-                        overflow: 'hidden',
-                        border: '2px solid #334155'
-                      }}>
-                        <button
-                          onClick={() => toggleSection(sectionKey)}
-                          style={{
-                            width: '100%',
-                            padding: '1rem 1.5rem',
-                            backgroundColor: '#334155',
-                            border: 'none',
-                            color: '#60a5fa',
-                            fontSize: '1rem',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            transition: 'all 0.2s ease'
-                          }}
-                        >
-                          <span>💻 {section.title}</span>
-                          <span style={{ fontSize: '1.2rem' }}>
-                            {isExpanded ? '▼' : '▶'}
-                          </span>
-                        </button>
-
-                        {isExpanded && (
-                          <div style={{ padding: '1.5rem' }}>
-                            <SyntaxHighlighter code={section.code} />
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              ) : (
-                <div style={{
-                  backgroundColor: '#1e293b',
-                  padding: '1.5rem',
-                  borderRadius: '12px',
-                  border: '2px solid #334155'
+              <div style={{
+                backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                padding: '1.5rem',
+                borderRadius: '12px',
+                border: '2px solid rgba(16, 185, 129, 0.2)',
+                marginBottom: '2rem'
+              }}>
+                <p style={{
+                  fontSize: '1.1rem',
+                  color: '#374151',
+                  lineHeight: '1.8',
+                  margin: 0
                 }}>
-                  <SyntaxHighlighter code={selectedConcept.codeExample} />
-                </div>
-              )
-            })()}
-          </div>
-        </div>
-      )}
+                  {selectedConcept.explanation}
+                </p>
+              </div>
+
+              {selectedConcept.codeExample && (() => {
+                const sections = parseCodeSections(selectedConcept.codeExample)
+                return sections.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {sections.map((section, idx) => {
+                      const sectionKey = `${selectedConcept.name}-${idx}`
+                      const isExpanded = expandedSections[sectionKey]
+                      
+                      return (
+                        <div key={idx} style={{
+                          backgroundColor: '#1e293b',
+                          borderRadius: '12px',
+                          overflow: 'hidden',
+                          border: '2px solid #334155'
+                        }}>
+                          <button
+                            onClick={() => toggleSection(sectionKey)}
+                            style={{
+                              width: '100%',
+                              padding: '1rem 1.5rem',
+                              backgroundColor: '#334155',
+                              border: 'none',
+                              color: '#60a5fa',
+                              fontSize: '1rem',
+                              fontWeight: '600',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            <span>💻 {section.title}</span>
+                            <span style={{ fontSize: '1.2rem' }}>
+                              {isExpanded ? '▼' : '▶'}
+                            </span>
+                          </button>
+                          
+                          {isExpanded && (
+                            <div style={{ padding: '1.5rem' }}>
+                              <SyntaxHighlighter code={section.code} />
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <div style={{
+                    backgroundColor: '#1e293b',
+                    padding: '1.5rem',
+                    borderRadius: '12px',
+                    border: '2px solid #334155'
+                  }}>
+                    <SyntaxHighlighter code={selectedConcept.codeExample} />
+                  </div>
+                )
+              })()}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   )
 }

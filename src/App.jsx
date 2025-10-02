@@ -2,12 +2,16 @@ import { useState, useEffect, useRef } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import KeyboardShortcutsDialog from './components/KeyboardShortcutsDialog.jsx'
+import { KEYS, SHORTCUTS, FocusManager, AriaUtils } from './utils/keyboardNavigation.js'
+import { FocusManager as FocusManagerUtil, focusHistory } from './utils/focusManagement.js'
 import TechnicalDetails from './TechnicalDetails.jsx'
 import TechnicalDetailsAdvanced from './TechnicalDetailsAdvanced.jsx'
 import DarkPoolMatchingEngine from './DarkPoolMatchingEngine.jsx'
 import DarkPoolMatchingEngineBasic from './DarkPoolMatchingEngineBasic.jsx'
 import MediHealth from './MediHealth.jsx'
 import DarkPoolEngine3 from './DarkPoolEngine3.jsx'
+import MonolithToMicroservice from './MonolithToMicroservice.jsx'
 import ApacheKafka from './ApacheKafka.jsx'
 import ApacheFlink from './ApacheFlink.jsx'
 import Solace from './Solace.jsx'
@@ -24,6 +28,7 @@ import Spring from './Spring.jsx'
 import SpringBoot from './SpringBoot.jsx'
 import SQL from './SQL.jsx'
 import NoSQL from './NoSQL.jsx'
+import Oracle from './Oracle.jsx'
 import ORM from './ORM.jsx'
 import Module from './Module.jsx'
 import DevOps from './DevOps.jsx'
@@ -31,6 +36,7 @@ import Deployment from './Deployment.jsx'
 import Docker from './Docker.jsx'
 import Kubernetes from './Kubernetes.jsx'
 import Testing from './Testing.jsx'
+import CICD from './CICD.jsx'
 import MicroservicePatterns from './MicroservicePatterns.jsx'
 import Class from './Class.jsx'
 import Interface from './Interface.jsx'
@@ -41,6 +47,9 @@ import SecurityOWASP from './SecurityOWASP.jsx'
 import SystemDesign from './SystemDesign.jsx'
 import FinancialBanking from './FinancialBanking.jsx'
 import VarCvar3 from './VarCvar3.jsx'
+import AWS from './AWS.jsx'
+import GCP from './GCP.jsx'
+import Azure from './Azure.jsx'
 
 // Main category groups (defined outside component to prevent recreation)
 const categoryGroups = {
@@ -57,12 +66,12 @@ const categoryGroups = {
   'Databases': {
     icon: '🗃️',
     color: '#3b82f6',
-    items: ['SQL', 'NoSQL', 'ORM']
+    items: ['SQL', 'NoSQL', 'Oracle', 'ORM']
   },
   'My Projects': {
     icon: '💼',
     color: '#10b981',
-    items: ['Var/CVar', 'Var/CVar - Advanced', 'Var/CVar 3', 'Dark Pool Matching Engine', 'Dark Pool Matching Engine - Basic', 'Medi/Health', 'Dark Pool Engine 3']
+    items: ['Var/CVar', 'Var/CVar - Advanced', 'Var/CVar 3', 'Dark Pool Matching Engine', 'Dark Pool Matching Engine - Basic', 'Medi/Health', 'Dark Pool Engine 3', 'Monolith to Microservice']
   },
   'Frameworks': {
     icon: '🌱',
@@ -72,7 +81,7 @@ const categoryGroups = {
   'DevOps': {
     icon: '🛠️',
     color: '#0ea5e9',
-    items: ['DevOps', 'Deployment', 'Docker', 'Kubernetes', 'Testing', 'Agile Scrum', 'Production Support']
+    items: ['DevOps', 'Deployment', 'Docker', 'Kubernetes', 'Testing', 'CI/CD', 'Agile Scrum', 'Production Support']
   },
   'Messaging': {
     icon: '📨',
@@ -93,6 +102,11 @@ const categoryGroups = {
     icon: '💰',
     color: '#f59e0b',
     items: ['Financial Banking']
+  },
+  'Cloud': {
+    icon: '☁️',
+    color: '#0ea5e9',
+    items: ['AWS', 'GCP', 'Azure']
   }
 }
 
@@ -103,6 +117,13 @@ function App() {
   const [expandedGroup, setExpandedGroup] = useState(null)
   const [focusedCategoryIndex, setFocusedCategoryIndex] = useState(0)
   const [focusedItemIndex, setFocusedItemIndex] = useState(-1)
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false)
+  const [isKeyboardUser, setIsKeyboardUser] = useState(false)
+  const [triggeringElement, setTriggeringElement] = useState(null)
+  const [helpDialogTrigger, setHelpDialogTrigger] = useState(null)
+  const categoryButtonRefs = useRef({})
+  const itemButtonRefs = useRef({})
+  const componentContainerRef = useRef(null)
 
   // Use ref to always have access to current selectedOption in event handlers
   const selectedOptionRef = useRef(selectedOption)
@@ -112,8 +133,54 @@ function App() {
     selectedOptionRef.current = selectedOption
   }, [selectedOption])
 
+  // Detect keyboard usage for enhanced accessibility
+  useEffect(() => {
+    const handleKeyDown = () => setIsKeyboardUser(true);
+    const handleMouseDown = () => setIsKeyboardUser(false);
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('mousedown', handleMouseDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleMouseDown);
+    };
+  }, []);
+
+  // Auto-focus first element when component loads
+  useEffect(() => {
+    if (selectedOption && componentContainerRef.current) {
+      FocusManagerUtil.focusFirstElement(componentContainerRef.current, 150);
+      FocusManagerUtil.announce(`${selectedOption} component loaded`, 'polite');
+    }
+  }, [selectedOption]);
+
   // Custom setter that updates both state and ref immediately
-  const setSelectedOptionAndRef = (value) => {
+  const setSelectedOptionAndRef = (value, triggerElement = null) => {
+    // If opening a new component, save the triggering element for focus restoration
+    if (value && !selectedOptionRef.current && triggerElement) {
+      focusHistory.push(triggerElement, `Opening ${value} component`);
+      setTriggeringElement(triggerElement);
+    }
+
+    // If closing a component, restore focus
+    if (!value && selectedOptionRef.current) {
+      // Use setTimeout to ensure the DOM has updated before restoring focus
+      setTimeout(() => {
+        const restored = focusHistory.pop(`Closing ${selectedOptionRef.current} component`);
+        if (!restored && triggeringElement) {
+          // Fallback: try to restore to the saved triggering element
+          try {
+            triggeringElement.focus();
+            triggeringElement.classList.add('keyboard-focus');
+          } catch (error) {
+            console.warn('Failed to restore focus to triggering element:', error);
+          }
+        }
+        setTriggeringElement(null);
+      }, 100);
+    }
+
     selectedOptionRef.current = value
     setSelectedOption(value)
   }
@@ -321,6 +388,14 @@ function App() {
         industry: 'Software Development, Quality Assurance'
       },
       {
+        value: 'CI/CD',
+        label: '🔄 CI/CD',
+        description: 'Continuous Integration and Continuous Deployment pipelines with automated build, test, and deployment processes. Covers Jenkins, GitLab CI, GitHub Actions, ArgoCD, and modern DevOps practices.',
+        metrics: ['Jenkins Pipelines', 'GitLab CI/CD', 'GitHub Actions', 'ArgoCD', 'Automated Testing'],
+        complexity: 'Intermediate to Advanced',
+        industry: 'DevOps, Software Engineering, Cloud Operations'
+      },
+      {
         value: 'Agile Scrum',
         label: '🏃 Agile & Scrum',
         description: 'Agile methodologies and Scrum framework including sprint planning, user stories, daily standups, retrospectives, estimation techniques, and agile best practices for iterative development.',
@@ -367,6 +442,32 @@ function App() {
         industry: 'Financial Services, Banking, FinTech'
       }
     ],
+    'Cloud Platforms': [
+      {
+        value: 'AWS',
+        label: '☁️ Amazon Web Services',
+        description: 'Comprehensive cloud computing platform offering over 200 services including EC2, S3, Lambda, RDS, and more. Industry-leading cloud infrastructure for compute, storage, databases, networking, and analytics.',
+        metrics: ['EC2 Compute', 'S3 Storage', 'Lambda Serverless', 'RDS Databases'],
+        complexity: 'Intermediate to Advanced',
+        industry: 'Cloud Computing, DevOps, Enterprise'
+      },
+      {
+        value: 'GCP',
+        label: '☁️ Google Cloud Platform',
+        description: 'Google\'s cloud platform built on the same infrastructure that powers Google products. Offers computing, data storage, data analytics, and machine learning services with strong Kubernetes and BigQuery capabilities.',
+        metrics: ['Compute Engine', 'Cloud Storage', 'BigQuery', 'GKE'],
+        complexity: 'Intermediate to Advanced',
+        industry: 'Cloud Computing, Data Analytics, AI/ML'
+      },
+      {
+        value: 'Azure',
+        label: '☁️ Microsoft Azure',
+        description: 'Microsoft\'s cloud platform with deep integration into Windows ecosystem and enterprise tools. Provides comprehensive services for compute, storage, networking, AI, IoT, and hybrid cloud solutions.',
+        metrics: ['Virtual Machines', 'Azure SQL', 'AKS', 'Active Directory'],
+        complexity: 'Intermediate to Advanced',
+        industry: 'Cloud Computing, Enterprise, Hybrid Cloud'
+      }
+    ],
     'Data & Persistence': [
       {
         value: 'SQL',
@@ -383,6 +484,14 @@ function App() {
         metrics: ['Document Stores', 'Key-Value Stores', 'Distributed Architecture', 'Scalability Patterns'],
         complexity: 'Intermediate to Advanced',
         industry: 'Big Data, Web Applications'
+      },
+      {
+        value: 'Oracle',
+        label: '🔴 Oracle Database',
+        description: 'Enterprise Oracle Database administration, PL/SQL programming, performance tuning, RAC clustering, and Oracle-specific features. Covers SQL optimization, partitioning, data warehousing, and high availability configurations.',
+        metrics: ['PL/SQL', 'Performance Tuning', 'RAC & High Availability', 'Data Warehousing'],
+        complexity: 'Intermediate to Advanced',
+        industry: 'Enterprise Applications, Financial Services'
       },
       {
         value: 'ORM',
@@ -447,6 +556,14 @@ function App() {
         metrics: ['Order Matching', 'Smart Routing', 'Liquidity Optimization', 'Market Impact Analysis'],
         complexity: 'Expert Level',
         industry: 'High-Frequency Trading, Investment Banking, Alternative Trading Systems'
+      },
+      {
+        value: 'Monolith to Microservice',
+        label: '🏗️ Monolith to Microservice',
+        description: 'Large-scale migration project decomposing a monolithic VaR/CVaR system into microservices using the Strangler Fig Pattern. Successfully decommissioned legacy vendor system while maintaining zero downtime through incremental domain-driven decomposition.',
+        metrics: ['Strangler Fig Pattern', 'Domain-Driven Design', 'Zero Downtime Migration', 'Vendor Decommission'],
+        complexity: 'Expert Level',
+        industry: 'Software Architecture, Enterprise Migration, Risk Management'
       }
     ]
   }
@@ -518,11 +635,27 @@ function App() {
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
-      console.log('App.jsx KeyDown:', e.key, 'selectedOption:', selectedOptionRef.current)
 
       // Don't handle if typing in an input or textarea
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
         return
+      }
+
+      // Global shortcuts that work everywhere
+      if (SHORTCUTS.HELP.includes(e.key)) {
+        e.preventDefault();
+        setHelpDialogTrigger(document.activeElement);
+        setShowKeyboardHelp(true);
+        AriaUtils.announce('Keyboard shortcuts dialog opened');
+        return;
+      }
+
+      // Main menu shortcut
+      if (SHORTCUTS.MAIN_MENU.includes(e.key) && selectedOptionRef.current) {
+        e.preventDefault();
+        setSelectedOptionAndRef('');
+        AriaUtils.announce('Returned to main menu');
+        return;
       }
 
       const categoryNames = Object.keys(categoryGroups)
@@ -530,7 +663,6 @@ function App() {
       // If viewing a component, only let Escape through to go back (handled by component)
       if (selectedOptionRef.current) {
         // Don't handle anything - let component handle all keys
-        console.log('App.jsx: Letting component handle key')
         return
       }
 
@@ -538,24 +670,35 @@ function App() {
         // Navigate between category buttons
         if (e.key === 'ArrowRight') {
           e.preventDefault()
-          setFocusedCategoryIndex((prev) => (prev + 1) % categoryNames.length)
+          const newIndex = (focusedCategoryIndex + 1) % categoryNames.length;
+          setFocusedCategoryIndex(newIndex);
+          AriaUtils.announce(`${categoryNames[newIndex]} category`);
         } else if (e.key === 'ArrowLeft') {
           e.preventDefault()
-          setFocusedCategoryIndex((prev) => (prev - 1 + categoryNames.length) % categoryNames.length)
+          const newIndex = (focusedCategoryIndex - 1 + categoryNames.length) % categoryNames.length;
+          setFocusedCategoryIndex(newIndex);
+          AriaUtils.announce(`${categoryNames[newIndex]} category`);
         } else if (e.key === 'ArrowDown') {
           // Down arrow expands the focused category
           e.preventDefault()
           const categoryName = categoryNames[focusedCategoryIndex]
           setExpandedGroup(categoryName)
           setFocusedItemIndex(-1)
+          AriaUtils.announce(`${categoryName} category expanded, ${categoryGroups[categoryName].items.length} items available`);
         } else if (e.key === 'ArrowUp') {
           e.preventDefault()
-          setFocusedCategoryIndex((prev) => (prev - 1 + categoryNames.length) % categoryNames.length)
+          const newIndex = (focusedCategoryIndex - 1 + categoryNames.length) % categoryNames.length;
+          setFocusedCategoryIndex(newIndex);
+          AriaUtils.announce(`${categoryNames[newIndex]} category`);
         } else if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
           const categoryName = categoryNames[focusedCategoryIndex]
-          setExpandedGroup(expandedGroup === categoryName ? null : categoryName)
+          const isExpanding = expandedGroup !== categoryName;
+          setExpandedGroup(isExpanding ? categoryName : null)
           setFocusedItemIndex(-1)
+          AriaUtils.announce(isExpanding ?
+            `${categoryName} category expanded, ${categoryGroups[categoryName].items.length} items available` :
+            `${categoryName} category collapsed`);
         }
       } else {
         // Navigate between expanded items
@@ -580,7 +723,9 @@ function App() {
           e.preventDefault()
           if (focusedItemIndex >= 0) {
             const itemValue = items[focusedItemIndex]
-            setSelectedOptionAndRef(itemValue)
+            const buttonKey = `${expandedGroup}-${focusedItemIndex}`;
+            const triggerElement = itemButtonRefs.current[buttonKey];
+            setSelectedOptionAndRef(itemValue, triggerElement)
           }
         } else if (e.key === 'Escape') {
           e.preventDefault()
@@ -597,22 +742,46 @@ function App() {
   // Component rendering logic
   const renderSelectedComponent = () => {
     if (selectedOption === 'Var/CVar') {
-      return <TechnicalDetails onBack={() => setSelectedOptionAndRef('')} />
+      return (
+        <div ref={componentContainerRef}>
+          <TechnicalDetails onBack={() => setSelectedOptionAndRef('')} />
+        </div>
+      )
     }
     if (selectedOption === 'Var/CVar - Advanced') {
-      return <TechnicalDetailsAdvanced onBack={() => setSelectedOptionAndRef('')} />
+      return (
+        <div ref={componentContainerRef}>
+          <TechnicalDetailsAdvanced onBack={() => setSelectedOptionAndRef('')} />
+        </div>
+      )
     }
     if (selectedOption === 'Var/CVar 3') {
-      return <VarCvar3 onBack={() => setSelectedOptionAndRef('')} />
+      return (
+        <div ref={componentContainerRef}>
+          <VarCvar3 onBack={() => setSelectedOptionAndRef('')} />
+        </div>
+      )
     }
     if (selectedOption === 'Dark Pool Matching Engine') {
-      return <DarkPoolMatchingEngine onBack={() => setSelectedOptionAndRef('')} />
+      return (
+        <div ref={componentContainerRef}>
+          <DarkPoolMatchingEngine onBack={() => setSelectedOptionAndRef('')} />
+        </div>
+      )
     }
     if (selectedOption === 'Dark Pool Matching Engine - Basic') {
-      return <DarkPoolMatchingEngineBasic onBack={() => setSelectedOptionAndRef('')} />
+      return (
+        <div ref={componentContainerRef}>
+          <DarkPoolMatchingEngineBasic onBack={() => setSelectedOptionAndRef('')} />
+        </div>
+      )
     }
     if (selectedOption === 'Medi/Health') {
-      return <MediHealth onBack={() => setSelectedOptionAndRef('')} />
+      return (
+        <div ref={componentContainerRef}>
+          <MediHealth onBack={() => setSelectedOptionAndRef('')} />
+        </div>
+      )
     }
     if (selectedOption === 'Kafka') {
       return <ApacheKafka onBack={() => setSelectedOptionAndRef('')} />
@@ -656,6 +825,9 @@ function App() {
     if (selectedOption === 'NoSQL') {
       return <NoSQL onBack={() => setSelectedOptionAndRef('')} />
     }
+    if (selectedOption === 'Oracle') {
+      return <Oracle onBack={() => setSelectedOptionAndRef('')} />
+    }
     if (selectedOption === 'ORM') {
       return <ORM onBack={() => setSelectedOptionAndRef('')} />
     }
@@ -686,6 +858,9 @@ function App() {
     if (selectedOption === 'Testing') {
       return <Testing onBack={() => setSelectedOptionAndRef('')} />
     }
+    if (selectedOption === 'CI/CD') {
+      return <CICD onBack={() => setSelectedOptionAndRef('')} />
+    }
     if (selectedOption === 'REST API') {
       return <RestAPI onBack={() => setSelectedOptionAndRef('')} />
     }
@@ -713,12 +888,45 @@ function App() {
     if (selectedOption === 'Dark Pool Engine 3') {
       return <DarkPoolEngine3 onBack={() => setSelectedOptionAndRef('')} />
     }
+    if (selectedOption === 'Monolith to Microservice') {
+      return <MonolithToMicroservice onBack={() => setSelectedOptionAndRef('')} />
+    }
+    if (selectedOption === 'AWS') {
+      return <AWS onBack={() => setSelectedOptionAndRef('')} />
+    }
+    if (selectedOption === 'GCP') {
+      return <GCP onBack={() => setSelectedOptionAndRef('')} />
+    }
+    if (selectedOption === 'Azure') {
+      return <Azure onBack={() => setSelectedOptionAndRef('')} />
+    }
     return null
   }
 
   return (
     <>
-      <div style={{
+      {/* Skip link for keyboard navigation */}
+      <a
+        href="#main-content"
+        className="skip-link"
+        onFocus={() => setIsKeyboardUser(true)}
+      >
+        Skip to main content
+      </a>
+
+      {/* Keyboard shortcuts dialog */}
+      <KeyboardShortcutsDialog
+        isOpen={showKeyboardHelp}
+        onClose={() => {
+          setShowKeyboardHelp(false);
+          setHelpDialogTrigger(null);
+        }}
+        triggerElement={helpDialogTrigger}
+      />
+      <nav
+        role="navigation"
+        aria-label="Main navigation"
+        style={{
         position: 'fixed',
         top: 0,
         left: 0,
@@ -735,20 +943,36 @@ function App() {
           textAlign: 'center',
           marginBottom: '0.75rem'
         }}>
-          <h1 style={{
-            margin: 0,
-            color: '#1f2937',
-            fontSize: '1.5rem',
-            fontWeight: '800',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-            letterSpacing: '-0.025em'
-          }}>
+          <h1
+            id="main-title"
+            style={{
+              margin: 0,
+              color: '#1f2937',
+              fontSize: '1.5rem',
+              fontWeight: '800',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              letterSpacing: '-0.025em'
+            }}
+          >
             Technical Architecture Areas
+            {isKeyboardUser && (
+              <span style={{
+                fontSize: '0.75rem',
+                color: '#6b7280',
+                fontWeight: 'normal',
+                marginLeft: '1rem'
+              }}>
+                Press H for keyboard shortcuts
+              </span>
+            )}
           </h1>
         </div>
 
         {/* Main Category Buttons */}
-        <div style={{
+        <div
+          role="menubar"
+          aria-label="Category selection"
+          style={{
           display: 'flex',
           gap: '0.75rem',
           justifyContent: 'center',
@@ -758,6 +982,10 @@ function App() {
           {Object.entries(categoryGroups).map(([groupName, group], index) => (
             <button
               key={groupName}
+              role="menuitem"
+              aria-label={`${groupName} category with ${group.items.length} items`}
+              aria-expanded={expandedGroup === groupName}
+              aria-haspopup="true"
               data-category-button
               data-category-index={index}
               tabIndex={0}
@@ -812,7 +1040,10 @@ function App() {
 
         {/* Expanded Group Items */}
         {expandedGroup && (
-          <div style={{
+          <div
+            role="menu"
+            aria-label={`${expandedGroup} items`}
+            style={{
             display: 'flex',
             gap: '0.5rem',
             justifyContent: 'center',
@@ -837,11 +1068,18 @@ function App() {
                   onMouseLeave={() => setHoveredOption(null)}
                 >
                   <button
+                    role="menuitem"
+                    aria-label={`${option.label} - ${option.complexity}`}
                     data-item-button
                     data-item-index={itemIndex}
                     tabIndex={0}
-                    onClick={() => {
-                      setSelectedOptionAndRef(option.value)
+                    ref={(el) => {
+                      if (el) {
+                        itemButtonRefs.current[`${expandedGroup}-${itemIndex}`] = el;
+                      }
+                    }}
+                    onClick={(e) => {
+                      setSelectedOptionAndRef(option.value, e.currentTarget)
                     }}
                     onMouseDown={(e) => {
                       // Prevent default to keep focus behavior consistent
@@ -1641,7 +1879,7 @@ function App() {
             </div>
           </div>
         </div>
-      </div>
+      </nav>
 
       {selectedOption && (
         <div style={{
@@ -1659,7 +1897,7 @@ function App() {
       )}
 
       {!selectedOption && (
-        <div style={{ marginTop: '140px' }}>
+        <main id="main-content" style={{ marginTop: '140px' }}>
           <div>
             <a href="https://vite.dev" target="_blank">
               <img src={viteLogo} className="logo" alt="Vite logo" />
@@ -1680,7 +1918,7 @@ function App() {
           <p className="read-the-docs">
             Click on the Vite and React logos to learn more
           </p>
-        </div>
+        </main>
       )}
     </>
   )

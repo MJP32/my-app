@@ -163,20 +163,13 @@ function MediHealth({ onBack }) {
             {/* Layer 3: Microservices */}
             <rect x="50" y="200" width="1100" height="100" fill="url(#blueGradient)" rx="8" />
             <text x="600" y="225" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">Layer 3: Microservices</text>
-            <rect x="70" y="240" width="130" height="40" fill="#3b82f6" rx="4" />
-            <text x="135" y="265" textAnchor="middle" fill="white" fontSize="10">Patient</text>
-            <rect x="215" y="240" width="130" height="40" fill="#3b82f6" rx="4" />
-            <text x="280" y="265" textAnchor="middle" fill="white" fontSize="10">Appointment</text>
-            <rect x="360" y="240" width="130" height="40" fill="#3b82f6" rx="4" />
-            <text x="425" y="265" textAnchor="middle" fill="white" fontSize="10">Location</text>
-            <rect x="505" y="240" width="130" height="40" fill="#3b82f6" rx="4" />
-            <text x="570" y="265" textAnchor="middle" fill="white" fontSize="10">Insurance</text>
-            <rect x="650" y="240" width="130" height="40" fill="#3b82f6" rx="4" />
-            <text x="715" y="265" textAnchor="middle" fill="white" fontSize="10">Auth</text>
-            <rect x="795" y="240" width="130" height="40" fill="#3b82f6" rx="4" />
-            <text x="860" y="265" textAnchor="middle" fill="white" fontSize="10">Billing</text>
-            <rect x="940" y="240" width="120" height="40" fill="#3b82f6" rx="4" />
-            <text x="1000" y="265" textAnchor="middle" fill="white" fontSize="10">Notification</text>
+            <text x="160" y="260" textAnchor="middle" fill="white" fontSize="12">Patient</text>
+            <text x="340" y="260" textAnchor="middle" fill="white" fontSize="12">Appointment</text>
+            <text x="520" y="260" textAnchor="middle" fill="white" fontSize="12">Location</text>
+            <text x="700" y="260" textAnchor="middle" fill="white" fontSize="12">Insurance</text>
+            <text x="880" y="260" textAnchor="middle" fill="white" fontSize="12">Auth</text>
+            <text x="250" y="285" textAnchor="middle" fill="white" fontSize="12">Billing</text>
+            <text x="600" y="285" textAnchor="middle" fill="white" fontSize="12">Notification</text>
 
             {/* Layer 4: Kafka Event Bus */}
             <rect x="50" y="320" width="1100" height="60" fill="url(#greenGradient)" rx="8" />
@@ -185,14 +178,11 @@ function MediHealth({ onBack }) {
             {/* Layer 5: Databases */}
             <rect x="50" y="400" width="1100" height="100" fill="url(#blueGradient)" rx="8" />
             <text x="600" y="425" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">Layer 5: Data Storage</text>
-            <rect x="150" y="440" width="200" height="40" fill="#3b82f6" rx="4" />
-            <text x="250" y="465" textAnchor="middle" fill="white" fontSize="12">PostgreSQL</text>
-            <rect x="380" y="440" width="200" height="40" fill="#3b82f6" rx="4" />
-            <text x="480" y="465" textAnchor="middle" fill="white" fontSize="12">MongoDB</text>
-            <rect x="610" y="440" width="200" height="40" fill="#3b82f6" rx="4" />
-            <text x="710" y="465" textAnchor="middle" fill="white" fontSize="12">Redis</text>
-            <rect x="840" y="440" width="200" height="40" fill="#3b82f6" rx="4" />
-            <text x="940" y="465" textAnchor="middle" fill="white" fontSize="12">S3</text>
+            <text x="190" y="455" textAnchor="middle" fill="white" fontSize="13">PostgreSQL</text>
+            <text x="390" y="455" textAnchor="middle" fill="white" fontSize="13">Oracle</text>
+            <text x="590" y="455" textAnchor="middle" fill="white" fontSize="13">MongoDB</text>
+            <text x="790" y="455" textAnchor="middle" fill="white" fontSize="13">Redis</text>
+            <text x="990" y="455" textAnchor="middle" fill="white" fontSize="13">S3</text>
 
             {/* Layer 6: Security - HIPAA */}
             <rect x="50" y="520" width="1100" height="60" fill="url(#greenGradient)" rx="8" />
@@ -3743,16 +3733,80 @@ public class ClaimService {
 
       {/* Topic Detail View */}
       {selectedTopic && (
-        <>
+        <div style={{
+          maxWidth: '1600px',
+          margin: '0 auto'
+        }}>
+          {/* Two-column layout: Sidebar + Content */}
           <div style={{
-            maxWidth: '1400px',
-            margin: '0 auto',
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            padding: '2rem',
-            border: `3px solid ${selectedTopic.color}`,
-            marginBottom: '2rem'
+            display: 'grid',
+            gridTemplateColumns: '320px 1fr',
+            gap: '2rem'
           }}>
+            {/* Left sidebar - Topic list */}
+            <div style={{ position: 'sticky', top: '2rem', height: 'fit-content' }}>
+              <h3 style={{
+                fontSize: '1.25rem',
+                fontWeight: '700',
+                color: '#1f2937',
+                marginBottom: '1rem'
+              }}>
+                Healthcare Topics
+              </h3>
+              <div style={{ display: 'grid', gap: '0.75rem' }}>
+                {topics.map((t) => (
+                  <div
+                    key={t.id}
+                    onClick={() => setSelectedTopic(t)}
+                    style={{
+                      backgroundColor: selectedTopic.id === t.id ? `${t.color}15` : 'white',
+                      padding: '1rem',
+                      borderRadius: '8px',
+                      border: selectedTopic.id === t.id ? `3px solid ${t.color}` : '2px solid #e5e7eb',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseOver={(e) => {
+                      if (selectedTopic.id !== t.id) {
+                        e.currentTarget.style.backgroundColor = '#f9fafb'
+                        e.currentTarget.style.borderColor = t.color
+                      }
+                    }}
+                    onMouseOut={(e) => {
+                      if (selectedTopic.id !== t.id) {
+                        e.currentTarget.style.backgroundColor = 'white'
+                        e.currentTarget.style.borderColor = '#e5e7eb'
+                      }
+                    }}
+                  >
+                    <div style={{
+                      fontSize: '1rem',
+                      fontWeight: '600',
+                      color: selectedTopic.id === t.id ? t.color : '#374151',
+                      marginBottom: '0.25rem'
+                    }}>
+                      {t.title}
+                    </div>
+                    <div style={{
+                      fontSize: '0.8rem',
+                      color: '#6b7280',
+                      lineHeight: '1.3'
+                    }}>
+                      {t.description.substring(0, 60)}...
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right content area */}
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              padding: '2rem',
+              border: `3px solid ${selectedTopic.color}`,
+              marginBottom: '2rem'
+            }}>
             <h2 style={{
               fontSize: '2rem',
               fontWeight: '700',
@@ -4000,8 +4054,9 @@ public class ClaimService {
                 </button>
               </div>
             </div>
+            </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   )

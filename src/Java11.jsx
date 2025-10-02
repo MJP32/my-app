@@ -56,6 +56,7 @@ const SyntaxHighlighter = ({ code }) => {
 }
 
 function Java11({ onBack }) {
+  const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedConcept, setSelectedConcept] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
 
@@ -112,13 +113,85 @@ function Java11({ onBack }) {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && selectedConcept) {
-        setSelectedConcept(null)
+      if (e.key === 'Escape') {
+        if (selectedConcept) {
+          setSelectedConcept(null)
+        } else if (selectedCategory) {
+          setSelectedCategory(null)
+        }
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [selectedConcept])
+  }, [selectedConcept, selectedCategory])
+
+  // Category groupings for better organization
+  const categories = [
+    {
+      id: 'var-inference',
+      name: 'Local Variable Type Inference',
+      icon: '🔹',
+      color: '#8b5cf6',
+      description: 'Enhanced var keyword for local variable type inference and lambda parameters',
+      conceptIds: [0, 1, 2, 3] // var Keyword, Lambda Parameters, Best Practices, Limitations
+    },
+    {
+      id: 'http-client',
+      name: 'HTTP Client API',
+      icon: '🌐',
+      color: '#3b82f6',
+      description: 'Modern HTTP/2 client with async operations and WebSocket support',
+      conceptIds: [4, 5, 6, 7] // Modern HTTP/2, Async Operations, WebSocket Support, Request/Response
+    },
+    {
+      id: 'string-methods',
+      name: 'String Enhancements',
+      icon: '📝',
+      color: '#10b981',
+      description: 'New String methods for modern text processing and manipulation',
+      conceptIds: [8, 9, 10, 11] // isBlank() & strip(), lines() Stream, repeat(), Unicode Support
+    },
+    {
+      id: 'jfr',
+      name: 'Java Flight Recorder',
+      icon: '✈️',
+      color: '#f59e0b',
+      description: 'Production-ready profiling with low overhead for performance monitoring',
+      conceptIds: [12, 13, 14, 15] // Low-Overhead Profiling, Event Recording, JFR Analysis, Production Ready
+    },
+    {
+      id: 'files-api',
+      name: 'Files API Enhancements',
+      icon: '📁',
+      color: '#ec4899',
+      description: 'Simplified file operations with new convenience methods',
+      conceptIds: [16, 17, 18, 19] // readString() & writeString(), Path Operations, Unicode Support, Performance
+    },
+    {
+      id: 'collections',
+      name: 'Collection & Optional',
+      icon: '📦',
+      color: '#ef4444',
+      description: 'Enhanced collections API and Optional improvements',
+      conceptIds: [20, 21, 22, 23] // toArray() Enhancement, Immutable Collections, Predicate Methods, Optional Enhancement
+    },
+    {
+      id: 'performance',
+      name: 'Performance & Reflection',
+      icon: '⚡',
+      color: '#f97316',
+      description: 'Performance improvements and reflection API enhancements',
+      conceptIds: [24, 25, 26] // Reflection API, Performance, Security
+    },
+    {
+      id: 'gc',
+      name: 'Garbage Collection',
+      icon: '🗑️',
+      color: '#6366f1',
+      description: 'Z Garbage Collector and GC interface improvements',
+      conceptIds: [27, 28] // ZGC Improvements, GC Interface
+    }
+  ]
 
   const concepts = [
     {
@@ -2352,76 +2425,222 @@ public class GCInterfaceDemo {
         </p>
       </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: selectedConcept ? '350px 1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '2rem'
-      }}>
-        {!selectedConcept ? (
-          concepts.map((concept, idx) => (
-            <div key={idx} onClick={() => handleConceptClick(concept)} style={{
-                backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '2rem',
-                borderRadius: '16px', border: '3px solid rgba(16, 185, 129, 0.3)',
-                cursor: 'pointer', transition: 'all 0.3s ease',
+      {/* Show categories when no category selected */}
+      {!selectedCategory ? (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+          gap: '2rem'
+        }}>
+          {categories.map((category) => (
+            <div
+              key={category.id}
+              onClick={() => setSelectedCategory(category)}
+              style={{
+                backgroundColor: `${category.color}10`,
+                padding: '2.5rem',
+                borderRadius: '16px',
+                border: `3px solid ${category.color}40`,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)'
+                e.currentTarget.style.transform = 'translateY(-8px)'
                 e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.15)'
-                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.5)'
+                e.currentTarget.style.borderColor = `${category.color}80`
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.3)'
-              }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>
-                {concept.icon || '🔹'}
+                e.currentTarget.style.borderColor = `${category.color}40`
+              }}
+            >
+              <div style={{ fontSize: '4rem', marginBottom: '1rem', textAlign: 'center' }}>
+                {category.icon}
               </div>
               <h3 style={{
-                fontSize: '1.5rem', fontWeight: '700', color: '#047857',
-                marginBottom: '1rem', textAlign: 'center'
-              }}>{concept.name}</h3>
-              <p style={{
-                fontSize: '1rem', color: '#6b7280', lineHeight: '1.6', textAlign: 'center'
+                fontSize: '1.75rem',
+                fontWeight: '700',
+                color: category.color,
+                marginBottom: '1rem',
+                textAlign: 'center'
               }}>
-                {concept.explanation?.substring(0, 150) || ''}...
+                {category.name}
+              </h3>
+              <p style={{
+                fontSize: '1rem',
+                color: '#6b7280',
+                lineHeight: '1.6',
+                textAlign: 'center'
+              }}>
+                {category.description}
               </p>
+              <div style={{
+                marginTop: '1.5rem',
+                textAlign: 'center',
+                fontSize: '0.9rem',
+                color: '#9ca3af',
+                fontWeight: '600'
+              }}>
+                {category.conceptIds.length} topics
+              </div>
             </div>
-          ))
-        ) : (
+          ))}
+        </div>
+      ) : !selectedConcept ? (
+        /* Show concepts within selected category */
+        <div>
+          <button
+            onClick={() => setSelectedCategory(null)}
+            style={{
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              backgroundColor: '#6b7280',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              marginBottom: '2rem'
+            }}
+          >
+            ← Back to Categories
+          </button>
+          <h2 style={{
+            fontSize: '2.25rem',
+            fontWeight: '700',
+            color: selectedCategory.color,
+            marginBottom: '1rem'
+          }}>
+            {selectedCategory.icon} {selectedCategory.name}
+          </h2>
+          <p style={{
+            fontSize: '1.15rem',
+            color: '#6b7280',
+            marginBottom: '2rem',
+            lineHeight: '1.7'
+          }}>
+            {selectedCategory.description}
+          </p>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '1.5rem'
+          }}>
+            {selectedCategory.conceptIds.map((conceptId) => {
+              const concept = concepts[conceptId]
+              return (
+                <div
+                  key={conceptId}
+                  onClick={() => handleConceptClick(concept)}
+                  style={{
+                    backgroundColor: `${selectedCategory.color}10`,
+                    padding: '2rem',
+                    borderRadius: '12px',
+                    border: `3px solid ${selectedCategory.color}40`,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-4px)'
+                    e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.15)'
+                    e.currentTarget.style.borderColor = `${selectedCategory.color}80`
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    e.currentTarget.style.borderColor = `${selectedCategory.color}40`
+                  }}
+                >
+                  <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>
+                    {concept.icon || '🔹'}
+                  </div>
+                  <h3 style={{
+                    fontSize: '1.5rem',
+                    fontWeight: '700',
+                    color: selectedCategory.color,
+                    marginBottom: '1rem',
+                    textAlign: 'center'
+                  }}>
+                    {concept.name}
+                  </h3>
+                  <p style={{
+                    fontSize: '1rem',
+                    color: '#6b7280',
+                    lineHeight: '1.6',
+                    textAlign: 'center'
+                  }}>
+                    {concept.explanation?.substring(0, 120) || ''}...
+                  </p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      ) : (
+        /* Show concept details */
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '350px 1fr',
+          gap: '2rem'
+        }}>
           <>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <button onClick={() => setSelectedConcept(null)} style={{
-                  padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600',
-                  backgroundColor: '#6b7280', color: 'white', border: 'none',
-                  borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease'
-                }}>
-                ← Back to All Concepts
+              <button
+                onClick={() => setSelectedConcept(null)}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  backgroundColor: '#6b7280',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                ← Back to Concepts
               </button>
-              {concepts.map((concept, idx) => (
-                <div key={idx} onClick={() => handleConceptClick(concept)} style={{
-                    padding: '1rem',
-                    backgroundColor: selectedConcept?.name === concept.name ? 'rgba(16, 185, 129, 0.15)' : 'rgba(243, 244, 246, 1)',
-                    borderRadius: '8px',
-                    border: selectedConcept?.name === concept.name ? '2px solid rgba(16, 185, 129, 0.5)' : '2px solid transparent',
-                    cursor: 'pointer', transition: 'all 0.2s ease'
-                  }}>
-                  <span style={{ fontWeight: '600', color: '#047857' }}>
-                    {concept.icon || '🔹'} {concept.name}
-                  </span>
-                </div>
-              ))}
+
+              {selectedCategory.conceptIds.map((conceptId) => {
+                const concept = concepts[conceptId]
+                return (
+                  <div
+                    key={conceptId}
+                    onClick={() => handleConceptClick(concept)}
+                    style={{
+                      padding: '1rem',
+                      backgroundColor: selectedConcept?.name === concept.name
+                        ? `${selectedCategory.color}30`
+                        : 'rgba(243, 244, 246, 1)',
+                      borderRadius: '8px',
+                      border: selectedConcept?.name === concept.name
+                        ? `2px solid ${selectedCategory.color}`
+                        : '2px solid transparent',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <span style={{ fontWeight: '600', color: selectedCategory.color }}>
+                      {concept.icon || '🔹'} {concept.name}
+                    </span>
+                  </div>
+                )
+              })}
             </div>
 
             <div>
-              <h2 style={{ fontSize: '2rem', fontWeight: '700', color: '#047857', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '2rem', fontWeight: '700', color: selectedCategory.color, marginBottom: '1.5rem' }}>
                 {selectedConcept.icon || '🔹'} {selectedConcept.name}
               </h2>
 
               <div style={{
-                backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '1.5rem',
-                borderRadius: '12px', border: '2px solid rgba(16, 185, 129, 0.2)', marginBottom: '2rem'
+                backgroundColor: `${selectedCategory.color}10`, padding: '1.5rem',
+                borderRadius: '12px', border: `2px solid ${selectedCategory.color}40`, marginBottom: '2rem'
               }}>
                 <p style={{ fontSize: '1.1rem', color: '#374151', lineHeight: '1.8', margin: 0 }}>
                   {selectedConcept.explanation}
@@ -2467,8 +2686,8 @@ public class GCInterfaceDemo {
               })()}
             </div>
           </>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
