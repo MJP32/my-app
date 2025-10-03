@@ -24,6 +24,7 @@ import Java15 from './Java15.jsx'
 import Java21 from './Java21.jsx'
 import Java24 from './Java24.jsx'
 import DesignPatterns from './DesignPatterns.jsx'
+import DependencyInjection from './DependencyInjection.jsx'
 import Spring from './Spring.jsx'
 import SpringBoot from './SpringBoot.jsx'
 import SQL from './SQL.jsx'
@@ -61,7 +62,7 @@ const categoryGroups = {
   'Design': {
     icon: '🎨',
     color: '#8b5cf6',
-    items: ['Design Patterns', 'Microservice Design Patterns', 'Class']
+    items: ['Design Patterns', 'Microservice Design Patterns', 'Dependency Injection', 'Class']
   },
   'Databases': {
     icon: '🗃️',
@@ -228,6 +229,14 @@ function App() {
         metrics: ['Creational Patterns', 'Structural Patterns', 'Behavioral Patterns', 'Enterprise Patterns'],
         complexity: 'Intermediate to Advanced',
         industry: 'Software Architecture, Object-Oriented Design'
+      },
+      {
+        value: 'Dependency Injection',
+        label: '💉 Dependency Injection',
+        description: 'Dependency Injection (DI) design pattern implementing Inversion of Control (IoC). Covers constructor, setter, field, and interface injection with examples from Spring, Guice, .NET Core, and Angular.',
+        metrics: ['Constructor Injection', 'Setter Injection', 'Field Injection', 'IoC Containers', 'DI Frameworks'],
+        complexity: 'Intermediate',
+        industry: 'Software Architecture, Enterprise Development, Spring Framework'
       }
     ],
     'Java Versions': [
@@ -812,6 +821,9 @@ function App() {
     }
     if (selectedOption === 'Design Patterns') {
       return <DesignPatterns onBack={() => setSelectedOptionAndRef('')} />
+    }
+    if (selectedOption === 'Dependency Injection') {
+      return <DependencyInjection onBack={() => setSelectedOptionAndRef('')} />
     }
     if (selectedOption === 'Spring') {
       return <Spring onBack={() => setSelectedOptionAndRef('')} />
