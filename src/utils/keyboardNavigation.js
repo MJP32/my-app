@@ -3,6 +3,8 @@
  * Centralized utilities for implementing consistent keyboard navigation across the application
  */
 
+import React from 'react';
+
 // Keyboard event constants
 export const KEYS = {
   ARROW_UP: 'ArrowUp',

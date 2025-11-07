@@ -1,0 +1,1880 @@
+import { useState, useEffect } from 'react'
+import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
+import LanguageToggle from '../../components/LanguageToggle.jsx'
+import DrawingCanvas from '../../components/DrawingCanvas.jsx'
+import { isProblemCompleted } from '../../services/progressService'
+import { getPreferredLanguage } from '../../services/languageService'
+import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
+
+function BinarySearchTrees({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory }) {
+  const [selectedQuestion, setSelectedQuestion] = useState(null)
+  const [showSolution, setShowSolution] = useState(false)
+  const [showExplanation, setShowExplanation] = useState(false)
+  const [userCode, setUserCode] = useState('')
+  const [output, setOutput] = useState('')
+  const [isRunning, setIsRunning] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [language, setLanguage] = useState(getPreferredLanguage())
+  const [showDrawing, setShowDrawing] = useState(false)
+  const [currentDrawing, setCurrentDrawing] = useState(null)
+  const [expandedSections, setExpandedSections] = useState({
+    Easy: true,
+    Medium: true,
+    Hard: true
+  })
+
+  useEffect(() => {
+    const handleProgressUpdate = () => {
+      setRefreshKey(prev => prev + 1)
+    }
+    window.addEventListener('progressUpdate', handleProgressUpdate)
+    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
+  }, [])
+
+  useEffect(() => {
+    const handleLanguageChange = (e) => {
+      setLanguage(e.detail)
+      if (selectedQuestion) {
+        setUserCode(selectedQuestion.code[e.detail].starterCode)
+      }
+    }
+    window.addEventListener('languageChange', handleLanguageChange)
+    return () => window.removeEventListener('languageChange', handleLanguageChange)
+  }, [selectedQuestion])
+
+  const questions = [
+    {
+      id: 1,
+      title: 'Validate Binary Search Tree',
+      difficulty: 'Medium',
+      leetcodeUrl: 'https://leetcode.com/problems/validate-binary-search-tree/',
+      description: 'Determine if a binary tree is a valid Binary Search Tree. In a BST, the left subtree contains only nodes with values less than the parent, and the right subtree only nodes with values greater.',
+      example: `Input: root = [2,1,3]
+    2
+   / \\
+  1   3
+Output: true
+
+Input: root = [5,1,4,null,null,3,6]
+    5
+   / \\
+  1   4
+     / \\
+    3   6
+Output: false (4's subtree contains 3 which is < 5)`,
+      code: {
+        java: {
+          starterCode: `public boolean isValidBST(TreeNode root) {
+    // Write your code here
+
+}`,
+          solution: `class Solution {
+    public boolean isValidBST(TreeNode root) {
+        return validate(root, null, null);
+    }
+
+    private boolean validate(TreeNode node, Integer min, Integer max) {
+        if (node == null) return true;
+
+        // Check if current node violates BST property
+        if ((min != null && node.val <= min) ||
+            (max != null && node.val >= max)) {
+            return false;
+        }
+
+        // Recursively validate left and right subtrees
+        return validate(node.left, min, node.val) &&
+               validate(node.right, node.val, max);
+    }
+}
+
+// Alternative: Using inorder traversal (should be sorted)
+class SolutionInorder {
+    private Integer prev = null;
+
+    public boolean isValidBST(TreeNode root) {
+        if (root == null) return true;
+
+        // Check left subtree
+        if (!isValidBST(root.left)) return false;
+
+        // Check current node
+        if (prev != null && root.val <= prev) return false;
+        prev = root.val;
+
+        // Check right subtree
+        return isValidBST(root.right);
+    }
+}
+
+// Iterative inorder approach
+class SolutionIterative {
+    public boolean isValidBST(TreeNode root) {
+        Stack<TreeNode> stack = new Stack<>();
+        TreeNode curr = root;
+        Integer prev = null;
+
+        while (curr != null || !stack.isEmpty()) {
+            while (curr != null) {
+                stack.push(curr);
+                curr = curr.left;
+            }
+            curr = stack.pop();
+
+            if (prev != null && curr.val <= prev) {
+                return false;
+            }
+            prev = curr.val;
+            curr = curr.right;
+        }
+        return true;
+    }
+}`
+        },
+        python: {
+          starterCode: `def isValidBST(self, root: Optional[TreeNode]) -> bool:
+    # Write your code here
+    pass`,
+          solution: `class Solution:
+    def isValidBST(self, root: Optional[TreeNode]) -> bool:
+        return self._validate(root, None, None)
+
+    def _validate(self, node, min_val, max_val):
+        if not node:
+            return True
+
+        # Check if current node violates BST property
+        if (min_val is not None and node.val <= min_val) or \\
+           (max_val is not None and node.val >= max_val):
+            return False
+
+        # Recursively validate left and right subtrees
+        return (self._validate(node.left, min_val, node.val) and
+                self._validate(node.right, node.val, max_val))
+
+
+# Alternative: Using inorder traversal (should be sorted)
+class SolutionInorder:
+    def __init__(self):
+        self.prev = None
+
+    def isValidBST(self, root: Optional[TreeNode]) -> bool:
+        if not root:
+            return True
+
+        # Check left subtree
+        if not self.isValidBST(root.left):
+            return False
+
+        # Check current node
+        if self.prev is not None and root.val <= self.prev:
+            return False
+        self.prev = root.val
+
+        # Check right subtree
+        return self.isValidBST(root.right)
+
+
+# Iterative inorder approach
+class SolutionIterative:
+    def isValidBST(self, root: Optional[TreeNode]) -> bool:
+        stack = []
+        curr = root
+        prev = None
+
+        while curr or stack:
+            while curr:
+                stack.append(curr)
+                curr = curr.left
+            curr = stack.pop()
+
+            if prev is not None and curr.val <= prev:
+                return False
+            prev = curr.val
+            curr = curr.right
+
+        return True`
+        }
+      },
+      testCases: [
+        { input: 'root = [2,1,3]', output: 'true' },
+        { input: 'root = [5,1,4,null,null,3,6]', output: 'false' },
+        { input: 'root = [1,1]', output: 'false' }
+      ],
+      explanation: `**Problem:** Validate if a binary tree satisfies Binary Search Tree properties. **Tricky**: Must consider ALL ancestors, not just parent!
+
+**BST Definition:**
+- ALL nodes in left subtree < node.val
+- ALL nodes in right subtree > node.val
+- Both subtrees are also BSTs
+- No duplicate values (in this problem)
+
+**Common Mistake:**
+Many try: \`node.left.val < node.val < node.right.val\`
+**This is WRONG!** Only checks immediate children.
+
+**Example of Mistake:**
+    5
+   / \\
+  1   4
+     / \\
+    3   6
+
+Checking only immediate children: looks valid
+But 3 < 5, so 3 shouldn't be in right subtree → INVALID!
+
+**Approach 1: Range Validation (Best)**
+- Track valid range [min, max] for each node
+- Root can be any value: range = (-∞, +∞)
+- For left child: inherit min, set max = parent.val
+- For right child: set min = parent.val, inherit max
+- Check: min < node.val < max at each node
+
+**Approach 2: Inorder Traversal**
+- Key insight: Inorder of BST must be sorted!
+- Do inorder traversal, track previous value
+- If curr <= prev → invalid
+- Simple but requires O(n) space or careful state management
+
+**Approach 3: Iterative Inorder**
+- Same idea, using explicit stack
+- Avoids recursion state issues
+
+**Complexity:**
+- Time: O(n) - visit each node once
+- Space: O(h) for recursion stack, where h = height`,
+      pseudocode: `Approach 1: Range Validation
+-----------------------
+isValidBST(root):
+    return validate(root, null, null)
+
+validate(node, min, max):
+    if node is null:
+        return true
+
+    // Check current node violates range
+    if (min != null && node.val <= min) OR
+       (max != null && node.val >= max):
+        return false
+
+    // Left: must be < node.val
+    // Right: must be > node.val
+    return validate(node.left, min, node.val) AND
+           validate(node.right, node.val, max)
+
+Example:      5
+             / \\
+            1   4
+               / \\
+              3   6
+
+validate(5, null, null):
+  Check: null < 5 < null ✓
+  Left: validate(1, null, 5):
+    Check: null < 1 < 5 ✓
+    Both children null → true
+  Right: validate(4, 5, null):
+    Check: 5 < 4 < null ✗ FAILS!
+    4 is not > 5!
+
+Result: false
+
+Approach 2: Inorder Traversal
+-----------------------
+prev = null
+
+isValidBST(node):
+    if node is null:
+        return true
+
+    // Check left subtree
+    if not isValidBST(node.left):
+        return false
+
+    // Check current node
+    if prev != null AND node.val <= prev:
+        return false
+    prev = node.val
+
+    // Check right subtree
+    return isValidBST(node.right)
+
+Example: [2,1,3]
+    2
+   / \\
+  1   3
+
+Inorder: 1, 2, 3 → sorted ✓
+
+Example: [5,1,4,null,null,3,6]
+    5
+   / \\
+  1   4
+     / \\
+    3   6
+
+Inorder: 1, 5, 3, 6
+Compare: 1 < 5 ✓, 5 > 3 ✗ FAILS!
+
+Result: false`
+    },
+    {
+      id: 2,
+      title: 'Minimum Absolute Difference in BST',
+      difficulty: 'Easy',
+      leetcodeUrl: 'https://leetcode.com/problems/minimum-absolute-difference-in-bst/',
+      description: 'Given the root of a Binary Search Tree (BST), return the minimum absolute difference between the values of any two different nodes in the tree.',
+      example: `Input: root = [4,2,6,1,3]
+    4
+   / \\
+  2   6
+ / \\
+1   3
+Output: 1
+Explanation: Minimum difference is between 2 and 1, or 2 and 3
+
+Input: root = [1,0,48,null,null,12,49]
+      1
+     / \\
+    0   48
+       / \\
+      12  49
+Output: 1`,
+      code: {
+        java: {
+          starterCode: `public int getMinimumDifference(TreeNode root) {
+    // Write your code here
+
+}`,
+          solution: `class Solution {
+    private Integer prev = null;
+    private int minDiff = Integer.MAX_VALUE;
+
+    public int getMinimumDifference(TreeNode root) {
+        // Inorder traversal of BST gives sorted sequence
+        inorder(root);
+        return minDiff;
+    }
+
+    private void inorder(TreeNode node) {
+        if (node == null) return;
+
+        // Left subtree
+        inorder(node.left);
+
+        // Process current node
+        if (prev != null) {
+            minDiff = Math.min(minDiff, node.val - prev);
+        }
+        prev = node.val;
+
+        // Right subtree
+        inorder(node.right);
+    }
+}
+
+// Alternative: Iterative approach
+class SolutionIterative {
+    public int getMinimumDifference(TreeNode root) {
+        Stack<TreeNode> stack = new Stack<>();
+        TreeNode curr = root;
+        Integer prev = null;
+        int minDiff = Integer.MAX_VALUE;
+
+        while (curr != null || !stack.isEmpty()) {
+            while (curr != null) {
+                stack.push(curr);
+                curr = curr.left;
+            }
+
+            curr = stack.pop();
+
+            if (prev != null) {
+                minDiff = Math.min(minDiff, curr.val - prev);
+            }
+            prev = curr.val;
+
+            curr = curr.right;
+        }
+
+        return minDiff;
+    }
+}
+
+// Using List to store values
+class SolutionWithList {
+    public int getMinimumDifference(TreeNode root) {
+        List<Integer> values = new ArrayList<>();
+        inorder(root, values);
+
+        int minDiff = Integer.MAX_VALUE;
+        for (int i = 1; i < values.size(); i++) {
+            minDiff = Math.min(minDiff, values.get(i) - values.get(i - 1));
+        }
+
+        return minDiff;
+    }
+
+    private void inorder(TreeNode node, List<Integer> values) {
+        if (node == null) return;
+        inorder(node.left, values);
+        values.add(node.val);
+        inorder(node.right, values);
+    }
+}`
+        },
+        python: {
+          starterCode: `def getMinimumDifference(self, root: Optional[TreeNode]) -> int:
+    # Write your code here
+    pass`,
+          solution: `class Solution:
+    def getMinimumDifference(self, root: Optional[TreeNode]) -> int:
+        self.prev = None
+        self.min_diff = float('inf')
+
+        def inorder(node):
+            if not node:
+                return
+
+            # Left subtree
+            inorder(node.left)
+
+            # Process current node
+            if self.prev is not None:
+                self.min_diff = min(self.min_diff, node.val - self.prev)
+            self.prev = node.val
+
+            # Right subtree
+            inorder(node.right)
+
+        inorder(root)
+        return self.min_diff
+
+
+# Alternative: Iterative approach
+class SolutionIterative:
+    def getMinimumDifference(self, root: Optional[TreeNode]) -> int:
+        stack = []
+        curr = root
+        prev = None
+        min_diff = float('inf')
+
+        while curr or stack:
+            while curr:
+                stack.append(curr)
+                curr = curr.left
+
+            curr = stack.pop()
+
+            if prev is not None:
+                min_diff = min(min_diff, curr.val - prev)
+            prev = curr.val
+
+            curr = curr.right
+
+        return min_diff
+
+
+# Using list to store values
+class SolutionWithList:
+    def getMinimumDifference(self, root: Optional[TreeNode]) -> int:
+        values = []
+
+        def inorder(node):
+            if not node:
+                return
+            inorder(node.left)
+            values.append(node.val)
+            inorder(node.right)
+
+        inorder(root)
+
+        min_diff = float('inf')
+        for i in range(1, len(values)):
+            min_diff = min(min_diff, values[i] - values[i-1])
+
+        return min_diff`
+        }
+      },
+      testCases: [
+        { input: 'root = [4,2,6,1,3]', output: '1' },
+        { input: 'root = [1,0,48,null,null,12,49]', output: '1' },
+        { input: 'root = [5,3,7]', output: '2' }
+      ],
+      explanation: `**Problem:** Find the minimum absolute difference between any two nodes in a BST.
+
+**Key Insight:** In a BST, inorder traversal gives a sorted sequence. The minimum difference will always be between adjacent elements in this sorted sequence!
+
+**Why Inorder?**
+- Inorder of BST produces values in ascending order
+- Minimum difference must be between consecutive values
+- No need to compare all pairs - just adjacent pairs in sorted order
+
+**Approach 1: Inorder with Previous Tracking**
+1. Perform inorder traversal (left → root → right)
+2. Track the previous node's value
+3. At each node, calculate: current.val - previous.val
+4. Update minimum if smaller difference found
+5. Time O(n), Space O(h) for recursion
+
+**Approach 2: Iterative Inorder**
+- Same logic but using explicit stack
+- Avoids recursion overhead
+- Better for very deep trees
+
+**Approach 3: Collect Values First**
+- Do inorder, store all values in list
+- Then iterate through list finding min difference
+- Simpler but uses O(n) space
+
+**Common Mistake:** Comparing all pairs would be O(n²). We don't need that because BST's inorder is sorted!
+
+**Complexity:** Time O(n), Space O(h) where h = tree height`,
+      pseudocode: `Inorder with Previous Tracking:
+-----------------------
+prev = null
+minDiff = infinity
+
+getMinimumDifference(root):
+    inorder(root)
+    return minDiff
+
+inorder(node):
+    if node is null:
+        return
+
+    // Process left subtree
+    inorder(node.left)
+
+    // Process current node
+    if prev is not null:
+        minDiff = min(minDiff, node.val - prev)
+    prev = node.val
+
+    // Process right subtree
+    inorder(node.right)
+
+Example:    4
+           / \\
+          2   6
+         / \\
+        1   3
+
+Inorder traversal: 1, 2, 3, 4, 6
+- Visit 1: prev=null, set prev=1
+- Visit 2: diff=2-1=1, minDiff=1, prev=2
+- Visit 3: diff=3-2=1, minDiff=1, prev=3
+- Visit 4: diff=4-3=1, minDiff=1, prev=4
+- Visit 6: diff=6-4=2, minDiff=1, prev=6
+Result: 1
+
+Iterative Approach:
+-----------------------
+stack = []
+curr = root
+prev = null
+minDiff = infinity
+
+while curr != null OR stack not empty:
+    // Go to leftmost
+    while curr != null:
+        stack.push(curr)
+        curr = curr.left
+
+    curr = stack.pop()
+
+    // Process current
+    if prev != null:
+        minDiff = min(minDiff, curr.val - prev)
+    prev = curr.val
+
+    // Move to right
+    curr = curr.right
+
+return minDiff`
+    },
+    {
+      id: 3,
+      title: 'Kth Smallest Element in a BST',
+      difficulty: 'Medium',
+      leetcodeUrl: 'https://leetcode.com/problems/kth-smallest-element-in-a-bst/',
+      description: 'Given the root of a binary search tree, and an integer k, return the kth smallest value (1-indexed) of all the values of the nodes in the tree.',
+      example: `Input: root = [3,1,4,null,2], k = 1
+   3
+  / \\
+ 1   4
+  \\
+   2
+Output: 1
+
+Input: root = [5,3,6,2,4,null,null,1], k = 3
+       5
+      / \\
+     3   6
+    / \\
+   2   4
+  /
+ 1
+Output: 3
+Explanation: Inorder: [1,2,3,4,5,6], 3rd smallest is 3`,
+      code: {
+        java: {
+          starterCode: `public int kthSmallest(TreeNode root, int k) {
+    // Write your code here
+
+}`,
+          solution: `class Solution {
+    private int count = 0;
+    private int result = 0;
+
+    public int kthSmallest(TreeNode root, int k) {
+        inorder(root, k);
+        return result;
+    }
+
+    private void inorder(TreeNode node, int k) {
+        if (node == null) return;
+
+        // Left subtree
+        inorder(node.left, k);
+
+        // Process current node
+        count++;
+        if (count == k) {
+            result = node.val;
+            return;
+        }
+
+        // Right subtree
+        inorder(node.right, k);
+    }
+}
+
+// Iterative approach with early termination
+class SolutionIterative {
+    public int kthSmallest(TreeNode root, int k) {
+        Stack<TreeNode> stack = new Stack<>();
+        TreeNode curr = root;
+        int count = 0;
+
+        while (curr != null || !stack.isEmpty()) {
+            while (curr != null) {
+                stack.push(curr);
+                curr = curr.left;
+            }
+
+            curr = stack.pop();
+            count++;
+
+            if (count == k) {
+                return curr.val;
+            }
+
+            curr = curr.right;
+        }
+
+        return -1; // Should never reach here if k is valid
+    }
+}
+
+// With follow-up: What if BST is modified often?
+class SolutionWithAugmentation {
+    class NodeWithCount {
+        int val;
+        int leftCount; // Number of nodes in left subtree
+        NodeWithCount left, right;
+
+        NodeWithCount(int val) {
+            this.val = val;
+            this.leftCount = 0;
+        }
+    }
+
+    // During insertion, maintain leftCount
+    public int kthSmallest(NodeWithCount root, int k) {
+        int leftCount = root.leftCount;
+
+        if (k <= leftCount) {
+            // kth element is in left subtree
+            return kthSmallest(root.left, k);
+        } else if (k == leftCount + 1) {
+            // Current node is kth element
+            return root.val;
+        } else {
+            // kth element is in right subtree
+            return kthSmallest(root.right, k - leftCount - 1);
+        }
+    }
+}
+
+// Using List (simple but requires O(n) space)
+class SolutionWithList {
+    public int kthSmallest(TreeNode root, int k) {
+        List<Integer> values = new ArrayList<>();
+        inorder(root, values);
+        return values.get(k - 1);
+    }
+
+    private void inorder(TreeNode node, List<Integer> values) {
+        if (node == null) return;
+        inorder(node.left, values);
+        values.add(node.val);
+        inorder(node.right, values);
+    }
+}`
+        },
+        python: {
+          starterCode: `def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
+    # Write your code here
+    pass`,
+          solution: `class Solution:
+    def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
+        self.count = 0
+        self.result = 0
+
+        def inorder(node):
+            if not node:
+                return
+
+            # Left subtree
+            inorder(node.left)
+
+            # Process current node
+            self.count += 1
+            if self.count == k:
+                self.result = node.val
+                return
+
+            # Right subtree
+            inorder(node.right)
+
+        inorder(root)
+        return self.result
+
+
+# Iterative approach with early termination
+class SolutionIterative:
+    def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
+        stack = []
+        curr = root
+        count = 0
+
+        while curr or stack:
+            while curr:
+                stack.append(curr)
+                curr = curr.left
+
+            curr = stack.pop()
+            count += 1
+
+            if count == k:
+                return curr.val
+
+            curr = curr.right
+
+        return -1  # Should never reach here if k is valid
+
+
+# Using list (simple but requires O(n) space)
+class SolutionWithList:
+    def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
+        values = []
+
+        def inorder(node):
+            if not node:
+                return
+            inorder(node.left)
+            values.append(node.val)
+            inorder(node.right)
+
+        inorder(root)
+        return values[k - 1]
+
+
+# Using generator for memory efficiency
+class SolutionGenerator:
+    def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
+        def inorder(node):
+            if not node:
+                return
+            yield from inorder(node.left)
+            yield node.val
+            yield from inorder(node.right)
+
+        # Get kth element from generator
+        for i, val in enumerate(inorder(root), 1):
+            if i == k:
+                return val
+
+        return -1`
+        }
+      },
+      testCases: [
+        { input: 'root = [3,1,4,null,2], k = 1', output: '1' },
+        { input: 'root = [5,3,6,2,4,null,null,1], k = 3', output: '3' },
+        { input: 'root = [1,null,2], k = 2', output: '2' }
+      ],
+      explanation: `**Problem:** Find the kth smallest element in a BST (1-indexed).
+
+**Key Insight:** Inorder traversal of BST gives elements in sorted order. The kth element in inorder traversal is the kth smallest!
+
+**Approach 1: Inorder with Counter**
+1. Perform inorder traversal
+2. Increment counter at each node
+3. When counter == k, we found our answer
+4. Can terminate early (no need to visit remaining nodes)
+5. Time O(k) best case, O(n) worst case, Space O(h)
+
+**Approach 2: Iterative Inorder**
+- Use explicit stack for inorder traversal
+- Count nodes as we visit them
+- Return when count reaches k
+- Advantage: Easy to terminate early
+- Time O(k) average, Space O(h)
+
+**Approach 3: Collect All Values**
+- Do complete inorder, store in list
+- Return list[k-1]
+- Simpler but always O(n) time and space
+- Good if we need to query multiple k values
+
+**Follow-up: Frequent BST Modifications**
+If the BST is modified often, augment each node with:
+- leftCount = number of nodes in left subtree
+- Then: if k <= leftCount → search left
+- if k == leftCount + 1 → current is answer
+- if k > leftCount + 1 → search right with k' = k - leftCount - 1
+- Time O(h) per query!
+
+**Complexity:** Time O(k) to O(n), Space O(h) for recursion stack`,
+      pseudocode: `Inorder with Counter:
+-----------------------
+count = 0
+result = 0
+
+kthSmallest(root, k):
+    inorder(root, k)
+    return result
+
+inorder(node, k):
+    if node is null:
+        return
+
+    // Process left subtree
+    inorder(node.left, k)
+
+    // Process current node
+    count++
+    if count == k:
+        result = node.val
+        return  // Early termination
+
+    // Process right subtree
+    inorder(node.right, k)
+
+Example:     5
+            / \\
+           3   6
+          / \\
+         2   4
+        /
+       1
+
+Find k=3:
+Inorder traversal: 1, 2, 3, 4, 5, 6
+- Visit 1: count=1
+- Visit 2: count=2
+- Visit 3: count=3 → return 3 ✓
+
+Iterative Approach:
+-----------------------
+stack = []
+curr = root
+count = 0
+
+while curr != null OR stack not empty:
+    // Go to leftmost
+    while curr != null:
+        stack.push(curr)
+        curr = curr.left
+
+    curr = stack.pop()
+    count++
+
+    if count == k:
+        return curr.val  // Found kth smallest
+
+    curr = curr.right
+
+return -1
+
+With Augmentation (for frequent queries):
+-----------------------
+// Each node has: val, leftCount, left, right
+
+kthSmallest(node, k):
+    if node is null:
+        return -1
+
+    leftCount = node.leftCount
+
+    if k <= leftCount:
+        // kth is in left subtree
+        return kthSmallest(node.left, k)
+    elif k == leftCount + 1:
+        // Current node is kth
+        return node.val
+    else:
+        // kth is in right subtree
+        return kthSmallest(node.right, k - leftCount - 1)
+
+Time: O(h) per query!`
+    }
+  ]
+
+  const handleQuestionSelect = (question) => {
+    setSelectedQuestion(question)
+    setUserCode(question.code[language].starterCode)
+    setShowSolution(false)
+    setShowExplanation(false)
+    setOutput('')
+    // Load existing drawing if any    const problemId = `BinarySearchTrees-${question.id}`
+    const savedDrawing = localStorage.getItem(`drawing-${problemId}`)
+    setCurrentDrawing(savedDrawing)
+  }
+
+  const openDrawingModal = () => {
+    if (selectedQuestion) {
+      const problemId = `BinarySearchTrees-${selectedQuestion.id}`
+      const savedDrawing = localStorage.getItem(`drawing-${problemId}`)
+      setCurrentDrawing(savedDrawing)
+      setShowDrawing(true)
+    }
+  }
+
+  const closeDrawingModal = () => {
+    setShowDrawing(false)
+    // Reload drawing after saving
+    if (selectedQuestion) {
+      const problemId = `BinarySearchTrees-${selectedQuestion.id}`
+      const savedDrawing = localStorage.getItem(`drawing-${problemId}`)
+      setCurrentDrawing(savedDrawing)
+    }
+  }
+
+  const handleRunCode = () => {
+    setIsRunning(true)
+    setOutput('Running tests...\n')
+
+    setTimeout(() => {
+      const results = selectedQuestion.testCases.map((test, idx) =>
+        `Test ${idx + 1}: ${test.input}\nExpected: ${test.output}\n✓ Passed`
+      ).join('\n\n')
+
+      setOutput(results)
+      setIsRunning(false)
+    }, 1000)
+  }
+
+  const handleReset = () => {
+    setUserCode(selectedQuestion.code[language].starterCode)
+    setOutput('')
+    setShowSolution(false)
+  }
+
+  const handleKeyDown = (e) => {
+    // Stop propagation for all keys except Escape to allow typing in textarea
+    if (e.key !== 'Escape') {
+      e.stopPropagation()
+    }
+
+    if (e.key === 'Tab') {
+      e.preventDefault()
+      const start = e.target.selectionStart
+      const end = e.target.selectionEnd
+      const newValue = userCode.substring(0, start) + '    ' + userCode.substring(end)
+      setUserCode(newValue)
+      setTimeout(() => {
+        e.target.selectionStart = e.target.selectionEnd = start + 4
+      }, 0)
+    }
+  }
+
+  const QuestionCard = ({ question }) => {
+    const isCompleted = isProblemCompleted(`Binary Search Trees-${question.id}`)
+
+    return (
+      <div
+        style={{
+          backgroundColor: isCompleted ? '#f0fdf4' : 'white',
+          color: '#1f2937',
+          padding: '1.5rem',
+          borderRadius: '12px',
+          border: isCompleted ? '3px solid #10b981' : '2px solid #e5e7eb',
+          transition: 'all 0.2s ease',
+          boxShadow: isCompleted ? '0 2px 12px rgba(16, 185, 129, 0.2)' : '0 2px 8px rgba(0,0,0,0.1)',
+          position: 'relative'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-2px)'
+          e.currentTarget.style.boxShadow = isCompleted
+            ? '0 4px 16px rgba(16, 185, 129, 0.3)'
+            : '0 4px 12px rgba(0,0,0,0.15)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)'
+          e.currentTarget.style.boxShadow = isCompleted
+            ? '0 2px 12px rgba(16, 185, 129, 0.2)'
+            : '0 2px 8px rgba(0,0,0,0.1)'
+        }}
+      >
+        {isCompleted && (
+          <div style={{
+            position: 'absolute',
+            top: '-10px',
+            left: '-10px',
+            backgroundColor: '#10b981',
+            color: 'white',
+            borderRadius: '50%',
+            width: '32px',
+            height: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
+            boxShadow: '0 2px 8px rgba(16, 185, 129, 0.5)',
+            border: '3px solid white',
+            zIndex: 1
+          }}>
+            ✓
+          </div>
+        )}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+          <div
+            onClick={() => handleQuestionSelect(question)}
+            style={{ flex: 1, cursor: 'pointer' }}
+          >
+            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '700' }}>
+              {isCompleted && <span style={{ color: '#10b981', marginRight: '0.5rem' }}>✓</span>}
+              {question.id}. {question.title}
+            </h3>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            {question.leetcodeUrl && (
+              <a
+                href={question.leetcodeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '0.25rem 0.5rem',
+                  fontSize: '0.7rem',
+                  fontWeight: '600',
+                  color: '#3b82f6',
+                  backgroundColor: '#dbeafe',
+                  border: '1px solid #3b82f6',
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer',
+                  gap: '0.25rem'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#3b82f6'
+                  e.currentTarget.style.color = 'white'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#dbeafe'
+                  e.currentTarget.style.color = '#3b82f6'
+                }}
+                title="Open on LeetCode"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+                LC
+              </a>
+            )}
+            <span style={{
+              padding: '0.25rem 0.75rem',
+              borderRadius: '6px',
+              fontSize: '0.75rem',
+              fontWeight: '600',
+              backgroundColor: '#fef3c7',
+              color: '#92400e'
+            }}>
+              {question.difficulty}
+            </span>
+          </div>
+        </div>
+        <p
+          onClick={() => handleQuestionSelect(question)}
+          style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', opacity: 0.9, lineHeight: '1.5', cursor: 'pointer' }}
+        >
+          {question.description.substring(0, 100)}...
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button
+            onClick={onBack}
+            style={{
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+            }}
+          >
+            ← Back to Menu
+          </button>
+          <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '800', color: '#1f2937' }}>
+            Binary Search Trees Practice
+          </h1>
+          {currentSubcategory && (
+            <span style={{
+              padding: '0.5rem 1rem',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+              backgroundColor: '#dbeafe',
+              color: '#1e40af',
+              borderRadius: '8px',
+              marginLeft: '1rem'
+            }}>
+              {currentSubcategory}
+            </span>
+          )}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {previousSubcategory && (
+            <button
+              onClick={onPreviousSubcategory}
+              style={{
+                padding: '0.6rem 1rem',
+                fontSize: '0.85rem',
+                fontWeight: '600',
+                backgroundColor: '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 6px rgba(139, 92, 246, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
+            >
+              ⬆️ {previousSubcategory}
+            </button>
+          )}
+          {nextSubcategory && (
+            <button
+              onClick={onNextSubcategory}
+              style={{
+                padding: '0.6rem 1rem',
+                fontSize: '0.85rem',
+                fontWeight: '600',
+                backgroundColor: '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 6px rgba(139, 92, 246, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
+            >
+              {nextSubcategory} ⬇️
+            </button>
+          )}
+          {onPrevious && (
+            <button
+              onClick={onPrevious}
+              style={{
+                padding: '0.75rem 1.25rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+            >
+              ← {previousName}
+            </button>
+          )}
+          {onNext && (
+            <button
+              onClick={onNext}
+              style={{
+                padding: '0.75rem 1.25rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+            >
+              {nextName} →
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Questions List - Only show when no question is selected */}
+      {!selectedQuestion && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          {/* Easy Questions */}
+          {(() => {
+            const easyQuestions = questions.filter(q => q.difficulty === 'Easy')
+            if (easyQuestions.length === 0) return null
+
+            const completed = easyQuestions.filter(q => isProblemCompleted(`BinarySearchTrees-${q.id}`)).length
+            const total = easyQuestions.length
+            const shouldCollapse = total > 5
+            const isExpanded = expandedSections.Easy
+
+            return (
+              <div>
+                <h2
+                  onClick={() => shouldCollapse && setExpandedSections(prev => ({ ...prev, Easy: !prev.Easy }))}
+                  tabIndex={shouldCollapse ? 0 : -1}
+                  role={shouldCollapse ? "button" : undefined}
+                  aria-expanded={shouldCollapse ? isExpanded : undefined}
+                  onKeyDown={(e) => {
+                    if (shouldCollapse && (e.key === "Enter" || e.key === " ")) {
+                      e.preventDefault()
+                      setExpandedSections(prev => ({ ...prev, Easy: !prev.Easy }))
+                    }
+                  }}
+                  style={{
+                    fontSize: '1.5rem',
+                    fontWeight: '700',
+                    color: '#059669',
+                    marginBottom: '1rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    borderBottom: '3px solid #10b981',
+                    paddingBottom: '0.5rem',
+                    cursor: shouldCollapse ? 'pointer' : 'default',
+                    userSelect: 'none'
+                  }}
+                >
+                  {shouldCollapse && (
+                    <span style={{ fontSize: '1.2rem', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                      ▶
+                    </span>
+                  )}
+                  <span style={{
+                    backgroundColor: '#d1fae5',
+                    color: '#065f46',
+                    padding: '0.25rem 0.75rem',
+                    borderRadius: '8px',
+                    fontSize: '0.9rem'
+                  }}>
+                    Easy
+                  </span>
+                  <span style={{ fontSize: '1rem', color: '#6b7280' }}>
+                    ({total} {total === 1 ? 'problem' : 'problems'})
+                  </span>
+                  {shouldCollapse && (
+                    <span style={{
+                      marginLeft: 'auto',
+                      backgroundColor: completed === total ? '#10b981' : '#e5e7eb',
+                      color: completed === total ? 'white' : '#6b7280',
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '12px',
+                      fontSize: '0.85rem',
+                      fontWeight: '600'
+                    }}>
+                      {completed}/{total} completed
+                    </span>
+                  )}
+                </h2>
+                {(!shouldCollapse || isExpanded) && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {easyQuestions.map(q =>
+                      <QuestionCard key={`${q.id}-${refreshKey}`} question={q} forceRefresh={refreshKey} />
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })()}
+
+          {/* Medium Questions */}
+          {(() => {
+            const mediumQuestions = questions.filter(q => q.difficulty === 'Medium')
+            if (mediumQuestions.length === 0) return null
+
+            const completed = mediumQuestions.filter(q => isProblemCompleted(`BinarySearchTrees-${q.id}`)).length
+            const total = mediumQuestions.length
+            const shouldCollapse = total > 5
+            const isExpanded = expandedSections.Medium
+
+            return (
+              <div>
+                <h2
+                  onClick={() => shouldCollapse && setExpandedSections(prev => ({ ...prev, Medium: !prev.Medium }))}
+                  tabIndex={shouldCollapse ? 0 : -1}
+                  role={shouldCollapse ? "button" : undefined}
+                  aria-expanded={shouldCollapse ? isExpanded : undefined}
+                  onKeyDown={(e) => {
+                    if (shouldCollapse && (e.key === "Enter" || e.key === " ")) {
+                      e.preventDefault()
+                      setExpandedSections(prev => ({ ...prev, Medium: !prev.Medium }))
+                    }
+                  }}
+                  style={{
+                    fontSize: '1.5rem',
+                    fontWeight: '700',
+                    color: '#d97706',
+                    marginBottom: '1rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    borderBottom: '3px solid #f59e0b',
+                    paddingBottom: '0.5rem',
+                    cursor: shouldCollapse ? 'pointer' : 'default',
+                    userSelect: 'none'
+                  }}
+                >
+                  {shouldCollapse && (
+                    <span style={{ fontSize: '1.2rem', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                      ▶
+                    </span>
+                  )}
+                  <span style={{
+                    backgroundColor: '#fef3c7',
+                    color: '#92400e',
+                    padding: '0.25rem 0.75rem',
+                    borderRadius: '8px',
+                    fontSize: '0.9rem'
+                  }}>
+                    Medium
+                  </span>
+                  <span style={{ fontSize: '1rem', color: '#6b7280' }}>
+                    ({total} {total === 1 ? 'problem' : 'problems'})
+                  </span>
+                  {shouldCollapse && (
+                    <span style={{
+                      marginLeft: 'auto',
+                      backgroundColor: completed === total ? '#f59e0b' : '#e5e7eb',
+                      color: completed === total ? 'white' : '#6b7280',
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '12px',
+                      fontSize: '0.85rem',
+                      fontWeight: '600'
+                    }}>
+                      {completed}/{total} completed
+                    </span>
+                  )}
+                </h2>
+                {(!shouldCollapse || isExpanded) && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {mediumQuestions.map(q =>
+                      <QuestionCard key={`${q.id}-${refreshKey}`} question={q} forceRefresh={refreshKey} />
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })()}
+
+          {/* Hard Questions */}
+          {(() => {
+            const hardQuestions = questions.filter(q => q.difficulty === 'Hard')
+            if (hardQuestions.length === 0) return null
+
+            const completed = hardQuestions.filter(q => isProblemCompleted(`BinarySearchTrees-${q.id}`)).length
+            const total = hardQuestions.length
+            const shouldCollapse = total > 5
+            const isExpanded = expandedSections.Hard
+
+            return (
+              <div>
+                <h2
+                  onClick={() => shouldCollapse && setExpandedSections(prev => ({ ...prev, Hard: !prev.Hard }))}
+                  tabIndex={shouldCollapse ? 0 : -1}
+                  role={shouldCollapse ? "button" : undefined}
+                  aria-expanded={shouldCollapse ? isExpanded : undefined}
+                  onKeyDown={(e) => {
+                    if (shouldCollapse && (e.key === "Enter" || e.key === " ")) {
+                      e.preventDefault()
+                      setExpandedSections(prev => ({ ...prev, Hard: !prev.Hard }))
+                    }
+                  }}
+                  style={{
+                    fontSize: '1.5rem',
+                    fontWeight: '700',
+                    color: '#dc2626',
+                    marginBottom: '1rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    borderBottom: '3px solid #ef4444',
+                    paddingBottom: '0.5rem',
+                    cursor: shouldCollapse ? 'pointer' : 'default',
+                    userSelect: 'none'
+                  }}
+                >
+                  {shouldCollapse && (
+                    <span style={{ fontSize: '1.2rem', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                      ▶
+                    </span>
+                  )}
+                  <span style={{
+                    backgroundColor: '#fee2e2',
+                    color: '#991b1b',
+                    padding: '0.25rem 0.75rem',
+                    borderRadius: '8px',
+                    fontSize: '0.9rem'
+                  }}>
+                    Hard
+                  </span>
+                  <span style={{ fontSize: '1rem', color: '#6b7280' }}>
+                    ({total} {total === 1 ? 'problem' : 'problems'})
+                  </span>
+                  {shouldCollapse && (
+                    <span style={{
+                      marginLeft: 'auto',
+                      backgroundColor: completed === total ? '#ef4444' : '#e5e7eb',
+                      color: completed === total ? 'white' : '#6b7280',
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '12px',
+                      fontSize: '0.85rem',
+                      fontWeight: '600'
+                    }}>
+                      {completed}/{total} completed
+                    </span>
+                  )}
+                </h2>
+                {(!shouldCollapse || isExpanded) && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {hardQuestions.map(q =>
+                      <QuestionCard key={`${q.id}-${refreshKey}`} question={q} forceRefresh={refreshKey} />
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })()}
+        </div>
+        </div>
+      )}
+
+      {/* Question Detail - Full width when selected */}
+      {selectedQuestion && (
+        <div>
+          <button
+            onClick={() => setSelectedQuestion(null)}
+            style={{
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              backgroundColor: '#6b7280',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              marginBottom: '1.5rem',
+              boxShadow: '0 2px 8px rgba(107, 114, 128, 0.3)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#4b5563'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#6b7280'}
+          >
+            ← Back to Questions
+          </button>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '2rem',
+            borderRadius: '12px',
+            border: '2px solid #e5e7eb',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
+          }}>
+            <div style={{ marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+            <h2 style={{ fontSize: '1.5rem', margin: 0, color: '#1f2937' }}>
+              {selectedQuestion.title}
+            </h2>
+            {selectedQuestion.leetcodeUrl && (
+              <a
+                href={selectedQuestion.leetcodeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '0.35rem 0.6rem',
+                  backgroundColor: '#f97316',
+                  color: 'white',
+                  textDecoration: 'none',
+                  borderRadius: '6px',
+                  fontSize: '0.75rem',
+                  fontWeight: '600',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ea580c'
+                  e.currentTarget.style.transform = 'translateY(-1px)'
+                  e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f97316'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+                }}
+                title="Open on LeetCode"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '0.25rem' }}>
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+                LeetCode
+              </a>
+            )}
+          </div>
+          <span style={{
+            display: 'inline-block',
+            padding: '0.25rem 0.75rem',
+            backgroundColor: '#fef3c7',
+            color: '#92400e',
+            borderRadius: '6px',
+            fontSize: '0.875rem',
+            fontWeight: '600',
+            marginBottom: '1rem'
+          }}>
+            {selectedQuestion.difficulty}
+          </span>
+
+          <div style={{ marginTop: '1rem' }}>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#1f2937' }}>Description</h3>
+            <p style={{ color: '#4b5563', lineHeight: '1.6' }}>{selectedQuestion.description}</p>
+          </div>
+
+          <div style={{ marginTop: '1.5rem' }}>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#1f2937' }}>Example</h3>
+            <pre style={{
+              backgroundColor: '#f3f4f6',
+              padding: '1rem',
+              borderRadius: '8px',
+              overflow: 'auto',
+              fontSize: '0.9rem',
+              color: '#1f2937'
+            }}>
+              {selectedQuestion.example}
+            </pre>
+          </div>
+
+          <div style={{ marginTop: '1.5rem' }}>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#1f2937' }}>Test Cases</h3>
+            {selectedQuestion.testCases.map((test, idx) => (
+              <div key={idx} style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                <span style={{ color: '#6b7280' }}>Test {idx + 1}:</span>{' '}
+                <span style={{ color: '#1f2937' }}>{test.input} → {test.output}</span>
+              </div>
+            ))}
+          </div>
+
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1f2937', margin: 0 }}>
+              💻 Code Editor
+            </h3>
+            <LanguageToggle />
+          </div>
+          <textarea
+            value={userCode}
+            onChange={(e) => setUserCode(e.target.value)}
+            onKeyDown={handleKeyDown}
+            style={{
+              width: '100%',
+              height: '400px',
+              fontFamily: 'monospace',
+              fontSize: '0.9rem',
+              padding: '1rem',
+              border: '2px solid #e5e7eb',
+              borderRadius: '8px',
+              resize: 'vertical',
+              marginBottom: '1rem'
+            }}
+          />
+
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <button
+              onClick={handleRunCode}
+              disabled={isRunning}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                backgroundColor: isRunning ? '#9ca3af' : '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: isRunning ? 'not-allowed' : 'pointer',
+                fontWeight: '600'
+              }}
+            >
+              {isRunning ? 'Running...' : 'Run Code'}
+            </button>
+            <button
+              onClick={handleReset}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                backgroundColor: '#6b7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer'
+              }}
+            >
+              Reset
+            </button>
+           <button
+              onClick={openDrawingModal}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '700',
+                backgroundColor: currentDrawing ? '#8b5cf6' : '#6366f1',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: currentDrawing ? '0 2px 8px rgba(139, 92, 246, 0.3)' : '0 2px 8px rgba(99, 102, 241, 0.3)'
+              }}
+            >
+              {currentDrawing ? '✏️ Edit Drawing' : '🎨 Draw'}
+            </button>
+ <button
+              onClick={() => setShowExplanation(!showExplanation)}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '700',
+                backgroundColor: showExplanation ? '#8b5cf6' : '#f59e0b',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+              }}
+            >
+              {showExplanation ? '✓ Explanation Visible' : '📖 Explanation & Pseudocode'}
+            </button>
+            <button
+              onClick={() => setShowSolution(!showSolution)}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '700',
+                backgroundColor: showSolution ? '#10b981' : '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+              }}
+            >
+              {showSolution ? '✓ Solution Visible' : '👁️ Show Solution'}
+            </button>
+            <div style={{ marginLeft: 'auto' }}>
+              <CompletionCheckbox
+                problemId={`Binary Search Trees-${selectedQuestion.id}`}
+                label="Mark as Completed"
+                onCompletionChange={() => setRefreshKey(prev => prev + 1)}
+              />
+            </div>
+          </div>
+
+           
+          {/* Drawing Preview Section */}
+          {currentDrawing && (
+            <div style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1f2937', margin: 0 }}>
+                  🎨 Your Drawing
+                </h3>
+                <button
+                  onClick={openDrawingModal}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    backgroundColor: '#6366f1',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  ✏️ Edit
+                </button>
+              </div>
+              <div style={{
+                backgroundColor: '#f9fafb',
+                padding: '1rem',
+                borderRadius: '8px',
+                border: '2px solid #e5e7eb',
+                textAlign: 'center'
+              }}>
+                <img
+                  src={currentDrawing}
+                  alt="Your drawing"
+                  style={{
+                    maxWidth: '100%',
+                    height: 'auto',
+                    borderRadius: '4px'
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+ {showExplanation && (
+              <div style={{
+                backgroundColor: '#fef3c7',
+                padding: '1.5rem',
+                borderRadius: '8px',
+                border: '2px solid #f59e0b',
+                marginBottom: '1rem'
+              }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: '#92400e', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  📖 Explanation
+                </h3>
+                <div style={{
+                  fontSize: '0.95rem',
+                  lineHeight: '1.8',
+                  color: '#78350f',
+                  whiteSpace: 'pre-wrap',
+                  marginBottom: '1.5rem'
+                }}>
+                  {selectedQuestion.explanation}
+                </div>
+
+                <div style={{
+                  backgroundColor: '#1e293b',
+                  padding: '1.5rem',
+                  borderRadius: '8px',
+                  overflowX: 'auto',
+                  marginTop: '1rem'
+                }}>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#a78bfa', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    🔧 Pseudocode
+                  </h4>
+                  <pre style={{
+                    margin: 0,
+                    fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+                    fontSize: '0.9rem',
+                    lineHeight: '1.6',
+                    color: '#e2e8f0',
+                    whiteSpace: 'pre',
+                    overflowX: 'auto'
+                  }}>
+                    {selectedQuestion.pseudocode}
+                  </pre>
+                </div>
+              </div>
+            )}
+
+            {output && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#1f2937' }}>Output</h3>
+                <pre style={{
+                  backgroundColor: '#1f2937',
+                  color: '#f3f4f6',
+                  padding: '1rem',
+                  borderRadius: '8px',
+                  overflow: 'auto',
+                  fontSize: '0.9rem',
+                  minHeight: '150px'
+                }}>
+                  {output}
+                </pre>
+              </div>
+            )}
+
+            {showSolution && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#059669' }}>Solution ({language === 'java' ? 'Java' : 'Python'})</h3>
+                <pre style={{
+                  backgroundColor: '#f0fdf4',
+                  padding: '1rem',
+                  borderRadius: '8px',
+                  overflow: 'auto',
+                  fontSize: '0.85rem',
+                  color: '#1f2937',
+                  border: '2px solid #86efac'
+                }}>
+                  {selectedQuestion.code[language].solution}
+                </pre>
+              </div>
+            )}
+          </div>
+        </div>
+        </div>
+      )}
+
+      {/* Drawing Canvas Modal */}
+      <DrawingCanvas
+        isOpen={showDrawing}
+        onClose={closeDrawingModal}
+        problemId={selectedQuestion ? `BinarySearchTrees-${selectedQuestion.id}` : ''}
+        existingDrawing={currentDrawing}
+      />
+    </div>
+  )
+}
+
+export default BinarySearchTrees

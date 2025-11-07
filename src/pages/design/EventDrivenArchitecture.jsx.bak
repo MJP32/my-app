@@ -1,0 +1,1182 @@
+import { useState } from 'react'
+
+function EventDrivenArchitecture({ onBack }) {
+  const [expandedSection, setExpandedSection] = useState(null)
+
+  const toggleSection = (sectionId) => {
+    setExpandedSection(expandedSection === sectionId ? null : sectionId)
+  }
+
+  const sections = [
+    {
+      id: 'core-concepts',
+      title: '📚 Core Concepts',
+      color: '#ec4899',
+      items: [
+        {
+          title: 'Event-Driven Architecture (EDA)',
+          content: `Event-Driven Architecture is a software design pattern where the flow of the program is determined by events - changes in state, user actions, sensor outputs, or messages from other programs.
+
+**Key Characteristics:**
+• **Loose Coupling**: Producers and consumers are independent
+• **Asynchronous Communication**: Non-blocking message passing
+• **Scalability**: Easy to scale horizontally
+• **Real-time Processing**: Immediate response to events
+• **Event Sourcing**: Store all changes as sequence of events
+
+**Core Components:**
+• Event Producers: Generate and publish events
+• Event Consumers: Subscribe to and process events
+• Event Channels: Transport events between components
+• Event Processing: Transform, filter, and route events`
+        },
+        {
+          title: 'Events vs Messages',
+          content: `**Events:**
+• Represent something that has happened
+• Immutable records of past occurrences
+• Multiple consumers can react independently
+• Example: "OrderPlaced", "PaymentReceived"
+
+**Messages:**
+• Commands or requests for action
+• Directed to specific receivers
+• Expect a response or acknowledgment
+• Example: "ProcessPayment", "SendEmail"
+
+**Key Differences:**
+• Events are facts, messages are intentions
+• Events are broadcast, messages are targeted
+• Events don't expect responses, messages often do`
+        }
+      ]
+    },
+    {
+      id: 'patterns',
+      title: '🎯 Event-Driven Patterns',
+      color: '#8b5cf6',
+      items: [
+        {
+          title: 'Publish-Subscribe (Pub/Sub)',
+          content: `Publishers emit events without knowledge of subscribers. Subscribers receive events based on subscriptions.
+
+**Implementation Example (Spring Boot + Kafka):**
+
+\`\`\`java
+// Event Model
+public class OrderPlacedEvent {
+    private String orderId;
+    private String customerId;
+    private BigDecimal totalAmount;
+    private LocalDateTime timestamp;
+    // getters, setters, constructors
+}
+
+// Event Publisher
+@Service
+public class OrderService {
+    @Autowired
+    private KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
+
+    private static final String TOPIC = "order-events";
+
+    public void placeOrder(Order order) {
+        // Process order
+        order.setStatus(OrderStatus.PLACED);
+        orderRepository.save(order);
+
+        // Publish event
+        OrderPlacedEvent event = new OrderPlacedEvent(
+            order.getId(),
+            order.getCustomerId(),
+            order.getTotalAmount(),
+            LocalDateTime.now()
+        );
+
+        kafkaTemplate.send(TOPIC, event.getOrderId(), event);
+    }
+}
+
+// Event Consumer - Inventory Service
+@Service
+public class InventoryEventConsumer {
+    @KafkaListener(topics = "order-events", groupId = "inventory-service")
+    public void handleOrderPlaced(OrderPlacedEvent event) {
+        // Reserve inventory for order
+        inventoryService.reserveItems(event.getOrderId());
+    }
+}
+
+// Event Consumer - Notification Service
+@Service
+public class NotificationEventConsumer {
+    @KafkaListener(topics = "order-events", groupId = "notification-service")
+    public void handleOrderPlaced(OrderPlacedEvent event) {
+        // Send confirmation email
+        emailService.sendOrderConfirmation(event);
+    }
+}
+\`\`\`
+
+**Benefits:**
+• Decoupled services
+• Multiple consumers can react to same event
+• Easy to add new consumers without modifying publishers`
+        },
+        {
+          title: 'Event Sourcing',
+          content: `Store all changes to application state as a sequence of events. The current state is derived by replaying events.
+
+**Implementation Example:**
+
+\`\`\`java
+// Event Store Interface
+public interface EventStore {
+    void saveEvent(DomainEvent event);
+    List<DomainEvent> getEvents(String aggregateId);
+}
+
+// Base Domain Event
+public abstract class DomainEvent {
+    private String eventId;
+    private String aggregateId;
+    private LocalDateTime timestamp;
+    private long version;
+}
+
+// Specific Events
+public class AccountCreatedEvent extends DomainEvent {
+    private String accountId;
+    private String ownerName;
+    private BigDecimal initialBalance;
+}
+
+public class MoneyDepositedEvent extends DomainEvent {
+    private String accountId;
+    private BigDecimal amount;
+}
+
+public class MoneyWithdrawnEvent extends DomainEvent {
+    private String accountId;
+    private BigDecimal amount;
+}
+
+// Account Aggregate
+public class BankAccount {
+    private String accountId;
+    private BigDecimal balance;
+    private List<DomainEvent> changes = new ArrayList<>();
+
+    // Apply events to rebuild state
+    public void loadFromHistory(List<DomainEvent> history) {
+        for (DomainEvent event : history) {
+            applyEvent(event, false);
+        }
+    }
+
+    // Apply new events
+    private void applyEvent(DomainEvent event, boolean isNew) {
+        if (event instanceof AccountCreatedEvent) {
+            apply((AccountCreatedEvent) event);
+        } else if (event instanceof MoneyDepositedEvent) {
+            apply((MoneyDepositedEvent) event);
+        } else if (event instanceof MoneyWithdrawnEvent) {
+            apply((MoneyWithdrawnEvent) event);
+        }
+
+        if (isNew) {
+            changes.add(event);
+        }
+    }
+
+    private void apply(AccountCreatedEvent event) {
+        this.accountId = event.getAccountId();
+        this.balance = event.getInitialBalance();
+    }
+
+    private void apply(MoneyDepositedEvent event) {
+        this.balance = this.balance.add(event.getAmount());
+    }
+
+    private void apply(MoneyWithdrawnEvent event) {
+        this.balance = this.balance.subtract(event.getAmount());
+    }
+
+    // Command methods that generate events
+    public void deposit(BigDecimal amount) {
+        MoneyDepositedEvent event = new MoneyDepositedEvent(accountId, amount);
+        applyEvent(event, true);
+    }
+
+    public void withdraw(BigDecimal amount) {
+        if (balance.compareTo(amount) < 0) {
+            throw new InsufficientFundsException();
+        }
+        MoneyWithdrawnEvent event = new MoneyWithdrawnEvent(accountId, amount);
+        applyEvent(event, true);
+    }
+}
+\`\`\`
+
+**Benefits:**
+• Complete audit trail
+• Time travel debugging
+• Easy to replay events for testing
+• Support for temporal queries`
+        },
+        {
+          title: 'CQRS (Command Query Responsibility Segregation)',
+          content: `Separate read and write operations into different models. Often combined with Event Sourcing.
+
+**Implementation Example:**
+
+\`\`\`java
+// Command Side - Write Model
+@Service
+public class OrderCommandService {
+    @Autowired
+    private EventStore eventStore;
+
+    @Transactional
+    public void createOrder(CreateOrderCommand command) {
+        // Validate command
+        validateOrderCommand(command);
+
+        // Create aggregate
+        Order order = new Order(command.getOrderId());
+        order.create(command.getCustomerId(), command.getItems());
+
+        // Save events
+        order.getUncommittedEvents().forEach(event ->
+            eventStore.save(event)
+        );
+
+        // Publish events
+        publishEvents(order.getUncommittedEvents());
+    }
+}
+
+// Query Side - Read Model
+@Service
+public class OrderQueryService {
+    @Autowired
+    private OrderReadRepository orderReadRepo;
+
+    public OrderDTO getOrder(String orderId) {
+        return orderReadRepo.findById(orderId)
+            .map(this::toDTO)
+            .orElseThrow(() -> new OrderNotFoundException(orderId));
+    }
+
+    public List<OrderDTO> getOrdersByCustomer(String customerId) {
+        return orderReadRepo.findByCustomerId(customerId)
+            .stream()
+            .map(this::toDTO)
+            .collect(Collectors.toList());
+    }
+}
+
+// Read Model Projector (Event Handler)
+@Service
+public class OrderProjector {
+    @Autowired
+    private OrderReadRepository orderReadRepo;
+
+    @EventHandler
+    public void on(OrderCreatedEvent event) {
+        OrderReadModel readModel = new OrderReadModel();
+        readModel.setOrderId(event.getOrderId());
+        readModel.setCustomerId(event.getCustomerId());
+        readModel.setStatus("CREATED");
+        readModel.setCreatedAt(event.getTimestamp());
+        orderReadRepo.save(readModel);
+    }
+
+    @EventHandler
+    public void on(OrderShippedEvent event) {
+        orderReadRepo.findById(event.getOrderId())
+            .ifPresent(order -> {
+                order.setStatus("SHIPPED");
+                order.setShippedAt(event.getTimestamp());
+                orderReadRepo.save(order);
+            });
+    }
+}
+\`\`\`
+
+**Benefits:**
+• Optimized read and write models
+• Independent scaling of reads and writes
+• Complex queries without impacting write performance`
+        }
+      ]
+    },
+    {
+      id: 'messaging',
+      title: '📬 Message Brokers & Queues',
+      color: '#3b82f6',
+      items: [
+        {
+          title: 'Apache Kafka',
+          content: `Distributed streaming platform for building real-time data pipelines and streaming applications.
+
+**Configuration Example:**
+
+\`\`\`java
+// Kafka Producer Configuration
+@Configuration
+public class KafkaProducerConfig {
+    @Bean
+    public ProducerFactory<String, OrderEvent> producerFactory() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        config.put(ProducerConfig.ACKS_CONFIG, "all");
+        config.put(ProducerConfig.RETRIES_CONFIG, 3);
+        config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+        return new DefaultKafkaProducerFactory<>(config);
+    }
+
+    @Bean
+    public KafkaTemplate<String, OrderEvent> kafkaTemplate() {
+        return new KafkaTemplate<>(producerFactory());
+    }
+}
+
+// Kafka Consumer Configuration
+@Configuration
+public class KafkaConsumerConfig {
+    @Bean
+    public ConsumerFactory<String, OrderEvent> consumerFactory() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, "order-processor-group");
+        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+        return new DefaultKafkaConsumerFactory<>(config);
+    }
+}
+
+// Producer Implementation
+@Service
+public class OrderEventProducer {
+    @Autowired
+    private KafkaTemplate<String, OrderEvent> kafkaTemplate;
+
+    public CompletableFuture<SendResult<String, OrderEvent>> publishOrderEvent(OrderEvent event) {
+        return kafkaTemplate.send("order-topic", event.getOrderId(), event)
+            .completable()
+            .whenComplete((result, ex) -> {
+                if (ex == null) {
+                    log.info("Event published: {} to partition: {}",
+                        event.getOrderId(), result.getRecordMetadata().partition());
+                } else {
+                    log.error("Failed to publish event: {}", event.getOrderId(), ex);
+                }
+            });
+    }
+}
+
+// Consumer Implementation with Manual Offset
+@Service
+public class OrderEventConsumer {
+    @KafkaListener(topics = "order-topic", groupId = "order-processor-group")
+    public void consumeOrderEvent(
+            ConsumerRecord<String, OrderEvent> record,
+            Acknowledgment acknowledgment) {
+        try {
+            OrderEvent event = record.value();
+            processEvent(event);
+            acknowledgment.acknowledge(); // Manual commit
+        } catch (Exception e) {
+            log.error("Error processing event", e);
+            // Implement retry logic or dead letter queue
+        }
+    }
+}
+\`\`\`
+
+**Key Features:**
+• High throughput and low latency
+• Horizontal scalability
+• Durable and fault-tolerant
+• Replay capability`
+        },
+        {
+          title: 'RabbitMQ',
+          content: `Message broker implementing AMQP protocol with flexible routing capabilities.
+
+**Configuration Example:**
+
+\`\`\`java
+// RabbitMQ Configuration
+@Configuration
+public class RabbitMQConfig {
+    // Direct Exchange
+    @Bean
+    public DirectExchange orderExchange() {
+        return new DirectExchange("order.exchange");
+    }
+
+    @Bean
+    public Queue orderQueue() {
+        return QueueBuilder.durable("order.queue")
+            .withArgument("x-dead-letter-exchange", "order.dlx")
+            .build();
+    }
+
+    @Bean
+    public Binding orderBinding(Queue orderQueue, DirectExchange orderExchange) {
+        return BindingBuilder.bind(orderQueue)
+            .to(orderExchange)
+            .with("order.created");
+    }
+
+    // Topic Exchange for multiple consumers
+    @Bean
+    public TopicExchange notificationExchange() {
+        return new TopicExchange("notification.exchange");
+    }
+
+    @Bean
+    public Queue emailQueue() {
+        return new Queue("email.queue");
+    }
+
+    @Bean
+    public Queue smsQueue() {
+        return new Queue("sms.queue");
+    }
+
+    @Bean
+    public Binding emailBinding() {
+        return BindingBuilder.bind(emailQueue())
+            .to(notificationExchange())
+            .with("notification.email.#");
+    }
+
+    @Bean
+    public Binding smsBinding() {
+        return BindingBuilder.bind(smsQueue())
+            .to(notificationExchange())
+            .with("notification.sms.#");
+    }
+}
+
+// Message Publisher
+@Service
+public class OrderEventPublisher {
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    public void publishOrderCreated(Order order) {
+        OrderCreatedEvent event = new OrderCreatedEvent(order);
+        rabbitTemplate.convertAndSend(
+            "order.exchange",
+            "order.created",
+            event,
+            message -> {
+                message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
+                message.getMessageProperties().setPriority(1);
+                return message;
+            }
+        );
+    }
+}
+
+// Message Consumer
+@Service
+public class OrderEventListener {
+    @RabbitListener(queues = "order.queue")
+    public void handleOrderCreated(OrderCreatedEvent event) {
+        log.info("Processing order: {}", event.getOrderId());
+        processOrder(event);
+    }
+
+    // Dead Letter Queue Handler
+    @RabbitListener(queues = "order.dlq")
+    public void handleFailedMessages(Message failedMessage) {
+        log.error("Failed message: {}", failedMessage);
+        // Implement recovery logic
+    }
+}
+\`\`\`
+
+**Routing Patterns:**
+• Direct: Exact routing key match
+• Topic: Pattern matching (wildcards)
+• Fanout: Broadcast to all queues
+• Headers: Route based on message headers`
+        }
+      ]
+    },
+    {
+      id: 'implementation',
+      title: '⚙️ Implementation Patterns',
+      color: '#10b981',
+      items: [
+        {
+          title: 'Saga Pattern',
+          content: `Distributed transactions using a sequence of local transactions coordinated by events.
+
+**Choreography-based Saga Example:**
+
+\`\`\`java
+// Order Service
+@Service
+public class OrderSagaService {
+    @Autowired
+    private EventPublisher eventPublisher;
+
+    @Transactional
+    public void createOrder(CreateOrderRequest request) {
+        // Step 1: Create order
+        Order order = new Order(request);
+        order.setStatus(OrderStatus.PENDING);
+        orderRepository.save(order);
+
+        // Publish OrderCreated event
+        eventPublisher.publish(new OrderCreatedEvent(order));
+    }
+
+    @EventHandler
+    public void onPaymentProcessed(PaymentProcessedEvent event) {
+        Order order = orderRepository.findById(event.getOrderId())
+            .orElseThrow();
+        order.setStatus(OrderStatus.PAID);
+        orderRepository.save(order);
+
+        // Trigger next step
+        eventPublisher.publish(new OrderPaidEvent(order));
+    }
+
+    @EventHandler
+    public void onPaymentFailed(PaymentFailedEvent event) {
+        // Compensating transaction
+        Order order = orderRepository.findById(event.getOrderId())
+            .orElseThrow();
+        order.setStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+
+        eventPublisher.publish(new OrderCancelledEvent(order));
+    }
+}
+
+// Payment Service
+@Service
+public class PaymentSagaService {
+    @EventHandler
+    public void onOrderCreated(OrderCreatedEvent event) {
+        try {
+            // Step 2: Process payment
+            Payment payment = processPayment(event);
+            eventPublisher.publish(new PaymentProcessedEvent(payment));
+        } catch (PaymentException e) {
+            eventPublisher.publish(new PaymentFailedEvent(event.getOrderId()));
+        }
+    }
+
+    @EventHandler
+    public void onOrderCancelled(OrderCancelledEvent event) {
+        // Compensating transaction: Refund payment
+        refundPayment(event.getOrderId());
+    }
+}
+
+// Inventory Service
+@Service
+public class InventorySagaService {
+    @EventHandler
+    public void onOrderPaid(OrderPaidEvent event) {
+        try {
+            // Step 3: Reserve inventory
+            reserveInventory(event.getOrderId(), event.getItems());
+            eventPublisher.publish(new InventoryReservedEvent(event));
+        } catch (InsufficientInventoryException e) {
+            eventPublisher.publish(new InventoryReservationFailedEvent(event));
+        }
+    }
+
+    @EventHandler
+    public void onOrderCancelled(OrderCancelledEvent event) {
+        // Compensating transaction: Release inventory
+        releaseInventory(event.getOrderId());
+    }
+}
+\`\`\`
+
+**Benefits:**
+• No distributed locks required
+• Better scalability
+• Loose coupling between services
+
+**Challenges:**
+• Complex error handling
+• Difficult to debug
+• No ACID guarantees`
+        },
+        {
+          title: 'Event Notification vs Event-Carried State Transfer',
+          content: `**Event Notification:**
+Just notifies that something happened. Consumers fetch details if needed.
+
+\`\`\`java
+// Minimal event
+public class CustomerUpdatedEvent {
+    private String customerId;
+    private LocalDateTime timestamp;
+}
+
+// Consumer fetches full data
+@EventHandler
+public void onCustomerUpdated(CustomerUpdatedEvent event) {
+    Customer customer = customerService.getCustomer(event.getCustomerId());
+    updateLocalCache(customer);
+}
+\`\`\`
+
+**Event-Carried State Transfer:**
+Event contains all necessary data. No additional queries needed.
+
+\`\`\`java
+// Full state in event
+public class CustomerUpdatedEvent {
+    private String customerId;
+    private String name;
+    private String email;
+    private Address address;
+    private LocalDateTime timestamp;
+}
+
+// Consumer has all data
+@EventHandler
+public void onCustomerUpdated(CustomerUpdatedEvent event) {
+    updateLocalCache(event); // No additional query needed
+}
+\`\`\`
+
+**Trade-offs:**
+• Notification: Smaller events, but coupling through service calls
+• State Transfer: Self-contained, but larger event size`
+        }
+      ]
+    },
+    {
+      id: 'best-practices',
+      title: '✨ Best Practices',
+      color: '#f59e0b',
+      items: [
+        {
+          title: 'Event Design Principles',
+          content: `**1. Event Naming Conventions:**
+• Use past tense (OrderPlaced, PaymentProcessed)
+• Be specific and descriptive
+• Include context (UserRegistered vs UserUpdated)
+
+**2. Event Versioning:**
+\`\`\`java
+public class OrderPlacedEventV2 {
+    private int version = 2; // Event version
+    private String eventId;
+    private String orderId;
+    private String customerId;
+    // New fields with defaults for backward compatibility
+    private String loyaltyProgramId = null;
+}
+
+// Event Upcaster
+public class OrderPlacedEventUpcaster {
+    public OrderPlacedEventV2 upcast(OrderPlacedEventV1 oldEvent) {
+        OrderPlacedEventV2 newEvent = new OrderPlacedEventV2();
+        newEvent.setOrderId(oldEvent.getOrderId());
+        newEvent.setCustomerId(oldEvent.getCustomerId());
+        // Set defaults for new fields
+        return newEvent;
+    }
+}
+\`\`\`
+
+**3. Event Idempotency:**
+\`\`\`java
+@Service
+public class IdempotentEventHandler {
+    @Autowired
+    private ProcessedEventRepository processedEvents;
+
+    @EventHandler
+    public void handleEvent(OrderEvent event) {
+        String eventId = event.getEventId();
+
+        // Check if already processed
+        if (processedEvents.existsById(eventId)) {
+            log.info("Event already processed: {}", eventId);
+            return;
+        }
+
+        try {
+            // Process event
+            processOrder(event);
+
+            // Mark as processed
+            processedEvents.save(new ProcessedEvent(eventId));
+        } catch (Exception e) {
+            log.error("Error processing event: {}", eventId, e);
+            throw e;
+        }
+    }
+}
+\`\`\`
+
+**4. Event Ordering:**
+• Use partition keys for related events
+• Implement sequence numbers
+• Handle out-of-order events gracefully`
+        },
+        {
+          title: 'Error Handling & Resilience',
+          content: `**1. Retry Strategies:**
+\`\`\`java
+@Service
+public class ResilientEventHandler {
+    @Retryable(
+        value = {TransientException.class},
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public void handleEvent(Event event) {
+        processEvent(event);
+    }
+
+    @Recover
+    public void recover(TransientException e, Event event) {
+        log.error("Failed to process event after retries: {}", event.getEventId());
+        sendToDeadLetterQueue(event);
+    }
+}
+\`\`\`
+
+**2. Dead Letter Queues:**
+\`\`\`java
+@Configuration
+public class DLQConfiguration {
+    @Bean
+    public Queue mainQueue() {
+        return QueueBuilder.durable("main.queue")
+            .withArgument("x-dead-letter-exchange", "dlx")
+            .withArgument("x-dead-letter-routing-key", "failed")
+            .build();
+    }
+
+    @Bean
+    public Queue deadLetterQueue() {
+        return QueueBuilder.durable("dlq.queue").build();
+    }
+}
+
+@Service
+public class DeadLetterQueueMonitor {
+    @Scheduled(fixedDelay = 60000)
+    public void checkDLQ() {
+        List<FailedEvent> failedEvents = dlqRepository.findAll();
+        for (FailedEvent event : failedEvents) {
+            analyzeAndRetry(event);
+        }
+    }
+}
+\`\`\`
+
+**3. Circuit Breaker:**
+\`\`\`java
+@Service
+public class EventProcessor {
+    @CircuitBreaker(name = "eventProcessor", fallbackMethod = "fallback")
+    public void processEvent(Event event) {
+        externalService.process(event);
+    }
+
+    public void fallback(Event event, Exception ex) {
+        log.warn("Circuit breaker triggered for event: {}", event.getEventId());
+        queueForRetry(event);
+    }
+}
+\`\`\``
+        },
+        {
+          title: 'Monitoring & Observability',
+          content: `**1. Event Tracking:**
+\`\`\`java
+@Aspect
+@Component
+public class EventMonitoringAspect {
+    @Autowired
+    private MeterRegistry meterRegistry;
+
+    @Around("@annotation(EventHandler)")
+    public Object trackEvent(ProceedingJoinPoint joinPoint) throws Throwable {
+        String eventType = extractEventType(joinPoint);
+        Timer.Sample sample = Timer.start(meterRegistry);
+
+        try {
+            Object result = joinPoint.proceed();
+
+            meterRegistry.counter("events.processed",
+                "type", eventType,
+                "status", "success"
+            ).increment();
+
+            return result;
+        } catch (Exception e) {
+            meterRegistry.counter("events.processed",
+                "type", eventType,
+                "status", "failed"
+            ).increment();
+            throw e;
+        } finally {
+            sample.stop(Timer.builder("event.processing.time")
+                .tag("type", eventType)
+                .register(meterRegistry));
+        }
+    }
+}
+\`\`\`
+
+**2. Distributed Tracing:**
+\`\`\`java
+@Service
+public class TracedEventPublisher {
+    @Autowired
+    private Tracer tracer;
+
+    public void publishEvent(Event event) {
+        Span span = tracer.nextSpan().name("publish-event").start();
+
+        try (Tracer.SpanInScope ws = tracer.withSpan(span)) {
+            span.tag("event.type", event.getClass().getSimpleName());
+            span.tag("event.id", event.getEventId());
+
+            // Inject trace context into event
+            event.setTraceId(span.context().traceId());
+            event.setSpanId(span.context().spanId());
+
+            kafkaTemplate.send("events", event);
+        } finally {
+            span.end();
+        }
+    }
+}
+\`\`\``
+        }
+      ]
+    },
+    {
+      id: 'examples',
+      title: '💼 Real-World Examples',
+      color: '#ef4444',
+      items: [
+        {
+          title: 'E-Commerce Order Processing',
+          content: `Complete event-driven order processing system:
+
+\`\`\`java
+// Order Service - Orchestrates the order flow
+@Service
+public class OrderEventOrchestrator {
+    @Autowired
+    private EventPublisher eventPublisher;
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Transactional
+    public Order createOrder(CreateOrderRequest request) {
+        // Create order
+        Order order = Order.create(request);
+        orderRepository.save(order);
+
+        // Publish event
+        eventPublisher.publish(OrderCreatedEvent.builder()
+            .orderId(order.getId())
+            .customerId(order.getCustomerId())
+            .items(order.getItems())
+            .totalAmount(order.getTotalAmount())
+            .timestamp(LocalDateTime.now())
+            .build());
+
+        return order;
+    }
+
+    @EventHandler
+    @Transactional
+    public void onInventoryReserved(InventoryReservedEvent event) {
+        Order order = orderRepository.findById(event.getOrderId())
+            .orElseThrow();
+        order.markInventoryReserved();
+        orderRepository.save(order);
+
+        // Trigger payment
+        eventPublisher.publish(ProcessPaymentEvent.builder()
+            .orderId(event.getOrderId())
+            .amount(order.getTotalAmount())
+            .paymentMethod(order.getPaymentMethod())
+            .build());
+    }
+
+    @EventHandler
+    @Transactional
+    public void onPaymentCompleted(PaymentCompletedEvent event) {
+        Order order = orderRepository.findById(event.getOrderId())
+            .orElseThrow();
+        order.markPaid();
+        orderRepository.save(order);
+
+        // Trigger shipping
+        eventPublisher.publish(ShipOrderEvent.builder()
+            .orderId(event.getOrderId())
+            .shippingAddress(order.getShippingAddress())
+            .build());
+    }
+
+    @EventHandler
+    @Transactional
+    public void onOrderShipped(OrderShippedEvent event) {
+        Order order = orderRepository.findById(event.getOrderId())
+            .orElseThrow();
+        order.markShipped(event.getTrackingNumber());
+        orderRepository.save(order);
+
+        // Notify customer
+        eventPublisher.publish(SendNotificationEvent.builder()
+            .customerId(order.getCustomerId())
+            .type(NotificationType.ORDER_SHIPPED)
+            .data(Map.of("trackingNumber", event.getTrackingNumber()))
+            .build());
+    }
+}
+\`\`\`
+
+**Event Flow:**
+1. OrderCreated → InventoryService
+2. InventoryReserved → PaymentService
+3. PaymentCompleted → ShippingService
+4. OrderShipped → NotificationService`
+        },
+        {
+          title: 'Real-Time Analytics Pipeline',
+          content: `Stream processing for real-time analytics:
+
+\`\`\`java
+@Service
+public class AnalyticsStreamProcessor {
+    @Autowired
+    private StreamBuilder streamBuilder;
+
+    public void buildAnalyticsPipeline() {
+        // Input stream of user events
+        KStream<String, UserActivityEvent> activityStream =
+            streamBuilder.stream("user-activity");
+
+        // Window-based aggregation
+        activityStream
+            .groupByKey()
+            .windowedBy(TimeWindows.of(Duration.ofMinutes(5)))
+            .aggregate(
+                UserActivityStats::new,
+                (key, event, stats) -> stats.add(event),
+                Materialized.as("user-activity-store")
+            )
+            .toStream()
+            .to("user-activity-stats");
+
+        // Real-time anomaly detection
+        activityStream
+            .filter((key, event) -> detectAnomaly(event))
+            .to("security-alerts");
+
+        // Join with user profile data
+        KTable<String, UserProfile> userProfiles =
+            streamBuilder.table("user-profiles");
+
+        activityStream
+            .join(userProfiles,
+                (activity, profile) -> enrichActivity(activity, profile))
+            .to("enriched-activity");
+    }
+
+    private boolean detectAnomaly(UserActivityEvent event) {
+        // Implement anomaly detection logic
+        return event.getRequestCount() > 100;
+    }
+}
+\`\`\``
+        }
+      ]
+    }
+  ]
+
+  return (
+    <div style={{
+      padding: '2rem',
+      maxWidth: '1200px',
+      margin: '0 auto',
+      backgroundColor: '#fce7f3',
+      minHeight: '100vh'
+    }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '2rem'
+      }}>
+        <button
+          onClick={onBack}
+          style={{
+            padding: '0.75rem 1.5rem',
+            fontSize: '1rem',
+            fontWeight: '600',
+            backgroundColor: '#6b7280',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
+        >
+          ← Back to Design
+        </button>
+        <h1 style={{
+          fontSize: '2.5rem',
+          fontWeight: '800',
+          color: '#1f2937',
+          margin: 0,
+          textAlign: 'center'
+        }}>
+          📡 Event Driven Architecture
+        </h1>
+        <div style={{ width: '150px' }}></div>
+      </div>
+
+      <p style={{
+        fontSize: '1.1rem',
+        color: '#4b5563',
+        textAlign: 'center',
+        marginBottom: '2rem',
+        lineHeight: '1.6'
+      }}>
+        Master event-driven systems, message queuing, pub/sub patterns, event sourcing, CQRS, and asynchronous communication.
+      </p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        {sections.map((section) => (
+          <div
+            key={section.id}
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              border: `3px solid ${section.color}`,
+              overflow: 'hidden',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+            }}
+          >
+            <button
+              onClick={() => toggleSection(section.id)}
+              style={{
+                width: '100%',
+                padding: '1.5rem',
+                backgroundColor: expandedSection === section.id ? `${section.color}15` : 'white',
+                border: 'none',
+                cursor: 'pointer',
+                textAlign: 'left',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <h2 style={{
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                color: section.color,
+                margin: 0
+              }}>
+                {section.title}
+              </h2>
+              <span style={{
+                fontSize: '1.5rem',
+                transform: expandedSection === section.id ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.3s ease',
+                color: section.color
+              }}>
+                ▼
+              </span>
+            </button>
+
+            {expandedSection === section.id && (
+              <div style={{
+                padding: '2rem',
+                backgroundColor: '#fafafa'
+              }}>
+                {section.items.map((item, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      marginBottom: index < section.items.length - 1 ? '2rem' : 0,
+                      paddingBottom: index < section.items.length - 1 ? '2rem' : 0,
+                      borderBottom: index < section.items.length - 1 ? '2px solid #e5e7eb' : 'none'
+                    }}
+                  >
+                    <h3 style={{
+                      fontSize: '1.25rem',
+                      fontWeight: '700',
+                      color: '#1f2937',
+                      marginBottom: '1rem'
+                    }}>
+                      {item.title}
+                    </h3>
+                    <div style={{
+                      fontSize: '0.95rem',
+                      lineHeight: '1.8',
+                      color: '#374151',
+                      whiteSpace: 'pre-wrap'
+                    }}>
+                      {item.content.split('```').map((part, i) => {
+                        if (i % 2 === 1) {
+                          const [lang, ...codeLines] = part.split('\n')
+                          const code = codeLines.join('\n')
+                          return (
+                            <pre
+                              key={i}
+                              style={{
+                                backgroundColor: '#1e1e1e',
+                                color: '#d4d4d4',
+                                padding: '1rem',
+                                borderRadius: '8px',
+                                overflow: 'auto',
+                                fontSize: '0.85rem',
+                                lineHeight: '1.6',
+                                marginBottom: '1rem',
+                                fontFamily: 'Consolas, Monaco, "Courier New", monospace'
+                              }}
+                            >
+                              <code>{code}</code>
+                            </pre>
+                          )
+                        }
+                        return <span key={i}>{part}</span>
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export default EventDrivenArchitecture

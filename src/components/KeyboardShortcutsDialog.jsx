@@ -65,6 +65,7 @@ const KeyboardShortcutsDialog = ({ isOpen, onClose, triggerElement = null }) => 
 
       if (e.key === 'Escape') {
         e.preventDefault();
+        e.stopPropagation(); // Prevent event from reaching global handlers
         handleClose();
       }
     };
@@ -124,10 +125,10 @@ const KeyboardShortcutsDialog = ({ isOpen, onClose, triggerElement = null }) => 
     {
       category: 'Quick Actions',
       items: [
+        { keys: ['Ctrl', 'K'], description: 'Open global search' },
         { keys: ['B'], description: 'Focus Back button' },
         { keys: ['H', '?'], description: 'Show this help dialog' },
-        { keys: ['M'], description: 'Return to main menu' },
-        { keys: ['/'], description: 'Quick search (future)' }
+        { keys: ['M'], description: 'Return to main menu' }
       ]
     },
     {

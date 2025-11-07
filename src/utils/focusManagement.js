@@ -180,6 +180,9 @@ export const FocusManager = {
    * @returns {Function} - Cleanup function to remove the trap
    */
   createFocusTrap: (container) => {
+    // DISABLED TEMPORARILY - BLOCKING INPUT IN SIGN-IN MODAL
+    return () => {};
+
     if (!container) return () => {};
 
     const firstElement = FocusManager.getFirstFocusableElement(container);

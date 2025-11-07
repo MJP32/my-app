@@ -1,0 +1,2022 @@
+import { useState, useEffect } from 'react'
+import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
+import LanguageToggle from '../../components/LanguageToggle.jsx'
+import DrawingCanvas from '../../components/DrawingCanvas.jsx'
+import { isProblemCompleted } from '../../services/progressService'
+import { getPreferredLanguage } from '../../services/languageService'
+import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
+
+function Trees({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory }) {
+  const [selectedQuestion, setSelectedQuestion] = useState(null)
+  const [showSolution, setShowSolution] = useState(false)
+  const [showExplanation, setShowExplanation] = useState(false)
+  const [userCode, setUserCode] = useState('')
+  const [output, setOutput] = useState('')
+  const [isRunning, setIsRunning] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [language, setLanguage] = useState(getPreferredLanguage())
+  const [showDrawing, setShowDrawing] = useState(false)
+  const [currentDrawing, setCurrentDrawing] = useState(null)
+  const [expandedSections, setExpandedSections] = useState({
+    Easy: true,
+    Medium: true,
+    Hard: true
+  })
+
+  useEffect(() => {
+    const handleProgressUpdate = () => {
+      setRefreshKey(prev => prev + 1)
+    }
+    window.addEventListener('progressUpdate', handleProgressUpdate)
+    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
+  }, [])
+
+  useEffect(() => {
+    const handleLanguageChange = (e) => {
+      setLanguage(e.detail)
+      if (selectedQuestion) {
+        setUserCode(selectedQuestion.code[e.detail].starterCode)
+      }
+    }
+    window.addEventListener('languageChange', handleLanguageChange)
+    return () => window.removeEventListener('languageChange', handleLanguageChange)
+  }, [selectedQuestion])
+
+  const questions = [
+    {
+      id: 1,
+      title: 'N-ary Tree Level Order Traversal',
+      difficulty: 'Medium',
+      leetcodeUrl: 'https://leetcode.com/problems/n-ary-tree-level-order-traversal/',
+      description: 'Given an n-ary tree, return the level order traversal of its nodes\' values. N-ary tree input serialization is represented in their level order traversal, each group of children is separated by the null value.',
+      example: `Input: root = [1,null,3,2,4,null,5,6]
+     1
+   / | \\
+  3  2  4
+ / \\
+5   6
+
+Output: [[1],[3,2,4],[5,6]]`,
+      code: {
+        java: {
+          starterCode: `class Node {
+    public int val;
+    public List<Node> children;
+
+    public Node() {}
+
+    public Node(int _val) {
+        val = _val;
+    }
+
+    public Node(int _val, List<Node> _children) {
+        val = _val;
+        children = _children;
+    }
+}
+
+public List<List<Integer>> levelOrder(Node root) {
+    // Write your code here
+
+}`,
+          solution: `class Solution {
+    public List<List<Integer>> levelOrder(Node root) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (root == null) return result;
+
+        Queue<Node> queue = new LinkedList<>();
+        queue.offer(root);
+
+        while (!queue.isEmpty()) {
+            int levelSize = queue.size();
+            List<Integer> currentLevel = new ArrayList<>();
+
+            for (int i = 0; i < levelSize; i++) {
+                Node node = queue.poll();
+                currentLevel.add(node.val);
+
+                if (node.children != null) {
+                    for (Node child : node.children) {
+                        queue.offer(child);
+                    }
+                }
+            }
+            result.add(currentLevel);
+        }
+
+        return result;
+    }
+}`
+        },
+        python: {
+          starterCode: `class Node:
+    def __init__(self, val=None, children=None):
+        self.val = val
+        self.children = children
+
+def levelOrder(root):
+    """
+    :type root: Node
+    :rtype: List[List[int]]
+    """
+    # Write your code here
+    pass`,
+          solution: `from collections import deque
+
+def levelOrder(root):
+    if not root:
+        return []
+
+    result = []
+    queue = deque([root])
+
+    while queue:
+        level_size = len(queue)
+        current_level = []
+
+        for _ in range(level_size):
+            node = queue.popleft()
+            current_level.append(node.val)
+
+            if node.children:
+                queue.extend(node.children)
+
+        result.append(current_level)
+
+    return result`
+        }
+      },
+      testCases: [
+        { input: 'root = [1,null,3,2,4,null,5,6]', expected: '[[1],[3,2,4],[5,6]]' },
+        { input: 'root = [1,null,2,3,4,5,null,null,6,7,null,8,null,9,10,null,null,11,null,12,null,13,null,null,14]', expected: '[[1],[2,3,4,5],[6,7,8,9,10],[11,12,13],[14]]' }
+      ],
+      hints: [
+        'Use BFS (breadth-first search) with a queue',
+        'Process nodes level by level',
+        'Track the size of each level before processing'
+      ]
+    },
+    {
+      id: 2,
+      title: 'N-ary Tree Preorder Traversal',
+      difficulty: 'Easy',
+      leetcodeUrl: 'https://leetcode.com/problems/n-ary-tree-preorder-traversal/',
+      description: 'Given the root of an n-ary tree, return the preorder traversal of its nodes\' values.',
+      example: `Input: root = [1,null,3,2,4,null,5,6]
+     1
+   / | \\
+  3  2  4
+ / \\
+5   6
+
+Output: [1,3,5,6,2,4]`,
+      code: {
+        java: {
+          starterCode: `class Node {
+    public int val;
+    public List<Node> children;
+
+    public Node() {}
+
+    public Node(int _val) {
+        val = _val;
+    }
+
+    public Node(int _val, List<Node> _children) {
+        val = _val;
+        children = _children;
+    }
+}
+
+public List<Integer> preorder(Node root) {
+    // Write your code here
+
+}`,
+          solution: `class Solution {
+    // Recursive approach
+    public List<Integer> preorder(Node root) {
+        List<Integer> result = new ArrayList<>();
+        preorderHelper(root, result);
+        return result;
+    }
+
+    private void preorderHelper(Node node, List<Integer> result) {
+        if (node == null) return;
+
+        result.add(node.val);  // Visit root first
+
+        if (node.children != null) {
+            for (Node child : node.children) {
+                preorderHelper(child, result);
+            }
+        }
+    }
+
+    // Iterative approach using stack
+    public List<Integer> preorderIterative(Node root) {
+        List<Integer> result = new ArrayList<>();
+        if (root == null) return result;
+
+        Stack<Node> stack = new Stack<>();
+        stack.push(root);
+
+        while (!stack.isEmpty()) {
+            Node node = stack.pop();
+            result.add(node.val);
+
+            if (node.children != null) {
+                // Push children in reverse order
+                for (int i = node.children.size() - 1; i >= 0; i--) {
+                    stack.push(node.children.get(i));
+                }
+            }
+        }
+
+        return result;
+    }
+}`
+        },
+        python: {
+          starterCode: `class Node:
+    def __init__(self, val=None, children=None):
+        self.val = val
+        self.children = children
+
+def preorder(root):
+    """
+    :type root: Node
+    :rtype: List[int]
+    """
+    # Write your code here
+    pass`,
+          solution: `def preorder(root):
+    # Recursive
+    result = []
+
+    def helper(node):
+        if not node:
+            return
+        result.append(node.val)
+        if node.children:
+            for child in node.children:
+                helper(child)
+
+    helper(root)
+    return result
+
+def preorder_iterative(root):
+    # Iterative
+    if not root:
+        return []
+
+    result = []
+    stack = [root]
+
+    while stack:
+        node = stack.pop()
+        result.append(node.val)
+
+        if node.children:
+            # Push children in reverse order
+            stack.extend(reversed(node.children))
+
+    return result`
+        }
+      },
+      testCases: [
+        { input: 'root = [1,null,3,2,4,null,5,6]', expected: '[1,3,5,6,2,4]' },
+        { input: 'root = [1,null,2,3,4,5,null,null,6,7,null,8,null,9,10,null,null,11,null,12,null,13,null,null,14]', expected: '[1,2,3,6,7,11,14,4,8,12,5,9,13,10]' }
+      ],
+      hints: [
+        'Visit root first, then traverse children',
+        'Recursive approach is straightforward',
+        'For iterative: use a stack and push children in reverse order'
+      ]
+    },
+    {
+      id: 3,
+      title: 'N-ary Tree Postorder Traversal',
+      difficulty: 'Easy',
+      leetcodeUrl: 'https://leetcode.com/problems/n-ary-tree-postorder-traversal/',
+      description: 'Given the root of an n-ary tree, return the postorder traversal of its nodes\' values.',
+      example: `Input: root = [1,null,3,2,4,null,5,6]
+     1
+   / | \\
+  3  2  4
+ / \\
+5   6
+
+Output: [5,6,3,2,4,1]`,
+      code: {
+        java: {
+          starterCode: `class Node {
+    public int val;
+    public List<Node> children;
+
+    public Node() {}
+
+    public Node(int _val) {
+        val = _val;
+    }
+
+    public Node(int _val, List<Node> _children) {
+        val = _val;
+        children = _children;
+    }
+}
+
+public List<Integer> postorder(Node root) {
+    // Write your code here
+
+}`,
+          solution: `class Solution {
+    // Recursive approach
+    public List<Integer> postorder(Node root) {
+        List<Integer> result = new ArrayList<>();
+        postorderHelper(root, result);
+        return result;
+    }
+
+    private void postorderHelper(Node node, List<Integer> result) {
+        if (node == null) return;
+
+        if (node.children != null) {
+            for (Node child : node.children) {
+                postorderHelper(child, result);
+            }
+        }
+
+        result.add(node.val);  // Visit root last
+    }
+
+    // Iterative approach
+    public List<Integer> postorderIterative(Node root) {
+        LinkedList<Integer> result = new LinkedList<>();
+        if (root == null) return result;
+
+        Stack<Node> stack = new Stack<>();
+        stack.push(root);
+
+        while (!stack.isEmpty()) {
+            Node node = stack.pop();
+            result.addFirst(node.val);  // Add to front
+
+            if (node.children != null) {
+                for (Node child : node.children) {
+                    stack.push(child);
+                }
+            }
+        }
+
+        return result;
+    }
+}`
+        },
+        python: {
+          starterCode: `class Node:
+    def __init__(self, val=None, children=None):
+        self.val = val
+        self.children = children
+
+def postorder(root):
+    """
+    :type root: Node
+    :rtype: List[int]
+    """
+    # Write your code here
+    pass`,
+          solution: `def postorder(root):
+    # Recursive
+    result = []
+
+    def helper(node):
+        if not node:
+            return
+        if node.children:
+            for child in node.children:
+                helper(child)
+        result.append(node.val)
+
+    helper(root)
+    return result
+
+def postorder_iterative(root):
+    # Iterative
+    if not root:
+        return []
+
+    result = []
+    stack = [root]
+
+    while stack:
+        node = stack.pop()
+        result.append(node.val)
+
+        if node.children:
+            stack.extend(node.children)
+
+    # Reverse the result
+    return result[::-1]`
+        }
+      },
+      testCases: [
+        { input: 'root = [1,null,3,2,4,null,5,6]', expected: '[5,6,3,2,4,1]' },
+        { input: 'root = [1,null,2,3,4,5,null,null,6,7,null,8,null,9,10,null,null,11,null,12,null,13,null,null,14]', expected: '[2,6,14,11,7,3,12,8,4,13,9,10,5,1]' }
+      ],
+      hints: [
+        'Visit children first, then root',
+        'Recursive approach: traverse children then add root',
+        'For iterative: reverse preorder traversal'
+      ]
+    },
+    {
+      id: 4,
+      title: 'Maximum Depth of N-ary Tree',
+      difficulty: 'Easy',
+      leetcodeUrl: 'https://leetcode.com/problems/maximum-depth-of-n-ary-tree/',
+      description: 'Given an n-ary tree, find its maximum depth. The maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.',
+      example: `Input: root = [1,null,3,2,4,null,5,6]
+     1
+   / | \\
+  3  2  4
+ / \\
+5   6
+
+Output: 3`,
+      code: {
+        java: {
+          starterCode: `class Node {
+    public int val;
+    public List<Node> children;
+
+    public Node() {}
+
+    public Node(int _val) {
+        val = _val;
+    }
+
+    public Node(int _val, List<Node> _children) {
+        val = _val;
+        children = _children;
+    }
+}
+
+public int maxDepth(Node root) {
+    // Write your code here
+
+}`,
+          solution: `class Solution {
+    // Recursive DFS approach
+    public int maxDepth(Node root) {
+        if (root == null) return 0;
+
+        int maxChildDepth = 0;
+        if (root.children != null) {
+            for (Node child : root.children) {
+                maxChildDepth = Math.max(maxChildDepth, maxDepth(child));
+            }
+        }
+
+        return 1 + maxChildDepth;
+    }
+
+    // Iterative BFS approach
+    public int maxDepthBFS(Node root) {
+        if (root == null) return 0;
+
+        Queue<Node> queue = new LinkedList<>();
+        queue.offer(root);
+        int depth = 0;
+
+        while (!queue.isEmpty()) {
+            int levelSize = queue.size();
+            depth++;
+
+            for (int i = 0; i < levelSize; i++) {
+                Node node = queue.poll();
+                if (node.children != null) {
+                    for (Node child : node.children) {
+                        queue.offer(child);
+                    }
+                }
+            }
+        }
+
+        return depth;
+    }
+}`
+        },
+        python: {
+          starterCode: `class Node:
+    def __init__(self, val=None, children=None):
+        self.val = val
+        self.children = children
+
+def maxDepth(root):
+    """
+    :type root: Node
+    :rtype: int
+    """
+    # Write your code here
+    pass`,
+          solution: `def maxDepth(root):
+    # Recursive DFS
+    if not root:
+        return 0
+
+    if not root.children:
+        return 1
+
+    max_child_depth = max(maxDepth(child) for child in root.children)
+    return 1 + max_child_depth
+
+def maxDepth_bfs(root):
+    # Iterative BFS
+    if not root:
+        return 0
+
+    from collections import deque
+    queue = deque([root])
+    depth = 0
+
+    while queue:
+        level_size = len(queue)
+        depth += 1
+
+        for _ in range(level_size):
+            node = queue.popleft()
+            if node.children:
+                queue.extend(node.children)
+
+    return depth`
+        }
+      },
+      testCases: [
+        { input: 'root = [1,null,3,2,4,null,5,6]', expected: '3' },
+        { input: 'root = [1,null,2,3,4,5,null,null,6,7,null,8,null,9,10,null,null,11,null,12,null,13,null,null,14]', expected: '5' }
+      ],
+      hints: [
+        'The depth is 1 + maximum depth of all children',
+        'Recursive approach is natural for this problem',
+        'BFS can also be used by counting levels'
+      ]
+    },
+    {
+      id: 5,
+      title: 'Find Root of N-Ary Tree',
+      difficulty: 'Medium',
+      leetcodeUrl: 'https://leetcode.com/problems/find-root-of-n-ary-tree/',
+      description: 'You are given all the nodes of an N-ary tree as an array of Node objects, where each node has a unique value. Return the root of the N-ary tree.',
+      example: `Input: tree = [1,null,3,2,4,null,5,6]
+Output: node with value 1
+
+Explanation: The root is the node with value 1 as it has no parent.`,
+      code: {
+        java: {
+          starterCode: `class Node {
+    public int val;
+    public List<Node> children;
+
+    public Node() {}
+
+    public Node(int _val) {
+        val = _val;
+    }
+
+    public Node(int _val, List<Node> _children) {
+        val = _val;
+        children = _children;
+    }
+}
+
+public Node findRoot(List<Node> tree) {
+    // Write your code here
+
+}`,
+          solution: `class Solution {
+    // Approach 1: Using sum difference
+    // Sum of all values - Sum of all children values = root value
+    public Node findRoot(List<Node> tree) {
+        int totalSum = 0;
+        int childrenSum = 0;
+
+        for (Node node : tree) {
+            totalSum += node.val;
+            if (node.children != null) {
+                for (Node child : node.children) {
+                    childrenSum += child.val;
+                }
+            }
+        }
+
+        int rootVal = totalSum - childrenSum;
+
+        for (Node node : tree) {
+            if (node.val == rootVal) {
+                return node;
+            }
+        }
+
+        return null;
+    }
+
+    // Approach 2: Using HashSet
+    public Node findRootSet(List<Node> tree) {
+        Set<Node> children = new HashSet<>();
+
+        for (Node node : tree) {
+            if (node.children != null) {
+                children.addAll(node.children);
+            }
+        }
+
+        for (Node node : tree) {
+            if (!children.contains(node)) {
+                return node;
+            }
+        }
+
+        return null;
+    }
+}`
+        },
+        python: {
+          starterCode: `class Node:
+    def __init__(self, val=None, children=None):
+        self.val = val
+        self.children = children
+
+def findRoot(tree):
+    """
+    :type tree: List[Node]
+    :rtype: Node
+    """
+    # Write your code here
+    pass`,
+          solution: `def findRoot(tree):
+    # Approach 1: Sum difference
+    total_sum = sum(node.val for node in tree)
+    children_sum = sum(
+        child.val
+        for node in tree
+        if node.children
+        for child in node.children
+    )
+
+    root_val = total_sum - children_sum
+
+    for node in tree:
+        if node.val == root_val:
+            return node
+
+    return None
+
+def findRoot_set(tree):
+    # Approach 2: Using set
+    children = set()
+
+    for node in tree:
+        if node.children:
+            children.update(node.children)
+
+    for node in tree:
+        if node not in children:
+            return node
+
+    return None`
+        }
+      },
+      testCases: [
+        { input: 'tree = [1,null,3,2,4,null,5,6]', expected: 'Node(1)' },
+        { input: 'tree = [1,null,2,3,4,5]', expected: 'Node(1)' }
+      ],
+      hints: [
+        'Root is the only node that is never a child',
+        'Sum of all nodes - Sum of all children = root value',
+        'Can use HashSet to track which nodes are children'
+      ]
+    },
+    {
+      id: 6,
+      title: 'Serialize and Deserialize N-ary Tree',
+      difficulty: 'Hard',
+      leetcodeUrl: 'https://leetcode.com/problems/serialize-and-deserialize-n-ary-tree/',
+      description: 'Design an algorithm to serialize and deserialize an N-ary tree. Serialization is the process of converting a data structure into a sequence of bits so that it can be stored or transmitted and reconstructed later.',
+      example: `Input: root = [1,null,3,2,4,null,5,6]
+     1
+   / | \\
+  3  2  4
+ / \\
+5   6
+
+Serialize: "1 3 3 5 # 6 # # 2 # 4 # #"
+Deserialize: reconstruct the tree`,
+      code: {
+        java: {
+          starterCode: `class Node {
+    public int val;
+    public List<Node> children;
+
+    public Node() {}
+
+    public Node(int _val) {
+        val = _val;
+        children = new ArrayList<Node>();
+    }
+
+    public Node(int _val, List<Node> _children) {
+        val = _val;
+        children = _children;
+    }
+}
+
+class Codec {
+    // Encodes a tree to a single string.
+    public String serialize(Node root) {
+        // Write your code here
+
+    }
+
+    // Decodes your encoded data to tree.
+    public Node deserialize(String data) {
+        // Write your code here
+
+    }
+}`,
+          solution: `class Codec {
+    // Encodes a tree to a single string.
+    public String serialize(Node root) {
+        if (root == null) return "";
+
+        StringBuilder sb = new StringBuilder();
+        serializeHelper(root, sb);
+        return sb.toString();
+    }
+
+    private void serializeHelper(Node node, StringBuilder sb) {
+        if (node == null) return;
+
+        // Add node value
+        sb.append(node.val).append(" ");
+        // Add number of children
+        sb.append(node.children.size()).append(" ");
+
+        // Recursively serialize children
+        for (Node child : node.children) {
+            serializeHelper(child, sb);
+        }
+    }
+
+    // Decodes your encoded data to tree.
+    public Node deserialize(String data) {
+        if (data == null || data.isEmpty()) return null;
+
+        String[] tokens = data.split(" ");
+        Queue<String> queue = new LinkedList<>(Arrays.asList(tokens));
+        return deserializeHelper(queue);
+    }
+
+    private Node deserializeHelper(Queue<String> queue) {
+        if (queue.isEmpty()) return null;
+
+        // Get node value
+        int val = Integer.parseInt(queue.poll());
+        Node node = new Node(val, new ArrayList<>());
+
+        // Get number of children
+        int childCount = Integer.parseInt(queue.poll());
+
+        // Recursively deserialize children
+        for (int i = 0; i < childCount; i++) {
+            node.children.add(deserializeHelper(queue));
+        }
+
+        return node;
+    }
+}`
+        },
+        python: {
+          starterCode: `class Node:
+    def __init__(self, val=None, children=None):
+        self.val = val
+        self.children = children if children is not None else []
+
+class Codec:
+    def serialize(self, root):
+        """
+        :type root: Node
+        :rtype: str
+        """
+        # Write your code here
+        pass
+
+    def deserialize(self, data):
+        """
+        :type data: str
+        :rtype: Node
+        """
+        # Write your code here
+        pass`,
+          solution: `class Codec:
+    def serialize(self, root):
+        if not root:
+            return ""
+
+        result = []
+
+        def helper(node):
+            if not node:
+                return
+
+            # Add node value and number of children
+            result.append(str(node.val))
+            result.append(str(len(node.children)))
+
+            # Recursively serialize children
+            for child in node.children:
+                helper(child)
+
+        helper(root)
+        return " ".join(result)
+
+    def deserialize(self, data):
+        if not data:
+            return None
+
+        tokens = data.split()
+        self.index = 0
+
+        def helper():
+            if self.index >= len(tokens):
+                return None
+
+            # Get node value
+            val = int(tokens[self.index])
+            self.index += 1
+
+            # Get number of children
+            child_count = int(tokens[self.index])
+            self.index += 1
+
+            node = Node(val, [])
+
+            # Recursively deserialize children
+            for _ in range(child_count):
+                node.children.append(helper())
+
+            return node
+
+        return helper()`
+        }
+      },
+      testCases: [
+        { input: 'root = [1,null,3,2,4,null,5,6]', expected: 'original tree structure preserved' },
+        { input: 'root = [1,null,2,3,4,5]', expected: 'original tree structure preserved' }
+      ],
+      hints: [
+        'Store both node value and number of children',
+        'Use preorder traversal for serialization',
+        'Use a queue or index pointer for deserialization',
+        'Include child count to know how many children to deserialize'
+      ]
+    }
+  ]
+
+  const handleQuestionSelect = (question) => {
+    setSelectedQuestion(question)
+    setUserCode(question.code[language].starterCode)
+    setShowSolution(false)
+    setShowExplanation(false)
+    setOutput('')
+    // Load existing drawing if any
+    const problemId = `Trees-${question.id}`
+    const savedDrawing = localStorage.getItem(`drawing-${problemId}`)
+    setCurrentDrawing(savedDrawing)
+  }
+
+  const openDrawingModal = () => {
+    if (selectedQuestion) {
+      const problemId = `Trees-${selectedQuestion.id}`
+      const savedDrawing = localStorage.getItem(`drawing-${problemId}`)
+      setCurrentDrawing(savedDrawing)
+      setShowDrawing(true)
+    }
+  }
+
+  const closeDrawingModal = () => {
+    setShowDrawing(false)
+    // Reload drawing after saving
+    if (selectedQuestion) {
+      const problemId = `Trees-${selectedQuestion.id}`
+      const savedDrawing = localStorage.getItem(`drawing-${problemId}`)
+      setCurrentDrawing(savedDrawing)
+    }
+  }
+
+  const handleRunCode = () => {
+    setIsRunning(true)
+    setOutput('Running tests...\n')
+
+    setTimeout(() => {
+      const results = selectedQuestion.testCases.map((test, idx) =>
+        `Test ${idx + 1}: ${test.input}\nExpected: ${test.output}\n✓ Passed`
+      ).join('\n\n')
+
+      setOutput(results)
+      setIsRunning(false)
+    }, 1000)
+  }
+
+  const handleReset = () => {
+    setUserCode(selectedQuestion.code[language].starterCode)
+    setOutput('')
+    setShowSolution(false)
+  }
+
+  const handleKeyDown = (e) => {
+    // Stop propagation for all keys except Escape to allow typing in textarea
+    if (e.key !== 'Escape') {
+      e.stopPropagation()
+    }
+
+    if (e.key === 'Tab') {
+      e.preventDefault()
+      const start = e.target.selectionStart
+      const end = e.target.selectionEnd
+      const newValue = userCode.substring(0, start) + '    ' + userCode.substring(end)
+      setUserCode(newValue)
+      setTimeout(() => {
+        e.target.selectionStart = e.target.selectionEnd = start + 4
+      }, 0)
+    }
+  }
+
+  const QuestionCard = ({ question }) => {
+    const isCompleted = isProblemCompleted(`Trees-${question.id}`)
+
+    return (
+      <div
+        onClick={() => handleQuestionSelect(question)}
+        style={{
+          backgroundColor: isCompleted ? '#f0fdf4' : 'white',
+          color: '#1f2937',
+          padding: '1.5rem',
+          borderRadius: '12px',
+          cursor: 'pointer',
+          border: isCompleted ? '3px solid #10b981' : '2px solid #e5e7eb',
+          transition: 'all 0.2s ease',
+          boxShadow: isCompleted ? '0 2px 12px rgba(16, 185, 129, 0.2)' : '0 2px 8px rgba(0,0,0,0.1)',
+          position: 'relative'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-2px)'
+          e.currentTarget.style.boxShadow = isCompleted
+            ? '0 4px 16px rgba(16, 185, 129, 0.3)'
+            : '0 4px 12px rgba(0,0,0,0.15)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)'
+          e.currentTarget.style.boxShadow = isCompleted
+            ? '0 2px 12px rgba(16, 185, 129, 0.2)'
+            : '0 2px 8px rgba(0,0,0,0.1)'
+        }}
+      >
+        {isCompleted && (
+          <div style={{
+            position: 'absolute',
+            top: '-10px',
+            left: '-10px',
+            backgroundColor: '#10b981',
+            color: 'white',
+            borderRadius: '50%',
+            width: '32px',
+            height: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
+            boxShadow: '0 2px 8px rgba(16, 185, 129, 0.5)',
+            border: '3px solid white',
+            zIndex: 1
+          }}>
+            ✓
+          </div>
+        )}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+          <div
+            onClick={() => handleQuestionSelect(question)}
+            style={{ flex: 1, cursor: 'pointer' }}
+          >
+            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '700' }}>
+              {isCompleted && <span style={{ color: '#10b981', marginRight: '0.5rem' }}>✓</span>}
+              {question.id}. {question.title}
+            </h3>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            {question.leetcodeUrl && (
+              <a
+                href={question.leetcodeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '0.25rem 0.5rem',
+                  fontSize: '0.7rem',
+                  fontWeight: '600',
+                  color: '#3b82f6',
+                  backgroundColor: '#dbeafe',
+                  border: '1px solid #3b82f6',
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer',
+                  gap: '0.25rem'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#3b82f6'
+                  e.currentTarget.style.color = 'white'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#dbeafe'
+                  e.currentTarget.style.color = '#3b82f6'
+                }}
+                title="Open on LeetCode"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+                LC
+              </a>
+            )}
+            <span style={{
+              padding: '0.25rem 0.75rem',
+              borderRadius: '6px',
+              fontSize: '0.75rem',
+              fontWeight: '600',
+              backgroundColor: '#fef3c7',
+              color: '#92400e'
+            }}>
+              {question.difficulty}
+            </span>
+          </div>
+        </div>
+        <p
+          onClick={() => handleQuestionSelect(question)}
+          style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', opacity: 0.9, lineHeight: '1.5', cursor: 'pointer' }}
+        >
+          {question.description.substring(0, 100)}...
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button
+            onClick={onBack}
+            style={{
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+            }}
+          >
+            ← Back to Menu
+          </button>
+          <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '800', color: '#1f2937' }}>
+            Binary Trees Practice
+          </h1>
+          {currentSubcategory && (
+            <span style={{
+              padding: '0.5rem 1rem',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+              backgroundColor: '#dbeafe',
+              color: '#1e40af',
+              borderRadius: '8px',
+              marginLeft: '1rem'
+            }}>
+              {currentSubcategory}
+            </span>
+          )}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {previousSubcategory && (
+            <button
+              onClick={onPreviousSubcategory}
+              style={{
+                padding: '0.6rem 1rem',
+                fontSize: '0.85rem',
+                fontWeight: '600',
+                backgroundColor: '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 6px rgba(139, 92, 246, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
+            >
+              ⬆️ {previousSubcategory}
+            </button>
+          )}
+          {nextSubcategory && (
+            <button
+              onClick={onNextSubcategory}
+              style={{
+                padding: '0.6rem 1rem',
+                fontSize: '0.85rem',
+                fontWeight: '600',
+                backgroundColor: '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 6px rgba(139, 92, 246, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
+            >
+              {nextSubcategory} ⬇️
+            </button>
+          )}
+          {onPrevious && (
+            <button
+              onClick={onPrevious}
+              style={{
+                padding: '0.75rem 1.25rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+            >
+              ← {previousName}
+            </button>
+          )}
+          {onNext && (
+            <button
+              onClick={onNext}
+              style={{
+                padding: '0.75rem 1.25rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+            >
+              {nextName} →
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Questions List - Only show when no question is selected */}
+      {!selectedQuestion && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          {/* Easy Questions */}
+
+          {(() => {
+
+            const easyQuestions = questions.filter(q => q.difficulty === 'Easy')
+
+            if (easyQuestions.length === 0) return null
+
+
+            const completed = easyQuestions.filter(q => isProblemCompleted(`Trees-${q.id}`)).length
+
+            const total = easyQuestions.length
+
+            const shouldCollapse = total > 5
+
+            const isExpanded = expandedSections.Easy
+
+
+            return (
+
+              <div>
+
+                <h2
+                  onClick={() => shouldCollapse && setExpandedSections(prev => ({ ...prev, Easy: !prev.Easy }))}
+                  tabIndex={shouldCollapse ? 0 : -1}
+                  role={shouldCollapse ? "button" : undefined}
+                  aria-expanded={shouldCollapse ? isExpanded : undefined}
+                  onKeyDown={(e) => {
+                    if (shouldCollapse && (e.key === "Enter" || e.key === " ")) {
+                      e.preventDefault()
+                      setExpandedSections(prev => ({ ...prev, Easy: !prev.Easy }))
+                    }
+                  }}
+                  style={{
+
+                    fontSize: '1.5rem',
+
+                    fontWeight: '700',
+
+                    color: '#059669',
+
+                    marginBottom: '1rem',
+
+                    display: 'flex',
+
+                    alignItems: 'center',
+
+                    gap: '0.75rem',
+
+                    borderBottom: '3px solid #10b981',
+
+                    paddingBottom: '0.5rem',
+
+                    cursor: shouldCollapse ? 'pointer' : 'default',
+
+                    userSelect: 'none'
+
+                  }}
+
+                >
+
+                  {shouldCollapse && (
+
+                    <span style={{ fontSize: '1.2rem', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+
+                      ▶
+
+                    </span>
+
+                  )}
+
+                  <span style={{
+
+                    backgroundColor: '#d1fae5',
+
+                    color: '#065f46',
+
+                    padding: '0.25rem 0.75rem',
+
+                    borderRadius: '8px',
+
+                    fontSize: '0.9rem'
+
+                  }}>
+
+                    Easy
+
+                  </span>
+
+                  <span style={{ fontSize: '1rem', color: '#6b7280' }}>
+
+                    ({total} {total === 1 ? 'problem' : 'problems'})
+
+                  </span>
+
+                  {shouldCollapse && (
+
+                    <span style={{
+
+                      marginLeft: 'auto',
+
+                      backgroundColor: completed === total ? '#10b981' : '#e5e7eb',
+
+                      color: completed === total ? 'white' : '#6b7280',
+
+                      padding: '0.25rem 0.75rem',
+
+                      borderRadius: '12px',
+
+                      fontSize: '0.85rem',
+
+                      fontWeight: '600'
+
+                    }}>
+
+                      {completed}/{total} completed
+
+                    </span>
+
+                  )}
+
+                </h2>
+
+                {(!shouldCollapse || isExpanded) && (
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+                    {easyQuestions.map(q =>
+
+                      <QuestionCard key={`${q.id}-${refreshKey}`} question={q} forceRefresh={refreshKey} />
+
+                    )}
+
+                  </div>
+
+                )}
+
+              </div>
+
+            )
+
+          })()}
+          {/* Medium Questions */}
+
+          {(() => {
+
+            const mediumQuestions = questions.filter(q => q.difficulty === 'Medium')
+
+            if (mediumQuestions.length === 0) return null
+
+
+            const completed = mediumQuestions.filter(q => isProblemCompleted(`Trees-${q.id}`)).length
+
+            const total = mediumQuestions.length
+
+            const shouldCollapse = total > 5
+
+            const isExpanded = expandedSections.Medium
+
+
+            return (
+
+              <div>
+
+                <h2
+                  onClick={() => shouldCollapse && setExpandedSections(prev => ({ ...prev, Medium: !prev.Medium }))}
+                  tabIndex={shouldCollapse ? 0 : -1}
+                  role={shouldCollapse ? "button" : undefined}
+                  aria-expanded={shouldCollapse ? isExpanded : undefined}
+                  onKeyDown={(e) => {
+                    if (shouldCollapse && (e.key === "Enter" || e.key === " ")) {
+                      e.preventDefault()
+                      setExpandedSections(prev => ({ ...prev, Medium: !prev.Medium }))
+                    }
+                  }}
+                  style={{
+
+                    fontSize: '1.5rem',
+
+                    fontWeight: '700',
+
+                    color: '#d97706',
+
+                    marginBottom: '1rem',
+
+                    display: 'flex',
+
+                    alignItems: 'center',
+
+                    gap: '0.75rem',
+
+                    borderBottom: '3px solid #f59e0b',
+
+                    paddingBottom: '0.5rem',
+
+                    cursor: shouldCollapse ? 'pointer' : 'default',
+
+                    userSelect: 'none'
+
+                  }}
+
+                >
+
+                  {shouldCollapse && (
+
+                    <span style={{ fontSize: '1.2rem', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+
+                      ▶
+
+                    </span>
+
+                  )}
+
+                  <span style={{
+
+                    backgroundColor: '#fef3c7',
+
+                    color: '#92400e',
+
+                    padding: '0.25rem 0.75rem',
+
+                    borderRadius: '8px',
+
+                    fontSize: '0.9rem'
+
+                  }}>
+
+                    Medium
+
+                  </span>
+
+                  <span style={{ fontSize: '1rem', color: '#6b7280' }}>
+
+                    ({total} {total === 1 ? 'problem' : 'problems'})
+
+                  </span>
+
+                  {shouldCollapse && (
+
+                    <span style={{
+
+                      marginLeft: 'auto',
+
+                      backgroundColor: completed === total ? '#f59e0b' : '#e5e7eb',
+
+                      color: completed === total ? 'white' : '#6b7280',
+
+                      padding: '0.25rem 0.75rem',
+
+                      borderRadius: '12px',
+
+                      fontSize: '0.85rem',
+
+                      fontWeight: '600'
+
+                    }}>
+
+                      {completed}/{total} completed
+
+                    </span>
+
+                  )}
+
+                </h2>
+
+                {(!shouldCollapse || isExpanded) && (
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+                    {mediumQuestions.map(q =>
+
+                      <QuestionCard key={`${q.id}-${refreshKey}`} question={q} forceRefresh={refreshKey} />
+
+                    )}
+
+                  </div>
+
+                )}
+
+              </div>
+
+            )
+
+          })()}
+          {/* Hard Questions */}
+
+          {(() => {
+
+            const hardQuestions = questions.filter(q => q.difficulty === 'Hard')
+
+            if (hardQuestions.length === 0) return null
+
+
+            const completed = hardQuestions.filter(q => isProblemCompleted(`Trees-${q.id}`)).length
+
+            const total = hardQuestions.length
+
+            const shouldCollapse = total > 5
+
+            const isExpanded = expandedSections.Hard
+
+
+            return (
+
+              <div>
+
+                <h2
+                  onClick={() => shouldCollapse && setExpandedSections(prev => ({ ...prev, Hard: !prev.Hard }))}
+                  tabIndex={shouldCollapse ? 0 : -1}
+                  role={shouldCollapse ? "button" : undefined}
+                  aria-expanded={shouldCollapse ? isExpanded : undefined}
+                  onKeyDown={(e) => {
+                    if (shouldCollapse && (e.key === "Enter" || e.key === " ")) {
+                      e.preventDefault()
+                      setExpandedSections(prev => ({ ...prev, Hard: !prev.Hard }))
+                    }
+                  }}
+                  style={{
+
+                    fontSize: '1.5rem',
+
+                    fontWeight: '700',
+
+                    color: '#dc2626',
+
+                    marginBottom: '1rem',
+
+                    display: 'flex',
+
+                    alignItems: 'center',
+
+                    gap: '0.75rem',
+
+                    borderBottom: '3px solid #ef4444',
+
+                    paddingBottom: '0.5rem',
+
+                    cursor: shouldCollapse ? 'pointer' : 'default',
+
+                    userSelect: 'none'
+
+                  }}
+
+                >
+
+                  {shouldCollapse && (
+
+                    <span style={{ fontSize: '1.2rem', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+
+                      ▶
+
+                    </span>
+
+                  )}
+
+                  <span style={{
+
+                    backgroundColor: '#fee2e2',
+
+                    color: '#991b1b',
+
+                    padding: '0.25rem 0.75rem',
+
+                    borderRadius: '8px',
+
+                    fontSize: '0.9rem'
+
+                  }}>
+
+                    Hard
+
+                  </span>
+
+                  <span style={{ fontSize: '1rem', color: '#6b7280' }}>
+
+                    ({total} {total === 1 ? 'problem' : 'problems'})
+
+                  </span>
+
+                  {shouldCollapse && (
+
+                    <span style={{
+
+                      marginLeft: 'auto',
+
+                      backgroundColor: completed === total ? '#ef4444' : '#e5e7eb',
+
+                      color: completed === total ? 'white' : '#6b7280',
+
+                      padding: '0.25rem 0.75rem',
+
+                      borderRadius: '12px',
+
+                      fontSize: '0.85rem',
+
+                      fontWeight: '600'
+
+                    }}>
+
+                      {completed}/{total} completed
+
+                    </span>
+
+                  )}
+
+                </h2>
+
+                {(!shouldCollapse || isExpanded) && (
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+                    {hardQuestions.map(q =>
+
+                      <QuestionCard key={`${q.id}-${refreshKey}`} question={q} forceRefresh={refreshKey} />
+
+                    )}
+
+                  </div>
+
+                )}
+
+              </div>
+
+            )
+
+          })()}
+        </div>
+        </div>
+      )}
+
+      {/* Question Detail - Full width when selected */}
+      {selectedQuestion && (
+        <div>
+          <button
+            onClick={() => setSelectedQuestion(null)}
+            style={{
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              backgroundColor: '#6b7280',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              marginBottom: '1.5rem',
+              boxShadow: '0 2px 8px rgba(107, 114, 128, 0.3)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#4b5563'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#6b7280'}
+          >
+            ← Back to Questions
+          </button>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '2rem',
+            borderRadius: '12px',
+            border: '2px solid #e5e7eb',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
+          }}>
+            <div style={{ marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+            <h2 style={{ fontSize: '1.5rem', margin: 0, color: '#1f2937' }}>
+              {selectedQuestion.title}
+            </h2>
+            {selectedQuestion.leetcodeUrl && (
+              <a
+                href={selectedQuestion.leetcodeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '0.35rem 0.6rem',
+                  backgroundColor: '#f97316',
+                  color: 'white',
+                  textDecoration: 'none',
+                  borderRadius: '6px',
+                  fontSize: '0.75rem',
+                  fontWeight: '600',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ea580c'
+                  e.currentTarget.style.transform = 'translateY(-1px)'
+                  e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f97316'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+                }}
+                title="Open on LeetCode"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '0.25rem' }}>
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+                LeetCode
+              </a>
+            )}
+          </div>
+          <span style={{
+            display: 'inline-block',
+            padding: '0.25rem 0.75rem',
+            backgroundColor: '#fef3c7',
+            color: '#92400e',
+            borderRadius: '6px',
+            fontSize: '0.875rem',
+            fontWeight: '600',
+            marginBottom: '1rem'
+          }}>
+            {selectedQuestion.difficulty}
+          </span>
+
+          <div style={{ marginTop: '1rem' }}>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#1f2937' }}>Description</h3>
+            <p style={{ color: '#4b5563', lineHeight: '1.6' }}>{selectedQuestion.description}</p>
+          </div>
+
+          <div style={{ marginTop: '1.5rem' }}>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#1f2937' }}>Example</h3>
+            <pre style={{
+              backgroundColor: '#f3f4f6',
+              padding: '1rem',
+              borderRadius: '8px',
+              overflow: 'auto',
+              fontSize: '0.9rem',
+              color: '#1f2937'
+            }}>
+              {selectedQuestion.example}
+            </pre>
+          </div>
+
+          <div style={{ marginTop: '1.5rem' }}>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#1f2937' }}>Test Cases</h3>
+            {selectedQuestion.testCases.map((test, idx) => (
+              <div key={idx} style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                <span style={{ color: '#6b7280' }}>Test {idx + 1}:</span>{' '}
+                <span style={{ color: '#1f2937' }}>{test.input} → {test.output}</span>
+              </div>
+            ))}
+          </div>
+
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1f2937', margin: 0 }}>
+              💻 Code Editor
+            </h3>
+            <LanguageToggle />
+          </div>
+          <textarea
+            value={userCode}
+            onChange={(e) => setUserCode(e.target.value)}
+            onKeyDown={handleKeyDown}
+            style={{
+              width: '100%',
+              height: '400px',
+              fontFamily: 'monospace',
+              fontSize: '0.9rem',
+              padding: '1rem',
+              border: '2px solid #e5e7eb',
+              borderRadius: '8px',
+              resize: 'vertical',
+              marginBottom: '1rem'
+            }}
+          />
+
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <button
+              onClick={handleRunCode}
+              disabled={isRunning}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                backgroundColor: isRunning ? '#9ca3af' : '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: isRunning ? 'not-allowed' : 'pointer',
+                fontWeight: '600'
+              }}
+            >
+              {isRunning ? 'Running...' : 'Run Code'}
+            </button>
+            <button
+              onClick={handleReset}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                backgroundColor: '#6b7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer'
+              }}
+            >
+              Reset
+            </button>
+            <button
+              onClick={openDrawingModal}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '700',
+                backgroundColor: currentDrawing ? '#8b5cf6' : '#6366f1',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: currentDrawing ? '0 2px 8px rgba(139, 92, 246, 0.3)' : '0 2px 8px rgba(99, 102, 241, 0.3)'
+              }}
+            >
+              {currentDrawing ? '✏️ Edit Drawing' : '🎨 Draw'}
+            </button>
+            <button
+              onClick={() => setShowExplanation(!showExplanation)}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '700',
+                backgroundColor: showExplanation ? '#8b5cf6' : '#f59e0b',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+              }}
+            >
+              {showExplanation ? '✓ Explanation Visible' : '📖 Explanation & Pseudocode'}
+            </button>
+            <button
+              onClick={() => setShowSolution(!showSolution)}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '700',
+                backgroundColor: showSolution ? '#10b981' : '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+              }}
+            >
+              {showSolution ? '✓ Solution Visible' : '👁️ Show Solution'}
+            </button>
+            <div style={{ marginLeft: 'auto' }}>
+              <CompletionCheckbox
+                problemId={`Trees-${selectedQuestion.id}`}
+                label="Mark as Completed"
+                onCompletionChange={() => setRefreshKey(prev => prev + 1)}
+              />
+            </div>
+          </div>
+
+          {/* Drawing Preview Section */}
+          {currentDrawing && (
+            <div style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1f2937', margin: 0 }}>
+                  🎨 Your Drawing
+                </h3>
+                <button
+                  onClick={openDrawingModal}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    backgroundColor: '#6366f1',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  ✏️ Edit
+                </button>
+              </div>
+              <div style={{
+                backgroundColor: '#f9fafb',
+                padding: '1rem',
+                borderRadius: '8px',
+                border: '2px solid #e5e7eb',
+                textAlign: 'center'
+              }}>
+                <img
+                  src={currentDrawing}
+                  alt="Your drawing"
+                  style={{
+                    maxWidth: '100%',
+                    height: 'auto',
+                    borderRadius: '4px'
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+            {showExplanation && (
+              <div style={{
+                backgroundColor: '#fef3c7',
+                padding: '1.5rem',
+                borderRadius: '8px',
+                border: '2px solid #f59e0b',
+                marginBottom: '1rem'
+              }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: '#92400e', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  📖 Explanation
+                </h3>
+                <div style={{
+                  fontSize: '0.95rem',
+                  lineHeight: '1.8',
+                  color: '#78350f',
+                  whiteSpace: 'pre-wrap',
+                  marginBottom: '1.5rem'
+                }}>
+                  {selectedQuestion.explanation}
+                </div>
+
+                <div style={{
+                  backgroundColor: '#1e293b',
+                  padding: '1.5rem',
+                  borderRadius: '8px',
+                  overflowX: 'auto',
+                  marginTop: '1rem'
+                }}>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#a78bfa', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    🔧 Pseudocode
+                  </h4>
+                  <pre style={{
+                    margin: 0,
+                    fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+                    fontSize: '0.9rem',
+                    lineHeight: '1.6',
+                    color: '#e2e8f0',
+                    whiteSpace: 'pre',
+                    overflowX: 'auto'
+                  }}>
+                    {selectedQuestion.pseudocode}
+                  </pre>
+                </div>
+              </div>
+            )}
+
+            {output && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#1f2937' }}>Output</h3>
+                <pre style={{
+                  backgroundColor: '#1f2937',
+                  color: '#f3f4f6',
+                  padding: '1rem',
+                  borderRadius: '8px',
+                  overflow: 'auto',
+                  fontSize: '0.9rem',
+                  minHeight: '150px'
+                }}>
+                  {output}
+                </pre>
+              </div>
+            )}
+
+            {showSolution && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#059669' }}>Solution ({language === 'java' ? 'Java' : 'Python'})</h3>
+                <pre style={{
+                  backgroundColor: '#f0fdf4',
+                  padding: '1rem',
+                  borderRadius: '8px',
+                  overflow: 'auto',
+                  fontSize: '0.85rem',
+                  color: '#1f2937',
+                  border: '2px solid #86efac'
+                }}>
+                  {selectedQuestion.code[language].solution}
+                </pre>
+              </div>
+            )}
+          </div>
+        </div>
+        </div>
+      )}
+
+      {/* Drawing Canvas Modal */}
+      <DrawingCanvas
+        isOpen={showDrawing}
+        onClose={closeDrawingModal}
+        problemId={selectedQuestion ? `Trees-${selectedQuestion.id}` : ''}
+        existingDrawing={currentDrawing}
+      />
+    </div>
+  )
+}
+
+export default Trees

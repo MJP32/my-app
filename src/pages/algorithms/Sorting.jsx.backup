@@ -1,0 +1,1593 @@
+import { useState, useEffect } from 'react'
+import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
+import LanguageToggle from '../../components/LanguageToggle.jsx'
+import DrawingCanvas from '../../components/DrawingCanvas.jsx'
+import { isProblemCompleted } from '../../services/progressService'
+import { getPreferredLanguage } from '../../services/languageService'
+import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
+
+function Sorting({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory }) {
+  const [selectedQuestion, setSelectedQuestion] = useState(null)
+  const [showSolution, setShowSolution] = useState(false)
+  const [showExplanation, setShowExplanation] = useState(false)
+  const [userCode, setUserCode] = useState('')
+  const [output, setOutput] = useState('')
+  const [isRunning, setIsRunning] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [language, setLanguage] = useState(getPreferredLanguage())
+  const [showDrawing, setShowDrawing] = useState(false)
+  const [currentDrawing, setCurrentDrawing] = useState(null)
+
+  useEffect(() => {
+    const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
+    window.addEventListener('progressUpdate', handleProgressUpdate)
+    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
+  }, [])
+
+  useEffect(() => {
+    const handleLanguageChange = (e) => {
+      setLanguage(e.detail)
+      if (selectedQuestion) {
+        setUserCode(selectedQuestion.code[e.detail].starterCode)
+      }
+    }
+    window.addEventListener('languageChange', handleLanguageChange)
+    return () => window.removeEventListener('languageChange', handleLanguageChange)
+  }, [selectedQuestion])
+
+  const questions = [
+    {
+      id: 1,
+      title: 'Sort Colors',
+      difficulty: 'Medium',
+      leetcodeUrl: 'https://leetcode.com/problems/sort-colors/',
+      description: 'Given an array nums with n objects colored red, white, or blue, sort them in-place so that objects of the same color are adjacent, with the colors in the order red, white, and blue. We will use the integers 0, 1, and 2 to represent the color red, white, and blue, respectively. You must solve this problem without using the library\'s sort function.',
+      code: {
+        java: {
+          starterCode: `public void sortColors(int[] nums) {
+    // Write your code here
+
+}`,
+          solution: `// Approach: Dutch National Flag Algorithm - O(n) time, O(1) space
+public void sortColors(int[] nums) {
+    int low = 0, mid = 0, high = nums.length - 1;
+
+    while (mid <= high) {
+        if (nums[mid] == 0) {
+            swap(nums, low, mid);
+            low++;
+            mid++;
+        } else if (nums[mid] == 1) {
+            mid++;
+        } else {
+            swap(nums, mid, high);
+            high--;
+        }
+    }
+}
+
+private void swap(int[] nums, int i, int j) {
+    int temp = nums[i];
+    nums[i] = nums[j];
+    nums[j] = temp;
+}
+
+// Approach 2: Counting Sort - O(n) time, O(1) space
+public void sortColors(int[] nums) {
+    int count0 = 0, count1 = 0, count2 = 0;
+
+    for (int num : nums) {
+        if (num == 0) count0++;
+        else if (num == 1) count1++;
+        else count2++;
+    }
+
+    int index = 0;
+    for (int i = 0; i < count0; i++) nums[index++] = 0;
+    for (int i = 0; i < count1; i++) nums[index++] = 1;
+    for (int i = 0; i < count2; i++) nums[index++] = 2;
+}`
+        },
+        python: {
+          starterCode: `def sortColors(self, nums: List[int]) -> None:
+    """
+    Do not return anything, modify nums in-place instead.
+    """
+    # Write your code here
+    pass`,
+          solution: `# Approach: Dutch National Flag Algorithm - O(n) time, O(1) space
+def sortColors(self, nums: List[int]) -> None:
+    """
+    Do not return anything, modify nums in-place instead.
+    """
+    low, mid, high = 0, 0, len(nums) - 1
+
+    while mid <= high:
+        if nums[mid] == 0:
+            nums[low], nums[mid] = nums[mid], nums[low]
+            low += 1
+            mid += 1
+        elif nums[mid] == 1:
+            mid += 1
+        else:
+            nums[mid], nums[high] = nums[high], nums[mid]
+            high -= 1
+
+# Approach 2: Counting Sort - O(n) time, O(1) space
+def sortColors(self, nums: List[int]) -> None:
+    count0 = count1 = count2 = 0
+
+    for num in nums:
+        if num == 0:
+            count0 += 1
+        elif num == 1:
+            count1 += 1
+        else:
+            count2 += 1
+
+    index = 0
+    for _ in range(count0):
+        nums[index] = 0
+        index += 1
+    for _ in range(count1):
+        nums[index] = 1
+        index += 1
+    for _ in range(count2):
+        nums[index] = 2
+        index += 1`
+        }
+      },
+      testCases: [
+        { nums: [2,0,2,1,1,0], expected: [0,0,1,1,2,2] },
+        { nums: [2,0,1], expected: [0,1,2] }
+      ],
+      examples: [
+        { input: 'nums = [2,0,2,1,1,0]', output: '[0,0,1,1,2,2]' },
+        { input: 'nums = [2,0,1]', output: '[0,1,2]' }
+      ],
+      explanation: `**Problem:** Sort an array containing only 0s, 1s, and 2s in-place without using the sort library.
+
+**Key Insight:** This is the classic Dutch National Flag problem. Use three pointers to partition the array into three sections.
+
+**Approach 1: Dutch National Flag Algorithm**
+1. Use three pointers:
+   - low: boundary for 0s (everything before low is 0)
+   - mid: current element being examined
+   - high: boundary for 2s (everything after high is 2)
+2. Process elements at mid pointer:
+   - If nums[mid] == 0: swap with low, increment both low and mid
+   - If nums[mid] == 1: just increment mid (already in correct position)
+   - If nums[mid] == 2: swap with high, decrement high (don't increment mid, need to examine swapped element)
+3. Continue until mid > high
+
+**Why This Works:**
+- Maintains invariant: [0,0,...,0][1,1,...,1][unknown][2,2,...,2]
+- Single pass with constant space
+- Each element examined at most twice
+
+**Approach 2: Counting Sort**
+1. Count frequency of 0s, 1s, 2s
+2. Overwrite array: first count0 elements = 0, next count1 elements = 1, last count2 elements = 2
+
+**Complexity:** Time O(n), Space O(1) for both approaches`,
+      pseudocode: `Dutch National Flag:
+-----------------------
+low = 0, mid = 0, high = n-1
+
+while mid <= high:
+    if nums[mid] == 0:
+        swap(nums[low], nums[mid])
+        low++
+        mid++
+    elif nums[mid] == 1:
+        mid++
+    else:  // nums[mid] == 2
+        swap(nums[mid], nums[high])
+        high--
+
+Example: [2,0,2,1,1,0]
+Initial: low=0, mid=0, high=5
+[2,0,2,1,1,0] mid=0, nums[0]=2, swap with high → [0,0,2,1,1,2], high=4
+[0,0,2,1,1,2] mid=0, nums[0]=0, swap with low → [0,0,2,1,1,2], low=1, mid=1
+[0,0,2,1,1,2] mid=1, nums[1]=0, swap with low → [0,0,2,1,1,2], low=2, mid=2
+[0,0,2,1,1,2] mid=2, nums[2]=2, swap with high → [0,0,1,1,2,2], high=3
+[0,0,1,1,2,2] mid=2, nums[2]=1, mid++ → mid=3
+[0,0,1,1,2,2] mid=3, nums[3]=1, mid++ → mid=4
+mid > high, done! Result: [0,0,1,1,2,2]
+
+Counting Sort:
+-----------------------
+count0 = count1 = count2 = 0
+for num in nums:
+    if num == 0: count0++
+    elif num == 1: count1++
+    else: count2++
+
+index = 0
+fill count0 zeros, count1 ones, count2 twos`
+    },
+    {
+      id: 2,
+      title: 'Kth Largest Element in Array',
+      difficulty: 'Medium',
+      leetcodeUrl: 'https://leetcode.com/problems/kth-largest-element-in-an-array/',
+      description: 'Given an integer array nums and an integer k, return the kth largest element in the array. Note that it is the kth largest element in the sorted order, not the kth distinct element.',
+      code: {
+        java: {
+          starterCode: `public int findKthLargest(int[] nums, int k) {
+    // Write your code here
+
+}`,
+          solution: `// Approach 1: Min Heap - O(n log k) time, O(k) space
+public int findKthLargest(int[] nums, int k) {
+    PriorityQueue<Integer> minHeap = new PriorityQueue<>();
+
+    for (int num : nums) {
+        minHeap.offer(num);
+        if (minHeap.size() > k) {
+            minHeap.poll();
+        }
+    }
+
+    return minHeap.peek();
+}
+
+// Approach 2: QuickSelect - O(n) average time, O(1) space
+public int findKthLargest(int[] nums, int k) {
+    return quickSelect(nums, 0, nums.length - 1, nums.length - k);
+}
+
+private int quickSelect(int[] nums, int left, int right, int k) {
+    if (left == right) return nums[left];
+
+    int pivotIndex = partition(nums, left, right);
+
+    if (k == pivotIndex) {
+        return nums[k];
+    } else if (k < pivotIndex) {
+        return quickSelect(nums, left, pivotIndex - 1, k);
+    } else {
+        return quickSelect(nums, pivotIndex + 1, right, k);
+    }
+}
+
+private int partition(int[] nums, int left, int right) {
+    int pivot = nums[right];
+    int i = left;
+
+    for (int j = left; j < right; j++) {
+        if (nums[j] <= pivot) {
+            swap(nums, i, j);
+            i++;
+        }
+    }
+
+    swap(nums, i, right);
+    return i;
+}
+
+private void swap(int[] nums, int i, int j) {
+    int temp = nums[i];
+    nums[i] = nums[j];
+    nums[j] = temp;
+}`
+        },
+        python: {
+          starterCode: `def findKthLargest(self, nums: List[int], k: int) -> int:
+    # Write your code here
+    pass`,
+          solution: `# Approach 1: Min Heap - O(n log k) time, O(k) space
+def findKthLargest(self, nums: List[int], k: int) -> int:
+    import heapq
+    min_heap = []
+
+    for num in nums:
+        heapq.heappush(min_heap, num)
+        if len(min_heap) > k:
+            heapq.heappop(min_heap)
+
+    return min_heap[0]
+
+# Approach 2: QuickSelect - O(n) average time, O(1) space
+def findKthLargest(self, nums: List[int], k: int) -> int:
+    def quick_select(left: int, right: int, k_smallest: int) -> int:
+        if left == right:
+            return nums[left]
+
+        pivot_index = partition(left, right)
+
+        if k_smallest == pivot_index:
+            return nums[k_smallest]
+        elif k_smallest < pivot_index:
+            return quick_select(left, pivot_index - 1, k_smallest)
+        else:
+            return quick_select(pivot_index + 1, right, k_smallest)
+
+    def partition(left: int, right: int) -> int:
+        pivot = nums[right]
+        i = left
+
+        for j in range(left, right):
+            if nums[j] <= pivot:
+                nums[i], nums[j] = nums[j], nums[i]
+                i += 1
+
+        nums[i], nums[right] = nums[right], nums[i]
+        return i
+
+    return quick_select(0, len(nums) - 1, len(nums) - k)`
+        }
+      },
+      testCases: [
+        { nums: [3,2,1,5,6,4], k: 2, expected: 5 },
+        { nums: [3,2,3,1,2,4,5,5,6], k: 4, expected: 4 }
+      ],
+      examples: [
+        { input: 'nums = [3,2,1,5,6,4], k = 2', output: '5' },
+        { input: 'nums = [3,2,3,1,2,4,5,5,6], k = 4', output: '4' }
+      ],
+      explanation: `**Problem:** Find the kth largest element in an unsorted array (not kth distinct).
+
+**Key Insight:** We don't need to sort the entire array. Use either a min heap of size k or QuickSelect for optimal performance.
+
+**Approach 1: Min Heap (Size K)**
+1. Maintain a min heap of size k
+2. For each element:
+   - Add to heap
+   - If heap size > k, remove minimum
+3. After processing all elements, heap root is kth largest
+
+**Why This Works:**
+- Heap maintains k largest elements seen so far
+- Smallest of k largest elements = kth largest overall
+- Space-efficient: only store k elements
+
+**Approach 2: QuickSelect (Optimal)**
+1. Similar to QuickSort partitioning
+2. Pick a pivot, partition array around it
+3. If pivot is at position n-k (kth largest in 0-indexed sorted array):
+   - Found answer!
+4. If pivot position < n-k: search right half
+5. If pivot position > n-k: search left half
+
+**Why QuickSelect?**
+- Average O(n) time vs O(n log k) for heap
+- No extra space needed
+- Based on observation: we only need to partially sort
+
+**Complexity:**
+- Min Heap: Time O(n log k), Space O(k)
+- QuickSelect: Time O(n) average, O(n²) worst, Space O(1)`,
+      pseudocode: `Min Heap Approach:
+-----------------------
+minHeap = PriorityQueue()
+
+for num in nums:
+    minHeap.add(num)
+    if minHeap.size() > k:
+        minHeap.poll()  // Remove minimum
+
+return minHeap.peek()  // kth largest
+
+Example: nums = [3,2,1,5,6,4], k = 2
+Add 3: heap = [3]
+Add 2: heap = [2,3]
+Add 1: heap = [1,2,3], size > 2, poll → heap = [2,3]
+Add 5: heap = [2,3,5], size > 2, poll → heap = [3,5]
+Add 6: heap = [3,5,6], size > 2, poll → heap = [5,6]
+Add 4: heap = [4,5,6], size > 2, poll → heap = [5,6]
+Result: heap.peek() = 5 (2nd largest)
+
+QuickSelect Approach:
+-----------------------
+quickSelect(nums, left, right, n-k):
+    if left == right:
+        return nums[left]
+
+    pivotIndex = partition(nums, left, right)
+
+    if pivotIndex == n-k:
+        return nums[pivotIndex]
+    elif pivotIndex < n-k:
+        return quickSelect(nums, pivotIndex+1, right, n-k)
+    else:
+        return quickSelect(nums, left, pivotIndex-1, n-k)
+
+partition(nums, left, right):
+    pivot = nums[right]
+    i = left
+    for j in [left..right-1]:
+        if nums[j] <= pivot:
+            swap(nums[i], nums[j])
+            i++
+    swap(nums[i], nums[right])
+    return i`
+    },
+    {
+      id: 3,
+      title: 'Meeting Rooms II',
+      difficulty: 'Medium',
+      leetcodeUrl: 'https://leetcode.com/problems/meeting-rooms-ii/',
+      description: 'Given an array of meeting time intervals consisting of start and end times [[s1,e1],[s2,e2],...] (si < ei), find the minimum number of conference rooms required.',
+      code: {
+        java: {
+          starterCode: `public int minMeetingRooms(int[][] intervals) {
+    // Write your code here
+
+}`,
+          solution: `// Approach 1: Min Heap - O(n log n) time, O(n) space
+public int minMeetingRooms(int[][] intervals) {
+    if (intervals.length == 0) return 0;
+
+    // Sort by start time
+    Arrays.sort(intervals, (a, b) -> a[0] - b[0]);
+
+    // Min heap to track end times
+    PriorityQueue<Integer> heap = new PriorityQueue<>();
+    heap.offer(intervals[0][1]);
+
+    for (int i = 1; i < intervals.length; i++) {
+        // If the earliest ending meeting has finished, reuse the room
+        if (intervals[i][0] >= heap.peek()) {
+            heap.poll();
+        }
+        // Add current meeting's end time
+        heap.offer(intervals[i][1]);
+    }
+
+    return heap.size();
+}
+
+// Approach 2: Chronological Ordering - O(n log n) time, O(n) space
+public int minMeetingRooms(int[][] intervals) {
+    int n = intervals.length;
+    int[] starts = new int[n];
+    int[] ends = new int[n];
+
+    for (int i = 0; i < n; i++) {
+        starts[i] = intervals[i][0];
+        ends[i] = intervals[i][1];
+    }
+
+    Arrays.sort(starts);
+    Arrays.sort(ends);
+
+    int rooms = 0, endPtr = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (starts[i] < ends[endPtr]) {
+            rooms++;
+        } else {
+            endPtr++;
+        }
+    }
+
+    return rooms;
+}`
+        },
+        python: {
+          starterCode: `def minMeetingRooms(self, intervals: List[List[int]]) -> int:
+    # Write your code here
+    pass`,
+          solution: `# Approach 1: Min Heap - O(n log n) time, O(n) space
+def minMeetingRooms(self, intervals: List[List[int]]) -> int:
+    if not intervals:
+        return 0
+
+    import heapq
+    # Sort by start time
+    intervals.sort(key=lambda x: x[0])
+
+    # Min heap to track end times
+    heap = []
+    heapq.heappush(heap, intervals[0][1])
+
+    for i in range(1, len(intervals)):
+        # If the earliest ending meeting has finished, reuse the room
+        if intervals[i][0] >= heap[0]:
+            heapq.heappop(heap)
+        # Add current meeting's end time
+        heapq.heappush(heap, intervals[i][1])
+
+    return len(heap)
+
+# Approach 2: Chronological Ordering - O(n log n) time, O(n) space
+def minMeetingRooms(self, intervals: List[List[int]]) -> int:
+    n = len(intervals)
+    starts = sorted([interval[0] for interval in intervals])
+    ends = sorted([interval[1] for interval in intervals])
+
+    rooms = 0
+    end_ptr = 0
+
+    for i in range(n):
+        if starts[i] < ends[end_ptr]:
+            rooms += 1
+        else:
+            end_ptr += 1
+
+    return rooms`
+        }
+      },
+      testCases: [
+        { intervals: [[0,30],[5,10],[15,20]], expected: 2 },
+        { intervals: [[7,10],[2,4]], expected: 1 }
+      ],
+      examples: [
+        { input: 'intervals = [[0,30],[5,10],[15,20]]', output: '2' },
+        { input: 'intervals = [[7,10],[2,4]]', output: '1' }
+      ],
+      explanation: `**Problem:** Find the minimum number of conference rooms needed to schedule all meetings.
+
+**Key Insight:** The number of rooms needed at any time = number of overlapping meetings. Track when rooms become free and reuse them.
+
+**Approach 1: Min Heap (Track End Times)**
+1. Sort meetings by start time
+2. Use min heap to track end times of ongoing meetings
+3. For each meeting:
+   - If earliest ending meeting has finished (meeting.start >= heap.peek()), reuse that room (remove from heap)
+   - Add current meeting's end time to heap
+4. Heap size = number of rooms needed
+
+**Why This Works:**
+- Heap always contains end times of currently active meetings
+- Heap size = number of concurrent meetings = rooms needed
+- Reusing rooms when they become free minimizes total count
+
+**Approach 2: Chronological Ordering**
+1. Create separate arrays for start times and end times
+2. Sort both arrays independently
+3. Use two pointers:
+   - If start[i] < end[j]: new meeting starts before earliest ends → need new room
+   - If start[i] >= end[j]: earliest meeting ended → reuse room, move end pointer
+4. Track maximum rooms needed
+
+**Why Chronological Ordering Works:**
+- We only care about relative ordering of events, not which meeting they belong to
+- Each start time either reuses a freed room or requires a new one
+- Maximum concurrent meetings = answer
+
+**Complexity:** Time O(n log n), Space O(n) for both approaches`,
+      pseudocode: `Min Heap Approach:
+-----------------------
+sort(intervals by start time)
+minHeap = PriorityQueue()
+minHeap.add(intervals[0].end)
+
+for i from 1 to n-1:
+    if intervals[i].start >= minHeap.peek():
+        minHeap.poll()  // Reuse room
+    minHeap.add(intervals[i].end)
+
+return minHeap.size()
+
+Example: [[0,30],[5,10],[15,20]]
+Sort: [[0,30],[5,10],[15,20]] (already sorted)
+Initial: heap = [30]
+Meeting [5,10]: 5 < 30, don't poll, add 10 → heap = [10,30]
+Meeting [15,20]: 15 >= 10, poll → heap = [30], add 20 → heap = [20,30]
+Result: 2 rooms needed
+
+Chronological Ordering:
+-----------------------
+starts = sort([start for each interval])
+ends = sort([end for each interval])
+rooms = 0, endPtr = 0
+
+for i in range(n):
+    if starts[i] < ends[endPtr]:
+        rooms++
+    else:
+        endPtr++
+
+return rooms
+
+Example: [[0,30],[5,10],[15,20]]
+starts = [0,5,15]
+ends = [10,20,30]
+
+i=0: starts[0]=0 < ends[0]=10 → rooms=1
+i=1: starts[1]=5 < ends[0]=10 → rooms=2
+i=2: starts[2]=15 >= ends[0]=10 → endPtr=1, rooms stays 2
+Result: 2 rooms`
+    },
+    {
+      id: 4,
+      title: 'Top K Frequent Words',
+      difficulty: 'Medium',
+      leetcodeUrl: 'https://leetcode.com/problems/top-k-frequent-words/',
+      description: 'Given an array of strings words and an integer k, return the k most frequent strings. Return the answer sorted by the frequency from highest to lowest. Sort the words with the same frequency by their lexicographical order.',
+      code: {
+        java: {
+          starterCode: `public List<String> topKFrequent(String[] words, int k) {
+    // Write your code here
+
+}`,
+          solution: `// Approach: HashMap + Min Heap - O(n log k) time, O(n) space
+public List<String> topKFrequent(String[] words, int k) {
+    Map<String, Integer> freq = new HashMap<>();
+    for (String word : words) {
+        freq.put(word, freq.getOrDefault(word, 0) + 1);
+    }
+
+    // Min heap with custom comparator
+    PriorityQueue<String> heap = new PriorityQueue<>(
+        (w1, w2) -> freq.get(w1).equals(freq.get(w2)) ?
+            w2.compareTo(w1) : freq.get(w1) - freq.get(w2)
+    );
+
+    for (String word : freq.keySet()) {
+        heap.offer(word);
+        if (heap.size() > k) {
+            heap.poll();
+        }
+    }
+
+    List<String> result = new ArrayList<>();
+    while (!heap.isEmpty()) {
+        result.add(heap.poll());
+    }
+
+    Collections.reverse(result);
+    return result;
+}
+
+// Approach 2: HashMap + Sorting - O(n log n) time, O(n) space
+public List<String> topKFrequent(String[] words, int k) {
+    Map<String, Integer> freq = new HashMap<>();
+    for (String word : words) {
+        freq.put(word, freq.getOrDefault(word, 0) + 1);
+    }
+
+    List<String> candidates = new ArrayList<>(freq.keySet());
+    Collections.sort(candidates, (w1, w2) ->
+        freq.get(w1).equals(freq.get(w2)) ?
+            w1.compareTo(w2) : freq.get(w2) - freq.get(w1)
+    );
+
+    return candidates.subList(0, k);
+}`
+        },
+        python: {
+          starterCode: `def topKFrequent(self, words: List[str], k: int) -> List[str]:
+    # Write your code here
+    pass`,
+          solution: `# Approach: HashMap + Min Heap - O(n log k) time, O(n) space
+def topKFrequent(self, words: List[str], k: int) -> List[str]:
+    from collections import Counter
+    import heapq
+
+    freq = Counter(words)
+
+    # Min heap with custom comparator (negate frequency for max heap behavior)
+    # Python heapq is min heap, so we use (-freq, word) to get max heap by freq
+    # and alphabetical order as tiebreaker
+    heap = []
+    for word, count in freq.items():
+        heapq.heappush(heap, (-count, word))
+
+    result = []
+    for _ in range(k):
+        count, word = heapq.heappop(heap)
+        result.append(word)
+
+    return result
+
+# Approach 2: HashMap + Sorting - O(n log n) time, O(n) space
+def topKFrequent(self, words: List[str], k: int) -> List[str]:
+    from collections import Counter
+
+    freq = Counter(words)
+
+    # Sort by frequency (descending) then alphabetically (ascending)
+    candidates = sorted(freq.keys(), key=lambda w: (-freq[w], w))
+
+    return candidates[:k]`
+        }
+      },
+      testCases: [
+        { words: ['i','love','leetcode','i','love','coding'], k: 2, expected: ['i','love'] },
+        { words: ['the','day','is','sunny','the','the','the','sunny','is','is'], k: 4, expected: ['the','is','sunny','day'] }
+      ],
+      examples: [
+        { input: 'words = ["i","love","leetcode","i","love","coding"], k = 2', output: '["i","love"]' },
+        { input: 'words = ["the","day","is","sunny","the","the","the","sunny","is","is"], k = 4', output: '["the","is","sunny","day"]' }
+      ],
+      explanation: `**Problem:** Return the k most frequent words, sorted by frequency (descending), with ties broken alphabetically.
+
+**Key Insight:** We need both frequency counting and a way to select top k. Combine HashMap with either heap or sorting.
+
+**Approach 1: HashMap + Min Heap (Optimal)**
+1. Use HashMap to count word frequencies
+2. Use min heap of size k with custom comparator:
+   - Primary: compare by frequency (lower freq at top)
+   - Tiebreaker: compare alphabetically (reverse order - later word at top)
+3. For each unique word:
+   - Add to heap
+   - If heap size > k, remove minimum (least frequent or alphabetically later if tie)
+4. Extract all from heap and reverse
+
+**Why Custom Comparator?**
+- Min heap keeps k most frequent words
+- For words with same frequency, we want alphabetically earlier ones
+- So we use reverse alphabetical order in heap (w2.compareTo(w1))
+- Extract and reverse to get correct final order
+
+**Approach 2: HashMap + Sorting**
+1. Count frequencies with HashMap
+2. Sort all unique words by:
+   - Frequency descending
+   - Alphabetical ascending (tiebreaker)
+3. Take first k words
+
+**Trade-offs:**
+- Heap: O(n log k) time, O(k) space - better when k << n
+- Sorting: O(n log n) time, O(n) space - simpler implementation
+
+**Complexity:**
+- Heap: Time O(n log k), Space O(n)
+- Sorting: Time O(n log n), Space O(n)`,
+      pseudocode: `Min Heap Approach:
+-----------------------
+freq = HashMap()
+for word in words:
+    freq[word]++
+
+minHeap = PriorityQueue(comparator:
+    if freq[w1] == freq[w2]:
+        return w2.compareTo(w1)  // Reverse alphabetical
+    return freq[w1] - freq[w2]   // Min frequency
+)
+
+for word in freq.keys():
+    minHeap.add(word)
+    if minHeap.size() > k:
+        minHeap.poll()
+
+result = []
+while !minHeap.isEmpty():
+    result.add(minHeap.poll())
+reverse(result)
+return result
+
+Example: words = ["i","love","leetcode","i","love","coding"], k = 2
+freq = {i:2, love:2, leetcode:1, coding:1}
+
+Add "i" (freq 2): heap = [i]
+Add "love" (freq 2): heap = [love, i] (love > i alphabetically)
+Add "leetcode" (freq 1): heap = [leetcode, love, i], size > 2, poll → heap = [i, love]
+Add "coding" (freq 1): heap = [coding, i, love], size > 2, poll → heap = [i, love]
+Result after reverse: [i, love]
+
+Sorting Approach:
+-----------------------
+freq = Counter(words)
+candidates = sort(freq.keys(), key=(-freq[word], word))
+return candidates[:k]
+
+Sort by:
+1. -freq[word]: Descending frequency
+2. word: Ascending alphabetical (tiebreaker)`
+    }
+  ]
+
+  const handleQuestionSelect = (question) => {
+    setSelectedQuestion(question)
+    setShowSolution(false)
+    setShowExplanation(false)
+    setUserCode(question.code[language].starterCode || '')
+    setOutput('')
+    // Load existing drawing if any
+    const problemId = `Sorting-${question.id}`
+    const savedDrawing = localStorage.getItem(`drawing-${problemId}`)
+    setCurrentDrawing(savedDrawing)
+  }
+
+  const openDrawingModal = () => {
+    if (selectedQuestion) {
+      const problemId = `Sorting-${selectedQuestion.id}`
+      const savedDrawing = localStorage.getItem(`drawing-${problemId}`)
+      setCurrentDrawing(savedDrawing)
+      setShowDrawing(true)
+    }
+  }
+
+  const closeDrawingModal = () => {
+    setShowDrawing(false)
+    // Reload drawing after saving
+    if (selectedQuestion) {
+      const problemId = `Sorting-${selectedQuestion.id}`
+      const savedDrawing = localStorage.getItem(`drawing-${problemId}`)
+      setCurrentDrawing(savedDrawing)
+    }
+  }
+
+  // Question navigation
+  const currentIndex = selectedQuestion ? questions.findIndex(q => q.id === selectedQuestion.id) : -1
+  const hasPrevious = currentIndex > 0
+  const hasNext = currentIndex >= 0 && currentIndex < questions.length - 1
+
+  const goToPrevious = () => {
+    if (hasPrevious) {
+      handleQuestionSelect(questions[currentIndex - 1])
+    }
+  }
+
+  const goToNext = () => {
+    if (hasNext) {
+      handleQuestionSelect(questions[currentIndex + 1])
+    }
+  }
+
+  const runCode = async () => {
+    setIsRunning(true)
+    setOutput('Running test cases...\n\n')
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    let outputText = '=== Test Results ===\n\n'
+    outputText += '⚠️  Note: This is a demo environment.\n'
+    outputText += 'In a production system, your code would be compiled and executed on a secure server.\n\n'
+
+    if (selectedQuestion.testCases) {
+      selectedQuestion.testCases.forEach((testCase, index) => {
+        outputText += `Test Case ${index + 1}:\n`
+        if (testCase.nums) {
+          outputText += `Input: nums = [${testCase.nums.join(', ')}]`
+          if (testCase.k) outputText += `, k = ${testCase.k}`
+          outputText += '\n'
+        } else if (testCase.words) {
+          outputText += `Input: words = [${testCase.words.map(w => '"' + w + '"').join(', ')}], k = ${testCase.k}\n`
+        } else if (testCase.intervals) {
+          outputText += `Input: intervals = ${JSON.stringify(testCase.intervals)}\n`
+        }
+        outputText += `Expected: ${JSON.stringify(testCase.expected)}\n`
+        outputText += `Status: ⏳ Pending execution\n\n`
+      })
+    }
+
+    outputText += '\n💡 Tip: Click "Show Solution" to see the optimal approach!\n'
+    setOutput(outputText)
+    setIsRunning(false)
+  }
+
+
+  return (
+    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button
+            onClick={onBack}
+            style={{
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+            }}
+          >
+            ← Back to Menu
+          </button>
+          <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '800', color: '#1f2937' }}>
+            Sorting Practice Questions
+          </h1>
+          {currentSubcategory && (
+            <span style={{
+              padding: '0.5rem 1rem',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+              backgroundColor: '#dbeafe',
+              color: '#1e40af',
+              borderRadius: '8px',
+              marginLeft: '1rem'
+            }}>
+              {currentSubcategory}
+            </span>
+          )}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {previousSubcategory && (
+            <button
+              onClick={onPreviousSubcategory}
+              style={{
+                padding: '0.6rem 1rem',
+                fontSize: '0.85rem',
+                fontWeight: '600',
+                backgroundColor: '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 6px rgba(139, 92, 246, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
+            >
+              ⬆️ {previousSubcategory}
+            </button>
+          )}
+          {nextSubcategory && (
+            <button
+              onClick={onNextSubcategory}
+              style={{
+                padding: '0.6rem 1rem',
+                fontSize: '0.85rem',
+                fontWeight: '600',
+                backgroundColor: '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 6px rgba(139, 92, 246, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
+            >
+              {nextSubcategory} ⬇️
+            </button>
+          )}
+          {onPrevious && (
+            <button
+              onClick={onPrevious}
+              style={{
+                padding: '0.75rem 1.25rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+            >
+              ← {previousName}
+            </button>
+          )}
+          {onNext && (
+            <button
+              onClick={onNext}
+              style={{
+                padding: '0.75rem 1.25rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+            >
+              {nextName} →
+            </button>
+          )}
+        </div>
+      </div>
+
+      {!selectedQuestion && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <h2 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#1f2937', marginBottom: '0.5rem' }}>
+            Medium Level Questions ({questions.length})
+          </h2>
+          {questions.map(q => {
+            const isCompleted = isProblemCompleted(`Sorting-${q.id}`)
+            return (
+              <div
+                key={`${q.id}-${refreshKey}`}
+                onClick={() => handleQuestionSelect(q)}
+                style={{
+                  backgroundColor: isCompleted ? '#f0fdf4' : 'white',
+                  color: '#1f2937',
+                  padding: '1.5rem',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  border: isCompleted ? '3px solid #10b981' : '2px solid #e5e7eb',
+                  transition: 'all 0.2s ease',
+                  boxShadow: isCompleted ? '0 2px 12px rgba(16, 185, 129, 0.2)' : '0 2px 8px rgba(0,0,0,0.1)',
+                  position: 'relative'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                  e.currentTarget.style.boxShadow = isCompleted ? '0 4px 16px rgba(16, 185, 129, 0.3)' : '0 4px 12px rgba(0,0,0,0.15)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = isCompleted ? '0 2px 12px rgba(16, 185, 129, 0.2)' : '0 2px 8px rgba(0,0,0,0.1)'
+                }}
+              >
+                {isCompleted && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '-10px',
+                    left: '-10px',
+                    backgroundColor: '#10b981',
+                    color: 'white',
+                    borderRadius: '50%',
+                    width: '32px',
+                    height: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.1rem',
+                    fontWeight: 'bold',
+                    boxShadow: '0 2px 8px rgba(16, 185, 129, 0.5)',
+                    border: '3px solid white',
+                    zIndex: 1
+                  }}>
+                    ✓
+                  </div>
+                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '700' }}>
+                    {isCompleted && <span style={{ color: '#10b981', marginRight: '0.5rem' }}>✓</span>}
+                    {q.id}. {q.title}
+                  </h3>
+                  <span style={{
+                    padding: '0.25rem 0.75rem',
+                    borderRadius: '6px',
+                    fontSize: '0.75rem',
+                    fontWeight: '600',
+                    backgroundColor: '#fbbf24',
+                    color: '#78350f'
+                  }}>
+                    {q.difficulty}
+                  </span>
+                </div>
+                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', opacity: 0.9, lineHeight: '1.5' }}>
+                  {q.description.substring(0, 100)}...
+                </p>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {selectedQuestion && (
+        <div>
+          <button
+            onClick={() => setSelectedQuestion(null)}
+            style={{
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              backgroundColor: '#6b7280',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              marginBottom: '1.5rem',
+              boxShadow: '0 2px 8px rgba(107, 114, 128, 0.3)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#4b5563'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#6b7280'}
+          >
+            ← Back to Questions
+          </button>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '2rem',
+            borderRadius: '12px',
+            border: '2px solid #e5e7eb',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
+          }}>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '800', color: '#1f2937' }}>
+                    {selectedQuestion.id}. {selectedQuestion.title}
+                  </h2>
+                  {selectedQuestion.leetcodeUrl && (
+                    <a
+                      href={selectedQuestion.leetcodeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        padding: '0.35rem 0.6rem',
+                        backgroundColor: '#f97316',
+                        color: 'white',
+                        textDecoration: 'none',
+                        borderRadius: '6px',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        transition: 'all 0.2s ease',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#ea580c'
+                        e.currentTarget.style.transform = 'translateY(-1px)'
+                        e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f97316'
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+                      }}
+                      title="Open on LeetCode"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '0.25rem' }}>
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                      </svg>
+                      LeetCode
+                    </a>
+                  )}
+                </div>
+                <span style={{
+                  padding: '0.5rem 1rem',
+                  borderRadius: '8px',
+                  fontSize: '0.85rem',
+                  fontWeight: '700',
+                  backgroundColor: '#fbbf24',
+                  color: '#78350f'
+                }}>
+                  {selectedQuestion.difficulty}
+                </span>
+              </div>
+              <p style={{ fontSize: '1rem', lineHeight: '1.7', color: '#4b5563', margin: '1rem 0' }}>
+                {selectedQuestion.description}
+              </p>
+
+              {/* Previous/Next Navigation */}
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                <button
+                  onClick={goToPrevious}
+                  disabled={!hasPrevious}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    backgroundColor: hasPrevious ? '#6b7280' : '#d1d5db',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: hasPrevious ? 'pointer' : 'not-allowed',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (hasPrevious) e.currentTarget.style.backgroundColor = '#4b5563'
+                  }}
+                  onMouseLeave={(e) => {
+                    if (hasPrevious) e.currentTarget.style.backgroundColor = '#6b7280'
+                  }}
+                >
+                  ← Previous
+                </button>
+                <button
+                  onClick={goToNext}
+                  disabled={!hasNext}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    backgroundColor: hasNext ? '#6b7280' : '#d1d5db',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: hasNext ? 'pointer' : 'not-allowed',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (hasNext) e.currentTarget.style.backgroundColor = '#4b5563'
+                  }}
+                  onMouseLeave={(e) => {
+                    if (hasNext) e.currentTarget.style.backgroundColor = '#6b7280'
+                  }}
+                >
+                  Next →
+                </button>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1f2937', margin: 0 }}>
+                  💻 Code Editor
+                </h3>
+                <LanguageToggle />
+              </div>
+              <div style={{
+                backgroundColor: '#1e293b',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                border: '2px solid #334155'
+              }}>
+                <div style={{
+                  backgroundColor: '#0f172a',
+                  padding: '0.75rem 1rem',
+                  borderBottom: '1px solid #334155',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <span style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: '600' }}>
+                    {language === 'java' ? 'Solution.java' : 'solution.py'}
+                  </span>
+                  <span style={{ color: '#64748b', fontSize: '0.75rem' }}>
+                    {language === 'java' ? 'Java' : 'Python'}
+                  </span>
+                </div>
+                <textarea
+                  value={userCode}
+                  onChange={(e) => setUserCode(e.target.value)}
+                  onKeyDown={(e) => {
+                    // Stop propagation for all keys except Escape to allow typing in textarea
+                    if (e.key !== 'Escape') {
+                      e.stopPropagation()
+                    }
+
+                    if (e.key === 'Tab') {
+                      e.preventDefault()
+                      const start = e.target.selectionStart
+                      const end = e.target.selectionEnd
+                      const newValue = userCode.substring(0, start) + '    ' + userCode.substring(end)
+                      setUserCode(newValue)
+                      setTimeout(() => {
+                        e.target.selectionStart = e.target.selectionEnd = start + 4
+                      }, 0)
+                    }
+                  }}
+                  spellCheck="false"
+                  style={{
+                    width: '100%',
+                    minHeight: '600px',
+                    padding: '1rem',
+                    fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+                    fontSize: '0.9rem',
+                    lineHeight: '1.6',
+                    color: '#e2e8f0',
+                    backgroundColor: '#1e293b',
+                    border: 'none',
+                    outline: 'none',
+                    resize: 'vertical',
+                    whiteSpace: 'pre',
+                    overflowX: 'auto'
+                  }}
+                  placeholder="Write your solution here..."
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', alignItems: 'center' }}>
+                <button
+                  onClick={runCode}
+                  disabled={isRunning}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    fontSize: '0.95rem',
+                    fontWeight: '700',
+                    backgroundColor: isRunning ? '#6b7280' : '#10b981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: isRunning ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                    flex: 1
+                  }}
+                >
+                  {isRunning ? '⏳ Running...' : '▶️ Run Code'}
+                </button>
+                <button
+                  onClick={() => setUserCode(selectedQuestion.code[language].starterCode || '')}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    fontSize: '0.95rem',
+                    fontWeight: '700',
+                    backgroundColor: '#ef4444',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)'
+                  }}
+                >
+                  🔄 Reset
+                </button>
+              <button
+                  onClick={openDrawingModal}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    fontSize: '0.95rem',
+                    fontWeight: '700',
+                    backgroundColor: currentDrawing ? '#8b5cf6' : '#6366f1',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: currentDrawing ? '0 2px 8px rgba(139, 92, 246, 0.3)' : '0 2px 8px rgba(99, 102, 241, 0.3)',
+                    minWidth: '120px'
+                  }}
+                >
+                  {currentDrawing ? '✏️ Edit Drawing' : '🎨 Draw'}
+                </button>
+              </div>
+            </div>
+
+            {output && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1f2937', marginBottom: '1rem' }}>
+                  📊 Output
+                </h3>
+                <div style={{
+                  backgroundColor: '#0f172a',
+                  padding: '1rem',
+                  borderRadius: '8px',
+                  border: '2px solid #334155'
+                }}>
+                  <pre style={{
+                    margin: 0,
+                    fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+                    fontSize: '0.85rem',
+                    lineHeight: '1.6',
+                    color: '#e2e8f0',
+                    whiteSpace: 'pre-wrap',
+                    wordWrap: 'break-word'
+                  }}>
+                    {output}
+                  </pre>
+                </div>
+              </div>
+            )}
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1f2937', marginBottom: '1rem' }}>
+                Examples:
+              </h3>
+              {selectedQuestion.examples.map((example, idx) => (
+                <div key={idx} style={{
+                  backgroundColor: '#f9fafb',
+                  padding: '1rem',
+                  borderRadius: '8px',
+                  marginBottom: '0.75rem',
+                  border: '1px solid #e5e7eb'
+                }}>
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    <strong style={{ color: '#1f2937' }}>Input:</strong>
+                    <code style={{
+                      backgroundColor: '#1e293b',
+                      color: '#e2e8f0',
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '4px',
+                      marginLeft: '0.5rem',
+                      fontFamily: 'monospace',
+                      fontSize: '0.9rem'
+                    }}>
+                      {example.input}
+                    </code>
+                  </div>
+                  <div style={{ marginBottom: example.explanation ? '0.5rem' : '0' }}>
+                    <strong style={{ color: '#1f2937' }}>Output:</strong>
+                    <code style={{
+                      backgroundColor: '#1e293b',
+                      color: '#e2e8f0',
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '4px',
+                      marginLeft: '0.5rem',
+                      fontFamily: 'monospace',
+                      fontSize: '0.9rem'
+                    }}>
+                      {example.output}
+                    </code>
+                  </div>
+                  {example.explanation && (
+                    <div style={{ fontSize: '0.9rem', color: '#6b7280', fontStyle: 'italic' }}>
+                      {example.explanation}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setShowExplanation(!showExplanation)}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  fontSize: '1rem',
+                  fontWeight: '700',
+                  backgroundColor: showExplanation ? '#8b5cf6' : '#f59e0b',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)',
+                  flex: 1,
+                  minWidth: '200px'
+                }}
+              >
+                {showExplanation ? '✓ Explanation Visible' : '📖 Explanation & Pseudocode'}
+              </button>
+              <button
+                onClick={() => setShowSolution(!showSolution)}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  fontSize: '1rem',
+                  fontWeight: '700',
+                  backgroundColor: showSolution ? '#10b981' : '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
+                  flex: 1,
+                  minWidth: '200px'
+                }}
+              >
+                {showSolution ? '✓ Solution Visible' : '👁️ Show Solution'}
+              </button>
+              <div style={{ marginLeft: 'auto' }}>
+                <CompletionCheckbox
+                  problemId={`Sorting-${selectedQuestion.id}`}
+                  label="Mark as Completed"
+                  onCompletionChange={() => setRefreshKey(prev => prev + 1)}
+                />
+              </div>
+            </div>
+
+           
+          {/* Drawing Preview Section */}
+          {currentDrawing && (
+            <div style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1f2937', margin: 0 }}>
+                  🎨 Your Drawing
+                </h3>
+                <button
+                  onClick={openDrawingModal}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    backgroundColor: '#6366f1',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  ✏️ Edit
+                </button>
+              </div>
+              <div style={{
+                backgroundColor: '#f9fafb',
+                padding: '1rem',
+                borderRadius: '8px',
+                border: '2px solid #e5e7eb',
+                textAlign: 'center'
+              }}>
+                <img
+                  src={currentDrawing}
+                  alt="Your drawing"
+                  style={{
+                    maxWidth: '100%',
+                    height: 'auto',
+                    borderRadius: '4px'
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+ {showExplanation && (
+              <div style={{
+                backgroundColor: '#fef3c7',
+                padding: '1.5rem',
+                borderRadius: '8px',
+                border: '2px solid #f59e0b',
+                marginBottom: '1rem'
+              }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: '#92400e', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  📖 Explanation
+                </h3>
+                <div style={{
+                  fontSize: '0.95rem',
+                  lineHeight: '1.8',
+                  color: '#78350f',
+                  whiteSpace: 'pre-wrap',
+                  marginBottom: '1.5rem'
+                }}>
+                  {selectedQuestion.explanation}
+                </div>
+
+                <div style={{
+                  backgroundColor: '#1e293b',
+                  padding: '1.5rem',
+                  borderRadius: '8px',
+                  overflowX: 'auto',
+                  marginTop: '1rem'
+                }}>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#a78bfa', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    🔧 Pseudocode
+                  </h4>
+                  <pre style={{
+                    margin: 0,
+                    fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+                    fontSize: '0.9rem',
+                    lineHeight: '1.6',
+                    color: '#e2e8f0',
+                    whiteSpace: 'pre',
+                    overflowX: 'auto'
+                  }}>
+                    {selectedQuestion.pseudocode}
+                  </pre>
+                </div>
+              </div>
+            )}
+
+            {showSolution && (
+              <div style={{
+                backgroundColor: '#1e293b',
+                padding: '1.5rem',
+                borderRadius: '8px',
+                overflowX: 'auto'
+              }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#60a5fa', marginBottom: '1rem' }}>
+                  Solution ({language === 'java' ? 'Java' : 'Python'}):
+                </h3>
+                <pre style={{
+                  margin: 0,
+                  fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+                  fontSize: '0.85rem',
+                  lineHeight: '1.6',
+                  color: '#d4d4d4',
+                  whiteSpace: 'pre',
+                  overflowX: 'auto'
+                }}>
+                  {selectedQuestion.code[language].solution}
+                </pre>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Drawing Canvas Modal */}
+      <DrawingCanvas
+        isOpen={showDrawing}
+        onClose={closeDrawingModal}
+        problemId={selectedQuestion ? `Sorting-${selectedQuestion.id}` : ''}
+        existingDrawing={currentDrawing}
+      />
+    </div>
+  )
+}
+
+export default Sorting

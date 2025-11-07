@@ -1,0 +1,13 @@
+# Allow all search engines to index all pages
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://yourdomain.com/sitemap.xml
+
+# Crawl delay (optional - be nice to servers)
+Crawl-delay: 1
+
+# Disallow specific paths if needed (currently allowing all)
+# Disallow: /admin/
+# Disallow: /api/

@@ -1,0 +1,785 @@
+import { useState, useEffect } from 'react'
+import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
+import LanguageToggle from "../../components/LanguageToggle.jsx"
+import DrawingCanvas from '../../components/DrawingCanvas.jsx'
+import { getUserCode, saveUserCode, isProblemCompleted } from '../../services/progressService'
+import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
+
+function DataStructures({ onBack }) {
+  const exercises = [
+    {
+      title: "Course Schedule (Cycle Detection)",
+      leetcodeUrl: 'https://leetcode.com/problems/course-schedule/',
+      description: "There are numCourses courses you have to take, labeled from 0 to numCourses - 1. Given prerequisites array, return true if you can finish all courses. Detect cycles using DFS.",
+      explanation: `**Problem:** Determine if you can finish all courses given prerequisite dependencies. Return true if possible, false if there's a circular dependency (cycle).
+
+**Real-World Analogy:**
+- Courses: Math 101, CS 101, CS 201, CS 301
+- Prerequisites: [[CS 201, CS 101], [CS 301, CS 201], [CS 101, Math 101]]
+- Valid: Can complete in order: Math 101 → CS 101 → CS 201 → CS 301
+- Invalid: [[CS 201, CS 101], [CS 101, CS 201]] (circular dependency)
+
+**Problem Translation:**
+This is a **directed graph cycle detection** problem:
+- Each course is a node
+- Prerequisite [a, b] means edge from a to b (b must be taken before a)
+- Can finish all courses = graph is a DAG (Directed Acyclic Graph)
+- Cannot finish = graph has a cycle
+
+**Key Insight: Three-State DFS**
+Track each node with 3 possible states:
+- **0 (UNVISITED)**: Never explored this course
+- **1 (VISITING)**: Currently exploring this course (in current DFS path)
+- **2 (VISITED)**: Fully explored (already checked, no cycles found)
+
+**How to Detect Cycles:**
+If we encounter a node marked as VISITING (1) during DFS, we've found a back edge → cycle exists!
+
+**Example:**
+Prerequisites: [[1,0], [0,1]]
+Graph: 1 → 0 → 1 (cycle)
+
+DFS from course 1:
+  Mark 1 as VISITING (1)
+  Follow edge to 0
+    Mark 0 as VISITING (1)
+    Follow edge to 1
+      1 is already VISITING (1) → CYCLE DETECTED! ✗
+
+**Algorithm Steps:**
+1. Build adjacency list from prerequisites
+   - For [a, b]: add edge a → b (b is prerequisite of a)
+2. Initialize visited array with all 0s (unvisited)
+3. For each course:
+   - If unvisited, run DFS cycle detection
+   - If cycle found, return false immediately
+4. If no cycles found after checking all courses, return true
+
+**DFS Cycle Detection:**
+1. If current course is VISITING (1) → cycle found, return true
+2. If current course is VISITED (2) → already checked, return false
+3. Mark current course as VISITING (1)
+4. Recursively check all prerequisites:
+   - If any prerequisite has a cycle, return true
+5. Mark current course as VISITED (2)
+6. Return false (no cycle in this path)
+
+**Why This Works:**
+- VISITING nodes represent the current DFS path
+- If we reach a VISITING node again, we've created a loop
+- VISITED nodes are safe shortcuts (already proven cycle-free)
+
+**Complexity Analysis:**
+- Time: O(V + E) where V = courses, E = prerequisite pairs
+  - Build graph: O(E)
+  - DFS visits each node once: O(V)
+  - Process each edge once: O(E)
+- Space: O(V + E)
+  - Adjacency list: O(E)
+  - Visited array: O(V)
+  - Recursion stack: O(V) worst case
+
+**Alternative Approaches:**
+1. Kahn's Algorithm (BFS with indegree) - easier to understand
+2. Union Find (less common for this problem)`,
+      pseudocode: `Build Graph:
+-----------------------
+graph = adjacency list (array of lists)
+for each prerequisite [a, b]:
+    graph[a].add(b)  // b is prerequisite of a
+
+visited = array of size numCourses, initialized to 0
+
+Main Function:
+-----------------------
+canFinish(numCourses, prerequisites):
+    for course from 0 to numCourses-1:
+        if hasCycle(graph, visited, course):
+            return false
+    return true
+
+DFS Cycle Detection:
+-----------------------
+hasCycle(graph, visited, course):
+    // Cycle detected: found back edge
+    if visited[course] == 1:
+        return true
+
+    // Already checked this path, no cycle
+    if visited[course] == 2:
+        return false
+
+    // Mark as visiting (current path)
+    visited[course] = 1
+
+    // Check all prerequisites
+    for prereq in graph[course]:
+        if hasCycle(graph, visited, prereq):
+            return true  // Cycle found in prerequisite chain
+
+    // Mark as visited (fully explored)
+    visited[course] = 2
+    return false  // No cycle found
+
+Example Walkthrough (No Cycle):
+-----------------------
+Prerequisites: [[1,0]]
+Graph: 1 → 0
+
+visited = [0, 0]
+
+Check course 0:
+  hasCycle(0):
+    visited[0] = 1 (VISITING)
+    No prerequisites
+    visited[0] = 2 (VISITED)
+    return false
+visited = [2, 0]
+
+Check course 1:
+  hasCycle(1):
+    visited[1] = 1 (VISITING)
+    Check prerequisite 0:
+      visited[0] = 2 (VISITED) → skip
+    visited[1] = 2 (VISITED)
+    return false
+visited = [2, 2]
+
+No cycles → return true
+
+Example Walkthrough (Cycle Detected):
+-----------------------
+Prerequisites: [[1,0], [0,1]]
+Graph: 1 → 0, 0 → 1
+
+visited = [0, 0]
+
+Check course 0:
+  hasCycle(0):
+    visited[0] = 1 (VISITING)
+    Check prerequisite 1:
+      hasCycle(1):
+        visited[1] = 1 (VISITING)
+        Check prerequisite 0:
+          visited[0] = 1 (VISITING) ← CYCLE! ✗
+          return true
+        return true
+    return true
+
+Cycle detected → return false`,
+      starterCode: `import java.util.*;
+
+class Solution {
+    // TODO: Implement canFinish using topological sort (DFS cycle detection)
+    public boolean canFinish(int numCourses, int[][] prerequisites) {
+        // Build adjacency list
+        List<Integer>[] graph = new ArrayList[numCourses];
+        for (int i = 0; i < numCourses; i++) {
+            graph[i] = new ArrayList<>();
+        }
+
+        for (int[] prereq : prerequisites) {
+            graph[prereq[0]].add(prereq[1]);
+        }
+
+        // 0: unvisited, 1: visiting, 2: visited
+        int[] visited = new int[numCourses];
+
+        for (int i = 0; i < numCourses; i++) {
+            if (hasCycle(graph, visited, i)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // TODO: Implement hasCycle helper - return true if cycle detected
+    private boolean hasCycle(List<Integer>[] graph, int[] visited, int course) {
+        return false;
+    }
+}
+
+class Main {
+    public static void main(String[] args) {
+        Solution sol = new Solution();
+
+        // Test case 1: [[1,0]] - can finish
+        int[][] prereq1 = {{1, 0}};
+        System.out.println(sol.canFinish(2, prereq1));  // true
+
+        // Test case 2: [[1,0],[0,1]] - cycle detected
+        int[][] prereq2 = {{1, 0}, {0, 1}};
+        System.out.println(sol.canFinish(2, prereq2));  // false
+    }
+}`,
+      solution: `import java.util.*;
+
+class Solution {
+    public boolean canFinish(int numCourses, int[][] prerequisites) {
+        // Build adjacency list
+        List<Integer>[] graph = new ArrayList[numCourses];
+        for (int i = 0; i < numCourses; i++) {
+            graph[i] = new ArrayList<>();
+        }
+
+        for (int[] prereq : prerequisites) {
+            graph[prereq[0]].add(prereq[1]);
+        }
+
+        // 0: unvisited, 1: visiting, 2: visited
+        int[] visited = new int[numCourses];
+
+        for (int i = 0; i < numCourses; i++) {
+            if (hasCycle(graph, visited, i)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean hasCycle(List<Integer>[] graph, int[] visited, int course) {
+        if (visited[course] == 1) return true;  // Cycle detected
+        if (visited[course] == 2) return false; // Already checked
+
+        visited[course] = 1; // Mark as visiting
+
+        for (int prereq : graph[course]) {
+            if (hasCycle(graph, visited, prereq)) {
+                return true;
+            }
+        }
+
+        visited[course] = 2; // Mark as visited
+        return false;
+    }
+}
+
+class Main {
+    public static void main(String[] args) {
+        Solution sol = new Solution();
+
+        // Test case 1: [[1,0]] - can finish
+        int[][] prereq1 = {{1, 0}};
+        System.out.println(sol.canFinish(2, prereq1));  // true
+
+        // Test case 2: [[1,0],[0,1]] - cycle detected
+        int[][] prereq2 = {{1, 0}, {0, 1}};
+        System.out.println(sol.canFinish(2, prereq2));  // false
+    }
+}`,
+      expectedOutput: "true\nfalse"
+    }
+  ]
+
+  const [selectedExercise, setSelectedExercise] = useState(0)
+  const [code, setCode] = useState('')
+  const [output, setOutput] = useState('')
+  const [showSolution, setShowSolution] = useState(false)
+  const [showExplanation, setShowExplanation] = useState(false)
+  const [showDrawing, setShowDrawing] = useState(false)
+  const [currentDrawing, setCurrentDrawing] = useState(null)
+  const [isChecking, setIsChecking] = useState(false)
+
+  // Load saved code for the selected exercise
+  useEffect(() => {
+    const exerciseId = `Data Structures-${selectedExercise + 1}`
+    const savedCode = getUserCode(exerciseId)
+    setCode(savedCode || exercises[selectedExercise].starterCode)
+    setShowSolution(false)
+    setShowExplanation(false)
+    setOutput('')
+  }, [selectedExercise])
+
+  // Auto-save code changes
+  useEffect(() => {
+    if (code && code !== exercises[selectedExercise].starterCode) {
+      const exerciseId = `Data Structures-${selectedExercise + 1}`
+      const timeoutId = setTimeout(() => {
+        saveUserCode(exerciseId, code)
+      }, 1000)
+      return () => clearTimeout(timeoutId)
+    }
+  }, [code, selectedExercise])
+
+  const checkCode = async () => {
+    setIsChecking(true)
+    setOutput('Compiling and running...\n')
+
+    try {
+      const response = await fetch('http://localhost:3001/api/execute-java', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        const actualOutput = data.output.trim()
+        const expectedOutput = exercises[selectedExercise].expectedOutput.trim()
+
+        if (actualOutput === expectedOutput) {
+          setOutput(`✅ Success! Output matches expected result.\n\nExpected:\n${expectedOutput}\n\nActual:\n${actualOutput}`)
+        } else {
+          setOutput(`❌ Output doesn't match.\n\nExpected:\n${expectedOutput}\n\nActual:\n${actualOutput}`)
+        }
+      } else {
+        setOutput(`❌ Error:\n${data.error}`)
+      }
+    } catch (error) {
+      setOutput(`❌ Failed to connect to server. Make sure the Java execution server is running.\n\nError: ${error.message}`)
+    }
+
+    setIsChecking(false)
+  }
+
+  const openDrawingModal = () => {
+    const problemId = `DataStructures-${selectedExercise + 1}`
+    const savedDrawing = localStorage.getItem(`drawing-${problemId}`)
+    setCurrentDrawing(savedDrawing)
+    setShowDrawing(true)
+  }
+
+  const closeDrawingModal = () => {
+    setShowDrawing(false)
+    // Reload drawing after saving
+    const problemId = `DataStructures-${selectedExercise + 1}`
+    const savedDrawing = localStorage.getItem(`drawing-${problemId}`)
+    setCurrentDrawing(savedDrawing)
+  }
+
+  // Load drawing when exercise changes
+  useEffect(() => {
+    const problemId = `DataStructures-${selectedExercise + 1}`
+    const savedDrawing = localStorage.getItem(`drawing-${problemId}`)
+    setCurrentDrawing(savedDrawing)
+  }, [selectedExercise])
+
+  return (
+    <div style={{ padding: '2rem', maxWidth: '1600px', margin: '0 auto' }}>
+      {/* Header */}
+      <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <button
+          onClick={onBack}
+          style={{
+            padding: '0.75rem 1.5rem',
+            fontSize: '1rem',
+            fontWeight: '600',
+            backgroundColor: '#14b8a6',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0d9488'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#14b8a6'}
+        >
+          ← Back to Menu
+        </button>
+        <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '800', color: '#1f2937' }}>
+          🏗️ Data Structures Practice
+        </h1>
+      </div>
+
+      {/* Exercise Selector */}
+      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+        {exercises.map((ex, idx) => {
+          const exerciseId = `Data Structures-${idx + 1}`
+          const isCompleted = isProblemCompleted(exerciseId)
+
+          return (
+            <button
+              key={idx}
+              onClick={() => setSelectedExercise(idx)}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '0.95rem',
+                fontWeight: '600',
+                backgroundColor: selectedExercise === idx ? '#14b8a6' : '#1f2937',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                boxShadow: selectedExercise === idx ? '0 4px 12px rgba(20, 184, 166, 0.4)' : 'none'
+              }}
+              onMouseEnter={(e) => {
+                if (selectedExercise !== idx) {
+                  e.currentTarget.style.backgroundColor = '#374151'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (selectedExercise !== idx) {
+                  e.currentTarget.style.backgroundColor = '#1f2937'
+                }
+              }}
+            >
+              Exercise {idx + 1}{isCompleted && ' ✓'}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Problem Description */}
+      <div style={{
+        backgroundColor: '#f0fdfa',
+        padding: '1.5rem',
+        borderRadius: '12px',
+        borderLeft: '4px solid #14b8a6',
+        marginBottom: '1.5rem'
+      }}>
+        <h2 style={{ margin: '0 0 1rem 0', fontSize: '1.5rem', fontWeight: '700', color: '#0f766e' }}>
+          {exercises[selectedExercise].title}
+        </h2>
+        <p style={{ fontSize: '1rem', lineHeight: '1.7', color: '#0f766e', marginBottom: '1rem' }}>
+          {exercises[selectedExercise].description}
+        </p>
+        <div style={{
+          backgroundColor: '#ccfbf1',
+          padding: '1rem',
+          borderRadius: '8px',
+          marginTop: '1rem'
+        }}>
+          <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.95rem', fontWeight: '600', color: '#0f766e' }}>
+            Expected Output:
+          </p>
+          <pre style={{
+            margin: 0,
+            fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+            fontSize: '0.9rem',
+            lineHeight: '1.6',
+            color: '#0f766e',
+            whiteSpace: 'pre-wrap'
+          }}>
+            {exercises[selectedExercise].expectedOutput}
+          </pre>
+        </div>
+      </div>
+
+      {/* Code Editor */}
+      <div style={{
+        backgroundColor: '#1e293b',
+        borderRadius: '12px',
+        overflow: 'hidden',
+        marginBottom: '1rem'
+      }}>
+        <div style={{
+          backgroundColor: '#0f172a',
+          padding: '0.75rem 1rem',
+          borderBottom: '1px solid #334155',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <span style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: '600' }}>Solution.java</span>
+          <span style={{ color: '#64748b', fontSize: '0.75rem' }}>Java</span>
+        </div>
+        <textarea
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Tab') {
+              e.preventDefault()
+              const start = e.target.selectionStart
+              const end = e.target.selectionEnd
+              const newValue = code.substring(0, start) + '    ' + code.substring(end)
+              setCode(newValue)
+              setTimeout(() => {
+                e.target.selectionStart = e.target.selectionEnd = start + 4
+              }, 0)
+            }
+          }}
+          spellCheck="false"
+          style={{
+            width: '100%',
+            minHeight: '600px',
+            padding: '1rem',
+            fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+            fontSize: '0.9rem',
+            lineHeight: '1.6',
+            color: '#e2e8f0',
+            backgroundColor: '#1e293b',
+            border: 'none',
+            outline: 'none',
+            resize: 'vertical'
+          }}
+        />
+      </div>
+
+      {/* Run Code Button */}
+      <button
+        onClick={checkCode}
+        disabled={isChecking}
+        style={{
+          width: '100%',
+          padding: '0.875rem',
+          fontSize: '1rem',
+          fontWeight: '700',
+          backgroundColor: isChecking ? '#6b7280' : '#14b8a6',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: isChecking ? 'not-allowed' : 'pointer',
+          transition: 'background-color 0.2s',
+          marginBottom: '0.75rem'
+        }}
+        onMouseEnter={(e) => {
+          if (!isChecking) e.currentTarget.style.backgroundColor = '#0d9488'
+        }}
+        onMouseLeave={(e) => {
+          if (!isChecking) e.currentTarget.style.backgroundColor = '#14b8a6'
+        }}
+      >
+        {isChecking ? '⏳ Running...' : '▶️ Run Code'}
+      </button>
+
+      {/* Action Buttons + Completion Checkbox */}
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+        <button
+          onClick={() => setShowExplanation(!showExplanation)}
+          style={{
+            flex: 1,
+            padding: '0.75rem',
+            fontSize: '0.95rem',
+            fontWeight: '600',
+            backgroundColor: showExplanation ? '#8b5cf6' : '#f59e0b',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s',
+            boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = showExplanation ? '#7c3aed' : '#d97706'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = showExplanation ? '#8b5cf6' : '#f59e0b'
+          }}
+        >
+          {showExplanation ? '✓ Explanation Visible' : '📖 Explanation & Pseudocode'}
+        </button>
+        <button
+          onClick={() => setShowSolution(!showSolution)}
+          style={{
+            flex: 1,
+            padding: '0.75rem',
+            fontSize: '0.95rem',
+            fontWeight: '600',
+            backgroundColor: showSolution ? '#10b981' : '#6b7280',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = showSolution ? '#059669' : '#4b5563'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = showSolution ? '#10b981' : '#6b7280'
+          }}
+        >
+          {showSolution ? '✓ Solution Shown' : '👁️ Show Solution'}
+        </button>
+        <button
+          onClick={openDrawingModal}
+          style={{
+            flex: 1,
+            padding: '0.75rem',
+            fontSize: '0.95rem',
+            fontWeight: '600',
+            backgroundColor: currentDrawing ? '#8b5cf6' : '#6366f1',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s',
+            boxShadow: currentDrawing ? '0 2px 8px rgba(139, 92, 246, 0.3)' : '0 2px 8px rgba(99, 102, 241, 0.3)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = currentDrawing ? '#7c3aed' : '#4f46e5'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = currentDrawing ? '#8b5cf6' : '#6366f1'
+          }}
+        >
+          {currentDrawing ? '✏️ Edit Drawing' : '🎨 Draw'}
+        </button>
+        <CompletionCheckbox
+          problemId={`Data Structures-${selectedExercise + 1}`}
+          label="Mark as Completed"
+        />
+      </div>
+
+      {/* Drawing Preview Section */}
+      {currentDrawing && (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#1f2937', margin: 0 }}>
+              🎨 Your Drawing
+            </h3>
+            <button
+              onClick={openDrawingModal}
+              style={{
+                padding: '0.5rem 1rem',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                backgroundColor: '#6366f1',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              ✏️ Edit
+            </button>
+          </div>
+          <div style={{
+            backgroundColor: '#f9fafb',
+            padding: '1rem',
+            borderRadius: '8px',
+            border: '2px solid #e5e7eb',
+            textAlign: 'center'
+          }}>
+            <img
+              src={currentDrawing}
+              alt="Your drawing"
+              style={{
+                maxWidth: '100%',
+                height: 'auto',
+                borderRadius: '4px'
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Output Display */}
+      {output && (
+        <div style={{
+          backgroundColor: '#0f172a',
+          padding: '1rem',
+          borderRadius: '8px',
+          marginBottom: '1rem'
+        }}>
+          <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem', fontWeight: '700', color: '#60a5fa' }}>
+            Output:
+          </h3>
+          <pre style={{
+            margin: 0,
+            fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+            fontSize: '0.85rem',
+            lineHeight: '1.6',
+            color: '#e2e8f0',
+            whiteSpace: 'pre-wrap'
+          }}>
+            {output}
+          </pre>
+        </div>
+      )}
+
+      {/* Explanation Display */}
+      {showExplanation && (
+        <div style={{
+          backgroundColor: '#fef3c7',
+          padding: '1.5rem',
+          borderRadius: '8px',
+          border: '2px solid #f59e0b',
+          marginBottom: '1rem'
+        }}>
+          <h3 style={{
+            fontSize: '1.2rem',
+            fontWeight: '700',
+            color: '#92400e',
+            marginBottom: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            📖 Explanation
+          </h3>
+          <div style={{
+            fontSize: '0.95rem',
+            lineHeight: '1.8',
+            color: '#78350f',
+            whiteSpace: 'pre-wrap',
+            marginBottom: '1.5rem'
+          }}>
+            {exercises[selectedExercise].explanation}
+          </div>
+
+          <div style={{
+            backgroundColor: '#1e293b',
+            padding: '1.5rem',
+            borderRadius: '8px',
+            overflowX: 'auto',
+            marginTop: '1rem'
+          }}>
+            <h4 style={{
+              fontSize: '1.1rem',
+              fontWeight: '700',
+              color: '#a78bfa',
+              marginBottom: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              🔧 Pseudocode
+            </h4>
+            <pre style={{
+              margin: 0,
+              fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+              fontSize: '0.9rem',
+              lineHeight: '1.6',
+              color: '#e2e8f0',
+              whiteSpace: 'pre',
+              overflowX: 'auto'
+            }}>
+              {exercises[selectedExercise].pseudocode}
+            </pre>
+          </div>
+        </div>
+      )}
+
+      {/* Solution Display */}
+      {showSolution && (
+        <div style={{
+          backgroundColor: '#1e293b',
+          padding: '1.5rem',
+          borderRadius: '8px',
+          border: '2px solid #10b981'
+        }}>
+          <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: '700', color: '#10b981' }}>
+            💡 Solution:
+          </h3>
+          <pre style={{
+            margin: 0,
+            fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
+            fontSize: '0.85rem',
+            lineHeight: '1.6',
+            color: '#e2e8f0',
+            whiteSpace: 'pre',
+            overflowX: 'auto'
+          }}>
+            {exercises[selectedExercise].solution}
+          </pre>
+        </div>
+      )}
+
+      {/* Drawing Canvas Modal */}
+      <DrawingCanvas
+        isOpen={showDrawing}
+        onClose={closeDrawingModal}
+        problemId={`DataStructures-${selectedExercise + 1}`}
+        existingDrawing={currentDrawing}
+      />
+    </div>
+  )
+}
+
+export default DataStructures
