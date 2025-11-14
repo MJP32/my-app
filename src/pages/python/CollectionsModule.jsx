@@ -1,56 +1,6 @@
 import { useState } from 'react'
-
-// Simple syntax highlighter for Python code
-const SyntaxHighlighter = ({ code }) => {
-  const highlightPython = (code) => {
-    let highlighted = code
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-
-    const protectedContent = []
-    let placeholder = 0
-
-    highlighted = highlighted.replace(/(#.*$)/gm, (match) => {
-      const id = `___COMMENT_${placeholder++}___`
-      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
-      return id
-    })
-
-    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
-      const id = `___STRING_${placeholder++}___`
-      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
-      return id
-    })
-
-    highlighted = highlighted
-      .replace(/\b(def|class|if|elif|else|for|while|in|not|and|or|is|return|yield|import|from|as|try|except|finally|with|lambda|None|pass|break|continue)\b/g, '<span style="color: #c586c0;">$1</span>')
-      .replace(/\b(True|False|None)\b/g, '<span style="color: #569cd6;">$1</span>')
-      .replace(/\b(print|len|range|enumerate|zip|map|filter|sorted|sum|max|min|list|dict|set|tuple|Counter|defaultdict|OrderedDict|ChainMap|deque|namedtuple|most_common|update|total|elements)\b/g, '<span style="color: #dcdcaa;">$1</span>')
-      .replace(/\b(\d+\.?\d*)\b/g, '<span style="color: #b5cea8;">$1</span>')
-
-    protectedContent.forEach(({ id, replacement }) => {
-      highlighted = highlighted.replace(id, replacement)
-    })
-
-    return highlighted
-  }
-
-  return (
-    <pre style={{
-      margin: 0,
-      fontFamily: '"Fira Code", "Consolas", "Monaco", "Courier New", monospace',
-      fontSize: '0.9rem',
-      lineHeight: '1.7',
-      color: '#e2e8f0',
-      whiteSpace: 'pre',
-      overflowX: 'auto',
-      padding: '1.25rem'
-    }}>
-      <code dangerouslySetInnerHTML={{ __html: highlightPython(code) }} />
-    </pre>
-  )
-}
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 function CollectionsModule({ onBack }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
@@ -405,100 +355,138 @@ print(settings_parent.maps)  # [{'port': 3000}, {'debug': False, 'port': 8000}]`
     const concept = concepts.find(c => c.id === selectedConcept)
     return (
       <div style={{
-        padding: '2rem',
-        maxWidth: '1400px',
-        margin: '0 auto',
-        backgroundColor: '#f8fafc',
-        minHeight: '100vh'
+        position: 'fixed',
+        inset: '0',
+        background: 'rgba(0, 0, 0, 0.8)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '1rem',
+        zIndex: '50',
+        overflowY: 'auto'
       }}>
-        <button
-          onClick={() => setSelectedConcept(null)}
-          style={{
-            marginBottom: '2rem',
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            fontWeight: '600',
-            backgroundColor: '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
-        >
-          ← Back to Collections
-        </button>
-
         <div style={{
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          padding: '2rem',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          marginBottom: '2rem'
+          background: 'linear-gradient(to bottom right, #111827, #1f2937)',
+          borderRadius: '0.75rem',
+          maxWidth: '72rem',
+          width: '100%',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          border: '2px solid #3b82f6',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-            <span style={{ fontSize: '3rem' }}>{concept.icon}</span>
-            <div>
-              <h2 style={{
-                fontSize: '2rem',
-                fontWeight: '800',
-                color: '#1f2937',
-                margin: 0,
-                marginBottom: '0.5rem'
-              }}>
-                {concept.name}
-              </h2>
-              <p style={{
-                fontSize: '1.1rem',
-                color: '#6b7280',
-                margin: 0
-              }}>
-                {concept.description}
-              </p>
-            </div>
-          </div>
-
           <div style={{
-            padding: '1rem',
-            backgroundColor: '#f3f4f6',
-            borderLeft: '4px solid ' + concept.color,
-            borderRadius: '6px',
-            marginBottom: '1.5rem'
-          }}>
-            <p style={{ margin: 0, color: '#374151', lineHeight: '1.7' }}>
-              <strong>💡 Explanation:</strong> {concept.explanation}
-            </p>
-          </div>
-
-          <div style={{
-            padding: '1rem',
-            backgroundColor: '#fef3c7',
-            borderLeft: '4px solid #f59e0b',
-            borderRadius: '6px',
-            marginBottom: '2rem'
-          }}>
-            <p style={{ margin: 0, color: '#78350f', fontWeight: '600' }}>
-              ⚡ Complexity: {concept.complexity}
-            </p>
-          </div>
-
-          <div style={{
-            backgroundColor: '#1e293b',
-            borderRadius: '8px',
-            overflow: 'hidden'
+            position: 'sticky',
+            top: '0',
+            background: 'linear-gradient(to right, #2563eb, #1d4ed8)',
+            padding: '1.5rem',
+            borderTopLeftRadius: '0.75rem',
+            borderTopRightRadius: '0.75rem',
+            borderBottom: '2px solid #60a5fa',
+            zIndex: '10'
           }}>
             <div style={{
-              padding: '0.75rem 1.25rem',
-              backgroundColor: '#334155',
-              borderBottom: '1px solid #475569'
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
             }}>
-              <span style={{ color: '#94a3b8', fontSize: '0.875rem', fontWeight: '600' }}>
-                Python Example
-              </span>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem'
+              }}>
+                <span style={{ fontSize: '3rem' }}>{concept.icon}</span>
+                <h2 style={{
+                  fontSize: '1.875rem',
+                  fontWeight: 'bold',
+                  color: 'white'
+                }}>
+                  {concept.name}
+                </h2>
+              </div>
+              <button
+                onClick={() => setSelectedConcept(null)}
+                style={{
+                  background: '#dc2626',
+                  color: 'white',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '0.5rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontWeight: '500',
+                  fontSize: '1rem',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#b91c1c'
+                  e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#dc2626'
+                  e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                }}
+              >
+                Close
+              </button>
             </div>
-            <SyntaxHighlighter code={concept.codeExample} />
+          </div>
+
+          <div style={{ padding: '2rem' }}>
+            <div style={{
+              background: '#1f2937',
+              borderRadius: '0.5rem',
+              padding: '1.5rem',
+              marginBottom: '1.5rem',
+              border: '1px solid #3b82f6'
+            }}>
+              <p style={{ margin: 0, marginBottom: '0.75rem', color: '#93c5fd', fontSize: '1.1rem' }}>
+                {concept.description}
+              </p>
+              <p style={{ margin: 0, color: '#d1d5db', lineHeight: '1.7' }}>
+                <strong style={{ color: '#60a5fa' }}>Explanation:</strong> {concept.explanation}
+              </p>
+            </div>
+
+            <div style={{
+              background: '#1f2937',
+              borderRadius: '0.5rem',
+              padding: '1.5rem',
+              marginBottom: '1.5rem',
+              border: '1px solid #f59e0b'
+            }}>
+              <p style={{ margin: 0, color: '#fbbf24', fontWeight: '600' }}>
+                ⚡ Complexity: {concept.complexity}
+              </p>
+            </div>
+
+            <div style={{
+              backgroundColor: '#1e293b',
+              borderRadius: '8px',
+              overflow: 'hidden',
+              border: '1px solid #3b82f6'
+            }}>
+              <div style={{
+                padding: '0.75rem 1.25rem',
+                backgroundColor: '#334155',
+                borderBottom: '1px solid #475569'
+              }}>
+                <span style={{ color: '#93c5fd', fontSize: '0.875rem', fontWeight: '600' }}>
+                  Python Example
+                </span>
+              </div>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  fontSize: '0.9rem'
+                }}
+              >
+                {concept.codeExample}
+              </SyntaxHighlighter>
+            </div>
           </div>
         </div>
       </div>
@@ -507,99 +495,134 @@ print(settings_parent.maps)  # [{'port': 3000}, {'debug': False, 'port': 8000}]`
 
   return (
     <div style={{
-      padding: '2rem',
-      maxWidth: '1400px',
-      margin: '0 auto',
-      backgroundColor: '#f8fafc',
-      minHeight: '100vh'
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+      color: 'white',
+      padding: '1.5rem'
     }}>
-      <button
-        onClick={onBack}
-        style={{
-          marginBottom: '2rem',
-          padding: '0.75rem 1.5rem',
-          fontSize: '1rem',
-          fontWeight: '600',
-          backgroundColor: '#6b7280',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          transition: 'all 0.2s ease'
-        }}
-        onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
-        onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
-      >
-        ← Back to Python
-      </button>
-
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 style={{
-          fontSize: '3rem',
-          fontWeight: '800',
-          color: '#1f2937',
-          marginBottom: '1rem'
-        }}>
-          🗂️ Collections Module
-        </h1>
-        <p style={{
-          fontSize: '1.2rem',
-          color: '#6b7280',
-          maxWidth: '800px',
-          margin: '0 auto'
-        }}>
-          Master Python's specialized container datatypes. More powerful alternatives to built-in dict, list, set, and tuple.
-        </p>
-      </div>
-
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-        gap: '1.5rem'
+        maxWidth: '80rem',
+        margin: '0 auto'
       }}>
-        {concepts.map((concept) => (
-          <div
-            key={concept.id}
-            onClick={() => setSelectedConcept(concept.id)}
-            style={{
-              backgroundColor: 'white',
-              padding: '1.5rem',
-              borderRadius: '12px',
-              border: `3px solid ${concept.color}`,
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-8px)'
-              e.currentTarget.style.boxShadow = `0 0 0 4px ${concept.color}40, 0 12px 24px rgba(0,0,0,0.2)`
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '2rem'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem'
+          }}>
+            <button
+              onClick={onBack}
+              style={{
+                background: '#2563eb',
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontWeight: '500',
+                fontSize: '1rem',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#1d4ed8'
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#2563eb'
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              ← Back to Python Topics
+            </button>
+            <h1 style={{
+              fontSize: '2.25rem',
+              fontWeight: 'bold',
+              background: 'linear-gradient(to right, #60a5fa, #22d3ee)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              🗂️ Collections Module
+            </h1>
+          </div>
+        </div>
+
+        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          <p style={{
+            fontSize: '1.2rem',
+            color: '#d1d5db',
+            maxWidth: '800px',
+            margin: '0 auto'
+          }}>
+            Master Python's specialized container datatypes. More powerful alternatives to built-in dict, list, set, and tuple.
+          </p>
+        </div>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '1.5rem'
+        }}>
+          {concepts.map((concept) => (
+            <div
+              key={concept.id}
+              onClick={() => setSelectedConcept(concept.id)}
+              style={{
+                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                padding: '1.5rem',
+                borderRadius: '0.75rem',
+                border: '2px solid #3b82f6',
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#60a5fa'
+                e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(59, 130, 246, 0.5)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#3b82f6'
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              <div style={{
+                fontSize: '3rem',
+                marginBottom: '1rem',
+                textAlign: 'center'
+              }}>
+                {concept.icon}
+              </div>
               <h3 style={{
-                fontSize: '1.3rem',
-                fontWeight: '700',
-                color: '#1f2937',
-                margin: 0
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
+                textAlign: 'center',
+                marginBottom: '0.75rem',
+                color: '#93c5fd'
               }}>
                 {concept.name}
               </h3>
+              <p style={{
+                color: '#d1d5db',
+                textAlign: 'center',
+                fontSize: '0.875rem',
+                lineHeight: '1.6'
+              }}>
+                {concept.description}
+              </p>
             </div>
-            <p style={{
-              fontSize: '0.95rem',
-              color: '#6b7280',
-              lineHeight: '1.6',
-              margin: 0
-            }}>
-              {concept.description}
-            </p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   )

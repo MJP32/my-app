@@ -1,56 +1,6 @@
 import { useState } from 'react'
-
-// Simple syntax highlighter for Python code
-const SyntaxHighlighter = ({ code }) => {
-  const highlightPython = (code) => {
-    let highlighted = code
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-
-    const protectedContent = []
-    let placeholder = 0
-
-    highlighted = highlighted.replace(/(#.*$)/gm, (match) => {
-      const id = `___COMMENT_${placeholder++}___`
-      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
-      return id
-    })
-
-    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
-      const id = `___STRING_${placeholder++}___`
-      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
-      return id
-    })
-
-    highlighted = highlighted
-      .replace(/\b(def|class|if|elif|else|for|while|in|not|and|or|is|return|yield|import|from|as|try|except|finally|with|lambda|None|pass|break|continue)\b/g, '<span style="color: #c586c0;">$1</span>')
-      .replace(/\b(True|False|None)\b/g, '<span style="color: #569cd6;">$1</span>')
-      .replace(/\b(print|len|range|enumerate|zip|map|filter|sorted|sum|max|min|list|dict|set|tuple|bisect|bisect_left|bisect_right|insort|insort_left|insort_right)\b/g, '<span style="color: #dcdcaa;">$1</span>')
-      .replace(/\b(\d+\.?\d*)\b/g, '<span style="color: #b5cea8;">$1</span>')
-
-    protectedContent.forEach(({ id, replacement }) => {
-      highlighted = highlighted.replace(id, replacement)
-    })
-
-    return highlighted
-  }
-
-  return (
-    <pre style={{
-      margin: 0,
-      fontFamily: '"Fira Code", "Consolas", "Monaco", "Courier New", monospace',
-      fontSize: '0.9rem',
-      lineHeight: '1.7',
-      color: '#e2e8f0',
-      whiteSpace: 'pre',
-      overflowX: 'auto',
-      padding: '1.25rem'
-    }}>
-      <code dangerouslySetInnerHTML={{ __html: highlightPython(code) }} />
-    </pre>
-  )
-}
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 function BisectFunctions({ onBack }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
@@ -1006,211 +956,331 @@ for score in [85, 92, 78, 88, 95, 72, 90]:
   const codeSections = selectedConcept ? parseCodeSections(concepts[selectedConcept].codeExample) : []
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#f0fdf4', minHeight: '100vh' }}>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
       <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '2rem'
+        maxWidth: '80rem',
+        margin: '0 auto'
       }}>
-        <button
-          onClick={() => {
-            if (selectedConcept !== null) {
-              setSelectedConcept(null)
-            } else {
-              onBack()
-            }
-          }}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            fontWeight: '600',
-            backgroundColor: '#059669',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#047857'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#059669'}
-        >
-          ← {selectedConcept !== null ? 'Back to Concepts' : 'Back to Python'}
-        </button>
-        <h1 style={{
-          fontSize: '2.5rem',
-          fontWeight: '800',
-          color: '#1f2937',
-          margin: 0,
+        <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '1rem'
+          justifyContent: 'space-between',
+          marginBottom: '2rem'
         }}>
-          <span>🔍</span>
-          <span>Bisect Functions</span>
-        </h1>
-        <div style={{ width: '150px' }}></div>
-      </div>
-
-      {selectedConcept === null ? (
-        <>
           <div style={{
-            backgroundColor: 'white',
-            padding: '1.5rem',
-            borderRadius: '12px',
-            marginBottom: '2rem',
-            border: '2px solid #059669'
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem'
           }}>
-            <h2 style={{ color: '#059669', marginTop: 0 }}>About Bisect Module</h2>
-            <p style={{ color: '#4b5563', lineHeight: '1.8', marginBottom: '1rem' }}>
-              The <code style={{ backgroundColor: '#e5e7eb', padding: '0.2rem 0.4rem', borderRadius: '4px' }}>bisect</code> module
-              provides support for maintaining a list in sorted order without having to sort the list after each insertion.
-              It implements binary search algorithms with O(log n) time complexity for search operations.
-            </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginTop: '1rem' }}>
-              <div style={{ padding: '1rem', backgroundColor: '#f0fdf4', borderRadius: '8px' }}>
-                <strong style={{ color: '#059669' }}>Time Complexity:</strong>
-                <p style={{ margin: '0.5rem 0 0 0', color: '#4b5563' }}>O(log n) for search, O(n) for insertion</p>
-              </div>
-              <div style={{ padding: '1rem', backgroundColor: '#f0fdf4', borderRadius: '8px' }}>
-                <strong style={{ color: '#059669' }}>Built-in Module:</strong>
-                <p style={{ margin: '0.5rem 0 0 0', color: '#4b5563' }}>No installation needed - import bisect</p>
-              </div>
-            </div>
+            <button
+              onClick={() => {
+                if (selectedConcept !== null) {
+                  setSelectedConcept(null)
+                } else {
+                  onBack()
+                }
+              }}
+              style={{
+                background: '#2563eb',
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontWeight: '500',
+                fontSize: '1rem',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#1d4ed8'
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#2563eb'
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              ← {selectedConcept !== null ? 'Back to Concepts' : 'Back to Python Topics'}
+            </button>
+            <h1 style={{
+              fontSize: '2.25rem',
+              fontWeight: 'bold',
+              background: 'linear-gradient(to right, #60a5fa, #22d3ee)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              🔍 Bisect Functions
+            </h1>
           </div>
+        </div>
 
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '1.5rem'
+        }}>
+          {concepts.map((concept, index) => (
+            <div
+              key={index}
+              onClick={() => setSelectedConcept(index)}
+              style={{
+                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                padding: '1.5rem',
+                borderRadius: '0.75rem',
+                border: '2px solid #3b82f6',
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#60a5fa'
+                e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(59, 130, 246, 0.5)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#3b82f6'
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              <div style={{
+                fontSize: '3rem',
+                marginBottom: '1rem',
+                textAlign: 'center'
+              }}>
+                {concept.icon}
+              </div>
+              <h3 style={{
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
+                textAlign: 'center',
+                marginBottom: '0.75rem',
+                color: '#93c5fd'
+              }}>
+                {concept.name}
+              </h3>
+              <p style={{
+                color: '#d1d5db',
+                textAlign: 'center',
+                fontSize: '0.875rem'
+              }}>
+                Click to explore bisect module concepts
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {selectedConcept !== null && (
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '1.5rem'
+            position: 'fixed',
+            inset: '0',
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem',
+            zIndex: '50',
+            overflowY: 'auto'
           }}>
-            {concepts.map((concept, index) => (
-              <button
-                key={index}
-                onClick={() => setSelectedConcept(index)}
-                style={{
-                  backgroundColor: 'white',
-                  padding: '1.5rem',
-                  borderRadius: '12px',
-                  border: '3px solid #059669',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  textAlign: 'left'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-8px)'
-                  e.currentTarget.style.boxShadow = '0 12px 24px rgba(5, 150, 105, 0.2)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = 'none'
-                }}
-              >
-                <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>{concept.icon}</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1f2937', marginBottom: '0.5rem' }}>
-                  {concept.name}
-                </h3>
+            <div style={{
+              background: 'linear-gradient(to bottom right, #111827, #1f2937)',
+              borderRadius: '0.75rem',
+              maxWidth: '72rem',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              border: '2px solid #3b82f6',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+            }}>
+              <div style={{
+                position: 'sticky',
+                top: '0',
+                background: 'linear-gradient(to right, #2563eb, #1d4ed8)',
+                padding: '1.5rem',
+                borderTopLeftRadius: '0.75rem',
+                borderTopRightRadius: '0.75rem',
+                borderBottom: '2px solid #60a5fa',
+                zIndex: '10'
+              }}>
                 <div style={{
-                  fontSize: '0.9rem',
-                  color: '#059669',
-                  fontWeight: '600',
-                  marginTop: '1rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.5rem'
+                  justifyContent: 'space-between'
                 }}>
-                  <span>Learn More</span>
-                  <span>→</span>
-                </div>
-              </button>
-            ))}
-          </div>
-        </>
-      ) : (
-        <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '12px', border: '2px solid #059669' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-            <div style={{ fontSize: '3rem' }}>{concepts[selectedConcept].icon}</div>
-            <h2 style={{ fontSize: '2rem', fontWeight: '700', color: '#1f2937', margin: 0 }}>
-              {concepts[selectedConcept].name}
-            </h2>
-          </div>
-
-          <div style={{
-            backgroundColor: '#f0fdf4',
-            padding: '1.5rem',
-            borderRadius: '8px',
-            marginBottom: '2rem',
-            borderLeft: '4px solid #059669'
-          }}>
-            <div style={{ whiteSpace: 'pre-line', color: '#374151', lineHeight: '1.8' }}>
-              {concepts[selectedConcept].explanation.split('\n').map((line, i) => {
-                if (line.startsWith('**') && line.endsWith('**')) {
-                  const text = line.slice(2, -2)
-                  return <div key={i} style={{ fontWeight: '700', color: '#059669', marginTop: i > 0 ? '1rem' : 0, marginBottom: '0.5rem' }}>{text}</div>
-                }
-                if (line.startsWith('•')) {
-                  return <div key={i} style={{ marginLeft: '1.5rem', marginBottom: '0.25rem' }}>{line}</div>
-                }
-                return <div key={i} style={{ marginBottom: '0.5rem' }}>{line}</div>
-              })}
-            </div>
-          </div>
-
-          <div style={{ marginTop: '2rem' }}>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1f2937', marginBottom: '1rem' }}>
-              Code Examples
-            </h3>
-
-            {codeSections.length > 0 ? (
-              codeSections.map((section, idx) => (
-                <div key={idx} style={{ marginBottom: '1.5rem' }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem'
+                  }}>
+                    <span style={{ fontSize: '3rem' }}>{concepts[selectedConcept].icon}</span>
+                    <h2 style={{
+                      fontSize: '1.875rem',
+                      fontWeight: 'bold',
+                      color: 'white'
+                    }}>
+                      {concepts[selectedConcept].name}
+                    </h2>
+                  </div>
                   <button
-                    onClick={() => toggleSection(`${selectedConcept}-${idx}`)}
+                    onClick={() => setSelectedConcept(null)}
                     style={{
-                      width: '100%',
-                      padding: '1rem',
-                      backgroundColor: '#059669',
+                      background: '#dc2626',
                       color: 'white',
+                      padding: '0.75rem 1.5rem',
+                      borderRadius: '0.5rem',
                       border: 'none',
-                      borderRadius: '8px',
                       cursor: 'pointer',
+                      fontWeight: '500',
                       fontSize: '1rem',
-                      fontWeight: '600',
-                      textAlign: 'left',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      transition: 'all 0.2s ease'
+                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                      transition: 'all 0.2s'
                     }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = '#047857'}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = '#059669'}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#b91c1c'
+                      e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = '#dc2626'
+                      e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                    }}
                   >
-                    <span>{section.title}</span>
-                    <span>{expandedSections[`${selectedConcept}-${idx}`] ? '▼' : '▶'}</span>
+                    Close
                   </button>
-                  {expandedSections[`${selectedConcept}-${idx}`] && (
+                </div>
+              </div>
+
+              <div style={{ padding: '2rem' }}>
+                <div style={{
+                  background: '#1f2937',
+                  borderRadius: '0.5rem',
+                  padding: '1.5rem',
+                  marginBottom: '1.5rem',
+                  border: '1px solid #3b82f6'
+                }}>
+                  <h3 style={{
+                    fontSize: '1.25rem',
+                    fontWeight: '600',
+                    marginBottom: '1rem',
+                    color: '#93c5fd'
+                  }}>
+                    Overview
+                  </h3>
+                  <div style={{
+                    whiteSpace: 'pre-line',
+                    color: '#d1d5db',
+                    lineHeight: '1.8'
+                  }}>
+                    {concepts[selectedConcept].explanation.split('\n').map((line, i) => {
+                      if (line.startsWith('**') && line.endsWith('**')) {
+                        const text = line.slice(2, -2)
+                        return <div key={i} style={{ fontWeight: '700', color: '#93c5fd', marginTop: i > 0 ? '1rem' : 0, marginBottom: '0.5rem' }}>{text}</div>
+                      }
+                      if (line.startsWith('•')) {
+                        return <div key={i} style={{ marginLeft: '1.5rem', marginBottom: '0.25rem' }}>{line}</div>
+                      }
+                      return <div key={i} style={{ marginBottom: '0.5rem' }}>{line}</div>
+                    })}
+                  </div>
+                </div>
+
+                <div style={{
+                  background: '#1f2937',
+                  borderRadius: '0.5rem',
+                  padding: '1.5rem',
+                  border: '1px solid #3b82f6'
+                }}>
+                  <h3 style={{
+                    fontSize: '1.25rem',
+                    fontWeight: '600',
+                    marginBottom: '1rem',
+                    color: '#93c5fd'
+                  }}>
+                    Code Examples
+                  </h3>
+
+                  {codeSections.length > 0 ? (
+                    codeSections.map((section, idx) => (
+                      <div key={idx} style={{ marginBottom: '1.5rem' }}>
+                        <button
+                          onClick={() => toggleSection(`${selectedConcept}-${idx}`)}
+                          style={{
+                            width: '100%',
+                            padding: '1rem',
+                            background: '#2563eb',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontSize: '1rem',
+                            fontWeight: '600',
+                            textAlign: 'left',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => e.target.style.background = '#1d4ed8'}
+                          onMouseLeave={(e) => e.target.style.background = '#2563eb'}
+                        >
+                          <span>{section.title}</span>
+                          <span>{expandedSections[`${selectedConcept}-${idx}`] ? '▼' : '▶'}</span>
+                        </button>
+                        {expandedSections[`${selectedConcept}-${idx}`] && (
+                          <div style={{
+                            backgroundColor: '#1e293b',
+                            borderRadius: '0 0 8px 8px',
+                            overflow: 'hidden'
+                          }}>
+                            <SyntaxHighlighter
+                              language="python"
+                              style={vscDarkPlus}
+                              customStyle={{
+                                borderRadius: '8px',
+                                padding: '1rem',
+                                fontSize: '0.9rem'
+                              }}
+                            >
+                              {section.code}
+                            </SyntaxHighlighter>
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  ) : (
                     <div style={{
                       backgroundColor: '#1e293b',
-                      borderRadius: '0 0 8px 8px',
+                      borderRadius: '8px',
                       overflow: 'hidden'
                     }}>
-                      <SyntaxHighlighter code={section.code} />
+                      <SyntaxHighlighter
+                        language="python"
+                        style={vscDarkPlus}
+                        customStyle={{
+                          borderRadius: '8px',
+                          padding: '1rem',
+                          fontSize: '0.9rem'
+                        }}
+                      >
+                        {concepts[selectedConcept].codeExample}
+                      </SyntaxHighlighter>
                     </div>
                   )}
                 </div>
-              ))
-            ) : (
-              <div style={{
-                backgroundColor: '#1e293b',
-                borderRadius: '8px',
-                overflow: 'hidden'
-              }}>
-                <SyntaxHighlighter code={concepts[selectedConcept].codeExample} />
               </div>
-            )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

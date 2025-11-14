@@ -1122,6 +1122,530 @@ public class MarginalVarService {
   }
 }`
       }
+    },
+    {
+      id: 9,
+      title: '🔧 Implementation Details',
+      color: '#3b82f6',
+      description: 'Real-world implementation approach and technical decisions',
+      content: {
+        overview: 'Building an enterprise VaR/CVaR system required careful architecture decisions, technology selection, and implementation strategies. This section covers the practical implementation approach, deployment architecture, and key technical decisions made during development.',
+        keyPoints: [
+          'Microservices architecture with Spring Boot',
+          'Event-driven design using Apache Kafka',
+          'Real-time computation with reactive streams',
+          'Distributed caching with Redis',
+          'Time-series database (InfluxDB) for historical data',
+          'PostgreSQL for transactional data',
+          'API Gateway (Kong) for routing and rate limiting',
+          'Container orchestration with Kubernetes',
+          'CI/CD pipeline with Jenkins and GitLab',
+          'Monitoring with Prometheus and Grafana',
+          'Distributed tracing with Jaeger',
+          'Blue-green deployment strategy'
+        ],
+        codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Main VaR Calculation Service - Production Implementation
+// ═══════════════════════════════════════════════════════════════════════════
+import org.springframework.stereotype.Service;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import io.micrometer.core.annotation.Timed;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import lombok.extern.slf4j.Slf4j;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+
+@Slf4j
+@Service
+public class ProductionVarService {
+
+  private final KafkaTemplate<String, VarCalculationEvent> kafkaTemplate;
+  private final RedisTemplate<String, Object> redisTemplate;
+  private final HistoricalDataRepository historicalDataRepo;
+  private final PortfolioRepository portfolioRepo;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Async VaR Calculation with Kafka Events
+// ═══════════════════════════════════════════════════════════════════════════
+  @Async("varExecutor")
+  @Timed(value = "var.calculation.time", description = "Time taken to calculate VaR")
+  public CompletableFuture<VarResult> calculateVarAsync(String portfolioId) {
+    log.info("Starting async VaR calculation for portfolio: {}", portfolioId);
+
+    try {
+      // Fetch portfolio data
+      Portfolio portfolio = portfolioRepo.findById(portfolioId)
+        .orElseThrow(() -> new PortfolioNotFoundException(portfolioId));
+
+      // Emit event to Kafka for audit trail
+      kafkaTemplate.send("var-calculation-started",
+        new VarCalculationEvent(portfolioId, LocalDateTime.now(), "STARTED"));
+
+      // Calculate VaR
+      VarResult result = performVarCalculation(portfolio);
+
+      // Cache result in Redis (TTL: 1 hour)
+      String cacheKey = "var:" + portfolioId + ":" + LocalDateTime.now().toLocalDate();
+      redisTemplate.opsForValue().set(cacheKey, result, Duration.ofHours(1));
+
+      // Emit completion event
+      kafkaTemplate.send("var-calculation-completed",
+        new VarCalculationEvent(portfolioId, LocalDateTime.now(), "COMPLETED", result));
+
+      log.info("VaR calculation completed for portfolio: {}", portfolioId);
+      return CompletableFuture.completedFuture(result);
+
+    } catch (Exception e) {
+      log.error("VaR calculation failed for portfolio: {}", portfolioId, e);
+      kafkaTemplate.send("var-calculation-failed",
+        new VarCalculationEvent(portfolioId, LocalDateTime.now(), "FAILED", e.getMessage()));
+      return CompletableFuture.failedFuture(e);
+    }
+  }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Reactive Stream Processing for Real-time VaR
+// ═══════════════════════════════════════════════════════════════════════════
+  public Flux<VarUpdate> streamVarUpdates(String portfolioId) {
+    return Flux.interval(Duration.ofSeconds(30))
+      .flatMap(tick -> {
+        return Mono.fromCallable(() -> {
+          Portfolio portfolio = portfolioRepo.findById(portfolioId).orElseThrow();
+          return calculateVarWithConfidence(portfolio, 0.95);
+        })
+        .map(varValue -> new VarUpdate(
+          portfolioId,
+          varValue,
+          LocalDateTime.now(),
+          "REAL_TIME"
+        ))
+        .doOnError(error ->
+          log.error("Real-time VaR update failed for {}", portfolioId, error)
+        );
+      })
+      .onErrorResume(error -> Flux.empty()); // Continue stream on error
+  }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Circuit Breaker Pattern for External Data Sources
+// ═══════════════════════════════════════════════════════════════════════════
+  @HystrixCommand(
+    fallbackMethod = "getHistoricalDataFallback",
+    commandProperties = {
+      @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "5000"),
+      @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"),
+      @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "50")
+    }
+  )
+  public List<MarketData> getHistoricalData(String symbol, LocalDate startDate, LocalDate endDate) {
+    // Call to external market data provider with circuit breaker
+    return marketDataClient.fetchHistoricalPrices(symbol, startDate, endDate);
+  }
+
+  public List<MarketData> getHistoricalDataFallback(
+      String symbol, LocalDate startDate, LocalDate endDate, Throwable t) {
+    log.warn("Circuit breaker activated for {}, using cached data", symbol, t);
+    return historicalDataRepo.findBySymbolAndDateRange(symbol, startDate, endDate);
+  }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Distributed Lock for Concurrent Calculations
+// ═══════════════════════════════════════════════════════════════════════════
+  @Cacheable(value = "var-calculations", key = "#portfolioId + '-' + #confidenceLevel")
+  public VarResult calculateWithDistributedLock(String portfolioId, double confidenceLevel) {
+    String lockKey = "var-lock:" + portfolioId;
+    RLock lock = redissonClient.getLock(lockKey);
+
+    try {
+      // Try to acquire lock with 10 second wait time
+      if (lock.tryLock(10, 30, TimeUnit.SECONDS)) {
+        try {
+          log.info("Lock acquired for portfolio: {}", portfolioId);
+          return performVarCalculation(portfolioRepo.findById(portfolioId).orElseThrow());
+        } finally {
+          lock.unlock();
+          log.info("Lock released for portfolio: {}", portfolioId);
+        }
+      } else {
+        throw new LockAcquisitionException("Could not acquire lock for portfolio: " + portfolioId);
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new RuntimeException("Interrupted while waiting for lock", e);
+    }
+  }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Batch Processing with Parallel Streams
+// ═══════════════════════════════════════════════════════════════════════════
+  @Scheduled(cron = "0 0 2 * * ?") // Run daily at 2 AM
+  public void batchCalculateAllPortfolios() {
+    log.info("Starting batch VaR calculation for all portfolios");
+
+    List<String> portfolioIds = portfolioRepo.findAllActivePortfolioIds();
+
+    Map<String, VarResult> results = portfolioIds.parallelStream()
+      .collect(Collectors.toConcurrentMap(
+        portfolioId -> portfolioId,
+        portfolioId -> {
+          try {
+            return calculateVarAsync(portfolioId).get(60, TimeUnit.SECONDS);
+          } catch (Exception e) {
+            log.error("Batch calculation failed for portfolio: {}", portfolioId, e);
+            return VarResult.failed(portfolioId, e.getMessage());
+          }
+        }
+      ));
+
+    // Store batch results in time-series database
+    batchResultRepo.saveAll(results.values());
+
+    log.info("Batch calculation completed. Processed {} portfolios, {} succeeded, {} failed",
+      results.size(),
+      results.values().stream().filter(VarResult::isSuccess).count(),
+      results.values().stream().filter(r -> !r.isSuccess()).count()
+    );
+  }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Kafka Event Listener for Portfolio Updates
+// ═══════════════════════════════════════════════════════════════════════════
+  @KafkaListener(topics = "portfolio-updates", groupId = "var-service")
+  public void handlePortfolioUpdate(PortfolioUpdateEvent event) {
+    log.info("Received portfolio update for: {}", event.getPortfolioId());
+
+    // Invalidate cache
+    String cacheKey = "var-calculations::" + event.getPortfolioId() + "-*";
+    redisTemplate.delete(cacheKey);
+
+    // Recalculate VaR asynchronously
+    calculateVarAsync(event.getPortfolioId())
+      .thenAccept(result -> {
+        log.info("VaR recalculated after portfolio update: {}", result);
+        // Notify WebSocket clients
+        websocketNotifier.notifyVarUpdate(event.getPortfolioId(), result);
+      })
+      .exceptionally(ex -> {
+        log.error("Failed to recalculate VaR after portfolio update", ex);
+        return null;
+      });
+  }
+
+  private VarResult performVarCalculation(Portfolio portfolio) {
+    // Core calculation logic (Historical, Parametric, or Monte Carlo)
+    return new VarResult(/* calculation results */);
+  }
+}`
+      }
+    },
+    {
+      id: 10,
+      title: '⚠️ Obstacles & Solutions',
+      color: '#ef4444',
+      description: 'Real challenges faced and how they were overcome',
+      content: {
+        overview: 'Implementing an enterprise-grade VaR/CVaR system presented numerous technical and operational challenges. This section documents the major obstacles encountered during development and the solutions implemented to overcome them.',
+        keyPoints: [
+          'Performance bottlenecks in Monte Carlo simulations',
+          'Data quality and missing market data',
+          'Real-time calculation latency requirements',
+          'Concurrent calculation conflicts',
+          'Memory management for large portfolios',
+          'Historical data storage and retrieval',
+          'Correlation matrix instability',
+          'Regulatory compliance requirements',
+          'System resilience and fault tolerance',
+          'Third-party data provider reliability',
+          'Time zone handling across global markets',
+          'Numerical precision and rounding errors'
+        ],
+        codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ OBSTACLE #1: Monte Carlo Performance Bottleneck
+// ═══════════════════════════════════════════════════════════════════════════
+// PROBLEM: 10,000 simulations took 45+ seconds, unacceptable for real-time use
+// SOLUTION: Parallel processing + GPU acceleration + result caching
+
+import java.util.concurrent.*;
+import java.util.stream.IntStream;
+
+@Service
+public class OptimizedMonteCarloService {
+
+  // BEFORE: Sequential execution - 45 seconds ❌
+  public BigDecimal slowMonteCarloVaR(Portfolio portfolio, int numSimulations) {
+    List<BigDecimal> scenarios = new ArrayList<>();
+    for (int i = 0; i < numSimulations; i++) {
+      scenarios.add(simulateSingleScenario(portfolio));
+    }
+    return calculateVarFromScenarios(scenarios, 0.95);
+  }
+
+  // AFTER: Parallel execution with ForkJoinPool - 3.2 seconds ✅
+  private final ForkJoinPool customThreadPool = new ForkJoinPool(
+    Runtime.getRuntime().availableProcessors() * 2
+  );
+
+  @Cacheable(value = "monte-carlo-var", key = "#portfolio.id + '-' + #numSimulations")
+  public BigDecimal optimizedMonteCarloVaR(Portfolio portfolio, int numSimulations) {
+    try {
+      return customThreadPool.submit(() ->
+        IntStream.range(0, numSimulations)
+          .parallel()
+          .mapToObj(i -> simulateSingleScenario(portfolio))
+          .collect(Collectors.toList())
+      ).get().stream()
+        .sorted()
+        .skip((int) (numSimulations * 0.05)) // 95% confidence
+        .findFirst()
+        .orElse(BigDecimal.ZERO);
+    } catch (Exception e) {
+      throw new RuntimeException("Monte Carlo calculation failed", e);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ OBSTACLE #2: Missing Market Data & Data Quality Issues
+// ═══════════════════════════════════════════════════════════════════════════
+// PROBLEM: 15-20% of market data requests failed or returned incomplete data
+// SOLUTION: Multi-tiered fallback strategy with data validation
+
+@Service
+public class RobustMarketDataService {
+
+  @Autowired private PrimaryDataProvider primaryProvider;      // Bloomberg
+  @Autowired private SecondaryDataProvider secondaryProvider;  // Reuters
+  @Autowired private TertiaryDataProvider tertiaryProvider;    // Yahoo Finance
+  @Autowired private HistoricalDataCache historicalCache;
+
+  @CircuitBreaker(name = "marketData", fallbackMethod = "getDataWithFallback")
+  @Retry(name = "marketData", fallbackMethod = "getDataWithFallback")
+  public MarketDataPoint getMarketData(String symbol, LocalDate date) {
+    // Try primary provider
+    try {
+      MarketDataPoint data = primaryProvider.getData(symbol, date);
+      if (isValidData(data)) {
+        historicalCache.store(symbol, date, data); // Cache for future fallback
+        return data;
+      }
+    } catch (Exception e) {
+      log.warn("Primary provider failed for {} on {}", symbol, date, e);
+    }
+
+    // Fallback to secondary provider
+    try {
+      MarketDataPoint data = secondaryProvider.getData(symbol, date);
+      if (isValidData(data)) {
+        return data;
+      }
+    } catch (Exception e) {
+      log.warn("Secondary provider failed for {} on {}", symbol, date, e);
+    }
+
+    // Last resort: use cached historical data or interpolation
+    return getDataWithFallback(symbol, date, null);
+  }
+
+  private MarketDataPoint getDataWithFallback(String symbol, LocalDate date, Throwable t) {
+    // Try historical cache first
+    Optional<MarketDataPoint> cached = historicalCache.get(symbol, date);
+    if (cached.isPresent()) {
+      log.warn("Using cached data for {} on {} due to provider failures", symbol, date);
+      return cached.get();
+    }
+
+    // Interpolate from adjacent dates
+    Optional<MarketDataPoint> interpolated = interpolateFromAdjacentDates(symbol, date);
+    if (interpolated.isPresent()) {
+      log.warn("Using interpolated data for {} on {}", symbol, date);
+      return interpolated.get();
+    }
+
+    // Absolute fallback: use last known value with staleness flag
+    MarketDataPoint lastKnown = historicalCache.getLastKnown(symbol);
+    if (lastKnown != null) {
+      log.error("Using stale data for {} on {}, last known from {}",
+        symbol, date, lastKnown.getDate());
+      lastKnown.markAsStale();
+      return lastKnown;
+    }
+
+    throw new MarketDataUnavailableException(
+      "All data sources failed for " + symbol + " on " + date);
+  }
+
+  private boolean isValidData(MarketDataPoint data) {
+    if (data == null) return false;
+    if (data.getPrice() == null || data.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+      return false;
+    }
+    if (data.getVolume() != null && data.getVolume() < 0) return false;
+    return true;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ OBSTACLE #3: Memory Overflow with Large Portfolios
+// ═══════════════════════════════════════════════════════════════════════════
+// PROBLEM: OutOfMemoryError when processing portfolios with 10,000+ positions
+// SOLUTION: Streaming processing + pagination + garbage collection tuning
+
+@Service
+public class MemoryEfficientVarService {
+
+  // BEFORE: Load entire portfolio in memory ❌
+  public VarResult memoryIntensiveCalculation(String portfolioId) {
+    Portfolio portfolio = portfolioRepo.findById(portfolioId); // Loads all 10K positions!
+    return calculateVaR(portfolio);
+  }
+
+  // AFTER: Stream positions in batches ✅
+  @Transactional(readOnly = true)
+  public VarResult streamingCalculation(String portfolioId) {
+    final int BATCH_SIZE = 500;
+    final AtomicReference<BigDecimal> totalVaR = new AtomicReference<>(BigDecimal.ZERO);
+
+    // Process positions in batches to avoid OOM
+    long totalPositions = positionRepo.countByPortfolioId(portfolioId);
+    int numBatches = (int) Math.ceil((double) totalPositions / BATCH_SIZE);
+
+    for (int batch = 0; batch < numBatches; batch++) {
+      Pageable pageable = PageRequest.of(batch, BATCH_SIZE);
+
+      try (Stream<Position> positions = positionRepo
+          .streamByPortfolioId(portfolioId, pageable)) {
+
+        BigDecimal batchVaR = positions
+          .map(this::calculatePositionVaR)
+          .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        totalVaR.updateAndGet(current -> current.add(batchVaR));
+      }
+
+      // Hint to GC after each batch
+      if (batch % 5 == 0) {
+        System.gc();
+      }
+    }
+
+    return new VarResult(portfolioId, totalVaR.get(), LocalDateTime.now());
+  }
+
+  // JVM Options for production:
+  // -Xms4G -Xmx8G
+  // -XX:+UseG1GC
+  // -XX:MaxGCPauseMillis=200
+  // -XX:+HeapDumpOnOutOfMemoryError
+  // -XX:HeapDumpPath=/var/logs/heapdump.hprof
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ OBSTACLE #4: Correlation Matrix Instability
+// ═══════════════════════════════════════════════════════════════════════════
+// PROBLEM: Correlation matrices became non-positive definite, causing calculation failures
+// SOLUTION: Regularization techniques + eigenvalue adjustments
+
+import org.apache.commons.math3.linear.*;
+
+@Service
+public class CorrelationMatrixStabilizer {
+
+  public RealMatrix stabilizeCorrelationMatrix(RealMatrix rawMatrix) {
+    // Check if matrix is positive definite
+    if (isPositiveDefinite(rawMatrix)) {
+      return rawMatrix;
+    }
+
+    log.warn("Correlation matrix is not positive definite, applying stabilization");
+
+    // Method 1: Eigenvalue adjustment
+    EigenDecomposition eigen = new EigenDecomposition(rawMatrix);
+    double[] eigenvalues = eigen.getRealEigenvalues();
+    RealMatrix eigenvectors = eigen.getV();
+
+    // Replace negative eigenvalues with small positive values
+    double minEigenvalue = 1e-6;
+    double[] adjustedEigenvalues = Arrays.stream(eigenvalues)
+      .map(val -> Math.max(val, minEigenvalue))
+      .toArray();
+
+    // Reconstruct matrix: V * D * V^T
+    RealMatrix D = MatrixUtils.createRealDiagonalMatrix(adjustedEigenvalues);
+    RealMatrix stabilized = eigenvectors.multiply(D).multiply(eigenvectors.transpose());
+
+    // Method 2: Shrinkage towards identity matrix (Ledoit-Wolf)
+    double shrinkageTarget = 0.1;
+    RealMatrix identity = MatrixUtils.createRealIdentityMatrix(rawMatrix.getRowDimension());
+    stabilized = stabilized.scalarMultiply(1 - shrinkageTarget)
+                          .add(identity.scalarMultiply(shrinkageTarget));
+
+    // Verify result
+    if (!isPositiveDefinite(stabilized)) {
+      log.error("Stabilization failed, using identity matrix as last resort");
+      return identity;
+    }
+
+    return stabilized;
+  }
+
+  private boolean isPositiveDefinite(RealMatrix matrix) {
+    try {
+      new CholeskyDecomposition(matrix);
+      return true;
+    } catch (NonPositiveDefiniteMatrixException e) {
+      return false;
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ OBSTACLE #5: Real-time Latency Requirements
+// ═══════════════════════════════════════════════════════════════════════════
+// PROBLEM: Traders needed VaR updates within 500ms, calculations took 3-5 seconds
+// SOLUTION: Incremental calculation + pre-computation + aggressive caching
+
+@Service
+public class LowLatencyVarService {
+
+  @Autowired private RedisTemplate<String, VarResult> cache;
+
+  // Pre-compute VaR for static portfolio composition
+  @Scheduled(fixedRate = 60000) // Every minute
+  public void preComputeBaseVaR() {
+    List<String> activePortfolios = portfolioRepo.findActivePortfolioIds();
+
+    activePortfolios.forEach(portfolioId -> {
+      VarResult baseVaR = calculateFullVaR(portfolioId);
+      cache.opsForValue().set("base-var:" + portfolioId, baseVaR, Duration.ofMinutes(2));
+    });
+  }
+
+  // Incremental calculation when positions change
+  public VarResult fastIncrementalVaR(String portfolioId, PositionChange change) {
+    // Retrieve cached base VaR
+    VarResult baseVaR = cache.opsForValue().get("base-var:" + portfolioId);
+
+    if (baseVaR == null) {
+      // Cache miss - full calculation required
+      return calculateFullVaR(portfolioId);
+    }
+
+    // Calculate marginal impact of position change
+    BigDecimal marginalVaR = calculateMarginalVaR(change);
+    BigDecimal updatedVaR = baseVaR.getValue().add(marginalVaR);
+
+    return new VarResult(portfolioId, updatedVaR, LocalDateTime.now(), true);
+  }
+}`
+      }
     }
   ]
 

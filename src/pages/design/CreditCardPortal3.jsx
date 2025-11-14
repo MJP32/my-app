@@ -10,6 +10,7 @@ export default function CreditCardPortal3({ onBack }) {
   const [expandedLayers, setExpandedLayers] = useState({});
   const [selectedFlow, setSelectedFlow] = useState(null);
   const [selectedCQRSComponent, setSelectedCQRSComponent] = useState(null);
+  const [isDbDiagramExpanded, setIsDbDiagramExpanded] = useState(false);
 
   const toggleLayer = (layer) => {
     setExpandedLayers(prev => ({
@@ -951,7 +952,7 @@ export default function CreditCardPortal3({ onBack }) {
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b-2 border-gray-100 overflow-x-auto pb-0">
-          {['main', 'diagram', 'detailed', 'flows', 'cqrs', 'techstack', 'dataflow', 'api'].map(tab => (
+          {['main', 'diagram', 'detailed', 'flows', 'cqrs', 'databases', 'patterns', 'techstack', 'dataflow', 'api'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -966,6 +967,8 @@ export default function CreditCardPortal3({ onBack }) {
               {tab === 'detailed' && 'Detailed Design'}
               {tab === 'flows' && 'Feature Flows'}
               {tab === 'cqrs' && 'CQRS Pattern'}
+              {tab === 'databases' && 'Database Architecture'}
+              {tab === 'patterns' && 'Architectural Patterns'}
               {tab === 'techstack' && 'Tech Stack'}
               {tab === 'dataflow' && 'Data Flow'}
               {tab === 'api' && 'API Endpoints'}
@@ -3253,6 +3256,1709 @@ export default function CreditCardPortal3({ onBack }) {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {activeTab === 'databases' && (
+          <div className="space-y-6">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 border border-gray-200 shadow-sm">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Database className="w-6 h-6 text-purple-600" />
+                </div>
+                Database Architecture - CQRS with Polyglot Persistence
+              </h2>
+              <p className="text-gray-700 mb-6 leading-relaxed">
+                The Credit Card Portal 3 uses <span className="font-bold text-purple-600">8 different database technologies</span> across the CQRS pattern,
+                implementing polyglot persistence to optimize for different workloads. Write-side databases prioritize ACID transactions and consistency,
+                while read-side databases optimize for query speed with denormalization and caching.
+              </p>
+
+              {/* Enlarged CQRS Architecture Diagram with Database Details */}
+              <div className="bg-white rounded-xl p-6 border-2 border-purple-200 mb-6 shadow-lg">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-gray-900">CQRS Architecture with Database Layer Details</h3>
+                  <button
+                    onClick={() => setIsDbDiagramExpanded(true)}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-semibold transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                    Expand Fullscreen
+                  </button>
+                </div>
+                <p className="text-sm text-gray-600 mb-6 text-center">Click on any component to see detailed database specifications</p>
+
+                <svg viewBox="0 0 1600 1100" className="w-full h-auto">
+                  <defs>
+                    {/* Gradients */}
+                    <linearGradient id="dbClientGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
+                      <stop offset="100%" style={{ stopColor: '#1d4ed8', stopOpacity: 1 }} />
+                    </linearGradient>
+                    <linearGradient id="dbCommandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+                      <stop offset="100%" style={{ stopColor: '#047857', stopOpacity: 1 }} />
+                    </linearGradient>
+                    <linearGradient id="dbQueryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style={{ stopColor: '#ec4899', stopOpacity: 1 }} />
+                      <stop offset="100%" style={{ stopColor: '#be185d', stopOpacity: 1 }} />
+                    </linearGradient>
+                    <linearGradient id="dbEventGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
+                      <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
+                    </linearGradient>
+                    <linearGradient id="dbDatabaseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
+                      <stop offset="100%" style={{ stopColor: '#6d28d9', stopOpacity: 1 }} />
+                    </linearGradient>
+
+                    {/* Arrow markers */}
+                    <marker id="dbArrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                      <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6" />
+                    </marker>
+                    <marker id="dbArrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                      <path d="M0,0 L0,6 L9,3 z" fill="#10b981" />
+                    </marker>
+                    <marker id="dbArrowPink" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                      <path d="M0,0 L0,6 L9,3 z" fill="#ec4899" />
+                    </marker>
+                    <marker id="dbArrowOrange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                      <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b" />
+                    </marker>
+                    <marker id="dbArrowPurple" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                      <path d="M0,0 L0,6 L9,3 z" fill="#8b5cf6" />
+                    </marker>
+                  </defs>
+
+                  {/* BFF Layer & API Gateway */}
+                  <g onClick={() => setSelectedCQRSComponent('bfflayer')} style={{ cursor: 'pointer' }}>
+                    <rect
+                      x="40" y="50" width="200" height="100" rx="8"
+                      fill="url(#dbClientGrad)"
+                      stroke={selectedCQRSComponent === 'bfflayer' ? '#60a5fa' : '#60a5fa'}
+                      strokeWidth={selectedCQRSComponent === 'bfflayer' ? '4' : '2'}
+                      className="hover:opacity-100 transition-all"
+                    />
+                    <text x="140" y="80" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">📱 BFF Layer</text>
+                    <text x="140" y="100" fontSize="11" fill="#ddd" textAnchor="middle">React / iOS / Android</text>
+                    <text x="140" y="115" fontSize="11" fill="#ddd" textAnchor="middle">Admin Dashboard</text>
+                    <text x="140" y="135" fontSize="11" fill="#ddd" textAnchor="middle">30M+ requests/day</text>
+                  </g>
+
+                  <g onClick={() => setSelectedCQRSComponent('apigateway')} style={{ cursor: 'pointer' }}>
+                    <rect
+                      x="40" y="180" width="200" height="130" rx="8"
+                      fill="url(#dbClientGrad)"
+                      stroke={selectedCQRSComponent === 'apigateway' ? '#60a5fa' : '#60a5fa'}
+                      strokeWidth={selectedCQRSComponent === 'apigateway' ? '4' : '2'}
+                      className="hover:opacity-100 transition-all"
+                    />
+                    <text x="140" y="210" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">🚪 API Gateway</text>
+                    <text x="140" y="230" fontSize="11" fill="#ddd" textAnchor="middle">Kong + OAuth 2.0</text>
+                    <text x="140" y="245" fontSize="11" fill="#ddd" textAnchor="middle">Load Balancing</text>
+                    <text x="140" y="260" fontSize="11" fill="#ddd" textAnchor="middle">30M+ req/day</text>
+                    <text x="140" y="280" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Database Used:</text>
+                    <text x="140" y="295" fontSize="9" fill="#fcd34d" textAnchor="middle">Redis (Rate Limiting)</text>
+                  </g>
+
+                  <path d="M 140 150 L 140 180" stroke="#3b82f6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowBlue)" />
+
+                  {/* COMMAND SIDE */}
+                  <rect x="290" y="30" width="520" height="450" rx="12" fill="rgba(16, 185, 129, 0.05)" stroke="#10b981" strokeWidth="3" strokeDasharray="5,5" />
+                  <text x="550" y="65" fontSize="18" fontWeight="bold" fill="#10b981" textAnchor="middle">⚡ COMMAND SIDE (Write Operations)</text>
+
+                  {/* Command Services */}
+                  <g onClick={() => setSelectedCQRSComponent('commandservices')} style={{ cursor: 'pointer' }}>
+                    <rect
+                      x="320" y="90" width="220" height="140" rx="8"
+                      fill="url(#dbCommandGrad)"
+                      stroke={selectedCQRSComponent === 'commandservices' ? '#34d399' : '#34d399'}
+                      strokeWidth={selectedCQRSComponent === 'commandservices' ? '4' : '2'}
+                      className="hover:opacity-100 transition-all"
+                    />
+                    <text x="430" y="115" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">⚡ Command Services</text>
+                    <text x="430" y="135" fontSize="11" fill="#d1fae5" textAnchor="middle">Card Application (Saga)</text>
+                    <text x="430" y="150" fontSize="11" fill="#d1fae5" textAnchor="middle">Account Service</text>
+                    <text x="430" y="165" fontSize="11" fill="#d1fae5" textAnchor="middle">Payment Processing</text>
+                    <text x="430" y="185" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Databases Used:</text>
+                    <text x="430" y="200" fontSize="9" fill="#fcd34d" textAnchor="middle">PostgreSQL (Account DB)</text>
+                    <text x="430" y="213" fontSize="9" fill="#fcd34d" textAnchor="middle">Redis (Idempotency Keys)</text>
+                  </g>
+
+                  {/* Transaction Processor */}
+                  <g onClick={() => setSelectedCQRSComponent('txprocessor')} style={{ cursor: 'pointer' }}>
+                    <rect
+                      x="560" y="90" width="220" height="140" rx="8"
+                      fill="url(#dbCommandGrad)"
+                      stroke={selectedCQRSComponent === 'txprocessor' ? '#34d399' : '#34d399'}
+                      strokeWidth={selectedCQRSComponent === 'txprocessor' ? '4' : '2'}
+                      className="hover:opacity-100 transition-all"
+                    />
+                    <text x="670" y="115" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">⚙️ Transaction Processor</text>
+                    <text x="670" y="135" fontSize="11" fill="#d1fae5" textAnchor="middle">Event Sourcing</text>
+                    <text x="670" y="150" fontSize="11" fill="#d1fae5" textAnchor="middle">Fraud Detection (ML)</text>
+                    <text x="670" y="165" fontSize="11" fill="#d1fae5" textAnchor="middle">&lt;100ms latency</text>
+                    <text x="670" y="185" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Databases Used:</text>
+                    <text x="670" y="200" fontSize="9" fill="#fcd34d" textAnchor="middle">MongoDB (Transaction DB)</text>
+                    <text x="670" y="213" fontSize="9" fill="#fcd34d" textAnchor="middle">PostgreSQL (Event Store)</text>
+                  </g>
+
+                  {/* Write Side - Individual Databases */}
+
+                  {/* PostgreSQL - Account DB */}
+                  <g onClick={() => setSelectedCQRSComponent('writedb')} style={{ cursor: 'pointer' }}>
+                    <rect
+                      x="290" y="270" width="180" height="85" rx="8"
+                      fill="url(#dbDatabaseGrad)"
+                      stroke={selectedCQRSComponent === 'writedb' ? '#a78bfa' : '#a78bfa'}
+                      strokeWidth={selectedCQRSComponent === 'writedb' ? '4' : '2'}
+                      className="hover:opacity-100 transition-all"
+                    />
+                    <text x="380" y="295" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">💾 PostgreSQL</text>
+                    <text x="380" y="313" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Account Database</text>
+                    <text x="380" y="330" fontSize="9" fill="#c4b5fd" textAnchor="middle">1 Primary + 2 Replicas</text>
+                    <text x="380" y="343" fontSize="9" fill="#c4b5fd" textAnchor="middle">ACID • Strong Consistency</text>
+                  </g>
+
+                  {/* Redis - Idempotency */}
+                  <g onClick={() => setSelectedCQRSComponent('writedb')} style={{ cursor: 'pointer' }}>
+                    <rect
+                      x="490" y="270" width="180" height="85" rx="8"
+                      fill="url(#dbDatabaseGrad)"
+                      stroke={selectedCQRSComponent === 'writedb' ? '#a78bfa' : '#a78bfa'}
+                      strokeWidth={selectedCQRSComponent === 'writedb' ? '4' : '2'}
+                      className="hover:opacity-100 transition-all"
+                    />
+                    <text x="580" y="295" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">💾 Redis</text>
+                    <text x="580" y="313" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Idempotency Store</text>
+                    <text x="580" y="330" fontSize="9" fill="#c4b5fd" textAnchor="middle">24h TTL • &lt;1ms latency</text>
+                    <text x="580" y="343" fontSize="9" fill="#c4b5fd" textAnchor="middle">Rate Limiting</text>
+                  </g>
+
+                  {/* MongoDB - Transaction DB */}
+                  <g onClick={() => setSelectedCQRSComponent('writedb')} style={{ cursor: 'pointer' }}>
+                    <rect
+                      x="290" y="375" width="180" height="85" rx="8"
+                      fill="url(#dbDatabaseGrad)"
+                      stroke={selectedCQRSComponent === 'writedb' ? '#a78bfa' : '#a78bfa'}
+                      strokeWidth={selectedCQRSComponent === 'writedb' ? '4' : '2'}
+                      className="hover:opacity-100 transition-all"
+                    />
+                    <text x="380" y="400" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">💾 MongoDB</text>
+                    <text x="380" y="418" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Transaction Database</text>
+                    <text x="380" y="435" fontSize="9" fill="#c4b5fd" textAnchor="middle">5 shards (2M users/shard)</text>
+                    <text x="380" y="448" fontSize="9" fill="#c4b5fd" textAnchor="middle">High write throughput</text>
+                  </g>
+
+                  {/* PostgreSQL - Event Store */}
+                  <g onClick={() => setSelectedCQRSComponent('eventstore')} style={{ cursor: 'pointer' }}>
+                    <rect
+                      x="490" y="375" width="180" height="85" rx="8"
+                      fill="url(#dbDatabaseGrad)"
+                      stroke={selectedCQRSComponent === 'eventstore' ? '#a78bfa' : '#a78bfa'}
+                      strokeWidth={selectedCQRSComponent === 'eventstore' ? '4' : '2'}
+                      className="hover:opacity-100 transition-all"
+                    />
+                    <text x="580" y="400" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">💾 PostgreSQL</text>
+                    <text x="580" y="418" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Event Store</text>
+                    <text x="580" y="435" fontSize="9" fill="#c4b5fd" textAnchor="middle">Append-only • Immutable</text>
+                    <text x="580" y="448" fontSize="9" fill="#c4b5fd" textAnchor="middle">PCI DSS Audit Trail</text>
+                  </g>
+
+                  {/* Gateway to Command Services */}
+                  <path d="M 240 230 L 290 180 L 320 155" stroke="#10b981" strokeWidth="3" fill="none" markerEnd="url(#dbArrowGreen)" />
+                  <text x="260" y="200" fontSize="11" fill="#10b981" fontWeight="bold">POST/PUT/DELETE</text>
+
+                  {/* Command Services to PostgreSQL Account DB */}
+                  <path d="M 380 230 L 380 270" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurple)" />
+                  <text x="395" y="255" fontSize="9" fill="#8b5cf6" fontWeight="bold">Write Accounts</text>
+
+                  {/* Command Services to Redis */}
+                  <path d="M 480 230 L 530 270" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurple)" />
+                  <text x="500" y="255" fontSize="9" fill="#8b5cf6" fontWeight="bold">Idempotency</text>
+
+                  {/* Transaction Processor to MongoDB */}
+                  <path d="M 620 230 L 430 375" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurple)" />
+                  <text x="510" y="310" fontSize="9" fill="#8b5cf6" fontWeight="bold">Write Txns</text>
+
+                  {/* Transaction Processor to Event Store */}
+                  <path d="M 720 230 L 630 375" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurple)" />
+                  <text x="670" y="310" fontSize="9" fill="#8b5cf6" fontWeight="bold">Store Events</text>
+
+                  {/* QUERY SIDE */}
+                  <rect x="290" y="560" width="520" height="500" rx="12" fill="rgba(236, 72, 153, 0.05)" stroke="#ec4899" strokeWidth="3" strokeDasharray="5,5" />
+                  <text x="550" y="595" fontSize="18" fontWeight="bold" fill="#ec4899" textAnchor="middle">🔍 QUERY SIDE (Read Operations)</text>
+
+                  {/* Query Services */}
+                  <g onClick={() => setSelectedCQRSComponent('queryservices')} style={{ cursor: 'pointer' }}>
+                    <rect
+                      x="320" y="620" width="220" height="140" rx="8"
+                      fill="url(#dbQueryGrad)"
+                      stroke={selectedCQRSComponent === 'queryservices' ? '#f9a8d4' : '#f9a8d4'}
+                      strokeWidth={selectedCQRSComponent === 'queryservices' ? '4' : '2'}
+                      className="hover:opacity-100 transition-all"
+                    />
+                    <text x="430" y="645" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">🔍 Query Services</text>
+                    <text x="430" y="665" fontSize="11" fill="#fce7f3" textAnchor="middle">GetAccountBalance</text>
+                    <text x="430" y="680" fontSize="11" fill="#fce7f3" textAnchor="middle">GetTransactions</text>
+                    <text x="430" y="695" fontSize="11" fill="#fce7f3" textAnchor="middle">SearchHistory</text>
+                    <text x="430" y="715" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Databases Used:</text>
+                    <text x="430" y="730" fontSize="9" fill="#fcd34d" textAnchor="middle">Redis Cache (Hot Data)</text>
+                    <text x="430" y="743" fontSize="9" fill="#fcd34d" textAnchor="middle">Elasticsearch (Search)</text>
+                  </g>
+
+                  {/* Analytics */}
+                  <g onClick={() => setSelectedCQRSComponent('analytics')} style={{ cursor: 'pointer' }}>
+                    <rect
+                      x="560" y="620" width="220" height="140" rx="8"
+                      fill="url(#dbQueryGrad)"
+                      stroke={selectedCQRSComponent === 'analytics' ? '#f9a8d4' : '#f9a8d4'}
+                      strokeWidth={selectedCQRSComponent === 'analytics' ? '4' : '2'}
+                      className="hover:opacity-100 transition-all"
+                    />
+                    <text x="670" y="645" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">📊 Analytics</text>
+                    <text x="670" y="665" fontSize="11" fill="#fce7f3" textAnchor="middle">Data Pipeline (Kafka)</text>
+                    <text x="670" y="680" fontSize="11" fill="#fce7f3" textAnchor="middle">Real-time Stats</text>
+                    <text x="670" y="695" fontSize="11" fill="#fce7f3" textAnchor="middle">Report Generator</text>
+                    <text x="670" y="715" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Databases Used:</text>
+                    <text x="670" y="730" fontSize="9" fill="#fcd34d" textAnchor="middle">InfluxDB (Time-Series)</text>
+                    <text x="670" y="743" fontSize="9" fill="#fcd34d" textAnchor="middle">Snowflake (Warehouse)</text>
+                  </g>
+
+                  {/* Read Side - Individual Databases */}
+
+                  {/* Redis Cache */}
+                  <g onClick={() => setSelectedCQRSComponent('readdb')} style={{ cursor: 'pointer' }}>
+                    <rect
+                      x="290" y="800" width="180" height="85" rx="8"
+                      fill="url(#dbDatabaseGrad)"
+                      stroke={selectedCQRSComponent === 'readdb' ? '#a78bfa' : '#a78bfa'}
+                      strokeWidth={selectedCQRSComponent === 'readdb' ? '4' : '2'}
+                      className="hover:opacity-100 transition-all"
+                    />
+                    <text x="380" y="825" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">📊 Redis Cache</text>
+                    <text x="380" y="843" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Hot Data Store</text>
+                    <text x="380" y="860" fontSize="9" fill="#c4b5fd" textAnchor="middle">92% hit rate • &lt;1ms</text>
+                    <text x="380" y="873" fontSize="9" fill="#c4b5fd" textAnchor="middle">100K ops/sec</text>
+                  </g>
+
+                  {/* Elasticsearch */}
+                  <g onClick={() => setSelectedCQRSComponent('readdb')} style={{ cursor: 'pointer' }}>
+                    <rect
+                      x="490" y="800" width="180" height="85" rx="8"
+                      fill="url(#dbDatabaseGrad)"
+                      stroke={selectedCQRSComponent === 'readdb' ? '#a78bfa' : '#a78bfa'}
+                      strokeWidth={selectedCQRSComponent === 'readdb' ? '4' : '2'}
+                      className="hover:opacity-100 transition-all"
+                    />
+                    <text x="580" y="825" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">📊 Elasticsearch</text>
+                    <text x="580" y="843" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Search Engine</text>
+                    <text x="580" y="860" fontSize="9" fill="#c4b5fd" textAnchor="middle">3-node cluster</text>
+                    <text x="580" y="873" fontSize="9" fill="#c4b5fd" textAnchor="middle">Full-text search</text>
+                  </g>
+
+                  {/* InfluxDB */}
+                  <g onClick={() => setSelectedCQRSComponent('readdb')} style={{ cursor: 'pointer' }}>
+                    <rect
+                      x="290" y="905" width="180" height="85" rx="8"
+                      fill="url(#dbDatabaseGrad)"
+                      stroke={selectedCQRSComponent === 'readdb' ? '#a78bfa' : '#a78bfa'}
+                      strokeWidth={selectedCQRSComponent === 'readdb' ? '4' : '2'}
+                      className="hover:opacity-100 transition-all"
+                    />
+                    <text x="380" y="930" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">📊 InfluxDB</text>
+                    <text x="380" y="948" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Time-Series DB</text>
+                    <text x="380" y="965" fontSize="9" fill="#c4b5fd" textAnchor="middle">1-sec granularity</text>
+                    <text x="380" y="978" fontSize="9" fill="#c4b5fd" textAnchor="middle">90-day retention</text>
+                  </g>
+
+                  {/* Snowflake */}
+                  <g onClick={() => setSelectedCQRSComponent('readdb')} style={{ cursor: 'pointer' }}>
+                    <rect
+                      x="490" y="905" width="180" height="85" rx="8"
+                      fill="url(#dbDatabaseGrad)"
+                      stroke={selectedCQRSComponent === 'readdb' ? '#a78bfa' : '#a78bfa'}
+                      strokeWidth={selectedCQRSComponent === 'readdb' ? '4' : '2'}
+                      className="hover:opacity-100 transition-all"
+                    />
+                    <text x="580" y="930" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">📊 Snowflake</text>
+                    <text x="580" y="948" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Data Warehouse</text>
+                    <text x="580" y="965" fontSize="9" fill="#c4b5fd" textAnchor="middle">Multi-TB storage</text>
+                    <text x="580" y="978" fontSize="9" fill="#c4b5fd" textAnchor="middle">Nightly ETL</text>
+                  </g>
+
+                  {/* Gateway to Query Services */}
+                  <path d="M 240 260 L 290 510 L 320 680" stroke="#ec4899" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPink)" />
+                  <text x="260" y="490" fontSize="11" fill="#ec4899" fontWeight="bold">GET Queries</text>
+
+                  {/* Query Services to Redis Cache */}
+                  <path d="M 380 760 L 380 800" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurple)" />
+                  <text x="395" y="785" fontSize="9" fill="#8b5cf6" fontWeight="bold">Read Cache</text>
+
+                  {/* Query Services to Elasticsearch */}
+                  <path d="M 480 760 L 530 800" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurple)" />
+                  <text x="500" y="785" fontSize="9" fill="#8b5cf6" fontWeight="bold">Search</text>
+
+                  {/* Analytics to InfluxDB */}
+                  <path d="M 620 760 L 430 905" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurple)" />
+                  <text x="510" y="840" fontSize="9" fill="#8b5cf6" fontWeight="bold">Time-Series</text>
+
+                  {/* Analytics to Snowflake */}
+                  <path d="M 720 760 L 630 905" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurple)" />
+                  <text x="670" y="840" fontSize="9" fill="#8b5cf6" fontWeight="bold">Analytics</text>
+
+                  {/* EVENT BUS */}
+                  <g onClick={() => setSelectedCQRSComponent('eventbus')} style={{ cursor: 'pointer' }}>
+                    <rect
+                      x="890" y="380" width="280" height="280" rx="8"
+                      fill="url(#dbEventGrad)"
+                      stroke={selectedCQRSComponent === 'eventbus' ? '#fbbf24' : '#fbbf24'}
+                      strokeWidth={selectedCQRSComponent === 'eventbus' ? '5' : '3'}
+                      className="hover:opacity-100 transition-all"
+                    />
+                    <text x="1030" y="420" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">📡 Event Bus</text>
+                    <text x="1030" y="445" fontSize="15" fill="white" textAnchor="middle">Apache Kafka</text>
+                    <text x="1030" y="465" fontSize="12" fill="#fef3c7" textAnchor="middle">(3-node cluster)</text>
+
+                    <text x="1030" y="495" fontSize="11" fill="#fef3c7" fontWeight="bold" textAnchor="middle">Database Support:</text>
+                    <text x="1030" y="515" fontSize="10" fill="#fef3c7" textAnchor="middle">• Connects Write → Read DBs</text>
+                    <text x="1030" y="530" fontSize="10" fill="#fef3c7" textAnchor="middle">• 30M events/day</text>
+                    <text x="1030" y="545" fontSize="10" fill="#fef3c7" textAnchor="middle">• Replication factor: 3</text>
+
+                    <text x="1030" y="575" fontSize="11" fill="#fef3c7" fontWeight="bold" textAnchor="middle">Topics:</text>
+                    <text x="1030" y="593" fontSize="10" fill="#fde68a" textAnchor="middle">ApplicationCreated</text>
+                    <text x="1030" y="608" fontSize="10" fill="#fde68a" textAnchor="middle">TransactionPosted</text>
+                    <text x="1030" y="623" fontSize="10" fill="#fde68a" textAnchor="middle">PaymentProcessed</text>
+                    <text x="1030" y="638" fontSize="10" fill="#fde68a" textAnchor="middle">FraudAlert • BalanceUpdated</text>
+                  </g>
+
+                  {/* Event Store */}
+                  <g onClick={() => setSelectedCQRSComponent('eventstore')} style={{ cursor: 'pointer' }}>
+                    <rect
+                      x="1230" y="150" width="240" height="140" rx="8"
+                      fill="url(#dbDatabaseGrad)"
+                      stroke={selectedCQRSComponent === 'eventstore' ? '#a78bfa' : '#a78bfa'}
+                      strokeWidth={selectedCQRSComponent === 'eventstore' ? '4' : '2'}
+                      className="hover:opacity-100 transition-all"
+                    />
+                    <text x="1350" y="185" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">📝 Event Store Database</text>
+                    <text x="1350" y="210" fontSize="12" fill="#ddd" fontWeight="bold" textAnchor="middle">PostgreSQL</text>
+                    <text x="1350" y="227" fontSize="10" fill="#c4b5fd" textAnchor="middle">• Append-only table</text>
+                    <text x="1350" y="242" fontSize="10" fill="#c4b5fd" textAnchor="middle">• Immutable event log</text>
+                    <text x="1350" y="257" fontSize="10" fill="#c4b5fd" textAnchor="middle">• Event replay capability</text>
+                    <text x="1350" y="272" fontSize="10" fill="#c4b5fd" textAnchor="middle">• 30M events/day</text>
+                  </g>
+
+                  {/* Projections */}
+                  <g onClick={() => setSelectedCQRSComponent('projections')} style={{ cursor: 'pointer' }}>
+                    <rect
+                      x="1230" y="730" width="240" height="120" rx="8"
+                      fill="rgba(236, 72, 153, 0.3)"
+                      stroke={selectedCQRSComponent === 'projections' ? '#ec4899' : '#ec4899'}
+                      strokeWidth={selectedCQRSComponent === 'projections' ? '4' : '2'}
+                      className="hover:opacity-100 transition-all"
+                    />
+                    <text x="1350" y="760" fontSize="14" fontWeight="bold" fill="#ec4899" textAnchor="middle">🔄 Projections</text>
+                    <text x="1350" y="780" fontSize="11" fill="#fce7f3" textAnchor="middle">Event Handlers</text>
+                    <text x="1350" y="800" fontSize="11" fill="#fce7f3" textAnchor="middle">Denormalize Data</text>
+                    <text x="1350" y="820" fontSize="11" fill="#fce7f3" textAnchor="middle">Update Read Databases</text>
+                    <text x="1350" y="835" fontSize="9" fill="#f9a8d4" textAnchor="middle">(Elasticsearch, InfluxDB, Redis)</text>
+                  </g>
+
+                  {/* Arrows */}
+                  <path d="M 810 240 L 890 480" stroke="#f59e0b" strokeWidth="4" fill="none" markerEnd="url(#dbArrowOrange)" />
+                  <text x="835" y="350" fontSize="11" fill="#f59e0b" fontWeight="bold">Publish Events</text>
+
+                  <path d="M 890 580 L 810 730" stroke="#f59e0b" strokeWidth="4" fill="none" markerEnd="url(#dbArrowOrange)" />
+                  <text x="835" y="650" fontSize="11" fill="#f59e0b" fontWeight="bold">Subscribe</text>
+
+                  <path d="M 1170 450 L 1230 260" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurple)" />
+                  <text x="1180" y="350" fontSize="11" fill="#8b5cf6" fontWeight="bold">Store All Events</text>
+
+                  <path d="M 1170 570 L 1230 780" stroke="#ec4899" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPink)" />
+                  <text x="1180" y="670" fontSize="11" fill="#ec4899" fontWeight="bold">Process Events</text>
+
+                  <path d="M 1230 830 L 900 900 L 780 920" stroke="#ec4899" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPink)" strokeDasharray="5,5" />
+                  <text x="1000" y="870" fontSize="11" fill="#ec4899" fontWeight="bold">Update Read DBs</text>
+
+                  {/* Title and metrics */}
+                  <text x="800" y="30" fontSize="20" fontWeight="bold" fill="#f59e0b" textAnchor="middle">⚡ EVENTUAL CONSISTENCY (5-15 min lag)</text>
+                  <text x="800" y="1080" fontSize="13" fill="#6b7280" textAnchor="middle">8 Database Technologies • 30M txn/day • 10M active users • 347 txn/sec average</text>
+                </svg>
+              </div>
+
+              {/* Component Details Panel */}
+              {selectedCQRSComponent && cqrsComponentDetails[selectedCQRSComponent] && (
+                <div className="mt-6 bg-gradient-to-br from-purple-900/40 to-purple-800/40 rounded-xl p-6 border-2 border-purple-400 animate-fade-in">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h4 className="text-2xl font-bold text-white mb-1">
+                        {cqrsComponentDetails[selectedCQRSComponent].name}
+                      </h4>
+                      <span className="px-3 py-1 bg-purple-600 text-white rounded-full text-xs font-semibold">
+                        {cqrsComponentDetails[selectedCQRSComponent].type}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setSelectedCQRSComponent(null)}
+                      className="text-gray-300 hover:text-white transition-colors"
+                    >
+                      <span className="text-2xl">×</span>
+                    </button>
+                  </div>
+
+                  <p className="text-gray-300 mb-4 leading-relaxed">
+                    {cqrsComponentDetails[selectedCQRSComponent].description}
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <h5 className="text-purple-400 font-bold mb-2 flex items-center gap-2">
+                        <span>🔧</span> Technologies
+                      </h5>
+                      <div className="flex flex-wrap gap-2">
+                        {cqrsComponentDetails[selectedCQRSComponent].technologies.map((tech, i) => (
+                          <span key={i} className="px-2 py-1 bg-purple-700/50 text-purple-200 rounded text-sm">
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h5 className="text-cyan-400 font-bold mb-2 flex items-center gap-2">
+                        <span>📊</span> Metrics
+                      </h5>
+                      <p className="text-gray-300 text-sm bg-cyan-900/30 px-3 py-2 rounded border border-cyan-700/30">
+                        {cqrsComponentDetails[selectedCQRSComponent].metrics}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h5 className="text-green-400 font-bold mb-2 flex items-center gap-2">
+                      <span>⚡</span> Key Responsibilities
+                    </h5>
+                    <ul className="space-y-1">
+                      {cqrsComponentDetails[selectedCQRSComponent].responsibilities.map((resp, i) => (
+                        <li key={i} className="text-gray-300 text-sm flex items-start gap-2">
+                          <span className="text-green-400 mt-1">•</span>
+                          <span>{resp}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
+
+              {/* Database Summary Table */}
+              <div className="mt-8 bg-white rounded-xl p-6 border-2 border-gray-200 shadow-md">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Database Technology Summary</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b-2 border-gray-300">
+                        <th className="text-left py-3 px-4 font-bold text-gray-900">Database</th>
+                        <th className="text-left py-3 px-4 font-bold text-gray-900">Type</th>
+                        <th className="text-left py-3 px-4 font-bold text-gray-900">Primary Use Case</th>
+                        <th className="text-left py-3 px-4 font-bold text-gray-900">Key Features</th>
+                        <th className="text-left py-3 px-4 font-bold text-gray-900">Side</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="py-3 px-4 font-semibold text-green-700">MongoDB</td>
+                        <td className="py-3 px-4 text-gray-700">Document Store</td>
+                        <td className="py-3 px-4 text-gray-700">Transaction records</td>
+                        <td className="py-3 px-4 text-gray-600 text-xs">5 shards, 2M users/shard, High write throughput</td>
+                        <td className="py-3 px-4"><span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">Write</span></td>
+                      </tr>
+                      <tr className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="py-3 px-4 font-semibold text-green-700">PostgreSQL (Account)</td>
+                        <td className="py-3 px-4 text-gray-700">Relational DBMS</td>
+                        <td className="py-3 px-4 text-gray-700">Account data</td>
+                        <td className="py-3 px-4 text-gray-600 text-xs">Primary + 2 replicas, ACID, Strong consistency</td>
+                        <td className="py-3 px-4"><span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">Write</span></td>
+                      </tr>
+                      <tr className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="py-3 px-4 font-semibold text-green-700">PostgreSQL (Event Store)</td>
+                        <td className="py-3 px-4 text-gray-700">Event Store</td>
+                        <td className="py-3 px-4 text-gray-700">Immutable event log</td>
+                        <td className="py-3 px-4 text-gray-600 text-xs">Append-only, Event sourcing, Audit trail</td>
+                        <td className="py-3 px-4"><span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">Write</span></td>
+                      </tr>
+                      <tr className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="py-3 px-4 font-semibold text-blue-700">Redis</td>
+                        <td className="py-3 px-4 text-gray-700">In-Memory Cache</td>
+                        <td className="py-3 px-4 text-gray-700">Caching, Idempotency, Rate limiting</td>
+                        <td className="py-3 px-4 text-gray-600 text-xs">&lt;1ms latency, 92% hit rate, 24h TTL</td>
+                        <td className="py-3 px-4"><span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">Both</span></td>
+                      </tr>
+                      <tr className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="py-3 px-4 font-semibold text-pink-700">Elasticsearch</td>
+                        <td className="py-3 px-4 text-gray-700">Search Engine</td>
+                        <td className="py-3 px-4 text-gray-700">Full-text search</td>
+                        <td className="py-3 px-4 text-gray-600 text-xs">3-node cluster, Transaction history, Denormalized</td>
+                        <td className="py-3 px-4"><span className="px-2 py-1 bg-pink-100 text-pink-800 rounded text-xs font-semibold">Read</span></td>
+                      </tr>
+                      <tr className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="py-3 px-4 font-semibold text-pink-700">InfluxDB</td>
+                        <td className="py-3 px-4 text-gray-700">Time-Series DB</td>
+                        <td className="py-3 px-4 text-gray-700">Real-time metrics</td>
+                        <td className="py-3 px-4 text-gray-600 text-xs">1-sec granularity, 90-day retention</td>
+                        <td className="py-3 px-4"><span className="px-2 py-1 bg-pink-100 text-pink-800 rounded text-xs font-semibold">Read</span></td>
+                      </tr>
+                      <tr className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="py-3 px-4 font-semibold text-pink-700">Snowflake</td>
+                        <td className="py-3 px-4 text-gray-700">Data Warehouse</td>
+                        <td className="py-3 px-4 text-gray-700">Historical analytics</td>
+                        <td className="py-3 px-4 text-gray-600 text-xs">Multi-TB storage, Nightly ETL, BI reports</td>
+                        <td className="py-3 px-4"><span className="px-2 py-1 bg-pink-100 text-pink-800 rounded text-xs font-semibold">Read</span></td>
+                      </tr>
+                      <tr className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="py-3 px-4 font-semibold text-amber-700">Apache Kafka</td>
+                        <td className="py-3 px-4 text-gray-700">Event Streaming</td>
+                        <td className="py-3 px-4 text-gray-700">Event bus</td>
+                        <td className="py-3 px-4 text-gray-600 text-xs">3-node cluster, 30M events/day, RF=3</td>
+                        <td className="py-3 px-4"><span className="px-2 py-1 bg-amber-100 text-amber-800 rounded text-xs font-semibold">Messaging</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Key Insights */}
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-green-50 rounded-xl p-5 border-2 border-green-200">
+                  <h4 className="text-lg font-bold text-green-900 mb-2 flex items-center gap-2">
+                    <span>⚡</span> Write Side (4 DBs)
+                  </h4>
+                  <p className="text-green-800 text-sm mb-2">Optimized for consistency and durability</p>
+                  <ul className="text-green-700 text-xs space-y-1">
+                    <li>• ACID transactions</li>
+                    <li>• Normalized schemas</li>
+                    <li>• Strong consistency</li>
+                    <li>• Idempotency support</li>
+                  </ul>
+                </div>
+
+                <div className="bg-pink-50 rounded-xl p-5 border-2 border-pink-200">
+                  <h4 className="text-lg font-bold text-pink-900 mb-2 flex items-center gap-2">
+                    <span>🔍</span> Read Side (4 DBs)
+                  </h4>
+                  <p className="text-pink-800 text-sm mb-2">Optimized for query speed</p>
+                  <ul className="text-pink-700 text-xs space-y-1">
+                    <li>• Denormalized data</li>
+                    <li>• Eventual consistency</li>
+                    <li>• Multiple specialized stores</li>
+                    <li>• Heavy caching</li>
+                  </ul>
+                </div>
+
+                <div className="bg-amber-50 rounded-xl p-5 border-2 border-amber-200">
+                  <h4 className="text-lg font-bold text-amber-900 mb-2 flex items-center gap-2">
+                    <span>🔗</span> Event Bus (Kafka)
+                  </h4>
+                  <p className="text-amber-800 text-sm mb-2">Decouples write from read</p>
+                  <ul className="text-amber-700 text-xs space-y-1">
+                    <li>• 30M events/day</li>
+                    <li>• Eventual consistency (5-15 min)</li>
+                    <li>• Independent scaling</li>
+                    <li>• Event sourcing support</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Fullscreen Diagram Modal */}
+            {isDbDiagramExpanded && (
+              <div
+                className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+                onClick={() => setIsDbDiagramExpanded(false)}
+              >
+                <div className="relative w-full h-full max-w-[95vw] max-h-[95vh] bg-white rounded-xl shadow-2xl overflow-auto">
+                  <div className="sticky top-0 bg-white border-b-2 border-purple-200 px-6 py-4 flex justify-between items-center z-10">
+                    <h3 className="text-2xl font-bold text-gray-900">CQRS Architecture with Database Layer Details</h3>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsDbDiagramExpanded(false);
+                      }}
+                      className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg text-sm font-semibold transition-all flex items-center gap-2"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Close
+                    </button>
+                  </div>
+
+                  <div className="p-6" onClick={(e) => e.stopPropagation()}>
+                    <p className="text-sm text-gray-600 mb-6 text-center">Click on any component to see detailed database specifications</p>
+
+                    <svg viewBox="0 0 1600 1100" className="w-full h-auto min-h-[800px]">
+                      <defs>
+                        {/* Gradients */}
+                        <linearGradient id="dbClientGradExpanded" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
+                          <stop offset="100%" style={{ stopColor: '#1d4ed8', stopOpacity: 1 }} />
+                        </linearGradient>
+                        <linearGradient id="dbCommandGradExpanded" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+                          <stop offset="100%" style={{ stopColor: '#047857', stopOpacity: 1 }} />
+                        </linearGradient>
+                        <linearGradient id="dbQueryGradExpanded" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" style={{ stopColor: '#ec4899', stopOpacity: 1 }} />
+                          <stop offset="100%" style={{ stopColor: '#be185d', stopOpacity: 1 }} />
+                        </linearGradient>
+                        <linearGradient id="dbEventGradExpanded" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
+                          <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
+                        </linearGradient>
+                        <linearGradient id="dbDatabaseGradExpanded" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
+                          <stop offset="100%" style={{ stopColor: '#6d28d9', stopOpacity: 1 }} />
+                        </linearGradient>
+
+                        {/* Arrow markers */}
+                        <marker id="dbArrowBlueExpanded" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                          <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6" />
+                        </marker>
+                        <marker id="dbArrowGreenExpanded" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                          <path d="M0,0 L0,6 L9,3 z" fill="#10b981" />
+                        </marker>
+                        <marker id="dbArrowPinkExpanded" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                          <path d="M0,0 L0,6 L9,3 z" fill="#ec4899" />
+                        </marker>
+                        <marker id="dbArrowOrangeExpanded" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                          <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b" />
+                        </marker>
+                        <marker id="dbArrowPurpleExpanded" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                          <path d="M0,0 L0,6 L9,3 z" fill="#8b5cf6" />
+                        </marker>
+                      </defs>
+
+                      {/* BFF Layer & API Gateway */}
+                      <g onClick={() => setSelectedCQRSComponent('bfflayer')} style={{ cursor: 'pointer' }}>
+                        <rect
+                          x="40" y="50" width="200" height="100" rx="8"
+                          fill="url(#dbClientGradExpanded)"
+                          stroke={selectedCQRSComponent === 'bfflayer' ? '#60a5fa' : '#60a5fa'}
+                          strokeWidth={selectedCQRSComponent === 'bfflayer' ? '4' : '2'}
+                          className="hover:opacity-100 transition-all"
+                        />
+                        <text x="140" y="80" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">📱 BFF Layer</text>
+                        <text x="140" y="100" fontSize="11" fill="#ddd" textAnchor="middle">React / iOS / Android</text>
+                        <text x="140" y="115" fontSize="11" fill="#ddd" textAnchor="middle">Admin Dashboard</text>
+                        <text x="140" y="135" fontSize="11" fill="#ddd" textAnchor="middle">30M+ requests/day</text>
+                      </g>
+
+                      <g onClick={() => setSelectedCQRSComponent('apigateway')} style={{ cursor: 'pointer' }}>
+                        <rect
+                          x="40" y="180" width="200" height="130" rx="8"
+                          fill="url(#dbClientGradExpanded)"
+                          stroke={selectedCQRSComponent === 'apigateway' ? '#60a5fa' : '#60a5fa'}
+                          strokeWidth={selectedCQRSComponent === 'apigateway' ? '4' : '2'}
+                          className="hover:opacity-100 transition-all"
+                        />
+                        <text x="140" y="210" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">🚪 API Gateway</text>
+                        <text x="140" y="230" fontSize="11" fill="#ddd" textAnchor="middle">Kong + OAuth 2.0</text>
+                        <text x="140" y="245" fontSize="11" fill="#ddd" textAnchor="middle">Load Balancing</text>
+                        <text x="140" y="260" fontSize="11" fill="#ddd" textAnchor="middle">30M+ req/day</text>
+                        <text x="140" y="280" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Database Used:</text>
+                        <text x="140" y="295" fontSize="9" fill="#fcd34d" textAnchor="middle">Redis (Rate Limiting)</text>
+                      </g>
+
+                      <path d="M 140 150 L 140 180" stroke="#3b82f6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowBlueExpanded)" />
+
+                      {/* COMMAND SIDE */}
+                      <rect x="290" y="30" width="520" height="450" rx="12" fill="rgba(16, 185, 129, 0.05)" stroke="#10b981" strokeWidth="3" strokeDasharray="5,5" />
+                      <text x="550" y="65" fontSize="18" fontWeight="bold" fill="#10b981" textAnchor="middle">⚡ COMMAND SIDE (Write Operations)</text>
+
+                      {/* Command Services */}
+                      <g onClick={() => setSelectedCQRSComponent('commandservices')} style={{ cursor: 'pointer' }}>
+                        <rect
+                          x="320" y="90" width="220" height="140" rx="8"
+                          fill="url(#dbCommandGradExpanded)"
+                          stroke={selectedCQRSComponent === 'commandservices' ? '#34d399' : '#34d399'}
+                          strokeWidth={selectedCQRSComponent === 'commandservices' ? '4' : '2'}
+                          className="hover:opacity-100 transition-all"
+                        />
+                        <text x="430" y="115" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">⚡ Command Services</text>
+                        <text x="430" y="135" fontSize="11" fill="#d1fae5" textAnchor="middle">Card Application (Saga)</text>
+                        <text x="430" y="150" fontSize="11" fill="#d1fae5" textAnchor="middle">Account Service</text>
+                        <text x="430" y="165" fontSize="11" fill="#d1fae5" textAnchor="middle">Payment Processing</text>
+                        <text x="430" y="185" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Databases Used:</text>
+                        <text x="430" y="200" fontSize="9" fill="#fcd34d" textAnchor="middle">PostgreSQL (Account DB)</text>
+                        <text x="430" y="213" fontSize="9" fill="#fcd34d" textAnchor="middle">Redis (Idempotency Keys)</text>
+                      </g>
+
+                      {/* Transaction Processor */}
+                      <g onClick={() => setSelectedCQRSComponent('txprocessor')} style={{ cursor: 'pointer' }}>
+                        <rect
+                          x="560" y="90" width="220" height="140" rx="8"
+                          fill="url(#dbCommandGradExpanded)"
+                          stroke={selectedCQRSComponent === 'txprocessor' ? '#34d399' : '#34d399'}
+                          strokeWidth={selectedCQRSComponent === 'txprocessor' ? '4' : '2'}
+                          className="hover:opacity-100 transition-all"
+                        />
+                        <text x="670" y="115" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">⚙️ Transaction Processor</text>
+                        <text x="670" y="135" fontSize="11" fill="#d1fae5" textAnchor="middle">Event Sourcing</text>
+                        <text x="670" y="150" fontSize="11" fill="#d1fae5" textAnchor="middle">Fraud Detection (ML)</text>
+                        <text x="670" y="165" fontSize="11" fill="#d1fae5" textAnchor="middle">&lt;100ms latency</text>
+                        <text x="670" y="185" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Databases Used:</text>
+                        <text x="670" y="200" fontSize="9" fill="#fcd34d" textAnchor="middle">MongoDB (Transaction DB)</text>
+                        <text x="670" y="213" fontSize="9" fill="#fcd34d" textAnchor="middle">PostgreSQL (Event Store)</text>
+                      </g>
+
+                      {/* Write Side - Individual Databases (Expanded) */}
+
+                      {/* PostgreSQL - Account DB */}
+                      <g onClick={() => setSelectedCQRSComponent('writedb')} style={{ cursor: 'pointer' }}>
+                        <rect
+                          x="290" y="270" width="180" height="85" rx="8"
+                          fill="url(#dbDatabaseGradExpanded)"
+                          stroke={selectedCQRSComponent === 'writedb' ? '#a78bfa' : '#a78bfa'}
+                          strokeWidth={selectedCQRSComponent === 'writedb' ? '4' : '2'}
+                          className="hover:opacity-100 transition-all"
+                        />
+                        <text x="380" y="295" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">💾 PostgreSQL</text>
+                        <text x="380" y="313" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Account Database</text>
+                        <text x="380" y="330" fontSize="9" fill="#c4b5fd" textAnchor="middle">1 Primary + 2 Replicas</text>
+                        <text x="380" y="343" fontSize="9" fill="#c4b5fd" textAnchor="middle">ACID • Strong Consistency</text>
+                      </g>
+
+                      {/* Redis - Idempotency */}
+                      <g onClick={() => setSelectedCQRSComponent('writedb')} style={{ cursor: 'pointer' }}>
+                        <rect
+                          x="490" y="270" width="180" height="85" rx="8"
+                          fill="url(#dbDatabaseGradExpanded)"
+                          stroke={selectedCQRSComponent === 'writedb' ? '#a78bfa' : '#a78bfa'}
+                          strokeWidth={selectedCQRSComponent === 'writedb' ? '4' : '2'}
+                          className="hover:opacity-100 transition-all"
+                        />
+                        <text x="580" y="295" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">💾 Redis</text>
+                        <text x="580" y="313" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Idempotency Store</text>
+                        <text x="580" y="330" fontSize="9" fill="#c4b5fd" textAnchor="middle">24h TTL • &lt;1ms latency</text>
+                        <text x="580" y="343" fontSize="9" fill="#c4b5fd" textAnchor="middle">Rate Limiting</text>
+                      </g>
+
+                      {/* MongoDB - Transaction DB */}
+                      <g onClick={() => setSelectedCQRSComponent('writedb')} style={{ cursor: 'pointer' }}>
+                        <rect
+                          x="290" y="375" width="180" height="85" rx="8"
+                          fill="url(#dbDatabaseGradExpanded)"
+                          stroke={selectedCQRSComponent === 'writedb' ? '#a78bfa' : '#a78bfa'}
+                          strokeWidth={selectedCQRSComponent === 'writedb' ? '4' : '2'}
+                          className="hover:opacity-100 transition-all"
+                        />
+                        <text x="380" y="400" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">💾 MongoDB</text>
+                        <text x="380" y="418" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Transaction Database</text>
+                        <text x="380" y="435" fontSize="9" fill="#c4b5fd" textAnchor="middle">5 shards (2M users/shard)</text>
+                        <text x="380" y="448" fontSize="9" fill="#c4b5fd" textAnchor="middle">High write throughput</text>
+                      </g>
+
+                      {/* PostgreSQL - Event Store */}
+                      <g onClick={() => setSelectedCQRSComponent('eventstore')} style={{ cursor: 'pointer' }}>
+                        <rect
+                          x="490" y="375" width="180" height="85" rx="8"
+                          fill="url(#dbDatabaseGradExpanded)"
+                          stroke={selectedCQRSComponent === 'eventstore' ? '#a78bfa' : '#a78bfa'}
+                          strokeWidth={selectedCQRSComponent === 'eventstore' ? '4' : '2'}
+                          className="hover:opacity-100 transition-all"
+                        />
+                        <text x="580" y="400" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">💾 PostgreSQL</text>
+                        <text x="580" y="418" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Event Store</text>
+                        <text x="580" y="435" fontSize="9" fill="#c4b5fd" textAnchor="middle">Append-only • Immutable</text>
+                        <text x="580" y="448" fontSize="9" fill="#c4b5fd" textAnchor="middle">PCI DSS Audit Trail</text>
+                      </g>
+
+                      {/* Gateway to Command Services */}
+                      <path d="M 240 230 L 290 180 L 320 155" stroke="#10b981" strokeWidth="3" fill="none" markerEnd="url(#dbArrowGreenExpanded)" />
+                      <text x="260" y="200" fontSize="11" fill="#10b981" fontWeight="bold">POST/PUT/DELETE</text>
+
+                      {/* Command Services to PostgreSQL Account DB */}
+                      <path d="M 380 230 L 380 270" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurpleExpanded)" />
+                      <text x="395" y="255" fontSize="9" fill="#8b5cf6" fontWeight="bold">Write Accounts</text>
+
+                      {/* Command Services to Redis */}
+                      <path d="M 480 230 L 530 270" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurpleExpanded)" />
+                      <text x="500" y="255" fontSize="9" fill="#8b5cf6" fontWeight="bold">Idempotency</text>
+
+                      {/* Transaction Processor to MongoDB */}
+                      <path d="M 620 230 L 430 375" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurpleExpanded)" />
+                      <text x="510" y="310" fontSize="9" fill="#8b5cf6" fontWeight="bold">Write Txns</text>
+
+                      {/* Transaction Processor to Event Store */}
+                      <path d="M 720 230 L 630 375" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurpleExpanded)" />
+                      <text x="670" y="310" fontSize="9" fill="#8b5cf6" fontWeight="bold">Store Events</text>
+
+                      {/* QUERY SIDE */}
+                      <rect x="290" y="560" width="520" height="500" rx="12" fill="rgba(236, 72, 153, 0.05)" stroke="#ec4899" strokeWidth="3" strokeDasharray="5,5" />
+                      <text x="550" y="595" fontSize="18" fontWeight="bold" fill="#ec4899" textAnchor="middle">🔍 QUERY SIDE (Read Operations)</text>
+
+                      {/* Query Services */}
+                      <g onClick={() => setSelectedCQRSComponent('queryservices')} style={{ cursor: 'pointer' }}>
+                        <rect
+                          x="320" y="620" width="220" height="140" rx="8"
+                          fill="url(#dbQueryGradExpanded)"
+                          stroke={selectedCQRSComponent === 'queryservices' ? '#f9a8d4' : '#f9a8d4'}
+                          strokeWidth={selectedCQRSComponent === 'queryservices' ? '4' : '2'}
+                          className="hover:opacity-100 transition-all"
+                        />
+                        <text x="430" y="645" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">🔍 Query Services</text>
+                        <text x="430" y="665" fontSize="11" fill="#fce7f3" textAnchor="middle">GetAccountBalance</text>
+                        <text x="430" y="680" fontSize="11" fill="#fce7f3" textAnchor="middle">GetTransactions</text>
+                        <text x="430" y="695" fontSize="11" fill="#fce7f3" textAnchor="middle">SearchHistory</text>
+                        <text x="430" y="715" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Databases Used:</text>
+                        <text x="430" y="730" fontSize="9" fill="#fcd34d" textAnchor="middle">Redis Cache (Hot Data)</text>
+                        <text x="430" y="743" fontSize="9" fill="#fcd34d" textAnchor="middle">Elasticsearch (Search)</text>
+                      </g>
+
+                      {/* Analytics */}
+                      <g onClick={() => setSelectedCQRSComponent('analytics')} style={{ cursor: 'pointer' }}>
+                        <rect
+                          x="560" y="620" width="220" height="140" rx="8"
+                          fill="url(#dbQueryGradExpanded)"
+                          stroke={selectedCQRSComponent === 'analytics' ? '#f9a8d4' : '#f9a8d4'}
+                          strokeWidth={selectedCQRSComponent === 'analytics' ? '4' : '2'}
+                          className="hover:opacity-100 transition-all"
+                        />
+                        <text x="670" y="645" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">📊 Analytics</text>
+                        <text x="670" y="665" fontSize="11" fill="#fce7f3" textAnchor="middle">Data Pipeline (Kafka)</text>
+                        <text x="670" y="680" fontSize="11" fill="#fce7f3" textAnchor="middle">Real-time Stats</text>
+                        <text x="670" y="695" fontSize="11" fill="#fce7f3" textAnchor="middle">Report Generator</text>
+                        <text x="670" y="715" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Databases Used:</text>
+                        <text x="670" y="730" fontSize="9" fill="#fcd34d" textAnchor="middle">InfluxDB (Time-Series)</text>
+                        <text x="670" y="743" fontSize="9" fill="#fcd34d" textAnchor="middle">Snowflake (Warehouse)</text>
+                      </g>
+
+                      {/* Read Side - Individual Databases (Expanded) */}
+
+                      {/* Redis Cache */}
+                      <g onClick={() => setSelectedCQRSComponent('readdb')} style={{ cursor: 'pointer' }}>
+                        <rect
+                          x="290" y="800" width="180" height="85" rx="8"
+                          fill="url(#dbDatabaseGradExpanded)"
+                          stroke={selectedCQRSComponent === 'readdb' ? '#a78bfa' : '#a78bfa'}
+                          strokeWidth={selectedCQRSComponent === 'readdb' ? '4' : '2'}
+                          className="hover:opacity-100 transition-all"
+                        />
+                        <text x="380" y="825" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">📊 Redis Cache</text>
+                        <text x="380" y="843" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Hot Data Store</text>
+                        <text x="380" y="860" fontSize="9" fill="#c4b5fd" textAnchor="middle">92% hit rate • &lt;1ms</text>
+                        <text x="380" y="873" fontSize="9" fill="#c4b5fd" textAnchor="middle">100K ops/sec</text>
+                      </g>
+
+                      {/* Elasticsearch */}
+                      <g onClick={() => setSelectedCQRSComponent('readdb')} style={{ cursor: 'pointer' }}>
+                        <rect
+                          x="490" y="800" width="180" height="85" rx="8"
+                          fill="url(#dbDatabaseGradExpanded)"
+                          stroke={selectedCQRSComponent === 'readdb' ? '#a78bfa' : '#a78bfa'}
+                          strokeWidth={selectedCQRSComponent === 'readdb' ? '4' : '2'}
+                          className="hover:opacity-100 transition-all"
+                        />
+                        <text x="580" y="825" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">📊 Elasticsearch</text>
+                        <text x="580" y="843" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Search Engine</text>
+                        <text x="580" y="860" fontSize="9" fill="#c4b5fd" textAnchor="middle">3-node cluster</text>
+                        <text x="580" y="873" fontSize="9" fill="#c4b5fd" textAnchor="middle">Full-text search</text>
+                      </g>
+
+                      {/* InfluxDB */}
+                      <g onClick={() => setSelectedCQRSComponent('readdb')} style={{ cursor: 'pointer' }}>
+                        <rect
+                          x="290" y="905" width="180" height="85" rx="8"
+                          fill="url(#dbDatabaseGradExpanded)"
+                          stroke={selectedCQRSComponent === 'readdb' ? '#a78bfa' : '#a78bfa'}
+                          strokeWidth={selectedCQRSComponent === 'readdb' ? '4' : '2'}
+                          className="hover:opacity-100 transition-all"
+                        />
+                        <text x="380" y="930" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">📊 InfluxDB</text>
+                        <text x="380" y="948" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Time-Series DB</text>
+                        <text x="380" y="965" fontSize="9" fill="#c4b5fd" textAnchor="middle">1-sec granularity</text>
+                        <text x="380" y="978" fontSize="9" fill="#c4b5fd" textAnchor="middle">90-day retention</text>
+                      </g>
+
+                      {/* Snowflake */}
+                      <g onClick={() => setSelectedCQRSComponent('readdb')} style={{ cursor: 'pointer' }}>
+                        <rect
+                          x="490" y="905" width="180" height="85" rx="8"
+                          fill="url(#dbDatabaseGradExpanded)"
+                          stroke={selectedCQRSComponent === 'readdb' ? '#a78bfa' : '#a78bfa'}
+                          strokeWidth={selectedCQRSComponent === 'readdb' ? '4' : '2'}
+                          className="hover:opacity-100 transition-all"
+                        />
+                        <text x="580" y="930" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">📊 Snowflake</text>
+                        <text x="580" y="948" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Data Warehouse</text>
+                        <text x="580" y="965" fontSize="9" fill="#c4b5fd" textAnchor="middle">Multi-TB storage</text>
+                        <text x="580" y="978" fontSize="9" fill="#c4b5fd" textAnchor="middle">Nightly ETL</text>
+                      </g>
+
+                      {/* Gateway to Query Services */}
+                      <path d="M 240 260 L 290 510 L 320 680" stroke="#ec4899" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPinkExpanded)" />
+                      <text x="260" y="490" fontSize="11" fill="#ec4899" fontWeight="bold">GET Queries</text>
+
+                      {/* Query Services to Redis Cache */}
+                      <path d="M 380 760 L 380 800" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurpleExpanded)" />
+                      <text x="395" y="785" fontSize="9" fill="#8b5cf6" fontWeight="bold">Read Cache</text>
+
+                      {/* Query Services to Elasticsearch */}
+                      <path d="M 480 760 L 530 800" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurpleExpanded)" />
+                      <text x="500" y="785" fontSize="9" fill="#8b5cf6" fontWeight="bold">Search</text>
+
+                      {/* Analytics to InfluxDB */}
+                      <path d="M 620 760 L 430 905" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurpleExpanded)" />
+                      <text x="510" y="840" fontSize="9" fill="#8b5cf6" fontWeight="bold">Time-Series</text>
+
+                      {/* Analytics to Snowflake */}
+                      <path d="M 720 760 L 630 905" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurpleExpanded)" />
+                      <text x="670" y="840" fontSize="9" fill="#8b5cf6" fontWeight="bold">Analytics</text>
+
+                      {/* EVENT BUS */}
+                      <g onClick={() => setSelectedCQRSComponent('eventbus')} style={{ cursor: 'pointer' }}>
+                        <rect
+                          x="890" y="380" width="280" height="280" rx="8"
+                          fill="url(#dbEventGradExpanded)"
+                          stroke={selectedCQRSComponent === 'eventbus' ? '#fbbf24' : '#fbbf24'}
+                          strokeWidth={selectedCQRSComponent === 'eventbus' ? '5' : '3'}
+                          className="hover:opacity-100 transition-all"
+                        />
+                        <text x="1030" y="420" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">📡 Event Bus</text>
+                        <text x="1030" y="445" fontSize="15" fill="white" textAnchor="middle">Apache Kafka</text>
+                        <text x="1030" y="465" fontSize="12" fill="#fef3c7" textAnchor="middle">(3-node cluster)</text>
+
+                        <text x="1030" y="495" fontSize="11" fill="#fef3c7" fontWeight="bold" textAnchor="middle">Database Support:</text>
+                        <text x="1030" y="515" fontSize="10" fill="#fef3c7" textAnchor="middle">• Connects Write → Read DBs</text>
+                        <text x="1030" y="530" fontSize="10" fill="#fef3c7" textAnchor="middle">• 30M events/day</text>
+                        <text x="1030" y="545" fontSize="10" fill="#fef3c7" textAnchor="middle">• Replication factor: 3</text>
+
+                        <text x="1030" y="575" fontSize="11" fill="#fef3c7" fontWeight="bold" textAnchor="middle">Topics:</text>
+                        <text x="1030" y="593" fontSize="10" fill="#fde68a" textAnchor="middle">ApplicationCreated</text>
+                        <text x="1030" y="608" fontSize="10" fill="#fde68a" textAnchor="middle">TransactionPosted</text>
+                        <text x="1030" y="623" fontSize="10" fill="#fde68a" textAnchor="middle">PaymentProcessed</text>
+                        <text x="1030" y="638" fontSize="10" fill="#fde68a" textAnchor="middle">FraudAlert • BalanceUpdated</text>
+                      </g>
+
+                      {/* Event Store */}
+                      <g onClick={() => setSelectedCQRSComponent('eventstore')} style={{ cursor: 'pointer' }}>
+                        <rect
+                          x="1230" y="150" width="240" height="140" rx="8"
+                          fill="url(#dbDatabaseGradExpanded)"
+                          stroke={selectedCQRSComponent === 'eventstore' ? '#a78bfa' : '#a78bfa'}
+                          strokeWidth={selectedCQRSComponent === 'eventstore' ? '4' : '2'}
+                          className="hover:opacity-100 transition-all"
+                        />
+                        <text x="1350" y="185" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">📝 Event Store Database</text>
+                        <text x="1350" y="210" fontSize="12" fill="#ddd" fontWeight="bold" textAnchor="middle">PostgreSQL</text>
+                        <text x="1350" y="227" fontSize="10" fill="#c4b5fd" textAnchor="middle">• Append-only table</text>
+                        <text x="1350" y="242" fontSize="10" fill="#c4b5fd" textAnchor="middle">• Immutable event log</text>
+                        <text x="1350" y="257" fontSize="10" fill="#c4b5fd" textAnchor="middle">• Event replay capability</text>
+                        <text x="1350" y="272" fontSize="10" fill="#c4b5fd" textAnchor="middle">• 30M events/day</text>
+                      </g>
+
+                      {/* Projections */}
+                      <g onClick={() => setSelectedCQRSComponent('projections')} style={{ cursor: 'pointer' }}>
+                        <rect
+                          x="1230" y="730" width="240" height="120" rx="8"
+                          fill="rgba(236, 72, 153, 0.3)"
+                          stroke={selectedCQRSComponent === 'projections' ? '#ec4899' : '#ec4899'}
+                          strokeWidth={selectedCQRSComponent === 'projections' ? '4' : '2'}
+                          className="hover:opacity-100 transition-all"
+                        />
+                        <text x="1350" y="760" fontSize="14" fontWeight="bold" fill="#ec4899" textAnchor="middle">🔄 Projections</text>
+                        <text x="1350" y="780" fontSize="11" fill="#fce7f3" textAnchor="middle">Event Handlers</text>
+                        <text x="1350" y="800" fontSize="11" fill="#fce7f3" textAnchor="middle">Denormalize Data</text>
+                        <text x="1350" y="820" fontSize="11" fill="#fce7f3" textAnchor="middle">Update Read Databases</text>
+                        <text x="1350" y="835" fontSize="9" fill="#f9a8d4" textAnchor="middle">(Elasticsearch, InfluxDB, Redis)</text>
+                      </g>
+
+                      {/* Arrows */}
+                      <path d="M 810 240 L 890 480" stroke="#f59e0b" strokeWidth="4" fill="none" markerEnd="url(#dbArrowOrangeExpanded)" />
+                      <text x="835" y="350" fontSize="11" fill="#f59e0b" fontWeight="bold">Publish Events</text>
+
+                      <path d="M 890 580 L 810 730" stroke="#f59e0b" strokeWidth="4" fill="none" markerEnd="url(#dbArrowOrangeExpanded)" />
+                      <text x="835" y="650" fontSize="11" fill="#f59e0b" fontWeight="bold">Subscribe</text>
+
+                      <path d="M 1170 450 L 1230 260" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurpleExpanded)" />
+                      <text x="1180" y="350" fontSize="11" fill="#8b5cf6" fontWeight="bold">Store All Events</text>
+
+                      <path d="M 1170 570 L 1230 780" stroke="#ec4899" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPinkExpanded)" />
+                      <text x="1180" y="670" fontSize="11" fill="#ec4899" fontWeight="bold">Process Events</text>
+
+                      <path d="M 1230 830 L 900 900 L 780 920" stroke="#ec4899" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPinkExpanded)" strokeDasharray="5,5" />
+                      <text x="1000" y="870" fontSize="11" fill="#ec4899" fontWeight="bold">Update Read DBs</text>
+
+                      {/* Title and metrics */}
+                      <text x="800" y="30" fontSize="20" fontWeight="bold" fill="#f59e0b" textAnchor="middle">⚡ EVENTUAL CONSISTENCY (5-15 min lag)</text>
+                      <text x="800" y="1080" fontSize="13" fill="#6b7280" textAnchor="middle">8 Database Technologies • 30M txn/day • 10M active users • 347 txn/sec average</text>
+                    </svg>
+
+                    {/* Component Details Panel in Modal */}
+                    {selectedCQRSComponent && cqrsComponentDetails[selectedCQRSComponent] && (
+                      <div className="mt-6 bg-gradient-to-br from-purple-900/40 to-purple-800/40 rounded-xl p-6 border-2 border-purple-400">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h4 className="text-2xl font-bold text-white mb-1">
+                              {cqrsComponentDetails[selectedCQRSComponent].name}
+                            </h4>
+                            <span className="px-3 py-1 bg-purple-600 text-white rounded-full text-xs font-semibold">
+                              {cqrsComponentDetails[selectedCQRSComponent].type}
+                            </span>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedCQRSComponent(null);
+                            }}
+                            className="text-gray-300 hover:text-white transition-colors"
+                          >
+                            <span className="text-2xl">×</span>
+                          </button>
+                        </div>
+
+                        <p className="text-gray-300 mb-4 leading-relaxed">
+                          {cqrsComponentDetails[selectedCQRSComponent].description}
+                        </p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          <div>
+                            <h5 className="text-purple-400 font-bold mb-2 flex items-center gap-2">
+                              <span>🔧</span> Technologies
+                            </h5>
+                            <div className="flex flex-wrap gap-2">
+                              {cqrsComponentDetails[selectedCQRSComponent].technologies.map((tech, i) => (
+                                <span key={i} className="px-2 py-1 bg-purple-700/50 text-purple-200 rounded text-sm">
+                                  {tech}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div>
+                            <h5 className="text-cyan-400 font-bold mb-2 flex items-center gap-2">
+                              <span>📊</span> Metrics
+                            </h5>
+                            <p className="text-gray-300 text-sm bg-cyan-900/30 px-3 py-2 rounded border border-cyan-700/30">
+                              {cqrsComponentDetails[selectedCQRSComponent].metrics}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h5 className="text-green-400 font-bold mb-2 flex items-center gap-2">
+                            <span>⚡</span> Key Responsibilities
+                          </h5>
+                          <ul className="space-y-1">
+                            {cqrsComponentDetails[selectedCQRSComponent].responsibilities.map((resp, i) => (
+                              <li key={i} className="text-gray-300 text-sm flex items-start gap-2">
+                                <span className="text-green-400 mt-1">•</span>
+                                <span>{resp}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'patterns' && (
+          <div className="space-y-8">
+            {/* Header */}
+            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-8 border border-purple-200 shadow-sm">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Network className="w-8 h-8 text-purple-600" />
+                </div>
+                Advanced Architectural Patterns & Components
+              </h2>
+              <p className="text-gray-700 text-lg">
+                Complex patterns and components that handle distributed transactions, fault tolerance, resilience, and data consistency in our microservices architecture
+              </p>
+            </div>
+
+            {/* Saga Pattern - Distributed Transactions */}
+            <div className="bg-white rounded-xl p-8 shadow-lg border-2 border-orange-200">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-orange-100 rounded-lg">
+                  <GitBranch className="w-7 h-7 text-orange-600" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Saga Pattern (Orchestration)</h3>
+                  <p className="text-gray-600">Distributed Transaction Management</p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div className="bg-orange-50 rounded-lg p-6 border border-orange-200">
+                  <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span className="text-orange-600">📝</span> What is Saga Pattern?
+                  </h4>
+                  <p className="text-gray-700 mb-3">
+                    A sequence of local transactions where each transaction updates data within a single service and publishes an event to trigger the next transaction step.
+                  </p>
+                  <p className="text-gray-700">
+                    If a step fails, Saga executes compensating transactions to undo the changes made by preceding transactions.
+                  </p>
+                </div>
+
+                <div className="bg-orange-50 rounded-lg p-6 border border-orange-200">
+                  <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span className="text-orange-600">🎯</span> Why We Need It
+                  </h4>
+                  <ul className="space-y-2 text-gray-700">
+                    <li className="flex items-start gap-2">
+                      <Check className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                      <span>No distributed 2PC (Two-Phase Commit) - each service has its own database</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                      <span>Maintain data consistency across microservices</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                      <span>Handle partial failures gracefully with compensations</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Saga Flow Example */}
+              <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                <h4 className="font-bold text-gray-900 mb-4 text-lg">Card Application Saga Flow Example</h4>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">1</div>
+                    <div className="flex-1 bg-white rounded-lg p-4 border-2 border-green-200">
+                      <div className="font-semibold text-gray-900">Validate Application</div>
+                      <div className="text-sm text-gray-600">Service: Application Service</div>
+                      <div className="text-sm text-gray-500 mt-1">Compensating: Mark application as invalid</div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">2</div>
+                    <div className="flex-1 bg-white rounded-lg p-4 border-2 border-green-200">
+                      <div className="font-semibold text-gray-900">Run Credit Check</div>
+                      <div className="text-sm text-gray-600">Service: Credit Bureau Service</div>
+                      <div className="text-sm text-gray-500 mt-1">Compensating: Reverse credit inquiry</div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">3</div>
+                    <div className="flex-1 bg-white rounded-lg p-4 border-2 border-green-200">
+                      <div className="font-semibold text-gray-900">Create Account</div>
+                      <div className="text-sm text-gray-600">Service: Account Service</div>
+                      <div className="text-sm text-gray-500 mt-1">Compensating: Delete account & rollback DB</div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">4</div>
+                    <div className="flex-1 bg-white rounded-lg p-4 border-2 border-green-200">
+                      <div className="font-semibold text-gray-900">Issue Card</div>
+                      <div className="text-sm text-gray-600">Service: Card Service</div>
+                      <div className="text-sm text-gray-500 mt-1">Compensating: Cancel card issuance</div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">5</div>
+                    <div className="flex-1 bg-white rounded-lg p-4 border-2 border-green-200">
+                      <div className="font-semibold text-gray-900">Send Welcome Email</div>
+                      <div className="text-sm text-gray-600">Service: Notification Service</div>
+                      <div className="text-sm text-gray-500 mt-1">Compensating: Send cancellation email</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-red-50 rounded-lg border-2 border-red-200">
+                  <div className="font-semibold text-red-900 mb-2 flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5" />
+                    Failure Scenario - Step 4 Fails
+                  </div>
+                  <p className="text-red-800 text-sm">
+                    If card issuance fails at Step 4, Saga Orchestrator triggers compensating transactions in reverse:
+                    <br />→ Delete Account (Step 3 compensation) → Reverse Credit Check (Step 2) → Mark Application Invalid (Step 1)
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 grid md:grid-cols-3 gap-4">
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                  <div className="font-semibold text-blue-900 mb-2">Implementation</div>
+                  <div className="text-sm text-blue-800">Spring Boot + State Machine</div>
+                  <div className="text-xs text-blue-600 mt-1">Saga Orchestrator Service</div>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                  <div className="font-semibold text-blue-900 mb-2">State Storage</div>
+                  <div className="text-sm text-blue-800">PostgreSQL Event Store</div>
+                  <div className="text-xs text-blue-600 mt-1">Saga execution history & state</div>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                  <div className="font-semibold text-blue-900 mb-2">Communication</div>
+                  <div className="text-sm text-blue-800">Kafka Events</div>
+                  <div className="text-xs text-blue-600 mt-1">Async command/response pattern</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Circuit Breaker Pattern */}
+            <div className="bg-white rounded-xl p-8 shadow-lg border-2 border-red-200">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-red-100 rounded-lg">
+                  <Zap className="w-7 h-7 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Circuit Breaker Pattern</h3>
+                  <p className="text-gray-600">Fault Tolerance & Resilience</p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div className="bg-red-50 rounded-lg p-6 border border-red-200">
+                  <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span className="text-red-600">⚡</span> What is Circuit Breaker?
+                  </h4>
+                  <p className="text-gray-700 mb-3">
+                    Prevents cascading failures by detecting failures and encapsulating logic to prevent the application from repeatedly trying to execute an operation that's likely to fail.
+                  </p>
+                  <p className="text-gray-700 text-sm">
+                    Works like an electrical circuit breaker - trips open when failures exceed threshold, preventing further calls.
+                  </p>
+                </div>
+
+                <div className="bg-red-50 rounded-lg p-6 border border-red-200">
+                  <h4 className="font-bold text-gray-900 mb-3">Three States</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-2">
+                      <span className="bg-green-500 rounded-full w-6 h-6 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">✓</span>
+                      <div>
+                        <div className="font-semibold text-green-900">CLOSED (Normal)</div>
+                        <div className="text-sm text-gray-600">Requests pass through, failures tracked</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="bg-red-500 rounded-full w-6 h-6 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">×</span>
+                      <div>
+                        <div className="font-semibold text-red-900">OPEN (Tripped)</div>
+                        <div className="text-sm text-gray-600">Requests fail immediately, no calls made</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="bg-yellow-500 rounded-full w-6 h-6 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">?</span>
+                      <div>
+                        <div className="font-semibold text-yellow-900">HALF-OPEN (Testing)</div>
+                        <div className="text-sm text-gray-600">Limited requests to test recovery</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Circuit Breaker Configuration */}
+              <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                <h4 className="font-bold text-gray-900 mb-4 text-lg">Our Configuration (Resilience4j)</h4>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 bg-white rounded border border-gray-200">
+                      <span className="text-gray-700 font-medium">Failure Rate Threshold</span>
+                      <span className="text-red-600 font-bold">50%</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-white rounded border border-gray-200">
+                      <span className="text-gray-700 font-medium">Wait Duration (Open)</span>
+                      <span className="text-red-600 font-bold">60 seconds</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-white rounded border border-gray-200">
+                      <span className="text-gray-700 font-medium">Ring Buffer Size</span>
+                      <span className="text-red-600 font-bold">100 calls</span>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 bg-white rounded border border-gray-200">
+                      <span className="text-gray-700 font-medium">Slow Call Threshold</span>
+                      <span className="text-red-600 font-bold">5 seconds</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-white rounded border border-gray-200">
+                      <span className="text-gray-700 font-medium">Permitted Calls (Half-Open)</span>
+                      <span className="text-yellow-600 font-bold">10 calls</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-white rounded border border-gray-200">
+                      <span className="text-gray-700 font-medium">Automatic Transition</span>
+                      <span className="text-green-600 font-bold">Enabled</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="font-semibold text-blue-900 mb-2">Applied To:</div>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">External Credit Bureau API</span>
+                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Payment Gateway Calls</span>
+                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Fraud Detection Service</span>
+                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Third-party Card Networks</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 p-4 bg-yellow-50 rounded-lg border-2 border-yellow-300">
+                <div className="font-semibold text-yellow-900 mb-2 flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5" />
+                  Fallback Strategy
+                </div>
+                <p className="text-yellow-800 text-sm">
+                  When circuit is open: Return cached data, use secondary provider, or graceful degradation with reduced functionality
+                </p>
+              </div>
+            </div>
+
+            {/* Event Sourcing */}
+            <div className="bg-white rounded-xl p-8 shadow-lg border-2 border-purple-200">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-purple-100 rounded-lg">
+                  <FileText className="w-7 h-7 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Event Sourcing</h3>
+                  <p className="text-gray-600">Immutable Event Log & State Reconstruction</p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div className="bg-purple-50 rounded-lg p-6 border border-purple-200">
+                  <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span className="text-purple-600">📚</span> Concept
+                  </h4>
+                  <p className="text-gray-700 mb-3">
+                    Instead of storing current state, we store the sequence of state-changing events. Current state is derived by replaying events.
+                  </p>
+                  <div className="mt-4 p-3 bg-white rounded border border-purple-200">
+                    <div className="text-sm font-semibold text-purple-900 mb-2">Traditional Approach:</div>
+                    <code className="text-xs text-gray-600">balance = 5000</code>
+                    <div className="text-sm font-semibold text-purple-900 mt-3 mb-2">Event Sourcing:</div>
+                    <code className="text-xs text-gray-600">
+                      [AccountOpened: +10000]<br />
+                      [Purchase: -500]<br />
+                      [Payment: +2000]<br />
+                      [Purchase: -6500]<br />
+                      → balance = 5000
+                    </code>
+                  </div>
+                </div>
+
+                <div className="bg-purple-50 rounded-lg p-6 border border-purple-200">
+                  <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span className="text-purple-600">✨</span> Benefits
+                  </h4>
+                  <ul className="space-y-2 text-gray-700">
+                    <li className="flex items-start gap-2">
+                      <Check className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                      <span><strong>Complete Audit Trail:</strong> Every state change recorded</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                      <span><strong>Time Travel:</strong> Rebuild state at any point in time</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                      <span><strong>Event Replay:</strong> Fix bugs by replaying with corrected logic</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                      <span><strong>Analysis:</strong> Business intelligence from event stream</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                <h4 className="font-bold text-gray-900 mb-4 text-lg">Transaction Events We Store</h4>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="bg-white rounded-lg p-4 border-2 border-purple-200">
+                    <div className="font-semibold text-purple-900 mb-2">TransactionAuthorized</div>
+                    <div className="text-sm text-gray-600">amount, merchant, timestamp, fraud_score</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 border-2 border-purple-200">
+                    <div className="font-semibold text-purple-900 mb-2">TransactionSettled</div>
+                    <div className="text-sm text-gray-600">final_amount, settlement_date, fees</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 border-2 border-purple-200">
+                    <div className="font-semibold text-purple-900 mb-2">TransactionRefunded</div>
+                    <div className="text-sm text-gray-600">refund_amount, reason, timestamp</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 border-2 border-purple-200">
+                    <div className="font-semibold text-purple-900 mb-2">DisputeOpened</div>
+                    <div className="text-sm text-gray-600">dispute_reason, customer_claim</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 border-2 border-purple-200">
+                    <div className="font-semibold text-purple-900 mb-2">DisputeResolved</div>
+                    <div className="text-sm text-gray-600">resolution, winner, amount_adjusted</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 border-2 border-purple-200">
+                    <div className="font-semibold text-purple-900 mb-2">FraudFlagged</div>
+                    <div className="text-sm text-gray-600">fraud_type, ml_confidence, action</div>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid md:grid-cols-2 gap-4">
+                  <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                    <div className="font-semibold text-purple-900 mb-2">Event Store</div>
+                    <div className="text-sm text-gray-700">PostgreSQL (append-only, partitioned by month)</div>
+                  </div>
+                  <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                    <div className="font-semibold text-purple-900 mb-2">Retention</div>
+                    <div className="text-sm text-gray-700">7 years (regulatory compliance)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Idempotency */}
+            <div className="bg-white rounded-xl p-8 shadow-lg border-2 border-teal-200">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-teal-100 rounded-lg">
+                  <Shield className="w-7 h-7 text-teal-600" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Idempotency Keys</h3>
+                  <p className="text-gray-600">Preventing Duplicate Transactions</p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div className="bg-teal-50 rounded-lg p-6 border border-teal-200">
+                  <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span className="text-teal-600">🔑</span> What is Idempotency?
+                  </h4>
+                  <p className="text-gray-700 mb-3">
+                    An operation is idempotent if performing it multiple times has the same effect as performing it once.
+                  </p>
+                  <p className="text-gray-700 text-sm font-medium">
+                    Critical for payment processing: Network retries shouldn't charge customer twice!
+                  </p>
+                </div>
+
+                <div className="bg-teal-50 rounded-lg p-6 border border-teal-200">
+                  <h4 className="font-bold text-gray-900 mb-3">How We Implement It</h4>
+                  <div className="space-y-2 text-sm text-gray-700">
+                    <div className="flex items-start gap-2">
+                      <div className="bg-teal-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0">1</div>
+                      <span>Client generates UUID idempotency key per request</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <div className="bg-teal-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0">2</div>
+                      <span>Server checks Redis cache for existing key</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <div className="bg-teal-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0">3</div>
+                      <span>If found: return cached response immediately</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <div className="bg-teal-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0">4</div>
+                      <span>If not found: process request & cache result (24h TTL)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                <h4 className="font-bold text-gray-900 mb-4">Example: Payment Processing</h4>
+                <div className="space-y-3">
+                  <div className="p-4 bg-white rounded-lg border-2 border-teal-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-2xl">1️⃣</span>
+                      <span className="font-semibold text-gray-900">Initial Request</span>
+                    </div>
+                    <code className="text-xs text-gray-600 block">
+                      POST /api/payments<br />
+                      Idempotency-Key: 550e8400-e29b-41d4-a716-446655440000<br />
+                      {'{'} amount: 100.00, merchant: "Amazon" {'}'}
+                    </code>
+                    <div className="mt-2 text-sm text-green-700 font-medium">✓ Processed successfully, response cached</div>
+                  </div>
+
+                  <div className="p-4 bg-white rounded-lg border-2 border-yellow-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-2xl">2️⃣</span>
+                      <span className="font-semibold text-gray-900">Retry (Network Issue)</span>
+                    </div>
+                    <code className="text-xs text-gray-600 block">
+                      POST /api/payments<br />
+                      Idempotency-Key: 550e8400-e29b-41d4-a716-446655440000<br />
+                      {'{'} amount: 100.00, merchant: "Amazon" {'}'}
+                    </code>
+                    <div className="mt-2 text-sm text-blue-700 font-medium">✓ Idempotency key found in Redis → Return cached response (no reprocessing!)</div>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid md:grid-cols-3 gap-4">
+                  <div className="bg-teal-50 rounded-lg p-3 border border-teal-200">
+                    <div className="font-semibold text-teal-900 text-sm mb-1">Storage</div>
+                    <div className="text-xs text-teal-700">Redis (in-memory)</div>
+                  </div>
+                  <div className="bg-teal-50 rounded-lg p-3 border border-teal-200">
+                    <div className="font-semibold text-teal-900 text-sm mb-1">TTL</div>
+                    <div className="text-xs text-teal-700">24 hours</div>
+                  </div>
+                  <div className="bg-teal-50 rounded-lg p-3 border border-teal-200">
+                    <div className="font-semibold text-teal-900 text-sm mb-1">Key Format</div>
+                    <div className="text-xs text-teal-700">UUID v4</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Rate Limiting */}
+            <div className="bg-white rounded-xl p-8 shadow-lg border-2 border-blue-200">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-blue-100 rounded-lg">
+                  <Activity className="w-7 h-7 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Rate Limiting (Token Bucket)</h3>
+                  <p className="text-gray-600">API Throttling & DDoS Protection</p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
+                  <h4 className="font-bold text-gray-900 mb-3">Token Bucket Algorithm</h4>
+                  <ul className="space-y-2 text-sm text-gray-700">
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600 font-bold">•</span>
+                      <span>Bucket starts with N tokens (capacity)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600 font-bold">•</span>
+                      <span>Each request consumes 1 token</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600 font-bold">•</span>
+                      <span>Tokens refill at rate R per second</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600 font-bold">•</span>
+                      <span>If bucket empty → request rejected (429 status)</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
+                  <h4 className="font-bold text-gray-900 mb-3">Our Rate Limits</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center p-2 bg-white rounded text-sm">
+                      <span className="text-gray-700">Public API</span>
+                      <span className="font-bold text-blue-600">100 req/min</span>
+                    </div>
+                    <div className="flex justify-between items-center p-2 bg-white rounded text-sm">
+                      <span className="text-gray-700">Authenticated User</span>
+                      <span className="font-bold text-blue-600">1000 req/min</span>
+                    </div>
+                    <div className="flex justify-between items-center p-2 bg-white rounded text-sm">
+                      <span className="text-gray-700">Premium Tier</span>
+                      <span className="font-bold text-blue-600">5000 req/min</span>
+                    </div>
+                    <div className="flex justify-between items-center p-2 bg-white rounded text-sm">
+                      <span className="text-gray-700">Transaction Endpoint</span>
+                      <span className="font-bold text-blue-600">10 req/sec</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                <h4 className="font-bold text-gray-900 mb-4">Implementation</h4>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="bg-white rounded-lg p-4 border-2 border-blue-200">
+                    <div className="font-semibold text-blue-900 mb-2">Technology</div>
+                    <div className="text-sm text-gray-700">Kong API Gateway + Redis</div>
+                    <div className="text-xs text-gray-500 mt-1">Redis stores token counts per user/IP</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 border-2 border-blue-200">
+                    <div className="font-semibold text-blue-900 mb-2">Response Headers</div>
+                    <code className="text-xs text-gray-600 block">
+                      X-RateLimit-Limit: 1000<br />
+                      X-RateLimit-Remaining: 847<br />
+                      X-RateLimit-Reset: 1635724800
+                    </code>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Caching Strategy */}
+            <div className="bg-white rounded-xl p-8 shadow-lg border-2 border-cyan-200">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-cyan-100 rounded-lg">
+                  <HardDrive className="w-7 h-7 text-cyan-600" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Multi-Level Caching</h3>
+                  <p className="text-gray-600">Cache-Aside Pattern with Read-Through</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="bg-cyan-50 rounded-lg p-6 border border-cyan-200">
+                  <h4 className="font-bold text-gray-900 mb-4">Caching Layers</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-4">
+                      <div className="bg-cyan-600 text-white rounded-lg p-3 font-bold text-lg">L1</div>
+                      <div className="flex-1 bg-white rounded-lg p-4 border-2 border-cyan-200">
+                        <div className="font-semibold text-gray-900">Application Cache (Caffeine)</div>
+                        <div className="text-sm text-gray-600">In-memory, per-service instance, &lt;10ms latency</div>
+                        <div className="text-xs text-gray-500 mt-1">User sessions, config data, small reference data</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <div className="bg-cyan-600 text-white rounded-lg p-3 font-bold text-lg">L2</div>
+                      <div className="flex-1 bg-white rounded-lg p-4 border-2 border-cyan-200">
+                        <div className="font-semibold text-gray-900">Distributed Cache (Redis)</div>
+                        <div className="text-sm text-gray-600">Shared across all instances, &lt;5ms latency</div>
+                        <div className="text-xs text-gray-500 mt-1">Account data, recent transactions, fraud scores</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <div className="bg-cyan-600 text-white rounded-lg p-3 font-bold text-lg">L3</div>
+                      <div className="flex-1 bg-white rounded-lg p-4 border-2 border-cyan-200">
+                        <div className="font-semibold text-gray-900">Database Read Replicas</div>
+                        <div className="text-sm text-gray-600">Read-only PostgreSQL replicas, &lt;20ms latency</div>
+                        <div className="text-xs text-gray-500 mt-1">Complex queries, reporting, historical data</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <div className="font-semibold text-green-900 mb-2">Cache Hit Ratio</div>
+                    <div className="text-3xl font-bold text-green-600">94.7%</div>
+                    <div className="text-xs text-gray-600 mt-1">Redis cache effectiveness</div>
+                  </div>
+                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <div className="font-semibold text-green-900 mb-2">Avg Latency</div>
+                    <div className="text-3xl font-bold text-green-600">3.2ms</div>
+                    <div className="text-xs text-gray-600 mt-1">Redis cache response time</div>
+                  </div>
+                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <div className="font-semibold text-green-900 mb-2">Eviction Policy</div>
+                    <div className="text-lg font-bold text-green-600">LRU</div>
+                    <div className="text-xs text-gray-600 mt-1">Least Recently Used</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         )}
 

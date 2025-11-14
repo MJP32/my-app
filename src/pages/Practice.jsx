@@ -28,6 +28,7 @@ function Practice({ onBack, onSelectItem }) {
     'Sorting': 4,
     'Recursion': 8,
     'Dynamic Programming': 17,
+    'Dynamic Programming Patterns': 89,
     'Sliding Window': 9,
     'Backtracking': 11,
     'Intervals': 7,
@@ -141,8 +142,8 @@ function Practice({ onBack, onSelectItem }) {
           name: 'Algorithms',
           icon: '🎯',
           color: '#8b5cf6',
-          count: 106,
-          items: ['Searching', 'Binary Search', 'Sorting', 'Recursion', 'Dynamic Programming', 'Sliding Window', 'Backtracking', 'Intervals', 'Math & Geometry', 'Advanced Graphs', 'Greedy Algorithms', 'Famous Algorithms', 'Union Find', 'Trie', 'Two Pointers', 'Bit Manipulation', 'Data Structures']
+          count: 195,
+          items: ['Searching', 'Binary Search', 'Sorting', 'Recursion', 'Dynamic Programming', 'Dynamic Programming Patterns', 'Sliding Window', 'Backtracking', 'Intervals', 'Math & Geometry', 'Advanced Graphs', 'Greedy Algorithms', 'Famous Algorithms', 'Union Find', 'Trie', 'Two Pointers', 'Bit Manipulation', 'Data Structures']
         }
       ]
     },
@@ -272,7 +273,7 @@ function Practice({ onBack, onSelectItem }) {
             marginBottom: '1.5rem',
             lineHeight: '1.6'
           }}>
-            Master coding concepts through hands-on practice problems. Choose a category below to start solving problems
+            Master coding concepts through hands-on practice problems. Choose a category to start solving problems
             and build your programming skills with real-world challenges.
           </p>
 

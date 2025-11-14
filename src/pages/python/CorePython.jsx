@@ -622,7 +622,7 @@ class InsufficientFundsError(Exception):
         self.balance = balance
         self.amount = amount
         super().__init__(
-            f"Insufficient funds: ${balance} available, ${amount} required"
+            f"Insufficient funds: \${balance} available, \${amount} required"
         )
 
 class BankAccount:
@@ -640,8 +640,8 @@ try:
     account.withdraw(150)
 except InsufficientFundsError as e:
     print(f"Error: {e}")
-    print(f"Available: ${e.balance}")
-    print(f"Requested: ${e.amount}")
+    print(f"Available: \${e.balance}")
+    print(f"Requested: \${e.amount}")
 
 # Exception chaining (preserving original exception)
 def process_file(filename):

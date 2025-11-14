@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 function PythonPitfalls({ onBack }) {
   const [selectedPitfall, setSelectedPitfall] = useState(null)
@@ -518,127 +520,150 @@ Note: get(key, []) creates a new list each call, but it's not added to dict. Use
 
   if (selectedPitfall) {
     return (
-      <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#fef2f2', minHeight: '100vh' }}>
-        <button
-          onClick={handleBackClick}
-          style={{
-            marginBottom: '1.5rem',
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            backgroundColor: '#3776ab',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: '600'
-          }}
-        >
-          ← Back to Pitfalls
-        </button>
-
-        <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '2.5rem', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-          {/* Header */}
-          <div style={{ marginBottom: '2rem', borderBottom: '2px solid #fee2e2', paddingBottom: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
-              <h1 style={{ margin: 0, color: '#991b1b', fontSize: '2rem' }}>{selectedPitfall.title}</h1>
-              <span style={{
-                padding: '0.25rem 0.75rem',
-                backgroundColor: selectedPitfall.severity === 'High' ? '#fee2e2' : selectedPitfall.severity === 'Medium' ? '#fef3c7' : '#dbeafe',
-                color: selectedPitfall.severity === 'High' ? '#991b1b' : selectedPitfall.severity === 'Medium' ? '#92400e' : '#1e40af',
-                borderRadius: '6px',
-                fontSize: '0.875rem',
-                fontWeight: '600'
-              }}>
-                {selectedPitfall.severity} Severity
-              </span>
-              <span style={{
-                padding: '0.25rem 0.75rem',
-                backgroundColor: '#e0e7ff',
-                color: '#3730a3',
-                borderRadius: '6px',
-                fontSize: '0.875rem',
-                fontWeight: '600'
-              }}>
-                {selectedPitfall.category}
-              </span>
-            </div>
-            <p style={{ color: '#64748b', fontSize: '1.1rem', margin: '0.5rem 0 0 0' }}>
-              {selectedPitfall.description}
-            </p>
-          </div>
-
-          {/* Wrong Code */}
-          <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ color: '#991b1b', marginBottom: '0.75rem', fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span>❌</span> Wrong Code (Common Mistake)
-            </h3>
-            <pre style={{
-              backgroundColor: '#7f1d1d',
-              color: '#fef2f2',
-              padding: '1.5rem',
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+        padding: '2rem'
+      }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+          <button
+            onClick={handleBackClick}
+            style={{
+              marginBottom: '1.5rem',
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              background: '#2563eb',
+              color: 'white',
+              border: 'none',
               borderRadius: '8px',
-              overflow: 'auto',
-              fontSize: '0.875rem',
-              lineHeight: '1.6',
-              margin: 0,
-              border: '2px solid #dc2626'
-            }}>
-              <code>{selectedPitfall.wrongCode}</code>
-            </pre>
-          </div>
+              cursor: 'pointer',
+              fontWeight: '600',
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#1d4ed8'
+              e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#2563eb'
+              e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+            }}
+          >
+            ← Back to Pitfalls
+          </button>
 
-          {/* Correct Code */}
-          <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ color: '#166534', marginBottom: '0.75rem', fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span>✅</span> Correct Code (Best Practice)
-            </h3>
-            <pre style={{
-              backgroundColor: '#14532d',
-              color: '#f0fdf4',
-              padding: '1.5rem',
-              borderRadius: '8px',
-              overflow: 'auto',
-              fontSize: '0.875rem',
-              lineHeight: '1.6',
-              margin: 0,
-              border: '2px solid #16a34a'
-            }}>
-              <code>{selectedPitfall.correctCode}</code>
-            </pre>
-          </div>
-
-          {/* Explanation */}
-          <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ color: '#1e293b', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Why This Happens</h3>
-            <div style={{
-              backgroundColor: '#fef3c7',
-              padding: '1.5rem',
-              borderRadius: '8px',
-              borderLeft: '4px solid #f59e0b',
-              whiteSpace: 'pre-line',
-              lineHeight: '1.6',
-              color: '#78350f'
-            }}>
-              {selectedPitfall.explanation}
-            </div>
-          </div>
-
-          {/* Related Patterns */}
-          <div>
-            <h3 style={{ color: '#1e293b', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Remember</h3>
-            <ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
-              {selectedPitfall.relatedPatterns.map((pattern, idx) => (
-                <li key={idx} style={{
-                  color: '#475569',
-                  marginBottom: '0.5rem',
-                  lineHeight: '1.6',
-                  fontSize: '0.95rem',
-                  fontWeight: '500'
+          <div style={{
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+            borderRadius: '12px',
+            padding: '2.5rem',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+            border: '2px solid #3b82f6'
+          }}>
+            {/* Header */}
+            <div style={{ marginBottom: '2rem', borderBottom: '2px solid #3b82f6', paddingBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
+                <h1 style={{ margin: 0, color: '#93c5fd', fontSize: '2rem' }}>{selectedPitfall.title}</h1>
+                <span style={{
+                  padding: '0.25rem 0.75rem',
+                  backgroundColor: selectedPitfall.severity === 'High' ? '#dc2626' : selectedPitfall.severity === 'Medium' ? '#f59e0b' : '#3b82f6',
+                  color: 'white',
+                  borderRadius: '6px',
+                  fontSize: '0.875rem',
+                  fontWeight: '600'
                 }}>
-                  {pattern}
-                </li>
-              ))}
-            </ul>
+                  {selectedPitfall.severity} Severity
+                </span>
+                <span style={{
+                  padding: '0.25rem 0.75rem',
+                  backgroundColor: '#2563eb',
+                  color: 'white',
+                  borderRadius: '6px',
+                  fontSize: '0.875rem',
+                  fontWeight: '600'
+                }}>
+                  {selectedPitfall.category}
+                </span>
+              </div>
+              <p style={{ color: '#d1d5db', fontSize: '1.1rem', margin: '0.5rem 0 0 0' }}>
+                {selectedPitfall.description}
+              </p>
+            </div>
+
+            {/* Wrong Code */}
+            <div style={{ marginBottom: '2rem' }}>
+              <h3 style={{ color: '#ef4444', marginBottom: '0.75rem', fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span>❌</span> Wrong Code (Common Mistake)
+              </h3>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  fontSize: '0.9rem',
+                  border: '2px solid #dc2626',
+                  margin: 0
+                }}
+              >
+                {selectedPitfall.wrongCode}
+              </SyntaxHighlighter>
+            </div>
+
+            {/* Correct Code */}
+            <div style={{ marginBottom: '2rem' }}>
+              <h3 style={{ color: '#4ade80', marginBottom: '0.75rem', fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span>✅</span> Correct Code (Best Practice)
+              </h3>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  fontSize: '0.9rem',
+                  border: '2px solid #16a34a',
+                  margin: 0
+                }}
+              >
+                {selectedPitfall.correctCode}
+              </SyntaxHighlighter>
+            </div>
+
+            {/* Explanation */}
+            <div style={{ marginBottom: '2rem' }}>
+              <h3 style={{ color: '#93c5fd', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Why This Happens</h3>
+              <div style={{
+                backgroundColor: '#1f2937',
+                padding: '1.5rem',
+                borderRadius: '8px',
+                borderLeft: '4px solid #3b82f6',
+                whiteSpace: 'pre-line',
+                lineHeight: '1.6',
+                color: '#d1d5db',
+                border: '1px solid #3b82f6'
+              }}>
+                {selectedPitfall.explanation}
+              </div>
+            </div>
+
+            {/* Related Patterns */}
+            <div>
+              <h3 style={{ color: '#93c5fd', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Remember</h3>
+              <ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
+                {selectedPitfall.relatedPatterns.map((pattern, idx) => (
+                  <li key={idx} style={{
+                    color: '#d1d5db',
+                    marginBottom: '0.5rem',
+                    lineHeight: '1.6',
+                    fontSize: '0.95rem',
+                    fontWeight: '500'
+                  }}>
+                    {pattern}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -646,145 +671,174 @@ Note: get(key, []) creates a new list each call, but it's not added to dict. Use
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#fef2f2', minHeight: '100vh' }}>
-      <button
-        onClick={handleBackClick}
-        style={{
-          marginBottom: '1.5rem',
-          padding: '0.75rem 1.5rem',
-          fontSize: '1rem',
-          backgroundColor: '#3776ab',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          fontWeight: '600'
-        }}
-      >
-        ← Back to Python Topics
-      </button>
-
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ margin: '0 0 0.5rem 0', color: '#991b1b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span>⚠️</span> Python Common Pitfalls & Gotchas
-        </h1>
-        <p style={{ color: '#64748b', fontSize: '1.1rem', margin: 0 }}>
-          Learn about common Python mistakes and how to avoid them with correct patterns
-        </p>
-      </div>
-
-      {/* Search Bar */}
-      <div style={{ marginBottom: '2rem' }}>
-        <input
-          type="text"
-          placeholder="Search pitfalls... (e.g., 'set', 'mutable', 'closure')"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+      padding: '2rem'
+    }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <button
+          onClick={handleBackClick}
           style={{
-            width: '100%',
-            padding: '0.75rem 1rem',
+            marginBottom: '1.5rem',
+            padding: '0.75rem 1.5rem',
             fontSize: '1rem',
-            border: '2px solid #fee2e2',
+            background: '#2563eb',
+            color: 'white',
+            border: 'none',
             borderRadius: '8px',
-            outline: 'none'
+            cursor: 'pointer',
+            fontWeight: '600',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+            transition: 'all 0.2s'
           }}
-          onFocus={(e) => e.target.style.borderColor = '#dc2626'}
-          onBlur={(e) => e.target.style.borderColor = '#fee2e2'}
-        />
-      </div>
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#1d4ed8'
+            e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = '#2563eb'
+            e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+          }}
+        >
+          ← Back to Python Topics
+        </button>
 
-      {/* Severity Filter */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-        {severities.map((sev) => {
-          const count = pitfalls.filter(p => p.severity === sev).length
-          return (
-            <div key={sev} style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: sev === 'High' ? '#fee2e2' : sev === 'Medium' ? '#fef3c7' : '#dbeafe',
-              color: sev === 'High' ? '#991b1b' : sev === 'Medium' ? '#92400e' : '#1e40af',
-              borderRadius: '6px',
-              fontSize: '0.875rem',
-              fontWeight: '600'
-            }}>
-              {sev} ({count})
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Pitfalls Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
-        gap: '1.5rem'
-      }}>
-        {filteredPitfalls.map((pitfall) => (
-          <div
-            key={pitfall.id}
-            onClick={() => setSelectedPitfall(pitfall)}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '12px',
-              padding: '1.5rem',
-              cursor: 'pointer',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              transition: 'all 0.2s',
-              border: '2px solid',
-              borderColor: pitfall.severity === 'High' ? '#fca5a5' : pitfall.severity === 'Medium' ? '#fcd34d' : '#93c5fd'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
-              e.currentTarget.style.borderColor = pitfall.severity === 'High' ? '#dc2626' : pitfall.severity === 'Medium' ? '#f59e0b' : '#3b82f6'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)'
-              e.currentTarget.style.borderColor = pitfall.severity === 'High' ? '#fca5a5' : pitfall.severity === 'Medium' ? '#fcd34d' : '#93c5fd'
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-              <h3 style={{ margin: 0, color: '#1e293b', fontSize: '1.125rem', flex: 1 }}>{pitfall.title}</h3>
-              <span style={{
-                padding: '0.25rem 0.5rem',
-                backgroundColor: pitfall.severity === 'High' ? '#fee2e2' : pitfall.severity === 'Medium' ? '#fef3c7' : '#dbeafe',
-                color: pitfall.severity === 'High' ? '#991b1b' : pitfall.severity === 'Medium' ? '#92400e' : '#1e40af',
-                borderRadius: '4px',
-                fontSize: '0.75rem',
-                fontWeight: '600',
-                whiteSpace: 'nowrap',
-                marginLeft: '0.5rem'
-              }}>
-                {pitfall.severity}
-              </span>
-            </div>
-            <div style={{
-              padding: '0.5rem 0.75rem',
-              backgroundColor: '#f8fafc',
-              borderRadius: '6px',
-              marginBottom: '0.75rem'
-            }}>
-              <span style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: '600' }}>
-                {pitfall.category}
-              </span>
-            </div>
-            <p style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: '1.5', margin: 0 }}>
-              {pitfall.description}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {filteredPitfalls.length === 0 && (
-        <div style={{
-          textAlign: 'center',
-          padding: '3rem',
-          color: '#94a3b8',
-          fontSize: '1.1rem'
-        }}>
-          No pitfalls found matching "{searchTerm}"
+        <div style={{ marginBottom: '2rem' }}>
+          <h1 style={{
+            margin: '0 0 0.5rem 0',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontSize: '2.25rem',
+            fontWeight: 'bold',
+            background: 'linear-gradient(to right, #60a5fa, #22d3ee)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            <span>⚠️</span> Python Common Pitfalls & Gotchas
+          </h1>
+          <p style={{ color: '#d1d5db', fontSize: '1.1rem', margin: 0 }}>
+            Learn about common Python mistakes and how to avoid them with correct patterns
+          </p>
         </div>
-      )}
+
+        {/* Search Bar */}
+        <div style={{ marginBottom: '2rem' }}>
+          <input
+            type="text"
+            placeholder="Search pitfalls... (e.g., 'set', 'mutable', 'closure')"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '0.75rem 1rem',
+              fontSize: '1rem',
+              border: '2px solid #3b82f6',
+              borderRadius: '8px',
+              outline: 'none',
+              background: '#1f2937',
+              color: '#d1d5db'
+            }}
+            onFocus={(e) => e.target.style.borderColor = '#60a5fa'}
+            onBlur={(e) => e.target.style.borderColor = '#3b82f6'}
+          />
+        </div>
+
+        {/* Severity Filter */}
+        <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+          {severities.map((sev) => {
+            const count = pitfalls.filter(p => p.severity === sev).length
+            return (
+              <div key={sev} style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: sev === 'High' ? '#dc2626' : sev === 'Medium' ? '#f59e0b' : '#3b82f6',
+                color: 'white',
+                borderRadius: '6px',
+                fontSize: '0.875rem',
+                fontWeight: '600'
+              }}>
+                {sev} ({count})
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Pitfalls Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
+          gap: '1.5rem'
+        }}>
+          {filteredPitfalls.map((pitfall) => (
+            <div
+              key={pitfall.id}
+              onClick={() => setSelectedPitfall(pitfall)}
+              style={{
+                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                borderRadius: '12px',
+                padding: '1.5rem',
+                cursor: 'pointer',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                transition: 'all 0.3s',
+                border: '2px solid #3b82f6'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)'
+                e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(59, 130, 246, 0.5)'
+                e.currentTarget.style.borderColor = '#60a5fa'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)'
+                e.currentTarget.style.borderColor = '#3b82f6'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
+                <h3 style={{ margin: 0, color: '#93c5fd', fontSize: '1.125rem', flex: 1 }}>{pitfall.title}</h3>
+                <span style={{
+                  padding: '0.25rem 0.5rem',
+                  backgroundColor: pitfall.severity === 'High' ? '#dc2626' : pitfall.severity === 'Medium' ? '#f59e0b' : '#3b82f6',
+                  color: 'white',
+                  borderRadius: '4px',
+                  fontSize: '0.75rem',
+                  fontWeight: '600',
+                  whiteSpace: 'nowrap',
+                  marginLeft: '0.5rem'
+                }}>
+                  {pitfall.severity}
+                </span>
+              </div>
+              <div style={{
+                padding: '0.5rem 0.75rem',
+                backgroundColor: '#1f2937',
+                borderRadius: '6px',
+                marginBottom: '0.75rem',
+                border: '1px solid #3b82f6'
+              }}>
+                <span style={{ color: '#93c5fd', fontSize: '0.75rem', fontWeight: '600' }}>
+                  {pitfall.category}
+                </span>
+              </div>
+              <p style={{ color: '#d1d5db', fontSize: '0.9rem', lineHeight: '1.5', margin: 0 }}>
+                {pitfall.description}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {filteredPitfalls.length === 0 && (
+          <div style={{
+            textAlign: 'center',
+            padding: '3rem',
+            color: '#9ca3af',
+            fontSize: '1.1rem'
+          }}>
+            No pitfalls found matching "{searchTerm}"
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import CompletionCheckbox from '../../components/CompletionCheckbox'
 
 function PythonStringMethods({ onBack }) {
@@ -1314,7 +1316,13 @@ def safe_encode(text, encoding='utf-8'):
     const problem = problems.find(p => p.id === selectedProblem)
 
     return (
-      <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#f0f9ff', minHeight: '100vh' }}>
+      <div style={{
+        padding: '2rem',
+        maxWidth: '1400px',
+        margin: '0 auto',
+        background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+        minHeight: '100vh'
+      }}>
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
           <button
             onClick={() => {
@@ -1324,12 +1332,15 @@ def safe_encode(text, encoding='utf-8'):
             style={{
               padding: '0.75rem 1.5rem',
               fontSize: '1rem',
-              backgroundColor: '#6b7280',
+              backgroundColor: '#2563eb',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'all 0.2s'
             }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
           >
             ← Back to Problems
           </button>
@@ -1338,27 +1349,39 @@ def safe_encode(text, encoding='utf-8'):
             style={{
               padding: '0.75rem 1.5rem',
               fontSize: '1rem',
-              backgroundColor: '#6b7280',
+              backgroundColor: '#2563eb',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'all 0.2s'
             }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
           >
-            ← Back to Python
+            ← Back to Python Topics
           </button>
         </div>
 
         <div style={{
-          backgroundColor: 'white',
+          background: 'linear-gradient(to bottom right, #1f2937, #111827)',
           padding: '2rem',
           borderRadius: '12px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          marginBottom: '2rem'
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          marginBottom: '2rem',
+          border: '2px solid #3b82f6'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
             <div>
-              <h2 style={{ fontSize: '2rem', fontWeight: '700', color: '#1f2937', margin: '0 0 1rem 0' }}>
+              <h2 style={{
+                fontSize: '2rem',
+                fontWeight: '700',
+                background: 'linear-gradient(to right, #60a5fa, #22d3ee)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                margin: '0 0 1rem 0'
+              }}>
                 {problem.title}
               </h2>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
@@ -1379,47 +1402,48 @@ def safe_encode(text, encoding='utf-8'):
             </div>
           </div>
 
-          <p style={{ fontSize: '1.1rem', color: '#4b5563', lineHeight: '1.8', marginBottom: '2rem' }}>
+          <p style={{ fontSize: '1.1rem', color: '#d1d5db', lineHeight: '1.8', marginBottom: '2rem' }}>
             {problem.description}
           </p>
 
           <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#1f2937', marginBottom: '1rem' }}>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#93c5fd', marginBottom: '1rem' }}>
               Example:
             </h3>
-            <pre style={{
-              backgroundColor: '#1f2937',
-              color: '#f3f4f6',
-              padding: '1.5rem',
-              borderRadius: '8px',
-              overflowX: 'auto',
-              fontSize: '0.95rem',
-              lineHeight: '1.6'
-            }}>
+            <SyntaxHighlighter
+              language="python"
+              style={vscDarkPlus}
+              customStyle={{
+                borderRadius: '8px',
+                padding: '1rem',
+                fontSize: '0.9rem',
+                border: '1px solid #3b82f6'
+              }}
+            >
               {problem.example}
-            </pre>
+            </SyntaxHighlighter>
           </div>
 
           {problem.testCases && (
             <div style={{ marginBottom: '2rem' }}>
-              <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#1f2937', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#93c5fd', marginBottom: '1rem' }}>
                 Test Cases:
               </h3>
               {problem.testCases.map((tc, idx) => (
                 <div key={idx} style={{
-                  backgroundColor: '#f9fafb',
+                  backgroundColor: '#1e293b',
                   padding: '1rem',
                   borderRadius: '6px',
                   marginBottom: '0.75rem',
-                  border: '1px solid #e5e7eb'
+                  border: '1px solid #3b82f6'
                 }}>
                   <div style={{ marginBottom: '0.5rem' }}>
-                    <strong style={{ color: '#374151' }}>Input:</strong>
-                    <code style={{ marginLeft: '0.5rem', color: '#7c3aed' }}>{tc.input}</code>
+                    <strong style={{ color: '#93c5fd' }}>Input:</strong>
+                    <code style={{ marginLeft: '0.5rem', color: '#22d3ee' }}>{tc.input}</code>
                   </div>
                   <div>
-                    <strong style={{ color: '#374151' }}>Expected:</strong>
-                    <code style={{ marginLeft: '0.5rem', color: '#059669' }}>{tc.expected}</code>
+                    <strong style={{ color: '#93c5fd' }}>Expected:</strong>
+                    <code style={{ marginLeft: '0.5rem', color: '#22d3ee' }}>{tc.expected}</code>
                   </div>
                 </div>
               ))}
@@ -1427,10 +1451,10 @@ def safe_encode(text, encoding='utf-8'):
           )}
 
           <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#1f2937', marginBottom: '1rem' }}>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#93c5fd', marginBottom: '1rem' }}>
               Hints:
             </h3>
-            <ul style={{ paddingLeft: '1.5rem', color: '#4b5563', lineHeight: '1.8' }}>
+            <ul style={{ paddingLeft: '1.5rem', color: '#d1d5db', lineHeight: '1.8' }}>
               {problem.hints.map((hint, idx) => (
                 <li key={idx} style={{ marginBottom: '0.5rem' }}>{hint}</li>
               ))}
@@ -1456,32 +1480,33 @@ def safe_encode(text, encoding='utf-8'):
 
           {showSolution && (
             <div>
-              <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#1f2937', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#93c5fd', marginBottom: '1rem' }}>
                 Solution:
               </h3>
-              <pre style={{
-                backgroundColor: '#1f2937',
-                color: '#f3f4f6',
-                padding: '1.5rem',
-                borderRadius: '8px',
-                overflowX: 'auto',
-                fontSize: '0.95rem',
-                lineHeight: '1.6',
-                marginBottom: '2rem'
-              }}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  fontSize: '0.9rem',
+                  marginBottom: '2rem',
+                  border: '1px solid #3b82f6'
+                }}
+              >
                 {problem.solution}
-              </pre>
+              </SyntaxHighlighter>
 
               <div style={{
-                backgroundColor: '#fef3c7',
+                backgroundColor: '#1e293b',
                 padding: '1.5rem',
                 borderRadius: '8px',
-                border: '2px solid #fbbf24'
+                border: '2px solid #3b82f6'
               }}>
-                <h4 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#92400e', marginBottom: '0.75rem' }}>
+                <h4 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#93c5fd', marginBottom: '0.75rem' }}>
                   Complexity Analysis:
                 </h4>
-                <div style={{ color: '#78350f', lineHeight: '1.8' }}>
+                <div style={{ color: '#d1d5db', lineHeight: '1.8' }}>
                   <div><strong>Time Complexity:</strong> {problem.complexity.time}</div>
                   <div><strong>Space Complexity:</strong> {problem.complexity.space}</div>
                 </div>
@@ -1494,7 +1519,13 @@ def safe_encode(text, encoding='utf-8'):
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#f0f9ff', minHeight: '100vh' }}>
+    <div style={{
+      padding: '2rem',
+      maxWidth: '1400px',
+      margin: '0 auto',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+      minHeight: '100vh'
+    }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -1507,19 +1538,25 @@ def safe_encode(text, encoding='utf-8'):
             padding: '0.75rem 1.5rem',
             fontSize: '1rem',
             fontWeight: '600',
-            backgroundColor: '#6b7280',
+            backgroundColor: '#2563eb',
             color: 'white',
             border: 'none',
             borderRadius: '8px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            transition: 'all 0.2s'
           }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
         >
-          ← Back to Python
+          ← Back to Python Topics
         </button>
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '800',
-          color: '#1f2937',
+          background: 'linear-gradient(to right, #60a5fa, #22d3ee)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
           margin: 0
         }}>
           📝 Python String Methods
@@ -1529,7 +1566,7 @@ def safe_encode(text, encoding='utf-8'):
 
       <p style={{
         fontSize: '1.2rem',
-        color: '#4b5563',
+        color: '#d1d5db',
         textAlign: 'center',
         marginBottom: '3rem',
         lineHeight: '1.8'
@@ -1548,30 +1585,30 @@ def safe_encode(text, encoding='utf-8'):
             key={problem.id}
             onClick={() => setSelectedProblem(problem.id)}
             style={{
-              backgroundColor: 'white',
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
               padding: '1.5rem',
               borderRadius: '12px',
-              border: '2px solid #e5e7eb',
+              border: '2px solid #3b82f6',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.15)'
-              e.currentTarget.style.borderColor = '#3b82f6'
+              e.currentTarget.style.transform = 'translateY(-0.5rem)'
+              e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(59, 130, 246, 0.5)'
+              e.currentTarget.style.borderColor = '#60a5fa'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'
-              e.currentTarget.style.borderColor = '#e5e7eb'
+              e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              e.currentTarget.style.borderColor = '#3b82f6'
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
               <h3 style={{
                 fontSize: '1.25rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: '#93c5fd',
                 margin: 0,
                 flex: 1
               }}>
@@ -1593,7 +1630,7 @@ def safe_encode(text, encoding='utf-8'):
 
             <p style={{
               fontSize: '0.95rem',
-              color: '#6b7280',
+              color: '#d1d5db',
               lineHeight: '1.6',
               margin: 0
             }}>
@@ -1606,11 +1643,11 @@ def safe_encode(text, encoding='utf-8'):
               alignItems: 'center',
               marginTop: '1rem',
               paddingTop: '1rem',
-              borderTop: '1px solid #e5e7eb'
+              borderTop: '1px solid #3b82f6'
             }}>
               <CompletionCheckbox problemId={`python-string-methods-${problem.id}`} />
               <span style={{
-                color: '#3b82f6',
+                color: '#60a5fa',
                 fontSize: '0.9rem',
                 fontWeight: '600'
               }}>

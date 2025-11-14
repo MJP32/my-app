@@ -299,12 +299,15 @@ function Searching({ onBack, onPrevious, onNext, previousName, nextName, current
 
           {/* Code Editor */}
           <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '12px', border: '2px solid #e5e7eb', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' , flexWrap: 'wrap' }}>
               <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedQuestion.code[language].solution) }} style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
                 {showSolution ? 'Hide' : 'Show'} Solution
               </button>
               <button onClick={() => setUserCode(selectedQuestion.code[language].starterCode)} style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
                 Reset Code
+              </button>
+              <button onClick={() => setShowDrawing(true)} style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600', backgroundColor: currentDrawing ? '#8b5cf6' : '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                🎨 {currentDrawing ? 'View' : 'Draw'} Sketch
               </button>
             </div>
 
@@ -318,6 +321,18 @@ function Searching({ onBack, onPrevious, onNext, previousName, nextName, current
             )}
           </div>
         </div>
+        {/* Drawing Canvas Modal */}
+        <DrawingCanvas
+          isOpen={showDrawing}
+          onClose={() => {
+            setShowDrawing(false)
+            // Reload drawing in case it was updated
+            const savedDrawing = localStorage.getItem(`drawing-Searching-${selectedQuestion.id}`)
+            setCurrentDrawing(savedDrawing)
+          }}
+          problemId={`Searching-${selectedQuestion.id}`}
+          existingDrawing={currentDrawing}
+        />
       </div>
     )
   }

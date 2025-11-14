@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import CompletionCheckbox from '../../components/CompletionCheckbox'
 
 function PythonTuples({ onBack }) {
@@ -917,311 +919,370 @@ list2 = list(gen)  # [] - empty! Already consumed`,
     const problem = problems.find(p => p.id === selectedProblem)
 
     return (
-      <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#f0f9ff', minHeight: '100vh' }}>
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
-          <button
-            onClick={() => {
-              setSelectedProblem(null)
-              setShowSolution(false)
-            }}
-            style={{
-              padding: '0.75rem 1.5rem',
-              fontSize: '1rem',
-              backgroundColor: '#6b7280',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer'
-            }}
-          >
-            ← Back to Problems
-          </button>
-          <button
-            onClick={onBack}
-            style={{
-              padding: '0.75rem 1.5rem',
-              fontSize: '1rem',
-              backgroundColor: '#6b7280',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer'
-            }}
-          >
-            ← Back to Python
-          </button>
-        </div>
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+        color: 'white',
+        padding: '2rem'
+      }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+            <button
+              onClick={() => {
+                setSelectedProblem(null)
+                setShowSolution(false)
+              }}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                backgroundColor: '#2563eb',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: '500',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+            >
+              ← Back to Problems
+            </button>
+            <button
+              onClick={onBack}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                backgroundColor: '#2563eb',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: '500',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+            >
+              ← Back to Python Topics
+            </button>
+          </div>
 
-        <div style={{
-          backgroundColor: 'white',
-          padding: '2rem',
-          borderRadius: '12px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          marginBottom: '2rem'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-            <div>
-              <h2 style={{ fontSize: '2rem', fontWeight: '700', color: '#1f2937', margin: '0 0 1rem 0' }}>
-                {problem.title}
-              </h2>
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <span style={{
-                  padding: '0.5rem 1rem',
-                  backgroundColor: getDifficultyColor(problem.difficulty),
-                  color: 'white',
-                  fontSize: '0.875rem',
-                  fontWeight: '600',
-                  borderRadius: '6px'
+          <div style={{
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+            padding: '2rem',
+            borderRadius: '12px',
+            border: '2px solid #3b82f6',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            marginBottom: '2rem'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+              <div>
+                <h2 style={{
+                  fontSize: '2rem',
+                  fontWeight: '700',
+                  background: 'linear-gradient(to right, #60a5fa, #22d3ee)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  margin: '0 0 1rem 0'
                 }}>
-                  {problem.difficulty}
-                </span>
-                <div style={{ marginLeft: 'auto' }}>
-                  <CompletionCheckbox problemId={`python-tuples-${problem.id}`} />
+                  {problem.title}
+                </h2>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                  <span style={{
+                    padding: '0.5rem 1rem',
+                    backgroundColor: getDifficultyColor(problem.difficulty),
+                    color: 'white',
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    borderRadius: '6px'
+                  }}>
+                    {problem.difficulty}
+                  </span>
+                  <div style={{ marginLeft: 'auto' }}>
+                    <CompletionCheckbox problemId={`python-tuples-${problem.id}`} />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <p style={{ fontSize: '1.1rem', color: '#4b5563', lineHeight: '1.8', marginBottom: '2rem' }}>
-            {problem.description}
-          </p>
+            <p style={{ fontSize: '1.1rem', color: '#d1d5db', lineHeight: '1.8', marginBottom: '2rem' }}>
+              {problem.description}
+            </p>
 
-          <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#1f2937', marginBottom: '1rem' }}>
-              Example:
-            </h3>
-            <pre style={{
-              backgroundColor: '#1f2937',
-              color: '#f3f4f6',
-              padding: '1.5rem',
-              borderRadius: '8px',
-              overflowX: 'auto',
-              fontSize: '0.95rem',
-              lineHeight: '1.6'
-            }}>
-              {problem.example}
-            </pre>
-          </div>
-
-          {problem.testCases && (
             <div style={{ marginBottom: '2rem' }}>
-              <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#1f2937', marginBottom: '1rem' }}>
-                Test Cases:
+              <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#93c5fd', marginBottom: '1rem' }}>
+                Example:
               </h3>
-              {problem.testCases.map((tc, idx) => (
-                <div key={idx} style={{
-                  backgroundColor: '#f9fafb',
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  borderRadius: '8px',
                   padding: '1rem',
-                  borderRadius: '6px',
-                  marginBottom: '0.75rem',
-                  border: '1px solid #e5e7eb'
-                }}>
-                  <div style={{ marginBottom: '0.5rem' }}>
-                    <strong style={{ color: '#374151' }}>Input:</strong>
-                    <code style={{ marginLeft: '0.5rem', color: '#7c3aed' }}>{tc.input}</code>
-                  </div>
-                  <div>
-                    <strong style={{ color: '#374151' }}>Expected:</strong>
-                    <code style={{ marginLeft: '0.5rem', color: '#059669' }}>{tc.expected}</code>
-                  </div>
-                </div>
-              ))}
+                  fontSize: '0.9rem',
+                  border: '1px solid #3b82f6'
+                }}
+              >
+                {problem.example}
+              </SyntaxHighlighter>
             </div>
-          )}
 
-          <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#1f2937', marginBottom: '1rem' }}>
-              Hints:
-            </h3>
-            <ul style={{ paddingLeft: '1.5rem', color: '#4b5563', lineHeight: '1.8' }}>
-              {problem.hints.map((hint, idx) => (
-                <li key={idx} style={{ marginBottom: '0.5rem' }}>{hint}</li>
-              ))}
-            </ul>
-          </div>
+            {problem.testCases && (
+              <div style={{ marginBottom: '2rem' }}>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#93c5fd', marginBottom: '1rem' }}>
+                  Test Cases:
+                </h3>
+                {problem.testCases.map((tc, idx) => (
+                  <div key={idx} style={{
+                    backgroundColor: '#111827',
+                    padding: '1rem',
+                    borderRadius: '6px',
+                    marginBottom: '0.75rem',
+                    border: '1px solid #3b82f6'
+                  }}>
+                    <div style={{ marginBottom: '0.5rem' }}>
+                      <strong style={{ color: '#93c5fd' }}>Input:</strong>
+                      <code style={{ marginLeft: '0.5rem', color: '#22d3ee' }}>{tc.input}</code>
+                    </div>
+                    <div>
+                      <strong style={{ color: '#93c5fd' }}>Expected:</strong>
+                      <code style={{ marginLeft: '0.5rem', color: '#10b981' }}>{tc.expected}</code>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
-          <button
-            onClick={() => setShowSolution(!showSolution)}
-            style={{
-              padding: '1rem 2rem',
-              fontSize: '1.1rem',
-              backgroundColor: showSolution ? '#ef4444' : '#3b82f6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: '600',
-              marginBottom: '2rem'
-            }}
-          >
-            {showSolution ? 'Hide Solution' : 'Show Solution'}
-          </button>
-
-          {showSolution && (
-            <div>
-              <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#1f2937', marginBottom: '1rem' }}>
-                Solution:
+            <div style={{ marginBottom: '2rem' }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#93c5fd', marginBottom: '1rem' }}>
+                Hints:
               </h3>
-              <pre style={{
-                backgroundColor: '#1f2937',
-                color: '#f3f4f6',
-                padding: '1.5rem',
-                borderRadius: '8px',
-                overflowX: 'auto',
-                fontSize: '0.95rem',
-                lineHeight: '1.6',
-                marginBottom: '2rem'
-              }}>
-                {problem.solution}
-              </pre>
+              <ul style={{ paddingLeft: '1.5rem', color: '#d1d5db', lineHeight: '1.8' }}>
+                {problem.hints.map((hint, idx) => (
+                  <li key={idx} style={{ marginBottom: '0.5rem' }}>{hint}</li>
+                ))}
+              </ul>
+            </div>
 
-              <div style={{
-                backgroundColor: '#fef3c7',
-                padding: '1.5rem',
+            <button
+              onClick={() => setShowSolution(!showSolution)}
+              style={{
+                padding: '1rem 2rem',
+                fontSize: '1.1rem',
+                backgroundColor: showSolution ? '#dc2626' : '#2563eb',
+                color: 'white',
+                border: 'none',
                 borderRadius: '8px',
-                border: '2px solid #fbbf24'
-              }}>
-                <h4 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#92400e', marginBottom: '0.75rem' }}>
-                  Complexity Analysis:
-                </h4>
-                <div style={{ color: '#78350f', lineHeight: '1.8' }}>
-                  <div><strong>Time Complexity:</strong> {problem.complexity.time}</div>
-                  <div><strong>Space Complexity:</strong> {problem.complexity.space}</div>
+                cursor: 'pointer',
+                fontWeight: '600',
+                marginBottom: '2rem',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = showSolution ? '#b91c1c' : '#1d4ed8'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = showSolution ? '#dc2626' : '#2563eb'}
+            >
+              {showSolution ? 'Hide Solution' : 'Show Solution'}
+            </button>
+
+            {showSolution && (
+              <div>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#93c5fd', marginBottom: '1rem' }}>
+                  Solution:
+                </h3>
+                <SyntaxHighlighter
+                  language="python"
+                  style={vscDarkPlus}
+                  customStyle={{
+                    borderRadius: '8px',
+                    padding: '1rem',
+                    fontSize: '0.9rem',
+                    marginBottom: '2rem',
+                    border: '1px solid #3b82f6'
+                  }}
+                >
+                  {problem.solution}
+                </SyntaxHighlighter>
+
+                <div style={{
+                  backgroundColor: '#1f2937',
+                  padding: '1.5rem',
+                  borderRadius: '8px',
+                  border: '2px solid #3b82f6'
+                }}>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#60a5fa', marginBottom: '0.75rem' }}>
+                    Complexity Analysis:
+                  </h4>
+                  <div style={{ color: '#d1d5db', lineHeight: '1.8' }}>
+                    <div><strong>Time Complexity:</strong> {problem.complexity.time}</div>
+                    <div><strong>Space Complexity:</strong> {problem.complexity.space}</div>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#f0f9ff', minHeight: '100vh' }}>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
       <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '2rem'
+        maxWidth: '80rem',
+        margin: '0 auto'
       }}>
-        <button
-          onClick={onBack}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            fontWeight: '600',
-            backgroundColor: '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}
-        >
-          ← Back to Python
-        </button>
-        <h1 style={{
-          fontSize: '2.5rem',
-          fontWeight: '800',
-          color: '#1f2937',
-          margin: 0
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '2rem'
         }}>
-          🎯 Python Tuples
-        </h1>
-        <div style={{ width: '150px' }}></div>
-      </div>
-
-      <p style={{
-        fontSize: '1.2rem',
-        color: '#4b5563',
-        textAlign: 'center',
-        marginBottom: '3rem',
-        lineHeight: '1.8'
-      }}>
-        Master Python tuples: creation, unpacking, immutability, named tuples, and common patterns.
-        Understand when to use tuples vs lists.
-      </p>
-
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-        gap: '1.5rem'
-      }}>
-        {problems.map((problem) => (
-          <div
-            key={problem.id}
-            onClick={() => setSelectedProblem(problem.id)}
-            style={{
-              backgroundColor: 'white',
-              padding: '1.5rem',
-              borderRadius: '12px',
-              border: '2px solid #e5e7eb',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.15)'
-              e.currentTarget.style.borderColor = '#3b82f6'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'
-              e.currentTarget.style.borderColor = '#e5e7eb'
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-              <h3 style={{
-                fontSize: '1.25rem',
-                fontWeight: '700',
-                color: '#1f2937',
-                margin: 0,
-                flex: 1
-              }}>
-                {problem.id}. {problem.title}
-              </h3>
-              <span style={{
-                padding: '0.25rem 0.75rem',
-                backgroundColor: getDifficultyColor(problem.difficulty),
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem'
+          }}>
+            <button
+              onClick={onBack}
+              style={{
+                background: '#2563eb',
                 color: 'white',
-                fontSize: '0.75rem',
-                fontWeight: '600',
-                borderRadius: '4px',
-                marginLeft: '0.5rem',
-                whiteSpace: 'nowrap'
-              }}>
-                {problem.difficulty}
-              </span>
-            </div>
-
-            <p style={{
-              fontSize: '0.95rem',
-              color: '#6b7280',
-              lineHeight: '1.6',
-              margin: 0
+                padding: '0.75rem 1.5rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontWeight: '500',
+                fontSize: '1rem',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#1d4ed8'
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#2563eb'
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              ← Back to Python Topics
+            </button>
+            <h1 style={{
+              fontSize: '2.25rem',
+              fontWeight: 'bold',
+              background: 'linear-gradient(to right, #60a5fa, #22d3ee)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
             }}>
-              {problem.description}
-            </p>
-
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginTop: '1rem',
-              paddingTop: '1rem',
-              borderTop: '1px solid #e5e7eb'
-            }}>
-              <CompletionCheckbox problemId={`python-tuples-${problem.id}`} />
-              <span style={{
-                color: '#3b82f6',
-                fontSize: '0.9rem',
-                fontWeight: '600'
-              }}>
-                Solve →
-              </span>
-            </div>
+              🎯 Python Tuples
+            </h1>
           </div>
-        ))}
+        </div>
+
+        <p style={{
+          fontSize: '1.2rem',
+          color: '#d1d5db',
+          textAlign: 'center',
+          marginBottom: '3rem',
+          lineHeight: '1.8'
+        }}>
+          Master Python tuples: creation, unpacking, immutability, named tuples, and common patterns.
+          Understand when to use tuples vs lists.
+        </p>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+          gap: '1.5rem'
+        }}>
+          {problems.map((problem) => (
+            <div
+              key={problem.id}
+              onClick={() => setSelectedProblem(problem.id)}
+              style={{
+                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                padding: '1.5rem',
+                borderRadius: '0.75rem',
+                border: '2px solid #3b82f6',
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#60a5fa'
+                e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(59, 130, 246, 0.5)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#3b82f6'
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                <h3 style={{
+                  fontSize: '1.25rem',
+                  fontWeight: '700',
+                  color: '#93c5fd',
+                  margin: 0,
+                  flex: 1
+                }}>
+                  {problem.id}. {problem.title}
+                </h3>
+                <span style={{
+                  padding: '0.25rem 0.75rem',
+                  backgroundColor: getDifficultyColor(problem.difficulty),
+                  color: 'white',
+                  fontSize: '0.75rem',
+                  fontWeight: '600',
+                  borderRadius: '4px',
+                  marginLeft: '0.5rem',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {problem.difficulty}
+                </span>
+              </div>
+
+              <p style={{
+                fontSize: '0.95rem',
+                color: '#d1d5db',
+                lineHeight: '1.6',
+                margin: 0
+              }}>
+                {problem.description}
+              </p>
+
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: '1rem',
+                paddingTop: '1rem',
+                borderTop: '1px solid #3b82f6'
+              }}>
+                <CompletionCheckbox problemId={`python-tuples-${problem.id}`} />
+                <span style={{
+                  color: '#60a5fa',
+                  fontSize: '0.9rem',
+                  fontWeight: '600'
+                }}>
+                  Solve →
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

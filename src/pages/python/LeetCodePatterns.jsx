@@ -1,60 +1,6 @@
 import { useState } from 'react'
-
-// Simple syntax highlighter for Python code
-const SyntaxHighlighter = ({ code }) => {
-  const highlightPython = (code) => {
-    let highlighted = code
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-
-    const protectedContent = []
-    let placeholder = 0
-
-    // Protect comments
-    highlighted = highlighted.replace(/(#.*$)/gm, (match) => {
-      const id = `___COMMENT_${placeholder++}___`
-      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
-      return id
-    })
-
-    // Protect strings
-    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
-      const id = `___STRING_${placeholder++}___`
-      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
-      return id
-    })
-
-    // Highlight keywords and built-ins
-    highlighted = highlighted
-      .replace(/\b(def|class|if|elif|else|for|while|in|not|and|or|is|return|yield|import|from|as|try|except|finally|with|lambda|None|pass|break|continue|nonlocal|global)\b/g, '<span style="color: #c586c0;">$1</span>')
-      .replace(/\b(True|False|None)\b/g, '<span style="color: #569cd6;">$1</span>')
-      .replace(/\b(print|len|range|enumerate|zip|map|filter|sorted|sum|max|min|list|dict|set|tuple|sort|reverse|key|append|pop|extend|remove|insert|index|count|heapq|heappush|heappop|heapreplace|nlargest|nsmallest|deque|defaultdict|Counter|popleft|appendleft)\b/g, '<span style="color: #dcdcaa;">$1</span>')
-      .replace(/\b(\d+\.?\d*)\b/g, '<span style="color: #b5cea8;">$1</span>')
-
-    // Restore protected content
-    protectedContent.forEach(({ id, replacement }) => {
-      highlighted = highlighted.replace(id, replacement)
-    })
-
-    return highlighted
-  }
-
-  return (
-    <pre style={{
-      margin: 0,
-      fontFamily: '"Fira Code", "Consolas", "Monaco", "Courier New", monospace',
-      fontSize: '0.9rem',
-      lineHeight: '1.7',
-      color: '#e2e8f0',
-      whiteSpace: 'pre',
-      overflowX: 'auto',
-      padding: '1.5rem'
-    }}>
-      <code dangerouslySetInnerHTML={{ __html: highlightPython(code) }} />
-    </pre>
-  )
-}
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 function LeetCodePatterns({ onBack }) {
   const [selectedPattern, setSelectedPattern] = useState(null)
@@ -1290,37 +1236,76 @@ def subsets(nums):
     return result
 
 # Pattern: Permutations
-def permute(nums):
-    result = []
+class Solution:
+    def permute(self, nums: List[int]) -> List[List[int]]:
+        result = []
 
-    def backtrack(path, remaining):
-        if not remaining:
-            result.append(path[:])
-            return
+        def backtrack(current):
+            # Base case: if current permutation is complete
+            if len(current) == len(nums):
+                result.append(current[:])  # Add a copy
+                return
 
-        for i in range(len(remaining)):
-            backtrack(path + [remaining[i]],
-                     remaining[:i] + remaining[i+1:])
+            # Try adding each number that's not already used
+            for num in nums:
+                if num not in current:
+                    current.append(num)
+                    backtrack(current)
+                    current.pop()  # Backtrack
 
-    backtrack([], nums)
-    return result
+        backtrack([])
+        return result
 
-# Alternative: Using swap for permutations
-def permute_swap(nums):
-    result = []
+# Example:
+# nums = [1,2,3]
+# Output: [[1,2,3], [1,3,2], [2,1,3], [2,3,1], [3,1,2], [3,2,1]]
 
-    def backtrack(start):
-        if start == len(nums):
-            result.append(nums[:])
-            return
+# Alternative with visited set (faster):
+class Solution:
+    def permute(self, nums: List[int]) -> List[List[int]]:
+        result = []
+        visited = set()
 
-        for i in range(start, len(nums)):
-            nums[start], nums[i] = nums[i], nums[start]  # Swap
-            backtrack(start + 1)
-            nums[start], nums[i] = nums[i], nums[start]  # Backtrack
+        def backtrack(current):
+            if len(current) == len(nums):
+                result.append(current[:])
+                return
 
-    backtrack(0)
-    return result
+            for num in nums:
+                if num not in visited:
+                    current.append(num)
+                    visited.add(num)
+                    backtrack(current)
+                    current.pop()
+                    visited.remove(num)
+
+        backtrack([])
+        return result
+
+# Using swap (in-place):
+class Solution:
+    def permute(self, nums: List[int]) -> List[List[int]]:
+        result = []
+
+        def backtrack(i):
+            if i == len(nums):
+                result.append(nums[:])
+                return
+
+            for j in range(i, len(nums)):
+                # Swap
+                nums[i], nums[j] = nums[j], nums[i]
+                backtrack(i + 1)
+                # Swap back
+                nums[i], nums[j] = nums[j], nums[i]
+
+        backtrack(0)
+        return result
+
+# Which one to use:
+# First: Simple, easy to understand
+# Second: Faster (O(1) set operations)
+# Third: Most efficient in-place swapping
 
 # Pattern: Combination sum
 def combination_sum(candidates, target):
@@ -2179,6 +2164,1318 @@ def valid_tree(n, edges):
         'Graph Valid Tree',
         'Satisfiability of Equality Equations'
       ]
+    },
+    {
+      id: 'dp-linear',
+      name: 'DP Pattern 1: Linear DP (1D)',
+      icon: '📈',
+      color: '#3b82f6',
+      category: 'Dynamic Programming',
+      description: 'Foundation of DP - breaking problems into subproblems',
+      whenToUse: [
+        'Single sequence problems',
+        'Decisions at each step affect future',
+        'Overlapping subproblems',
+        'Can solve smaller version first'
+      ],
+      timeComplexity: 'O(n)',
+      spaceComplexity: 'O(n) or O(1) optimized',
+      codeExample: `# Classic: Climbing Stairs
+def climbStairs(n):
+    if n <= 2:
+        return n
+
+    # dp[i] = ways to reach step i
+    prev2, prev1 = 1, 2
+
+    for i in range(3, n + 1):
+        current = prev1 + prev2
+        prev2, prev1 = prev1, current
+
+    return prev1
+
+# House Robber
+def rob(nums):
+    if not nums:
+        return 0
+    if len(nums) == 1:
+        return nums[0]
+
+    # dp[i] = max money up to house i
+    prev2, prev1 = nums[0], max(nums[0], nums[1])
+
+    for i in range(2, len(nums)):
+        current = max(prev1, prev2 + nums[i])
+        prev2, prev1 = prev1, current
+
+    return prev1
+
+# Word Break
+def wordBreak(s, wordDict):
+    word_set = set(wordDict)
+    dp = [False] * (len(s) + 1)
+    dp[0] = True  # Empty string
+
+    for i in range(1, len(s) + 1):
+        for j in range(i):
+            if dp[j] and s[j:i] in word_set:
+                dp[i] = True
+                break
+
+    return dp[len(s)]`,
+      commonProblems: [
+        'Climbing Stairs',
+        'House Robber',
+        'Min Cost Climbing Stairs',
+        'Word Break',
+        'Decode Ways',
+        'House Robber II'
+      ]
+    },
+    {
+      id: 'dp-lis',
+      name: 'DP Pattern 2: Longest Increasing Subsequence',
+      icon: '📊',
+      color: '#10b981',
+      category: 'Dynamic Programming',
+      description: 'Finding longest increasing subsequence with O(n log n) optimization',
+      whenToUse: [
+        'Increasing/decreasing sequence problems',
+        'Box stacking problems',
+        'Version control applications',
+        'Patience sorting'
+      ],
+      timeComplexity: 'O(n²) or O(n log n) with binary search',
+      spaceComplexity: 'O(n)',
+      codeExample: `# LIS - O(n²) solution
+def lengthOfLIS(nums):
+    if not nums:
+        return 0
+
+    n = len(nums)
+    dp = [1] * n  # dp[i] = LIS ending at i
+
+    for i in range(1, n):
+        for j in range(i):
+            if nums[j] < nums[i]:
+                dp[i] = max(dp[i], dp[j] + 1)
+
+    return max(dp)
+
+# LIS - O(n log n) with binary search
+def lengthOfLIS_optimized(nums):
+    from bisect import bisect_left
+
+    tails = []  # tails[i] = smallest tail of LIS of length i+1
+
+    for num in nums:
+        pos = bisect_left(tails, num)
+        if pos == len(tails):
+            tails.append(num)
+        else:
+            tails[pos] = num
+
+    return len(tails)
+
+# Number of LIS
+def findNumberOfLIS(nums):
+    n = len(nums)
+    lengths = [1] * n  # Length of LIS ending at i
+    counts = [1] * n   # Number of LIS ending at i
+
+    for i in range(1, n):
+        for j in range(i):
+            if nums[j] < nums[i]:
+                if lengths[j] + 1 > lengths[i]:
+                    lengths[i] = lengths[j] + 1
+                    counts[i] = counts[j]
+                elif lengths[j] + 1 == lengths[i]:
+                    counts[i] += counts[j]
+
+    max_len = max(lengths)
+    return sum(c for l, c in zip(lengths, counts) if l == max_len)`,
+      commonProblems: [
+        'Longest Increasing Subsequence',
+        'Number of Longest Increasing Subsequence',
+        'Russian Doll Envelopes',
+        'Maximum Length of Pair Chain'
+      ]
+    },
+    {
+      id: 'dp-knapsack',
+      name: 'DP Pattern 3: Knapsack',
+      icon: '🎒',
+      color: '#8b5cf6',
+      category: 'Dynamic Programming',
+      description: '0/1 and Unbounded Knapsack patterns',
+      whenToUse: [
+        'Subset selection with constraints',
+        'Resource allocation',
+        'Partitioning problems',
+        'Combination/coin change'
+      ],
+      timeComplexity: 'O(n * target)',
+      spaceComplexity: 'O(target)',
+      codeExample: `# 0/1 Knapsack - Partition Equal Subset Sum
+def canPartition(nums):
+    total = sum(nums)
+    if total % 2:
+        return False
+
+    target = total // 2
+    dp = [False] * (target + 1)
+    dp[0] = True
+
+    for num in nums:
+        # Traverse backwards for 0/1 knapsack
+        for j in range(target, num - 1, -1):
+            dp[j] = dp[j] or dp[j - num]
+
+    return dp[target]
+
+# Unbounded Knapsack - Coin Change
+def coinChange(coins, amount):
+    dp = [float('inf')] * (amount + 1)
+    dp[0] = 0
+
+    # Traverse forwards for unbounded
+    for i in range(1, amount + 1):
+        for coin in coins:
+            if coin <= i:
+                dp[i] = min(dp[i], dp[i - coin] + 1)
+
+    return dp[amount] if dp[amount] != float('inf') else -1
+
+# Coin Change 2 - Number of combinations
+def change(amount, coins):
+    dp = [0] * (amount + 1)
+    dp[0] = 1
+
+    # Order matters: iterate coins first for combinations
+    for coin in coins:
+        for i in range(coin, amount + 1):
+            dp[i] += dp[i - coin]
+
+    return dp[amount]
+
+# Target Sum (0/1 variant)
+def findTargetSumWays(nums, target):
+    total = sum(nums)
+    if abs(target) > total or (total + target) % 2:
+        return 0
+
+    # Transform to subset sum problem
+    subset_sum = (total + target) // 2
+    dp = [0] * (subset_sum + 1)
+    dp[0] = 1
+
+    for num in nums:
+        for j in range(subset_sum, num - 1, -1):
+            dp[j] += dp[j - num]
+
+    return dp[subset_sum]`,
+      commonProblems: [
+        'Partition Equal Subset Sum',
+        'Target Sum',
+        'Coin Change',
+        'Coin Change 2',
+        'Combination Sum IV',
+        'Perfect Squares',
+        'Ones and Zeroes'
+      ]
+    },
+    {
+      id: 'dp-grid',
+      name: 'DP Pattern 4: Grid DP',
+      icon: '🔲',
+      color: '#f59e0b',
+      category: 'Dynamic Programming',
+      description: '2D grid traversal with DP',
+      whenToUse: [
+        'Matrix path problems',
+        'Robot movement',
+        'Square/rectangle problems',
+        '2D optimization'
+      ],
+      timeComplexity: 'O(m * n)',
+      spaceComplexity: 'O(m * n) or O(n) optimized',
+      codeExample: `# Unique Paths
+def uniquePaths(m, n):
+    dp = [[1] * n for _ in range(m)]
+
+    for i in range(1, m):
+        for j in range(1, n):
+            dp[i][j] = dp[i-1][j] + dp[i][j-1]
+
+    return dp[m-1][n-1]
+
+# Space optimized O(n)
+def uniquePaths_optimized(m, n):
+    dp = [1] * n
+
+    for i in range(1, m):
+        for j in range(1, n):
+            dp[j] += dp[j-1]
+
+    return dp[n-1]
+
+# Minimum Path Sum
+def minPathSum(grid):
+    m, n = len(grid), len(grid[0])
+
+    for i in range(m):
+        for j in range(n):
+            if i == 0 and j == 0:
+                continue
+            elif i == 0:
+                grid[i][j] += grid[i][j-1]
+            elif j == 0:
+                grid[i][j] += grid[i-1][j]
+            else:
+                grid[i][j] += min(grid[i-1][j], grid[i][j-1])
+
+    return grid[m-1][n-1]
+
+# Maximal Square
+def maximalSquare(matrix):
+    if not matrix:
+        return 0
+
+    m, n = len(matrix), len(matrix[0])
+    dp = [[0] * n for _ in range(m)]
+    max_side = 0
+
+    for i in range(m):
+        for j in range(n):
+            if matrix[i][j] == '1':
+                if i == 0 or j == 0:
+                    dp[i][j] = 1
+                else:
+                    dp[i][j] = min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]) + 1
+                max_side = max(max_side, dp[i][j])
+
+    return max_side * max_side`,
+      commonProblems: [
+        'Unique Paths',
+        'Unique Paths II',
+        'Minimum Path Sum',
+        'Maximal Square',
+        'Maximal Rectangle',
+        'Triangle'
+      ]
+    },
+    {
+      id: 'dp-string',
+      name: 'DP Pattern 5: String DP',
+      icon: '📝',
+      color: '#ef4444',
+      category: 'Dynamic Programming',
+      description: 'String matching and manipulation with DP',
+      whenToUse: [
+        'Two string comparison',
+        'Edit distance problems',
+        'Palindrome problems',
+        'Pattern matching'
+      ],
+      timeComplexity: 'O(m * n)',
+      spaceComplexity: 'O(m * n)',
+      codeExample: `# Longest Common Subsequence
+def longestCommonSubsequence(text1, text2):
+    m, n = len(text1), len(text2)
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if text1[i-1] == text2[j-1]:
+                dp[i][j] = dp[i-1][j-1] + 1
+            else:
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+
+    return dp[m][n]
+
+# Edit Distance
+def minDistance(word1, word2):
+    m, n = len(word1), len(word2)
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+
+    # Base cases
+    for i in range(m + 1):
+        dp[i][0] = i
+    for j in range(n + 1):
+        dp[0][j] = j
+
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if word1[i-1] == word2[j-1]:
+                dp[i][j] = dp[i-1][j-1]
+            else:
+                dp[i][j] = 1 + min(
+                    dp[i-1][j],    # Delete
+                    dp[i][j-1],    # Insert
+                    dp[i-1][j-1]   # Replace
+                )
+
+    return dp[m][n]
+
+# Longest Palindromic Substring
+def longestPalindrome(s):
+    n = len(s)
+    if n < 2:
+        return s
+
+    dp = [[False] * n for _ in range(n)]
+    start, max_len = 0, 1
+
+    # Every single character is palindrome
+    for i in range(n):
+        dp[i][i] = True
+
+    # Check length 2
+    for i in range(n - 1):
+        if s[i] == s[i + 1]:
+            dp[i][i + 1] = True
+            start, max_len = i, 2
+
+    # Check length 3+
+    for length in range(3, n + 1):
+        for i in range(n - length + 1):
+            j = i + length - 1
+            if s[i] == s[j] and dp[i + 1][j - 1]:
+                dp[i][j] = True
+                start, max_len = i, length
+
+    return s[start:start + max_len]
+
+# Wildcard Matching
+def isMatch(s, p):
+    m, n = len(s), len(p)
+    dp = [[False] * (n + 1) for _ in range(m + 1)]
+    dp[0][0] = True
+
+    # Handle leading '*'
+    for j in range(1, n + 1):
+        if p[j-1] == '*':
+            dp[0][j] = dp[0][j-1]
+
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if p[j-1] == '*':
+                dp[i][j] = dp[i-1][j] or dp[i][j-1]
+            elif p[j-1] == '?' or s[i-1] == p[j-1]:
+                dp[i][j] = dp[i-1][j-1]
+
+    return dp[m][n]`,
+      commonProblems: [
+        'Longest Common Subsequence',
+        'Edit Distance',
+        'Longest Palindromic Substring',
+        'Palindromic Substrings',
+        'Regular Expression Matching',
+        'Wildcard Matching'
+      ]
+    },
+    {
+      id: 'dp-interval',
+      name: 'DP Pattern 6: Interval DP',
+      icon: '⏱️',
+      color: '#ec4899',
+      category: 'Dynamic Programming',
+      description: 'Solving problems on ranges/intervals',
+      whenToUse: [
+        'Range optimization',
+        'Matrix chain multiplication',
+        'Palindrome partitioning',
+        'Merge operations'
+      ],
+      timeComplexity: 'O(n³)',
+      spaceComplexity: 'O(n²)',
+      codeExample: `# Burst Balloons
+def maxCoins(nums):
+    nums = [1] + nums + [1]  # Add boundaries
+    n = len(nums)
+    dp = [[0] * n for _ in range(n)]
+
+    # length is the gap between left and right
+    for length in range(2, n):
+        for left in range(n - length):
+            right = left + length
+            # Try bursting each balloon in (left, right)
+            for i in range(left + 1, right):
+                coins = nums[left] * nums[i] * nums[right]
+                coins += dp[left][i] + dp[i][right]
+                dp[left][right] = max(dp[left][right], coins)
+
+    return dp[0][n-1]
+
+# Minimum Cost Tree From Leaf Values
+def mctFromLeafValues(arr):
+    n = len(arr)
+    dp = [[float('inf')] * n for _ in range(n)]
+    max_val = [[0] * n for _ in range(n)]
+
+    # Precompute max in each range
+    for i in range(n):
+        max_val[i][i] = arr[i]
+        dp[i][i] = 0
+        for j in range(i + 1, n):
+            max_val[i][j] = max(max_val[i][j-1], arr[j])
+
+    for length in range(2, n + 1):
+        for i in range(n - length + 1):
+            j = i + length - 1
+            for k in range(i, j):
+                dp[i][j] = min(
+                    dp[i][j],
+                    dp[i][k] + dp[k+1][j] + max_val[i][k] * max_val[k+1][j]
+                )
+
+    return dp[0][n-1]
+
+# Palindrome Partitioning II
+def minCut(s):
+    n = len(s)
+    # is_pal[i][j] = is s[i:j+1] palindrome
+    is_pal = [[False] * n for _ in range(n)]
+
+    for i in range(n):
+        is_pal[i][i] = True
+
+    for length in range(2, n + 1):
+        for i in range(n - length + 1):
+            j = i + length - 1
+            if s[i] == s[j]:
+                is_pal[i][j] = (length == 2) or is_pal[i+1][j-1]
+
+    # dp[i] = min cuts for s[0:i+1]
+    dp = [i for i in range(n)]
+
+    for i in range(n):
+        if is_pal[0][i]:
+            dp[i] = 0
+        else:
+            for j in range(i):
+                if is_pal[j+1][i]:
+                    dp[i] = min(dp[i], dp[j] + 1)
+
+    return dp[n-1]`,
+      commonProblems: [
+        'Burst Balloons',
+        'Minimum Score Triangulation of Polygon',
+        'Minimum Cost Tree From Leaf Values',
+        'Guess Number Higher or Lower II',
+        'Palindrome Partitioning II'
+      ]
+    },
+    {
+      id: 'dp-state-machine',
+      name: 'DP Pattern 7: State Machine DP',
+      icon: '🔄',
+      color: '#06b6d4',
+      category: 'Dynamic Programming',
+      description: 'Problems with state transitions',
+      whenToUse: [
+        'Stock trading problems',
+        'State-based decisions',
+        'Transaction limits',
+        'Cooldown periods'
+      ],
+      timeComplexity: 'O(n)',
+      spaceComplexity: 'O(1)',
+      codeExample: `# Best Time to Buy and Sell Stock
+def maxProfit(prices):
+    min_price = float('inf')
+    max_profit = 0
+
+    for price in prices:
+        min_price = min(min_price, price)
+        max_profit = max(max_profit, price - min_price)
+
+    return max_profit
+
+# Best Time to Buy and Sell Stock II (Unlimited)
+def maxProfit_II(prices):
+    profit = 0
+    for i in range(1, len(prices)):
+        if prices[i] > prices[i-1]:
+            profit += prices[i] - prices[i-1]
+    return profit
+
+# Best Time to Buy and Sell Stock with Cooldown
+def maxProfit_cooldown(prices):
+    if not prices:
+        return 0
+
+    # States: hold, sold, rest
+    hold = -prices[0]  # Holding stock
+    sold = 0           # Just sold
+    rest = 0           # Resting (can buy)
+
+    for i in range(1, len(prices)):
+        prev_hold, prev_sold, prev_rest = hold, sold, rest
+
+        hold = max(prev_hold, prev_rest - prices[i])
+        sold = prev_hold + prices[i]
+        rest = max(prev_rest, prev_sold)
+
+    return max(sold, rest)
+
+# Best Time to Buy and Sell Stock IV (k transactions)
+def maxProfit_k(k, prices):
+    if not prices or k == 0:
+        return 0
+
+    n = len(prices)
+    if k >= n // 2:  # Unlimited transactions
+        return sum(max(0, prices[i+1] - prices[i]) for i in range(n-1))
+
+    # buy[i][j] = max profit after at most i trans, on day j, holding
+    # sell[i][j] = max profit after at most i trans, on day j, not holding
+    buy = [[float('-inf')] * n for _ in range(k + 1)]
+    sell = [[0] * n for _ in range(k + 1)]
+
+    for i in range(1, k + 1):
+        buy[i][0] = -prices[0]
+        for j in range(1, n):
+            buy[i][j] = max(buy[i][j-1], sell[i-1][j-1] - prices[j])
+            sell[i][j] = max(sell[i][j-1], buy[i][j-1] + prices[j])
+
+    return sell[k][n-1]`,
+      commonProblems: [
+        'Best Time to Buy and Sell Stock',
+        'Best Time to Buy and Sell Stock II',
+        'Best Time to Buy and Sell Stock III',
+        'Best Time to Buy and Sell Stock IV',
+        'Best Time to Buy and Sell Stock with Cooldown',
+        'Best Time to Buy and Sell Stock with Transaction Fee'
+      ]
+    },
+    {
+      id: 'dp-tree',
+      name: 'DP Pattern 8: Tree DP',
+      icon: '🌳',
+      color: '#22c55e',
+      category: 'Dynamic Programming',
+      description: 'DP on tree structures',
+      whenToUse: [
+        'Tree optimization',
+        'Path problems in trees',
+        'Subtree computations',
+        'Parent-child decisions'
+      ],
+      timeComplexity: 'O(n)',
+      spaceComplexity: 'O(h) where h is height',
+      codeExample: `# House Robber III
+def rob(root):
+    def dfs(node):
+        if not node:
+            return (0, 0)
+
+        left = dfs(node.left)
+        right = dfs(node.right)
+
+        # Rob this node: can't rob children
+        rob_current = node.val + left[1] + right[1]
+
+        # Don't rob: take max of children
+        not_rob = max(left) + max(right)
+
+        return (rob_current, not_rob)
+
+    return max(dfs(root))
+
+# Binary Tree Maximum Path Sum
+def maxPathSum(root):
+    max_sum = float('-inf')
+
+    def dfs(node):
+        nonlocal max_sum
+        if not node:
+            return 0
+
+        # Only take positive contributions
+        left = max(0, dfs(node.left))
+        right = max(0, dfs(node.right))
+
+        # Path through this node
+        max_sum = max(max_sum, node.val + left + right)
+
+        # Return max path going down
+        return node.val + max(left, right)
+
+    dfs(root)
+    return max_sum
+
+# Diameter of Binary Tree
+def diameterOfBinaryTree(root):
+    diameter = 0
+
+    def dfs(node):
+        nonlocal diameter
+        if not node:
+            return 0
+
+        left_height = dfs(node.left)
+        right_height = dfs(node.right)
+
+        # Update diameter
+        diameter = max(diameter, left_height + right_height)
+
+        # Return height
+        return 1 + max(left_height, right_height)
+
+    dfs(root)
+    return diameter
+
+# Binary Tree Cameras
+def minCameraCover(root):
+    # States: 0 = needs cover, 1 = has camera, 2 = covered
+    cameras = 0
+
+    def dfs(node):
+        nonlocal cameras
+        if not node:
+            return 2  # Null is covered
+
+        left = dfs(node.left)
+        right = dfs(node.right)
+
+        # If either child needs cover, put camera here
+        if left == 0 or right == 0:
+            cameras += 1
+            return 1
+
+        # If either child has camera, this is covered
+        if left == 1 or right == 1:
+            return 2
+
+        # Both children covered, this needs cover
+        return 0
+
+    # If root needs cover, add camera
+    return cameras + (1 if dfs(root) == 0 else 0)`,
+      commonProblems: [
+        'House Robber III',
+        'Binary Tree Maximum Path Sum',
+        'Diameter of Binary Tree',
+        'Binary Tree Cameras',
+        'Maximum Sum BST in Binary Tree'
+      ]
+    },
+    {
+      id: 'dp-digit',
+      name: 'DP Pattern 9: Digit DP',
+      icon: '🔢',
+      color: '#a855f7',
+      category: 'Dynamic Programming',
+      description: 'Counting numbers with specific digit properties',
+      whenToUse: [
+        'Count numbers in range',
+        'Digit constraints',
+        'Number properties',
+        'Combinatorial counting'
+      ],
+      timeComplexity: 'O(log N * digits)',
+      spaceComplexity: 'O(log N)',
+      codeExample: `# Count Numbers with Unique Digits
+def countNumbersWithUniqueDigits(n):
+    if n == 0:
+        return 1
+    if n == 1:
+        return 10
+
+    # First digit: 9 choices (1-9)
+    # Second digit: 9 choices (0-9 except first)
+    # Third digit: 8 choices, etc.
+    result = 10
+    unique_digits = 9
+    available_digits = 9
+
+    for i in range(2, n + 1):
+        unique_digits *= available_digits
+        result += unique_digits
+        available_digits -= 1
+
+    return result
+
+# Numbers At Most N Given Digit Set
+def atMostNGivenDigitSet(digits, n):
+    s = str(n)
+    k = len(s)
+    d = len(digits)
+
+    # Count numbers with fewer digits
+    result = sum(d ** i for i in range(1, k))
+
+    # Count numbers with same number of digits
+    for i, char in enumerate(s):
+        # Count valid digits less than current digit
+        count = sum(1 for digit in digits if digit < char)
+        result += count * (d ** (k - i - 1))
+
+        # If no exact match, break
+        if char not in digits:
+            break
+    else:
+        # All digits matched
+        result += 1
+
+    return result
+
+# Count Special Integers (no repeated digits)
+def countSpecialNumbers(n):
+    def count_up_to_digits(d, tight, used, s):
+        if d == len(s):
+            return 1
+
+        result = 0
+        limit = int(s[d]) if tight else 9
+
+        for digit in range(0, limit + 1):
+            if used & (1 << digit):  # Digit already used
+                continue
+
+            # Skip leading zeros
+            if used == 0 and digit == 0 and d > 0:
+                result += count_up_to_digits(
+                    d + 1, False, 0, s
+                )
+            else:
+                result += count_up_to_digits(
+                    d + 1,
+                    tight and (digit == limit),
+                    used | (1 << digit),
+                    s
+                )
+
+        return result
+
+    s = str(n)
+    total = count_up_to_digits(0, True, 0, s)
+
+    # Add numbers with fewer digits
+    for length in range(1, len(s)):
+        if length == 1:
+            total += 9
+        else:
+            # First digit: 1-9, rest: 0-9 except used
+            result = 9
+            for i in range(1, length):
+                result *= (10 - i)
+            total += result
+
+    return total - 1  # Exclude 0`,
+      commonProblems: [
+        'Number of Digit One',
+        'Count Numbers with Unique Digits',
+        'Numbers At Most N Given Digit Set',
+        'Count Special Integers',
+        'Numbers With Repeated Digits'
+      ]
+    },
+    {
+      id: 'dp-game-theory',
+      name: 'DP Pattern 10: Game Theory (Minimax)',
+      icon: '🎮',
+      color: '#f97316',
+      category: 'Dynamic Programming',
+      description: 'Two-player games with optimal play',
+      whenToUse: [
+        'Two-player games',
+        'Optimal strategies',
+        'Min-max decisions',
+        'Adversarial scenarios'
+      ],
+      timeComplexity: 'O(n²)',
+      spaceComplexity: 'O(n²)',
+      codeExample: `# Stone Game
+def stoneGame(piles):
+    n = len(piles)
+    # dp[i][j] = max stones first player gets more than second
+    # in piles[i:j+1]
+    dp = [[0] * n for _ in range(n)]
+
+    # Base case: single pile
+    for i in range(n):
+        dp[i][i] = piles[i]
+
+    # Fill diagonally
+    for length in range(2, n + 1):
+        for i in range(n - length + 1):
+            j = i + length - 1
+            # Take left or right
+            dp[i][j] = max(
+                piles[i] - dp[i+1][j],  # Take left
+                piles[j] - dp[i][j-1]   # Take right
+            )
+
+    return dp[0][n-1] > 0
+
+# Predict the Winner
+def predictTheWinner(nums):
+    n = len(nums)
+    dp = [[0] * n for _ in range(n)]
+
+    for i in range(n):
+        dp[i][i] = nums[i]
+
+    for length in range(2, n + 1):
+        for i in range(n - length + 1):
+            j = i + length - 1
+            dp[i][j] = max(
+                nums[i] - dp[i+1][j],
+                nums[j] - dp[i][j-1]
+            )
+
+    return dp[0][n-1] >= 0
+
+# Stone Game II
+def stoneGameII(piles):
+    n = len(piles)
+    # Suffix sum
+    suffix = [0] * n
+    suffix[-1] = piles[-1]
+    for i in range(n-2, -1, -1):
+        suffix[i] = suffix[i+1] + piles[i]
+
+    # dp[i][m] = max stones starting at i with M=m
+    from functools import lru_cache
+
+    @lru_cache(None)
+    def dp(i, m):
+        if i >= n:
+            return 0
+        if i + 2 * m >= n:
+            return suffix[i]
+
+        max_stones = 0
+        for x in range(1, 2 * m + 1):
+            # Opponent gets dp(i+x, max(m, x))
+            # We get total - opponent
+            opponent = dp(i + x, max(m, x))
+            max_stones = max(max_stones, suffix[i] - opponent)
+
+        return max_stones
+
+    return dp(0, 1)
+
+# Can I Win
+def canIWin(maxChoosableInteger, desiredTotal):
+    if desiredTotal <= 0:
+        return True
+    if maxChoosableInteger * (maxChoosableInteger + 1) // 2 < desiredTotal:
+        return False
+
+    from functools import lru_cache
+
+    @lru_cache(None)
+    def can_win(used, total):
+        if total <= 0:
+            return False
+
+        for i in range(1, maxChoosableInteger + 1):
+            if used & (1 << i):
+                continue
+
+            # If opponent can't win after our move, we win
+            if not can_win(used | (1 << i), total - i):
+                return True
+
+        return False
+
+    return can_win(0, desiredTotal)`,
+      commonProblems: [
+        'Stone Game',
+        'Stone Game II',
+        'Stone Game III',
+        'Predict the Winner',
+        'Can I Win',
+        'Stone Game IV'
+      ]
+    },
+    {
+      id: 'dp-bitmask',
+      name: 'DP Pattern 11: Bitmask DP',
+      icon: '🔣',
+      color: '#6366f1',
+      category: 'Dynamic Programming',
+      description: 'Using bitmasks to track subsets',
+      whenToUse: [
+        'Small set problems (n ≤ 20)',
+        'Subset tracking',
+        'TSP variants',
+        'Assignment problems'
+      ],
+      timeComplexity: 'O(n * 2^n)',
+      spaceComplexity: 'O(2^n)',
+      codeExample: `# Shortest Path Visiting All Nodes
+def shortestPathLength(graph):
+    n = len(graph)
+    target = (1 << n) - 1
+
+    # BFS with state (node, visited_mask)
+    from collections import deque
+    queue = deque([(i, 1 << i, 0) for i in range(n)])
+    visited = {(i, 1 << i) for i in range(n)}
+
+    while queue:
+        node, mask, dist = queue.popleft()
+
+        if mask == target:
+            return dist
+
+        for neighbor in graph[node]:
+            new_mask = mask | (1 << neighbor)
+            if (neighbor, new_mask) not in visited:
+                visited.add((neighbor, new_mask))
+                queue.append((neighbor, new_mask, dist + 1))
+
+    return -1
+
+# Partition to K Equal Sum Subsets
+def canPartitionKSubsets(nums, k):
+    total = sum(nums)
+    if total % k:
+        return False
+
+    target = total // k
+    nums.sort(reverse=True)
+
+    if nums[0] > target:
+        return False
+
+    n = len(nums)
+    dp = {}
+
+    def dfs(mask, subset_sum):
+        if mask == (1 << n) - 1:
+            return True
+
+        if mask in dp:
+            return dp[mask]
+
+        if subset_sum == target:
+            # Start new subset
+            result = dfs(mask, 0)
+        else:
+            result = False
+            for i in range(n):
+                if mask & (1 << i):
+                    continue
+                if subset_sum + nums[i] <= target:
+                    if dfs(mask | (1 << i), subset_sum + nums[i]):
+                        result = True
+                        break
+
+        dp[mask] = result
+        return result
+
+    return dfs(0, 0)
+
+# TSP - Traveling Salesman Problem
+def tsp(dist):
+    n = len(dist)
+    ALL = (1 << n) - 1
+
+    # dp[mask][i] = min cost visiting cities in mask, ending at i
+    dp = [[float('inf')] * n for _ in range(1 << n)]
+    dp[1][0] = 0  # Start at city 0
+
+    for mask in range(1 << n):
+        for last in range(n):
+            if not (mask & (1 << last)):
+                continue
+            if dp[mask][last] == float('inf'):
+                continue
+
+            for next_city in range(n):
+                if mask & (1 << next_city):
+                    continue
+
+                new_mask = mask | (1 << next_city)
+                dp[new_mask][next_city] = min(
+                    dp[new_mask][next_city],
+                    dp[mask][last] + dist[last][next_city]
+                )
+
+    # Return to start
+    return min(dp[ALL][i] + dist[i][0] for i in range(1, n))
+
+# Smallest Sufficient Team
+def smallestSufficientTeam(req_skills, people):
+    n = len(req_skills)
+    skill_to_id = {skill: i for i, skill in enumerate(req_skills)}
+
+    # Convert people skills to bitmask
+    people_masks = []
+    for person_skills in people:
+        mask = 0
+        for skill in person_skills:
+            if skill in skill_to_id:
+                mask |= (1 << skill_to_id[skill])
+        people_masks.append(mask)
+
+    target = (1 << n) - 1
+    dp = {0: []}
+
+    for i, mask in enumerate(people_masks):
+        for prev_mask, team in list(dp.items()):
+            new_mask = prev_mask | mask
+            if new_mask not in dp or len(team) + 1 < len(dp[new_mask]):
+                dp[new_mask] = team + [i]
+
+    return dp[target]`,
+      commonProblems: [
+        'Shortest Path Visiting All Nodes',
+        'Partition to K Equal Sum Subsets',
+        'Find the Shortest Superstring',
+        'Smallest Sufficient Team',
+        'Number of Ways to Wear Different Hats to Each Other'
+      ]
+    },
+    {
+      id: 'dp-subsequence',
+      name: 'DP Pattern 12: DP on Subsequences',
+      icon: '📐',
+      color: '#14b8a6',
+      category: 'Dynamic Programming',
+      description: 'Counting and finding subsequences',
+      whenToUse: [
+        'Subsequence counting',
+        'Distinct subsequences',
+        'Arithmetic sequences',
+        'Pattern matching'
+      ],
+      timeComplexity: 'O(n²)',
+      spaceComplexity: 'O(n)',
+      codeExample: `# Distinct Subsequences
+def numDistinct(s, t):
+    m, n = len(s), len(t)
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+
+    # Empty t can be formed by any prefix of s
+    for i in range(m + 1):
+        dp[i][0] = 1
+
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            # Don't use s[i-1]
+            dp[i][j] = dp[i-1][j]
+
+            # Use s[i-1] if it matches t[j-1]
+            if s[i-1] == t[j-1]:
+                dp[i][j] += dp[i-1][j-1]
+
+    return dp[m][n]
+
+# Distinct Subsequences II (all distinct)
+def distinctSubseqII(s):
+    MOD = 10**9 + 7
+    n = len(s)
+
+    # dp[i] = number of distinct subsequences ending at i
+    dp = [0] * n
+    last = {}
+
+    for i in range(n):
+        # New subsequences: all previous + this char alone
+        dp[i] = (sum(dp) + 1) % MOD
+
+        # Subtract duplicates from last occurrence
+        if s[i] in last:
+            dp[i] = (dp[i] - dp[last[s[i]]] - 1) % MOD
+
+        last[s[i]] = i
+
+    return sum(dp) % MOD
+
+# Arithmetic Slices II - Subsequence
+def numberOfArithmeticSlices(nums):
+    n = len(nums)
+    total = 0
+
+    # dp[i] = {diff: count of subsequences ending at i with diff}
+    dp = [defaultdict(int) for _ in range(n)]
+
+    for i in range(n):
+        for j in range(i):
+            diff = nums[i] - nums[j]
+
+            # Extend sequences ending at j
+            dp[i][diff] += dp[j][diff] + 1
+
+            # Count valid sequences (length >= 3)
+            total += dp[j][diff]
+
+    return total
+
+from collections import defaultdict
+
+# Longest Arithmetic Subsequence
+def longestArithSeqLength(nums):
+    n = len(nums)
+    if n <= 2:
+        return n
+
+    # dp[i][diff] = length of LAS ending at i with diff
+    dp = [defaultdict(lambda: 1) for _ in range(n)]
+    max_length = 2
+
+    for i in range(1, n):
+        for j in range(i):
+            diff = nums[i] - nums[j]
+            dp[i][diff] = dp[j][diff] + 1
+            max_length = max(max_length, dp[i][diff])
+
+    return max_length
+
+# Number of Unique Good Subsequences
+def numberOfUniqueGoodSubsequences(binary):
+    MOD = 10**9 + 7
+    has_zero = '0' in binary
+
+    # dp = number of unique subsequences ending with 0/1
+    ends_with_0 = 0
+    ends_with_1 = 0
+
+    for char in binary:
+        if char == '0':
+            # New subseq: all prev + "0"
+            ends_with_0 = (ends_with_0 + ends_with_1) % MOD
+        else:
+            # New subseq: all prev + "1"
+            ends_with_1 = (ends_with_0 + ends_with_1 + 1) % MOD
+
+    result = (ends_with_0 + ends_with_1) % MOD
+    return (result + has_zero) % MOD`,
+      commonProblems: [
+        'Distinct Subsequences',
+        'Distinct Subsequences II',
+        'Arithmetic Slices II - Subsequence',
+        'Number of Unique Good Subsequences',
+        'Constrained Subsequence Sum'
+      ]
+    },
+    {
+      id: 'dp-probability',
+      name: 'DP Pattern 13: Probability DP',
+      icon: '🎲',
+      color: '#84cc16',
+      category: 'Dynamic Programming',
+      description: 'Computing probabilities with DP',
+      whenToUse: [
+        'Expected value problems',
+        'Probability calculations',
+        'Random walk',
+        'Game simulations'
+      ],
+      timeComplexity: 'O(n * k)',
+      spaceComplexity: 'O(n * k)',
+      codeExample: `# Knight Probability in Chessboard
+def knightProbability(n, k, row, column):
+    directions = [
+        (2, 1), (2, -1), (-2, 1), (-2, -1),
+        (1, 2), (1, -2), (-1, 2), (-1, -2)
+    ]
+
+    # dp[r][c] = probability of being at (r, c)
+    dp = [[0] * n for _ in range(n)]
+    dp[row][column] = 1
+
+    for _ in range(k):
+        new_dp = [[0] * n for _ in range(n)]
+
+        for r in range(n):
+            for c in range(n):
+                if dp[r][c] > 0:
+                    for dr, dc in directions:
+                        nr, nc = r + dr, c + dc
+                        if 0 <= nr < n and 0 <= nc < n:
+                            new_dp[nr][nc] += dp[r][c] / 8
+
+        dp = new_dp
+
+    return sum(sum(row) for row in dp)
+
+# New 21 Game
+def new21Game(n, k, maxPts):
+    if k == 0 or n >= k + maxPts:
+        return 1.0
+
+    # dp[i] = probability of getting exactly i points
+    dp = [0.0] * (n + 1)
+    dp[0] = 1.0
+
+    window_sum = 1.0  # Sum of probabilities we can draw from
+    result = 0.0
+
+    for i in range(1, n + 1):
+        dp[i] = window_sum / maxPts
+
+        if i < k:
+            window_sum += dp[i]
+        else:
+            result += dp[i]
+
+        # Slide window
+        if i - maxPts >= 0:
+            window_sum -= dp[i - maxPts]
+
+    return result
+
+# Soup Servings
+def soupServings(n):
+    if n >= 5000:
+        return 1.0
+
+    # Round up to multiples of 25
+    n = (n + 24) // 25
+
+    from functools import lru_cache
+
+    @lru_cache(None)
+    def dp(a, b):
+        # Base cases
+        if a <= 0 and b <= 0:
+            return 0.5
+        if a <= 0:
+            return 1.0
+        if b <= 0:
+            return 0.0
+
+        # Four operations with equal probability
+        return 0.25 * (
+            dp(a - 4, b) +      # Serve 100ml A
+            dp(a - 3, b - 1) +  # Serve 75ml A, 25ml B
+            dp(a - 2, b - 2) +  # Serve 50ml A, 50ml B
+            dp(a - 1, b - 3)    # Serve 25ml A, 75ml B
+        )
+
+    return dp(n, n)
+
+# Toss Strange Coins
+def probabilityOfHeads(prob, target):
+    n = len(prob)
+    # dp[i][j] = prob of j heads using first i coins
+    dp = [[0.0] * (target + 1) for _ in range(n + 1)]
+    dp[0][0] = 1.0
+
+    for i in range(1, n + 1):
+        for j in range(target + 1):
+            # Tails
+            dp[i][j] = dp[i-1][j] * (1 - prob[i-1])
+
+            # Heads
+            if j > 0:
+                dp[i][j] += dp[i-1][j-1] * prob[i-1]
+
+    return dp[n][target]`,
+      commonProblems: [
+        'Knight Probability in Chessboard',
+        'New 21 Game',
+        'Soup Servings',
+        'Toss Strange Coins',
+        'Probability of a Two Boxes Having The Same Number of Distinct Balls'
+      ]
     }
   ]
 
@@ -2186,61 +3483,110 @@ def valid_tree(n, edges):
     const pattern = patterns.find(p => p.id === selectedPattern)
 
     return (
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-        <button
-          onClick={() => setSelectedPattern(null)}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            fontWeight: '600',
-            backgroundColor: '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            marginBottom: '2rem'
-          }}
-        >
-          ← Back to Patterns
-        </button>
-
+      <div style={{
+        position: 'fixed',
+        inset: '0',
+        background: 'rgba(0, 0, 0, 0.8)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '1rem',
+        zIndex: '50',
+        overflowY: 'auto'
+      }}>
         <div style={{
-          backgroundColor: 'white',
-          borderRadius: '16px',
-          padding: '3rem',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+          background: 'linear-gradient(to bottom right, #111827, #1f2937)',
+          borderRadius: '0.75rem',
+          maxWidth: '72rem',
+          width: '100%',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          border: '2px solid #3b82f6',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
         }}>
-          {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem' }}>
-            <div style={{ fontSize: '4rem' }}>{pattern.icon}</div>
-            <div>
-              <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#1f2937', margin: 0 }}>
-                {pattern.name}
-              </h1>
+          <div style={{
+            position: 'sticky',
+            top: '0',
+            background: 'linear-gradient(to right, #2563eb, #1d4ed8)',
+            padding: '1.5rem',
+            borderTopLeftRadius: '0.75rem',
+            borderTopRightRadius: '0.75rem',
+            borderBottom: '2px solid #60a5fa',
+            zIndex: '10'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}>
               <div style={{
-                display: 'inline-block',
-                marginTop: '0.5rem',
-                padding: '0.5rem 1rem',
-                backgroundColor: pattern.color,
-                color: 'white',
-                borderRadius: '8px',
-                fontSize: '0.95rem',
-                fontWeight: '600'
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem'
               }}>
-                {pattern.category}
+                <span style={{ fontSize: '3rem' }}>{pattern.icon}</span>
+                <div>
+                  <h2 style={{
+                    fontSize: '1.875rem',
+                    fontWeight: 'bold',
+                    color: 'white',
+                    margin: 0
+                  }}>
+                    {pattern.name}
+                  </h2>
+                  <div style={{
+                    display: 'inline-block',
+                    marginTop: '0.5rem',
+                    padding: '0.25rem 0.75rem',
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    color: 'white',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    fontWeight: '600'
+                  }}>
+                    {pattern.category}
+                  </div>
+                </div>
               </div>
+              <button
+                onClick={() => setSelectedPattern(null)}
+                style={{
+                  background: '#dc2626',
+                  color: 'white',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '0.5rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontWeight: '500',
+                  fontSize: '1rem',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#b91c1c'
+                  e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#dc2626'
+                  e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                }}
+              >
+                Close
+              </button>
             </div>
           </div>
 
+          <div style={{ padding: '2rem' }}>
+
           {/* Description */}
           <div style={{
+            background: '#1f2937',
+            borderRadius: '0.5rem',
             padding: '1.5rem',
-            backgroundColor: '#f0f9ff',
-            borderLeft: `4px solid ${pattern.color}`,
-            borderRadius: '8px',
-            marginBottom: '2rem'
+            marginBottom: '1.5rem',
+            border: '1px solid #3b82f6'
           }}>
-            <p style={{ fontSize: '1.2rem', color: '#1e40af', margin: 0, fontWeight: '500' }}>
+            <p style={{ fontSize: '1.2rem', color: '#d1d5db', margin: 0, fontWeight: '500', lineHeight: '1.625' }}>
               {pattern.description}
             </p>
           </div>
@@ -2254,40 +3600,51 @@ def valid_tree(n, edges):
           }}>
             <div style={{
               padding: '1rem',
-              backgroundColor: '#fef3c7',
-              borderRadius: '8px',
-              border: '2px solid #fbbf24'
+              background: '#1f2937',
+              borderRadius: '0.5rem',
+              border: '1px solid #3b82f6'
             }}>
-              <div style={{ fontSize: '0.875rem', color: '#92400e', fontWeight: '600', marginBottom: '0.25rem' }}>
+              <div style={{ fontSize: '0.875rem', color: '#9ca3af', fontWeight: '600', marginBottom: '0.25rem' }}>
                 Time Complexity
               </div>
-              <div style={{ fontSize: '1.1rem', color: '#78350f', fontWeight: '700' }}>
+              <div style={{ fontSize: '1.1rem', color: '#93c5fd', fontWeight: '700' }}>
                 {pattern.timeComplexity}
               </div>
             </div>
             <div style={{
               padding: '1rem',
-              backgroundColor: '#dbeafe',
-              borderRadius: '8px',
-              border: '2px solid #3b82f6'
+              background: '#1f2937',
+              borderRadius: '0.5rem',
+              border: '1px solid #3b82f6'
             }}>
-              <div style={{ fontSize: '0.875rem', color: '#1e3a8a', fontWeight: '600', marginBottom: '0.25rem' }}>
+              <div style={{ fontSize: '0.875rem', color: '#9ca3af', fontWeight: '600', marginBottom: '0.25rem' }}>
                 Space Complexity
               </div>
-              <div style={{ fontSize: '1.1rem', color: '#1e40af', fontWeight: '700' }}>
+              <div style={{ fontSize: '1.1rem', color: '#93c5fd', fontWeight: '700' }}>
                 {pattern.spaceComplexity}
               </div>
             </div>
           </div>
 
           {/* When to Use */}
-          <div style={{ marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1f2937', marginBottom: '1rem' }}>
+          <div style={{
+            background: '#1f2937',
+            borderRadius: '0.5rem',
+            padding: '1.5rem',
+            marginBottom: '1.5rem',
+            border: '1px solid #3b82f6'
+          }}>
+            <h3 style={{
+              fontSize: '1.25rem',
+              fontWeight: '600',
+              marginBottom: '1rem',
+              color: '#93c5fd'
+            }}>
               When to Use This Pattern
-            </h2>
-            <ul style={{ paddingLeft: '1.5rem', lineHeight: '2' }}>
+            </h3>
+            <ul style={{ paddingLeft: '1.5rem', lineHeight: '1.625', color: '#d1d5db' }}>
               {pattern.whenToUse.map((use, idx) => (
-                <li key={idx} style={{ fontSize: '1.05rem', color: '#4b5563', marginBottom: '0.5rem' }}>
+                <li key={idx} style={{ fontSize: '1.05rem', marginBottom: '0.5rem' }}>
                   {use}
                 </li>
               ))}
@@ -2295,36 +3652,67 @@ def valid_tree(n, edges):
           </div>
 
           {/* Code Examples */}
-          <div style={{ marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1f2937', marginBottom: '1rem' }}>
+          <div style={{
+            background: '#1f2937',
+            borderRadius: '0.5rem',
+            padding: '1.5rem',
+            marginBottom: '1.5rem',
+            border: '1px solid #3b82f6'
+          }}>
+            <h3 style={{
+              fontSize: '1.25rem',
+              fontWeight: '600',
+              marginBottom: '1rem',
+              color: '#93c5fd'
+            }}>
               Implementation Examples
-            </h2>
+            </h3>
             <div style={{
               backgroundColor: '#1f2937',
-              borderRadius: '12px',
+              borderRadius: '0.5rem',
               overflow: 'auto',
-              border: `3px solid ${pattern.color}`
+              border: '1px solid #3b82f6'
             }}>
-              <SyntaxHighlighter code={pattern.codeExample} />
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  fontSize: '0.9rem'
+                }}
+              >
+                {pattern.codeExample}
+              </SyntaxHighlighter>
             </div>
           </div>
 
           {/* Common Problems */}
-          <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1f2937', marginBottom: '1rem' }}>
+          <div style={{
+            background: '#1f2937',
+            borderRadius: '0.5rem',
+            padding: '1.5rem',
+            border: '1px solid #3b82f6'
+          }}>
+            <h3 style={{
+              fontSize: '1.25rem',
+              fontWeight: '600',
+              marginBottom: '1rem',
+              color: '#93c5fd'
+            }}>
               Common LeetCode Problems
-            </h2>
+            </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
               {pattern.commonProblems.map((problem, idx) => (
                 <div
                   key={idx}
                   style={{
                     padding: '1rem 1.5rem',
-                    backgroundColor: '#f9fafb',
-                    border: `2px solid ${pattern.color}`,
-                    borderRadius: '8px',
+                    background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                    border: '1px solid #3b82f6',
+                    borderRadius: '0.5rem',
                     fontSize: '1rem',
-                    color: '#374151',
+                    color: '#d1d5db',
                     fontWeight: '500'
                   }}
                 >
@@ -2335,98 +3723,153 @@ def valid_tree(n, edges):
           </div>
         </div>
       </div>
+    </div>
     )
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
       <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '2rem'
+        maxWidth: '80rem',
+        margin: '0 auto'
       }}>
-        <button
-          onClick={onBack}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            fontWeight: '600',
-            backgroundColor: '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}
-        >
-          ← Back to Python
-        </button>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#1f2937', margin: 0 }}>
-          🎯 LeetCode Patterns
-        </h1>
-        <div style={{ width: '150px' }}></div>
-      </div>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '2rem'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem'
+          }}>
+            <button
+              onClick={onBack}
+              style={{
+                background: '#2563eb',
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontWeight: '500',
+                fontSize: '1rem',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#1d4ed8'
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#2563eb'
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              ← Back to Python Topics
+            </button>
+            <h1 style={{
+              fontSize: '2.25rem',
+              fontWeight: 'bold',
+              background: 'linear-gradient(to right, #60a5fa, #22d3ee)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              🎯 LeetCode Patterns
+            </h1>
+          </div>
+        </div>
 
-      <p style={{
-        fontSize: '1.2rem',
-        color: '#4b5563',
-        textAlign: 'center',
-        marginBottom: '3rem',
-        lineHeight: '1.8'
-      }}>
-        Master common problem-solving patterns to tackle any coding interview question with confidence.
-      </p>
+        <p style={{
+          fontSize: '1.2rem',
+          color: '#d1d5db',
+          textAlign: 'center',
+          marginBottom: '3rem',
+          lineHeight: '1.8'
+        }}>
+          Master common problem-solving patterns to tackle any coding interview question with confidence.
+        </p>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
-        gap: '2rem'
-      }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '1.5rem'
+        }}>
         {patterns.map(pattern => (
           <button
             key={pattern.id}
             onClick={() => setSelectedPattern(pattern.id)}
             style={{
-              backgroundColor: 'white',
-              padding: '2rem',
-              borderRadius: '12px',
-              border: `3px solid ${pattern.color}`,
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              padding: '1.5rem',
+              borderRadius: '0.75rem',
+              border: '2px solid #3b82f6',
               cursor: 'pointer',
-              transition: 'all 0.3s ease',
+              transition: 'all 0.3s',
               textAlign: 'left',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-8px)'
-              e.currentTarget.style.boxShadow = `0 0 0 4px ${pattern.color}40, 0 12px 24px rgba(0,0,0,0.2)`
+              e.currentTarget.style.borderColor = '#60a5fa'
+              e.currentTarget.style.transform = 'translateY(-0.5rem)'
+              e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(59, 130, 246, 0.5)'
             }}
             onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#3b82f6'
               e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'
+              e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              <div style={{ fontSize: '3rem' }}>{pattern.icon}</div>
-              <div>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1f2937', margin: 0 }}>
-                  {pattern.name}
-                </h3>
-                <div style={{
-                  display: 'inline-block',
-                  marginTop: '0.5rem',
-                  padding: '0.25rem 0.75rem',
-                  backgroundColor: pattern.color,
-                  color: 'white',
-                  fontSize: '0.875rem',
-                  fontWeight: '600',
-                  borderRadius: '6px'
-                }}>
-                  {pattern.category}
-                </div>
-              </div>
+            <div style={{
+              fontSize: '3rem',
+              marginBottom: '1rem',
+              textAlign: 'center'
+            }}>
+              {pattern.icon}
+            </div>
+            <h3 style={{
+              fontSize: '1.5rem',
+              fontWeight: 'bold',
+              textAlign: 'center',
+              marginBottom: '0.75rem',
+              color: '#93c5fd'
+            }}>
+              {pattern.name}
+            </h3>
+            <div style={{
+              textAlign: 'center',
+              marginBottom: '1rem'
+            }}>
+              <span style={{
+                display: 'inline-block',
+                padding: '0.25rem 0.75rem',
+                backgroundColor: '#2563eb',
+                color: 'white',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                borderRadius: '0.375rem'
+              }}>
+                {pattern.category}
+              </span>
             </div>
 
-            <p style={{ fontSize: '0.95rem', color: '#6b7280', lineHeight: '1.6', margin: '1rem 0' }}>
+            <p style={{
+              fontSize: '0.95rem',
+              color: '#d1d5db',
+              lineHeight: '1.6',
+              margin: '1rem 0',
+              textAlign: 'center'
+            }}>
               {pattern.description}
             </p>
 
@@ -2435,25 +3878,25 @@ def valid_tree(n, edges):
               justifyContent: 'space-between',
               marginTop: '1.5rem',
               paddingTop: '1rem',
-              borderTop: '1px solid #e5e7eb'
+              borderTop: '1px solid #374151'
             }}>
               <div>
                 <div style={{ fontSize: '0.75rem', color: '#9ca3af', fontWeight: '600' }}>Time</div>
-                <div style={{ fontSize: '0.9rem', color: '#374151', fontWeight: '600' }}>{pattern.timeComplexity}</div>
+                <div style={{ fontSize: '0.9rem', color: '#93c5fd', fontWeight: '600' }}>{pattern.timeComplexity}</div>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '0.75rem', color: '#9ca3af', fontWeight: '600' }}>Space</div>
-                <div style={{ fontSize: '0.9rem', color: '#374151', fontWeight: '600' }}>{pattern.spaceComplexity}</div>
+                <div style={{ fontSize: '0.9rem', color: '#93c5fd', fontWeight: '600' }}>{pattern.spaceComplexity}</div>
               </div>
             </div>
 
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'flex-end',
+              justifyContent: 'center',
               gap: '0.5rem',
               fontSize: '0.9rem',
-              color: pattern.color,
+              color: '#60a5fa',
               fontWeight: '600',
               marginTop: '1rem'
             }}>
@@ -2462,6 +3905,7 @@ def valid_tree(n, edges):
             </div>
           </button>
         ))}
+        </div>
       </div>
     </div>
   )

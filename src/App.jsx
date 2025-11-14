@@ -24,6 +24,7 @@ import FinancialBanking from './pages/projects/FinancialBanking.jsx'
 import VarCvar3 from './pages/projects/VarCvar3.jsx'
 import Testing from './pages/projects/Testing.jsx'
 import MyProjects from './pages/projects/MyProjects.jsx'
+import VirtualNumbers from './pages/projects/VirtualNumbers.jsx'
 
 // Messaging pages
 import ApacheKafka from './pages/messaging/ApacheKafka.jsx'
@@ -136,6 +137,7 @@ import BinarySearch from './pages/algorithms/BinarySearch.jsx'
 import Recursion from './pages/algorithms/Recursion.jsx'
 import DataStructures from './pages/algorithms/DataStructures.jsx'
 import DynamicProgramming from './pages/algorithms/DynamicProgramming.jsx'
+import DynamicProgrammingPatterns from './pages/practice/DynamicProgrammingPatterns.jsx'
 import Trees from './pages/algorithms/Trees.jsx'
 import BinaryTrees from './pages/algorithms/BinaryTrees.jsx'
 import BinarySearchTrees from './pages/algorithms/BinarySearchTrees.jsx'
@@ -212,6 +214,7 @@ import Java from './pages/Java.jsx'
 import Python from './pages/Python.jsx'
 import PythonTopicPlaceholder from './pages/python/PythonTopicPlaceholder.jsx'
 import IndexSlicing from './pages/python/IndexSlicing.jsx'
+import BitwiseOperations from './pages/python/BitwiseOperations.jsx'
 import ListComprehension from './pages/python/ListComprehension.jsx'
 import LambdaFunctions from './pages/python/LambdaFunctions.jsx'
 import BisectFunctions from './pages/python/BisectFunctions.jsx'
@@ -219,6 +222,7 @@ import SetOperations from './pages/practice/SetOperations.jsx'
 import MapOperations from './pages/practice/MapOperations.jsx'
 import PythonAdvanced from './pages/python/PythonAdvanced.jsx'
 import CorePython from './pages/python/CorePython.jsx'
+import PythonOOP from './pages/python/PythonOOP.jsx'
 import PythonSetOperations from './pages/python/PythonSetOperations.jsx'
 import PythonDictOperations from './pages/python/PythonDictOperations.jsx'
 import PythonTuples from './pages/python/PythonTuples.jsx'
@@ -240,61 +244,107 @@ import GoogleAnalytics from './components/GoogleAnalytics.jsx'
 import { initializeUser, getProgressStats, getCategoryStats, getCategoryGroupings, getAllPracticeProblems, getCompletedProblems, migrateCompletionData } from './services/progressService'
 import { onAuthStateChange } from './services/authService'
 
+// Category organization metadata (for visual grouping)
+const categoryOrganization = {
+  'Learning': {
+    label: '📚 Core Learning',
+    categories: ['Java', 'Python', 'Design']
+  },
+  'Practice': {
+    label: '💪 Practice & Questions',
+    categories: ['Practice', 'Questions']
+  },
+  'Projects': {
+    label: '🚀 Real-World Projects',
+    categories: ['My Projects']
+  },
+  'Tech Stack': {
+    label: '⚙️ Technology Stack',
+    categories: ['Frameworks', 'Databases', 'Messaging', 'Cloud']
+  },
+  'Operations': {
+    label: '🛠️ DevOps & Security',
+    categories: ['DevOps', 'Security']
+  }
+}
+
 // Main category groups (defined outside component to prevent recreation)
 const categoryGroups = {
   'Java': {
     icon: '☕',
     color: '#f59e0b',
+    groupSection: 'Learning',
+    description: 'Java fundamentals and versions',
     items: ['Core Java', 'Java 8', 'Java 11', 'Java 15', 'Java 21', 'Java 24']
   },
   'Python': {
     icon: '🐍',
     color: '#3776ab',
-    items: ['Core Python', 'Index Slicing', 'List Comprehension', 'Lambda', 'Bisect Functions', 'Python Advanced', 'Data Science', 'Machine Learning', 'Web Frameworks', 'Async Python', 'Python Set Operations', 'Python Dict Operations', 'Python Tuples', 'Python Map Functions', 'Python String Methods', 'Python Heaps', 'Python Pitfalls']
+    groupSection: 'Learning',
+    description: 'Python programming and libraries',
+    items: ['Core Python', 'Index Slicing', 'Bitwise Operations', 'List Comprehension', 'Lambda', 'Bisect Functions', 'Python Advanced', 'Data Science', 'Machine Learning', 'Web Frameworks', 'Async Python', 'Python Set Operations', 'Python Dict Operations', 'Python Tuples', 'Python Map Functions', 'Python String Methods', 'Python Heaps', 'Python Pitfalls']
   },
   'Design': {
     icon: '🎨',
     color: '#8b5cf6',
+    groupSection: 'Learning',
+    description: 'Design patterns and architecture',
     items: ['Design Patterns', 'Microservice Design Patterns', 'Class', 'System Design', 'Module', 'Function', 'Interface', 'Event Driven Architecture', 'Domain Driven Design']
-  },
-  'Databases': {
-    icon: '🗃️',
-    color: '#3b82f6',
-    items: ['SQL', 'NoSQL', 'Oracle', 'ORM', 'Redis']
   },
   'My Projects': {
     icon: '💼',
     color: '#10b981',
-    items: ['Var/CVar', 'Var/CVar - Advanced', 'Var/CVar 3', 'Dark Pool Matching Engine', 'Dark Pool Matching Engine - Basic', 'Medi/Health', 'Dark Pool Engine 3', 'Monolith to Microservice', 'Financial Banking', 'Credit Card Portal', 'Credit Card Portal 2', 'Credit Card Portal 3', 'Ride Share']
+    groupSection: 'Projects',
+    description: 'Real-world project implementations',
+    items: ['Var/CVar', 'Var/CVar - Advanced', 'Var/CVar 3', 'Dark Pool Matching Engine', 'Dark Pool Matching Engine - Basic', 'Medi/Health', 'Dark Pool Engine 3', 'Monolith to Microservice', 'Financial Banking', 'Credit Card Portal', 'Credit Card Portal 2', 'Credit Card Portal 3', 'Virtual Numbers', 'Ride Share']
   },
   'Frameworks': {
     icon: '🌱',
     color: '#ec4899',
+    groupSection: 'Tech Stack',
+    description: 'Spring, REST, Hibernate, React',
     items: ['Spring', 'Spring Boot', 'REST API', 'Hibernate', 'gRPC', 'SOAP', 'React', 'Actuator', 'Dependency Injection']
   },
-  'DevOps': {
-    icon: '🛠️',
-    color: '#0ea5e9',
-    items: ['Deployment', 'Docker', 'Kubernetes', 'Testing', 'CI/CD', 'Agile Scrum', 'Production Support', 'TeamCity', 'Jenkins', 'Prometheus', 'Grafana']
+  'Databases': {
+    icon: '🗃️',
+    color: '#3b82f6',
+    groupSection: 'Tech Stack',
+    description: 'SQL, NoSQL, ORM, caching',
+    items: ['SQL', 'NoSQL', 'Oracle', 'ORM', 'Redis']
   },
   'Messaging': {
     icon: '📨',
     color: '#f43f5e',
+    groupSection: 'Tech Stack',
+    description: 'Kafka, Flink, message queues',
     items: ['Kafka', 'Apache Flink', 'Solace', 'RabbitMQ']
   },
   'Cloud': {
     icon: '☁️',
     color: '#0ea5e9',
+    groupSection: 'Tech Stack',
+    description: 'AWS, GCP, Azure platforms',
     items: ['AWS', 'GCP', 'Azure']
+  },
+  'DevOps': {
+    icon: '🛠️',
+    color: '#0ea5e9',
+    groupSection: 'Operations',
+    description: 'CI/CD, Docker, Kubernetes',
+    items: ['Deployment', 'Docker', 'Kubernetes', 'Testing', 'CI/CD', 'Agile Scrum', 'Production Support', 'TeamCity', 'Jenkins', 'Prometheus', 'Grafana']
   },
   'Security': {
     icon: '🔒',
     color: '#dc2626',
+    groupSection: 'Operations',
+    description: 'Authentication and security',
     items: ['JWT', 'OAuth', 'OAuth2', 'Security OWASP']
   },
   'Practice': {
     icon: '💪',
     color: '#10b981',
+    groupSection: 'Practice',
+    description: 'Algorithm practice and coding challenges',
     hasSubcategories: true,
     subcategories: {
       'Data Structures': {
@@ -330,6 +380,8 @@ const categoryGroups = {
   'Questions': {
     icon: '❓',
     color: '#8b5cf6',
+    groupSection: 'Practice',
+    description: 'Interview questions and answers',
     hasSubcategories: true,
     subcategories: {
       'Spring Framework': {
@@ -2770,8 +2822,14 @@ function App() {
     if (selectedOption === 'Core Python') {
       return <CorePython onBack={() => setSelectedOptionAndRef('Python')} />
     }
+    if (selectedOption === 'Python OOP') {
+      return <PythonOOP onBack={() => setSelectedOptionAndRef('Python')} />
+    }
     if (selectedOption === 'Index Slicing') {
       return <IndexSlicing onBack={() => setSelectedOptionAndRef('Python')} />
+    }
+    if (selectedOption === 'Bitwise Operations') {
+      return <BitwiseOperations onBack={() => setSelectedOptionAndRef('Python')} />
     }
     if (selectedOption === 'List Comprehension') {
       return <ListComprehension onBack={() => setSelectedOptionAndRef('Python')} />
@@ -3124,6 +3182,9 @@ function App() {
     if (selectedOption === 'Credit Card Portal 3') {
       return <CreditCardPortal3 onBack={() => setSelectedOptionAndRef('My Projects')} />
     }
+    if (selectedOption === 'Virtual Numbers') {
+      return <VirtualNumbers onBack={() => setSelectedOptionAndRef('My Projects')} />
+    }
     if (selectedOption === 'Ride Share') {
       return <RideShare onBack={() => setSelectedOptionAndRef('My Projects')} />
     }
@@ -3384,6 +3445,11 @@ function App() {
       setSelectedOptionAndRef('')
       return null
     }
+    if (selectedOption === 'Dynamic Programming Patterns') {
+      console.log('✅ Navigating to Dynamic Programming Patterns')
+      return <DynamicProgrammingPatterns onBack={() => setSelectedOptionAndRef('Practice')} />
+    }
+    console.log('❌ Did not match Dynamic Programming Patterns, selectedOption:', selectedOption)
     if (selectedOption === 'Trees') {
       setShowTreesModal(true)
       setSelectedOptionAndRef('')
@@ -3446,6 +3512,7 @@ function App() {
             case 'Binary Search': setShowBinarySearchModal(true); break;
             case 'Recursion': setShowRecursionModal(true); break;
             case 'Dynamic Programming': setShowDynamicProgrammingModal(true); break;
+            case 'Dynamic Programming Patterns': setSelectedOptionAndRef('Dynamic Programming Patterns'); break;
             case 'Sliding Window': setShowSlidingWindowModal(true); break;
             case 'Backtracking': setShowBacktrackingModal(true); break;
             case 'Intervals': setShowIntervalsModal(true); break;
@@ -3604,7 +3671,7 @@ function App() {
               position: 'relative'
             }}
           >
-            <DesignPatterns onBack={() => setShowDesignPatternsModal(false)} {...createDesignNavigationCallbacks('DesignPatterns')} />
+            <DesignPatterns onBack={() => { setShowDesignPatternsModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('DesignPatterns')} />
           </div>
         </div>
       )}
@@ -3641,7 +3708,7 @@ function App() {
               position: 'relative'
             }}
           >
-            <MicroservicePatterns onBack={() => setShowMicroservicePatternsModal(false)} {...createDesignNavigationCallbacks('MicroservicePatterns')} />
+            <MicroservicePatterns onBack={() => { setShowMicroservicePatternsModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('MicroservicePatterns')} />
           </div>
         </div>
       )}
@@ -3678,7 +3745,7 @@ function App() {
               position: 'relative'
             }}
           >
-            <EventDrivenArchitecture onBack={() => setShowEventDrivenArchitectureModal(false)} />
+            <EventDrivenArchitecture onBack={() => { setShowEventDrivenArchitectureModal(false); setSelectedOptionAndRef('Design'); }} />
           </div>
         </div>
       )}
@@ -3715,7 +3782,7 @@ function App() {
               position: 'relative'
             }}
           >
-            <DomainDrivenDesign onBack={() => setShowDomainDrivenDesignModal(false)} />
+            <DomainDrivenDesign onBack={() => { setShowDomainDrivenDesignModal(false); setSelectedOptionAndRef('Design'); }} />
           </div>
         </div>
       )}
@@ -3752,7 +3819,7 @@ function App() {
               position: 'relative'
             }}
           >
-            <Class onBack={() => setShowClassModal(false)} {...createDesignNavigationCallbacks('Class')} />
+            <Class onBack={() => { setShowClassModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Class')} />
           </div>
         </div>
       )}
@@ -3789,7 +3856,7 @@ function App() {
               position: 'relative'
             }}
           >
-            <SystemDesign onBack={() => setShowSystemDesignModal(false)} {...createDesignNavigationCallbacks('SystemDesign')} />
+            <SystemDesign onBack={() => { setShowSystemDesignModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('SystemDesign')} />
           </div>
         </div>
       )}
@@ -3826,7 +3893,7 @@ function App() {
               position: 'relative'
             }}
           >
-            <Module onBack={() => setShowModuleModal(false)} {...createDesignNavigationCallbacks('Module')} />
+            <Module onBack={() => { setShowModuleModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Module')} />
           </div>
         </div>
       )}
@@ -3863,7 +3930,7 @@ function App() {
               position: 'relative'
             }}
           >
-            <FunctionalProgramming onBack={() => setShowFunctionModal(false)} {...createDesignNavigationCallbacks('Function')} />
+            <FunctionalProgramming onBack={() => { setShowFunctionModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Function')} />
           </div>
         </div>
       )}
@@ -3900,7 +3967,7 @@ function App() {
               position: 'relative'
             }}
           >
-            <Interface onBack={() => setShowInterfaceModal(false)} {...createDesignNavigationCallbacks('Interface')} />
+            <Interface onBack={() => { setShowInterfaceModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Interface')} />
           </div>
         </div>
       )}
@@ -7745,44 +7812,25 @@ function App() {
           )}
         </div>
 
-        {/* Main Category Buttons */}
+        {/* Navigation Row with Category Buttons and Utility Buttons */}
         <div
           role="menubar"
           aria-label="Category selection"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key !== 'Escape') e.stopPropagation();
-            if (selectedOptionRef.current) return;
-            const categoryNames = Object.keys(categoryGroups);
-            if (!expandedGroup) {
-              if (e.key === 'ArrowRight') {
-                e.preventDefault();
-                const newIndex = (focusedCategoryIndex + 1) % categoryNames.length;
-                setFocusedCategoryIndex(newIndex);
-              } else if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                const newIndex = (focusedCategoryIndex - 1 + categoryNames.length) % categoryNames.length;
-                setFocusedCategoryIndex(newIndex);
-              } else if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                const categoryName = categoryNames[focusedCategoryIndex];
-                setExpandedGroup(categoryName);
-                setFocusedItemIndex(0);
-              }
-            }
-          }}
           style={{
-          display: 'flex',
-          gap: '0.5rem',
-          justifyContent: 'center',
-          marginBottom: expandedGroup ? '1rem' : '0',
-          flexWrap: 'wrap'
-        }}>
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+            gap: '0.5rem',
+            flexWrap: 'wrap',
+            marginBottom: expandedGroup ? '1rem' : '0'
+          }}
+        >
           {Object.entries(categoryGroups).map(([groupName, group], index) => (
             <button
               key={groupName}
               role="menuitem"
-              aria-label={`${groupName} category with ${group.hasSubcategories ? Object.keys(group.subcategories).length + ' subcategories' : group.items.length + ' items'}`}
+              title={group.description || `${groupName} category`}
+              aria-label={`${groupName}: ${group.description}. ${group.hasSubcategories ? Object.keys(group.subcategories).length + ' subcategories' : (group.items?.length || 0) + ' items'}`}
               aria-expanded={expandedGroup === groupName}
               aria-haspopup="true"
               data-category-button
@@ -7843,8 +7891,8 @@ function App() {
               }}
               onFocus={() => setFocusedCategoryIndex(index)}
               style={{
-                padding: '0.4rem 0.8rem',
-                fontSize: '0.85rem',
+                padding: '0.4rem 0.75rem',
+                fontSize: '0.8rem',
                 fontWeight: '700',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                 backgroundColor: expandedGroup === groupName
@@ -7865,92 +7913,46 @@ function App() {
                 outline: 'none',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.4rem',
+                gap: '0.5rem',
                 transform: focusedCategoryIndex === index && !expandedGroup ? 'scale(1.08)' : 'scale(1)',
-                borderWidth: focusedCategoryIndex === index && !expandedGroup ? '3px' : '2px'
+                borderWidth: focusedCategoryIndex === index && !expandedGroup ? '3px' : '2px',
+                position: 'relative'
               }}
             >
-              <span style={{ fontSize: '1rem' }}>{group.icon}</span>
+              <span style={{ fontSize: '0.95rem' }}>{group.icon}</span>
               <span>{groupName}</span>
-              <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>
-                ({group.hasSubcategories ? Object.keys(group.subcategories).length : group.items.length})
+              <span style={{ fontSize: '0.65rem', opacity: 0.8, backgroundColor: expandedGroup === groupName ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.05)', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>
+                {group.hasSubcategories ? Object.keys(group.subcategories).length : (group.items?.length || 0)}
               </span>
             </button>
           ))}
 
+          {/* Divider */}
+          <div style={{
+            width: '2px',
+            height: '32px',
+            backgroundColor: '#e5e7eb',
+            margin: '0 0.25rem',
+            alignSelf: 'center'
+          }}></div>
+
           {/* Search Button - Circular */}
           <button
-            onClick={() => setShowGlobalSearch(true)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                setShowGlobalSearch(true)
-              }
-            }}
-            tabIndex={0}
-            aria-label="Open global search (Ctrl+K)"
-            className={focusedUtilityButton === 'search' ? 'btn-focus-green' : ''}
-            style={{
-              width: '50px',
-              height: '50px',
-              fontSize: '1.5rem',
-              backgroundColor: showGlobalSearch ? '#059669' : '#10b981',
-              color: 'white',
-              border: 'none',
-              borderRadius: '50%',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 12px -2px rgba(16, 185, 129, 0.4)',
-              transition: 'all 0.2s ease',
-              marginRight: '0.75rem',
-              outline: 'none'
-            }}
-            onMouseEnter={(e) => {
-              if (!showGlobalSearch && focusedUtilityButton !== 'search') {
-                e.currentTarget.style.backgroundColor = '#059669'
-                e.currentTarget.style.transform = 'scale(1.1)'
-                e.currentTarget.style.boxShadow = '0 6px 16px -2px rgba(16, 185, 129, 0.5)'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!showGlobalSearch && focusedUtilityButton !== 'search') {
-                e.currentTarget.style.backgroundColor = '#10b981'
-                e.currentTarget.style.transform = 'scale(1)'
-                e.currentTarget.style.boxShadow = '0 4px 12px -2px rgba(16, 185, 129, 0.4)'
-              }
-            }}
-            onFocus={() => setFocusedUtilityButton('search')}
-            onBlur={() => setFocusedUtilityButton(null)}
-          >
-            <span>🔍</span>
-          </button>
-
-          {/* Account Button - Circular */}
-          <div style={{ position: 'relative' }}>
-            <button
-              ref={accountButtonRef}
-              onClick={() => setShowAccountDropdown(!showAccountDropdown)}
+              onClick={() => setShowGlobalSearch(true)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault()
-                  setShowAccountDropdown(!showAccountDropdown)
-                } else if (e.key === 'Escape' && showAccountDropdown) {
-                  e.preventDefault()
-                  setShowAccountDropdown(false)
+                  setShowGlobalSearch(true)
                 }
               }}
               tabIndex={0}
-              aria-label="Account menu"
-              aria-expanded={showAccountDropdown}
-              aria-haspopup="true"
-              className={focusedUtilityButton === 'account' ? 'btn-focus-blue' : ''}
+              aria-label="Open global search (Ctrl+K)"
+              className={focusedUtilityButton === 'search' ? 'btn-focus-green' : ''}
               style={{
-                width: '50px',
-                height: '50px',
-                fontSize: '1.5rem',
-                backgroundColor: showAccountDropdown ? '#2563eb' : '#3b82f6',
+                width: '40px',
+                height: '40px',
+                fontSize: '1.2rem',
+                backgroundColor: showGlobalSearch ? '#059669' : '#10b981',
                 color: 'white',
                 border: 'none',
                 borderRadius: '50%',
@@ -7958,82 +7960,137 @@ function App() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 4px 12px -2px rgba(59, 130, 246, 0.4)',
+                boxShadow: '0 4px 12px -2px rgba(16, 185, 129, 0.4)',
                 transition: 'all 0.2s ease',
                 outline: 'none'
               }}
               onMouseEnter={(e) => {
-                if (!showAccountDropdown && focusedUtilityButton !== 'account') {
-                  e.currentTarget.style.backgroundColor = '#2563eb'
+                if (!showGlobalSearch && focusedUtilityButton !== 'search') {
+                  e.currentTarget.style.backgroundColor = '#059669'
                   e.currentTarget.style.transform = 'scale(1.1)'
-                  e.currentTarget.style.boxShadow = '0 6px 16px -2px rgba(59, 130, 246, 0.5)'
+                  e.currentTarget.style.boxShadow = '0 6px 16px -2px rgba(16, 185, 129, 0.5)'
                 }
               }}
               onMouseLeave={(e) => {
-                if (!showAccountDropdown && focusedUtilityButton !== 'account') {
-                  e.currentTarget.style.backgroundColor = '#3b82f6'
+                if (!showGlobalSearch && focusedUtilityButton !== 'search') {
+                  e.currentTarget.style.backgroundColor = '#10b981'
                   e.currentTarget.style.transform = 'scale(1)'
-                  e.currentTarget.style.boxShadow = '0 4px 12px -2px rgba(59, 130, 246, 0.4)'
+                  e.currentTarget.style.boxShadow = '0 4px 12px -2px rgba(16, 185, 129, 0.4)'
                 }
               }}
-              onFocus={() => setFocusedUtilityButton('account')}
+              onFocus={() => setFocusedUtilityButton('search')}
               onBlur={() => setFocusedUtilityButton(null)}
             >
-              <span>👤</span>
+              <span>🔍</span>
             </button>
 
-            <AccountDropdown
-              isOpen={showAccountDropdown}
-              onClose={() => setShowAccountDropdown(false)}
-              onOpenStudyGuide={() => setShowStudyGuideModal(true)}
-              onGoToHome={() => setSelectedOptionAndRef('')}
-              onGoToPractice={(category) => {
-                // If category is 'Practice', navigate to Practice page, otherwise open specific modal
-                if (category === 'Practice') {
-                  setSelectedOptionAndRef('Practice')
-                } else {
-                  navigateToPracticeComponent(category)
+            {/* Account Button - Circular */}
+            <div style={{ position: 'relative' }}>
+              <button
+                ref={accountButtonRef}
+                onClick={() => setShowAccountDropdown(!showAccountDropdown)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    setShowAccountDropdown(!showAccountDropdown)
+                  } else if (e.key === 'Escape' && showAccountDropdown) {
+                    e.preventDefault()
+                    setShowAccountDropdown(false)
+                  }
+                }}
+                tabIndex={0}
+                aria-label="Account menu"
+                aria-expanded={showAccountDropdown}
+                aria-haspopup="true"
+                className={focusedUtilityButton === 'account' ? 'btn-focus-blue' : ''}
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  fontSize: '1.2rem',
+                  backgroundColor: showAccountDropdown ? '#2563eb' : '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 12px -2px rgba(59, 130, 246, 0.4)',
+                  transition: 'all 0.2s ease',
+                  outline: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (!showAccountDropdown && focusedUtilityButton !== 'account') {
+                    e.currentTarget.style.backgroundColor = '#2563eb'
+                    e.currentTarget.style.transform = 'scale(1.1)'
+                    e.currentTarget.style.boxShadow = '0 6px 16px -2px rgba(59, 130, 246, 0.5)'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!showAccountDropdown && focusedUtilityButton !== 'account') {
+                    e.currentTarget.style.backgroundColor = '#3b82f6'
+                    e.currentTarget.style.transform = 'scale(1)'
+                    e.currentTarget.style.boxShadow = '0 4px 12px -2px rgba(59, 130, 246, 0.4)'
+                  }
+                }}
+                onFocus={() => setFocusedUtilityButton('account')}
+                onBlur={() => setFocusedUtilityButton(null)}
+              >
+                <span>👤</span>
+              </button>
+
+              <AccountDropdown
+                isOpen={showAccountDropdown}
+                onClose={() => setShowAccountDropdown(false)}
+                onOpenStudyGuide={() => setShowStudyGuideModal(true)}
+                onGoToHome={() => setSelectedOptionAndRef('')}
+                onGoToPractice={(category) => {
+                  // If category is 'Practice', navigate to Practice page, otherwise open specific modal
+                  if (category === 'Practice') {
+                    setSelectedOptionAndRef('Practice')
+                  } else {
+                    navigateToPracticeComponent(category)
+                  }
+                }}
+                triggerRef={accountButtonRef}
+              />
+            </div>
+
+            {/* Feedback Button - Circular */}
+            <button
+              onClick={() => setShowFeedbackModal(true)}
+              aria-label="Send feedback"
+              title="Send Feedback"
+              style={{
+                width: '40px',
+                height: '40px',
+                fontSize: '1.2rem',
+                backgroundColor: showFeedbackModal ? '#7c3aed' : '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50%',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 12px -2px rgba(139, 92, 246, 0.4)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#7c3aed'
+                e.currentTarget.style.transform = 'scale(1.1)'
+                e.currentTarget.style.boxShadow = '0 6px 16px -4px rgba(139, 92, 246, 0.6)'
+              }}
+              onMouseLeave={(e) => {
+                if (!showFeedbackModal) {
+                  e.currentTarget.style.backgroundColor = '#8b5cf6'
+                  e.currentTarget.style.transform = 'scale(1)'
+                  e.currentTarget.style.boxShadow = '0 4px 12px -2px rgba(139, 92, 246, 0.4)'
                 }
               }}
-              triggerRef={accountButtonRef}
-            />
-          </div>
-
-          {/* Feedback Button - Circular */}
-          <button
-            onClick={() => setShowFeedbackModal(true)}
-            aria-label="Send feedback"
-            title="Send Feedback"
-            style={{
-              width: '50px',
-              height: '50px',
-              fontSize: '1.5rem',
-              backgroundColor: showFeedbackModal ? '#7c3aed' : '#8b5cf6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '50%',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 12px -2px rgba(139, 92, 246, 0.4)',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#7c3aed'
-              e.currentTarget.style.transform = 'scale(1.1)'
-              e.currentTarget.style.boxShadow = '0 6px 16px -4px rgba(139, 92, 246, 0.6)'
-            }}
-            onMouseLeave={(e) => {
-              if (!showFeedbackModal) {
-                e.currentTarget.style.backgroundColor = '#8b5cf6'
-                e.currentTarget.style.transform = 'scale(1)'
-                e.currentTarget.style.boxShadow = '0 4px 12px -2px rgba(139, 92, 246, 0.4)'
-              }
-            }}
-          >
-            <span>💬</span>
-          </button>
+            >
+              <span>💬</span>
+            </button>
         </div>
 
         {/* Expanded Group Items (flattened; no subcategory links) */}

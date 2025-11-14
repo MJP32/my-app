@@ -683,386 +683,837 @@ print(extract_person_info("Bob (invalid)"))  # None
 
   if (!selectedQuestion) {
     return (
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={handleBack}
-              className="text-indigo-600 hover:text-indigo-800 text-2xl"
-            >
-              ← Back to {currentSubcategory || 'Python'}
-            </button>
-          </div>
-          <div className="flex gap-2">
-            {onPreviousSubcategory && (
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+        color: 'white',
+        padding: '1.5rem'
+      }}>
+        <div style={{
+          maxWidth: '80rem',
+          margin: '0 auto'
+        }}>
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-4">
               <button
-                onClick={onPreviousSubcategory}
-                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm"
+                onClick={handleBack}
+                style={{
+                  background: '#2563eb',
+                  color: 'white',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '0.5rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  fontWeight: '500',
+                  fontSize: '1rem',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#1d4ed8'
+                  e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#2563eb'
+                  e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                }}
               >
-                ← {previousSubcategory}
+                ← Back to Python Topics
               </button>
-            )}
-            {onNextSubcategory && (
-              <button
-                onClick={onNextSubcategory}
-                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm"
-              >
-                {nextSubcategory} →
-              </button>
-            )}
-          </div>
-        </div>
-
-        <h1 className="text-4xl font-bold mb-2 text-indigo-900">Python Regular Expressions (Regex)</h1>
-        <p className="text-lg text-gray-700 mb-6">
-          Master Python's powerful regex module (re) for pattern matching, validation, and text processing.
-        </p>
-
-        {/* Regex Guide Section */}
-        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-lg p-6 mb-8">
-          <h2 className="text-2xl font-bold text-purple-900 mb-4">📚 Regular Expressions Quick Guide</h2>
-
-          <div className="space-y-6">
-            {/* What is Regex */}
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="text-lg font-semibold text-indigo-900 mb-2">What is Regex?</h3>
-              <p className="text-gray-700 mb-2">
-                Regular expressions are sequences of characters that define search patterns. They're used for:
-              </p>
-              <ul className="list-disc list-inside text-gray-700 space-y-1 ml-4">
-                <li>Pattern matching and searching in text</li>
-                <li>Validating input (emails, phone numbers, etc.)</li>
-                <li>Extracting data from strings</li>
-                <li>Find and replace operations</li>
-              </ul>
             </div>
-
-            {/* Common Metacharacters */}
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="text-lg font-semibold text-indigo-900 mb-3">Common Metacharacters</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">.</span> - Any character (except newline)
-                </div>
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">^</span> - Start of string
-                </div>
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">$</span> - End of string
-                </div>
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">*</span> - 0 or more repetitions
-                </div>
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">+</span> - 1 or more repetitions
-                </div>
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">?</span> - 0 or 1 repetition (optional)
-                </div>
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">\d</span> - Any digit (0-9)
-                </div>
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">\w</span> - Word character (a-z, A-Z, 0-9, _)
-                </div>
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">\s</span> - Whitespace (space, tab, newline)
-                </div>
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">|</span> - OR operator
-                </div>
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">[abc]</span> - Any character in set
-                </div>
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">[^abc]</span> - Any character NOT in set
-                </div>
-              </div>
-            </div>
-
-            {/* Quantifiers */}
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="text-lg font-semibold text-indigo-900 mb-3">Quantifiers</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">{`{n}`}</span> - Exactly n repetitions
-                </div>
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">{`{n,}`}</span> - n or more repetitions
-                </div>
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">{`{n,m}`}</span> - Between n and m repetitions
-                </div>
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">*?</span> - Non-greedy 0 or more
-                </div>
-              </div>
-            </div>
-
-            {/* Groups and Capturing */}
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="text-lg font-semibold text-indigo-900 mb-3">Groups and Capturing</h3>
-              <div className="space-y-2">
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">(pattern)</span> - Capturing group
-                </div>
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">(?:pattern)</span> - Non-capturing group
-                </div>
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">(?P&lt;name&gt;pattern)</span> - Named capturing group
-                </div>
-                <div className="font-mono text-sm">
-                  <span className="font-bold text-purple-600">(?=pattern)</span> - Positive lookahead
-                </div>
-              </div>
-            </div>
-
-            {/* Python re Module Functions */}
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="text-lg font-semibold text-indigo-900 mb-3">Python re Module Functions</h3>
-              <div className="space-y-2">
-                <div>
-                  <span className="font-mono font-bold text-purple-600">re.search(pattern, string)</span>
-                  <span className="text-gray-600"> - Find first match anywhere</span>
-                </div>
-                <div>
-                  <span className="font-mono font-bold text-purple-600">re.match(pattern, string)</span>
-                  <span className="text-gray-600"> - Match at start of string</span>
-                </div>
-                <div>
-                  <span className="font-mono font-bold text-purple-600">re.findall(pattern, string)</span>
-                  <span className="text-gray-600"> - Find all non-overlapping matches</span>
-                </div>
-                <div>
-                  <span className="font-mono font-bold text-purple-600">re.sub(pattern, repl, string)</span>
-                  <span className="text-gray-600"> - Replace all matches</span>
-                </div>
-                <div>
-                  <span className="font-mono font-bold text-purple-600">re.split(pattern, string)</span>
-                  <span className="text-gray-600"> - Split string by pattern</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Common Patterns */}
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="text-lg font-semibold text-indigo-900 mb-3">Common Patterns</h3>
-              <div className="space-y-2 text-sm">
-                <div>
-                  <span className="font-mono font-bold text-purple-600">r'\d{3}-\d{3}-\d{4}'</span>
-                  <span className="text-gray-600"> - Phone number (123-456-7890)</span>
-                </div>
-                <div>
-                  <span className="font-mono font-bold text-purple-600">r'^\w+@\w+\.\w+$'</span>
-                  <span className="text-gray-600"> - Simple email validation</span>
-                </div>
-                <div>
-                  <span className="font-mono font-bold text-purple-600">r'\d{'{'}{2,4}{'}'}-\d{'{'}{2}{'}'}-\d{'{'}{2}{'}'}' </span>
-                  <span className="text-gray-600"> - Date (YYYY-MM-DD or YY-MM-DD)</span>
-                </div>
-                <div>
-                  <span className="font-mono font-bold text-purple-600">r'https?://\S+'</span>
-                  <span className="text-gray-600"> - URL (http or https)</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Tips */}
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-yellow-900 mb-2">💡 Tips</h3>
-              <ul className="list-disc list-inside text-gray-700 space-y-1 ml-2">
-                <li>Always use raw strings (r"...") for regex patterns in Python</li>
-                <li>Test your regex patterns with online tools like regex101.com</li>
-                <li>Use parentheses () to capture groups you want to extract</li>
-                <li>Escape special characters with backslash: \. \* \+ \?</li>
-                <li>Use non-capturing groups (?:...) when you don't need to extract</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        {Object.entries(groupedQuestions).map(([difficulty, questions]) => (
-          questions.length > 0 && (
-            <div key={difficulty} className="mb-6">
-              <button
-                onClick={() => toggleSection(difficulty)}
-                className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg mb-3 hover:from-indigo-100 hover:to-purple-100 transition-all"
-              >
-                <h2 className="text-2xl font-semibold text-indigo-900">
-                  {difficulty} Problems ({questions.length})
-                </h2>
-                <span className="text-2xl text-indigo-600">
-                  {expandedSections[difficulty] ? '−' : '+'}
-                </span>
-              </button>
-
-              {expandedSections[difficulty] && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {questions.map((question) => (
-                    <div
-                      key={question.id}
-                      onClick={() => setSelectedQuestion(question)}
-                      className="p-6 border-2 border-indigo-200 rounded-lg hover:border-indigo-400 cursor-pointer transition-all bg-white hover:shadow-lg relative group"
-                    >
-                      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleShowDrawing(question)
-                          }}
-                          className="p-2 bg-purple-100 hover:bg-purple-200 rounded-lg transition-colors"
-                          title="Open drawing canvas"
-                        >
-                          <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                          </svg>
-                        </button>
-                        <CompletionCheckbox
-                          problemId={`PythonRegex-${question.id}`}
-                          scale="0.85"
-                        />
-                      </div>
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="text-xl font-semibold text-indigo-900 pr-20">{question.title}</h3>
-                      </div>
-                      <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium mb-3 ${
-                        difficulty === 'Easy' ? 'bg-green-100 text-green-800' :
-                        difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {difficulty}
-                      </span>
-                      <p className="text-gray-700 mb-4">{question.description}</p>
-                      {question.examples && (
-                        <div className="mt-2">
-                          <p className="font-semibold text-gray-800 mb-2 text-sm">Example:</p>
-                          <div className="bg-indigo-50 border border-indigo-200 p-3 rounded-lg">
-                            <p className="font-mono text-base text-gray-900 mb-1">
-                              <span className="font-bold text-indigo-700">Input:</span> {question.examples[0].input}
-                            </p>
-                            <p className="font-mono text-base text-gray-900">
-                              <span className="font-bold text-indigo-700">Output:</span> {question.examples[0].output}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+            <div className="flex gap-2">
+              {onPreviousSubcategory && (
+                <button
+                  onClick={onPreviousSubcategory}
+                  style={{
+                    background: '#374151',
+                    color: 'white',
+                    padding: '0.5rem 1rem',
+                    borderRadius: '0.5rem',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#4b5563'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = '#374151'}
+                >
+                  ← {previousSubcategory}
+                </button>
+              )}
+              {onNextSubcategory && (
+                <button
+                  onClick={onNextSubcategory}
+                  style={{
+                    background: '#374151',
+                    color: 'white',
+                    padding: '0.5rem 1rem',
+                    borderRadius: '0.5rem',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#4b5563'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = '#374151'}
+                >
+                  {nextSubcategory} →
+                </button>
               )}
             </div>
-          )
-        ))}
+          </div>
+
+          <h1 style={{
+            fontSize: '2.25rem',
+            fontWeight: 'bold',
+            marginBottom: '0.5rem',
+            background: 'linear-gradient(to right, #60a5fa, #22d3ee)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            Python Regular Expressions (Regex)
+          </h1>
+          <p style={{
+            fontSize: '1.125rem',
+            color: '#d1d5db',
+            marginBottom: '1.5rem'
+          }}>
+            Master Python's powerful regex module (re) for pattern matching, validation, and text processing.
+          </p>
+
+          {/* Regex Guide Section */}
+          <div style={{
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+            border: '2px solid #3b82f6',
+            borderRadius: '0.75rem',
+            padding: '1.5rem',
+            marginBottom: '2rem'
+          }}>
+            <h2 style={{
+              fontSize: '1.5rem',
+              fontWeight: 'bold',
+              color: '#93c5fd',
+              marginBottom: '1rem'
+            }}>
+              📚 Regular Expressions Quick Guide
+            </h2>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {/* What is Regex */}
+              <div style={{
+                background: '#1f2937',
+                borderRadius: '0.5rem',
+                padding: '1rem',
+                border: '1px solid #3b82f6'
+              }}>
+                <h3 style={{
+                  fontSize: '1.125rem',
+                  fontWeight: '600',
+                  color: '#93c5fd',
+                  marginBottom: '0.5rem'
+                }}>
+                  What is Regex?
+                </h3>
+                <p style={{ color: '#d1d5db', marginBottom: '0.5rem' }}>
+                  Regular expressions are sequences of characters that define search patterns. They're used for:
+                </p>
+                <ul style={{
+                  listStyleType: 'disc',
+                  listStylePosition: 'inside',
+                  color: '#d1d5db',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.25rem',
+                  marginLeft: '1rem'
+                }}>
+                  <li>Pattern matching and searching in text</li>
+                  <li>Validating input (emails, phone numbers, etc.)</li>
+                  <li>Extracting data from strings</li>
+                  <li>Find and replace operations</li>
+                </ul>
+              </div>
+
+              {/* Common Metacharacters */}
+              <div style={{
+                background: '#1f2937',
+                borderRadius: '0.5rem',
+                padding: '1rem',
+                border: '1px solid #3b82f6'
+              }}>
+                <h3 style={{
+                  fontSize: '1.125rem',
+                  fontWeight: '600',
+                  color: '#93c5fd',
+                  marginBottom: '0.75rem'
+                }}>
+                  Common Metacharacters
+                </h3>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                  gap: '0.75rem'
+                }}>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>.</span> - Any character (except newline)
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>^</span> - Start of string
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>$</span> - End of string
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>*</span> - 0 or more repetitions
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>+</span> - 1 or more repetitions
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>?</span> - 0 or 1 repetition (optional)
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>\d</span> - Any digit (0-9)
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>\w</span> - Word character (a-z, A-Z, 0-9, _)
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>\s</span> - Whitespace (space, tab, newline)
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>|</span> - OR operator
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>[abc]</span> - Any character in set
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>[^abc]</span> - Any character NOT in set
+                  </div>
+                </div>
+              </div>
+
+              {/* Quantifiers */}
+              <div style={{
+                background: '#1f2937',
+                borderRadius: '0.5rem',
+                padding: '1rem',
+                border: '1px solid #3b82f6'
+              }}>
+                <h3 style={{
+                  fontSize: '1.125rem',
+                  fontWeight: '600',
+                  color: '#93c5fd',
+                  marginBottom: '0.75rem'
+                }}>
+                  Quantifiers
+                </h3>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                  gap: '0.75rem'
+                }}>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>{`{n}`}</span> - Exactly n repetitions
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>{`{n,}`}</span> - n or more repetitions
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>{`{n,m}`}</span> - Between n and m repetitions
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>*?</span> - Non-greedy 0 or more
+                  </div>
+                </div>
+              </div>
+
+              {/* Groups and Capturing */}
+              <div style={{
+                background: '#1f2937',
+                borderRadius: '0.5rem',
+                padding: '1rem',
+                border: '1px solid #3b82f6'
+              }}>
+                <h3 style={{
+                  fontSize: '1.125rem',
+                  fontWeight: '600',
+                  color: '#93c5fd',
+                  marginBottom: '0.75rem'
+                }}>
+                  Groups and Capturing
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>(pattern)</span> - Capturing group
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>(?:pattern)</span> - Non-capturing group
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>(?P&lt;name&gt;pattern)</span> - Named capturing group
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#d1d5db' }}>
+                    <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>(?=pattern)</span> - Positive lookahead
+                  </div>
+                </div>
+              </div>
+
+              {/* Python re Module Functions */}
+              <div style={{
+                background: '#1f2937',
+                borderRadius: '0.5rem',
+                padding: '1rem',
+                border: '1px solid #3b82f6'
+              }}>
+                <h3 style={{
+                  fontSize: '1.125rem',
+                  fontWeight: '600',
+                  color: '#93c5fd',
+                  marginBottom: '0.75rem'
+                }}>
+                  Python re Module Functions
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ color: '#d1d5db' }}>
+                    <span style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#60a5fa' }}>re.search(pattern, string)</span>
+                    <span> - Find first match anywhere</span>
+                  </div>
+                  <div style={{ color: '#d1d5db' }}>
+                    <span style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#60a5fa' }}>re.match(pattern, string)</span>
+                    <span> - Match at start of string</span>
+                  </div>
+                  <div style={{ color: '#d1d5db' }}>
+                    <span style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#60a5fa' }}>re.findall(pattern, string)</span>
+                    <span> - Find all non-overlapping matches</span>
+                  </div>
+                  <div style={{ color: '#d1d5db' }}>
+                    <span style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#60a5fa' }}>re.sub(pattern, repl, string)</span>
+                    <span> - Replace all matches</span>
+                  </div>
+                  <div style={{ color: '#d1d5db' }}>
+                    <span style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#60a5fa' }}>re.split(pattern, string)</span>
+                    <span> - Split string by pattern</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Common Patterns */}
+              <div style={{
+                background: '#1f2937',
+                borderRadius: '0.5rem',
+                padding: '1rem',
+                border: '1px solid #3b82f6'
+              }}>
+                <h3 style={{
+                  fontSize: '1.125rem',
+                  fontWeight: '600',
+                  color: '#93c5fd',
+                  marginBottom: '0.75rem'
+                }}>
+                  Common Patterns
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.875rem' }}>
+                  <div style={{ color: '#d1d5db' }}>
+                    <span style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#60a5fa' }}>r'\d{3}-\d{3}-\d{4}'</span>
+                    <span> - Phone number (123-456-7890)</span>
+                  </div>
+                  <div style={{ color: '#d1d5db' }}>
+                    <span style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#60a5fa' }}>r'^\w+@\w+\.\w+$'</span>
+                    <span> - Simple email validation</span>
+                  </div>
+                  <div style={{ color: '#d1d5db' }}>
+                    <span style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#60a5fa' }}>r'\d{'{'}{2,4}{'}'}-\d{'{'}{2}{'}'}-\d{'{'}{2}{'}'}' </span>
+                    <span> - Date (YYYY-MM-DD or YY-MM-DD)</span>
+                  </div>
+                  <div style={{ color: '#d1d5db' }}>
+                    <span style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#60a5fa' }}>r'https?://\S+'</span>
+                    <span> - URL (http or https)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tips */}
+              <div style={{
+                background: '#1f2937',
+                border: '2px solid #fbbf24',
+                borderRadius: '0.5rem',
+                padding: '1rem'
+              }}>
+                <h3 style={{
+                  fontSize: '1.125rem',
+                  fontWeight: '600',
+                  color: '#fbbf24',
+                  marginBottom: '0.5rem'
+                }}>
+                  💡 Tips
+                </h3>
+                <ul style={{
+                  listStyleType: 'disc',
+                  listStylePosition: 'inside',
+                  color: '#d1d5db',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.25rem',
+                  marginLeft: '0.5rem'
+                }}>
+                  <li>Always use raw strings (r"...") for regex patterns in Python</li>
+                  <li>Test your regex patterns with online tools like regex101.com</li>
+                  <li>Use parentheses () to capture groups you want to extract</li>
+                  <li>Escape special characters with backslash: \. \* \+ \?</li>
+                  <li>Use non-capturing groups (?:...) when you don't need to extract</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {Object.entries(groupedQuestions).map(([difficulty, questions]) => (
+            questions.length > 0 && (
+              <div key={difficulty} style={{ marginBottom: '1.5rem' }}>
+                <button
+                  onClick={() => toggleSection(difficulty)}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '1rem',
+                    background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                    borderRadius: '0.75rem',
+                    marginBottom: '0.75rem',
+                    border: '2px solid #3b82f6',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = '#60a5fa'}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+                >
+                  <h2 style={{
+                    fontSize: '1.5rem',
+                    fontWeight: '600',
+                    color: '#93c5fd'
+                  }}>
+                    {difficulty} Problems ({questions.length})
+                  </h2>
+                  <span style={{
+                    fontSize: '1.5rem',
+                    color: '#60a5fa'
+                  }}>
+                    {expandedSections[difficulty] ? '−' : '+'}
+                  </span>
+                </button>
+
+                {expandedSections[difficulty] && (
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                    gap: '1rem'
+                  }}>
+                    {questions.map((question) => (
+                      <div
+                        key={question.id}
+                        onClick={() => setSelectedQuestion(question)}
+                        style={{
+                          padding: '1.5rem',
+                          border: '2px solid #3b82f6',
+                          borderRadius: '0.75rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s',
+                          background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                          position: 'relative',
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = '#60a5fa'
+                          e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                          e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(59, 130, 246, 0.5)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = '#3b82f6'
+                          e.currentTarget.style.transform = 'translateY(0)'
+                          e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                        }}
+                      >
+                        <div style={{
+                          position: 'absolute',
+                          top: '0.75rem',
+                          right: '0.75rem',
+                          display: 'flex',
+                          gap: '0.5rem'
+                        }}>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleShowDrawing(question)
+                            }}
+                            style={{
+                              padding: '0.5rem',
+                              background: '#1f2937',
+                              border: '1px solid #60a5fa',
+                              borderRadius: '0.5rem',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = '#374151'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = '#1f2937'}
+                            title="Open drawing canvas"
+                          >
+                            <svg style={{ width: '1.25rem', height: '1.25rem', color: '#60a5fa' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                          </button>
+                          <CompletionCheckbox
+                            problemId={`PythonRegex-${question.id}`}
+                            scale="0.85"
+                          />
+                        </div>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          justifyContent: 'space-between',
+                          marginBottom: '0.5rem'
+                        }}>
+                          <h3 style={{
+                            fontSize: '1.25rem',
+                            fontWeight: '600',
+                            color: '#93c5fd',
+                            paddingRight: '5rem'
+                          }}>
+                            {question.title}
+                          </h3>
+                        </div>
+                        <span style={{
+                          display: 'inline-block',
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '9999px',
+                          fontSize: '0.875rem',
+                          fontWeight: '500',
+                          marginBottom: '0.75rem',
+                          background: difficulty === 'Easy' ? '#065f46' :
+                                     difficulty === 'Medium' ? '#92400e' : '#7f1d1d',
+                          color: difficulty === 'Easy' ? '#6ee7b7' :
+                                 difficulty === 'Medium' ? '#fcd34d' : '#fca5a5'
+                        }}>
+                          {difficulty}
+                        </span>
+                        <p style={{
+                          color: '#d1d5db',
+                          marginBottom: '1rem'
+                        }}>
+                          {question.description}
+                        </p>
+                        {question.examples && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <p style={{
+                              fontWeight: '600',
+                              color: '#93c5fd',
+                              marginBottom: '0.5rem',
+                              fontSize: '0.875rem'
+                            }}>
+                              Example:
+                            </p>
+                            <div style={{
+                              background: '#1f2937',
+                              border: '1px solid #3b82f6',
+                              padding: '0.75rem',
+                              borderRadius: '0.5rem'
+                            }}>
+                              <p style={{
+                                fontFamily: 'monospace',
+                                fontSize: '0.875rem',
+                                color: '#d1d5db',
+                                marginBottom: '0.25rem'
+                              }}>
+                                <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>Input:</span> {question.examples[0].input}
+                              </p>
+                              <p style={{
+                                fontFamily: 'monospace',
+                                fontSize: '0.875rem',
+                                color: '#d1d5db'
+                              }}>
+                                <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>Output:</span> {question.examples[0].output}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          ))}
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <button
-          onClick={handleBack}
-          className="text-indigo-600 hover:text-indigo-800 text-xl"
-        >
-          ← Back to Problems
-        </button>
-        <div className="flex items-center gap-4">
-          <LanguageToggle />
-          <CompletionCheckbox problemId={`PythonRegex-${selectedQuestion.id}`} />
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
+      <div style={{
+        maxWidth: '80rem',
+        margin: '0 auto'
+      }}>
+        <div className="mb-6 flex items-center justify-between">
+          <button
+            onClick={handleBack}
+            style={{
+              background: '#2563eb',
+              color: 'white',
+              padding: '0.75rem 1.5rem',
+              borderRadius: '0.5rem',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              fontWeight: '500',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#1d4ed8'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#2563eb'}
+          >
+            ← Back to Problems
+          </button>
+          <div className="flex items-center gap-4">
+            <LanguageToggle />
+            <CompletionCheckbox problemId={`PythonRegex-${selectedQuestion.id}`} />
+          </div>
         </div>
-      </div>
 
-      <div className="bg-white rounded-lg shadow-md p-8 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold text-indigo-900">{selectedQuestion.title}</h1>
-          <span className={`px-4 py-2 rounded-full text-sm font-medium ${
-            selectedQuestion.difficulty === 'Easy' ? 'bg-green-100 text-green-800' :
-            selectedQuestion.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-            'bg-red-100 text-red-800'
-          }`}>
-            {selectedQuestion.difficulty}
-          </span>
-        </div>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+          borderRadius: '0.75rem',
+          border: '2px solid #3b82f6',
+          padding: '2rem',
+          marginBottom: '1.5rem'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '1rem'
+          }}>
+            <h1 style={{
+              fontSize: '1.875rem',
+              fontWeight: 'bold',
+              color: '#93c5fd'
+            }}>
+              {selectedQuestion.title}
+            </h1>
+            <span style={{
+              padding: '0.5rem 1rem',
+              borderRadius: '9999px',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              background: selectedQuestion.difficulty === 'Easy' ? '#065f46' :
+                         selectedQuestion.difficulty === 'Medium' ? '#92400e' : '#7f1d1d',
+              color: selectedQuestion.difficulty === 'Easy' ? '#6ee7b7' :
+                     selectedQuestion.difficulty === 'Medium' ? '#fcd34d' : '#fca5a5'
+            }}>
+              {selectedQuestion.difficulty}
+            </span>
+          </div>
 
-        <div className="prose max-w-none mb-6">
-          <p className="text-lg text-gray-700">{selectedQuestion.description}</p>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <p style={{
+              fontSize: '1.125rem',
+              color: '#d1d5db'
+            }}>
+              {selectedQuestion.description}
+            </p>
 
-          {selectedQuestion.examples && selectedQuestion.examples.length > 0 && (
-            <div className="mt-4">
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Examples:</h3>
-              {selectedQuestion.examples.map((example, index) => (
-                <div key={index} className="bg-indigo-50 border-2 border-indigo-200 p-5 rounded-lg mb-3 shadow-sm">
-                  <p className="font-mono text-lg text-gray-900 mb-2">
-                    <span className="font-bold text-indigo-700">Input:</span> {example.input}
-                  </p>
-                  <p className="font-mono text-lg text-gray-900">
-                    <span className="font-bold text-indigo-700">Output:</span> {example.output}
-                  </p>
-                </div>
-              ))}
+            {selectedQuestion.examples && selectedQuestion.examples.length > 0 && (
+              <div style={{ marginTop: '1rem' }}>
+                <h3 style={{
+                  fontSize: '1.25rem',
+                  fontWeight: 'bold',
+                  color: '#93c5fd',
+                  marginBottom: '0.75rem'
+                }}>
+                  Examples:
+                </h3>
+                {selectedQuestion.examples.map((example, index) => (
+                  <div key={index} style={{
+                    background: '#1f2937',
+                    border: '2px solid #3b82f6',
+                    padding: '1.25rem',
+                    borderRadius: '0.5rem',
+                    marginBottom: '0.75rem'
+                  }}>
+                    <p style={{
+                      fontFamily: 'monospace',
+                      fontSize: '1rem',
+                      color: '#d1d5db',
+                      marginBottom: '0.5rem'
+                    }}>
+                      <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>Input:</span> {example.input}
+                    </p>
+                    <p style={{
+                      fontFamily: 'monospace',
+                      fontSize: '1rem',
+                      color: '#d1d5db'
+                    }}>
+                      <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>Output:</span> {example.output}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <div style={{
+              display: 'flex',
+              gap: '0.5rem',
+              marginBottom: '0.5rem'
+            }}>
+              <button
+                onClick={() => {
+                  setShowSolution(!showSolution)
+                  if (!showSolution && selectedQuestion.code[language]) {
+                    setUserCode(selectedQuestion.code[language].solution)
+                  } else if (selectedQuestion.code[language]) {
+                    setUserCode(selectedQuestion.code[language].starterCode)
+                  }
+                }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  background: '#2563eb',
+                  color: 'white',
+                  borderRadius: '0.5rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#1d4ed8'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#2563eb'}
+              >
+                {showSolution ? 'Hide' : 'Show'} Solution
+              </button>
+              <button
+                onClick={() => setShowExplanation(!showExplanation)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  background: '#7c3aed',
+                  color: 'white',
+                  borderRadius: '0.5rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#6d28d9'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#7c3aed'}
+              >
+                {showExplanation ? 'Hide' : 'Show'} Explanation
+              </button>
             </div>
-          )}
-        </div>
 
-        <div className="mb-4">
-          <div className="flex gap-2 mb-2">
-            <button
-              onClick={() => {
-                setShowSolution(!showSolution)
-                if (!showSolution && selectedQuestion.code[language]) {
-                  setUserCode(selectedQuestion.code[language].solution)
-                } else if (selectedQuestion.code[language]) {
-                  setUserCode(selectedQuestion.code[language].starterCode)
-                }
+            {showExplanation && (
+              <div style={{
+                background: '#1f2937',
+                borderLeft: '4px solid #3b82f6',
+                padding: '1rem',
+                marginBottom: '1rem',
+                borderRadius: '0.25rem'
+              }}>
+                <p style={{ color: '#d1d5db' }}>{selectedQuestion.explanation}</p>
+                {selectedQuestion.timeComplexity && (
+                  <p style={{
+                    fontSize: '0.875rem',
+                    color: '#9ca3af',
+                    marginTop: '0.5rem'
+                  }}>
+                    <span style={{ fontWeight: '600' }}>Time Complexity:</span> {selectedQuestion.timeComplexity}
+                  </p>
+                )}
+                {selectedQuestion.spaceComplexity && (
+                  <p style={{
+                    fontSize: '0.875rem',
+                    color: '#9ca3af'
+                  }}>
+                    <span style={{ fontWeight: '600' }}>Space Complexity:</span> {selectedQuestion.spaceComplexity}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div style={{
+            background: '#111827',
+            borderRadius: '0.5rem',
+            padding: '1rem',
+            border: '1px solid #3b82f6'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '0.5rem'
+            }}>
+              <span style={{
+                color: '#9ca3af',
+                fontSize: '0.875rem',
+                fontFamily: 'monospace'
+              }}>
+                Python
+              </span>
+            </div>
+            <textarea
+              value={userCode}
+              onChange={(e) => setUserCode(e.target.value)}
+              style={{
+                width: '100%',
+                height: '24rem',
+                background: '#1f2937',
+                color: '#d1d5db',
+                fontFamily: 'monospace',
+                fontSize: '0.875rem',
+                padding: '1rem',
+                borderRadius: '0.5rem',
+                border: '1px solid #374151',
+                outline: 'none',
+                resize: 'vertical'
               }}
-              className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-            >
-              {showSolution ? 'Hide' : 'Show'} Solution
-            </button>
-            <button
-              onClick={() => setShowExplanation(!showExplanation)}
-              className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
-            >
-              {showExplanation ? 'Hide' : 'Show'} Explanation
-            </button>
+              onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+              onBlur={(e) => e.currentTarget.style.borderColor = '#374151'}
+              spellCheck="false"
+            />
           </div>
 
-          {showExplanation && (
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
-              <p className="text-gray-800">{selectedQuestion.explanation}</p>
-              {selectedQuestion.timeComplexity && (
-                <p className="text-sm text-gray-600 mt-2">
-                  <span className="font-semibold">Time Complexity:</span> {selectedQuestion.timeComplexity}
-                </p>
-              )}
-              {selectedQuestion.spaceComplexity && (
-                <p className="text-sm text-gray-600">
-                  <span className="font-semibold">Space Complexity:</span> {selectedQuestion.spaceComplexity}
-                </p>
-              )}
+          {output && (
+            <div style={{
+              marginTop: '1rem',
+              background: '#1f2937',
+              borderRadius: '0.5rem',
+              padding: '1rem',
+              border: '1px solid #3b82f6'
+            }}>
+              <h3 style={{
+                fontSize: '1.125rem',
+                fontWeight: '600',
+                color: '#93c5fd',
+                marginBottom: '0.5rem'
+              }}>
+                Output:
+              </h3>
+              <pre style={{
+                whiteSpace: 'pre-wrap',
+                fontFamily: 'monospace',
+                fontSize: '0.875rem',
+                color: '#d1d5db'
+              }}>
+                {output}
+              </pre>
             </div>
           )}
         </div>
-
-        <div className="bg-gray-900 rounded-lg p-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-gray-300 text-sm font-mono">Python</span>
-          </div>
-          <textarea
-            value={userCode}
-            onChange={(e) => setUserCode(e.target.value)}
-            className="w-full h-96 bg-gray-800 text-gray-100 font-mono text-sm p-4 rounded border border-gray-700 focus:border-indigo-500 focus:outline-none"
-            spellCheck="false"
-          />
-        </div>
-
-        {output && (
-          <div className="mt-4 bg-gray-100 rounded-lg p-4">
-            <h3 className="text-lg font-semibold mb-2">Output:</h3>
-            <pre className="whitespace-pre-wrap font-mono text-sm">{output}</pre>
-          </div>
-        )}
       </div>
     </div>
   )

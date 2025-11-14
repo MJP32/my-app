@@ -214,6 +214,13 @@ function MyProjects({ onBack, onSelectItem }) {
           icon: '🏗️',
           color: '#0891b2',
           description: 'System design interview preparation - Complete CQRS, Event Sourcing, Saga patterns for 10M users.'
+        },
+        {
+          id: 'Virtual Numbers',
+          name: 'Virtual Numbers',
+          icon: '🔢',
+          color: '#14b8a6',
+          description: 'Deep dive into credit card number structure, network identifiers, Luhn Algorithm validation, and payment card industry standards.'
         }
       ]
     },

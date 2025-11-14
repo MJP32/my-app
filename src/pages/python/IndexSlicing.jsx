@@ -1,68 +1,6 @@
 import { useState, useEffect } from 'react'
-
-// Simple syntax highlighter for Python code
-const SyntaxHighlighter = ({ code }) => {
-  const highlightPython = (code) => {
-    let highlighted = code
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-
-    const protectedContent = []
-    let placeholder = 0
-
-    // Protect comments
-    highlighted = highlighted.replace(/(#.*$)/gm, (match) => {
-      const id = `___COMMENT_${placeholder++}___`
-      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
-      return id
-    })
-
-    // Protect strings
-    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
-      const id = `___STRING_${placeholder++}___`
-      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
-      return id
-    })
-
-    // Apply syntax highlighting
-    highlighted = highlighted
-      // Keywords - purple
-      .replace(/\b(def|class|if|elif|else|for|while|in|not|and|or|is|return|yield|import|from|as|try|except|finally|with|lambda|None|pass|break|continue|raise|assert|global|nonlocal)\b/g, '<span style="color: #c586c0;">$1</span>')
-
-      // Boolean and special - blue
-      .replace(/\b(True|False|None)\b/g, '<span style="color: #569cd6;">$1</span>')
-
-      // Built-in functions - yellow
-      .replace(/\b(print|len|range|enumerate|zip|map|filter|sorted|reversed|sum|max|min|abs|all|any|chr|ord|int|str|float|list|dict|set|tuple|type|isinstance|hasattr|getattr|setattr|open|input)\b/g, '<span style="color: #dcdcaa;">$1</span>')
-
-      // Numbers - light green
-      .replace(/\b(\d+\.?\d*)\b/g, '<span style="color: #b5cea8;">$1</span>')
-
-    // Restore protected content
-    protectedContent.forEach(({ id, replacement }) => {
-      highlighted = highlighted.replace(id, replacement)
-    })
-
-    return highlighted
-  }
-
-  return (
-    <pre style={{
-      margin: 0,
-      fontFamily: '"Fira Code", "Consolas", "Monaco", "Courier New", monospace',
-      fontSize: '0.9rem',
-      lineHeight: '1.7',
-      color: '#e2e8f0',
-      whiteSpace: 'pre',
-      overflowX: 'auto',
-      textAlign: 'left',
-      padding: '1.25rem'
-    }}>
-      <code dangerouslySetInnerHTML={{ __html: highlightPython(code) }} />
-    </pre>
-  )
-}
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 function IndexSlicing({ onBack }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
@@ -597,118 +535,118 @@ print(f"Deep copy: {deep_copy}")            # [[99, 2], [3, 4]]`
   return (
     <>
       <div style={{
-        padding: '2rem',
-        maxWidth: '95%',
-        margin: '120px auto 0',
-        backgroundColor: 'white',
-        borderRadius: '16px',
-        boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-        border: '3px solid rgba(55, 118, 171, 0.4)'
+        minHeight: '100vh',
+        background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+        color: 'white',
+        padding: '1.5rem'
       }}>
         <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '2rem'
+          maxWidth: '80rem',
+          margin: '0 auto'
         }}>
-          <button
-            onClick={onBack}
-            style={{
-              padding: '0.75rem 1.5rem',
-              fontSize: '1rem',
-              fontWeight: '600',
-              backgroundColor: '#3776ab',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(55, 118, 171, 0.3)'
-            }}
-          >
-            ← Back to Python Topics
-          </button>
-          <h1 style={{
-            fontSize: '2.5rem',
-            fontWeight: '800',
-            color: '#1f2937',
-            margin: 0
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '2rem'
           }}>
-            ✂️ Python Index Slicing
-          </h1>
-          <div style={{ width: '150px' }}></div>
-        </div>
-
-        <div style={{
-          backgroundColor: 'rgba(55, 118, 171, 0.05)',
-          padding: '2.5rem 10rem',
-          borderRadius: '16px',
-          border: '3px solid rgba(55, 118, 171, 0.3)',
-          marginBottom: '2rem'
-        }}>
-          <p style={{
-            fontSize: '1.3rem',
-            color: '#374151',
-            fontWeight: '500',
-            margin: 0,
-            lineHeight: '1.8',
-            textAlign: 'center'
-          }}>
-            Master Python sequence indexing and slicing: positive/negative indices, slice notation [start:stop:step], and advanced slicing techniques.
-          </p>
-        </div>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '2rem'
-        }}>
-          {concepts.map((concept, idx) => (
-            <div
-              key={idx}
-              onClick={() => setSelectedConcept(concept)}
-              style={{
-                backgroundColor: 'rgba(55, 118, 171, 0.05)',
-                padding: '2rem',
-                borderRadius: '16px',
-                border: '3px solid rgba(55, 118, 171, 0.3)',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)'
-                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.15)'
-                e.currentTarget.style.borderColor = 'rgba(55, 118, 171, 0.5)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                e.currentTarget.style.borderColor = 'rgba(55, 118, 171, 0.3)'
-              }}
-            >
-              <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>
-                {concept.icon}
-              </div>
-              <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: '#3776ab',
-                marginBottom: '1rem',
-                textAlign: 'center'
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}>
+              <button
+                onClick={onBack}
+                style={{
+                  background: '#2563eb',
+                  color: 'white',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '0.5rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  fontWeight: '500',
+                  fontSize: '1rem',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#1d4ed8'
+                  e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#2563eb'
+                  e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                }}
+              >
+                ← Back to Python Topics
+              </button>
+              <h1 style={{
+                fontSize: '2.25rem',
+                fontWeight: 'bold',
+                background: 'linear-gradient(to right, #60a5fa, #22d3ee)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
               }}>
-                {concept.name}
-              </h3>
-              <p style={{
-                fontSize: '1rem',
-                color: '#6b7280',
-                lineHeight: '1.6',
-                textAlign: 'center'
-              }}>
-                {concept.explanation?.substring(0, 150)}...
-              </p>
+                ✂️ Python Index Slicing
+              </h1>
             </div>
-          ))}
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '1.5rem'
+          }}>
+            {concepts.map((concept, idx) => (
+              <div
+                key={idx}
+                onClick={() => setSelectedConcept(concept)}
+                style={{
+                  background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                  padding: '1.5rem',
+                  borderRadius: '0.75rem',
+                  border: '2px solid #3b82f6',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#60a5fa'
+                  e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                  e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(59, 130, 246, 0.5)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#3b82f6'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}
+              >
+                <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>
+                  {concept.icon}
+                </div>
+                <h3 style={{
+                  fontSize: '1.5rem',
+                  fontWeight: 'bold',
+                  textAlign: 'center',
+                  marginBottom: '0.75rem',
+                  color: '#93c5fd'
+                }}>
+                  {concept.name}
+                </h3>
+                <p style={{
+                  color: '#d1d5db',
+                  textAlign: 'center',
+                  fontSize: '0.875rem'
+                }}>
+                  Click to explore indexing and slicing techniques
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -718,79 +656,104 @@ print(f"Deep copy: {deep_copy}")            # [[99, 2], [3, 4]]`
           onClick={() => setSelectedConcept(null)}
           style={{
             position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            inset: '0',
+            background: 'rgba(0, 0, 0, 0.8)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 1000,
-            padding: '2rem',
-            backdropFilter: 'blur(4px)'
+            padding: '1rem',
+            zIndex: '50',
+            overflowY: 'auto'
           }}
         >
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '90vw',
+              background: 'linear-gradient(to bottom right, #111827, #1f2937)',
+              borderRadius: '0.75rem',
+              maxWidth: '72rem',
+              width: '100%',
               maxHeight: '90vh',
-              width: '1200px',
-              overflow: 'hidden',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              border: '3px solid rgba(55, 118, 171, 0.4)',
-              display: 'flex',
-              flexDirection: 'column'
+              overflowY: 'auto',
+              border: '2px solid #3b82f6',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
             }}
           >
             <div style={{
-              padding: '1.5rem 2rem',
-              borderBottom: '2px solid rgba(55, 118, 171, 0.2)',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              backgroundColor: 'rgba(55, 118, 171, 0.05)'
+              position: 'sticky',
+              top: '0',
+              background: 'linear-gradient(to right, #2563eb, #1d4ed8)',
+              padding: '1.5rem',
+              borderTopLeftRadius: '0.75rem',
+              borderTopRightRadius: '0.75rem',
+              borderBottom: '2px solid #60a5fa',
+              zIndex: '10'
             }}>
-              <h2 style={{
-                fontSize: '2rem',
-                fontWeight: '700',
-                color: '#3776ab',
-                margin: 0
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
               }}>
-                {selectedConcept.icon} {selectedConcept.name}
-              </h2>
-              <button
-                onClick={() => setSelectedConcept(null)}
-                style={{
-                  padding: '0.5rem 1rem',
-                  fontSize: '1.5rem',
-                  fontWeight: '600',
-                  backgroundColor: 'transparent',
-                  color: '#6b7280',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer'
-                }}
-              >
-                ✕
-              </button>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem'
+                }}>
+                  <span style={{ fontSize: '3rem' }}>{selectedConcept.icon}</span>
+                  <h2 style={{
+                    fontSize: '1.875rem',
+                    fontWeight: 'bold',
+                    color: 'white'
+                  }}>
+                    {selectedConcept.name}
+                  </h2>
+                </div>
+                <button
+                  onClick={() => setSelectedConcept(null)}
+                  style={{
+                    background: '#dc2626',
+                    color: 'white',
+                    padding: '0.75rem 1.5rem',
+                    borderRadius: '0.5rem',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    fontSize: '1rem',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#b91c1c'
+                    e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#dc2626'
+                    e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                  }}
+                >
+                  Close
+                </button>
+              </div>
             </div>
 
             <div style={{
-              padding: '2rem',
-              overflowY: 'auto',
-              flex: 1
+              padding: '2rem'
             }}>
               <div style={{
-                backgroundColor: 'rgba(55, 118, 171, 0.05)',
+                background: '#1f2937',
+                borderRadius: '0.5rem',
                 padding: '1.5rem',
-                borderRadius: '12px',
-                border: '2px solid rgba(55, 118, 171, 0.2)',
-                marginBottom: '2rem'
+                marginBottom: '1.5rem',
+                border: '1px solid #3b82f6'
               }}>
+                <h3 style={{
+                  fontSize: '1.25rem',
+                  fontWeight: '600',
+                  marginBottom: '1rem',
+                  color: '#93c5fd'
+                }}>
+                  Overview
+                </h3>
                 {selectedConcept.explanation.split('\n\n').map((section, idx) => {
                   if (section.startsWith('**') && section.includes(':**')) {
                     const headerMatch = section.match(/\*\*(.*?):\*\*/)
@@ -800,17 +763,17 @@ print(f"Deep copy: {deep_copy}")            # [[99, 2], [3, 4]]`
 
                       return (
                         <div key={idx} style={{ marginBottom: '1.5rem' }}>
-                          <h3 style={{
+                          <h4 style={{
                             fontSize: '1.1rem',
-                            fontWeight: '700',
-                            color: '#3776ab',
+                            fontWeight: '600',
+                            color: '#60a5fa',
                             marginBottom: '0.75rem'
                           }}>
                             {header}
-                          </h3>
+                          </h4>
                           <div style={{
                             paddingLeft: '1.25rem',
-                            color: '#4b5563',
+                            color: '#d1d5db',
                             fontSize: '0.95rem',
                             lineHeight: '1.8'
                           }}>
@@ -821,7 +784,7 @@ print(f"Deep copy: {deep_copy}")            # [[99, 2], [3, 4]]`
                                     display: 'flex',
                                     marginBottom: '0.5rem'
                                   }}>
-                                    <span style={{ color: '#3776ab', marginRight: '0.75rem' }}>•</span>
+                                    <span style={{ color: '#3b82f6', marginRight: '0.75rem' }}>•</span>
                                     <span>{line.trim().substring(1).trim()}</span>
                                   </div>
                                 )
@@ -837,63 +800,106 @@ print(f"Deep copy: {deep_copy}")            # [[99, 2], [3, 4]]`
                 })}
               </div>
 
-              {selectedConcept.codeExample && (() => {
-                const sections = parseCodeSections(selectedConcept.codeExample)
-                return sections.length > 0 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {sections.map((section, idx) => {
-                      const sectionKey = `${selectedConcept.name}-${idx}`
-                      const isExpanded = expandedSections[sectionKey]
+              <div style={{
+                background: '#1f2937',
+                borderRadius: '0.5rem',
+                padding: '1.5rem',
+                border: '1px solid #3b82f6'
+              }}>
+                <h3 style={{
+                  fontSize: '1.25rem',
+                  fontWeight: '600',
+                  marginBottom: '1rem',
+                  color: '#93c5fd'
+                }}>
+                  Code Examples
+                </h3>
+                {selectedConcept.codeExample && (() => {
+                  const sections = parseCodeSections(selectedConcept.codeExample)
+                  return sections.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      {sections.map((section, idx) => {
+                        const sectionKey = `${selectedConcept.name}-${idx}`
+                        const isExpanded = expandedSections[sectionKey]
 
-                      return (
-                        <div key={idx} style={{
-                          backgroundColor: '#1e293b',
-                          borderRadius: '12px',
-                          overflow: 'hidden',
-                          border: '2px solid #334155'
-                        }}>
-                          <button
-                            onClick={() => toggleSection(sectionKey)}
-                            style={{
-                              width: '100%',
-                              padding: '1rem 1.5rem',
-                              backgroundColor: '#334155',
-                              border: 'none',
-                              color: '#60a5fa',
-                              fontSize: '1rem',
-                              fontWeight: '600',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center'
-                            }}
-                          >
-                            <span>💻 {section.title}</span>
-                            <span style={{ fontSize: '1.2rem' }}>
-                              {isExpanded ? '▼' : '▶'}
-                            </span>
-                          </button>
+                        return (
+                          <div key={idx} style={{
+                            backgroundColor: '#1e293b',
+                            borderRadius: '0.5rem',
+                            overflow: 'hidden',
+                            border: '1px solid #3b82f6'
+                          }}>
+                            <button
+                              onClick={() => toggleSection(sectionKey)}
+                              style={{
+                                width: '100%',
+                                padding: '1rem 1.5rem',
+                                background: '#2563eb',
+                                border: 'none',
+                                color: 'white',
+                                fontSize: '1rem',
+                                fontWeight: '500',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                textAlign: 'left',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = '#1d4ed8'
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = '#2563eb'
+                              }}
+                            >
+                              <span>💻 {section.title}</span>
+                              <span style={{ fontSize: '1.2rem' }}>
+                                {isExpanded ? '▼' : '▶'}
+                              </span>
+                            </button>
 
-                          {isExpanded && (
-                            <div style={{ padding: 0 }}>
-                              <SyntaxHighlighter code={section.code} />
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-                ) : (
-                  <div style={{
-                    backgroundColor: '#1e293b',
-                    padding: 0,
-                    borderRadius: '12px',
-                    border: '2px solid #334155'
-                  }}>
-                    <SyntaxHighlighter code={selectedConcept.codeExample} />
-                  </div>
-                )
-              })()}
+                            {isExpanded && (
+                              <div style={{ padding: 0 }}>
+                                <SyntaxHighlighter
+                                  language="python"
+                                  style={vscDarkPlus}
+                                  customStyle={{
+                                    borderRadius: '8px',
+                                    padding: '1rem',
+                                    fontSize: '0.9rem'
+                                  }}
+                                >
+                                  {section.code}
+                                </SyntaxHighlighter>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <div style={{
+                      backgroundColor: '#1e293b',
+                      padding: 0,
+                      borderRadius: '0.5rem',
+                      border: '1px solid #3b82f6'
+                    }}>
+                      <SyntaxHighlighter
+                        language="python"
+                        style={vscDarkPlus}
+                        customStyle={{
+                          borderRadius: '8px',
+                          padding: '1rem',
+                          fontSize: '0.9rem'
+                        }}
+                      >
+                        {selectedConcept.codeExample}
+                      </SyntaxHighlighter>
+                    </div>
+                  )
+                })()}
+              </div>
             </div>
           </div>
         </div>

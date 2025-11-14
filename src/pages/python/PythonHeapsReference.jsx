@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 function PythonHeapsReference({ onBack }) {
   const [selectedMethod, setSelectedMethod] = useState(null)
@@ -572,15 +574,324 @@ print(first_10)  # [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]`
         'K-way merge sort',
         'Log file aggregation'
       ]
+    },
+    {
+      id: 'heapify_max',
+      name: 'heapq.heapify_max()',
+      category: 'Max Heap',
+      signature: 'heapq.heapify_max(x)',
+      description: 'Transform list x into a max-heap, in-place, in linear time. New in Python 3.14.',
+      parameters: [
+        { name: 'x', type: 'list', description: 'List to transform into a max heap' }
+      ],
+      returns: 'None (modifies list in-place)',
+      timeComplexity: 'O(n)',
+      spaceComplexity: 'O(1)',
+      examples: [
+        {
+          title: 'Basic Max Heap',
+          code: `import heapq
+
+# Create a max heap from a list
+nums = [5, 7, 9, 1, 3]
+heapq.heapify_max(nums)
+print(nums)  # Output: [9, 7, 5, 1, 3]
+
+# The largest element is now at index 0
+print(nums[0])  # Output: 9`
+        },
+        {
+          title: 'Max Heap vs Min Heap',
+          code: `import heapq
+
+nums_max = [10, 20, 5, 15, 30]
+nums_min = nums_max.copy()
+
+# Create max heap
+heapq.heapify_max(nums_max)
+print(f"Max heap: {nums_max}")  # [30, 20, 5, 15, 10]
+print(f"Largest: {nums_max[0]}")  # 30
+
+# Create min heap (regular heapify)
+heapq.heapify(nums_min)
+print(f"Min heap: {nums_min}")  # [5, 10, 15, 20, 30]
+print(f"Smallest: {nums_min[0]}")  # 5`
+        }
+      ],
+      notes: [
+        'New in Python 3.14',
+        'Creates a max heap (largest element at root)',
+        'Modifies the list in-place',
+        'Max heap property: parent >= children',
+        'Before Python 3.14, max heaps required negating values'
+      ],
+      useCases: [
+        'Initialize a max priority queue',
+        'Find k smallest elements efficiently',
+        'Implement scheduling with highest priority first'
+      ]
+    },
+    {
+      id: 'heappush_max',
+      name: 'heapq.heappush_max()',
+      category: 'Max Heap',
+      signature: 'heapq.heappush_max(heap, item)',
+      description: 'Push the value item onto the max-heap, maintaining the max-heap invariant. New in Python 3.14.',
+      parameters: [
+        { name: 'heap', type: 'list', description: 'Max heap to push item onto' },
+        { name: 'item', type: 'any', description: 'Item to add to the max heap' }
+      ],
+      returns: 'None (modifies heap in-place)',
+      timeComplexity: 'O(log n)',
+      spaceComplexity: 'O(1)',
+      examples: [
+        {
+          title: 'Adding Elements to Max Heap',
+          code: `import heapq
+
+max_heap = []
+heapq.heappush_max(max_heap, 5)
+heapq.heappush_max(max_heap, 3)
+heapq.heappush_max(max_heap, 7)
+heapq.heappush_max(max_heap, 1)
+
+print(max_heap)  # Output: [7, 3, 5, 1]
+print(max_heap[0])  # Largest element: 7`
+        },
+        {
+          title: 'Max Priority Queue',
+          code: `import heapq
+
+# Task priority queue (higher number = higher priority)
+tasks = []
+heapq.heappush_max(tasks, (2, "Medium priority task"))
+heapq.heappush_max(tasks, (3, "High priority task"))
+heapq.heappush_max(tasks, (1, "Low priority task"))
+
+# Get highest priority task
+priority, task = heapq.heappop_max(tasks)
+print(f"Priority {priority}: {task}")  # Priority 3: High priority task`
+        }
+      ],
+      notes: [
+        'New in Python 3.14',
+        'Maintains max heap invariant',
+        'O(log n) time complexity for insertion',
+        'Pairs with heappop_max() for complete max heap operations'
+      ],
+      useCases: [
+        'Dynamically add items to max priority queue',
+        'Stream processing with priority',
+        'Real-time task scheduling'
+      ]
+    },
+    {
+      id: 'heappop_max',
+      name: 'heapq.heappop_max()',
+      category: 'Max Heap',
+      signature: 'heapq.heappop_max(heap)',
+      description: 'Pop and return the largest item from the max-heap, maintaining the max-heap invariant. Raises IndexError if heap is empty. New in Python 3.14.',
+      parameters: [
+        { name: 'heap', type: 'list', description: 'Max heap to pop from' }
+      ],
+      returns: 'The largest item from the max heap',
+      timeComplexity: 'O(log n)',
+      spaceComplexity: 'O(1)',
+      examples: [
+        {
+          title: 'Extract Maximum',
+          code: `import heapq
+
+nums = [3, 7, 1, 9, 5]
+heapq.heapify_max(nums)
+
+# Pop elements in descending order
+print(heapq.heappop_max(nums))  # 9
+print(heapq.heappop_max(nums))  # 7
+print(heapq.heappop_max(nums))  # 5
+print(heapq.heappop_max(nums))  # 3
+print(heapq.heappop_max(nums))  # 1`
+        },
+        {
+          title: 'Top K Elements',
+          code: `import heapq
+
+def find_k_largest(nums, k):
+    """Find k largest elements using max heap"""
+    heapq.heapify_max(nums)
+    return [heapq.heappop_max(nums) for _ in range(k)]
+
+nums = [10, 20, 5, 15, 30, 25, 8]
+k_largest = find_k_largest(nums, 3)
+print(k_largest)  # [30, 25, 20]`
+        }
+      ],
+      notes: [
+        'New in Python 3.14',
+        'Returns and removes the largest element',
+        'Raises IndexError if heap is empty',
+        'Maintains max heap property after removal',
+        'Use with heappush_max() for complete priority queue'
+      ],
+      useCases: [
+        'Process items in descending order of priority',
+        'Implement descending heap sort',
+        'Find and remove maximum elements'
+      ]
+    },
+    {
+      id: 'heappushpop_max',
+      name: 'heapq.heappushpop_max()',
+      category: 'Max Heap',
+      signature: 'heapq.heappushpop_max(heap, item)',
+      description: 'Push item on the max-heap, then pop and return the largest item. More efficient than separate push and pop. New in Python 3.14.',
+      parameters: [
+        { name: 'heap', type: 'list', description: 'Max heap to operate on' },
+        { name: 'item', type: 'any', description: 'Item to push onto heap' }
+      ],
+      returns: 'The largest item (may be the pushed item)',
+      timeComplexity: 'O(log n)',
+      spaceComplexity: 'O(1)',
+      examples: [
+        {
+          title: 'Efficient Push and Pop',
+          code: `import heapq
+
+max_heap = [10, 8, 5]
+heapq.heapify_max(max_heap)
+
+# Push 12 and pop largest (will return 12)
+largest = heapq.heappushpop_max(max_heap, 12)
+print(f"Largest: {largest}")  # 12
+print(f"Heap: {max_heap}")  # [10, 8, 5]
+
+# Push 3 and pop largest (will return 10)
+largest = heapq.heappushpop_max(max_heap, 3)
+print(f"Largest: {largest}")  # 10
+print(f"Heap: {max_heap}")  # [8, 5, 3]`
+        },
+        {
+          title: 'Running Maximum with Size Limit',
+          code: `import heapq
+
+def top_k_max(stream, k):
+    """Maintain top k maximum elements from stream"""
+    heap = []
+    result = []
+
+    for num in stream:
+        if len(heap) < k:
+            heapq.heappush_max(heap, num)
+        else:
+            # Keep only top k maximum
+            heapq.heappushpop_max(heap, num)
+        result.append(heap[0] if heap else None)
+
+    return result
+
+stream = [5, 10, 3, 8, 15, 12]
+maxes = top_k_max(stream, 3)
+print(maxes)  # [5, 10, 10, 10, 15, 15]`
+        }
+      ],
+      notes: [
+        'New in Python 3.14',
+        'More efficient than separate heappush_max() + heappop_max()',
+        'Returns the pushed item if it\'s larger than all heap items',
+        'Useful for maintaining fixed-size max heaps',
+        'Heap size remains constant'
+      ],
+      useCases: [
+        'Sliding window maximum',
+        'Maintain top K elements',
+        'Limited-size priority buffers'
+      ]
+    },
+    {
+      id: 'heapreplace_max',
+      name: 'heapq.heapreplace_max()',
+      category: 'Max Heap',
+      signature: 'heapq.heapreplace_max(heap, item)',
+      description: 'Pop and return the largest item from max-heap, then push the new item. Raises IndexError if heap is empty. New in Python 3.14.',
+      parameters: [
+        { name: 'heap', type: 'list', description: 'Max heap to operate on' },
+        { name: 'item', type: 'any', description: 'Item to push after popping' }
+      ],
+      returns: 'The largest item (before replacement)',
+      timeComplexity: 'O(log n)',
+      spaceComplexity: 'O(1)',
+      examples: [
+        {
+          title: 'Replace Maximum',
+          code: `import heapq
+
+max_heap = [15, 10, 8, 5]
+heapq.heapify_max(max_heap)
+
+# Pop 15, push 12
+old_max = heapq.heapreplace_max(max_heap, 12)
+print(f"Removed: {old_max}")  # 15
+print(f"Heap: {max_heap}")  # [12, 10, 8, 5]
+
+# Pop 12, push 20
+old_max = heapq.heapreplace_max(max_heap, 20)
+print(f"Removed: {old_max}")  # 12
+print(f"Heap: {max_heap}")  # [20, 10, 8, 5]`
+        },
+        {
+          title: 'Cache with Replacement',
+          code: `import heapq
+
+class MaxPriorityCache:
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.heap = []
+        heapq.heapify_max(self.heap)
+
+    def add_or_replace(self, priority, item):
+        """Add item or replace lowest priority if full"""
+        if len(self.heap) < self.capacity:
+            heapq.heappush_max(self.heap, (priority, item))
+            return None
+        else:
+            old = heapq.heapreplace_max(self.heap, (priority, item))
+            return old[1]  # Return evicted item
+
+cache = MaxPriorityCache(3)
+cache.add_or_replace(5, "Important")
+cache.add_or_replace(3, "Medium")
+cache.add_or_replace(8, "Critical")
+evicted = cache.add_or_replace(6, "High")
+print(f"Evicted: {evicted}")  # Critical`
+        }
+      ],
+      notes: [
+        'New in Python 3.14',
+        'More efficient than heappop_max() + heappush_max()',
+        'Always pops before pushing (unlike heappushpop_max)',
+        'Raises IndexError on empty heap',
+        'Heap size remains constant',
+        'Different from heappushpop_max: pop happens first'
+      ],
+      useCases: [
+        'Update priority in priority queue',
+        'Fixed-size cache with eviction',
+        'Circular buffer with priorities'
+      ]
     }
   ]
 
   const categories = [...new Set(heapMethods.map(m => m.category))]
 
-  const filteredMethods = heapMethods.filter(method =>
-    method.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    method.description.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredMethods = heapMethods.filter(method => {
+    const search = searchTerm.toLowerCase()
+    return (
+      method.name.toLowerCase().includes(search) ||
+      method.description.toLowerCase().includes(search) ||
+      method.id.toLowerCase().includes(search) ||
+      method.category.toLowerCase().includes(search)
+    )
+  })
 
   const handleBackClick = () => {
     if (selectedMethod) {
@@ -592,33 +903,62 @@ print(first_10)  # [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]`
 
   if (selectedMethod) {
     return (
-      <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-        <button
-          onClick={handleBackClick}
-          style={{
-            marginBottom: '1.5rem',
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            backgroundColor: '#3776ab',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: '600'
-          }}
-        >
-          ← Back to Methods
-        </button>
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+        color: 'white',
+        padding: '2rem'
+      }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+          <button
+            onClick={handleBackClick}
+            style={{
+              marginBottom: '1.5rem',
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              background: '#2563eb',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.5rem',
+              cursor: 'pointer',
+              fontWeight: '500',
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#1d4ed8'
+              e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#2563eb'
+              e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+            }}
+          >
+            ← Back to Methods
+          </button>
 
-        <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '2.5rem', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+          <div style={{
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+            borderRadius: '0.75rem',
+            padding: '2.5rem',
+            border: '2px solid #3b82f6',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+          }}>
           {/* Header */}
-          <div style={{ marginBottom: '2rem', borderBottom: '2px solid #e5e7eb', paddingBottom: '1.5rem' }}>
+          <div style={{ marginBottom: '2rem', borderBottom: '2px solid #3b82f6', paddingBottom: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
-              <h1 style={{ margin: 0, color: '#1e293b', fontSize: '2rem' }}>{selectedMethod.name}</h1>
+              <h1 style={{
+                margin: 0,
+                fontSize: '2rem',
+                background: 'linear-gradient(to right, #60a5fa, #22d3ee)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}>{selectedMethod.name}</h1>
               <span style={{
                 padding: '0.25rem 0.75rem',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
+                background: '#2563eb',
+                color: 'white',
                 borderRadius: '6px',
                 fontSize: '0.875rem',
                 fontWeight: '600'
@@ -626,43 +966,44 @@ print(first_10)  # [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]`
                 {selectedMethod.category}
               </span>
             </div>
-            <p style={{ color: '#64748b', fontSize: '1.1rem', margin: '0.5rem 0 0 0' }}>
+            <p style={{ color: '#d1d5db', fontSize: '1.1rem', margin: '0.5rem 0 0 0' }}>
               {selectedMethod.description}
             </p>
           </div>
 
           {/* Signature */}
           <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ color: '#1e293b', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Signature</h3>
-            <pre style={{
-              backgroundColor: '#1e293b',
-              color: '#e2e8f0',
-              padding: '1rem 1.5rem',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              fontFamily: 'monospace',
-              margin: 0,
-              overflow: 'auto'
-            }}>
+            <h3 style={{ color: '#93c5fd', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Signature</h3>
+            <SyntaxHighlighter
+              language="python"
+              style={vscDarkPlus}
+              customStyle={{
+                borderRadius: '8px',
+                padding: '1rem',
+                fontSize: '0.9rem',
+                border: '1px solid #3b82f6',
+                margin: 0
+              }}
+            >
               {selectedMethod.signature}
-            </pre>
+            </SyntaxHighlighter>
           </div>
 
           {/* Parameters */}
           <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ color: '#1e293b', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Parameters</h3>
+            <h3 style={{ color: '#93c5fd', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Parameters</h3>
             {selectedMethod.parameters.map((param, idx) => (
               <div key={idx} style={{
-                backgroundColor: '#f8fafc',
+                background: '#1f2937',
                 padding: '1rem',
-                borderRadius: '8px',
+                borderRadius: '0.5rem',
                 marginBottom: '0.5rem',
-                borderLeft: '4px solid #3776ab'
+                borderLeft: '4px solid #3b82f6'
               }}>
                 <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
                   <code style={{
-                    backgroundColor: '#e0e7ff',
-                    color: '#3730a3',
+                    background: '#2563eb',
+                    color: 'white',
                     padding: '0.25rem 0.5rem',
                     borderRadius: '4px',
                     fontSize: '0.875rem',
@@ -670,82 +1011,83 @@ print(first_10)  # [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]`
                   }}>
                     {param.name}
                   </code>
-                  <span style={{ color: '#64748b', fontSize: '0.875rem' }}>
+                  <span style={{ color: '#93c5fd', fontSize: '0.875rem' }}>
                     ({param.type})
-                    {param.optional && <span style={{ color: '#f59e0b' }}> - optional</span>}
+                    {param.optional && <span style={{ color: '#fbbf24' }}> - optional</span>}
                   </span>
                 </div>
-                <p style={{ color: '#475569', margin: 0, fontSize: '0.9rem' }}>{param.description}</p>
+                <p style={{ color: '#d1d5db', margin: 0, fontSize: '0.9rem' }}>{param.description}</p>
               </div>
             ))}
           </div>
 
           {/* Returns */}
           <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ color: '#1e293b', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Returns</h3>
+            <h3 style={{ color: '#93c5fd', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Returns</h3>
             <div style={{
-              backgroundColor: '#dcfce7',
+              background: '#1f2937',
               padding: '1rem',
-              borderRadius: '8px',
-              borderLeft: '4px solid #16a34a'
+              borderRadius: '0.5rem',
+              borderLeft: '4px solid #22d3ee'
             }}>
-              <p style={{ color: '#166534', margin: 0, fontWeight: '500' }}>{selectedMethod.returns}</p>
+              <p style={{ color: '#22d3ee', margin: 0, fontWeight: '500' }}>{selectedMethod.returns}</p>
             </div>
           </div>
 
           {/* Complexity */}
           <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ color: '#1e293b', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Complexity</h3>
+            <h3 style={{ color: '#93c5fd', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Complexity</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div style={{
-                backgroundColor: '#fef3c7',
+                background: '#1f2937',
                 padding: '1rem',
-                borderRadius: '8px',
-                borderLeft: '4px solid #f59e0b'
+                borderRadius: '0.5rem',
+                borderLeft: '4px solid #fbbf24'
               }}>
-                <div style={{ color: '#92400e', fontWeight: '600', marginBottom: '0.25rem' }}>Time Complexity</div>
-                <code style={{ color: '#78350f' }}>{selectedMethod.timeComplexity}</code>
+                <div style={{ color: '#fbbf24', fontWeight: '600', marginBottom: '0.25rem' }}>Time Complexity</div>
+                <code style={{ color: '#fde68a' }}>{selectedMethod.timeComplexity}</code>
               </div>
               <div style={{
-                backgroundColor: '#e0e7ff',
+                background: '#1f2937',
                 padding: '1rem',
-                borderRadius: '8px',
-                borderLeft: '4px solid #6366f1'
+                borderRadius: '0.5rem',
+                borderLeft: '4px solid #8b5cf6'
               }}>
-                <div style={{ color: '#3730a3', fontWeight: '600', marginBottom: '0.25rem' }}>Space Complexity</div>
-                <code style={{ color: '#312e81' }}>{selectedMethod.spaceComplexity}</code>
+                <div style={{ color: '#a78bfa', fontWeight: '600', marginBottom: '0.25rem' }}>Space Complexity</div>
+                <code style={{ color: '#c4b5fd' }}>{selectedMethod.spaceComplexity}</code>
               </div>
             </div>
           </div>
 
           {/* Examples */}
           <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ color: '#1e293b', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Examples</h3>
+            <h3 style={{ color: '#93c5fd', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Examples</h3>
             {selectedMethod.examples.map((example, idx) => (
               <div key={idx} style={{ marginBottom: '1.5rem' }}>
-                <h4 style={{ color: '#475569', marginBottom: '0.5rem', fontSize: '1rem' }}>{example.title}</h4>
-                <pre style={{
-                  backgroundColor: '#1e293b',
-                  color: '#e2e8f0',
-                  padding: '1.5rem',
-                  borderRadius: '8px',
-                  overflow: 'auto',
-                  fontSize: '0.875rem',
-                  lineHeight: '1.6',
-                  margin: 0
-                }}>
-                  <code>{example.code}</code>
-                </pre>
+                <h4 style={{ color: '#93c5fd', marginBottom: '0.5rem', fontSize: '1rem' }}>{example.title}</h4>
+                <SyntaxHighlighter
+                  language="python"
+                  style={vscDarkPlus}
+                  customStyle={{
+                    borderRadius: '8px',
+                    padding: '1rem',
+                    fontSize: '0.9rem',
+                    border: '1px solid #3b82f6',
+                    margin: 0
+                  }}
+                >
+                  {example.code}
+                </SyntaxHighlighter>
               </div>
             ))}
           </div>
 
           {/* Important Notes */}
           <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ color: '#1e293b', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Important Notes</h3>
+            <h3 style={{ color: '#93c5fd', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Important Notes</h3>
             <ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
               {selectedMethod.notes.map((note, idx) => (
-                <li key={idx} style={{ color: '#475569', marginBottom: '0.5rem', lineHeight: '1.6' }}>
+                <li key={idx} style={{ color: '#d1d5db', marginBottom: '0.5rem', lineHeight: '1.6' }}>
                   {note}
                 </li>
               ))}
@@ -754,17 +1096,17 @@ print(first_10)  # [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]`
 
           {/* Use Cases */}
           <div>
-            <h3 style={{ color: '#1e293b', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Common Use Cases</h3>
+            <h3 style={{ color: '#93c5fd', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Common Use Cases</h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
               {selectedMethod.useCases.map((useCase, idx) => (
                 <div key={idx} style={{
-                  backgroundColor: '#f0fdf4',
-                  color: '#166534',
+                  background: '#2563eb',
+                  color: 'white',
                   padding: '0.5rem 1rem',
                   borderRadius: '20px',
                   fontSize: '0.875rem',
                   fontWeight: '500',
-                  border: '1px solid #bbf7d0'
+                  border: '1px solid #3b82f6'
                 }}>
                   {useCase}
                 </div>
@@ -772,145 +1114,179 @@ print(first_10)  # [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]`
             </div>
           </div>
         </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-      <button
-        onClick={handleBackClick}
-        style={{
-          marginBottom: '1.5rem',
-          padding: '0.75rem 1.5rem',
-          fontSize: '1rem',
-          backgroundColor: '#3776ab',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          fontWeight: '600'
-        }}
-      >
-        ← Back to Python Topics
-      </button>
-
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ margin: '0 0 0.5rem 0', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span>📚</span> Python heapq Module Reference
-        </h1>
-        <p style={{ color: '#64748b', fontSize: '1.1rem', margin: 0 }}>
-          Complete documentation for all heapq module methods with examples and complexity analysis
-        </p>
-      </div>
-
-      {/* Search Bar */}
-      <div style={{ marginBottom: '2rem' }}>
-        <input
-          type="text"
-          placeholder="Search methods... (e.g., 'nsmallest', 'push', 'merge')"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+      color: 'white',
+      padding: '2rem'
+    }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <button
+          onClick={handleBackClick}
           style={{
-            width: '100%',
-            padding: '0.75rem 1rem',
+            marginBottom: '1.5rem',
+            padding: '0.75rem 1.5rem',
             fontSize: '1rem',
-            border: '2px solid #e5e7eb',
-            borderRadius: '8px',
-            outline: 'none'
+            background: '#2563eb',
+            color: 'white',
+            border: 'none',
+            borderRadius: '0.5rem',
+            cursor: 'pointer',
+            fontWeight: '500',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+            transition: 'all 0.2s'
           }}
-          onFocus={(e) => e.target.style.borderColor = '#3776ab'}
-          onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-        />
-      </div>
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#1d4ed8'
+            e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = '#2563eb'
+            e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+          }}
+        >
+          ← Back to Python Topics
+        </button>
 
-      {/* Category Tabs */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-        {categories.map((category) => {
-          const count = heapMethods.filter(m => m.category === category).length
-          return (
-            <div key={category} style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#e0e7ff',
-              color: '#3730a3',
-              borderRadius: '6px',
-              fontSize: '0.875rem',
-              fontWeight: '600'
-            }}>
-              {category} ({count})
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Methods Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
-        gap: '1.5rem'
-      }}>
-        {filteredMethods.map((method) => (
-          <div
-            key={method.id}
-            onClick={() => setSelectedMethod(method)}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '12px',
-              padding: '1.5rem',
-              cursor: 'pointer',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              transition: 'all 0.2s',
-              border: '2px solid transparent'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
-              e.currentTarget.style.borderColor = '#3776ab'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)'
-              e.currentTarget.style.borderColor = 'transparent'
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-              <h3 style={{ margin: 0, color: '#1e293b', fontSize: '1.25rem' }}>{method.name}</h3>
-              <span style={{
-                padding: '0.25rem 0.5rem',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
-                borderRadius: '4px',
-                fontSize: '0.75rem',
-                fontWeight: '600'
-              }}>
-                {method.category}
-              </span>
-            </div>
-            <p style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '1rem' }}>
-              {method.description}
-            </p>
-            <div style={{ display: 'flex', gap: '1rem', fontSize: '0.75rem', color: '#64748b' }}>
-              <div>
-                <span style={{ fontWeight: '600' }}>Time:</span> {method.timeComplexity}
-              </div>
-              <div>
-                <span style={{ fontWeight: '600' }}>Space:</span> {method.spaceComplexity}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {filteredMethods.length === 0 && (
-        <div style={{
-          textAlign: 'center',
-          padding: '3rem',
-          color: '#94a3b8',
-          fontSize: '1.1rem'
-        }}>
-          No methods found matching "{searchTerm}"
+        <div style={{ marginBottom: '2rem' }}>
+          <h1 style={{
+            margin: '0 0 0.5rem 0',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontSize: '2.25rem',
+            fontWeight: 'bold'
+          }}>
+            <span>📚</span>
+            <span style={{
+              background: 'linear-gradient(to right, #60a5fa, #22d3ee)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>Python heapq Module Reference</span>
+          </h1>
+          <p style={{ color: '#d1d5db', fontSize: '1.1rem', margin: 0 }}>
+            Complete documentation for all heapq module methods with examples and complexity analysis
+          </p>
         </div>
-      )}
+
+        {/* Search Bar */}
+        <div style={{ marginBottom: '2rem' }}>
+          <input
+            type="text"
+            placeholder="Search methods... (e.g., 'nsmallest', 'push', 'merge')"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '0.75rem 1rem',
+              fontSize: '1rem',
+              border: '2px solid #3b82f6',
+              borderRadius: '0.5rem',
+              outline: 'none',
+              background: '#1f2937',
+              color: 'white'
+            }}
+            onFocus={(e) => e.target.style.borderColor = '#60a5fa'}
+            onBlur={(e) => e.target.style.borderColor = '#3b82f6'}
+          />
+        </div>
+
+        {/* Category Tabs */}
+        <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+          {categories.map((category) => {
+            const count = heapMethods.filter(m => m.category === category).length
+            return (
+              <div key={category} style={{
+                padding: '0.5rem 1rem',
+                background: '#2563eb',
+                color: 'white',
+                borderRadius: '0.5rem',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                border: '1px solid #3b82f6'
+              }}>
+                {category} ({count})
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Methods Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
+          gap: '1.5rem'
+        }}>
+          {filteredMethods.map((method) => (
+            <div
+              key={method.id}
+              onClick={() => setSelectedMethod(method)}
+              style={{
+                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                borderRadius: '0.75rem',
+                padding: '1.5rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.3s',
+                border: '2px solid #3b82f6'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(59, 130, 246, 0.5)'
+                e.currentTarget.style.borderColor = '#60a5fa'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                e.currentTarget.style.borderColor = '#3b82f6'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
+                <h3 style={{ margin: 0, color: '#93c5fd', fontSize: '1.25rem' }}>{method.name}</h3>
+                <span style={{
+                  padding: '0.25rem 0.5rem',
+                  background: '#2563eb',
+                  color: 'white',
+                  borderRadius: '4px',
+                  fontSize: '0.75rem',
+                  fontWeight: '600'
+                }}>
+                  {method.category}
+                </span>
+              </div>
+              <p style={{ color: '#d1d5db', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '1rem' }}>
+                {method.description}
+              </p>
+              <div style={{ display: 'flex', gap: '1rem', fontSize: '0.75rem', color: '#93c5fd' }}>
+                <div>
+                  <span style={{ fontWeight: '600' }}>Time:</span> {method.timeComplexity}
+                </div>
+                <div>
+                  <span style={{ fontWeight: '600' }}>Space:</span> {method.spaceComplexity}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {filteredMethods.length === 0 && (
+          <div style={{
+            textAlign: 'center',
+            padding: '3rem',
+            color: '#93c5fd',
+            fontSize: '1.1rem'
+          }}>
+            No methods found matching "{searchTerm}"
+          </div>
+        )}
+      </div>
     </div>
   )
 }

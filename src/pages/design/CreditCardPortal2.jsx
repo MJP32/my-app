@@ -478,7 +478,7 @@ export default function CreditCardPortal2({ onBack }) {
         </div>
 
         <div className="flex gap-4 mb-8 border-b border-gray-700 overflow-x-auto">
-          {['portal', 'main', 'detailed', 'flows', 'cqrs'].map(tab => (
+          {['portal', 'system-design', 'main', 'detailed', 'flows', 'cqrs'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -489,6 +489,7 @@ export default function CreditCardPortal2({ onBack }) {
               }`}
             >
               {tab === 'portal' && '💎 Premium Portal'}
+              {tab === 'system-design' && '🎯 System Design'}
               {tab === 'main' && '🏗️ Architecture'}
               {tab === 'detailed' && '📊 Advanced Features'}
               {tab === 'flows' && '🔄 Feature Flows'}
@@ -747,6 +748,597 @@ export default function CreditCardPortal2({ onBack }) {
                     <p className="text-yellow-100 text-sm">Maximize your points</p>
                   </div>
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'system-design' && (
+          <div className="space-y-6">
+            {/* Requirements Section */}
+            <div className="bg-slate-800/50 rounded-xl p-6 border border-purple-500/30 backdrop-blur-sm">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <span>📋</span> Functional Requirements
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gradient-to-br from-blue-900/30 to-blue-800/30 rounded-lg p-4 border border-blue-500/20">
+                  <h3 className="text-blue-300 font-bold mb-3 flex items-center gap-2">
+                    <Check className="w-5 h-5" />
+                    Core Features
+                  </h3>
+                  <ul className="text-gray-300 text-sm space-y-2">
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-400 mt-1">•</span>
+                      <span><strong>Apply for credit card:</strong> Submit and process new credit card applications</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-400 mt-1">•</span>
+                      <span><strong>Create & access bank account:</strong> Manage user accounts and authentication</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-400 mt-1">•</span>
+                      <span><strong>Post transactions:</strong> Process transactions via 3rd party API (Stripe)</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="bg-gradient-to-br from-purple-900/30 to-purple-800/30 rounded-lg p-4 border border-purple-500/20">
+                  <h3 className="text-purple-300 font-bold mb-3 flex items-center gap-2">
+                    <Activity className="w-5 h-5" />
+                    Analytics & Reporting
+                  </h3>
+                  <ul className="text-gray-300 text-sm space-y-2">
+                    <li className="flex items-start gap-2">
+                      <span className="text-purple-400 mt-1">•</span>
+                      <span><strong>View card balance:</strong> Real-time balance inquiries</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-purple-400 mt-1">•</span>
+                      <span><strong>Transaction history:</strong> Complete audit trail of all transactions</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-purple-400 mt-1">•</span>
+                      <span><strong>Payment processing:</strong> Handle credit card payments securely</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-purple-400 mt-1">•</span>
+                      <span><strong>Stats reporting:</strong> Daily, weekly, and monthly analytics</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Non-Functional Requirements */}
+            <div className="bg-slate-800/50 rounded-xl p-6 border border-purple-500/30 backdrop-blur-sm">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <Shield className="text-green-400" />
+                Non-Functional Requirements
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-gradient-to-br from-green-900/30 to-green-800/30 rounded-lg p-4 border border-green-500/20">
+                  <h3 className="text-green-300 font-bold mb-3">🚀 Scalability</h3>
+                  <ul className="text-gray-300 text-sm space-y-2">
+                    <li>• 300M users (US region)</li>
+                    <li>• Local region deployment</li>
+                    <li>• USD currency only</li>
+                    <li>• Horizontal scaling</li>
+                  </ul>
+                </div>
+                <div className="bg-gradient-to-br from-yellow-900/30 to-yellow-800/30 rounded-lg p-4 border border-yellow-500/20">
+                  <h3 className="text-yellow-300 font-bold mb-3">✓ Consistency</h3>
+                  <ul className="text-gray-300 text-sm space-y-2">
+                    <li>• ACID-compliant database</li>
+                    <li>• Highly consistent</li>
+                    <li>• No overcharging</li>
+                    <li>• No lost payments</li>
+                    <li>• Track all activity before commit</li>
+                  </ul>
+                </div>
+                <div className="bg-gradient-to-br from-red-900/30 to-red-800/30 rounded-lg p-4 border border-red-500/20">
+                  <h3 className="text-red-300 font-bold mb-3">🛡️ Reliability</h3>
+                  <ul className="text-gray-300 text-sm space-y-2">
+                    <li>• Highly reliable (no data loss)</li>
+                    <li>• &lt;10 hour outage/year</li>
+                    <li>• &lt;1s load time (accounts/history)</li>
+                    <li>• Secure payments (PCI DSS)</li>
+                    <li>• Fraud detection</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* API Workflows */}
+            <div className="bg-slate-800/50 rounded-xl p-6 border border-purple-500/30 backdrop-blur-sm">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <Zap className="text-cyan-400" />
+                API Workflows
+              </h2>
+
+              <div className="space-y-4">
+                {/* CreateApplication */}
+                <div className="bg-gradient-to-r from-blue-900/40 to-blue-800/40 rounded-lg p-5 border-l-4 border-blue-400">
+                  <h3 className="text-white font-bold mb-3 text-lg flex items-center gap-2">
+                    <span className="text-blue-400">1.</span> CreateApplication()
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-300 font-mono">
+                    <div className="flex items-center gap-2">
+                      <ArrowUpRight className="w-4 h-4 text-blue-400" />
+                      <span>Client → Load Balancer → Applications Management Service</span>
+                    </div>
+                    <div className="ml-6 text-gray-400">
+                      <div>• Store application in queue</div>
+                      <div>• Verify applicant details (credit check, identity verification)</div>
+                      <div>• Notify user of success or failure</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Create/Load Account */}
+                <div className="bg-gradient-to-r from-purple-900/40 to-purple-800/40 rounded-lg p-5 border-l-4 border-purple-400">
+                  <h3 className="text-white font-bold mb-3 text-lg flex items-center gap-2">
+                    <span className="text-purple-400">2.</span> Create/LoadAccount()
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-300 font-mono">
+                    <div className="flex items-center gap-2">
+                      <ArrowUpRight className="w-4 h-4 text-purple-400" />
+                      <span>Client → Load Balancer → Accounts DB</span>
+                    </div>
+                    <div className="ml-6 text-gray-400">
+                      <div>• Access accounts table (sharded by userId)</div>
+                      <div>• Create new account or load existing</div>
+                      <div>• Return account details to client</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* PostTransaction */}
+                <div className="bg-gradient-to-r from-green-900/40 to-green-800/40 rounded-lg p-5 border-l-4 border-green-400">
+                  <h3 className="text-white font-bold mb-3 text-lg flex items-center gap-2">
+                    <span className="text-green-400">3.</span> PostTransaction()
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-300 font-mono">
+                    <div className="flex items-center gap-2">
+                      <ArrowUpRight className="w-4 h-4 text-green-400" />
+                      <span>Client → Load Balancer → Transactions Management Service</span>
+                    </div>
+                    <div className="ml-6 text-gray-400">
+                      <div>• Validate transaction</div>
+                      <div>• If successful, update account balance in DB</div>
+                      <div>• Return transaction confirmation</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ProcessPayment */}
+                <div className="bg-gradient-to-r from-orange-900/40 to-orange-800/40 rounded-lg p-5 border-l-4 border-orange-400">
+                  <h3 className="text-white font-bold mb-3 text-lg flex items-center gap-2">
+                    <span className="text-orange-400">4.</span> ProcessPayment() - Two Part System
+                  </h3>
+
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="text-orange-300 font-semibold mb-2">Part 1: Payment Storage</h4>
+                      <div className="space-y-2 text-sm text-gray-300 font-mono ml-4">
+                        <div className="flex items-center gap-2">
+                          <ArrowUpRight className="w-4 h-4 text-orange-400" />
+                          <span>Client → API Gateway/LB → Payment Service</span>
+                        </div>
+                        <div className="ml-6 text-gray-400">
+                          <div>• Store payment event in storage</div>
+                          <div>• Return acknowledgment to client</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-orange-300 font-semibold mb-2">Part 2: Payment Execution</h4>
+                      <div className="space-y-2 text-sm text-gray-300 font-mono ml-4">
+                        <div className="flex items-center gap-2">
+                          <ArrowUpRight className="w-4 h-4 text-orange-400" />
+                          <span>Payment Event Storage → Payment Executor</span>
+                        </div>
+                        <div className="ml-6 text-gray-400">
+                          <div>• Create job in processing queue</div>
+                          <div>• Update Payments DB with status tracking:</div>
+                          <div className="ml-4 space-y-1 mt-1">
+                            <div>- orderID (idempotency key)</div>
+                            <div>- userId</div>
+                            <div>- lastUpdatedTime</div>
+                            <div>- status: WAITING | SUCCESS | FAIL | PROCESSING</div>
+                          </div>
+                          <div className="mt-2">• Payment Executor calls Stripe API</div>
+                          <div>• Stripe sends completion notification</div>
+                          <div>• Update DB status to SUCCESS</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* UserPaymentActivityReport */}
+                <div className="bg-gradient-to-r from-cyan-900/40 to-cyan-800/40 rounded-lg p-5 border-l-4 border-cyan-400">
+                  <h3 className="text-white font-bold mb-3 text-lg flex items-center gap-2">
+                    <span className="text-cyan-400">5.</span> UserPaymentActivityReportBuilding()
+                  </h3>
+
+                  <div className="space-y-3">
+                    <div>
+                      <h4 className="text-cyan-300 font-semibold mb-2">Report Generation</h4>
+                      <div className="space-y-2 text-sm text-gray-300 font-mono ml-4">
+                        <div className="text-gray-400 space-y-1">
+                          <div>• Job scheduler checks users needing reports</div>
+                          <div>• Add jobs to queue for report generation</div>
+                          <div>• Reporting Service pulls from queue</div>
+                          <div>• Creates report and stores in Reports DB</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-cyan-300 font-semibold mb-2">Architecture Approaches</h4>
+                      <div className="space-y-2 text-sm text-gray-300 ml-4">
+                        <div className="bg-cyan-900/30 p-2 rounded">
+                          <strong className="text-cyan-200">Brute Force:</strong> Query DB for activity (last month/week/day)
+                        </div>
+                        <div className="bg-cyan-900/30 p-2 rounded">
+                          <strong className="text-cyan-200">Lambda Architecture:</strong> Batch processing with MapReduce (overkill for current data volume)
+                        </div>
+                        <div className="bg-green-900/30 p-2 rounded border border-green-500/30">
+                          <strong className="text-green-200">✓ Real-time (Selected):</strong> Kafka subscriber (Reporting Service) aggregates data from Payment Order queue → writes to Cassandra Reports DB
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ViewReport */}
+                <div className="bg-gradient-to-r from-pink-900/40 to-pink-800/40 rounded-lg p-5 border-l-4 border-pink-400">
+                  <h3 className="text-white font-bold mb-3 text-lg flex items-center gap-2">
+                    <span className="text-pink-400">6.</span> ViewReport()
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-300 font-mono">
+                    <div className="flex items-center gap-2">
+                      <ArrowUpRight className="w-4 h-4 text-pink-400" />
+                      <span>User loads website/app → Pull data from Reports DB</span>
+                    </div>
+                    <div className="ml-6 text-gray-400">
+                      <div>• Fetch pre-generated reports (daily/weekly/monthly)</div>
+                      <div>• Display analytics and spending patterns</div>
+                      <div>• Real-time refresh as new data comes in</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* High Level Design */}
+            <div className="bg-slate-800/50 rounded-xl p-6 border border-purple-500/30 backdrop-blur-sm">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <Cloud className="text-blue-400" />
+                High Level Design (HLD)
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gradient-to-br from-blue-900/30 to-blue-800/30 rounded-lg p-4 border border-blue-500/20">
+                  <h3 className="text-blue-300 font-bold mb-3 flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    Client Layer
+                  </h3>
+                  <ul className="text-gray-300 text-sm space-y-2">
+                    <li>• Web & Mobile App interfaces</li>
+                    <li>• Progressive Web App (PWA)</li>
+                    <li>• Seamless user experience</li>
+                    <li>• Responsive design</li>
+                  </ul>
+                </div>
+
+                <div className="bg-gradient-to-br from-purple-900/30 to-purple-800/30 rounded-lg p-4 border border-purple-500/20">
+                  <h3 className="text-purple-300 font-bold mb-3 flex items-center gap-2">
+                    <Lock className="w-5 h-5" />
+                    API Gateway
+                  </h3>
+                  <ul className="text-gray-300 text-sm space-y-2">
+                    <li>• Single entry point for all requests</li>
+                    <li>• Security and access control</li>
+                    <li>• Rate limiting</li>
+                    <li>• Load balancing</li>
+                  </ul>
+                </div>
+
+                <div className="bg-gradient-to-br from-green-900/30 to-green-800/30 rounded-lg p-4 border border-green-500/20">
+                  <h3 className="text-green-300 font-bold mb-3 flex items-center gap-2">
+                    <Shield className="w-5 h-5" />
+                    Authentication Service
+                  </h3>
+                  <ul className="text-gray-300 text-sm space-y-2">
+                    <li>• User registration & login</li>
+                    <li>• OAuth 2.0 + JWT</li>
+                    <li>• Access control</li>
+                    <li>• Token-based authentication</li>
+                  </ul>
+                </div>
+
+                <div className="bg-gradient-to-br from-cyan-900/30 to-cyan-800/30 rounded-lg p-4 border border-cyan-500/20">
+                  <h3 className="text-cyan-300 font-bold mb-3 flex items-center gap-2">
+                    <CreditCard className="w-5 h-5" />
+                    Card Management Service
+                  </h3>
+                  <ul className="text-gray-300 text-sm space-y-2">
+                    <li>• Credit card applications</li>
+                    <li>• Account information</li>
+                    <li>• Balance tracking</li>
+                    <li>• Transaction history</li>
+                  </ul>
+                </div>
+
+                <div className="bg-gradient-to-br from-orange-900/30 to-orange-800/30 rounded-lg p-4 border border-orange-500/20">
+                  <h3 className="text-orange-300 font-bold mb-3 flex items-center gap-2">
+                    <DollarSign className="w-5 h-5" />
+                    Payment Processing Service
+                  </h3>
+                  <ul className="text-gray-300 text-sm space-y-2">
+                    <li>• Integration with Stripe API</li>
+                    <li>• Secure transaction processing</li>
+                    <li>• PCI DSS compliance</li>
+                    <li>• Payment gateway integration</li>
+                  </ul>
+                </div>
+
+                <div className="bg-gradient-to-br from-pink-900/30 to-pink-800/30 rounded-lg p-4 border border-pink-500/20">
+                  <h3 className="text-pink-300 font-bold mb-3 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5" />
+                    Reporting Service
+                  </h3>
+                  <ul className="text-gray-300 text-sm space-y-2">
+                    <li>• Aggregates transaction data</li>
+                    <li>• Daily/Weekly/Monthly reports</li>
+                    <li>• Business intelligence</li>
+                    <li>• Analytics dashboards</li>
+                  </ul>
+                </div>
+
+                <div className="bg-gradient-to-br from-indigo-900/30 to-indigo-800/30 rounded-lg p-4 border border-indigo-500/20">
+                  <h3 className="text-indigo-300 font-bold mb-3 flex items-center gap-2">
+                    <Database className="w-5 h-5" />
+                    Database Layer
+                  </h3>
+                  <ul className="text-gray-300 text-sm space-y-2">
+                    <li>• User data storage</li>
+                    <li>• Account information</li>
+                    <li>• Transaction records</li>
+                    <li>• Secure & scalable</li>
+                  </ul>
+                </div>
+
+                <div className="bg-gradient-to-br from-red-900/30 to-red-800/30 rounded-lg p-4 border border-red-500/20">
+                  <h3 className="text-red-300 font-bold mb-3 flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5" />
+                    Monitoring & Resilience
+                  </h3>
+                  <ul className="text-gray-300 text-sm space-y-2">
+                    <li>• Load balancers (no SPOF)</li>
+                    <li>• Exponential backoff</li>
+                    <li>• Dead letter queues</li>
+                    <li>• Nightly reconciliation jobs</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Deep Dive */}
+            <div className="bg-slate-800/50 rounded-xl p-6 border border-purple-500/30 backdrop-blur-sm">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <Eye className="text-cyan-400" />
+                Deep Dive: Production Considerations
+              </h2>
+
+              <div className="space-y-4">
+                <div className="bg-gradient-to-r from-purple-900/40 to-purple-800/40 rounded-lg p-4 border-l-4 border-purple-400">
+                  <h3 className="text-purple-300 font-bold mb-3">🔄 Scalability & Availability</h3>
+                  <ul className="text-gray-300 text-sm space-y-2">
+                    <li>• All components horizontally scalable</li>
+                    <li>• Load balancers at every tier</li>
+                    <li>• No single point of failure (SPOF)</li>
+                    <li>• Multiple replicas for each service</li>
+                    <li>• Auto-scaling based on demand</li>
+                  </ul>
+                </div>
+
+                <div className="bg-gradient-to-r from-red-900/40 to-red-800/40 rounded-lg p-4 border-l-4 border-red-400">
+                  <h3 className="text-red-300 font-bold mb-3">🚨 Error Handling & Recovery</h3>
+                  <ul className="text-gray-300 text-sm space-y-2">
+                    <li>• <strong>Exponential backoff:</strong> Retry failed requests with increasing delays</li>
+                    <li>• <strong>Dead letter queues (DLQ):</strong> Capture failed messages for analysis</li>
+                    <li>• <strong>Circuit breakers:</strong> Prevent cascading failures</li>
+                    <li>• <strong>Graceful degradation:</strong> Maintain partial functionality during outages</li>
+                  </ul>
+                </div>
+
+                <div className="bg-gradient-to-r from-blue-900/40 to-blue-800/40 rounded-lg p-4 border-l-4 border-blue-400">
+                  <h3 className="text-blue-300 font-bold mb-3">🔍 Data Reconciliation</h3>
+                  <ul className="text-gray-300 text-sm space-y-2">
+                    <li>• <strong>Nightly reconciliation jobs:</strong> Run for every user account</li>
+                    <li>• Compare event log activity with database values</li>
+                    <li>• Detect syncing issues, dropped requests, or code problems</li>
+                    <li>• Automated alerts for discrepancies</li>
+                    <li>• Audit trail for compliance</li>
+                  </ul>
+                </div>
+
+                <div className="bg-gradient-to-r from-green-900/40 to-green-800/40 rounded-lg p-4 border-l-4 border-green-400">
+                  <h3 className="text-green-300 font-bold mb-3">⚡ Performance Optimization</h3>
+                  <ul className="text-gray-300 text-sm space-y-2">
+                    <li>• <strong>Caching:</strong> Static data cached at multiple layers (Redis, CDN)</li>
+                    <li>• <strong>Data replication:</strong> All data backed up and synced with primary</li>
+                    <li>• <strong>Read/Write separation:</strong> Cassandra for write-heavy transactions, separate DB for queries</li>
+                    <li>• <strong>Database optimization:</strong> Proper indexing, query optimization</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Tech Stack */}
+            <div className="bg-slate-800/50 rounded-xl p-6 border border-purple-500/30 backdrop-blur-sm">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <Settings className="text-yellow-400" />
+                Technology Stack
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="bg-gradient-to-br from-orange-900/30 to-orange-800/30 rounded-lg p-4 border border-orange-500/20">
+                  <h3 className="text-orange-300 font-bold mb-3">💳 Payment Processing</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="bg-orange-900/40 px-3 py-2 rounded text-orange-100">
+                      <strong>Stripe:</strong> Payment API integration
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-purple-900/30 to-purple-800/30 rounded-lg p-4 border border-purple-500/20">
+                  <h3 className="text-purple-300 font-bold mb-3">📡 Message Broker</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="bg-purple-900/40 px-3 py-2 rounded text-purple-100">
+                      <strong>Kafka:</strong> Payment execution queue
+                    </div>
+                    <div className="bg-purple-900/40 px-3 py-2 rounded text-purple-100">
+                      <strong>Kafka Streams:</strong> User activity aggregation
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-blue-900/30 to-blue-800/30 rounded-lg p-4 border border-blue-500/20">
+                  <h3 className="text-blue-300 font-bold mb-3">💾 ACID Database</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="bg-blue-900/40 px-3 py-2 rounded text-blue-100">
+                      <strong>MySQL:</strong> Primary transactional database
+                    </div>
+                    <div className="text-gray-400 text-xs mt-2">
+                      Strong consistency, ACID compliance
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-cyan-900/30 to-cyan-800/30 rounded-lg p-4 border border-cyan-500/20">
+                  <h3 className="text-cyan-300 font-bold mb-3">📊 Payment Events Storage</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="bg-cyan-900/40 px-3 py-2 rounded text-cyan-100">
+                      <strong>Time Series DB</strong> or
+                    </div>
+                    <div className="bg-cyan-900/40 px-3 py-2 rounded text-cyan-100">
+                      <strong>DynamoDB:</strong> Fast queries by timestamp
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-green-900/30 to-green-800/30 rounded-lg p-4 border border-green-500/20">
+                  <h3 className="text-green-300 font-bold mb-3">📄 Reports Storage</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="bg-green-900/40 px-3 py-2 rounded text-green-100">
+                      <strong>MongoDB:</strong> Document/object storage
+                    </div>
+                    <div className="text-gray-400 text-xs mt-2">
+                      Flexible schema for report objects
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-pink-900/30 to-pink-800/30 rounded-lg p-4 border border-pink-500/20">
+                  <h3 className="text-pink-300 font-bold mb-3">⚙️ Reporting Service</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="bg-pink-900/40 px-3 py-2 rounded text-pink-100">
+                      <strong>Apache Spark:</strong> Automated reports from Kafka
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-yellow-900/30 to-yellow-800/30 rounded-lg p-4 border border-yellow-500/20">
+                  <h3 className="text-yellow-300 font-bold mb-3">🔒 Security</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="bg-yellow-900/40 px-3 py-2 rounded text-yellow-100">
+                      RESTful HTTPS
+                    </div>
+                    <div className="bg-yellow-900/40 px-3 py-2 rounded text-yellow-100">
+                      Token-based authentication
+                    </div>
+                    <div className="bg-yellow-900/40 px-3 py-2 rounded text-yellow-100">
+                      Firewall for internal services
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-indigo-900/30 to-indigo-800/30 rounded-lg p-4 border border-indigo-500/20">
+                  <h3 className="text-indigo-300 font-bold mb-3">📈 Write-Heavy DB</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="bg-indigo-900/40 px-3 py-2 rounded text-indigo-100">
+                      <strong>Cassandra:</strong> Transactions database
+                    </div>
+                    <div className="text-gray-400 text-xs mt-2">
+                      Handles high write throughput
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-red-900/30 to-red-800/30 rounded-lg p-4 border border-red-500/20">
+                  <h3 className="text-red-300 font-bold mb-3">🔍 Query DB</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="bg-red-900/40 px-3 py-2 rounded text-red-100">
+                      Separate DB for read queries
+                    </div>
+                    <div className="text-gray-400 text-xs mt-2">
+                      Optimized for viewing reports
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Key Design Decisions */}
+            <div className="bg-gradient-to-r from-purple-900/50 to-purple-800/50 rounded-xl p-6 border-2 border-purple-400">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <Star className="text-yellow-400" />
+                Key Design Decisions & Rationale
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-slate-900/50 rounded-lg p-4 border border-purple-400/30">
+                  <h3 className="text-purple-300 font-bold mb-2 flex items-center gap-2">
+                    <Check className="w-5 h-5 text-green-400" />
+                    Why Kafka for Event Bus?
+                  </h3>
+                  <p className="text-gray-300 text-sm">
+                    High throughput message broker with event replay capability. Enables real-time data streaming for reporting and decouples payment processing from analytics.
+                  </p>
+                </div>
+
+                <div className="bg-slate-900/50 rounded-lg p-4 border border-purple-400/30">
+                  <h3 className="text-purple-300 font-bold mb-2 flex items-center gap-2">
+                    <Check className="w-5 h-5 text-green-400" />
+                    Why MySQL + Cassandra?
+                  </h3>
+                  <p className="text-gray-300 text-sm">
+                    MySQL for ACID-compliant transactions (no data loss), Cassandra for write-heavy transaction logs. Polyglot persistence for optimal performance.
+                  </p>
+                </div>
+
+                <div className="bg-slate-900/50 rounded-lg p-4 border border-purple-400/30">
+                  <h3 className="text-purple-300 font-bold mb-2 flex items-center gap-2">
+                    <Check className="w-5 h-5 text-green-400" />
+                    Why Two-Part Payment Processing?
+                  </h3>
+                  <p className="text-gray-300 text-sm">
+                    Decouples payment submission from execution. Provides immediate acknowledgment to users while ensuring reliability with queue-based processing and status tracking.
+                  </p>
+                </div>
+
+                <div className="bg-slate-900/50 rounded-lg p-4 border border-purple-400/30">
+                  <h3 className="text-purple-300 font-bold mb-2 flex items-center gap-2">
+                    <Check className="w-5 h-5 text-green-400" />
+                    Why Nightly Reconciliation?
+                  </h3>
+                  <p className="text-gray-300 text-sm">
+                    Ensures data integrity by comparing event logs with database state. Catches any discrepancies from dropped requests, network issues, or bugs before they become major problems.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

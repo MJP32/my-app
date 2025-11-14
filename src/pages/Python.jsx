@@ -17,12 +17,28 @@ function Python({ onBack, onSelectItem }) {
           description: 'Python fundamentals including data types, control structures, functions, OOP, modules, file I/O, and exception handling.'
         },
         {
+          id: 'Python OOP',
+          name: 'Object-Oriented Programming',
+          icon: '🏗️',
+          color: '#059669',
+          complexity: 'Intermediate to Advanced',
+          description: 'Complete OOP guide: classes, objects, inheritance, encapsulation, polymorphism, magic methods, abstract classes, dataclasses, and design patterns.'
+        },
+        {
           id: 'Index Slicing',
           name: 'Index Slicing',
           icon: '✂️',
           color: '#2563eb',
           complexity: 'Beginner',
           description: 'Master Python sequence indexing and slicing: positive/negative indices, slice notation [start:stop:step], string/list/tuple slicing, and slice objects.'
+        },
+        {
+          id: 'Bitwise Operations',
+          name: 'Bitwise Operations',
+          icon: '⚙️',
+          color: '#0891b2',
+          complexity: 'Beginner to Intermediate',
+          description: 'Master bitwise operators: AND (&), OR (|), XOR (^), NOT (~), left shift (<<), right shift (>>), bit manipulation tricks, masks, and practical applications.'
         }
       ]
     },

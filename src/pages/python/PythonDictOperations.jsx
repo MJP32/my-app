@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import CompletionCheckbox from '../../components/CompletionCheckbox'
 
 function PythonDictOperations({ onBack }) {
@@ -733,218 +735,272 @@ def reorganizeString_alt(s: str) -> str:
 
   if (selectedProblem) {
     return (
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-        <button
-          onClick={handleBackClick}
-          style={{
-            marginBottom: '1.5rem',
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            backgroundColor: '#3776ab',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: '600'
-          }}
-        >
-          ← Back to Problems
-        </button>
-
-        <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '2rem', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1.5rem' }}>
-            <div>
-              <h2 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>{selectedProblem.title}</h2>
-              <span style={{
-                padding: '0.25rem 0.75rem',
-                borderRadius: '12px',
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                backgroundColor: selectedProblem.difficulty === 'Easy' ? '#dcfce7' : selectedProblem.difficulty === 'Medium' ? '#fef3c7' : '#fee2e2',
-                color: selectedProblem.difficulty === 'Easy' ? '#166534' : selectedProblem.difficulty === 'Medium' ? '#854d0e' : '#991b1b'
-              }}>
-                {selectedProblem.difficulty}
-              </span>
-            </div>
-            <div style={{ marginLeft: 'auto' }}>
-              <CompletionCheckbox
-                problemId={`PythonDictOps-${selectedProblem.id}`}
-                label="Mark as Completed"
-              />
-            </div>
-          </div>
-
-          <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ color: '#1e293b', marginBottom: '0.75rem' }}>Description</h3>
-            <p style={{ color: '#475569', lineHeight: '1.6' }}>{selectedProblem.description}</p>
-            {selectedProblem.leetcodeUrl && (
-              <a
-                href={selectedProblem.leetcodeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-block',
-                  marginTop: '1rem',
-                  padding: '0.5rem 1rem',
-                  backgroundColor: '#ffa116',
-                  color: 'white',
-                  textDecoration: 'none',
-                  borderRadius: '6px',
-                  fontWeight: '600',
-                  fontSize: '0.875rem',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#ff8c00'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#ffa116'}
-              >
-                🔗 Solve on LeetCode
-              </a>
-            )}
-          </div>
-
-          <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ color: '#1e293b', marginBottom: '0.75rem' }}>Python Solution</h3>
-            <pre style={{
-              backgroundColor: '#1e293b',
-              color: '#e2e8f0',
-              padding: '1.5rem',
-              borderRadius: '8px',
-              overflow: 'auto',
-              fontSize: '0.875rem',
-              lineHeight: '1.5'
-            }}>
-              <code>{selectedProblem.code.python.starterCode}</code>
-            </pre>
-          </div>
-
-          <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ color: '#1e293b', marginBottom: '0.75rem' }}>Test Cases</h3>
-            {selectedProblem.testCases.map((tc, idx) => (
-              <div key={idx} style={{
-                backgroundColor: '#f8fafc',
-                padding: '1rem',
-                borderRadius: '8px',
-                marginBottom: '0.5rem',
-                fontFamily: 'monospace',
-                fontSize: '0.875rem'
-              }}>
-                <div><strong>Input:</strong> {tc.input}</div>
-                <div style={{ color: '#059669' }}><strong>Expected:</strong> {tc.expected}</div>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ color: '#1e293b', marginBottom: '0.75rem' }}>Hints</h3>
-            <p style={{ color: '#475569', backgroundColor: '#fef3c7', padding: '1rem', borderRadius: '8px', lineHeight: '1.6' }}>
-              💡 {selectedProblem.hints}
-            </p>
-          </div>
-
-          <details style={{ marginTop: '2rem' }}>
-            <summary style={{
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+        padding: '2rem'
+      }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <button
+            onClick={handleBackClick}
+            style={{
+              marginBottom: '1.5rem',
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              background: '#2563eb',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.5rem',
               cursor: 'pointer',
-              padding: '1rem',
-              backgroundColor: '#fee2e2',
-              borderRadius: '8px',
-              fontWeight: '600',
-              color: '#991b1b'
-            }}>
-              Show Solution (Try solving first!)
-            </summary>
-            <pre style={{
-              backgroundColor: '#1e293b',
-              color: '#e2e8f0',
-              padding: '1.5rem',
-              borderRadius: '8px',
-              overflow: 'auto',
-              marginTop: '1rem',
-              fontSize: '0.875rem',
-              lineHeight: '1.5'
-            }}>
-              <code>{selectedProblem.code.python.solution}</code>
-            </pre>
-          </details>
+              fontWeight: '500',
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#1d4ed8'
+              e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#2563eb'
+              e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+            }}
+          >
+            ← Back to Problems
+          </button>
+
+          <div style={{
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+            borderRadius: '0.75rem',
+            padding: '2rem',
+            border: '2px solid #3b82f6',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1.5rem' }}>
+              <div>
+                <h2 style={{ margin: '0 0 0.5rem 0', color: '#93c5fd', fontSize: '1.875rem', fontWeight: 'bold' }}>{selectedProblem.title}</h2>
+                <span style={{
+                  padding: '0.25rem 0.75rem',
+                  borderRadius: '12px',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  backgroundColor: selectedProblem.difficulty === 'Easy' ? '#065f46' : selectedProblem.difficulty === 'Medium' ? '#92400e' : '#991b1b',
+                  color: selectedProblem.difficulty === 'Easy' ? '#86efac' : selectedProblem.difficulty === 'Medium' ? '#fcd34d' : '#fca5a5'
+                }}>
+                  {selectedProblem.difficulty}
+                </span>
+              </div>
+              <div style={{ marginLeft: 'auto' }}>
+                <CompletionCheckbox
+                  problemId={`PythonDictOps-${selectedProblem.id}`}
+                  label="Mark as Completed"
+                />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '2rem' }}>
+              <h3 style={{ color: '#93c5fd', marginBottom: '0.75rem', fontSize: '1.25rem', fontWeight: '600' }}>Description</h3>
+              <p style={{ color: '#d1d5db', lineHeight: '1.6' }}>{selectedProblem.description}</p>
+              {selectedProblem.leetcodeUrl && (
+                <a
+                  href={selectedProblem.leetcodeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-block',
+                    marginTop: '1rem',
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#ffa116',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: '6px',
+                    fontWeight: '600',
+                    fontSize: '0.875rem',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#ff8c00'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = '#ffa116'}
+                >
+                  🔗 Solve on LeetCode
+                </a>
+              )}
+            </div>
+
+            <div style={{ marginBottom: '2rem' }}>
+              <h3 style={{ color: '#93c5fd', marginBottom: '0.75rem', fontSize: '1.25rem', fontWeight: '600' }}>Python Solution</h3>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  fontSize: '0.9rem',
+                  border: '1px solid #3b82f6'
+                }}
+              >
+                {selectedProblem.code.python.starterCode}
+              </SyntaxHighlighter>
+            </div>
+
+            <div style={{ marginBottom: '2rem' }}>
+              <h3 style={{ color: '#93c5fd', marginBottom: '0.75rem', fontSize: '1.25rem', fontWeight: '600' }}>Test Cases</h3>
+              {selectedProblem.testCases.map((tc, idx) => (
+                <div key={idx} style={{
+                  background: '#1f2937',
+                  padding: '1rem',
+                  borderRadius: '0.5rem',
+                  marginBottom: '0.5rem',
+                  fontFamily: 'monospace',
+                  fontSize: '0.875rem',
+                  border: '1px solid #3b82f6',
+                  color: '#d1d5db'
+                }}>
+                  <div><strong style={{ color: '#93c5fd' }}>Input:</strong> {tc.input}</div>
+                  <div><strong style={{ color: '#86efac' }}>Expected:</strong> {tc.expected}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ marginBottom: '2rem' }}>
+              <h3 style={{ color: '#93c5fd', marginBottom: '0.75rem', fontSize: '1.25rem', fontWeight: '600' }}>Hints</h3>
+              <p style={{ color: '#d1d5db', background: '#1f2937', padding: '1rem', borderRadius: '0.5rem', lineHeight: '1.6', border: '1px solid #3b82f6' }}>
+                💡 {selectedProblem.hints}
+              </p>
+            </div>
+
+            <details style={{ marginTop: '2rem' }}>
+              <summary style={{
+                cursor: 'pointer',
+                padding: '1rem',
+                background: '#991b1b',
+                borderRadius: '0.5rem',
+                fontWeight: '600',
+                color: '#fca5a5',
+                border: '1px solid #ef4444'
+              }}>
+                Show Solution (Try solving first!)
+              </summary>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  fontSize: '0.9rem',
+                  marginTop: '1rem',
+                  border: '1px solid #3b82f6'
+                }}
+              >
+                {selectedProblem.code.python.solution}
+              </SyntaxHighlighter>
+            </details>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
-      <button
-        onClick={handleBackClick}
-        style={{
-          marginBottom: '1.5rem',
-          padding: '0.75rem 1.5rem',
-          fontSize: '1rem',
-          backgroundColor: '#3776ab',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          fontWeight: '600'
-        }}
-      >
-        ← Back to Python Topics
-      </button>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+      padding: '2rem'
+    }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <button
+          onClick={handleBackClick}
+          style={{
+            marginBottom: '1.5rem',
+            padding: '0.75rem 1.5rem',
+            fontSize: '1rem',
+            background: '#2563eb',
+            color: 'white',
+            border: 'none',
+            borderRadius: '0.5rem',
+            cursor: 'pointer',
+            fontWeight: '500',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#1d4ed8'
+            e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = '#2563eb'
+            e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+          }}
+        >
+          ← Back to Python Topics
+        </button>
 
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ margin: '0 0 0.5rem 0', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span>🗺️</span> Python Dictionary Operations
-        </h1>
-        <p style={{ color: '#64748b', fontSize: '1.1rem', margin: 0 }}>
-          Master Python dictionary (map) operations including get, update, pop, setdefault, and more
-        </p>
-      </div>
+        <div style={{ marginBottom: '2rem' }}>
+          <h1 style={{
+            margin: '0 0 0.5rem 0',
+            fontSize: '2.25rem',
+            fontWeight: 'bold',
+            background: 'linear-gradient(to right, #60a5fa, #22d3ee)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <span>🗺️</span> Python Dictionary Operations
+          </h1>
+          <p style={{ color: '#d1d5db', fontSize: '1.1rem', margin: 0 }}>
+            Master Python dictionary (map) operations including get, update, pop, setdefault, and more
+          </p>
+        </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-        gap: '1.5rem'
-      }}>
-        {problems.map((problem) => (
-          <div
-            key={problem.id}
-            onClick={() => setSelectedProblem(problem)}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '12px',
-              padding: '1.5rem',
-              cursor: 'pointer',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              transition: 'all 0.2s',
-              border: '2px solid transparent'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
-              e.currentTarget.style.borderColor = '#3776ab'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)'
-              e.currentTarget.style.borderColor = 'transparent'
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
-              <h3 style={{ margin: 0, color: '#1e293b', fontSize: '1.125rem' }}>{problem.title}</h3>
-              <span style={{
-                padding: '0.25rem 0.5rem',
-                borderRadius: '8px',
-                fontSize: '0.75rem',
-                fontWeight: '600',
-                backgroundColor: problem.difficulty === 'Easy' ? '#dcfce7' : problem.difficulty === 'Medium' ? '#fef3c7' : '#fee2e2',
-                color: problem.difficulty === 'Easy' ? '#166534' : problem.difficulty === 'Medium' ? '#854d0e' : '#991b1b'
-              }}>
-                {problem.difficulty}
-              </span>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+          gap: '1.5rem'
+        }}>
+          {problems.map((problem) => (
+            <div
+              key={problem.id}
+              onClick={() => setSelectedProblem(problem)}
+              style={{
+                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                borderRadius: '0.75rem',
+                padding: '1.5rem',
+                cursor: 'pointer',
+                border: '2px solid #3b82f6',
+                transition: 'all 0.3s',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(59, 130, 246, 0.5)'
+                e.currentTarget.style.borderColor = '#60a5fa'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                e.currentTarget.style.borderColor = '#3b82f6'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
+                <h3 style={{ margin: 0, color: '#93c5fd', fontSize: '1.125rem', fontWeight: 'bold' }}>{problem.title}</h3>
+                <span style={{
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: '8px',
+                  fontSize: '0.75rem',
+                  fontWeight: '600',
+                  backgroundColor: problem.difficulty === 'Easy' ? '#065f46' : problem.difficulty === 'Medium' ? '#92400e' : '#991b1b',
+                  color: problem.difficulty === 'Easy' ? '#86efac' : problem.difficulty === 'Medium' ? '#fcd34d' : '#fca5a5'
+                }}>
+                  {problem.difficulty}
+                </span>
+              </div>
+              <p style={{ color: '#d1d5db', fontSize: '0.9rem', lineHeight: '1.5', margin: 0 }}>
+                {problem.description}
+              </p>
             </div>
-            <p style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: '1.5', margin: 0 }}>
-              {problem.description}
-            </p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   )

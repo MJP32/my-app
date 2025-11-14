@@ -1812,6 +1812,9 @@ def justify(self, words, num_chars, max_width, is_last_line):
     setUserCode(question.code[language].starterCode)
     setOutput('')
     setShowDrawing(false)
+    // Load existing drawing for this problem
+    const savedDrawing = localStorage.getItem(`drawing-Strings-${question.id}`)
+    setCurrentDrawing(savedDrawing)
   }
 
   const toggleSection = (difficulty) => {
@@ -1896,12 +1899,15 @@ def justify(self, words, num_chars, max_width, is_last_line):
 
           {/* Code Editor */}
           <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '12px', border: '2px solid #e5e7eb', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' , flexWrap: 'wrap' }}>
               <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedQuestion.code[language].solution) }} style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
                 {showSolution ? 'Hide' : 'Show'} Solution
               </button>
               <button onClick={() => setUserCode(selectedQuestion.code[language].starterCode)} style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
                 Reset Code
+              </button>
+              <button onClick={() => setShowDrawing(true)} style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600', backgroundColor: currentDrawing ? '#8b5cf6' : '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                🎨 {currentDrawing ? 'View' : 'Draw'} Sketch
               </button>
             </div>
 
@@ -1915,6 +1921,18 @@ def justify(self, words, num_chars, max_width, is_last_line):
             )}
           </div>
         </div>
+        {/* Drawing Canvas Modal */}
+        <DrawingCanvas
+          isOpen={showDrawing}
+          onClose={() => {
+            setShowDrawing(false)
+            // Reload drawing in case it was updated
+            const savedDrawing = localStorage.getItem(`drawing-Strings-${selectedQuestion.id}`)
+            setCurrentDrawing(savedDrawing)
+          }}
+          problemId={`Strings-${selectedQuestion.id}`}
+          existingDrawing={currentDrawing}
+        />
       </div>
     )
   }
