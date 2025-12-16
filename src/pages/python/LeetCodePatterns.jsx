@@ -2,8 +2,89 @@ import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
+// Custom theme based on vscDarkPlus with no line backgrounds
+const customTheme = {
+  ...vscDarkPlus,
+  'pre[class*="language-"]': {
+    ...vscDarkPlus['pre[class*="language-"]'],
+    background: '#1e1e1e',
+  },
+  'code[class*="language-"]': {
+    ...vscDarkPlus['code[class*="language-"]'],
+    background: 'transparent',
+  },
+}
+
 function LeetCodePatterns({ onBack }) {
   const [selectedPattern, setSelectedPattern] = useState(null)
+  const [selectedCategory, setSelectedCategory] = useState(null)
+
+  const categories = [
+    {
+      id: 'array-string',
+      name: 'Array & String',
+      icon: '📝',
+      color: '#3b82f6',
+      description: 'Fundamental patterns for array manipulation and string processing',
+      patternIds: ['two-pointers', 'sliding-window', 'rolling-hash', 'kmp', 'prefix-sum', 'dutch-national-flag', 'kadane', 'cyclic-sort']
+    },
+    {
+      id: 'trees-graphs',
+      name: 'Trees & Graphs',
+      icon: '🌳',
+      color: '#10b981',
+      description: 'Traversal and pathfinding algorithms for tree and graph structures',
+      patternIds: ['tree-dfs', 'tree-bfs', 'graph-traversal', 'union-find', 'topological-sort', 'dijkstra', 'a-star', 'bellman-ford']
+    },
+    {
+      id: 'search-sort',
+      name: 'Search & Sort',
+      icon: '🔍',
+      color: '#f59e0b',
+      description: 'Efficient searching and sorting techniques',
+      patternIds: ['binary-search', 'fast-slow-pointers', 'matrix-traversal']
+    },
+    {
+      id: 'dynamic-programming',
+      name: 'Dynamic Programming',
+      icon: '🧩',
+      color: '#8b5cf6',
+      description: 'Breaking complex problems into overlapping subproblems',
+      patternIds: ['dynamic-programming']
+    },
+    {
+      id: 'data-structures',
+      name: 'Advanced Data Structures',
+      icon: '🏗️',
+      color: '#ec4899',
+      description: 'Specialized data structures for efficient operations',
+      patternIds: ['monotonic-stack', 'trie', 'binary-indexed-tree', 'segment-tree', 'top-k-elements']
+    },
+    {
+      id: 'backtracking',
+      name: 'Backtracking & Recursion',
+      icon: '🔄',
+      color: '#14b8a6',
+      description: 'Systematic exploration of solution spaces',
+      patternIds: ['backtracking']
+    },
+    {
+      id: 'math-bit',
+      name: 'Math & Bit Manipulation',
+      icon: '🔢',
+      color: '#f97316',
+      description: 'Mathematical tricks and bitwise operations',
+      patternIds: ['bit-manipulation', 'boyer-moore-voting', 'reservoir-sampling']
+    },
+    {
+      id: 'greedy-intervals',
+      name: 'Greedy & Intervals',
+      icon: '🎯',
+      color: '#ef4444',
+      description: 'Optimal local choices and interval-based problems',
+      patternIds: ['greedy', 'merge-intervals']
+    }
+  ]
 
   const patterns = [
     {
@@ -204,6 +285,506 @@ def length_longest_substring(s):
         'Find All Anagrams in a String',
         'Longest Substring with K Distinct Characters',
         'Sliding Window Maximum'
+      ]
+    },
+    {
+      id: 'rolling-hash',
+      name: 'Rolling Hash (Rabin-Karp)',
+      icon: '#️⃣',
+      color: '#0d9488',
+      category: 'String',
+      description: 'Efficient string matching using polynomial hash that can be updated in O(1) when sliding window',
+      whenToUse: [
+        'Substring search (pattern matching)',
+        'Finding duplicate substrings',
+        'Longest repeating substring',
+        'String comparison in O(1)',
+        'Detecting plagiarism/similarity'
+      ],
+      timeComplexity: 'O(n) average, O(n*m) worst case',
+      spaceComplexity: 'O(1) for basic, O(n) for storing hashes',
+      codeExample: `# Rolling Hash Fundamentals
+# Hash formula: hash = (c0 * base^(n-1) + c1 * base^(n-2) + ... + cn-1) % mod
+
+class RollingHash:
+    def __init__(self, base=26, mod=10**9 + 7):
+        self.base = base
+        self.mod = mod
+
+    def compute_hash(self, s):
+        """Compute hash of entire string"""
+        h = 0
+        for char in s:
+            h = (h * self.base + ord(char)) % self.mod
+        return h
+
+    def roll(self, old_hash, old_char, new_char, length):
+        """
+        Update hash by removing old_char and adding new_char
+        old_hash: current hash value
+        old_char: character leaving the window (leftmost)
+        new_char: character entering the window (rightmost)
+        length: window size
+        """
+        # Remove contribution of old_char
+        # old_char was multiplied by base^(length-1)
+        power = pow(self.base, length - 1, self.mod)
+        new_hash = (old_hash - ord(old_char) * power) % self.mod
+
+        # Shift and add new_char
+        new_hash = (new_hash * self.base + ord(new_char)) % self.mod
+
+        return new_hash
+
+# Pattern: Rabin-Karp String Matching
+def rabin_karp(text, pattern):
+    """Find all occurrences of pattern in text"""
+    if len(pattern) > len(text):
+        return []
+
+    base = 26
+    mod = 10**9 + 7
+    n, m = len(text), len(pattern)
+
+    # Compute base^(m-1) for rolling
+    power = pow(base, m - 1, mod)
+
+    # Compute hash of pattern and first window
+    pattern_hash = 0
+    window_hash = 0
+    for i in range(m):
+        pattern_hash = (pattern_hash * base + ord(pattern[i])) % mod
+        window_hash = (window_hash * base + ord(text[i])) % mod
+
+    result = []
+
+    for i in range(n - m + 1):
+        # Check if hashes match
+        if pattern_hash == window_hash:
+            # Verify actual match (avoid hash collision)
+            if text[i:i+m] == pattern:
+                result.append(i)
+
+        # Roll the hash to next window
+        if i < n - m:
+            # Remove leftmost, add rightmost
+            window_hash = (window_hash - ord(text[i]) * power) % mod
+            window_hash = (window_hash * base + ord(text[i + m])) % mod
+
+    return result
+
+# Pattern: Longest Duplicate Substring (Binary Search + Rolling Hash)
+def longestDupSubstring(s):
+    """Find longest substring that appears at least twice"""
+    base = 26
+    mod = 2**63 - 1  # Large prime
+    n = len(s)
+
+    def search(length):
+        """Check if duplicate substring of given length exists"""
+        if length == 0:
+            return ""
+
+        # Compute hash of first window
+        h = 0
+        power = pow(base, length - 1, mod)
+
+        for i in range(length):
+            h = (h * base + ord(s[i])) % mod
+
+        seen = {h: [0]}  # hash -> list of starting indices
+
+        for i in range(1, n - length + 1):
+            # Roll hash
+            h = (h - ord(s[i-1]) * power) % mod
+            h = (h * base + ord(s[i + length - 1])) % mod
+
+            if h in seen:
+                # Verify to avoid collision
+                for j in seen[h]:
+                    if s[j:j+length] == s[i:i+length]:
+                        return s[i:i+length]
+                seen[h].append(i)
+            else:
+                seen[h] = [i]
+
+        return ""
+
+    # Binary search on length
+    left, right = 0, n - 1
+    result = ""
+
+    while left <= right:
+        mid = (left + right) // 2
+        dup = search(mid)
+
+        if dup:
+            result = dup
+            left = mid + 1
+        else:
+            right = mid - 1
+
+    return result
+
+# Pattern: Repeated String Match
+def repeatedStringMatch(a, b):
+    """
+    Minimum times to repeat 'a' such that 'b' is a substring
+    Returns -1 if impossible
+    """
+    # We need at least ceil(len(b) / len(a)) copies of a
+    times = (len(b) + len(a) - 1) // len(a)
+
+    # Build string and check
+    repeated = a * times
+
+    # Use rolling hash to find b in repeated
+    if b in repeated:
+        return times
+
+    # Try one more copy
+    repeated += a
+    if b in repeated:
+        return times + 1
+
+    return -1
+
+# Pattern: Distinct Echo Substrings
+def distinctEchoSubstrings(text):
+    """Count substrings that can be written as a+a (concatenation of same string)"""
+    n = len(text)
+    base = 26
+    mod = 10**9 + 7
+
+    seen = set()
+
+    # Try all even lengths
+    for length in range(2, n + 1, 2):
+        half = length // 2
+
+        # Compute initial hashes for both halves
+        h1 = h2 = 0
+        power = pow(base, half - 1, mod)
+
+        for i in range(half):
+            h1 = (h1 * base + ord(text[i])) % mod
+            h2 = (h2 * base + ord(text[half + i])) % mod
+
+        if h1 == h2 and text[:half] == text[half:length]:
+            seen.add(text[:half])
+
+        # Slide window
+        for i in range(1, n - length + 1):
+            # Roll h1
+            h1 = (h1 - ord(text[i-1]) * power) % mod
+            h1 = (h1 * base + ord(text[i + half - 1])) % mod
+
+            # Roll h2
+            h2 = (h2 - ord(text[i + half - 1]) * power) % mod
+            h2 = (h2 * base + ord(text[i + length - 1])) % mod
+
+            if h1 == h2:
+                substr = text[i:i+half]
+                if text[i:i+half] == text[i+half:i+length]:
+                    seen.add(substr)
+
+    return len(seen)
+
+# Pattern: Find All Anagrams using Rolling Hash
+def findAnagramsHash(s, p):
+    """Find all anagram indices using character frequency as hash"""
+    from collections import Counter
+
+    if len(p) > len(s):
+        return []
+
+    p_count = Counter(p)
+    window = Counter(s[:len(p)])
+    result = []
+
+    if window == p_count:
+        result.append(0)
+
+    for i in range(len(p), len(s)):
+        # Add new char
+        window[s[i]] += 1
+
+        # Remove old char
+        left_char = s[i - len(p)]
+        window[left_char] -= 1
+        if window[left_char] == 0:
+            del window[left_char]
+
+        if window == p_count:
+            result.append(i - len(p) + 1)
+
+    return result`,
+      commonProblems: [
+        'Implement strStr() / Find the Index of the First Occurrence',
+        'Longest Duplicate Substring',
+        'Repeated String Match',
+        'Shortest Palindrome',
+        'Distinct Echo Substrings',
+        'Longest Happy Prefix'
+      ]
+    },
+    {
+      id: 'kmp',
+      name: 'KMP (Knuth-Morris-Pratt)',
+      icon: '🔤',
+      color: '#7c3aed',
+      category: 'String',
+      description: 'Linear time pattern matching using prefix function to avoid redundant comparisons',
+      whenToUse: [
+        'Pattern matching in strings',
+        'Finding all occurrences of pattern',
+        'Longest prefix which is also suffix',
+        'String periodicity problems',
+        'Repeated substring patterns'
+      ],
+      timeComplexity: 'O(n + m)',
+      spaceComplexity: 'O(m) for prefix table',
+      codeExample: `# KMP Algorithm Fundamentals
+# Key insight: Use information from previous matches to skip comparisons
+
+def compute_lps(pattern):
+    """
+    Compute Longest Proper Prefix which is also Suffix (LPS) array
+    lps[i] = length of longest proper prefix of pattern[0..i]
+             which is also a suffix of pattern[0..i]
+
+    Example: pattern = "AABAACAABAA"
+    lps = [0, 1, 0, 1, 2, 0, 1, 2, 3, 4, 5]
+
+    For "AABAA": longest prefix = suffix = "AA", so lps[4] = 2
+    """
+    m = len(pattern)
+    lps = [0] * m
+    length = 0  # Length of previous longest prefix suffix
+    i = 1
+
+    while i < m:
+        if pattern[i] == pattern[length]:
+            length += 1
+            lps[i] = length
+            i += 1
+        else:
+            if length != 0:
+                # Try shorter prefix
+                length = lps[length - 1]
+            else:
+                lps[i] = 0
+                i += 1
+
+    return lps
+
+# Pattern: KMP String Matching
+def kmp_search(text, pattern):
+    """Find all occurrences of pattern in text"""
+    if not pattern:
+        return [0]
+    if not text or len(pattern) > len(text):
+        return []
+
+    n, m = len(text), len(pattern)
+    lps = compute_lps(pattern)
+    result = []
+
+    i = 0  # Index for text
+    j = 0  # Index for pattern
+
+    while i < n:
+        if text[i] == pattern[j]:
+            i += 1
+            j += 1
+
+            if j == m:
+                # Found match at index i - j
+                result.append(i - j)
+                # Continue searching using LPS
+                j = lps[j - 1]
+        else:
+            if j != 0:
+                # Use LPS to skip comparisons
+                j = lps[j - 1]
+            else:
+                i += 1
+
+    return result
+
+# Pattern: Implement strStr() - LeetCode 28
+def strStr(haystack, needle):
+    """Return index of first occurrence, -1 if not found"""
+    if not needle:
+        return 0
+
+    n, m = len(haystack), len(needle)
+    if m > n:
+        return -1
+
+    lps = compute_lps(needle)
+    i = j = 0
+
+    while i < n:
+        if haystack[i] == needle[j]:
+            i += 1
+            j += 1
+            if j == m:
+                return i - j
+        else:
+            if j != 0:
+                j = lps[j - 1]
+            else:
+                i += 1
+
+    return -1
+
+# Pattern: Shortest Palindrome - LeetCode 214
+def shortestPalindrome(s):
+    """
+    Add characters in front to make palindrome
+    Key: Find longest palindromic prefix using KMP
+    """
+    if not s:
+        return s
+
+    # Create pattern: s + '#' + reverse(s)
+    # Find LPS of this to get longest palindromic prefix
+    rev = s[::-1]
+    combined = s + '#' + rev
+
+    lps = compute_lps(combined)
+
+    # lps[-1] gives length of longest palindromic prefix
+    longest_palindrome_prefix = lps[-1]
+
+    # Add reverse of remaining suffix to front
+    to_add = rev[:len(s) - longest_palindrome_prefix]
+
+    return to_add + s
+
+# Pattern: Repeated Substring Pattern - LeetCode 459
+def repeatedSubstringPattern(s):
+    """
+    Check if s can be formed by repeating a substring
+    Key: If s = pattern * k, then s is in (s + s)[1:-1]
+    Using KMP: check if len(s) % (len(s) - lps[-1]) == 0
+    """
+    n = len(s)
+    lps = compute_lps(s)
+
+    # Length of the repeating pattern
+    pattern_len = n - lps[-1]
+
+    # Check if pattern divides string evenly and is not the whole string
+    return lps[-1] > 0 and n % pattern_len == 0
+
+# Pattern: Longest Happy Prefix - LeetCode 1392
+def longestPrefix(s):
+    """
+    Find longest prefix which is also suffix (but not the whole string)
+    This is exactly what LPS gives us!
+    """
+    lps = compute_lps(s)
+    return s[:lps[-1]]
+
+# Pattern: Count occurrences of pattern
+def countOccurrences(text, pattern):
+    """Count how many times pattern appears in text"""
+    return len(kmp_search(text, pattern))
+
+# Pattern: Find period of string
+def findPeriod(s):
+    """
+    Find shortest period p such that s consists of p repeated
+    If no period exists, return len(s)
+    """
+    n = len(s)
+    lps = compute_lps(s)
+
+    period = n - lps[-1]
+
+    # Check if it's a valid period
+    if n % period == 0:
+        return period
+    return n
+
+# Pattern: Rotate String - LeetCode 796
+def rotateString(s, goal):
+    """
+    Check if s can become goal after some rotations
+    Key: goal is in s + s (if same length)
+    """
+    if len(s) != len(goal):
+        return False
+
+    # Use KMP to check if goal is in s + s
+    return kmp_search(s + s, goal) != []
+
+# Pattern: Count prefix-suffix pairs
+def countPrefixSuffixPairs(s):
+    """
+    Count all (i, j) where s[0:i] == s[n-i:n] (proper prefix = suffix)
+    Uses LPS array
+    """
+    lps = compute_lps(s)
+
+    # Follow the LPS chain from the end
+    pairs = []
+    length = lps[-1]
+
+    while length > 0:
+        pairs.append(length)
+        length = lps[length - 1]
+
+    return pairs
+
+# Z-Algorithm (related to KMP)
+def z_function(s):
+    """
+    z[i] = length of longest substring starting at i
+           that matches a prefix of s
+
+    Example: s = "aabxaab"
+    z = [0, 1, 0, 0, 3, 1, 0]
+    z[4] = 3 because s[4:7] = "aab" matches prefix s[0:3] = "aab"
+    """
+    n = len(s)
+    z = [0] * n
+    l, r = 0, 0
+
+    for i in range(1, n):
+        if i < r:
+            z[i] = min(r - i, z[i - l])
+
+        while i + z[i] < n and s[z[i]] == s[i + z[i]]:
+            z[i] += 1
+
+        if i + z[i] > r:
+            l, r = i, i + z[i]
+
+    return z
+
+# Pattern matching using Z-function
+def z_search(text, pattern):
+    """Find all occurrences using Z-algorithm"""
+    combined = pattern + '$' + text
+    z = z_function(combined)
+    m = len(pattern)
+
+    result = []
+    for i in range(m + 1, len(combined)):
+        if z[i] == m:
+            result.append(i - m - 1)
+
+    return result`,
+      commonProblems: [
+        'Implement strStr() / Find the Index of the First Occurrence',
+        'Shortest Palindrome',
+        'Repeated Substring Pattern',
+        'Longest Happy Prefix',
+        'Rotate String',
+        'Find the Index of the First Occurrence in a String'
       ]
     },
     {
@@ -3476,8 +4057,2326 @@ def probabilityOfHeads(prob, target):
         'Toss Strange Coins',
         'Probability of a Two Boxes Having The Same Number of Distinct Balls'
       ]
+    },
+    {
+      id: 'trie',
+      name: 'Trie (Prefix Tree)',
+      icon: '🌳',
+      color: '#8b5cf6',
+      category: 'String',
+      description: 'Tree-like data structure for efficient string prefix operations and autocomplete',
+      whenToUse: [
+        'Autocomplete/typeahead systems',
+        'Spell checkers',
+        'Word search in grid',
+        'Prefix matching',
+        'IP routing (longest prefix match)'
+      ],
+      timeComplexity: 'O(m) where m is key length',
+      spaceComplexity: 'O(ALPHABET_SIZE * m * n)',
+      codeExample: `# Pattern: Trie Implementation
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.is_end = False
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word):
+        """Insert word into trie - O(m)"""
+        node = self.root
+        for char in word:
+            if char not in node.children:
+                node.children[char] = TrieNode()
+            node = node.children[char]
+        node.is_end = True
+
+    def search(self, word):
+        """Search for exact word - O(m)"""
+        node = self.root
+        for char in word:
+            if char not in node.children:
+                return False
+            node = node.children[char]
+        return node.is_end
+
+    def starts_with(self, prefix):
+        """Check if any word starts with prefix - O(m)"""
+        node = self.root
+        for char in prefix:
+            if char not in node.children:
+                return False
+            node = node.children[char]
+        return True
+
+# Pattern: Word Search II (using Trie)
+def findWords(board, words):
+    """Find all words from list in the grid"""
+    # Build trie from words
+    trie = Trie()
+    for word in words:
+        trie.insert(word)
+
+    rows, cols = len(board), len(board[0])
+    result = set()
+
+    def dfs(r, c, node, path):
+        if node.is_end:
+            result.add(path)
+
+        if r < 0 or r >= rows or c < 0 or c >= cols:
+            return
+
+        char = board[r][c]
+        if char not in node.children:
+            return
+
+        board[r][c] = '#'  # Mark visited
+        next_node = node.children[char]
+
+        for dr, dc in [(0,1), (0,-1), (1,0), (-1,0)]:
+            dfs(r + dr, c + dc, next_node, path + char)
+
+        board[r][c] = char  # Restore
+
+    for r in range(rows):
+        for c in range(cols):
+            dfs(r, c, trie.root, "")
+
+    return list(result)
+
+# Pattern: Autocomplete System
+class AutocompleteSystem:
+    def __init__(self, sentences, times):
+        self.trie = {}
+        self.current = ""
+
+        for sentence, count in zip(sentences, times):
+            self._add(sentence, count)
+
+    def _add(self, sentence, count):
+        node = self.trie
+        for char in sentence:
+            if char not in node:
+                node[char] = {}
+            node = node[char]
+        node['#'] = node.get('#', 0) + count
+
+    def input(self, c):
+        if c == '#':
+            self._add(self.current, 1)
+            self.current = ""
+            return []
+
+        self.current += c
+        node = self.trie
+
+        for char in self.current:
+            if char not in node:
+                return []
+            node = node[char]
+
+        # DFS to find all sentences
+        results = []
+        self._dfs(node, self.current, results)
+
+        # Sort by frequency (desc) then alphabetically
+        results.sort(key=lambda x: (-x[1], x[0]))
+        return [r[0] for r in results[:3]]
+
+    def _dfs(self, node, path, results):
+        if '#' in node:
+            results.append((path, node['#']))
+
+        for char in node:
+            if char != '#':
+                self._dfs(node[char], path + char, results)`,
+      commonProblems: [
+        'Implement Trie (Prefix Tree)',
+        'Word Search II',
+        'Design Add and Search Words Data Structure',
+        'Design Search Autocomplete System',
+        'Replace Words',
+        'Longest Word in Dictionary'
+      ]
+    },
+    {
+      id: 'topological-sort',
+      name: 'Topological Sort',
+      icon: '📊',
+      color: '#06b6d4',
+      category: 'Graph',
+      description: 'Linear ordering of vertices in DAG where for every edge (u,v), u comes before v',
+      whenToUse: [
+        'Task scheduling with dependencies',
+        'Build systems (makefile)',
+        'Course prerequisites',
+        'Package dependency resolution',
+        'Detecting cycles in directed graph'
+      ],
+      timeComplexity: 'O(V + E)',
+      spaceComplexity: 'O(V)',
+      codeExample: `# Pattern: Topological Sort using DFS
+def topological_sort_dfs(num_nodes, edges):
+    """Return topological order or empty if cycle exists"""
+    from collections import defaultdict
+
+    graph = defaultdict(list)
+    for u, v in edges:
+        graph[u].append(v)
+
+    # 0: unvisited, 1: visiting, 2: visited
+    state = [0] * num_nodes
+    result = []
+
+    def dfs(node):
+        if state[node] == 1:  # Cycle detected
+            return False
+        if state[node] == 2:  # Already processed
+            return True
+
+        state[node] = 1  # Mark visiting
+
+        for neighbor in graph[node]:
+            if not dfs(neighbor):
+                return False
+
+        state[node] = 2  # Mark visited
+        result.append(node)
+        return True
+
+    for node in range(num_nodes):
+        if state[node] == 0:
+            if not dfs(node):
+                return []  # Cycle exists
+
+    return result[::-1]
+
+# Pattern: Topological Sort using Kahn's Algorithm (BFS)
+def topological_sort_bfs(num_nodes, edges):
+    """Kahn's algorithm using indegree"""
+    from collections import defaultdict, deque
+
+    graph = defaultdict(list)
+    indegree = [0] * num_nodes
+
+    for u, v in edges:
+        graph[u].append(v)
+        indegree[v] += 1
+
+    # Start with nodes having no dependencies
+    queue = deque([i for i in range(num_nodes) if indegree[i] == 0])
+    result = []
+
+    while queue:
+        node = queue.popleft()
+        result.append(node)
+
+        for neighbor in graph[node]:
+            indegree[neighbor] -= 1
+            if indegree[neighbor] == 0:
+                queue.append(neighbor)
+
+    # If all nodes processed, no cycle
+    return result if len(result) == num_nodes else []
+
+# Pattern: Course Schedule
+def canFinish(numCourses, prerequisites):
+    """Check if possible to finish all courses"""
+    return len(topological_sort_bfs(numCourses, prerequisites)) == numCourses
+
+# Pattern: Course Schedule II
+def findOrder(numCourses, prerequisites):
+    """Return order to take courses"""
+    # Reverse edges: [course, prereq] means prereq -> course
+    edges = [(prereq, course) for course, prereq in prerequisites]
+    return topological_sort_bfs(numCourses, edges)
+
+# Pattern: Alien Dictionary
+def alienOrder(words):
+    """Derive alphabet order from sorted alien words"""
+    from collections import defaultdict, deque
+
+    # Build graph from adjacent word comparisons
+    graph = defaultdict(set)
+    indegree = {c: 0 for word in words for c in word}
+
+    for i in range(len(words) - 1):
+        w1, w2 = words[i], words[i + 1]
+        min_len = min(len(w1), len(w2))
+
+        # Invalid: prefix comes after longer word
+        if len(w1) > len(w2) and w1[:min_len] == w2[:min_len]:
+            return ""
+
+        for j in range(min_len):
+            if w1[j] != w2[j]:
+                if w2[j] not in graph[w1[j]]:
+                    graph[w1[j]].add(w2[j])
+                    indegree[w2[j]] += 1
+                break
+
+    # Kahn's algorithm
+    queue = deque([c for c in indegree if indegree[c] == 0])
+    result = []
+
+    while queue:
+        char = queue.popleft()
+        result.append(char)
+
+        for neighbor in graph[char]:
+            indegree[neighbor] -= 1
+            if indegree[neighbor] == 0:
+                queue.append(neighbor)
+
+    return "".join(result) if len(result) == len(indegree) else ""`,
+      commonProblems: [
+        'Course Schedule',
+        'Course Schedule II',
+        'Alien Dictionary',
+        'Sequence Reconstruction',
+        'Minimum Height Trees',
+        'Parallel Courses'
+      ]
+    },
+    {
+      id: 'prefix-sum',
+      name: 'Prefix Sum',
+      icon: '➕',
+      color: '#10b981',
+      category: 'Array',
+      description: 'Precompute cumulative sums to answer range queries in O(1)',
+      whenToUse: [
+        'Range sum queries',
+        'Subarray sum problems',
+        'Finding subarrays with target sum',
+        '2D matrix sum queries',
+        'Difference arrays for range updates'
+      ],
+      timeComplexity: 'O(n) preprocess, O(1) query',
+      spaceComplexity: 'O(n)',
+      codeExample: `# Pattern: Basic Prefix Sum
+def build_prefix_sum(nums):
+    """Build prefix sum array"""
+    n = len(nums)
+    prefix = [0] * (n + 1)
+
+    for i in range(n):
+        prefix[i + 1] = prefix[i] + nums[i]
+
+    return prefix
+
+def range_sum(prefix, left, right):
+    """Get sum of nums[left:right+1] in O(1)"""
+    return prefix[right + 1] - prefix[left]
+
+# Pattern: Subarray Sum Equals K
+def subarraySum(nums, k):
+    """Count subarrays with sum = k"""
+    from collections import defaultdict
+
+    count = 0
+    current_sum = 0
+    prefix_counts = defaultdict(int)
+    prefix_counts[0] = 1  # Empty prefix
+
+    for num in nums:
+        current_sum += num
+
+        # If (current_sum - k) exists, we found subarrays
+        count += prefix_counts[current_sum - k]
+
+        prefix_counts[current_sum] += 1
+
+    return count
+
+# Pattern: Product of Array Except Self
+def productExceptSelf(nums):
+    """Product of all elements except self without division"""
+    n = len(nums)
+    result = [1] * n
+
+    # Left products
+    left_product = 1
+    for i in range(n):
+        result[i] = left_product
+        left_product *= nums[i]
+
+    # Right products
+    right_product = 1
+    for i in range(n - 1, -1, -1):
+        result[i] *= right_product
+        right_product *= nums[i]
+
+    return result
+
+# Pattern: 2D Prefix Sum (Matrix)
+class NumMatrix:
+    def __init__(self, matrix):
+        if not matrix:
+            return
+
+        m, n = len(matrix), len(matrix[0])
+        self.prefix = [[0] * (n + 1) for _ in range(m + 1)]
+
+        for i in range(m):
+            for j in range(n):
+                self.prefix[i+1][j+1] = (
+                    matrix[i][j] +
+                    self.prefix[i][j+1] +
+                    self.prefix[i+1][j] -
+                    self.prefix[i][j]
+                )
+
+    def sumRegion(self, r1, c1, r2, c2):
+        """Sum of rectangle (r1,c1) to (r2,c2) in O(1)"""
+        return (
+            self.prefix[r2+1][c2+1] -
+            self.prefix[r1][c2+1] -
+            self.prefix[r2+1][c1] +
+            self.prefix[r1][c1]
+        )
+
+# Pattern: Difference Array (Range Updates)
+class DifferenceArray:
+    """Efficiently handle multiple range increment operations"""
+    def __init__(self, n):
+        self.diff = [0] * (n + 1)
+
+    def add(self, left, right, val):
+        """Add val to range [left, right] - O(1)"""
+        self.diff[left] += val
+        self.diff[right + 1] -= val
+
+    def get_result(self):
+        """Get final array after all operations - O(n)"""
+        result = []
+        current = 0
+        for i in range(len(self.diff) - 1):
+            current += self.diff[i]
+            result.append(current)
+        return result`,
+      commonProblems: [
+        'Range Sum Query - Immutable',
+        'Range Sum Query 2D - Immutable',
+        'Subarray Sum Equals K',
+        'Product of Array Except Self',
+        'Contiguous Array',
+        'Maximum Size Subarray Sum Equals k'
+      ]
+    },
+    {
+      id: 'bit-manipulation',
+      name: 'Bit Manipulation',
+      icon: '🔢',
+      color: '#f59e0b',
+      category: 'Math',
+      description: 'Efficient operations using binary representation of numbers',
+      whenToUse: [
+        'Single number problems (XOR)',
+        'Power of 2 checks',
+        'Counting set bits',
+        'Subsets generation',
+        'Swapping without temp variable'
+      ],
+      timeComplexity: 'O(1) to O(log n)',
+      spaceComplexity: 'O(1)',
+      codeExample: `# Pattern: Common Bit Operations
+def get_bit(n, i):
+    """Get i-th bit (0-indexed from right)"""
+    return (n >> i) & 1
+
+def set_bit(n, i):
+    """Set i-th bit to 1"""
+    return n | (1 << i)
+
+def clear_bit(n, i):
+    """Clear i-th bit to 0"""
+    return n & ~(1 << i)
+
+def toggle_bit(n, i):
+    """Toggle i-th bit"""
+    return n ^ (1 << i)
+
+def count_set_bits(n):
+    """Count number of 1s (Brian Kernighan's algorithm)"""
+    count = 0
+    while n:
+        n &= (n - 1)  # Clear rightmost set bit
+        count += 1
+    return count
+
+def is_power_of_two(n):
+    """Check if n is power of 2"""
+    return n > 0 and (n & (n - 1)) == 0
+
+# Pattern: Single Number (XOR)
+def singleNumber(nums):
+    """Find element appearing once (others appear twice)"""
+    result = 0
+    for num in nums:
+        result ^= num  # XOR cancels pairs
+    return result
+
+# Pattern: Single Number III
+def singleNumber3(nums):
+    """Find two elements appearing once"""
+    # XOR all: gets xor of the two singles
+    xor_all = 0
+    for num in nums:
+        xor_all ^= num
+
+    # Find rightmost set bit (differs between the two)
+    diff_bit = xor_all & (-xor_all)
+
+    # Separate into two groups
+    a = b = 0
+    for num in nums:
+        if num & diff_bit:
+            a ^= num
+        else:
+            b ^= num
+
+    return [a, b]
+
+# Pattern: Counting Bits
+def countBits(n):
+    """Count bits for all numbers 0 to n"""
+    dp = [0] * (n + 1)
+
+    for i in range(1, n + 1):
+        # dp[i] = dp[i >> 1] + (i & 1)
+        dp[i] = dp[i >> 1] + (i & 1)
+
+    return dp
+
+# Pattern: Subsets using Bits
+def subsets(nums):
+    """Generate all subsets using bitmask"""
+    n = len(nums)
+    result = []
+
+    for mask in range(1 << n):  # 0 to 2^n - 1
+        subset = []
+        for i in range(n):
+            if mask & (1 << i):
+                subset.append(nums[i])
+        result.append(subset)
+
+    return result
+
+# Pattern: Reverse Bits
+def reverseBits(n):
+    """Reverse all 32 bits"""
+    result = 0
+    for i in range(32):
+        bit = (n >> i) & 1
+        result |= (bit << (31 - i))
+    return result
+
+# Pattern: Missing Number (XOR approach)
+def missingNumber(nums):
+    """Find missing number in [0, n]"""
+    n = len(nums)
+    result = n  # Start with n
+
+    for i, num in enumerate(nums):
+        result ^= i ^ num
+
+    return result`,
+      commonProblems: [
+        'Single Number',
+        'Single Number II',
+        'Single Number III',
+        'Counting Bits',
+        'Reverse Bits',
+        'Missing Number',
+        'Power of Two'
+      ]
+    },
+    {
+      id: 'greedy',
+      name: 'Greedy Algorithm',
+      icon: '🎯',
+      color: '#ef4444',
+      category: 'Algorithm',
+      description: 'Make locally optimal choices at each step hoping to find global optimum',
+      whenToUse: [
+        'Interval scheduling',
+        'Activity selection',
+        'Huffman coding',
+        'Jump game problems',
+        'Minimum coins/operations'
+      ],
+      timeComplexity: 'Usually O(n log n) due to sorting',
+      spaceComplexity: 'O(1) to O(n)',
+      codeExample: `# Pattern: Jump Game
+def canJump(nums):
+    """Can reach the last index?"""
+    max_reach = 0
+
+    for i, jump in enumerate(nums):
+        if i > max_reach:
+            return False
+        max_reach = max(max_reach, i + jump)
+
+    return True
+
+# Pattern: Jump Game II
+def jump(nums):
+    """Minimum jumps to reach end"""
+    n = len(nums)
+    if n <= 1:
+        return 0
+
+    jumps = 0
+    current_end = 0
+    farthest = 0
+
+    for i in range(n - 1):
+        farthest = max(farthest, i + nums[i])
+
+        if i == current_end:
+            jumps += 1
+            current_end = farthest
+
+            if current_end >= n - 1:
+                break
+
+    return jumps
+
+# Pattern: Gas Station
+def canCompleteCircuit(gas, cost):
+    """Find starting station to complete circuit"""
+    total_tank = 0
+    current_tank = 0
+    start = 0
+
+    for i in range(len(gas)):
+        diff = gas[i] - cost[i]
+        total_tank += diff
+        current_tank += diff
+
+        if current_tank < 0:
+            start = i + 1
+            current_tank = 0
+
+    return start if total_tank >= 0 else -1
+
+# Pattern: Task Scheduler
+def leastInterval(tasks, n):
+    """Minimum intervals to complete all tasks with cooldown"""
+    from collections import Counter
+
+    freq = Counter(tasks)
+    max_freq = max(freq.values())
+    max_count = sum(1 for f in freq.values() if f == max_freq)
+
+    # (max_freq - 1) full cycles + last partial cycle
+    result = (max_freq - 1) * (n + 1) + max_count
+
+    return max(result, len(tasks))
+
+# Pattern: Non-overlapping Intervals
+def eraseOverlapIntervals(intervals):
+    """Minimum removals to make non-overlapping"""
+    if not intervals:
+        return 0
+
+    # Sort by end time
+    intervals.sort(key=lambda x: x[1])
+
+    count = 0
+    prev_end = float('-inf')
+
+    for start, end in intervals:
+        if start >= prev_end:
+            prev_end = end
+        else:
+            count += 1  # Remove this interval
+
+    return count
+
+# Pattern: Partition Labels
+def partitionLabels(s):
+    """Partition string so each letter appears in at most one part"""
+    last = {c: i for i, c in enumerate(s)}
+
+    result = []
+    start = end = 0
+
+    for i, c in enumerate(s):
+        end = max(end, last[c])
+
+        if i == end:
+            result.append(end - start + 1)
+            start = i + 1
+
+    return result
+
+# Pattern: Candy Distribution
+def candy(ratings):
+    """Minimum candies with higher rating = more than neighbors"""
+    n = len(ratings)
+    candies = [1] * n
+
+    # Left to right
+    for i in range(1, n):
+        if ratings[i] > ratings[i-1]:
+            candies[i] = candies[i-1] + 1
+
+    # Right to left
+    for i in range(n-2, -1, -1):
+        if ratings[i] > ratings[i+1]:
+            candies[i] = max(candies[i], candies[i+1] + 1)
+
+    return sum(candies)`,
+      commonProblems: [
+        'Jump Game',
+        'Jump Game II',
+        'Gas Station',
+        'Task Scheduler',
+        'Non-overlapping Intervals',
+        'Partition Labels',
+        'Candy'
+      ]
+    },
+    {
+      id: 'kadane',
+      name: "Kadane's Algorithm",
+      icon: '📈',
+      color: '#3b82f6',
+      category: 'Array',
+      description: 'Find maximum sum contiguous subarray in O(n) time',
+      whenToUse: [
+        'Maximum subarray sum',
+        'Maximum product subarray',
+        'Circular subarray problems',
+        'Maximum sum with constraints',
+        'Stock profit problems'
+      ],
+      timeComplexity: 'O(n)',
+      spaceComplexity: 'O(1)',
+      codeExample: `# Pattern: Maximum Subarray (Kadane's Algorithm)
+def maxSubArray(nums):
+    """Find contiguous subarray with largest sum"""
+    max_sum = nums[0]
+    current_sum = nums[0]
+
+    for i in range(1, len(nums)):
+        # Either extend current subarray or start new
+        current_sum = max(nums[i], current_sum + nums[i])
+        max_sum = max(max_sum, current_sum)
+
+    return max_sum
+
+# Pattern: Maximum Subarray with indices
+def maxSubArrayWithIndices(nums):
+    """Return max sum and indices"""
+    max_sum = nums[0]
+    current_sum = nums[0]
+    start = end = temp_start = 0
+
+    for i in range(1, len(nums)):
+        if nums[i] > current_sum + nums[i]:
+            current_sum = nums[i]
+            temp_start = i
+        else:
+            current_sum = current_sum + nums[i]
+
+        if current_sum > max_sum:
+            max_sum = current_sum
+            start = temp_start
+            end = i
+
+    return max_sum, start, end
+
+# Pattern: Maximum Product Subarray
+def maxProduct(nums):
+    """Find contiguous subarray with largest product"""
+    max_prod = nums[0]
+    min_prod = nums[0]  # Track min for negative numbers
+    result = nums[0]
+
+    for i in range(1, len(nums)):
+        num = nums[i]
+
+        # Swap if negative (negative * min = max)
+        if num < 0:
+            max_prod, min_prod = min_prod, max_prod
+
+        max_prod = max(num, max_prod * num)
+        min_prod = min(num, min_prod * num)
+
+        result = max(result, max_prod)
+
+    return result
+
+# Pattern: Maximum Circular Subarray
+def maxSubarraySumCircular(nums):
+    """Maximum sum in circular array"""
+    # Case 1: Max subarray is not circular (normal Kadane)
+    max_kadane = maxSubArray(nums)
+
+    # Case 2: Max subarray is circular
+    # = total_sum - minimum_subarray
+    total = sum(nums)
+
+    # Find minimum subarray
+    min_sum = nums[0]
+    current_min = nums[0]
+
+    for i in range(1, len(nums)):
+        current_min = min(nums[i], current_min + nums[i])
+        min_sum = min(min_sum, current_min)
+
+    # If all negative, max_kadane is the answer
+    if min_sum == total:
+        return max_kadane
+
+    return max(max_kadane, total - min_sum)
+
+# Pattern: Maximum Sum of Two Non-Overlapping Subarrays
+def maxSumTwoNoOverlap(nums, firstLen, secondLen):
+    """Max sum of two non-overlapping subarrays"""
+    n = len(nums)
+
+    # Prefix sums
+    prefix = [0] * (n + 1)
+    for i in range(n):
+        prefix[i + 1] = prefix[i] + nums[i]
+
+    def get_sum(i, length):
+        return prefix[i + length] - prefix[i]
+
+    result = 0
+    max_first = 0
+    max_second = 0
+
+    for i in range(firstLen + secondLen, n + 1):
+        # First array ends before second starts
+        max_first = max(max_first, get_sum(i - firstLen - secondLen, firstLen))
+        result = max(result, max_first + get_sum(i - secondLen, secondLen))
+
+        # Second array ends before first starts
+        max_second = max(max_second, get_sum(i - firstLen - secondLen, secondLen))
+        result = max(result, max_second + get_sum(i - firstLen, firstLen))
+
+    return result
+
+# Pattern: Best Time to Buy and Sell Stock
+def maxProfit(prices):
+    """Single transaction max profit"""
+    min_price = float('inf')
+    max_profit = 0
+
+    for price in prices:
+        min_price = min(min_price, price)
+        max_profit = max(max_profit, price - min_price)
+
+    return max_profit`,
+      commonProblems: [
+        'Maximum Subarray',
+        'Maximum Product Subarray',
+        'Maximum Sum Circular Subarray',
+        'Best Time to Buy and Sell Stock',
+        'Maximum Sum of Two Non-Overlapping Subarrays',
+        'Longest Turbulent Subarray'
+      ]
+    },
+    {
+      id: 'dijkstra',
+      name: "Dijkstra's Algorithm",
+      icon: '🛤️',
+      color: '#14b8a6',
+      category: 'Graph',
+      description: 'Find shortest paths from source to all vertices in weighted graph (non-negative weights)',
+      whenToUse: [
+        'Shortest path with positive weights',
+        'Network routing',
+        'Maps/navigation',
+        'Minimum cost problems',
+        'Single source shortest path'
+      ],
+      timeComplexity: 'O((V + E) log V) with heap',
+      spaceComplexity: 'O(V)',
+      codeExample: `# Pattern: Dijkstra's Algorithm
+import heapq
+from collections import defaultdict
+
+def dijkstra(graph, start, n):
+    """
+    Find shortest distances from start to all nodes
+    graph: adjacency list {node: [(neighbor, weight), ...]}
+    """
+    dist = [float('inf')] * n
+    dist[start] = 0
+
+    # Min heap: (distance, node)
+    heap = [(0, start)]
+
+    while heap:
+        d, node = heapq.heappop(heap)
+
+        # Skip if we've found a better path
+        if d > dist[node]:
+            continue
+
+        for neighbor, weight in graph[node]:
+            new_dist = d + weight
+
+            if new_dist < dist[neighbor]:
+                dist[neighbor] = new_dist
+                heapq.heappush(heap, (new_dist, neighbor))
+
+    return dist
+
+# Pattern: Network Delay Time
+def networkDelayTime(times, n, k):
+    """Time for signal to reach all nodes from k"""
+    graph = defaultdict(list)
+    for u, v, w in times:
+        graph[u - 1].append((v - 1, w))
+
+    dist = dijkstra(graph, k - 1, n)
+
+    max_time = max(dist)
+    return max_time if max_time != float('inf') else -1
+
+# Pattern: Cheapest Flights Within K Stops
+def findCheapestPrice(n, flights, src, dst, k):
+    """Shortest path with at most k stops"""
+    graph = defaultdict(list)
+    for u, v, w in flights:
+        graph[u].append((v, w))
+
+    # (cost, stops, node)
+    heap = [(0, 0, src)]
+    # Best cost to reach node with given stops
+    best = {}
+
+    while heap:
+        cost, stops, node = heapq.heappop(heap)
+
+        if node == dst:
+            return cost
+
+        if stops > k:
+            continue
+
+        # Skip if we've reached this node with fewer stops at same/less cost
+        if (node, stops) in best and best[(node, stops)] <= cost:
+            continue
+        best[(node, stops)] = cost
+
+        for neighbor, price in graph[node]:
+            heapq.heappush(heap, (cost + price, stops + 1, neighbor))
+
+    return -1
+
+# Pattern: Path with Minimum Effort
+def minimumEffortPath(heights):
+    """Find path with minimum maximum absolute difference"""
+    rows, cols = len(heights), len(heights[0])
+
+    # (effort, row, col)
+    heap = [(0, 0, 0)]
+    efforts = [[float('inf')] * cols for _ in range(rows)]
+    efforts[0][0] = 0
+
+    directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+
+    while heap:
+        effort, r, c = heapq.heappop(heap)
+
+        if r == rows - 1 and c == cols - 1:
+            return effort
+
+        if effort > efforts[r][c]:
+            continue
+
+        for dr, dc in directions:
+            nr, nc = r + dr, c + dc
+
+            if 0 <= nr < rows and 0 <= nc < cols:
+                new_effort = max(effort, abs(heights[nr][nc] - heights[r][c]))
+
+                if new_effort < efforts[nr][nc]:
+                    efforts[nr][nc] = new_effort
+                    heapq.heappush(heap, (new_effort, nr, nc))
+
+    return 0
+
+# Pattern: Swim in Rising Water
+def swimInWater(grid):
+    """Minimum time to swim from top-left to bottom-right"""
+    n = len(grid)
+
+    # (max_depth, row, col)
+    heap = [(grid[0][0], 0, 0)]
+    visited = set()
+
+    while heap:
+        depth, r, c = heapq.heappop(heap)
+
+        if r == n - 1 and c == n - 1:
+            return depth
+
+        if (r, c) in visited:
+            continue
+        visited.add((r, c))
+
+        for dr, dc in [(0,1), (0,-1), (1,0), (-1,0)]:
+            nr, nc = r + dr, c + dc
+
+            if 0 <= nr < n and 0 <= nc < n and (nr, nc) not in visited:
+                heapq.heappush(heap, (max(depth, grid[nr][nc]), nr, nc))
+
+    return 0`,
+      commonProblems: [
+        'Network Delay Time',
+        'Cheapest Flights Within K Stops',
+        'Path with Minimum Effort',
+        'Swim in Rising Water',
+        'Path With Maximum Minimum Value',
+        'Shortest Path in Binary Matrix'
+      ]
+    },
+    {
+      id: 'binary-indexed-tree',
+      name: 'Binary Indexed Tree (Fenwick)',
+      icon: '🌲',
+      color: '#8b5cf6',
+      category: 'Data Structure',
+      description: 'Efficiently update elements and calculate prefix sums in O(log n)',
+      whenToUse: [
+        'Range sum queries with updates',
+        'Counting inversions',
+        'Count smaller numbers after self',
+        'Range frequency queries',
+        'Dynamic cumulative frequency'
+      ],
+      timeComplexity: 'O(log n) update and query',
+      spaceComplexity: 'O(n)',
+      codeExample: `# Pattern: Binary Indexed Tree (Fenwick Tree)
+class BIT:
+    def __init__(self, n):
+        self.n = n
+        self.tree = [0] * (n + 1)
+
+    def update(self, i, delta):
+        """Add delta to index i (1-indexed)"""
+        while i <= self.n:
+            self.tree[i] += delta
+            i += i & (-i)  # Add LSB
+
+    def query(self, i):
+        """Get sum from index 1 to i"""
+        total = 0
+        while i > 0:
+            total += self.tree[i]
+            i -= i & (-i)  # Remove LSB
+        return total
+
+    def range_query(self, left, right):
+        """Get sum from left to right (1-indexed)"""
+        return self.query(right) - self.query(left - 1)
+
+# Pattern: Range Sum Query - Mutable
+class NumArray:
+    def __init__(self, nums):
+        self.nums = nums
+        self.n = len(nums)
+        self.bit = BIT(self.n)
+
+        for i, num in enumerate(nums):
+            self.bit.update(i + 1, num)
+
+    def update(self, index, val):
+        delta = val - self.nums[index]
+        self.nums[index] = val
+        self.bit.update(index + 1, delta)
+
+    def sumRange(self, left, right):
+        return self.bit.range_query(left + 1, right + 1)
+
+# Pattern: Count Smaller Numbers After Self
+def countSmaller(nums):
+    """For each num, count smaller elements to its right"""
+    # Coordinate compression
+    sorted_nums = sorted(set(nums))
+    rank = {v: i + 1 for i, v in enumerate(sorted_nums)}
+
+    n = len(nums)
+    bit = BIT(len(sorted_nums))
+    result = []
+
+    # Process from right to left
+    for i in range(n - 1, -1, -1):
+        r = rank[nums[i]]
+        # Count elements smaller than current (already processed)
+        result.append(bit.query(r - 1))
+        # Add current element
+        bit.update(r, 1)
+
+    return result[::-1]
+
+# Pattern: Count of Range Sum
+def countRangeSum(nums, lower, upper):
+    """Count subarrays with sum in [lower, upper]"""
+    # Use prefix sums + merge sort or BIT
+    prefix = [0]
+    for num in nums:
+        prefix.append(prefix[-1] + num)
+
+    # Coordinate compression
+    sorted_prefix = sorted(set(prefix))
+    rank = {v: i + 1 for i, v in enumerate(sorted_prefix)}
+
+    bit = BIT(len(sorted_prefix))
+    count = 0
+
+    for p in prefix:
+        # Count prefix sums in range [p - upper, p - lower]
+        left_rank = rank.get(p - upper, 0)
+        right_rank = rank.get(p - lower, 0)
+
+        # Binary search for actual ranks
+        import bisect
+        left_idx = bisect.bisect_left(sorted_prefix, p - upper)
+        right_idx = bisect.bisect_right(sorted_prefix, p - lower)
+
+        if left_idx < right_idx:
+            count += bit.query(right_idx) - bit.query(left_idx)
+
+        bit.update(rank[p], 1)
+
+    return count
+
+# Pattern: 2D BIT (Fenwick Tree)
+class BIT2D:
+    def __init__(self, m, n):
+        self.m, self.n = m, n
+        self.tree = [[0] * (n + 1) for _ in range(m + 1)]
+
+    def update(self, row, col, delta):
+        i = row
+        while i <= self.m:
+            j = col
+            while j <= self.n:
+                self.tree[i][j] += delta
+                j += j & (-j)
+            i += i & (-i)
+
+    def query(self, row, col):
+        total = 0
+        i = row
+        while i > 0:
+            j = col
+            while j > 0:
+                total += self.tree[i][j]
+                j -= j & (-j)
+            i -= i & (-i)
+        return total`,
+      commonProblems: [
+        'Range Sum Query - Mutable',
+        'Count of Smaller Numbers After Self',
+        'Count of Range Sum',
+        'Reverse Pairs',
+        'Range Sum Query 2D - Mutable',
+        'Create Sorted Array through Instructions'
+      ]
+    },
+    {
+      id: 'segment-tree',
+      name: 'Segment Tree',
+      icon: '🎄',
+      color: '#ec4899',
+      category: 'Data Structure',
+      description: 'Tree data structure for efficient range queries and point/range updates',
+      whenToUse: [
+        'Range min/max/sum queries',
+        'Range updates',
+        'Interval scheduling',
+        'Computational geometry',
+        'Dynamic range queries'
+      ],
+      timeComplexity: 'O(log n) query and update',
+      spaceComplexity: 'O(n)',
+      codeExample: `# Pattern: Segment Tree for Range Sum
+class SegmentTree:
+    def __init__(self, nums):
+        self.n = len(nums)
+        self.tree = [0] * (2 * self.n)
+
+        # Build tree
+        for i in range(self.n):
+            self.tree[self.n + i] = nums[i]
+
+        for i in range(self.n - 1, 0, -1):
+            self.tree[i] = self.tree[2*i] + self.tree[2*i + 1]
+
+    def update(self, index, val):
+        """Update value at index"""
+        pos = self.n + index
+        self.tree[pos] = val
+
+        while pos > 1:
+            pos //= 2
+            self.tree[pos] = self.tree[2*pos] + self.tree[2*pos + 1]
+
+    def query(self, left, right):
+        """Sum of range [left, right)"""
+        result = 0
+        left += self.n
+        right += self.n
+
+        while left < right:
+            if left % 2 == 1:
+                result += self.tree[left]
+                left += 1
+            if right % 2 == 1:
+                right -= 1
+                result += self.tree[right]
+            left //= 2
+            right //= 2
+
+        return result
+
+# Pattern: Segment Tree for Range Minimum Query
+class SegmentTreeMin:
+    def __init__(self, nums):
+        self.n = len(nums)
+        self.tree = [float('inf')] * (2 * self.n)
+
+        for i in range(self.n):
+            self.tree[self.n + i] = nums[i]
+
+        for i in range(self.n - 1, 0, -1):
+            self.tree[i] = min(self.tree[2*i], self.tree[2*i + 1])
+
+    def update(self, index, val):
+        pos = self.n + index
+        self.tree[pos] = val
+
+        while pos > 1:
+            pos //= 2
+            self.tree[pos] = min(self.tree[2*pos], self.tree[2*pos + 1])
+
+    def query(self, left, right):
+        """Minimum in range [left, right)"""
+        result = float('inf')
+        left += self.n
+        right += self.n
+
+        while left < right:
+            if left % 2 == 1:
+                result = min(result, self.tree[left])
+                left += 1
+            if right % 2 == 1:
+                right -= 1
+                result = min(result, self.tree[right])
+            left //= 2
+            right //= 2
+
+        return result
+
+# Pattern: Segment Tree with Lazy Propagation
+class SegmentTreeLazy:
+    def __init__(self, nums):
+        self.n = len(nums)
+        self.tree = [0] * (4 * self.n)
+        self.lazy = [0] * (4 * self.n)
+        self._build(nums, 0, 0, self.n - 1)
+
+    def _build(self, nums, node, start, end):
+        if start == end:
+            self.tree[node] = nums[start]
+        else:
+            mid = (start + end) // 2
+            self._build(nums, 2*node + 1, start, mid)
+            self._build(nums, 2*node + 2, mid + 1, end)
+            self.tree[node] = self.tree[2*node + 1] + self.tree[2*node + 2]
+
+    def _propagate(self, node, start, end):
+        if self.lazy[node] != 0:
+            self.tree[node] += (end - start + 1) * self.lazy[node]
+            if start != end:
+                self.lazy[2*node + 1] += self.lazy[node]
+                self.lazy[2*node + 2] += self.lazy[node]
+            self.lazy[node] = 0
+
+    def update_range(self, left, right, val):
+        """Add val to range [left, right]"""
+        self._update_range(0, 0, self.n - 1, left, right, val)
+
+    def _update_range(self, node, start, end, left, right, val):
+        self._propagate(node, start, end)
+
+        if start > right or end < left:
+            return
+
+        if left <= start and end <= right:
+            self.lazy[node] += val
+            self._propagate(node, start, end)
+            return
+
+        mid = (start + end) // 2
+        self._update_range(2*node + 1, start, mid, left, right, val)
+        self._update_range(2*node + 2, mid + 1, end, left, right, val)
+        self.tree[node] = self.tree[2*node + 1] + self.tree[2*node + 2]
+
+    def query(self, left, right):
+        return self._query(0, 0, self.n - 1, left, right)
+
+    def _query(self, node, start, end, left, right):
+        self._propagate(node, start, end)
+
+        if start > right or end < left:
+            return 0
+
+        if left <= start and end <= right:
+            return self.tree[node]
+
+        mid = (start + end) // 2
+        return (self._query(2*node + 1, start, mid, left, right) +
+                self._query(2*node + 2, mid + 1, end, left, right))`,
+      commonProblems: [
+        'Range Sum Query - Mutable',
+        'Range Minimum Query',
+        'Count of Range Sum',
+        'Falling Squares',
+        'My Calendar III',
+        'The Skyline Problem'
+      ]
+    },
+    {
+      id: 'dutch-national-flag',
+      name: 'Dutch National Flag',
+      icon: '🇳🇱',
+      color: '#f97316',
+      category: 'Array',
+      description: '3-way partitioning to sort array with 3 distinct values in one pass',
+      whenToUse: [
+        'Sort colors (0, 1, 2)',
+        '3-way partitioning',
+        'Quicksort with duplicates',
+        'Segregate elements',
+        'Move zeros/ones problems'
+      ],
+      timeComplexity: 'O(n)',
+      spaceComplexity: 'O(1)',
+      codeExample: `# Pattern: Dutch National Flag (3-way partition)
+def sortColors(nums):
+    """
+    Sort array with values 0, 1, 2 in one pass
+    Maintain three regions:
+    - [0, low): all 0s
+    - [low, mid): all 1s
+    - [mid, high]: unexplored
+    - (high, n): all 2s
+    """
+    low = mid = 0
+    high = len(nums) - 1
+
+    while mid <= high:
+        if nums[mid] == 0:
+            nums[low], nums[mid] = nums[mid], nums[low]
+            low += 1
+            mid += 1
+        elif nums[mid] == 1:
+            mid += 1
+        else:  # nums[mid] == 2
+            nums[mid], nums[high] = nums[high], nums[mid]
+            high -= 1
+            # Don't increment mid, need to check swapped value
+
+# Pattern: 3-way Quicksort Partition
+def three_way_partition(arr, pivot):
+    """
+    Partition array into three parts:
+    - elements < pivot
+    - elements == pivot
+    - elements > pivot
+    """
+    low = mid = 0
+    high = len(arr) - 1
+
+    while mid <= high:
+        if arr[mid] < pivot:
+            arr[low], arr[mid] = arr[mid], arr[low]
+            low += 1
+            mid += 1
+        elif arr[mid] == pivot:
+            mid += 1
+        else:
+            arr[mid], arr[high] = arr[high], arr[mid]
+            high -= 1
+
+    return low, high  # Boundaries of pivot region
+
+# Pattern: Move Zeros
+def moveZeroes(nums):
+    """Move all zeros to end, maintain relative order"""
+    write = 0
+
+    for read in range(len(nums)):
+        if nums[read] != 0:
+            nums[write], nums[read] = nums[read], nums[write]
+            write += 1
+
+# Pattern: Segregate Even and Odd
+def segregateEvenOdd(arr):
+    """Move all even numbers before odd numbers"""
+    left = 0
+    right = len(arr) - 1
+
+    while left < right:
+        while left < right and arr[left] % 2 == 0:
+            left += 1
+        while left < right and arr[right] % 2 == 1:
+            right -= 1
+
+        if left < right:
+            arr[left], arr[right] = arr[right], arr[left]
+            left += 1
+            right -= 1
+
+# Pattern: Sort Array By Parity
+def sortArrayByParity(nums):
+    """Even numbers first, then odd"""
+    left = 0
+    right = len(nums) - 1
+
+    while left < right:
+        if nums[left] % 2 > nums[right] % 2:
+            nums[left], nums[right] = nums[right], nums[left]
+
+        if nums[left] % 2 == 0:
+            left += 1
+        if nums[right] % 2 == 1:
+            right -= 1
+
+    return nums
+
+# Pattern: Wiggle Sort
+def wiggleSort(nums):
+    """
+    Rearrange: nums[0] <= nums[1] >= nums[2] <= nums[3]...
+    """
+    for i in range(len(nums) - 1):
+        if (i % 2 == 0 and nums[i] > nums[i+1]) or \
+           (i % 2 == 1 and nums[i] < nums[i+1]):
+            nums[i], nums[i+1] = nums[i+1], nums[i]
+
+# Pattern: Partition Array by Condition
+def partition_by_condition(nums, condition):
+    """
+    Partition array based on condition function
+    Returns index of first element not satisfying condition
+    """
+    write = 0
+
+    for read in range(len(nums)):
+        if condition(nums[read]):
+            nums[write], nums[read] = nums[read], nums[write]
+            write += 1
+
+    return write`,
+      commonProblems: [
+        'Sort Colors',
+        'Move Zeroes',
+        'Sort Array By Parity',
+        'Sort Array By Parity II',
+        'Wiggle Sort',
+        'Partition Array According to Given Pivot'
+      ]
+    },
+    {
+      id: 'boyer-moore-voting',
+      name: 'Boyer-Moore Voting',
+      icon: '🗳️',
+      color: '#6366f1',
+      category: 'Array',
+      description: 'Find majority element (appears > n/2 times) in O(n) time O(1) space',
+      whenToUse: [
+        'Find majority element (> n/2)',
+        'Find elements appearing > n/3 times',
+        'Stream processing for frequent elements',
+        'Memory-efficient counting'
+      ],
+      timeComplexity: 'O(n)',
+      spaceComplexity: 'O(1)',
+      codeExample: `# Pattern: Boyer-Moore Voting Algorithm
+def majorityElement(nums):
+    """
+    Find element appearing more than n/2 times
+    Key insight: Cancel out different elements, majority survives
+    """
+    candidate = None
+    count = 0
+
+    for num in nums:
+        if count == 0:
+            candidate = num
+            count = 1
+        elif num == candidate:
+            count += 1
+        else:
+            count -= 1
+
+    return candidate
+
+# Pattern: Majority Element II (n/3)
+def majorityElement2(nums):
+    """
+    Find all elements appearing more than n/3 times
+    At most 2 such elements can exist
+    """
+    candidate1 = candidate2 = None
+    count1 = count2 = 0
+
+    # Find potential candidates
+    for num in nums:
+        if num == candidate1:
+            count1 += 1
+        elif num == candidate2:
+            count2 += 1
+        elif count1 == 0:
+            candidate1 = num
+            count1 = 1
+        elif count2 == 0:
+            candidate2 = num
+            count2 = 1
+        else:
+            count1 -= 1
+            count2 -= 1
+
+    # Verify candidates
+    result = []
+    threshold = len(nums) // 3
+
+    if nums.count(candidate1) > threshold:
+        result.append(candidate1)
+    if candidate2 != candidate1 and nums.count(candidate2) > threshold:
+        result.append(candidate2)
+
+    return result
+
+# Pattern: Majority Element (Generalized n/k)
+def majorityElements_k(nums, k):
+    """
+    Find all elements appearing more than n/k times
+    At most k-1 such elements can exist
+    """
+    from collections import defaultdict
+
+    candidates = defaultdict(int)
+
+    for num in nums:
+        if num in candidates:
+            candidates[num] += 1
+        elif len(candidates) < k - 1:
+            candidates[num] = 1
+        else:
+            # Decrease all counts
+            to_remove = []
+            for c in candidates:
+                candidates[c] -= 1
+                if candidates[c] == 0:
+                    to_remove.append(c)
+            for c in to_remove:
+                del candidates[c]
+
+    # Verify candidates
+    result = []
+    threshold = len(nums) // k
+
+    for candidate in candidates:
+        if nums.count(candidate) > threshold:
+            result.append(candidate)
+
+    return result
+
+# Pattern: Check if Majority Element Exists
+def isMajority(nums, target):
+    """Check if target is majority element in sorted array"""
+    # Binary search for first occurrence
+    left = 0
+    right = len(nums)
+
+    while left < right:
+        mid = (left + right) // 2
+        if nums[mid] < target:
+            left = mid + 1
+        else:
+            right = mid
+
+    # Check if there are n/2 + 1 occurrences
+    first = left
+    if first + len(nums) // 2 < len(nums) and nums[first + len(nums) // 2] == target:
+        return True
+    return False
+
+# Pattern: Online Majority Element In Subarray
+class MajorityChecker:
+    def __init__(self, arr):
+        from collections import defaultdict
+        import random
+
+        self.arr = arr
+        self.indices = defaultdict(list)
+
+        for i, num in enumerate(arr):
+            self.indices[num].append(i)
+
+    def query(self, left, right, threshold):
+        import random
+        import bisect
+
+        length = right - left + 1
+
+        # Random sampling: try 20 times
+        for _ in range(20):
+            idx = random.randint(left, right)
+            candidate = self.arr[idx]
+
+            # Count using binary search
+            indices = self.indices[candidate]
+            left_idx = bisect.bisect_left(indices, left)
+            right_idx = bisect.bisect_right(indices, right)
+
+            if right_idx - left_idx >= threshold:
+                return candidate
+
+        return -1`,
+      commonProblems: [
+        'Majority Element',
+        'Majority Element II',
+        'Check If a Number Is Majority Element in a Sorted Array',
+        'Online Majority Element In Subarray'
+      ]
+    },
+    {
+      id: 'reservoir-sampling',
+      name: 'Reservoir Sampling',
+      icon: '🎰',
+      color: '#84cc16',
+      category: 'Random',
+      description: 'Randomly select k items from a stream of unknown size with equal probability',
+      whenToUse: [
+        'Random sampling from stream',
+        'Unknown/infinite data size',
+        'Memory-constrained sampling',
+        'Linked list random node',
+        'Random pick with weights'
+      ],
+      timeComplexity: 'O(n)',
+      spaceComplexity: 'O(k)',
+      codeExample: `# Pattern: Reservoir Sampling (k=1)
+import random
+
+def reservoir_sample_one(stream):
+    """
+    Select one random element from stream
+    Each element has 1/n probability of being selected
+    """
+    result = None
+
+    for i, item in enumerate(stream):
+        # Select with probability 1/(i+1)
+        if random.randint(0, i) == 0:
+            result = item
+
+    return result
+
+# Pattern: Reservoir Sampling (k items)
+def reservoir_sample_k(stream, k):
+    """
+    Select k random elements from stream
+    Each element has k/n probability of being in result
+    """
+    reservoir = []
+
+    for i, item in enumerate(stream):
+        if i < k:
+            reservoir.append(item)
+        else:
+            # Replace with probability k/(i+1)
+            j = random.randint(0, i)
+            if j < k:
+                reservoir[j] = item
+
+    return reservoir
+
+# Pattern: Linked List Random Node
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+class Solution:
+    def __init__(self, head):
+        self.head = head
+
+    def getRandom(self):
+        """Return random node's value with equal probability"""
+        result = None
+        current = self.head
+        i = 0
+
+        while current:
+            if random.randint(0, i) == 0:
+                result = current.val
+            current = current.next
+            i += 1
+
+        return result
+
+# Pattern: Random Pick Index
+class RandomPickIndex:
+    def __init__(self, nums):
+        self.nums = nums
+
+    def pick(self, target):
+        """Return random index of target (equal probability)"""
+        result = -1
+        count = 0
+
+        for i, num in enumerate(self.nums):
+            if num == target:
+                count += 1
+                if random.randint(1, count) == 1:
+                    result = i
+
+        return result
+
+# Pattern: Random Pick with Weight
+class RandomPickWithWeight:
+    def __init__(self, w):
+        self.prefix = []
+        total = 0
+
+        for weight in w:
+            total += weight
+            self.prefix.append(total)
+
+        self.total = total
+
+    def pickIndex(self):
+        """Pick index with probability proportional to weight"""
+        import bisect
+
+        target = random.random() * self.total
+        return bisect.bisect_left(self.prefix, target)
+
+# Pattern: Random Pick with Blacklist
+class RandomPickBlacklist:
+    def __init__(self, n, blacklist):
+        self.size = n - len(blacklist)
+        self.mapping = {}
+
+        blackset = set(blacklist)
+
+        # Map blacklisted numbers in [0, size) to valid numbers in [size, n)
+        available = n - 1
+        for b in blacklist:
+            if b < self.size:
+                while available in blackset:
+                    available -= 1
+                self.mapping[b] = available
+                available -= 1
+
+    def pick(self):
+        idx = random.randint(0, self.size - 1)
+        return self.mapping.get(idx, idx)
+
+# Pattern: Shuffle Array (Fisher-Yates)
+class ShuffleArray:
+    def __init__(self, nums):
+        self.original = nums[:]
+        self.nums = nums
+
+    def reset(self):
+        self.nums = self.original[:]
+        return self.nums
+
+    def shuffle(self):
+        """Fisher-Yates shuffle - O(n)"""
+        for i in range(len(self.nums) - 1, 0, -1):
+            j = random.randint(0, i)
+            self.nums[i], self.nums[j] = self.nums[j], self.nums[i]
+        return self.nums`,
+      commonProblems: [
+        'Linked List Random Node',
+        'Random Pick Index',
+        'Random Pick with Weight',
+        'Random Pick with Blacklist',
+        'Shuffle an Array',
+        'Random Point in Non-overlapping Rectangles'
+      ]
+    },
+    {
+      id: 'matrix-traversal',
+      name: 'Matrix Traversal',
+      icon: '🔲',
+      color: '#0ea5e9',
+      category: 'Array',
+      description: 'Patterns for traversing 2D arrays in spiral, diagonal, and other orders',
+      whenToUse: [
+        'Spiral matrix traversal',
+        'Diagonal traversal',
+        'Snake/zigzag pattern',
+        'Layer by layer processing',
+        'Matrix rotation'
+      ],
+      timeComplexity: 'O(m * n)',
+      spaceComplexity: 'O(1) to O(m * n)',
+      codeExample: `# Pattern: Spiral Matrix Traversal
+def spiralOrder(matrix):
+    """Traverse matrix in spiral order"""
+    if not matrix:
+        return []
+
+    result = []
+    top, bottom = 0, len(matrix) - 1
+    left, right = 0, len(matrix[0]) - 1
+
+    while top <= bottom and left <= right:
+        # Traverse right
+        for col in range(left, right + 1):
+            result.append(matrix[top][col])
+        top += 1
+
+        # Traverse down
+        for row in range(top, bottom + 1):
+            result.append(matrix[row][right])
+        right -= 1
+
+        # Traverse left
+        if top <= bottom:
+            for col in range(right, left - 1, -1):
+                result.append(matrix[bottom][col])
+            bottom -= 1
+
+        # Traverse up
+        if left <= right:
+            for row in range(bottom, top - 1, -1):
+                result.append(matrix[row][left])
+            left += 1
+
+    return result
+
+# Pattern: Generate Spiral Matrix
+def generateMatrix(n):
+    """Generate n x n spiral matrix"""
+    matrix = [[0] * n for _ in range(n)]
+    top, bottom = 0, n - 1
+    left, right = 0, n - 1
+    num = 1
+
+    while top <= bottom and left <= right:
+        for col in range(left, right + 1):
+            matrix[top][col] = num
+            num += 1
+        top += 1
+
+        for row in range(top, bottom + 1):
+            matrix[row][right] = num
+            num += 1
+        right -= 1
+
+        for col in range(right, left - 1, -1):
+            matrix[bottom][col] = num
+            num += 1
+        bottom -= 1
+
+        for row in range(bottom, top - 1, -1):
+            matrix[row][left] = num
+            num += 1
+        left += 1
+
+    return matrix
+
+# Pattern: Diagonal Traversal
+def findDiagonalOrder(mat):
+    """Traverse matrix diagonally (zigzag)"""
+    if not mat:
+        return []
+
+    m, n = len(mat), len(mat[0])
+    result = []
+    row, col = 0, 0
+    going_up = True
+
+    while len(result) < m * n:
+        result.append(mat[row][col])
+
+        if going_up:
+            if col == n - 1:
+                row += 1
+                going_up = False
+            elif row == 0:
+                col += 1
+                going_up = False
+            else:
+                row -= 1
+                col += 1
+        else:
+            if row == m - 1:
+                col += 1
+                going_up = True
+            elif col == 0:
+                row += 1
+                going_up = True
+            else:
+                row += 1
+                col -= 1
+
+    return result
+
+# Pattern: Anti-diagonal Traversal
+def diagonalTraversal(matrix):
+    """Group elements by anti-diagonals"""
+    if not matrix:
+        return []
+
+    m, n = len(matrix), len(matrix[0])
+    diagonals = [[] for _ in range(m + n - 1)]
+
+    for i in range(m):
+        for j in range(n):
+            diagonals[i + j].append(matrix[i][j])
+
+    return diagonals
+
+# Pattern: Rotate Matrix 90 degrees clockwise
+def rotate(matrix):
+    """Rotate matrix 90 degrees clockwise in-place"""
+    n = len(matrix)
+
+    # Transpose
+    for i in range(n):
+        for j in range(i, n):
+            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+
+    # Reverse each row
+    for row in matrix:
+        row.reverse()
+
+# Pattern: Set Matrix Zeroes
+def setZeroes(matrix):
+    """If element is 0, set entire row and column to 0"""
+    m, n = len(matrix), len(matrix[0])
+    first_row_zero = any(matrix[0][j] == 0 for j in range(n))
+    first_col_zero = any(matrix[i][0] == 0 for i in range(m))
+
+    # Use first row/col as markers
+    for i in range(1, m):
+        for j in range(1, n):
+            if matrix[i][j] == 0:
+                matrix[i][0] = 0
+                matrix[0][j] = 0
+
+    # Zero out based on markers
+    for i in range(1, m):
+        for j in range(1, n):
+            if matrix[i][0] == 0 or matrix[0][j] == 0:
+                matrix[i][j] = 0
+
+    # Handle first row and column
+    if first_row_zero:
+        for j in range(n):
+            matrix[0][j] = 0
+    if first_col_zero:
+        for i in range(m):
+            matrix[i][0] = 0
+
+# Pattern: Toeplitz Matrix
+def isToeplitzMatrix(matrix):
+    """Check if matrix is Toeplitz (same diagonal elements)"""
+    m, n = len(matrix), len(matrix[0])
+
+    for i in range(1, m):
+        for j in range(1, n):
+            if matrix[i][j] != matrix[i-1][j-1]:
+                return False
+
+    return True`,
+      commonProblems: [
+        'Spiral Matrix',
+        'Spiral Matrix II',
+        'Diagonal Traverse',
+        'Rotate Image',
+        'Set Matrix Zeroes',
+        'Toeplitz Matrix'
+      ]
+    },
+    {
+      id: 'a-star',
+      name: 'A* Search',
+      icon: '⭐',
+      color: '#eab308',
+      category: 'Graph',
+      description: 'Informed search using heuristic to find shortest path efficiently',
+      whenToUse: [
+        'Pathfinding in games',
+        'Navigation/maps',
+        'Puzzle solving (8-puzzle)',
+        'When good heuristic exists',
+        'Need optimal path quickly'
+      ],
+      timeComplexity: 'O(E) with good heuristic',
+      spaceComplexity: 'O(V)',
+      codeExample: `# Pattern: A* Search Algorithm
+import heapq
+
+def a_star(start, goal, neighbors, heuristic):
+    """
+    A* search algorithm
+    - neighbors(node): returns list of (neighbor, cost) tuples
+    - heuristic(node): estimated cost from node to goal
+    """
+    # Priority queue: (f_score, node)
+    # f_score = g_score + heuristic
+    open_set = [(heuristic(start), start)]
+
+    came_from = {}
+    g_score = {start: 0}
+
+    while open_set:
+        _, current = heapq.heappop(open_set)
+
+        if current == goal:
+            # Reconstruct path
+            path = []
+            while current in came_from:
+                path.append(current)
+                current = came_from[current]
+            path.append(start)
+            return path[::-1]
+
+        for neighbor, cost in neighbors(current):
+            tentative_g = g_score[current] + cost
+
+            if neighbor not in g_score or tentative_g < g_score[neighbor]:
+                came_from[neighbor] = current
+                g_score[neighbor] = tentative_g
+                f_score = tentative_g + heuristic(neighbor)
+                heapq.heappush(open_set, (f_score, neighbor))
+
+    return None  # No path found
+
+# Pattern: Grid Pathfinding with A*
+def shortestPathAStar(grid, start, end):
+    """Find shortest path in grid using A*"""
+    rows, cols = len(grid), len(grid[0])
+
+    def heuristic(pos):
+        # Manhattan distance
+        return abs(pos[0] - end[0]) + abs(pos[1] - end[1])
+
+    def neighbors(pos):
+        r, c = pos
+        result = []
+        for dr, dc in [(0,1), (0,-1), (1,0), (-1,0)]:
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] != 1:
+                result.append(((nr, nc), 1))
+        return result
+
+    return a_star(start, end, neighbors, heuristic)
+
+# Pattern: 8-Puzzle Solver
+def solve8Puzzle(board):
+    """
+    Solve 8-puzzle using A*
+    board: 3x3 list with numbers 0-8 (0 is blank)
+    """
+    goal = ((1,2,3), (4,5,6), (7,8,0))
+    start = tuple(tuple(row) for row in board)
+
+    def heuristic(state):
+        # Manhattan distance for all tiles
+        distance = 0
+        for i in range(3):
+            for j in range(3):
+                val = state[i][j]
+                if val != 0:
+                    goal_i, goal_j = (val - 1) // 3, (val - 1) % 3
+                    distance += abs(i - goal_i) + abs(j - goal_j)
+        return distance
+
+    def find_blank(state):
+        for i in range(3):
+            for j in range(3):
+                if state[i][j] == 0:
+                    return i, j
+
+    def neighbors(state):
+        r, c = find_blank(state)
+        result = []
+
+        for dr, dc in [(0,1), (0,-1), (1,0), (-1,0)]:
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < 3 and 0 <= nc < 3:
+                # Swap blank with neighbor
+                new_state = [list(row) for row in state]
+                new_state[r][c], new_state[nr][nc] = new_state[nr][nc], new_state[r][c]
+                result.append((tuple(tuple(row) for row in new_state), 1))
+
+        return result
+
+    return a_star(start, goal, neighbors, heuristic)
+
+# Pattern: Sliding Puzzle
+def slidingPuzzle(board):
+    """Solve sliding puzzle (2x3 board)"""
+    from collections import deque
+
+    goal = "123450"
+    start = "".join(str(c) for row in board for c in row)
+
+    if start == goal:
+        return 0
+
+    # Neighbors of each position
+    neighbors_map = {
+        0: [1, 3], 1: [0, 2, 4], 2: [1, 5],
+        3: [0, 4], 4: [1, 3, 5], 5: [2, 4]
+    }
+
+    queue = deque([(start, 0)])
+    visited = {start}
+
+    while queue:
+        state, moves = queue.popleft()
+
+        zero_idx = state.index('0')
+
+        for neighbor_idx in neighbors_map[zero_idx]:
+            new_state = list(state)
+            new_state[zero_idx], new_state[neighbor_idx] = \
+                new_state[neighbor_idx], new_state[zero_idx]
+            new_state = "".join(new_state)
+
+            if new_state == goal:
+                return moves + 1
+
+            if new_state not in visited:
+                visited.add(new_state)
+                queue.append((new_state, moves + 1))
+
+    return -1`,
+      commonProblems: [
+        'Shortest Path in Binary Matrix',
+        'Sliding Puzzle',
+        '8 Puzzle Problem',
+        'Minimum Knight Moves',
+        'Cut Off Trees for Golf Event',
+        'Open the Lock'
+      ]
+    },
+    {
+      id: 'bellman-ford',
+      name: 'Bellman-Ford Algorithm',
+      icon: '➖',
+      color: '#dc2626',
+      category: 'Graph',
+      description: 'Single source shortest path that handles negative weights and detects negative cycles',
+      whenToUse: [
+        'Graphs with negative edge weights',
+        'Detecting negative cycles',
+        'Currency arbitrage detection',
+        'When Dijkstra cannot be used',
+        'Distance vector routing'
+      ],
+      timeComplexity: 'O(V * E)',
+      spaceComplexity: 'O(V)',
+      codeExample: `# Pattern: Bellman-Ford Algorithm
+def bellman_ford(n, edges, source):
+    """
+    Find shortest paths from source to all vertices
+    Handles negative weights, detects negative cycles
+
+    Returns: (distances, has_negative_cycle)
+    """
+    dist = [float('inf')] * n
+    dist[source] = 0
+
+    # Relax all edges n-1 times
+    for _ in range(n - 1):
+        for u, v, weight in edges:
+            if dist[u] != float('inf') and dist[u] + weight < dist[v]:
+                dist[v] = dist[u] + weight
+
+    # Check for negative cycle
+    for u, v, weight in edges:
+        if dist[u] != float('inf') and dist[u] + weight < dist[v]:
+            return dist, True  # Negative cycle exists
+
+    return dist, False
+
+# Pattern: Cheapest Flights Within K Stops (Bellman-Ford variant)
+def findCheapestPrice_bf(n, flights, src, dst, k):
+    """
+    Find cheapest flight with at most k stops
+    Modified Bellman-Ford with limited iterations
+    """
+    dist = [float('inf')] * n
+    dist[src] = 0
+
+    # At most k+1 edges (k stops)
+    for _ in range(k + 1):
+        # Copy to avoid using updated values in same iteration
+        temp = dist[:]
+
+        for u, v, price in flights:
+            if dist[u] != float('inf'):
+                temp[v] = min(temp[v], dist[u] + price)
+
+        dist = temp
+
+    return dist[dst] if dist[dst] != float('inf') else -1
+
+# Pattern: Negative Cycle Detection
+def has_negative_cycle(n, edges):
+    """Check if graph has negative cycle reachable from any vertex"""
+    # Add a super source connected to all vertices with weight 0
+    new_edges = edges + [(n, i, 0) for i in range(n)]
+
+    dist = [float('inf')] * (n + 1)
+    dist[n] = 0  # Super source
+
+    # Relax n times (not n-1) since we added super source
+    for _ in range(n):
+        for u, v, weight in new_edges:
+            if dist[u] != float('inf') and dist[u] + weight < dist[v]:
+                dist[v] = dist[u] + weight
+
+    # Check for negative cycle
+    for u, v, weight in new_edges:
+        if dist[u] != float('inf') and dist[u] + weight < dist[v]:
+            return True
+
+    return False
+
+# Pattern: Find Negative Cycle
+def find_negative_cycle(n, edges):
+    """Find and return a negative cycle if exists"""
+    dist = [0] * n  # Start with 0s to find any negative cycle
+    parent = [-1] * n
+    last_updated = -1
+
+    for i in range(n):
+        last_updated = -1
+        for u, v, weight in edges:
+            if dist[u] + weight < dist[v]:
+                dist[v] = dist[u] + weight
+                parent[v] = u
+                last_updated = v
+
+    if last_updated == -1:
+        return []  # No negative cycle
+
+    # Find a vertex in the cycle
+    v = last_updated
+    for _ in range(n):
+        v = parent[v]
+
+    # Extract cycle
+    cycle = []
+    current = v
+    while True:
+        cycle.append(current)
+        current = parent[current]
+        if current == v:
+            break
+
+    cycle.append(v)
+    return cycle[::-1]
+
+# Pattern: SPFA (Shortest Path Faster Algorithm)
+def spfa(n, graph, source):
+    """
+    Optimized Bellman-Ford using queue
+    Average case: O(E), Worst case: O(V*E)
+    """
+    from collections import deque
+
+    dist = [float('inf')] * n
+    dist[source] = 0
+    in_queue = [False] * n
+    count = [0] * n  # For negative cycle detection
+
+    queue = deque([source])
+    in_queue[source] = True
+
+    while queue:
+        u = queue.popleft()
+        in_queue[u] = False
+
+        for v, weight in graph[u]:
+            if dist[u] + weight < dist[v]:
+                dist[v] = dist[u] + weight
+
+                if not in_queue[v]:
+                    queue.append(v)
+                    in_queue[v] = True
+                    count[v] += 1
+
+                    # Negative cycle if vertex queued n times
+                    if count[v] >= n:
+                        return None  # Negative cycle
+
+    return dist
+
+# Pattern: Currency Arbitrage Detection
+def detectArbitrage(rates):
+    """
+    Detect if currency arbitrage is possible
+    rates[i][j] = exchange rate from currency i to j
+    """
+    import math
+
+    n = len(rates)
+
+    # Convert to negative log for shortest path
+    # log(a*b) = log(a) + log(b)
+    # Arbitrage exists if product > 1, i.e., sum of logs > 0
+    # So we look for negative cycle in -log(rates)
+
+    edges = []
+    for i in range(n):
+        for j in range(n):
+            if i != j and rates[i][j] > 0:
+                edges.append((i, j, -math.log(rates[i][j])))
+
+    return has_negative_cycle(n, edges)`,
+      commonProblems: [
+        'Cheapest Flights Within K Stops',
+        'Network Delay Time',
+        'Find Negative Cycle',
+        'Currency Arbitrage',
+        'Minimum Cost to Reach Destination in Time',
+        'Path with Maximum Probability'
+      ]
     }
   ]
+
+  // Patterns are now logically grouped:
+  // 1. Array & String: two-pointers, sliding-window, rolling-hash, kmp
+  // 2. Linked List: fast-slow-pointers
+  // 3. Array: merge-intervals, cyclic-sort
+  // 4. Heap: top-k-elements
+  // 5. Searching: binary-search
+  // 6. Tree: tree-dfs, tree-bfs
+  // 7. Recursion: backtracking
+  // 8. Dynamic Programming: all dp-* patterns
+  // 9. Stack: monotonic-stack
+  // 10. Graph: graph-traversal, union-find
 
   if (selectedPattern) {
     const pattern = patterns.find(p => p.id === selectedPattern)
@@ -3626,29 +6525,614 @@ def probabilityOfHeads(prob, target):
             </div>
           </div>
 
-          {/* When to Use */}
+          {/* When to Use + Visual */}
           <div style={{
-            background: '#1f2937',
-            borderRadius: '0.5rem',
-            padding: '1.5rem',
-            marginBottom: '1.5rem',
-            border: '1px solid #3b82f6'
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '1.5rem',
+            marginBottom: '1.5rem'
           }}>
-            <h3 style={{
-              fontSize: '1.25rem',
-              fontWeight: '600',
-              marginBottom: '1rem',
-              color: '#93c5fd'
+            {/* When to Use - Left Side */}
+            <div style={{
+              background: '#1f2937',
+              borderRadius: '0.5rem',
+              padding: '1.5rem',
+              border: '1px solid #3b82f6'
             }}>
-              When to Use This Pattern
-            </h3>
-            <ul style={{ paddingLeft: '1.5rem', lineHeight: '1.625', color: '#d1d5db' }}>
-              {pattern.whenToUse.map((use, idx) => (
-                <li key={idx} style={{ fontSize: '1.05rem', marginBottom: '0.5rem' }}>
-                  {use}
-                </li>
-              ))}
-            </ul>
+              <h3 style={{
+                fontSize: '1.1rem',
+                fontWeight: '600',
+                marginBottom: '0.75rem',
+                color: '#93c5fd'
+              }}>
+                When to Use
+              </h3>
+              <ul style={{ paddingLeft: '1.25rem', lineHeight: '1.5', color: '#d1d5db', margin: 0 }}>
+                {pattern.whenToUse.map((use, idx) => (
+                  <li key={idx} style={{ fontSize: '0.9rem', marginBottom: '0.4rem' }}>
+                    {use}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Visual Representation - Right Side */}
+            <div style={{
+              background: '#1f2937',
+              borderRadius: '0.5rem',
+              padding: '1.5rem',
+              border: '1px solid #3b82f6',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <h3 style={{
+                fontSize: '1.1rem',
+                fontWeight: '600',
+                marginBottom: '0.75rem',
+                color: '#93c5fd',
+                alignSelf: 'flex-start'
+              }}>
+                Visual
+              </h3>
+              <div style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%'
+              }}>
+                {/* Two Pointers */}
+                {pattern.id === 'two-pointers' && (
+                  <svg width="280" height="80" viewBox="0 0 280 80">
+                    {[0,1,2,3,4,5,6].map((i) => (
+                      <rect key={i} x={10 + i * 38} y="25" width="32" height="32" rx="4" fill="#374151" stroke="#60a5fa" strokeWidth="2"/>
+                    ))}
+                    <polygon points="26,15 32,5 38,15" fill="#10b981"/>
+                    <text x="32" y="70" textAnchor="middle" fill="#10b981" fontSize="12">L</text>
+                    <polygon points="230,15 236,5 242,15" fill="#f59e0b"/>
+                    <text x="236" y="70" textAnchor="middle" fill="#f59e0b" fontSize="12">R</text>
+                    <path d="M 50 10 Q 140 -10 222 10" stroke="#60a5fa" strokeWidth="2" fill="none" strokeDasharray="4"/>
+                  </svg>
+                )}
+                {/* Sliding Window */}
+                {pattern.id === 'sliding-window' && (
+                  <svg width="280" height="80" viewBox="0 0 280 80">
+                    {[0,1,2,3,4,5,6].map((i) => (
+                      <rect key={i} x={10 + i * 38} y="25" width="32" height="32" rx="4" fill={i >= 2 && i <= 4 ? '#3b82f6' : '#374151'} stroke="#60a5fa" strokeWidth="2"/>
+                    ))}
+                    <rect x="82" y="18" width="120" height="46" rx="6" fill="none" stroke="#10b981" strokeWidth="3" strokeDasharray="6"/>
+                    <path d="M 200 41 L 230 41" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrow)"/>
+                    <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/></marker></defs>
+                    <text x="140" y="75" textAnchor="middle" fill="#10b981" fontSize="11">window</text>
+                  </svg>
+                )}
+                {/* Rolling Hash */}
+                {pattern.id === 'rolling-hash' && (
+                  <svg width="280" height="90" viewBox="0 0 280 90">
+                    {['a','b','c','d','e','f'].map((c, i) => (
+                      <g key={i}>
+                        <rect x={15 + i * 42} y="10" width="36" height="32" rx="4" fill={i >= 1 && i <= 3 ? '#3b82f6' : '#374151'} stroke="#60a5fa" strokeWidth="2"/>
+                        <text x={33 + i * 42} y="32" textAnchor="middle" fill="white" fontSize="14">{c}</text>
+                      </g>
+                    ))}
+                    <text x="140" y="62" textAnchor="middle" fill="#10b981" fontSize="12">hash = (h - a·bⁿ⁻¹) · b + d</text>
+                    <text x="140" y="82" textAnchor="middle" fill="#9ca3af" fontSize="11">O(1) update</text>
+                  </svg>
+                )}
+                {/* KMP */}
+                {pattern.id === 'kmp' && (
+                  <svg width="280" height="90" viewBox="0 0 280 90">
+                    <text x="10" y="20" fill="#9ca3af" fontSize="11">text:</text>
+                    {['A','B','A','B','A','C'].map((c, i) => (
+                      <g key={i}>
+                        <rect x={50 + i * 36} y="8" width="30" height="24" rx="3" fill="#374151" stroke="#60a5fa" strokeWidth="1"/>
+                        <text x={65 + i * 36} y="25" textAnchor="middle" fill="white" fontSize="12">{c}</text>
+                      </g>
+                    ))}
+                    <text x="10" y="52" fill="#9ca3af" fontSize="11">pattern:</text>
+                    {['A','B','A','C'].map((c, i) => (
+                      <g key={i}>
+                        <rect x={50 + i * 36} y="40" width="30" height="24" rx="3" fill="#10b981" stroke="#10b981" strokeWidth="1"/>
+                        <text x={65 + i * 36} y="57" textAnchor="middle" fill="white" fontSize="12">{c}</text>
+                      </g>
+                    ))}
+                    <text x="10" y="82" fill="#9ca3af" fontSize="11">LPS:</text>
+                    {[0,0,1,0].map((n, i) => (
+                      <text key={i} x={65 + i * 36} y="82" textAnchor="middle" fill="#f59e0b" fontSize="12">{n}</text>
+                    ))}
+                  </svg>
+                )}
+                {/* Fast Slow Pointers */}
+                {pattern.id === 'fast-slow-pointers' && (
+                  <svg width="280" height="80" viewBox="0 0 280 80">
+                    {[0,1,2,3,4].map((i) => (
+                      <g key={i}>
+                        <circle cx={30 + i * 50} cy="40" r="18" fill="#374151" stroke="#60a5fa" strokeWidth="2"/>
+                        {i < 4 && <path d={`M ${52 + i * 50} 40 L ${78 + i * 50} 40`} stroke="#60a5fa" strokeWidth="2" markerEnd="url(#arrowBlue)"/>}
+                      </g>
+                    ))}
+                    <path d="M 248 40 Q 270 40 270 60 Q 270 80 140 80 Q 30 80 30 62" stroke="#60a5fa" strokeWidth="2" fill="none" markerEnd="url(#arrowBlue)"/>
+                    <text x="30" y="15" textAnchor="middle" fill="#10b981" fontSize="10">🐢</text>
+                    <text x="130" y="15" textAnchor="middle" fill="#f59e0b" fontSize="10">🐇</text>
+                    <defs><marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#60a5fa"/></marker></defs>
+                  </svg>
+                )}
+                {/* Binary Search */}
+                {pattern.id === 'binary-search' && (
+                  <svg width="280" height="80" viewBox="0 0 280 80">
+                    {[1,2,3,5,8,13,21].map((n, i) => (
+                      <g key={i}>
+                        <rect x={10 + i * 38} y="25" width="32" height="32" rx="4" fill={i === 3 ? '#10b981' : '#374151'} stroke="#60a5fa" strokeWidth="2"/>
+                        <text x={26 + i * 38} y="46" textAnchor="middle" fill="white" fontSize="11">{n}</text>
+                      </g>
+                    ))}
+                    <text x="26" y="70" textAnchor="middle" fill="#f59e0b" fontSize="10">L</text>
+                    <text x="140" y="18" textAnchor="middle" fill="#10b981" fontSize="10">M</text>
+                    <text x="254" y="70" textAnchor="middle" fill="#f59e0b" fontSize="10">R</text>
+                  </svg>
+                )}
+                {/* Tree DFS */}
+                {pattern.id === 'tree-dfs' && (
+                  <svg width="280" height="100" viewBox="0 0 280 100">
+                    <line x1="140" y1="25" x2="80" y2="55" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="140" y1="25" x2="200" y2="55" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="80" y1="55" x2="50" y2="85" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="80" y1="55" x2="110" y2="85" stroke="#60a5fa" strokeWidth="2"/>
+                    <circle cx="140" cy="20" r="15" fill="#10b981" stroke="#10b981"/>
+                    <circle cx="80" cy="55" r="15" fill="#3b82f6" stroke="#3b82f6"/>
+                    <circle cx="200" cy="55" r="15" fill="#374151" stroke="#60a5fa" strokeWidth="2"/>
+                    <circle cx="50" cy="85" r="15" fill="#374151" stroke="#60a5fa" strokeWidth="2"/>
+                    <circle cx="110" cy="85" r="15" fill="#374151" stroke="#60a5fa" strokeWidth="2"/>
+                    <text x="140" y="25" textAnchor="middle" fill="white" fontSize="11">1</text>
+                    <text x="80" y="60" textAnchor="middle" fill="white" fontSize="11">2</text>
+                    <text x="200" y="60" textAnchor="middle" fill="white" fontSize="11">5</text>
+                    <text x="50" y="90" textAnchor="middle" fill="white" fontSize="11">3</text>
+                    <text x="110" y="90" textAnchor="middle" fill="white" fontSize="11">4</text>
+                  </svg>
+                )}
+                {/* Tree BFS */}
+                {pattern.id === 'tree-bfs' && (
+                  <svg width="280" height="100" viewBox="0 0 280 100">
+                    <line x1="140" y1="25" x2="80" y2="55" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="140" y1="25" x2="200" y2="55" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="80" y1="55" x2="50" y2="85" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="80" y1="55" x2="110" y2="85" stroke="#60a5fa" strokeWidth="2"/>
+                    <circle cx="140" cy="20" r="15" fill="#10b981" stroke="#10b981"/>
+                    <circle cx="80" cy="55" r="15" fill="#3b82f6" stroke="#3b82f6"/>
+                    <circle cx="200" cy="55" r="15" fill="#3b82f6" stroke="#3b82f6"/>
+                    <circle cx="50" cy="85" r="15" fill="#374151" stroke="#60a5fa" strokeWidth="2"/>
+                    <circle cx="110" cy="85" r="15" fill="#374151" stroke="#60a5fa" strokeWidth="2"/>
+                    <text x="140" y="25" textAnchor="middle" fill="white" fontSize="11">1</text>
+                    <text x="80" y="60" textAnchor="middle" fill="white" fontSize="11">2</text>
+                    <text x="200" y="60" textAnchor="middle" fill="white" fontSize="11">3</text>
+                    <text x="50" y="90" textAnchor="middle" fill="white" fontSize="11">4</text>
+                    <text x="110" y="90" textAnchor="middle" fill="white" fontSize="11">5</text>
+                  </svg>
+                )}
+                {/* Graph Traversal */}
+                {pattern.id === 'graph-traversal' && (
+                  <svg width="280" height="100" viewBox="0 0 280 100">
+                    <line x1="60" y1="30" x2="140" y2="30" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="60" y1="30" x2="60" y2="70" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="140" y1="30" x2="220" y2="30" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="140" y1="30" x2="140" y2="70" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="60" y1="70" x2="140" y2="70" stroke="#60a5fa" strokeWidth="2"/>
+                    <circle cx="60" cy="30" r="15" fill="#10b981"/>
+                    <circle cx="140" cy="30" r="15" fill="#3b82f6"/>
+                    <circle cx="220" cy="30" r="15" fill="#374151" stroke="#60a5fa" strokeWidth="2"/>
+                    <circle cx="60" cy="70" r="15" fill="#3b82f6"/>
+                    <circle cx="140" cy="70" r="15" fill="#374151" stroke="#60a5fa" strokeWidth="2"/>
+                    <text x="60" y="35" textAnchor="middle" fill="white" fontSize="10">A</text>
+                    <text x="140" y="35" textAnchor="middle" fill="white" fontSize="10">B</text>
+                    <text x="220" y="35" textAnchor="middle" fill="white" fontSize="10">C</text>
+                    <text x="60" y="75" textAnchor="middle" fill="white" fontSize="10">D</text>
+                    <text x="140" y="75" textAnchor="middle" fill="white" fontSize="10">E</text>
+                  </svg>
+                )}
+                {/* Union Find */}
+                {pattern.id === 'union-find' && (
+                  <svg width="280" height="100" viewBox="0 0 280 100">
+                    <line x1="70" y1="25" x2="40" y2="60" stroke="#10b981" strokeWidth="2"/>
+                    <line x1="70" y1="25" x2="100" y2="60" stroke="#10b981" strokeWidth="2"/>
+                    <line x1="200" y1="25" x2="170" y2="60" stroke="#3b82f6" strokeWidth="2"/>
+                    <line x1="200" y1="25" x2="230" y2="60" stroke="#3b82f6" strokeWidth="2"/>
+                    <circle cx="70" cy="20" r="15" fill="#10b981"/>
+                    <circle cx="40" cy="65" r="12" fill="#10b981" opacity="0.7"/>
+                    <circle cx="100" cy="65" r="12" fill="#10b981" opacity="0.7"/>
+                    <circle cx="200" cy="20" r="15" fill="#3b82f6"/>
+                    <circle cx="170" cy="65" r="12" fill="#3b82f6" opacity="0.7"/>
+                    <circle cx="230" cy="65" r="12" fill="#3b82f6" opacity="0.7"/>
+                    <path d="M 100 40 Q 135 30 160 40" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4" fill="none"/>
+                    <text x="135" y="90" textAnchor="middle" fill="#f59e0b" fontSize="11">union?</text>
+                  </svg>
+                )}
+                {/* Backtracking */}
+                {pattern.id === 'backtracking' && (
+                  <svg width="280" height="100" viewBox="0 0 280 100">
+                    <line x1="140" y1="15" x2="80" y2="45" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="140" y1="15" x2="200" y2="45" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="80" y1="45" x2="50" y2="75" stroke="#10b981" strokeWidth="2"/>
+                    <line x1="80" y1="45" x2="110" y2="75" stroke="#ef4444" strokeWidth="2"/>
+                    <line x1="200" y1="45" x2="200" y2="75" stroke="#60a5fa" strokeWidth="2"/>
+                    <circle cx="140" cy="12" r="10" fill="#3b82f6"/>
+                    <circle cx="80" cy="45" r="10" fill="#3b82f6"/>
+                    <circle cx="200" cy="45" r="10" fill="#374151" stroke="#60a5fa"/>
+                    <circle cx="50" cy="75" r="10" fill="#10b981"/>
+                    <circle cx="110" cy="75" r="10" fill="#ef4444"/>
+                    <text x="50" y="95" textAnchor="middle" fill="#10b981" fontSize="9">✓</text>
+                    <text x="110" y="95" textAnchor="middle" fill="#ef4444" fontSize="9">✗</text>
+                    <path d="M 115 70 Q 125 55 115 45" stroke="#f59e0b" strokeWidth="2" fill="none" markerEnd="url(#arrowOrange)" strokeDasharray="3"/>
+                    <defs><marker id="arrowOrange" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#f59e0b"/></marker></defs>
+                  </svg>
+                )}
+                {/* Monotonic Stack */}
+                {pattern.id === 'monotonic-stack' && (
+                  <svg width="280" height="100" viewBox="0 0 280 100">
+                    <rect x="30" y="20" width="80" height="70" rx="4" fill="none" stroke="#60a5fa" strokeWidth="2"/>
+                    {[5,3,2,1].map((h, i) => (
+                      <rect key={i} x="40" y={70 - i * 15} width="60" height="12" rx="2" fill="#3b82f6"/>
+                    ))}
+                    <text x="70" y="15" textAnchor="middle" fill="#9ca3af" fontSize="10">stack</text>
+                    {[2,5,3,1,4].map((h, i) => (
+                      <g key={i}>
+                        <rect x={140 + i * 26} y={85 - h * 12} width="22" height={h * 12} fill="#374151" stroke="#60a5fa"/>
+                        <text x={151 + i * 26} y="98" textAnchor="middle" fill="#9ca3af" fontSize="9">{h}</text>
+                      </g>
+                    ))}
+                    <text x="200" y="15" textAnchor="middle" fill="#9ca3af" fontSize="10">heights</text>
+                  </svg>
+                )}
+                {/* Dynamic Programming */}
+                {(pattern.id === 'dynamic-programming' || pattern.id.startsWith('dp-')) && (
+                  <svg width="280" height="100" viewBox="0 0 280 100">
+                    {[0,1,2,3,4].map((i) => (
+                      [0,1,2].map((j) => (
+                        <g key={`${i}-${j}`}>
+                          <rect x={30 + i * 46} y={15 + j * 28} width="40" height="24" rx="3"
+                            fill={i <= 2 && j <= 1 ? '#3b82f6' : '#374151'}
+                            stroke="#60a5fa" strokeWidth="1"/>
+                          {i <= 2 && j <= 1 && (
+                            <text x={50 + i * 46} y={32 + j * 28} textAnchor="middle" fill="white" fontSize="10">
+                              {i + j}
+                            </text>
+                          )}
+                        </g>
+                      ))
+                    ))}
+                    <path d="M 95 27 L 125 27" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowGreen)"/>
+                    <path d="M 72 52 L 72 70" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowGreen)"/>
+                    <defs><marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#10b981"/></marker></defs>
+                  </svg>
+                )}
+                {/* Top K Elements */}
+                {pattern.id === 'top-k-elements' && (
+                  <svg width="280" height="100" viewBox="0 0 280 100">
+                    <line x1="140" y1="18" x2="100" y2="45" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="140" y1="18" x2="180" y2="45" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="100" y1="45" x2="75" y2="72" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="100" y1="45" x2="125" y2="72" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="180" y1="45" x2="155" y2="72" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="180" y1="45" x2="205" y2="72" stroke="#60a5fa" strokeWidth="2"/>
+                    <circle cx="140" cy="15" r="13" fill="#10b981"/>
+                    <circle cx="100" cy="45" r="13" fill="#3b82f6"/>
+                    <circle cx="180" cy="45" r="13" fill="#3b82f6"/>
+                    <circle cx="75" cy="72" r="11" fill="#374151" stroke="#60a5fa"/>
+                    <circle cx="125" cy="72" r="11" fill="#374151" stroke="#60a5fa"/>
+                    <circle cx="155" cy="72" r="11" fill="#374151" stroke="#60a5fa"/>
+                    <circle cx="205" cy="72" r="11" fill="#374151" stroke="#60a5fa"/>
+                    <text x="140" y="19" textAnchor="middle" fill="white" fontSize="10">9</text>
+                    <text x="100" y="49" textAnchor="middle" fill="white" fontSize="10">7</text>
+                    <text x="180" y="49" textAnchor="middle" fill="white" fontSize="10">5</text>
+                    <text x="240" y="25" fill="#9ca3af" fontSize="10">heap</text>
+                  </svg>
+                )}
+                {/* Merge Intervals */}
+                {pattern.id === 'merge-intervals' && (
+                  <svg width="280" height="90" viewBox="0 0 280 90">
+                    <rect x="20" y="15" width="80" height="16" rx="3" fill="#3b82f6"/>
+                    <rect x="70" y="35" width="60" height="16" rx="3" fill="#3b82f6"/>
+                    <rect x="150" y="15" width="50" height="16" rx="3" fill="#10b981"/>
+                    <text x="140" y="65" textAnchor="middle" fill="#f59e0b" fontSize="12">↓ merge</text>
+                    <rect x="20" y="75" width="110" height="16" rx="3" fill="#10b981"/>
+                    <rect x="150" y="75" width="50" height="16" rx="3" fill="#10b981"/>
+                  </svg>
+                )}
+                {/* Cyclic Sort */}
+                {pattern.id === 'cyclic-sort' && (
+                  <svg width="280" height="80" viewBox="0 0 280 80">
+                    {[3,1,5,4,2].map((n, i) => (
+                      <g key={i}>
+                        <rect x={20 + i * 50} y="20" width="40" height="35" rx="4" fill="#374151" stroke="#60a5fa" strokeWidth="2"/>
+                        <text x={40 + i * 50} y="43" textAnchor="middle" fill="white" fontSize="14">{n}</text>
+                        <text x={40 + i * 50} y="70" textAnchor="middle" fill="#9ca3af" fontSize="10">[{i}]</text>
+                      </g>
+                    ))}
+                    <path d="M 40 15 Q 90 0 140 15" stroke="#f59e0b" strokeWidth="2" fill="none" strokeDasharray="4"/>
+                  </svg>
+                )}
+                {/* Trie */}
+                {pattern.id === 'trie' && (
+                  <svg width="280" height="100" viewBox="0 0 280 100">
+                    <circle cx="140" cy="15" r="12" fill="#10b981"/>
+                    <text x="140" y="19" textAnchor="middle" fill="white" fontSize="10">*</text>
+                    <line x1="140" y1="27" x2="80" y2="47" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="140" y1="27" x2="200" y2="47" stroke="#60a5fa" strokeWidth="2"/>
+                    <circle cx="80" cy="50" r="12" fill="#3b82f6"/>
+                    <text x="80" y="54" textAnchor="middle" fill="white" fontSize="10">c</text>
+                    <circle cx="200" cy="50" r="12" fill="#3b82f6"/>
+                    <text x="200" y="54" textAnchor="middle" fill="white" fontSize="10">d</text>
+                    <line x1="80" y1="62" x2="50" y2="82" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="80" y1="62" x2="110" y2="82" stroke="#60a5fa" strokeWidth="2"/>
+                    <circle cx="50" cy="85" r="10" fill="#374151" stroke="#60a5fa"/>
+                    <text x="50" y="89" textAnchor="middle" fill="white" fontSize="9">a</text>
+                    <circle cx="110" cy="85" r="10" fill="#f59e0b"/>
+                    <text x="110" y="89" textAnchor="middle" fill="white" fontSize="9">o</text>
+                    <text x="240" y="55" fill="#9ca3af" fontSize="10">prefix</text>
+                    <text x="240" y="70" fill="#9ca3af" fontSize="10">tree</text>
+                  </svg>
+                )}
+                {/* Topological Sort */}
+                {pattern.id === 'topological-sort' && (
+                  <svg width="280" height="90" viewBox="0 0 280 90">
+                    <defs><marker id="arrowTS" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#60a5fa"/></marker></defs>
+                    <circle cx="40" cy="45" r="15" fill="#10b981"/>
+                    <text x="40" y="50" textAnchor="middle" fill="white" fontSize="11">A</text>
+                    <circle cx="100" cy="25" r="15" fill="#3b82f6"/>
+                    <text x="100" y="30" textAnchor="middle" fill="white" fontSize="11">B</text>
+                    <circle cx="100" cy="65" r="15" fill="#3b82f6"/>
+                    <text x="100" y="70" textAnchor="middle" fill="white" fontSize="11">C</text>
+                    <circle cx="170" cy="45" r="15" fill="#374151" stroke="#60a5fa" strokeWidth="2"/>
+                    <text x="170" y="50" textAnchor="middle" fill="white" fontSize="11">D</text>
+                    <circle cx="240" cy="45" r="15" fill="#374151" stroke="#60a5fa" strokeWidth="2"/>
+                    <text x="240" y="50" textAnchor="middle" fill="white" fontSize="11">E</text>
+                    <path d="M 55 40 L 82 28" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#arrowTS)"/>
+                    <path d="M 55 50 L 82 62" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#arrowTS)"/>
+                    <path d="M 115 30 L 152 42" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#arrowTS)"/>
+                    <path d="M 115 60 L 152 48" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#arrowTS)"/>
+                    <path d="M 185 45 L 222 45" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#arrowTS)"/>
+                  </svg>
+                )}
+                {/* Prefix Sum */}
+                {pattern.id === 'prefix-sum' && (
+                  <svg width="280" height="90" viewBox="0 0 280 90">
+                    <text x="10" y="25" fill="#9ca3af" fontSize="10">arr:</text>
+                    {[2,4,1,3,5].map((n, i) => (
+                      <g key={i}>
+                        <rect x={45 + i * 44} y="10" width="38" height="24" rx="3" fill="#374151" stroke="#60a5fa" strokeWidth="1"/>
+                        <text x={64 + i * 44} y="27" textAnchor="middle" fill="white" fontSize="11">{n}</text>
+                      </g>
+                    ))}
+                    <text x="10" y="60" fill="#9ca3af" fontSize="10">pre:</text>
+                    {[0,2,6,7,10,15].map((n, i) => (
+                      <g key={i}>
+                        <rect x={45 + i * 38} y="45" width="34" height="24" rx="3" fill="#10b981" stroke="#10b981" strokeWidth="1"/>
+                        <text x={62 + i * 38} y="62" textAnchor="middle" fill="white" fontSize="10">{n}</text>
+                      </g>
+                    ))}
+                    <text x="140" y="85" textAnchor="middle" fill="#f59e0b" fontSize="10">sum[i..j] = pre[j+1] - pre[i]</text>
+                  </svg>
+                )}
+                {/* Bit Manipulation */}
+                {pattern.id === 'bit-manipulation' && (
+                  <svg width="280" height="80" viewBox="0 0 280 80">
+                    {[1,0,1,1,0,1,0,0].map((b, i) => (
+                      <g key={i}>
+                        <rect x={20 + i * 30} y="20" width="26" height="30" rx="3" fill={b ? '#10b981' : '#374151'} stroke="#60a5fa" strokeWidth="1"/>
+                        <text x={33 + i * 30} y="41" textAnchor="middle" fill="white" fontSize="14">{b}</text>
+                        <text x={33 + i * 30} y="62" textAnchor="middle" fill="#9ca3af" fontSize="8">{7-i}</text>
+                      </g>
+                    ))}
+                    <text x="140" y="78" textAnchor="middle" fill="#f59e0b" fontSize="10">XOR: a ^ a = 0, a ^ 0 = a</text>
+                  </svg>
+                )}
+                {/* Greedy */}
+                {pattern.id === 'greedy' && (
+                  <svg width="280" height="90" viewBox="0 0 280 90">
+                    {[0,1,2,3,4].map((i) => (
+                      <g key={i}>
+                        <rect x={30 + i * 48} y="25" width="40" height="40" rx="4" fill={i === 0 ? '#10b981' : i <= 2 ? '#3b82f6' : '#374151'} stroke="#60a5fa" strokeWidth="2"/>
+                        <text x={50 + i * 48} y="50" textAnchor="middle" fill="white" fontSize="11">{[3,2,4,1,1][i]}</text>
+                      </g>
+                    ))}
+                    <path d="M 70 70 L 118 70" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#arrowGreedy)"/>
+                    <path d="M 118 70 L 166 70" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#arrowGreedy)"/>
+                    <defs><marker id="arrowGreedy" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#f59e0b"/></marker></defs>
+                    <text x="140" y="85" textAnchor="middle" fill="#10b981" fontSize="10">local optimal → global optimal</text>
+                  </svg>
+                )}
+                {/* Kadane's Algorithm */}
+                {pattern.id === 'kadane' && (
+                  <svg width="280" height="90" viewBox="0 0 280 90">
+                    {[-2,1,-3,4,-1,2,1,-5,4].map((n, i) => (
+                      <g key={i}>
+                        <rect x={10 + i * 29} y="15" width="26" height="26" rx="3" fill={i >= 3 && i <= 6 ? '#10b981' : '#374151'} stroke="#60a5fa" strokeWidth="1"/>
+                        <text x={23 + i * 29} y="33" textAnchor="middle" fill="white" fontSize="10">{n}</text>
+                      </g>
+                    ))}
+                    <rect x="97" y="45" width="120" height="20" rx="4" fill="none" stroke="#10b981" strokeWidth="2"/>
+                    <text x="157" y="59" textAnchor="middle" fill="#10b981" fontSize="10">max sum = 6</text>
+                    <text x="140" y="82" textAnchor="middle" fill="#f59e0b" fontSize="10">curr = max(num, curr + num)</text>
+                  </svg>
+                )}
+                {/* Dijkstra's Algorithm */}
+                {pattern.id === 'dijkstra' && (
+                  <svg width="280" height="100" viewBox="0 0 280 100">
+                    <defs><marker id="arrowDij" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#60a5fa"/></marker></defs>
+                    <circle cx="50" cy="50" r="18" fill="#10b981"/>
+                    <text x="50" y="55" textAnchor="middle" fill="white" fontSize="11">0</text>
+                    <circle cx="130" cy="25" r="18" fill="#3b82f6"/>
+                    <text x="130" y="30" textAnchor="middle" fill="white" fontSize="11">2</text>
+                    <circle cx="130" cy="75" r="18" fill="#3b82f6"/>
+                    <text x="130" y="80" textAnchor="middle" fill="white" fontSize="11">3</text>
+                    <circle cx="210" cy="50" r="18" fill="#374151" stroke="#60a5fa" strokeWidth="2"/>
+                    <text x="210" y="55" textAnchor="middle" fill="white" fontSize="11">5</text>
+                    <path d="M 68 42 L 108 30" stroke="#60a5fa" strokeWidth="2"/>
+                    <text x="85" y="32" fill="#f59e0b" fontSize="9">2</text>
+                    <path d="M 68 58 L 108 70" stroke="#60a5fa" strokeWidth="2"/>
+                    <text x="85" y="72" fill="#f59e0b" fontSize="9">3</text>
+                    <path d="M 148 30 L 188 45" stroke="#60a5fa" strokeWidth="2"/>
+                    <text x="170" y="32" fill="#f59e0b" fontSize="9">3</text>
+                    <path d="M 148 70 L 188 55" stroke="#60a5fa" strokeWidth="2"/>
+                    <text x="170" y="72" fill="#f59e0b" fontSize="9">2</text>
+                  </svg>
+                )}
+                {/* Binary Indexed Tree */}
+                {pattern.id === 'binary-indexed-tree' && (
+                  <svg width="280" height="100" viewBox="0 0 280 100">
+                    {[1,2,3,4,5,6,7,8].map((n, i) => (
+                      <g key={i}>
+                        <rect x={15 + i * 32} y="70" width="28" height="22" rx="2" fill="#374151" stroke="#60a5fa" strokeWidth="1"/>
+                        <text x={29 + i * 32} y="85" textAnchor="middle" fill="white" fontSize="9">{n}</text>
+                      </g>
+                    ))}
+                    <rect x="15" y="40" width="28" height="20" rx="2" fill="#10b981"/>
+                    <rect x="47" y="40" width="60" height="20" rx="2" fill="#3b82f6"/>
+                    <rect x="111" y="40" width="28" height="20" rx="2" fill="#10b981"/>
+                    <rect x="143" y="40" width="124" height="20" rx="2" fill="#3b82f6"/>
+                    <text x="140" y="20" textAnchor="middle" fill="#9ca3af" fontSize="10">BIT: O(log n) update & query</text>
+                  </svg>
+                )}
+                {/* Segment Tree */}
+                {pattern.id === 'segment-tree' && (
+                  <svg width="280" height="100" viewBox="0 0 280 100">
+                    <line x1="140" y1="18" x2="80" y2="40" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="140" y1="18" x2="200" y2="40" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="80" y1="48" x2="50" y2="70" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="80" y1="48" x2="110" y2="70" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="200" y1="48" x2="170" y2="70" stroke="#60a5fa" strokeWidth="2"/>
+                    <line x1="200" y1="48" x2="230" y2="70" stroke="#60a5fa" strokeWidth="2"/>
+                    <rect x="125" y="8" width="30" height="18" rx="3" fill="#10b981"/>
+                    <text x="140" y="21" textAnchor="middle" fill="white" fontSize="9">36</text>
+                    <rect x="65" y="38" width="30" height="18" rx="3" fill="#3b82f6"/>
+                    <text x="80" y="51" textAnchor="middle" fill="white" fontSize="9">10</text>
+                    <rect x="185" y="38" width="30" height="18" rx="3" fill="#3b82f6"/>
+                    <text x="200" y="51" textAnchor="middle" fill="white" fontSize="9">26</text>
+                    {[3,7,11,15].map((n, i) => (
+                      <g key={i}>
+                        <rect x={35 + i * 60} y="68" width="30" height="18" rx="3" fill="#374151" stroke="#60a5fa"/>
+                        <text x={50 + i * 60} y="81" textAnchor="middle" fill="white" fontSize="9">{n}</text>
+                      </g>
+                    ))}
+                    <text x="140" y="98" textAnchor="middle" fill="#f59e0b" fontSize="9">range sum/min/max</text>
+                  </svg>
+                )}
+                {/* Dutch National Flag */}
+                {pattern.id === 'dutch-national-flag' && (
+                  <svg width="280" height="80" viewBox="0 0 280 80">
+                    <text x="10" y="25" fill="#9ca3af" fontSize="9">before:</text>
+                    {[2,0,1,2,0,1,0].map((n, i) => (
+                      <rect key={i} x={55 + i * 30} y="10" width="26" height="22" rx="3" fill={n === 0 ? '#ef4444' : n === 1 ? '#f59e0b' : '#3b82f6'} stroke="none"/>
+                    ))}
+                    <text x="10" y="58" fill="#9ca3af" fontSize="9">after:</text>
+                    {[0,0,0,1,1,2,2].map((n, i) => (
+                      <rect key={i} x={55 + i * 30} y="42" width="26" height="22" rx="3" fill={n === 0 ? '#ef4444' : n === 1 ? '#f59e0b' : '#3b82f6'} stroke="none"/>
+                    ))}
+                    <text x="140" y="78" textAnchor="middle" fill="#10b981" fontSize="10">3-way partition</text>
+                  </svg>
+                )}
+                {/* Boyer-Moore Voting */}
+                {pattern.id === 'boyer-moore-voting' && (
+                  <svg width="280" height="80" viewBox="0 0 280 80">
+                    {[3,2,3,3,1,3].map((n, i) => (
+                      <g key={i}>
+                        <rect x={25 + i * 38} y="15" width="32" height="28" rx="4" fill={n === 3 ? '#10b981' : '#374151'} stroke="#60a5fa" strokeWidth="1"/>
+                        <text x={41 + i * 38} y="34" textAnchor="middle" fill="white" fontSize="12">{n}</text>
+                      </g>
+                    ))}
+                    <text x="140" y="60" textAnchor="middle" fill="#f59e0b" fontSize="10">count++/-- → candidate=3</text>
+                    <text x="140" y="75" textAnchor="middle" fill="#10b981" fontSize="10">majority element: 3</text>
+                  </svg>
+                )}
+                {/* Reservoir Sampling */}
+                {pattern.id === 'reservoir-sampling' && (
+                  <svg width="280" height="85" viewBox="0 0 280 85">
+                    <text x="10" y="25" fill="#9ca3af" fontSize="9">stream:</text>
+                    {[1,2,3,4,5].map((n, i) => (
+                      <g key={i}>
+                        <circle cx={65 + i * 40} cy="20" r="14" fill="#374151" stroke="#60a5fa" strokeWidth="1"/>
+                        <text x={65 + i * 40} y="25" textAnchor="middle" fill="white" fontSize="11">{n}</text>
+                      </g>
+                    ))}
+                    <text x="248" fill="#9ca3af" fontSize="14" y="25">...</text>
+                    <rect x="90" y="50" width="100" height="28" rx="4" fill="#10b981" stroke="#10b981"/>
+                    <text x="140" y="68" textAnchor="middle" fill="white" fontSize="10">reservoir[k]</text>
+                    <path d="M 145 35 L 140 48" stroke="#f59e0b" strokeWidth="2" strokeDasharray="3"/>
+                    <text x="165" y="43" fill="#f59e0b" fontSize="9">P=k/n</text>
+                  </svg>
+                )}
+                {/* Matrix Traversal */}
+                {pattern.id === 'matrix-traversal' && (
+                  <svg width="280" height="100" viewBox="0 0 280 100">
+                    {[0,1,2,3].map((row) => (
+                      [0,1,2,3].map((col) => (
+                        <rect key={`${row}-${col}`} x={70 + col * 36} y={10 + row * 22} width="32" height="18" rx="2" fill="#374151" stroke="#60a5fa" strokeWidth="1"/>
+                      ))
+                    ))}
+                    <path d="M 86 19 L 122 19 L 122 41 L 86 41 L 86 63 L 122 63 L 122 85 L 86 85" stroke="#10b981" strokeWidth="2" fill="none"/>
+                    <path d="M 122 19 L 158 19" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#arrowMat)"/>
+                    <defs><marker id="arrowMat" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#f59e0b"/></marker></defs>
+                    <text x="220" y="35" fill="#9ca3af" fontSize="10">spiral</text>
+                    <text x="220" y="50" fill="#9ca3af" fontSize="10">diagonal</text>
+                    <text x="220" y="65" fill="#9ca3af" fontSize="10">rotate</text>
+                  </svg>
+                )}
+                {/* A* Search */}
+                {pattern.id === 'a-star' && (
+                  <svg width="280" height="100" viewBox="0 0 280 100">
+                    {[0,1,2,3,4].map((row) => (
+                      [0,1,2,3,4,5].map((col) => {
+                        const isStart = row === 2 && col === 0
+                        const isEnd = row === 2 && col === 5
+                        const isWall = (row === 1 && col === 2) || (row === 2 && col === 2) || (row === 3 && col === 2)
+                        const isPath = (row === 2 && col === 1) || (row === 1 && col === 1) || (row === 0 && col === 2) || (row === 0 && col === 3) || (row === 1 && col === 4) || (row === 2 && col === 4)
+                        return (
+                          <rect key={`${row}-${col}`} x={50 + col * 32} y={5 + row * 18} width="28" height="15" rx="2"
+                            fill={isStart ? '#10b981' : isEnd ? '#f59e0b' : isWall ? '#1f2937' : isPath ? '#3b82f6' : '#374151'}
+                            stroke="#60a5fa" strokeWidth="1"/>
+                        )
+                      })
+                    ))}
+                    <text x="64" y="52" textAnchor="middle" fill="white" fontSize="8">S</text>
+                    <text x="226" y="52" textAnchor="middle" fill="white" fontSize="8">E</text>
+                    <text x="140" y="98" textAnchor="middle" fill="#f59e0b" fontSize="9">f(n) = g(n) + h(n)</text>
+                  </svg>
+                )}
+                {/* Bellman-Ford */}
+                {pattern.id === 'bellman-ford' && (
+                  <svg width="280" height="95" viewBox="0 0 280 95">
+                    <defs><marker id="arrowBF" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#60a5fa"/></marker></defs>
+                    <circle cx="50" cy="40" r="16" fill="#10b981"/>
+                    <text x="50" y="45" textAnchor="middle" fill="white" fontSize="10">0</text>
+                    <circle cx="130" cy="20" r="16" fill="#3b82f6"/>
+                    <text x="130" y="25" textAnchor="middle" fill="white" fontSize="10">4</text>
+                    <circle cx="130" cy="60" r="16" fill="#3b82f6"/>
+                    <text x="130" y="65" textAnchor="middle" fill="white" fontSize="10">2</text>
+                    <circle cx="210" cy="40" r="16" fill="#374151" stroke="#60a5fa" strokeWidth="2"/>
+                    <text x="210" y="45" textAnchor="middle" fill="white" fontSize="10">5</text>
+                    <path d="M 66 35 L 110 23" stroke="#60a5fa" strokeWidth="2"/>
+                    <text x="85" y="23" fill="#f59e0b" fontSize="9">4</text>
+                    <path d="M 66 45 L 110 57" stroke="#60a5fa" strokeWidth="2"/>
+                    <text x="85" y="60" fill="#f59e0b" fontSize="9">2</text>
+                    <path d="M 130" y1="36" x2="130" y2="44" stroke="#ef4444" strokeWidth="2"/>
+                    <text x="142" y="42" fill="#ef4444" fontSize="8">-3</text>
+                    <path d="M 146 25 L 190 37" stroke="#60a5fa" strokeWidth="2"/>
+                    <text x="170" y="28" fill="#f59e0b" fontSize="9">3</text>
+                    <text x="140" y="88" textAnchor="middle" fill="#ef4444" fontSize="9">handles negative edges</text>
+                  </svg>
+                )}
+                {/* Default visual for patterns without specific SVG */}
+                {!['two-pointers', 'sliding-window', 'rolling-hash', 'kmp', 'fast-slow-pointers', 'binary-search', 'tree-dfs', 'tree-bfs', 'graph-traversal', 'union-find', 'backtracking', 'monotonic-stack', 'dynamic-programming', 'top-k-elements', 'merge-intervals', 'cyclic-sort', 'trie', 'topological-sort', 'prefix-sum', 'bit-manipulation', 'greedy', 'kadane', 'dijkstra', 'binary-indexed-tree', 'segment-tree', 'dutch-national-flag', 'boyer-moore-voting', 'reservoir-sampling', 'matrix-traversal', 'a-star', 'bellman-ford'].includes(pattern.id) && !pattern.id.startsWith('dp-') && (
+                  <div style={{
+                    fontSize: '4rem',
+                    opacity: 0.8
+                  }}>
+                    {pattern.icon}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Code Examples */}
@@ -3668,22 +7152,39 @@ def probabilityOfHeads(prob, target):
               Implementation Examples
             </h3>
             <div style={{
-              backgroundColor: '#1f2937',
+              backgroundColor: '#1e1e1e',
               borderRadius: '0.5rem',
               overflow: 'auto',
               border: '1px solid #3b82f6'
             }}>
-              <SyntaxHighlighter
-                language="python"
-                style={vscDarkPlus}
-                customStyle={{
-                  borderRadius: '8px',
-                  padding: '1rem',
-                  fontSize: '0.9rem'
-                }}
-              >
-                {pattern.codeExample}
-              </SyntaxHighlighter>
+              {pattern.codeExample.split(/(?=# Pattern:)/g).map((section, idx) => (
+                <div key={idx}>
+                  {idx > 0 && (
+                    <div style={{
+                      borderTop: '1px solid #3b82f6',
+                      margin: '0 1.5rem',
+                    }} />
+                  )}
+                  <SyntaxHighlighter
+                    language="python"
+                    style={customTheme}
+                    customStyle={{
+                      margin: 0,
+                      padding: '1.5rem',
+                      fontSize: '14px',
+                      lineHeight: '1.6',
+                      background: '#1e1e1e'
+                    }}
+                    codeTagProps={{
+                      style: {
+                        background: 'transparent'
+                      }
+                    }}
+                  >
+                    {section.trim()}
+                  </SyntaxHighlighter>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -3785,7 +7286,9 @@ def probabilityOfHeads(prob, target):
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text'
             }}>
-              🎯 LeetCode Patterns
+              {selectedCategory
+                ? `${categories.find(c => c.id === selectedCategory)?.icon} ${categories.find(c => c.id === selectedCategory)?.name}`
+                : '🎯 LeetCode Patterns'}
             </h1>
           </div>
         </div>
@@ -3797,115 +7300,228 @@ def probabilityOfHeads(prob, target):
           marginBottom: '3rem',
           lineHeight: '1.8'
         }}>
-          Master common problem-solving patterns to tackle any coding interview question with confidence.
+          {selectedCategory
+            ? `${categories.find(c => c.id === selectedCategory)?.description}`
+            : 'Master common problem-solving patterns to tackle any coding interview question with confidence.'}
         </p>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '1.5rem'
-        }}>
-        {patterns.map(pattern => (
+        {/* Back to categories button */}
+        {selectedCategory && (
           <button
-            key={pattern.id}
-            onClick={() => setSelectedPattern(pattern.id)}
+            onClick={() => setSelectedCategory(null)}
             style={{
-              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
-              padding: '1.5rem',
-              borderRadius: '0.75rem',
-              border: '2px solid #3b82f6',
+              background: '#374151',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.5rem',
+              border: 'none',
               cursor: 'pointer',
-              transition: 'all 0.3s',
-              textAlign: 'left',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = '#60a5fa'
-              e.currentTarget.style.transform = 'translateY(-0.5rem)'
-              e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(59, 130, 246, 0.5)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = '#3b82f6'
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              marginBottom: '1.5rem',
+              fontSize: '0.9rem',
+              fontWeight: '500'
             }}
           >
-            <div style={{
-              fontSize: '3rem',
-              marginBottom: '1rem',
-              textAlign: 'center'
-            }}>
-              {pattern.icon}
-            </div>
-            <h3 style={{
-              fontSize: '1.5rem',
-              fontWeight: 'bold',
-              textAlign: 'center',
-              marginBottom: '0.75rem',
-              color: '#93c5fd'
-            }}>
-              {pattern.name}
-            </h3>
-            <div style={{
-              textAlign: 'center',
-              marginBottom: '1rem'
-            }}>
-              <span style={{
-                display: 'inline-block',
-                padding: '0.25rem 0.75rem',
-                backgroundColor: '#2563eb',
-                color: 'white',
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                borderRadius: '0.375rem'
-              }}>
-                {pattern.category}
-              </span>
-            </div>
-
-            <p style={{
-              fontSize: '0.95rem',
-              color: '#d1d5db',
-              lineHeight: '1.6',
-              margin: '1rem 0',
-              textAlign: 'center'
-            }}>
-              {pattern.description}
-            </p>
-
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginTop: '1.5rem',
-              paddingTop: '1rem',
-              borderTop: '1px solid #374151'
-            }}>
-              <div>
-                <div style={{ fontSize: '0.75rem', color: '#9ca3af', fontWeight: '600' }}>Time</div>
-                <div style={{ fontSize: '0.9rem', color: '#93c5fd', fontWeight: '600' }}>{pattern.timeComplexity}</div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '0.75rem', color: '#9ca3af', fontWeight: '600' }}>Space</div>
-                <div style={{ fontSize: '0.9rem', color: '#93c5fd', fontWeight: '600' }}>{pattern.spaceComplexity}</div>
-              </div>
-            </div>
-
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              fontSize: '0.9rem',
-              color: '#60a5fa',
-              fontWeight: '600',
-              marginTop: '1rem'
-            }}>
-              <span>View Pattern</span>
-              <span>→</span>
-            </div>
+            ← Back to Categories
           </button>
-        ))}
-        </div>
+        )}
+
+        {/* Categories View */}
+        {!selectedCategory && (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '1.5rem'
+          }}>
+            {categories.map(category => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                style={{
+                  background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                  padding: '2rem',
+                  borderRadius: '0.75rem',
+                  border: `2px solid ${category.color}`,
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                  textAlign: 'left',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                  e.currentTarget.style.boxShadow = `0 25px 50px -12px ${category.color}40`
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}
+              >
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  marginBottom: '1rem'
+                }}>
+                  <span style={{ fontSize: '2.5rem' }}>{category.icon}</span>
+                  <div>
+                    <h3 style={{
+                      fontSize: '1.5rem',
+                      fontWeight: 'bold',
+                      color: category.color,
+                      marginBottom: '0.25rem'
+                    }}>
+                      {category.name}
+                    </h3>
+                    <span style={{
+                      fontSize: '0.875rem',
+                      color: '#9ca3af'
+                    }}>
+                      {category.patternIds.length} patterns
+                    </span>
+                  </div>
+                </div>
+                <p style={{
+                  fontSize: '0.95rem',
+                  color: '#d1d5db',
+                  lineHeight: '1.6',
+                  marginBottom: '1rem'
+                }}>
+                  {category.description}
+                </p>
+                <div style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '0.5rem'
+                }}>
+                  {category.patternIds.slice(0, 4).map(id => {
+                    const pattern = patterns.find(p => p.id === id)
+                    return pattern ? (
+                      <span
+                        key={id}
+                        style={{
+                          padding: '0.25rem 0.5rem',
+                          backgroundColor: '#374151',
+                          borderRadius: '0.25rem',
+                          fontSize: '0.75rem',
+                          color: '#d1d5db'
+                        }}
+                      >
+                        {pattern.name}
+                      </span>
+                    ) : null
+                  })}
+                  {category.patternIds.length > 4 && (
+                    <span style={{
+                      padding: '0.25rem 0.5rem',
+                      backgroundColor: category.color,
+                      borderRadius: '0.25rem',
+                      fontSize: '0.75rem',
+                      color: 'white'
+                    }}>
+                      +{category.patternIds.length - 4} more
+                    </span>
+                  )}
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  gap: '0.5rem',
+                  fontSize: '0.9rem',
+                  color: category.color,
+                  fontWeight: '600',
+                  marginTop: '1rem'
+                }}>
+                  <span>Explore</span>
+                  <span>→</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Patterns within Category View */}
+        {selectedCategory && (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '1.5rem'
+          }}>
+            {categories
+              .find(c => c.id === selectedCategory)
+              ?.patternIds.map(patternId => {
+                const pattern = patterns.find(p => p.id === patternId)
+                if (!pattern) return null
+                return (
+                  <button
+                    key={pattern.id}
+                    onClick={() => setSelectedPattern(pattern.id)}
+                    style={{
+                      background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                      padding: '1.5rem',
+                      borderRadius: '0.75rem',
+                      border: '2px solid #3b82f6',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s',
+                      textAlign: 'left',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#60a5fa'
+                      e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                      e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(59, 130, 246, 0.5)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = '#3b82f6'
+                      e.currentTarget.style.transform = 'translateY(0)'
+                      e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    }}
+                  >
+                    <div style={{
+                      fontSize: '2.5rem',
+                      marginBottom: '1rem',
+                      textAlign: 'center'
+                    }}>
+                      {pattern.icon}
+                    </div>
+                    <h3 style={{
+                      fontSize: '1.25rem',
+                      fontWeight: 'bold',
+                      textAlign: 'center',
+                      marginBottom: '0.75rem',
+                      color: '#93c5fd'
+                    }}>
+                      {pattern.name}
+                    </h3>
+                    <p style={{
+                      fontSize: '0.9rem',
+                      color: '#d1d5db',
+                      lineHeight: '1.5',
+                      textAlign: 'center',
+                      marginBottom: '1rem'
+                    }}>
+                      {pattern.description}
+                    </p>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      paddingTop: '0.75rem',
+                      borderTop: '1px solid #374151',
+                      fontSize: '0.8rem'
+                    }}>
+                      <div>
+                        <span style={{ color: '#9ca3af' }}>Time: </span>
+                        <span style={{ color: '#93c5fd' }}>{pattern.timeComplexity}</span>
+                      </div>
+                      <div>
+                        <span style={{ color: '#9ca3af' }}>Space: </span>
+                        <span style={{ color: '#93c5fd' }}>{pattern.spaceComplexity}</span>
+                      </div>
+                    </div>
+                  </button>
+                )
+              })}
+          </div>
+        )}
       </div>
     </div>
   )

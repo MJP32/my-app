@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react'
-import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation'
+import { useState } from 'react'
 
 function Python({ onBack, onSelectItem }) {
-  const pythonSections = [
+  const [selectedCategory, setSelectedCategory] = useState(null)
+
+  const categories = [
     {
-      title: 'Fundamentals',
+      id: 'fundamentals',
+      name: 'Fundamentals',
       icon: '📚',
       color: '#3b82f6',
+      description: 'Core Python concepts including data types, control structures, functions, OOP, and essential programming foundations.',
       topics: [
         {
           id: 'Core Python',
@@ -43,9 +46,11 @@ function Python({ onBack, onSelectItem }) {
       ]
     },
     {
-      title: 'Data Structures & Collections',
+      id: 'data-structures',
+      name: 'Data Structures & Collections',
       icon: '🗂️',
       color: '#8b5cf6',
+      description: 'Python built-in data structures and collections module for efficient data manipulation and storage.',
       topics: [
         {
           id: 'Python Set Operations',
@@ -82,9 +87,28 @@ function Python({ onBack, onSelectItem }) {
       ]
     },
     {
-      title: 'Functional Programming',
+      id: 'algorithms',
+      name: 'Algorithms',
+      icon: '🔄',
+      color: '#ef4444',
+      description: 'Classic algorithms implemented in Python including sorting, searching, and graph algorithms.',
+      topics: [
+        {
+          id: 'Sorting Algorithms',
+          name: 'Sorting Algorithms',
+          icon: '📊',
+          color: '#ef4444',
+          complexity: 'All Levels',
+          description: 'Master 11 sorting algorithms: Bubble, Selection, Insertion, Merge, Quick, Heap, Counting, Radix, Bucket, Tim, and Shell sort with Python implementations.'
+        }
+      ]
+    },
+    {
+      id: 'functional',
+      name: 'Functional Programming',
       icon: 'λ',
       color: '#db2777',
+      description: 'Functional programming paradigms in Python including lambda functions, map, filter, reduce, and higher-order functions.',
       topics: [
         {
           id: 'Lambda',
@@ -105,9 +129,11 @@ function Python({ onBack, onSelectItem }) {
       ]
     },
     {
-      title: 'Modules & Utilities',
+      id: 'modules',
+      name: 'Modules & Utilities',
       icon: '🔧',
       color: '#f59e0b',
+      description: 'Essential Python modules and utility functions for iterators, collections, sorting, searching, and string manipulation.',
       topics: [
         {
           id: 'Itertools',
@@ -152,9 +178,11 @@ function Python({ onBack, onSelectItem }) {
       ]
     },
     {
-      title: 'Advanced Topics',
+      id: 'advanced',
+      name: 'Advanced Topics',
       icon: '🚀',
       color: '#64748b',
+      description: 'Advanced Python concepts including decorators, generators, context managers, metaclasses, and async programming.',
       topics: [
         {
           id: 'Python Advanced',
@@ -175,9 +203,11 @@ function Python({ onBack, onSelectItem }) {
       ]
     },
     {
-      title: 'Web Development',
+      id: 'web',
+      name: 'Web Development',
       icon: '🌐',
       color: '#10b981',
+      description: 'Python web frameworks and tools for building modern web applications and RESTful APIs.',
       topics: [
         {
           id: 'Web Frameworks',
@@ -190,9 +220,11 @@ function Python({ onBack, onSelectItem }) {
       ]
     },
     {
-      title: 'Data Science & Machine Learning',
+      id: 'data-science',
+      name: 'Data Science & ML',
       icon: '🤖',
       color: '#ec4899',
+      description: 'Data science libraries and machine learning frameworks for analysis, visualization, and model building.',
       topics: [
         {
           id: 'Data Science',
@@ -213,9 +245,11 @@ function Python({ onBack, onSelectItem }) {
       ]
     },
     {
-      title: 'Reference & Best Practices',
+      id: 'reference',
+      name: 'Reference & Best Practices',
       icon: '📖',
       color: '#06b6d4',
+      description: 'Reference documentation, common pitfalls, and best practices for writing clean, efficient Python code.',
       topics: [
         {
           id: 'Python Heaps',
@@ -244,9 +278,11 @@ function Python({ onBack, onSelectItem }) {
       ]
     },
     {
-      title: 'Interview Preparation',
+      id: 'interview',
+      name: 'Interview Preparation',
       icon: '🎯',
       color: '#dc2626',
+      description: 'Essential patterns and techniques for coding interviews with Python implementations.',
       topics: [
         {
           id: 'LeetCode Patterns',
@@ -254,209 +290,308 @@ function Python({ onBack, onSelectItem }) {
           icon: '🎯',
           color: '#ef4444',
           complexity: 'All Levels',
-          description: 'Master 15 essential problem-solving patterns for coding interviews: Two Pointers, Sliding Window, DFS/BFS, DP, Backtracking, and more with Python examples.'
+          description: 'Master 31 essential problem-solving patterns for coding interviews: Two Pointers, Sliding Window, DFS/BFS, DP, Backtracking, and more with Python examples.'
         }
       ]
     }
   ]
 
-  // Flatten all topics for keyboard navigation
-  const allTopics = pythonSections.flatMap(section => section.topics)
-
-  // Enable keyboard navigation
-  const { focusedIndex, itemRefs } = useKeyboardNavigation({
-    items: allTopics,
-    onSelect: (item) => onSelectItem(item.id),
-    onBack,
-    enabled: true,
-    gridColumns: 2,
-    loop: true
-  })
-
   return (
-    <div style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#e3f2fd', minHeight: '100vh' }}>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
       <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '1.5rem'
+        maxWidth: '80rem',
+        margin: '0 auto'
       }}>
-        <button
-          onClick={onBack}
-          style={{
-            padding: '0.6rem 1.25rem',
-            fontSize: '0.95rem',
-            fontWeight: '600',
-            backgroundColor: '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
-        >
-          ← Back to Menu
-        </button>
-        <h1 style={{
-          fontSize: '2rem',
-          fontWeight: '800',
-          color: '#1f2937',
-          margin: 0
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '2rem'
         }}>
-          🐍 Python Topics
-        </h1>
-        <div style={{ width: '120px' }}></div>
-      </div>
-
-      <p style={{
-        fontSize: '1rem',
-        color: '#4b5563',
-        textAlign: 'center',
-        marginBottom: '1.5rem',
-        lineHeight: '1.6'
-      }}>
-        Master Python from basics to advanced topics including web development, data science, and machine learning.
-        Select a topic to explore in depth.
-      </p>
-
-      {pythonSections.map((section, sectionIndex) => {
-        const sectionStartIndex = pythonSections
-          .slice(0, sectionIndex)
-          .reduce((sum, s) => sum + s.topics.length, 0)
-
-        return (
-          <div key={section.title} style={{ marginBottom: '2rem' }}>
-            {/* Section Header */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              marginBottom: '1rem',
-              padding: '0.75rem 1rem',
-              backgroundColor: 'white',
-              borderRadius: '10px',
-              borderLeft: `5px solid ${section.color}`,
-              boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem'
+          }}>
+            <button
+              onClick={onBack}
+              style={{
+                background: '#2563eb',
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontWeight: '500',
+                fontSize: '1rem',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#1d4ed8'
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#2563eb'
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              ← Back to Menu
+            </button>
+            <h1 style={{
+              fontSize: '2.25rem',
+              fontWeight: 'bold',
+              background: 'linear-gradient(to right, #60a5fa, #22d3ee)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
             }}>
-              <span style={{ fontSize: '1.5rem' }}>{section.icon}</span>
-              <h2 style={{
-                fontSize: '1.4rem',
-                fontWeight: '700',
-                color: '#1f2937',
-                margin: 0
-              }}>
-                {section.title}
-              </h2>
-            </div>
-
-            {/* Topic Cards */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-              gap: '1rem'
-            }}>
-              {section.topics.map((topic, topicIndex) => {
-                const globalIndex = sectionStartIndex + topicIndex
-                return (
-                  <button
-                    key={topic.id}
-                    ref={(el) => itemRefs.current[globalIndex] = el}
-                    onClick={() => onSelectItem(topic.id)}
-                    tabIndex={focusedIndex === globalIndex ? 0 : -1}
-                    role="link"
-                    aria-label={`${topic.name} - ${topic.complexity}. ${topic.description}`}
-                    style={{
-                      backgroundColor: 'white',
-                      padding: '1rem',
-                      borderRadius: '10px',
-                      border: `2px solid ${topic.color}`,
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease',
-                      transform: focusedIndex === globalIndex ? 'translateY(-4px)' : 'translateY(0)',
-                      boxShadow: focusedIndex === globalIndex
-                        ? `0 0 0 3px ${topic.color}40, 0 8px 16px rgba(0,0,0,0.15)`
-                        : '0 2px 8px rgba(0,0,0,0.08)',
-                      textAlign: 'left',
-                      width: '100%'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-4px)'
-                      e.currentTarget.style.boxShadow = `0 0 0 3px ${topic.color}40, 0 8px 16px rgba(0,0,0,0.15)`
-                    }}
-                    onMouseLeave={(e) => {
-                      if (focusedIndex !== globalIndex) {
-                        e.currentTarget.style.transform = 'translateY(0)'
-                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'
-                      }
-                    }}
-                  >
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem',
-                      marginBottom: '0.75rem'
-                    }}>
-                      <div style={{
-                        fontSize: '2rem',
-                        lineHeight: 1
-                      }}>
-                        {topic.icon}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <h3 style={{
-                          fontSize: '1.1rem',
-                          fontWeight: '700',
-                          color: '#1f2937',
-                          margin: 0,
-                          marginBottom: '0.25rem'
-                        }}>
-                          {topic.name}
-                        </h3>
-                        <div style={{
-                          display: 'inline-block',
-                          padding: '0.2rem 0.6rem',
-                          backgroundColor: topic.color,
-                          color: 'white',
-                          fontSize: '0.75rem',
-                          fontWeight: '600',
-                          borderRadius: '4px'
-                        }}>
-                          {topic.complexity}
-                        </div>
-                      </div>
-                    </div>
-
-                    <p style={{
-                      fontSize: '0.85rem',
-                      color: '#6b7280',
-                      lineHeight: '1.5',
-                      margin: '0.5rem 0'
-                    }}>
-                      {topic.description}
-                    </p>
-
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'flex-end',
-                      gap: '0.4rem',
-                      fontSize: '0.8rem',
-                      color: topic.color,
-                      fontWeight: '600',
-                      marginTop: '0.75rem'
-                    }}>
-                      <span>Explore Topic</span>
-                      <span>→</span>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
+              {selectedCategory
+                ? `${categories.find(c => c.id === selectedCategory)?.icon} ${categories.find(c => c.id === selectedCategory)?.name}`
+                : '🐍 Python Topics'}
+            </h1>
           </div>
-        )
-      })}
+        </div>
+
+        <p style={{
+          fontSize: '1.2rem',
+          color: '#d1d5db',
+          textAlign: 'center',
+          marginBottom: '3rem',
+          lineHeight: '1.8'
+        }}>
+          {selectedCategory
+            ? categories.find(c => c.id === selectedCategory)?.description
+            : 'Master Python from basics to advanced topics including web development, data science, and machine learning.'}
+        </p>
+
+        {/* Back to categories button */}
+        {selectedCategory && (
+          <button
+            onClick={() => setSelectedCategory(null)}
+            style={{
+              background: '#374151',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.5rem',
+              border: 'none',
+              cursor: 'pointer',
+              marginBottom: '1.5rem',
+              fontSize: '0.9rem',
+              fontWeight: '500'
+            }}
+          >
+            ← Back to Categories
+          </button>
+        )}
+
+        {/* Categories View */}
+        {!selectedCategory && (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '1.5rem'
+          }}>
+            {categories.map(category => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                style={{
+                  background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                  padding: '2rem',
+                  borderRadius: '0.75rem',
+                  border: `2px solid ${category.color}`,
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                  textAlign: 'left',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                  e.currentTarget.style.boxShadow = `0 25px 50px -12px ${category.color}40`
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}
+              >
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  marginBottom: '1rem'
+                }}>
+                  <span style={{ fontSize: '2.5rem' }}>{category.icon}</span>
+                  <div>
+                    <h3 style={{
+                      fontSize: '1.5rem',
+                      fontWeight: 'bold',
+                      color: category.color,
+                      marginBottom: '0.25rem'
+                    }}>
+                      {category.name}
+                    </h3>
+                    <span style={{
+                      fontSize: '0.875rem',
+                      color: '#9ca3af'
+                    }}>
+                      {category.topics.length} {category.topics.length === 1 ? 'topic' : 'topics'}
+                    </span>
+                  </div>
+                </div>
+                <p style={{
+                  fontSize: '0.95rem',
+                  color: '#d1d5db',
+                  lineHeight: '1.6',
+                  marginBottom: '1rem'
+                }}>
+                  {category.description}
+                </p>
+                <div style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '0.5rem'
+                }}>
+                  {category.topics.slice(0, 3).map(topic => (
+                    <span
+                      key={topic.id}
+                      style={{
+                        padding: '0.25rem 0.5rem',
+                        backgroundColor: '#374151',
+                        borderRadius: '0.25rem',
+                        fontSize: '0.75rem',
+                        color: '#d1d5db'
+                      }}
+                    >
+                      {topic.name}
+                    </span>
+                  ))}
+                  {category.topics.length > 3 && (
+                    <span style={{
+                      padding: '0.25rem 0.5rem',
+                      backgroundColor: category.color,
+                      borderRadius: '0.25rem',
+                      fontSize: '0.75rem',
+                      color: 'white'
+                    }}>
+                      +{category.topics.length - 3} more
+                    </span>
+                  )}
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  gap: '0.5rem',
+                  fontSize: '0.9rem',
+                  color: category.color,
+                  fontWeight: '600',
+                  marginTop: '1rem'
+                }}>
+                  <span>Explore</span>
+                  <span>→</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Topics within Category View */}
+        {selectedCategory && (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '1.5rem'
+          }}>
+            {categories
+              .find(c => c.id === selectedCategory)
+              ?.topics.map(topic => (
+                <button
+                  key={topic.id}
+                  onClick={() => onSelectItem(topic.id)}
+                  style={{
+                    background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                    padding: '1.5rem',
+                    borderRadius: '0.75rem',
+                    border: `2px solid ${topic.color}`,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s',
+                    textAlign: 'left',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                    e.currentTarget.style.boxShadow = `0 25px 50px -12px ${topic.color}50`
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                >
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    marginBottom: '1rem'
+                  }}>
+                    <span style={{ fontSize: '2.5rem' }}>{topic.icon}</span>
+                    <div>
+                      <h3 style={{
+                        fontSize: '1.25rem',
+                        fontWeight: 'bold',
+                        color: '#93c5fd',
+                        marginBottom: '0.25rem'
+                      }}>
+                        {topic.name}
+                      </h3>
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '0.2rem 0.6rem',
+                        backgroundColor: topic.color,
+                        color: 'white',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        borderRadius: '0.25rem'
+                      }}>
+                        {topic.complexity}
+                      </span>
+                    </div>
+                  </div>
+                  <p style={{
+                    fontSize: '0.9rem',
+                    color: '#d1d5db',
+                    lineHeight: '1.6',
+                    marginBottom: '1rem'
+                  }}>
+                    {topic.description}
+                  </p>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                    gap: '0.5rem',
+                    fontSize: '0.9rem',
+                    color: topic.color,
+                    fontWeight: '600',
+                    paddingTop: '0.75rem',
+                    borderTop: '1px solid #374151'
+                  }}>
+                    <span>Open Topic</span>
+                    <span>→</span>
+                  </div>
+                </button>
+              ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

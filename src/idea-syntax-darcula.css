@@ -85,9 +85,10 @@ code[class*="language-"],
 }
 
 /* Make sure inline code doesn't keep inline color styles */
-code[class*="language-"] *[style] {
+/* Disabled - was breaking react-syntax-highlighter colors */
+/* code[class*="language-"] *[style] {
   color: inherit !important;
-}
+} */
 
 /* Optional nicer pre formatting */
 pre[class*="language-"] {

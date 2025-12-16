@@ -31,7 +31,7 @@ import ApacheKafka from './pages/messaging/ApacheKafka.jsx'
 import ApacheFlink from './pages/messaging/ApacheFlink.jsx'
 import Solace from './pages/messaging/Solace.jsx'
 import RabbitMQ from './pages/messaging/RabbitMQ.jsx'
-import Messaging from './pages/messaging/Messaging.jsx'
+import MuleSoft from './pages/messaging/MuleSoft.jsx'
 
 // Java pages
 import CoreJava from './pages/java/CoreJava.jsx'
@@ -235,6 +235,7 @@ import Itertools from './pages/python/Itertools.jsx'
 import CollectionsModule from './pages/python/CollectionsModule.jsx'
 import SortingFunctions from './pages/python/SortingFunctions.jsx'
 import LeetCodePatterns from './pages/python/LeetCodePatterns.jsx'
+import SortingAlgorithms from './pages/python/SortingAlgorithms.jsx'
 import Frameworks from './pages/Frameworks.jsx'
 import StudyGuideModal from './components/StudyGuideModal.jsx'
 import AccountDropdown from './components/AccountDropdown.jsx'
@@ -260,11 +261,11 @@ const categoryOrganization = {
   },
   'Tech Stack': {
     label: '⚙️ Technology Stack',
-    categories: ['Frameworks', 'Databases', 'Messaging', 'Cloud']
+    categories: ['Frameworks', 'Databases', 'Cloud']
   },
   'Operations': {
     label: '🛠️ DevOps & Security',
-    categories: ['DevOps', 'Security']
+    categories: ['DevOps']
   }
 }
 
@@ -312,13 +313,6 @@ const categoryGroups = {
     description: 'SQL, NoSQL, ORM, caching',
     items: ['SQL', 'NoSQL', 'Oracle', 'ORM', 'Redis']
   },
-  'Messaging': {
-    icon: '📨',
-    color: '#f43f5e',
-    groupSection: 'Tech Stack',
-    description: 'Kafka, Flink, message queues',
-    items: ['Kafka', 'Apache Flink', 'Solace', 'RabbitMQ']
-  },
   'Cloud': {
     icon: '☁️',
     color: '#0ea5e9',
@@ -330,15 +324,8 @@ const categoryGroups = {
     icon: '🛠️',
     color: '#0ea5e9',
     groupSection: 'Operations',
-    description: 'CI/CD, Docker, Kubernetes',
-    items: ['Deployment', 'Docker', 'Kubernetes', 'Testing', 'CI/CD', 'Agile Scrum', 'Production Support', 'TeamCity', 'Jenkins', 'Prometheus', 'Grafana']
-  },
-  'Security': {
-    icon: '🔒',
-    color: '#dc2626',
-    groupSection: 'Operations',
-    description: 'Authentication and security',
-    items: ['JWT', 'OAuth', 'OAuth2', 'Security OWASP']
+    description: 'CI/CD, Docker, Kubernetes, Messaging, Security',
+    items: ['Deployment', 'Docker', 'Kubernetes', 'Testing', 'CI/CD', 'Agile Scrum', 'Production Support', 'TeamCity', 'Jenkins', 'Prometheus', 'Grafana', 'Security OWASP', 'JWT', 'OAuth', 'OAuth2', 'Kafka', 'Apache Flink', 'RabbitMQ', 'Solace', 'MuleSoft']
   },
   'Practice': {
     icon: '💪',
@@ -561,7 +548,7 @@ const getFrameworksComponentIndex = (componentName) => {
   return FRAMEWORKS_COMPONENTS_ORDER.indexOf(componentName)
 }
 
-const DEVOPS_COMPONENTS_ORDER = ['Deployment', 'Docker', 'Kubernetes', 'Testing', 'CICD', 'AgileScrum', 'ProductionSupport', 'TeamCity', 'Jenkins', 'Prometheus', 'Grafana', 'SecurityOWASP']
+const DEVOPS_COMPONENTS_ORDER = ['Deployment', 'Docker', 'Kubernetes', 'Testing', 'CICD', 'AgileScrum', 'ProductionSupport', 'TeamCity', 'Jenkins', 'Prometheus', 'Grafana', 'SecurityOWASP', 'JWT', 'OAuth', 'OAuth2', 'Kafka', 'ApacheFlink', 'RabbitMQ', 'Solace', 'MuleSoft']
 
 // Display names for devops components
 const DEVOPS_DISPLAY_NAMES = {
@@ -576,27 +563,20 @@ const DEVOPS_DISPLAY_NAMES = {
   'Jenkins': 'Jenkins',
   'Prometheus': 'Prometheus',
   'Grafana': 'Grafana',
-  'SecurityOWASP': 'Security & OWASP'
+  'SecurityOWASP': 'Security & OWASP',
+  'JWT': 'JWT',
+  'OAuth': 'OAuth',
+  'OAuth2': 'OAuth 2.0',
+  'Kafka': 'Apache Kafka',
+  'ApacheFlink': 'Apache Flink',
+  'RabbitMQ': 'RabbitMQ',
+  'Solace': 'Solace',
+  'MuleSoft': 'MuleSoft'
 }
 
 // Helper functions for devops component navigation
 const getDevOpsComponentIndex = (componentName) => {
   return DEVOPS_COMPONENTS_ORDER.indexOf(componentName)
-}
-
-const MESSAGING_COMPONENTS_ORDER = ['ApacheKafka', 'ApacheFlink', 'Solace', 'RabbitMQ']
-
-// Display names for messaging components
-const MESSAGING_DISPLAY_NAMES = {
-  'ApacheKafka': 'Apache Kafka',
-  'ApacheFlink': 'Apache Flink',
-  'Solace': 'Solace',
-  'RabbitMQ': 'RabbitMQ'
-}
-
-// Helper functions for messaging component navigation
-const getMessagingComponentIndex = (componentName) => {
-  return MESSAGING_COMPONENTS_ORDER.indexOf(componentName)
 }
 
 const CLOUD_COMPONENTS_ORDER = ['AWS', 'GCP', 'Azure']
@@ -680,6 +660,7 @@ function App() {
   const [showApacheFlinkModal, setShowApacheFlinkModal] = useState(false)
   const [showSolaceModal, setShowSolaceModal] = useState(false)
   const [showRabbitMQModal, setShowRabbitMQModal] = useState(false)
+  const [showMuleSoftModal, setShowMuleSoftModal] = useState(false)
   const [showAWSModal, setShowAWSModal] = useState(false)
   const [showGCPModal, setShowGCPModal] = useState(false)
   const [showAzureModal, setShowAzureModal] = useState(false)
@@ -1459,6 +1440,11 @@ function App() {
       setShowPrometheusModal(false)
       setShowGrafanaModal(false)
       setShowSecurityOWASPModal(false)
+      setShowKafkaModal(false)
+      setShowApacheFlinkModal(false)
+      setShowRabbitMQModal(false)
+      setShowSolaceModal(false)
+      setShowMuleSoftModal(false)
 
       // Open the target modal
       if (componentName === 'Deployment') {
@@ -1485,6 +1471,22 @@ function App() {
         setShowGrafanaModal(true)
       } else if (componentName === 'SecurityOWASP') {
         setShowSecurityOWASPModal(true)
+      } else if (componentName === 'JWT') {
+        setSelectedOptionAndRef('JWT')
+      } else if (componentName === 'OAuth') {
+        setSelectedOptionAndRef('OAuth')
+      } else if (componentName === 'OAuth2') {
+        setSelectedOptionAndRef('OAuth2')
+      } else if (componentName === 'Kafka') {
+        setShowKafkaModal(true)
+      } else if (componentName === 'ApacheFlink') {
+        setShowApacheFlinkModal(true)
+      } else if (componentName === 'RabbitMQ') {
+        setShowRabbitMQModal(true)
+      } else if (componentName === 'Solace') {
+        setShowSolaceModal(true)
+      } else if (componentName === 'MuleSoft') {
+        setShowMuleSoftModal(true)
       }
     }
 
@@ -1501,44 +1503,6 @@ function App() {
     const nextName = currentIndex < DEVOPS_COMPONENTS_ORDER.length - 1 ? DEVOPS_DISPLAY_NAMES[DEVOPS_COMPONENTS_ORDER[currentIndex + 1]] : null
 
     return { onPrevious, onNext, previousName, nextName, currentSubcategory: 'DevOps' }
-  }
-
-  // Create navigation callbacks for messaging components
-  const createMessagingNavigationCallbacks = (currentComponentName) => {
-    const currentIndex = getMessagingComponentIndex(currentComponentName)
-
-    const navigateToMessagingComponent = (componentName) => {
-      // Close all messaging modals first
-      setShowKafkaModal(false)
-      setShowApacheFlinkModal(false)
-      setShowSolaceModal(false)
-      setShowRabbitMQModal(false)
-
-      // Open the target modal
-      if (componentName === 'ApacheKafka') {
-        setShowKafkaModal(true)
-      } else if (componentName === 'ApacheFlink') {
-        setShowApacheFlinkModal(true)
-      } else if (componentName === 'Solace') {
-        setShowSolaceModal(true)
-      } else if (componentName === 'RabbitMQ') {
-        setShowRabbitMQModal(true)
-      }
-    }
-
-    // Previous button logic
-    const onPrevious = currentIndex > 0 ? () => {
-      navigateToMessagingComponent(MESSAGING_COMPONENTS_ORDER[currentIndex - 1])
-    } : null
-    const previousName = currentIndex > 0 ? MESSAGING_DISPLAY_NAMES[MESSAGING_COMPONENTS_ORDER[currentIndex - 1]] : null
-
-    // Next button logic
-    const onNext = currentIndex < MESSAGING_COMPONENTS_ORDER.length - 1 ? () => {
-      navigateToMessagingComponent(MESSAGING_COMPONENTS_ORDER[currentIndex + 1])
-    } : null
-    const nextName = currentIndex < MESSAGING_COMPONENTS_ORDER.length - 1 ? MESSAGING_DISPLAY_NAMES[MESSAGING_COMPONENTS_ORDER[currentIndex + 1]] : null
-
-    return { onPrevious, onNext, previousName, nextName, currentSubcategory: 'Messaging' }
   }
 
   // Create navigation callbacks for cloud components
@@ -2897,6 +2861,9 @@ function App() {
     if (selectedOption === 'LeetCode Patterns') {
       return <LeetCodePatterns onBack={() => setSelectedOptionAndRef('Python')} />
     }
+    if (selectedOption === 'Sorting Algorithms') {
+      return <SortingAlgorithms onBack={() => setSelectedOptionAndRef('Python')} />
+    }
     if (selectedOption === 'Event Driven Architecture') {
       setShowEventDrivenArchitectureModal(true)
       setSelectedOptionAndRef('')
@@ -2952,29 +2919,11 @@ function App() {
         }}
       />
     }
-    if (selectedOption === 'Messaging') {
-      return <Messaging
-        onBack={() => setSelectedOptionAndRef('')}
-        onSelectItem={(item) => {
-          // Open the appropriate messaging topic
-          setSelectedOptionAndRef(item)
-        }}
-      />
-    }
     if (selectedOption === 'Cloud') {
       return <Cloud
         onBack={() => setSelectedOptionAndRef('')}
         onSelectItem={(item) => {
           // Open the appropriate cloud topic
-          setSelectedOptionAndRef(item)
-        }}
-      />
-    }
-    if (selectedOption === 'Security') {
-      return <SecurityPage
-        onBack={() => setSelectedOptionAndRef('')}
-        onSelectItem={(item) => {
-          // Open the appropriate security topic
           setSelectedOptionAndRef(item)
         }}
       />
@@ -3157,13 +3106,13 @@ function App() {
     }
 
     if (selectedOption === 'JWT') {
-      return <JWT onBack={() => setSelectedOptionAndRef('Security')} />
+      return <JWT onBack={() => setSelectedOptionAndRef('DevOps')} {...createDevOpsNavigationCallbacks('JWT')} />
     }
     if (selectedOption === 'OAuth') {
-      return <OAuth onBack={() => setSelectedOptionAndRef('Security')} />
+      return <OAuth onBack={() => setSelectedOptionAndRef('DevOps')} {...createDevOpsNavigationCallbacks('OAuth')} />
     }
     if (selectedOption === 'OAuth2') {
-      return <OAuth2 onBack={() => setSelectedOptionAndRef('Security')} />
+      return <OAuth2 onBack={() => setSelectedOptionAndRef('DevOps')} {...createDevOpsNavigationCallbacks('OAuth2')} />
     }
     if (selectedOption === 'System Design') {
       setShowSystemDesignModal(true)
@@ -3301,6 +3250,11 @@ function App() {
     }
     if (selectedOption === 'RabbitMQ') {
       setShowRabbitMQModal(true)
+      setSelectedOptionAndRef('')
+      return null
+    }
+    if (selectedOption === 'MuleSoft') {
+      setShowMuleSoftModal(true)
       setSelectedOptionAndRef('')
       return null
     }
@@ -4929,7 +4883,7 @@ function App() {
               position: 'relative'
             }}
           >
-            <ApacheKafka onBack={() => setShowKafkaModal(false)} {...createMessagingNavigationCallbacks('ApacheKafka')} />
+            <ApacheKafka onBack={() => setShowKafkaModal(false)} {...createDevOpsNavigationCallbacks('Kafka')} />
           </div>
         </div>
       )}
@@ -4966,7 +4920,7 @@ function App() {
               position: 'relative'
             }}
           >
-            <ApacheFlink onBack={() => setShowApacheFlinkModal(false)} {...createMessagingNavigationCallbacks('ApacheFlink')} />
+            <ApacheFlink onBack={() => setShowApacheFlinkModal(false)} {...createDevOpsNavigationCallbacks('ApacheFlink')} />
           </div>
         </div>
       )}
@@ -5003,7 +4957,7 @@ function App() {
               position: 'relative'
             }}
           >
-            <Solace onBack={() => setShowSolaceModal(false)} {...createMessagingNavigationCallbacks('Solace')} />
+            <Solace onBack={() => setShowSolaceModal(false)} {...createDevOpsNavigationCallbacks('Solace')} />
           </div>
         </div>
       )}
@@ -5040,7 +4994,44 @@ function App() {
               position: 'relative'
             }}
           >
-            <RabbitMQ onBack={() => setShowRabbitMQModal(false)} {...createMessagingNavigationCallbacks('RabbitMQ')} />
+            <RabbitMQ onBack={() => setShowRabbitMQModal(false)} {...createDevOpsNavigationCallbacks('RabbitMQ')} />
+          </div>
+        </div>
+      )}
+
+      {/* MuleSoft Modal */}
+      {showMuleSoftModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000000,
+            padding: '1rem',
+            overflow: 'auto'
+          }}
+          onClick={() => setShowMuleSoftModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '16px',
+              maxWidth: '95vw',
+              width: '1400px',
+              maxHeight: '95vh',
+              overflow: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              position: 'relative'
+            }}
+          >
+            <MuleSoft onBack={() => setShowMuleSoftModal(false)} {...createDevOpsNavigationCallbacks('MuleSoft')} />
           </div>
         </div>
       )}
