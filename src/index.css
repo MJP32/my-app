@@ -30,11 +30,12 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: #94a3b8;
   text-decoration: inherit;
 }
+
 a:hover {
-  color: #535bf2;
+  color: #cbd5e1;
 }
 
 body {
@@ -61,9 +62,11 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
   border-color: #646cff;
 }
+
 /* Enhanced focus indicators for accessibility */
 button:focus,
 button:focus-visible {
@@ -95,6 +98,7 @@ button:focus-visible {
 
 /* High contrast focus for better visibility */
 @media (prefers-contrast: high) {
+
   *:focus,
   *:focus-visible,
   .keyboard-focus {
@@ -133,7 +137,8 @@ button:focus-visible {
   top: 6px;
 }
 
-pre, code {
+pre,
+code {
   text-align: left !important;
   direction: ltr;
 }
@@ -143,9 +148,11 @@ pre, code {
     color: #213547;
     background-color: #ffffff;
   }
+
   a:hover {
-    color: #747bff;
+    color: #64748b;
   }
+
   button {
     background-color: #f9f9f9;
   }
