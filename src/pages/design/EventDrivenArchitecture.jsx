@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useModalFocus } from '../../hooks/useModalFocus'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Simple syntax highlighter for Java code
 const SyntaxHighlighter = ({ code }) => {
@@ -72,7 +73,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function EventDrivenArchitecture({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function EventDrivenArchitecture({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
   const { modalRef, firstFocusableRef } = useModalFocus(onBack)
@@ -194,6 +195,11 @@ Technologies: Apache Kafka, RabbitMQ, AWS SNS/SQS, Azure Service Bus, Google Pub
   ]
 
   return (
+    <div style={{
+      background: 'linear-gradient(to bottom right, #111827, #1f2937, #111827)',
+      minHeight: '100vh',
+      padding: '2rem'
+    }}>
     <div
       ref={modalRef}
       onClick={(e) => e.stopPropagation()}
@@ -201,7 +207,7 @@ Technologies: Apache Kafka, RabbitMQ, AWS SNS/SQS, Azure Service Bus, Google Pub
         padding: '2rem',
         maxWidth: '1600px',
         margin: '0 auto',
-        backgroundColor: 'white',
+        backgroundColor: '#111827',
         borderRadius: '16px',
         boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
         border: '3px solid rgba(236, 72, 153, 0.4)'
@@ -239,19 +245,19 @@ Technologies: Apache Kafka, RabbitMQ, AWS SNS/SQS, Azure Service Bus, Google Pub
             <h1 style={{
               fontSize: '2.5rem',
               fontWeight: '800',
-              color: '#1f2937',
+              color: 'white',
               margin: 0,
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
             }}>
-              📡 Event Driven Architecture
+              Event Driven Architecture
             </h1>
             {currentSubcategory && (
               <span style={{
                 padding: '0.25rem 0.75rem',
                 fontSize: '0.85rem',
                 fontWeight: '600',
-                backgroundColor: '#fce7f3',
-                color: '#be185d',
+                backgroundColor: 'rgba(236, 72, 153, 0.3)',
+                color: '#f9a8d4',
                 borderRadius: '6px',
                 marginTop: '0.25rem',
                 display: 'inline-block'
@@ -269,19 +275,19 @@ Technologies: Apache Kafka, RabbitMQ, AWS SNS/SQS, Azure Service Bus, Google Pub
                 padding: '0.75rem 1.25rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                backgroundColor: '#10b981',
+                backgroundColor: '#8b5cf6',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
             >
               ← {previousName}
             </button>
@@ -293,25 +299,27 @@ Technologies: Apache Kafka, RabbitMQ, AWS SNS/SQS, Azure Service Bus, Google Pub
                 padding: '0.75rem 1.25rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                backgroundColor: '#10b981',
+                backgroundColor: '#8b5cf6',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
             >
               {nextName} →
             </button>
           )}
         </div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         backgroundColor: 'rgba(236, 72, 153, 0.05)',
@@ -398,7 +406,8 @@ Technologies: Apache Kafka, RabbitMQ, AWS SNS/SQS, Azure Service Bus, Google Pub
         ))}
       </div>
     </div>
+    </div>
   )
 }
 
-export default EventDrivenArchitecture
+export default EventDrivenArchitecture;

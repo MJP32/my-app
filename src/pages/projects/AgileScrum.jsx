@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Simple syntax highlighter for Java code
 const SyntaxHighlighter = ({ code }) => {
@@ -58,7 +59,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function AgileScrum({ onBack }) {
+function AgileScrum({ onBack, breadcrumb }) {
   const [selectedTopic, setSelectedTopic] = useState(null)
 
   const agileScrumTopics = [
@@ -3272,6 +3273,8 @@ public class ScalingAgile {
         </h1>
         <div style={{ width: '120px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         backgroundColor: 'rgba(14, 165, 233, 0.05)',

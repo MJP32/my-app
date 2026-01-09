@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function GrafanaQuestions({ onBack }) {
+function GrafanaQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
 
   const renderFormattedAnswer = (text) => {
@@ -1165,10 +1166,12 @@ groups:
           color: '#1f2937',
           margin: 0
         }}>
-          📈 Grafana Interview Questions
+          Grafana Interview Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <p style={{
         fontSize: '1.1rem',

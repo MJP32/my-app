@@ -1,10 +1,17 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function Actuator({ onBack }) {
+function Actuator({ onBack, breadcrumb }) {
   const [activeSection, setActiveSection] = useState('overview')
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#fef3c7', minHeight: '100vh' }}>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #064e3b, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -17,32 +24,37 @@ function Actuator({ onBack }) {
             padding: '0.75rem 1.5rem',
             fontSize: '1rem',
             fontWeight: '600',
-            backgroundColor: '#6b7280',
+            backgroundColor: '#10b981',
             color: 'white',
             border: 'none',
             borderRadius: '8px',
             cursor: 'pointer',
             transition: 'all 0.2s ease'
           }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#059669'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#10b981'}
         >
-          ← Back to Frameworks
+          Back to Frameworks
         </button>
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '800',
-          color: '#1f2937',
+          background: 'linear-gradient(to right, #6ee7b7, #34d399)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
           margin: 0
         }}>
-          ⚙️ Spring Boot Actuator
+          Spring Boot Actuator
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
 
+      <Breadcrumb breadcrumb={breadcrumb} />
+
       <p style={{
         fontSize: '1.1rem',
-        color: '#4b5563',
+        color: '#d1d5db',
         textAlign: 'center',
         marginBottom: '2rem',
         lineHeight: '1.6'
@@ -55,7 +67,7 @@ function Actuator({ onBack }) {
         display: 'flex',
         gap: '0.5rem',
         marginBottom: '2rem',
-        borderBottom: '2px solid #e5e7eb',
+        borderBottom: '2px solid #374151',
         overflowX: 'auto'
       }}>
         {['overview', 'endpoints', 'metrics', 'health', 'configuration'].map((tab) => (
@@ -66,8 +78,8 @@ function Actuator({ onBack }) {
               padding: '1rem 1.5rem',
               fontSize: '1rem',
               fontWeight: '600',
-              backgroundColor: activeSection === tab ? '#f59e0b' : 'transparent',
-              color: activeSection === tab ? 'white' : '#6b7280',
+              backgroundColor: activeSection === tab ? '#10b981' : 'transparent',
+              color: activeSection === tab ? 'white' : '#9ca3af',
               border: 'none',
               borderRadius: '8px 8px 0 0',
               cursor: 'pointer',
@@ -77,14 +89,14 @@ function Actuator({ onBack }) {
             }}
             onMouseEnter={(e) => {
               if (activeSection !== tab) {
-                e.target.style.backgroundColor = '#fef3c7'
-                e.target.style.color = '#1f2937'
+                e.target.style.backgroundColor = '#374151'
+                e.target.style.color = '#d1d5db'
               }
             }}
             onMouseLeave={(e) => {
               if (activeSection !== tab) {
                 e.target.style.backgroundColor = 'transparent'
-                e.target.style.color = '#6b7280'
+                e.target.style.color = '#9ca3af'
               }
             }}
           >
@@ -97,37 +109,37 @@ function Actuator({ onBack }) {
       {activeSection === 'overview' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div style={{
-            backgroundColor: 'white',
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
             padding: '2rem',
             borderRadius: '12px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+            border: '1px solid #374151'
           }}>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#1f2937', marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
               What is Spring Boot Actuator?
             </h2>
-            <p style={{ fontSize: '1rem', color: '#4b5563', lineHeight: '1.8', marginBottom: '1rem' }}>
-              Spring Boot Actuator provides production-ready features for monitoring and managing Spring Boot applications. 
+            <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1rem' }}>
+              Spring Boot Actuator provides production-ready features for monitoring and managing Spring Boot applications.
               It includes built-in endpoints for health checks, metrics, application info, and more.
             </p>
             <div style={{
-              backgroundColor: '#fef3c7',
+              backgroundColor: '#064e3b',
               padding: '1rem',
               borderRadius: '8px',
-              borderLeft: '4px solid #f59e0b'
+              borderLeft: '4px solid #10b981'
             }}>
-              <p style={{ fontSize: '0.95rem', color: '#92400e', margin: 0 }}>
+              <p style={{ fontSize: '0.95rem', color: '#6ee7b7', margin: 0 }}>
                 <strong>Key Benefit:</strong> Out-of-the-box observability without writing custom monitoring code
               </p>
             </div>
           </div>
 
           <div style={{
-            backgroundColor: 'white',
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
             padding: '2rem',
             borderRadius: '12px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+            border: '1px solid #374151'
           }}>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#1f2937', marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1rem' }}>
               Key Features
             </h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
@@ -140,16 +152,16 @@ function Actuator({ onBack }) {
                 { icon: '🎯', title: 'HTTP Trace', desc: 'View recent HTTP requests and responses' }
               ].map((feature, index) => (
                 <div key={index} style={{
-                  backgroundColor: '#f9fafb',
+                  backgroundColor: '#1f2937',
                   padding: '1.5rem',
                   borderRadius: '8px',
-                  border: '1px solid #e5e7eb'
+                  border: '1px solid #374151'
                 }}>
                   <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{feature.icon}</div>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.5rem' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#d1d5db', marginBottom: '0.5rem' }}>
                     {feature.title}
                   </h3>
-                  <p style={{ fontSize: '0.9rem', color: '#6b7280', margin: 0 }}>
+                  <p style={{ fontSize: '0.9rem', color: '#9ca3af', margin: 0 }}>
                     {feature.desc}
                   </p>
                 </div>
@@ -162,12 +174,12 @@ function Actuator({ onBack }) {
       {/* Endpoints Section */}
       {activeSection === 'endpoints' && (
         <div style={{
-          backgroundColor: 'white',
+          background: 'linear-gradient(to bottom right, #1f2937, #111827)',
           padding: '2rem',
           borderRadius: '12px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+          border: '1px solid #374151'
         }}>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#1f2937', marginBottom: '1.5rem' }}>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1.5rem' }}>
             Common Actuator Endpoints
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -186,9 +198,9 @@ function Actuator({ onBack }) {
                 alignItems: 'center',
                 gap: '1rem',
                 padding: '1rem',
-                backgroundColor: '#f9fafb',
+                backgroundColor: '#1f2937',
                 borderRadius: '8px',
-                border: '1px solid #e5e7eb'
+                border: '1px solid #374151'
               }}>
                 <div style={{
                   padding: '0.5rem 1rem',
@@ -204,14 +216,14 @@ function Actuator({ onBack }) {
                   <code style={{
                     fontSize: '0.95rem',
                     fontWeight: '600',
-                    color: '#1f2937',
-                    backgroundColor: '#fef3c7',
+                    color: '#6ee7b7',
+                    backgroundColor: '#064e3b',
                     padding: '0.25rem 0.5rem',
                     borderRadius: '4px'
                   }}>
                     {item.endpoint}
                   </code>
-                  <p style={{ fontSize: '0.875rem', color: '#6b7280', margin: '0.25rem 0 0 0' }}>
+                  <p style={{ fontSize: '0.875rem', color: '#9ca3af', margin: '0.25rem 0 0 0' }}>
                     {item.desc}
                   </p>
                 </div>
@@ -224,12 +236,12 @@ function Actuator({ onBack }) {
       {/* Metrics Section */}
       {activeSection === 'metrics' && (
         <div style={{
-          backgroundColor: 'white',
+          background: 'linear-gradient(to bottom right, #1f2937, #111827)',
           padding: '2rem',
           borderRadius: '12px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+          border: '1px solid #374151'
         }}>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#1f2937', marginBottom: '1.5rem' }}>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1.5rem' }}>
             Available Metrics
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
@@ -240,18 +252,18 @@ function Actuator({ onBack }) {
               { category: 'System Metrics', metrics: ['system.cpu.usage', 'system.load.average.1m', 'process.uptime'] }
             ].map((group, index) => (
               <div key={index} style={{
-                backgroundColor: '#f9fafb',
+                backgroundColor: '#1f2937',
                 padding: '1.5rem',
                 borderRadius: '8px',
-                border: '1px solid #e5e7eb'
+                border: '1px solid #374151'
               }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937', marginBottom: '1rem' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#d1d5db', marginBottom: '1rem' }}>
                   {group.category}
                 </h3>
                 <ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
                   {group.metrics.map((metric, idx) => (
-                    <li key={idx} style={{ fontSize: '0.9rem', color: '#6b7280', marginBottom: '0.5rem' }}>
-                      <code style={{ backgroundColor: '#fef3c7', padding: '0.125rem 0.375rem', borderRadius: '3px' }}>
+                    <li key={idx} style={{ fontSize: '0.9rem', color: '#9ca3af', marginBottom: '0.5rem' }}>
+                      <code style={{ backgroundColor: '#064e3b', color: '#6ee7b7', padding: '0.125rem 0.375rem', borderRadius: '3px' }}>
                         {metric}
                       </code>
                     </li>
@@ -266,15 +278,15 @@ function Actuator({ onBack }) {
       {/* Health Section */}
       {activeSection === 'health' && (
         <div style={{
-          backgroundColor: 'white',
+          background: 'linear-gradient(to bottom right, #1f2937, #111827)',
           padding: '2rem',
           borderRadius: '12px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+          border: '1px solid #374151'
         }}>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '# 1f2937', marginBottom: '1.5rem' }}>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1.5rem' }}>
             Health Indicators
           </h2>
-          <p style={{ fontSize: '1rem', color: '#4b5563', marginBottom: '1.5rem' }}>
+          <p style={{ fontSize: '1rem', color: '#9ca3af', marginBottom: '1.5rem' }}>
             Actuator automatically configures health indicators based on dependencies in your classpath:
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
@@ -291,13 +303,13 @@ function Actuator({ onBack }) {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '1rem',
-                backgroundColor: '#f0fdf4',
+                backgroundColor: '#064e3b',
                 borderRadius: '8px',
                 border: '2px solid #10b981'
               }}>
                 <div>
-                  <div style={{ fontSize: '1rem', fontWeight: '600', color: '#1f2937' }}>{health.name}</div>
-                  <code style={{ fontSize: '0.8rem', color: '#6b7280' }}>{health.indicator}</code>
+                  <div style={{ fontSize: '1rem', fontWeight: '600', color: '#d1d5db' }}>{health.name}</div>
+                  <code style={{ fontSize: '0.8rem', color: '#9ca3af' }}>{health.indicator}</code>
                 </div>
                 <div style={{
                   padding: '0.25rem 0.75rem',
@@ -318,12 +330,12 @@ function Actuator({ onBack }) {
       {/* Configuration Section */}
       {activeSection === 'configuration' && (
         <div style={{
-          backgroundColor: 'white',
+          background: 'linear-gradient(to bottom right, #1f2937, #111827)',
           padding: '2rem',
           borderRadius: '12px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+          border: '1px solid #374151'
         }}>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#1f2937', marginBottom: '1.5rem' }}>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#d1d5db', marginBottom: '1.5rem' }}>
             Configuration Example
           </h2>
           <div style={{
@@ -342,13 +354,13 @@ management:
       exposure:
         include: health,info,metrics,prometheus
       base-path: /actuator
-  
+
   endpoint:
     health:
       show-details: when-authorized
       probes:
         enabled: true
-  
+
   metrics:
     export:
       prometheus:
@@ -367,17 +379,18 @@ info:
 
           <div style={{
             marginTop: '1.5rem',
-            backgroundColor: '#fef3c7',
+            backgroundColor: '#064e3b',
             padding: '1rem',
             borderRadius: '8px',
-            borderLeft: '4px solid #f59e0b'
+            borderLeft: '4px solid #10b981'
           }}>
-            <p style={{ fontSize: '0.95rem', color: '#92400e', margin: 0 }}>
+            <p style={{ fontSize: '0.95rem', color: '#6ee7b7', margin: 0 }}>
               <strong>Security Note:</strong> Always secure your actuator endpoints in production! Use Spring Security to restrict access.
             </p>
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }

@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function BisectFunctions({ onBack }) {
+function BisectFunctions({ onBack, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
 
@@ -1023,6 +1024,8 @@ for score in [85, 92, 78, 88, 95, 72, 90]:
             </h1>
           </div>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         <div style={{
           display: 'grid',

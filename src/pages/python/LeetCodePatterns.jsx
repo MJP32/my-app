@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Custom theme based on vscDarkPlus with no line backgrounds
 const customTheme = {
@@ -15,7 +16,7 @@ const customTheme = {
   },
 }
 
-function LeetCodePatterns({ onBack }) {
+function LeetCodePatterns({ onBack, breadcrumb }) {
   const [selectedPattern, setSelectedPattern] = useState(null)
   const [selectedCategory, setSelectedCategory] = useState(null)
 
@@ -7292,6 +7293,8 @@ def detectArbitrage(rates):
             </h1>
           </div>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         <p style={{
           fontSize: '1.2rem',

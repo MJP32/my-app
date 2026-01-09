@@ -1,4 +1,6 @@
-function PythonTopicPlaceholder({ topicName, onBack }) {
+import Breadcrumb from '../../components/Breadcrumb'
+
+function PythonTopicPlaceholder({ topicName, onBack, breadcrumb }) {
   return (
     <div style={{
       padding: '2rem',
@@ -23,6 +25,8 @@ function PythonTopicPlaceholder({ topicName, onBack }) {
       >
         ← Back to Python Topics
       </button>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         backgroundColor: 'white',

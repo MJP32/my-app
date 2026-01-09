@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function ApacheKafka({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function ApacheKafka({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
 
   // Handle Escape key for modal navigation
@@ -699,7 +700,13 @@ Content-Type: application/json
   ]
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1600px', margin: '0 auto' }}>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #7c2d12, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
+      <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -715,28 +722,31 @@ Content-Type: application/json
               padding: '0.75rem 1.5rem',
               fontSize: '1rem',
               fontWeight: '600',
-              backgroundColor: '#3b82f6',
+              backgroundColor: '#f59e0b',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d97706'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f59e0b'}
           >
-            ← Back to Menu
+            ← Back to Messaging
           </button>
           <div>
             <h1 style={{
               fontSize: '2.5rem',
               fontWeight: '800',
-              color: '#1f2937',
+              background: 'linear-gradient(to right, #fcd34d, #f59e0b)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
               margin: 0,
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
             }}>
-              🚀 Apache Kafka
+              Apache Kafka
             </h1>
             {currentSubcategory && (
               <span style={{
@@ -805,6 +815,8 @@ Content-Type: application/json
           )}
         </div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <p style={{
         fontSize: '1.2rem',
@@ -1038,6 +1050,7 @@ Content-Type: application/json
             </div>
           ))
         )}
+      </div>
       </div>
     </div>
   )

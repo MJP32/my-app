@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function Java11Questions({ onBack }) {
+function Java11Questions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
 
   const renderFormattedAnswer = (text) => {
@@ -511,10 +512,12 @@ Files.writeString(Paths.get("output.txt"), processed);
           color: '#1f2937',
           margin: 0
         }}>
-          ☕ Java 11 Interview Questions
+          Java 11 Interview Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <p style={{
         fontSize: '1.1rem',

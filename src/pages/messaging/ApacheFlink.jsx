@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function ApacheFlink({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function ApacheFlink({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
 
   // Handle Escape key for modal navigation
@@ -947,6 +948,12 @@ env.execute("Fraud Detection");`
   ]
 
   return (
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #7c2d12, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
     <div style={{ padding: '2rem', maxWidth: '1600px', margin: '0 auto' }}>
       <div style={{
         display: 'flex',
@@ -963,28 +970,31 @@ env.execute("Fraud Detection");`
               padding: '0.75rem 1.5rem',
               fontSize: '1rem',
               fontWeight: '600',
-              backgroundColor: '#3b82f6',
+              backgroundColor: '#f59e0b',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d97706'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f59e0b'}
           >
-            ← Back to Menu
+            ← Back to Messaging
           </button>
           <div>
             <h1 style={{
               fontSize: '2.5rem',
               fontWeight: '800',
-              color: '#1f2937',
+              background: 'linear-gradient(to right, #fcd34d, #f59e0b)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
               margin: 0,
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
             }}>
-              🌊 Apache Flink
+              Apache Flink
             </h1>
             {currentSubcategory && (
               <span style={{
@@ -1054,9 +1064,11 @@ env.execute("Fraud Detection");`
         </div>
       </div>
 
+      <Breadcrumb breadcrumb={breadcrumb} />
+
       <p style={{
         fontSize: '1.2rem',
-        color: '#4b5563',
+        color: '#9ca3af',
         textAlign: 'center',
         marginBottom: '3rem',
         lineHeight: '1.8'
@@ -1102,8 +1114,8 @@ env.execute("Fraud Detection");`
                   onClick={() => setSelectedConcept(concept)}
                   style={{
                     padding: '1rem',
-                    backgroundColor: selectedConcept.id === concept.id ? concept.color + '20' : '#f9fafb',
-                    border: `2px solid ${selectedConcept.id === concept.id ? concept.color : '#e5e7eb'}`,
+                    backgroundColor: selectedConcept.id === concept.id ? concept.color + '20' : '#1f2937',
+                    border: `2px solid ${selectedConcept.id === concept.id ? concept.color : '#374151'}`,
                     borderRadius: '8px',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
@@ -1116,8 +1128,8 @@ env.execute("Fraud Detection");`
                   }}
                   onMouseLeave={(e) => {
                     if (selectedConcept.id !== concept.id) {
-                      e.currentTarget.style.backgroundColor = '#f9fafb'
-                      e.currentTarget.style.borderColor = '#e5e7eb'
+                      e.currentTarget.style.backgroundColor = '#1f2937'
+                      e.currentTarget.style.borderColor = '#374151'
                     }
                   }}
                 >
@@ -1125,7 +1137,7 @@ env.execute("Fraud Detection");`
                   <div style={{
                     fontSize: '0.9rem',
                     fontWeight: '600',
-                    color: '#1f2937'
+                    color: '#e5e7eb'
                   }}>
                     {concept.name}
                   </div>
@@ -1146,14 +1158,14 @@ env.execute("Fraud Detection");`
                 <h2 style={{
                   fontSize: '2rem',
                   fontWeight: '800',
-                  color: '#1f2937',
+                  color: '#f3f4f6',
                   marginBottom: '1rem'
                 }}>
                   {selectedConcept.name}
                 </h2>
                 <p style={{
                   fontSize: '1.1rem',
-                  color: '#4b5563',
+                  color: '#9ca3af',
                   lineHeight: '1.8'
                 }}>
                   {selectedConcept.description}
@@ -1168,11 +1180,11 @@ env.execute("Fraud Detection");`
                   <div
                     key={index}
                     style={{
-                      backgroundColor: 'white',
+                      backgroundColor: '#1f2937',
                       padding: '1.5rem',
                       borderRadius: '12px',
                       border: `2px solid ${selectedConcept.color}30`,
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                     }}
                   >
                     <div style={{
@@ -1198,7 +1210,7 @@ env.execute("Fraud Detection");`
                       <h3 style={{
                         fontSize: '1.1rem',
                         fontWeight: '700',
-                        color: '#1f2937',
+                        color: '#f3f4f6',
                         margin: 0
                       }}>
                         {detail.name}
@@ -1206,7 +1218,7 @@ env.execute("Fraud Detection");`
                     </div>
                     <p style={{
                       fontSize: '1rem',
-                      color: '#4b5563',
+                      color: '#9ca3af',
                       lineHeight: '1.7',
                       margin: 0
                     }}>
@@ -1248,7 +1260,7 @@ env.execute("Fraud Detection");`
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-8px)'
-                e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.15)'
+                e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.3)'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)'
@@ -1259,14 +1271,14 @@ env.execute("Fraud Detection");`
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: '#f3f4f6',
                 marginBottom: '0.75rem'
               }}>
                 {concept.name}
               </h3>
               <p style={{
                 fontSize: '0.95rem',
-                color: '#4b5563',
+                color: '#9ca3af',
                 lineHeight: '1.6',
                 marginBottom: '1rem'
               }}>
@@ -1287,6 +1299,7 @@ env.execute("Fraud Detection");`
           ))
         )}
       </div>
+    </div>
     </div>
   )
 }

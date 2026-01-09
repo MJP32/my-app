@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Simple syntax highlighter for Dockerfile and commands
 const SyntaxHighlighter = ({ code }) => {
@@ -57,7 +58,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function Docker({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function Docker({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedTopic, setSelectedTopic] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
 
@@ -1301,6 +1302,8 @@ docker push my-app:latest
           )}
         </div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         backgroundColor: 'rgba(14, 165, 233, 0.05)',

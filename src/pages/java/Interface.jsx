@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useModalFocus } from '../../hooks/useModalFocus'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function Interface({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function Interface({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
   // Comprehensive modal focus management
   const { modalRef, firstFocusableRef } = useModalFocus(onBack)
@@ -11,7 +12,7 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
       id: 'contract-programming',
       name: 'Contract Programming',
       icon: '📜',
-      color: '#3b82f6',
+      color: '#9333ea',
       description: 'Design approach where interfaces define behavioral contracts that implementations must fulfill',
       details: [
         {
@@ -61,7 +62,7 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
       id: 'strategy-pattern',
       name: 'Strategy Pattern',
       icon: '🎲',
-      color: '#10b981',
+      color: '#a855f7',
       description: 'Defines family of algorithms, encapsulates each one, and makes them interchangeable at runtime',
       details: [
         {
@@ -219,6 +220,12 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
 
 
   return (
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #78350f, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
     <div ref={modalRef} style={{ padding: '2rem', maxWidth: '1600px', margin: '0 auto' }}>
       <div style={{
         display: 'flex',
@@ -236,21 +243,29 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
               padding: '0.75rem 1.5rem',
               fontSize: '1rem',
               fontWeight: '600',
-              backgroundColor: '#3b82f6',
+              backgroundColor: '#f59e0b',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d97706'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f59e0b'}
           >
             ← Back to Menu
           </button>
           <div>
-            <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '800', color: '#1f2937' }}>
+            <h1 style={{
+              margin: 0,
+              fontSize: '2rem',
+              fontWeight: '800',
+              background: 'linear-gradient(to right, #fbbf24, #f97316)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
               Interface-Based Design
             </h1>
             {currentSubcategory && (
@@ -258,8 +273,8 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
                 padding: '0.25rem 0.75rem',
                 fontSize: '0.85rem',
                 fontWeight: '600',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
+                backgroundColor: '#78350f',
+                color: '#fbbf24',
                 borderRadius: '6px',
                 marginTop: '0.25rem',
                 display: 'inline-block'
@@ -277,19 +292,19 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
                 padding: '0.75rem 1.25rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                backgroundColor: '#10b981',
+                backgroundColor: '#8b5cf6',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
             >
               ← {previousName}
             </button>
@@ -301,25 +316,27 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
                 padding: '0.75rem 1.25rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                backgroundColor: '#10b981',
+                backgroundColor: '#8b5cf6',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
             >
               {nextName} →
             </button>
           )}
         </div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         display: 'grid',
@@ -361,7 +378,7 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
                 <h3 style={{
                   fontSize: '1.25rem',
                   fontWeight: '700',
-                  color: '#1f2937',
+                  color: '#fbbf24',
                   margin: '0 0 0.5rem 0'
                 }}>
                   {concept.name}
@@ -369,7 +386,7 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
               </div>
               <p style={{
                 fontSize: '0.95rem',
-                color: '#4b5563',
+                color: '#d1d5db',
                 margin: 0,
                 lineHeight: '1.5'
               }}>
@@ -391,21 +408,21 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
                   padding: '0.75rem 1rem',
                   fontSize: '0.95rem',
                   fontWeight: '600',
-                  backgroundColor: '#f3f4f6',
-                  color: '#1f2937',
-                  border: '2px solid #e5e7eb',
+                  backgroundColor: '#374151',
+                  color: '#d1d5db',
+                  border: '2px solid #4b5563',
                   borderRadius: '8px',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   marginBottom: '0.5rem'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#e5e7eb'
-                  e.currentTarget.style.borderColor = '#d1d5db'
+                  e.currentTarget.style.backgroundColor = '#4b5563'
+                  e.currentTarget.style.borderColor = '#6b7280'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f3f4f6'
-                  e.currentTarget.style.borderColor = '#e5e7eb'
+                  e.currentTarget.style.backgroundColor = '#374151'
+                  e.currentTarget.style.borderColor = '#4b5563'
                 }}
               >
                 ← Back to All
@@ -418,21 +435,21 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
                   style={{
                     padding: '1rem',
                     borderRadius: '8px',
-                    backgroundColor: selectedConcept.id === concept.id ? `${concept.color}1A` : '#f9fafb',
-                    border: `2px solid ${selectedConcept.id === concept.id ? concept.color : '#e5e7eb'}`,
+                    backgroundColor: selectedConcept.id === concept.id ? `${concept.color}1A` : '#1f2937',
+                    border: `2px solid ${selectedConcept.id === concept.id ? concept.color : '#374151'}`,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
                   onMouseEnter={(e) => {
                     if (selectedConcept.id !== concept.id) {
-                      e.currentTarget.style.backgroundColor = '#f3f4f6'
-                      e.currentTarget.style.borderColor = '#d1d5db'
+                      e.currentTarget.style.backgroundColor = '#374151'
+                      e.currentTarget.style.borderColor = '#4b5563'
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (selectedConcept.id !== concept.id) {
-                      e.currentTarget.style.backgroundColor = '#f9fafb'
-                      e.currentTarget.style.borderColor = '#e5e7eb'
+                      e.currentTarget.style.backgroundColor = '#1f2937'
+                      e.currentTarget.style.borderColor = '#374151'
                     }
                   }}
                 >
@@ -442,7 +459,7 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
                   <div style={{
                     fontSize: '0.95rem',
                     fontWeight: '600',
-                    color: '#1f2937'
+                    color: '#fbbf24'
                   }}>
                     {concept.name}
                   </div>
@@ -467,14 +484,14 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
                     <h2 style={{
                       fontSize: '2rem',
                       fontWeight: '800',
-                      color: '#1f2937',
+                      color: '#fbbf24',
                       margin: 0
                     }}>
                       {selectedConcept.name}
                     </h2>
                     <p style={{
                       fontSize: '1.1rem',
-                      color: '#4b5563',
+                      color: '#d1d5db',
                       margin: '0.5rem 0 0 0',
                       lineHeight: '1.6'
                     }}>
@@ -492,10 +509,10 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
                   <div
                     key={idx}
                     style={{
-                      backgroundColor: 'white',
+                      background: 'linear-gradient(to bottom right, #1f2937, #111827)',
                       padding: '1.5rem',
                       borderRadius: '10px',
-                      border: '2px solid #e5e7eb',
+                      border: '2px solid #374151',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
@@ -503,14 +520,14 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
                       e.currentTarget.style.boxShadow = `0 4px 12px ${selectedConcept.color}20`
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = '#e5e7eb'
+                      e.currentTarget.style.borderColor = '#374151'
                       e.currentTarget.style.boxShadow = 'none'
                     }}
                   >
                     <h3 style={{
                       fontSize: '1.2rem',
                       fontWeight: '700',
-                      color: '#1f2937',
+                      color: '#fbbf24',
                       margin: '0 0 0.75rem 0',
                       display: 'flex',
                       alignItems: 'center',
@@ -534,7 +551,7 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
                     </h3>
                     <p style={{
                       fontSize: '1rem',
-                      color: '#374151',
+                      color: '#d1d5db',
                       margin: 0,
                       lineHeight: '1.7',
                       paddingLeft: '2.25rem'
@@ -548,6 +565,7 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
           </>
         )}
       </div>
+    </div>
     </div>
   )
 }

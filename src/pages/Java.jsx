@@ -1,214 +1,397 @@
 import { useState, useEffect } from 'react'
-import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation'
 
-function Java({ onBack, onSelectItem }) {
-  const javaVersions = [
+function Java({ onBack, onSelectItem, initialCategory }) {
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory || null)
+
+  // Update selectedCategory when initialCategory prop changes
+  useEffect(() => {
+    if (initialCategory) {
+      setSelectedCategory(initialCategory)
+    }
+  }, [initialCategory])
+
+  const categories = [
     {
-      id: 'Core Java',
-      name: 'Core Java',
+      id: 'fundamentals',
+      name: 'Fundamentals',
       icon: '☕',
       color: '#f59e0b',
-      complexity: 'Beginner to Intermediate',
-      description: 'Comprehensive Java programming fundamentals including OOP principles, collections framework, exception handling, multithreading, and JVM internals.'
+      description: 'Core Java programming fundamentals including OOP principles, collections framework, exception handling, and JVM internals.',
+      topics: [
+        {
+          id: 'Core Java',
+          name: 'Core Java',
+          icon: '☕',
+          color: '#f59e0b',
+          complexity: 'Beginner to Intermediate',
+          description: 'Comprehensive Java programming fundamentals including OOP principles, collections framework, exception handling, multithreading, and JVM internals.'
+        }
+      ]
     },
     {
-      id: 'Java 8',
-      name: 'Java 8',
+      id: 'modern-java',
+      name: 'Modern Java (8-11)',
       icon: '🎯',
       color: '#3b82f6',
-      complexity: 'Intermediate',
-      description: 'Lambda expressions, Stream API, functional interfaces, default methods, and the revolutionary changes that shaped modern Java development.'
+      description: 'Revolutionary features that shaped modern Java development including lambdas, streams, and functional programming.',
+      topics: [
+        {
+          id: 'Java 8',
+          name: 'Java 8',
+          icon: '🎯',
+          color: '#3b82f6',
+          complexity: 'Intermediate',
+          description: 'Lambda expressions, Stream API, functional interfaces, default methods, and the revolutionary changes that shaped modern Java development.'
+        },
+        {
+          id: 'Java 11',
+          name: 'Java 11 LTS',
+          icon: '🔧',
+          color: '#8b5cf6',
+          complexity: 'Intermediate',
+          description: 'Long-Term Support release featuring HTTP Client API, local-variable syntax for lambda parameters, and essential performance improvements.'
+        }
+      ]
     },
     {
-      id: 'Java 11',
-      name: 'Java 11 LTS',
-      icon: '🔧',
-      color: '#8b5cf6',
-      complexity: 'Intermediate',
-      description: 'Long-Term Support release featuring HTTP Client API, local-variable syntax for lambda parameters, and essential performance improvements.'
-    },
-    {
-      id: 'Java 15',
-      name: 'Java 15',
-      icon: '📝',
-      color: '#10b981',
-      complexity: 'Advanced',
-      description: 'Text blocks, sealed classes (preview), hidden classes, and the Edwards-Curve Digital Signature Algorithm for enhanced security.'
-    },
-    {
-      id: 'Java 21',
-      name: 'Java 21 LTS',
+      id: 'recent-releases',
+      name: 'Recent Releases (15-21)',
       icon: '🚀',
-      color: '#ec4899',
-      complexity: 'Advanced',
-      description: 'Long-Term Support with virtual threads, pattern matching, record patterns, sequenced collections, and significant performance enhancements.'
+      color: '#10b981',
+      description: 'Latest stable Java releases with text blocks, sealed classes, virtual threads, pattern matching, and record patterns.',
+      topics: [
+        {
+          id: 'Java 15',
+          name: 'Java 15',
+          icon: '📝',
+          color: '#10b981',
+          complexity: 'Advanced',
+          description: 'Text blocks, sealed classes (preview), hidden classes, and the Edwards-Curve Digital Signature Algorithm for enhanced security.'
+        },
+        {
+          id: 'Java 21',
+          name: 'Java 21 LTS',
+          icon: '🚀',
+          color: '#ec4899',
+          complexity: 'Advanced',
+          description: 'Long-Term Support with virtual threads, pattern matching, record patterns, sequenced collections, and significant performance enhancements.'
+        }
+      ]
     },
     {
-      id: 'Java 24',
-      name: 'Java 24 Preview',
+      id: 'preview',
+      name: 'Preview Features',
       icon: '🔮',
       color: '#06b6d4',
-      complexity: 'Expert Level',
-      description: 'Cutting-edge preview features including advanced pattern matching, class-file API improvements, and next-generation JVM capabilities.'
+      description: 'Cutting-edge preview features and next-generation JVM capabilities coming in future Java releases.',
+      topics: [
+        {
+          id: 'Java 24',
+          name: 'Java 24 Preview',
+          icon: '🔮',
+          color: '#06b6d4',
+          complexity: 'Expert Level',
+          description: 'Cutting-edge preview features including advanced pattern matching, class-file API improvements, and next-generation JVM capabilities.'
+        }
+      ]
     }
   ]
 
-  // Enable keyboard navigation with 2-column grid
-  const { focusedIndex, itemRefs } = useKeyboardNavigation({
-    items: javaVersions,
-    onSelect: (item) => onSelectItem(item.id),
-    onBack,
-    enabled: true,
-    gridColumns: 2,
-    loop: true
-  })
-
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#fef3c7', minHeight: '100vh' }}>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #78350f, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
       <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '2rem'
+        maxWidth: '80rem',
+        margin: '0 auto'
       }}>
-        <button
-          onClick={onBack}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            fontWeight: '600',
-            backgroundColor: '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
-        >
-          ← Back to Menu
-        </button>
-        <h1 style={{
-          fontSize: '2.5rem',
-          fontWeight: '800',
-          color: '#1f2937',
-          margin: 0
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '2rem'
         }}>
-          ☕ Java Versions
-        </h1>
-        <div style={{ width: '150px' }}></div>
-      </div>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem'
+          }}>
+            <button
+              onClick={onBack}
+              style={{
+                background: '#f59e0b',
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontWeight: '500',
+                fontSize: '1rem',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#d97706'
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f59e0b'
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              ← Back to Menu
+            </button>
+            <h1 style={{
+              fontSize: '2.25rem',
+              fontWeight: 'bold',
+              background: 'linear-gradient(to right, #fbbf24, #f97316)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              {selectedCategory
+                ? `${categories.find(c => c.id === selectedCategory)?.icon} ${categories.find(c => c.id === selectedCategory)?.name}`
+                : '☕ Java Topics'}
+            </h1>
+          </div>
+        </div>
 
-      <p style={{
-        fontSize: '1.2rem',
-        color: '#4b5563',
-        textAlign: 'center',
-        marginBottom: '3rem',
-        lineHeight: '1.8'
-      }}>
-        Explore Java versions from fundamentals to cutting-edge features. Select a version to dive deep into
-        its capabilities, features, and best practices.
-      </p>
+        <p style={{
+          fontSize: '1.2rem',
+          color: '#d1d5db',
+          textAlign: 'center',
+          marginBottom: '3rem',
+          lineHeight: '1.8'
+        }}>
+          {selectedCategory
+            ? categories.find(c => c.id === selectedCategory)?.description
+            : 'Master Java from fundamentals to cutting-edge features. Explore versions, advanced concepts, and best practices.'}
+        </p>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
-        gap: '2rem'
-      }}>
-        {javaVersions.map((version, index) => (
+        {/* Back to categories button */}
+        {selectedCategory && (
           <button
-            key={version.id}
-            ref={(el) => itemRefs.current[index] = el}
-            onClick={() => onSelectItem(version.id)}
-            tabIndex={focusedIndex === index ? 0 : -1}
-            role="link"
-            aria-label={`${version.name} - ${version.complexity}. ${version.description}`}
+            onClick={() => setSelectedCategory(null)}
             style={{
-              backgroundColor: 'white',
-              padding: '2rem',
-              borderRadius: '12px',
-              border: `3px solid ${version.color}`,
+              background: '#374151',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.5rem',
+              border: 'none',
               cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              transform: focusedIndex === index ? 'translateY(-8px)' : 'translateY(0)',
-              boxShadow: focusedIndex === index
-                ? `0 0 0 4px ${version.color}40, 0 12px 24px rgba(0,0,0,0.2)`
-                : '0 4px 12px rgba(0,0,0,0.1)',
-              textAlign: 'left',
-              width: '100%'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-8px)'
-              e.currentTarget.style.boxShadow = `0 0 0 4px ${version.color}40, 0 12px 24px rgba(0,0,0,0.2)`
-            }}
-            onMouseLeave={(e) => {
-              if (focusedIndex !== index) {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'
-              }
+              marginBottom: '1.5rem',
+              fontSize: '0.9rem',
+              fontWeight: '500'
             }}
           >
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem',
-              marginBottom: '1rem'
-            }}>
-              <div style={{
-                fontSize: '3rem',
-                lineHeight: 1
-              }}>
-                {version.icon}
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{
-                  fontSize: '1.5rem',
-                  fontWeight: '700',
-                  color: '#1f2937',
-                  margin: 0,
-                  marginBottom: '0.25rem'
-                }}>
-                  {version.name}
-                </h3>
-                <div style={{
-                  display: 'inline-block',
-                  padding: '0.25rem 0.75rem',
-                  backgroundColor: version.color,
-                  color: 'white',
-                  fontSize: '0.875rem',
-                  fontWeight: '600',
-                  borderRadius: '6px'
-                }}>
-                  {version.complexity}
-                </div>
-              </div>
-            </div>
-
-            <p style={{
-              fontSize: '0.95rem',
-              color: '#6b7280',
-              lineHeight: '1.6',
-              margin: '1rem 0'
-            }}>
-              {version.description}
-            </p>
-
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              gap: '0.5rem',
-              fontSize: '0.9rem',
-              color: version.color,
-              fontWeight: '600',
-              marginTop: '1.5rem'
-            }}>
-              <span>Explore Features</span>
-              <span>→</span>
-            </div>
+            ← Back to Categories
           </button>
-        ))}
+        )}
+
+        {/* Categories View */}
+        {!selectedCategory && (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '1.5rem'
+          }}>
+            {categories.map(category => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                style={{
+                  background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                  padding: '2rem',
+                  borderRadius: '0.75rem',
+                  border: `2px solid ${category.color}`,
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                  textAlign: 'left',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                  e.currentTarget.style.boxShadow = `0 25px 50px -12px ${category.color}40`
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}
+              >
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  marginBottom: '1rem'
+                }}>
+                  <span style={{ fontSize: '2.5rem' }}>{category.icon}</span>
+                  <div>
+                    <h3 style={{
+                      fontSize: '1.5rem',
+                      fontWeight: 'bold',
+                      color: category.color,
+                      marginBottom: '0.25rem'
+                    }}>
+                      {category.name}
+                    </h3>
+                    <span style={{
+                      fontSize: '0.875rem',
+                      color: '#9ca3af'
+                    }}>
+                      {category.topics.length} {category.topics.length === 1 ? 'topic' : 'topics'}
+                    </span>
+                  </div>
+                </div>
+                <p style={{
+                  fontSize: '0.95rem',
+                  color: '#d1d5db',
+                  lineHeight: '1.6',
+                  marginBottom: '1rem'
+                }}>
+                  {category.description}
+                </p>
+                <div style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '0.5rem'
+                }}>
+                  {category.topics.slice(0, 3).map(topic => (
+                    <span
+                      key={topic.id}
+                      style={{
+                        padding: '0.25rem 0.5rem',
+                        backgroundColor: '#374151',
+                        borderRadius: '0.25rem',
+                        fontSize: '0.75rem',
+                        color: '#d1d5db'
+                      }}
+                    >
+                      {topic.name}
+                    </span>
+                  ))}
+                  {category.topics.length > 3 && (
+                    <span style={{
+                      padding: '0.25rem 0.5rem',
+                      backgroundColor: category.color,
+                      borderRadius: '0.25rem',
+                      fontSize: '0.75rem',
+                      color: 'white'
+                    }}>
+                      +{category.topics.length - 3} more
+                    </span>
+                  )}
+                </div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  gap: '0.5rem',
+                  fontSize: '0.9rem',
+                  color: category.color,
+                  fontWeight: '600',
+                  marginTop: '1rem'
+                }}>
+                  <span>Explore</span>
+                  <span>→</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Topics within Category View */}
+        {selectedCategory && (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '1.5rem'
+          }}>
+            {categories
+              .find(c => c.id === selectedCategory)
+              ?.topics.map(topic => (
+                <button
+                  key={topic.id}
+                  onClick={() => onSelectItem(topic.id)}
+                  style={{
+                    background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                    padding: '1.5rem',
+                    borderRadius: '0.75rem',
+                    border: `2px solid ${topic.color}`,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s',
+                    textAlign: 'left',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                    e.currentTarget.style.boxShadow = `0 25px 50px -12px ${topic.color}50`
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                >
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    marginBottom: '1rem'
+                  }}>
+                    <span style={{ fontSize: '2.5rem' }}>{topic.icon}</span>
+                    <div>
+                      <h3 style={{
+                        fontSize: '1.25rem',
+                        fontWeight: 'bold',
+                        color: '#fbbf24',
+                        marginBottom: '0.25rem'
+                      }}>
+                        {topic.name}
+                      </h3>
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '0.2rem 0.6rem',
+                        backgroundColor: topic.color,
+                        color: 'white',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        borderRadius: '0.25rem'
+                      }}>
+                        {topic.complexity}
+                      </span>
+                    </div>
+                  </div>
+                  <p style={{
+                    fontSize: '0.9rem',
+                    color: '#d1d5db',
+                    lineHeight: '1.6',
+                    marginBottom: '1rem'
+                  }}>
+                    {topic.description}
+                  </p>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                    gap: '0.5rem',
+                    fontSize: '0.9rem',
+                    color: topic.color,
+                    fontWeight: '600',
+                    paddingTop: '0.75rem',
+                    borderTop: '1px solid #374151'
+                  }}>
+                    <span>Open Topic</span>
+                    <span>→</span>
+                  </div>
+                </button>
+              ))}
+          </div>
+        )}
       </div>
     </div>
   )

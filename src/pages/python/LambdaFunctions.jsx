@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function LambdaFunctions({ onBack }) {
+function LambdaFunctions({ onBack, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
 
@@ -711,6 +712,8 @@ print(fib(10))            # 55`
             </h1>
           </div>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         <div style={{
           display: 'grid',

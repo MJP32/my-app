@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Simple syntax highlighter for Java code
 const SyntaxHighlighter = ({ code }) => {
@@ -58,7 +59,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function SecurityOWASP({ onBack }) {
+function SecurityOWASP({ onBack, breadcrumb }) {
   const [selectedTopic, setSelectedTopic] = useState(null)
 
   const securityTopics = [
@@ -2107,6 +2108,8 @@ class SecurityIntegrationTest {
         </h1>
         <div style={{ width: '120px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         backgroundColor: 'rgba(239, 68, 68, 0.05)',

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Simple syntax highlighter for JavaScript/JSX code
 const SyntaxHighlighter = ({ code }) => {
@@ -58,7 +59,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function ReactFramework({ onBack }) {
+function ReactFramework({ onBack, breadcrumb }) {
   const [selectedTopic, setSelectedTopic] = useState(null)
 
   const topics = [
@@ -509,39 +510,50 @@ function SearchInput() {
   ]
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#cffafe', minHeight: '100vh' }}>
-      <div style={{ marginBottom: '2rem' }}>
-        <button
-          onClick={onBack}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            fontWeight: '600',
-            backgroundColor: '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
-        >
-          ← Back to Frameworks
-        </button>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #064e3b, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <div style={{ marginBottom: '2rem' }}>
+          <button
+            onClick={onBack}
+            style={{
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              backgroundColor: '#10b981',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#059669'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#10b981'}
+          >
+            ← Back to Frameworks
+          </button>
 
-        <h1 style={{
-          fontSize: '2.5rem',
-          fontWeight: '800',
-          color: '#1f2937',
-          margin: '1rem 0 0.5rem 0'
-        }}>
-          ⚛️ React
-        </h1>
-        <p style={{ fontSize: '1.1rem', color: '#6b7280', margin: 0 }}>
-          JavaScript library for building user interfaces
-        </p>
-      </div>
+          <h1 style={{
+            fontSize: '2.5rem',
+            fontWeight: '800',
+            background: 'linear-gradient(to right, #6ee7b7, #34d399)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            margin: '1rem 0 0.5rem 0'
+          }}>
+            ⚛️ React
+          </h1>
+          <p style={{ fontSize: '1.1rem', color: '#d1d5db', margin: 0 }}>
+            JavaScript library for building user interfaces
+          </p>
+        </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       {!selectedTopic ? (
         <div style={{
@@ -554,29 +566,31 @@ function SearchInput() {
               key={topic.id}
               onClick={() => setSelectedTopic(topic)}
               style={{
-                backgroundColor: 'white',
+                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
                 padding: '2rem',
                 borderRadius: '12px',
-                border: `3px solid ${topic.color}`,
+                border: '1px solid #374151',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
                 textAlign: 'left',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-8px)'
-                e.currentTarget.style.boxShadow = `0 0 0 4px ${topic.color}40, 0 12px 24px rgba(0,0,0,0.2)`
+                e.currentTarget.style.boxShadow = '0 0 0 4px rgba(16, 185, 129, 0.4), 0 12px 24px rgba(0,0,0,0.4)'
+                e.currentTarget.style.borderColor = '#10b981'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)'
+                e.currentTarget.style.borderColor = '#374151'
               }}
             >
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{topic.icon}</div>
-              <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#1f2937', marginBottom: '0.5rem' }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#6ee7b7', marginBottom: '0.5rem' }}>
                 {topic.name}
               </h3>
-              <p style={{ fontSize: '0.95rem', color: '#6b7280', lineHeight: '1.6' }}>
+              <p style={{ fontSize: '0.95rem', color: '#d1d5db', lineHeight: '1.6' }}>
                 {topic.description}
               </p>
             </button>
@@ -590,7 +604,7 @@ function SearchInput() {
               padding: '0.5rem 1rem',
               fontSize: '0.9rem',
               fontWeight: '600',
-              backgroundColor: selectedTopic.color,
+              backgroundColor: '#10b981',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
@@ -598,42 +612,45 @@ function SearchInput() {
               marginBottom: '1.5rem',
               transition: 'all 0.2s ease'
             }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#059669'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#10b981'}
           >
             ← Back to Topics
           </button>
 
           <div style={{
-            backgroundColor: 'white',
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
             padding: '2rem',
             borderRadius: '12px',
-            border: `3px solid ${selectedTopic.color}`,
+            border: '1px solid #374151',
             marginBottom: '2rem'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
               <div style={{ fontSize: '3rem' }}>{selectedTopic.icon}</div>
-              <h2 style={{ fontSize: '2rem', fontWeight: '800', color: '#1f2937', margin: 0 }}>
+              <h2 style={{ fontSize: '2rem', fontWeight: '800', color: '#6ee7b7', margin: 0 }}>
                 {selectedTopic.name}
               </h2>
             </div>
 
-            <div style={{ fontSize: '1.05rem', color: '#4b5563', lineHeight: '1.8', marginBottom: '1.5rem' }}>
+            <div style={{ fontSize: '1.05rem', color: '#d1d5db', lineHeight: '1.8', marginBottom: '1.5rem' }}>
               {selectedTopic.content.explanation}
             </div>
 
-            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#1f2937', marginBottom: '1rem' }}>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: 'white', marginBottom: '1rem' }}>
               Key Points:
             </h3>
-            <ul style={{ color: '#4b5563', lineHeight: '1.8', marginBottom: '2rem' }}>
+            <ul style={{ color: '#d1d5db', lineHeight: '1.8', marginBottom: '2rem' }}>
               {selectedTopic.content.keyPoints.map((point, index) => (
                 <li key={index} style={{ marginBottom: '0.5rem' }}>{point}</li>
               ))}
             </ul>
 
-            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#1f2937', marginBottom: '1rem' }}>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: 'white', marginBottom: '1rem' }}>
               Code Example:
             </h3>
             <div style={{
-              backgroundColor: '#1e1e1e',
+              backgroundColor: '#064e3b',
+              border: '4px solid #10b981',
               padding: '1.5rem',
               borderRadius: '8px',
               overflow: 'auto'
@@ -643,6 +660,7 @@ function SearchInput() {
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }

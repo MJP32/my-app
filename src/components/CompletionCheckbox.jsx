@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { isProblemCompleted, toggleProblemCompletion } from '../services/progressService'
 import { getCurrentUser, onAuthStateChange } from '../services/authService'
+import { recordProblemCompletion, recordProblemUncompletion } from '../services/gamificationService'
 
-function CompletionCheckbox({ problemId, label = "Mark as Completed", onCompletionChange }) {
+function CompletionCheckbox({ problemId, label = "Mark as Completed", onCompletionChange, difficulty = "Medium" }) {
   const [isCompleted, setIsCompleted] = useState(false)
   const [showWarning, setShowWarning] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
@@ -45,6 +46,16 @@ function CompletionCheckbox({ problemId, label = "Mark as Completed", onCompleti
     const newState = !isCompleted
     toggleProblemCompletion(problemId, newState)
     setIsCompleted(newState)
+
+    // Award or remove XP based on completion state
+    const userId = currentUser?.uid || 'anonymous'
+    if (newState) {
+      // Problem completed - award XP
+      recordProblemCompletion(userId, problemId, difficulty)
+    } else {
+      // Problem uncompleted - record removal (XP is kept)
+      recordProblemUncompletion(userId, problemId)
+    }
 
     // Notify parent component if callback provided
     if (onCompletionChange) {

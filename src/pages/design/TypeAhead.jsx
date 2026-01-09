@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import Breadcrumb from '../../components/Breadcrumb';
 
-export default function TypeAhead({ onBack }) {
+export default function TypeAhead({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview');
 
   const tabs = [
@@ -36,6 +37,8 @@ export default function TypeAhead({ onBack }) {
             Design an autocomplete/type-ahead system like Google Search with prefix matching, ranking, caching, real-time suggestions, and billions of queries
           </p>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b-2 border-gray-200 overflow-x-auto pb-0">

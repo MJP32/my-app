@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Simple syntax highlighter for Java code
 const SyntaxHighlighter = ({ code }) => {
@@ -48,7 +49,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-export default function DarkPoolEngine3({ onBack }) {
+export default function DarkPoolEngine3({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('architecture')
   const [expandedSections, setExpandedSections] = useState({})
 
@@ -941,6 +942,8 @@ public class ExecutionReportConsumer {
             <p className="text-xl opacity-90">Advanced Alternative Trading System</p>
           </div>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         {/* Tabs */}
         <div className="bg-white rounded-xl shadow-md p-2 mb-8">

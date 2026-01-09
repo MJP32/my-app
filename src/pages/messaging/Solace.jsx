@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function Solace({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function Solace({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
 
   // Handle Escape key for modal navigation
@@ -156,45 +157,54 @@ function Solace({ onBack, onPrevious, onNext, previousName, nextName, currentSub
   ]
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1600px', margin: '0 auto' }}>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '2rem',
-        gap: '1rem',
-        flexWrap: 'wrap'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button
-            onClick={onBack}
-            style={{
-              padding: '0.75rem 1.5rem',
-              fontSize: '1rem',
-              fontWeight: '600',
-              backgroundColor: '#3b82f6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
-          >
-            ← Back to Menu
-          </button>
-          <div>
-            <h1 style={{
-              fontSize: '2.5rem',
-              fontWeight: '800',
-              color: '#1f2937',
-              margin: 0,
-              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-            }}>
-              ☁️ Solace PubSub+
-            </h1>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #7c2d12, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
+      <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '2rem',
+          gap: '1rem',
+          flexWrap: 'wrap'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <button
+              onClick={onBack}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: '#f59e0b',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d97706'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f59e0b'}
+            >
+              ← Back to Messaging
+            </button>
+            <div>
+              <h1 style={{
+                fontSize: '2.5rem',
+                fontWeight: '800',
+                background: 'linear-gradient(to right, #fcd34d, #f59e0b)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                margin: 0,
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+              }}>
+                Solace PubSub+
+              </h1>
             {currentSubcategory && (
               <span style={{
                 padding: '0.25rem 0.75rem',
@@ -263,9 +273,11 @@ function Solace({ onBack, onPrevious, onNext, previousName, nextName, currentSub
         </div>
       </div>
 
+      <Breadcrumb breadcrumb={breadcrumb} />
+
       <p style={{
         fontSize: '1.2rem',
-        color: '#4b5563',
+        color: '#9ca3af',
         textAlign: 'center',
         marginBottom: '3rem',
         lineHeight: '1.8'
@@ -311,8 +323,8 @@ function Solace({ onBack, onPrevious, onNext, previousName, nextName, currentSub
                   onClick={() => setSelectedConcept(concept)}
                   style={{
                     padding: '1rem',
-                    backgroundColor: selectedConcept.id === concept.id ? concept.color + '20' : '#f9fafb',
-                    border: `2px solid ${selectedConcept.id === concept.id ? concept.color : '#e5e7eb'}`,
+                    backgroundColor: selectedConcept.id === concept.id ? concept.color + '20' : '#1f2937',
+                    border: `2px solid ${selectedConcept.id === concept.id ? concept.color : '#374151'}`,
                     borderRadius: '8px',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
@@ -325,8 +337,8 @@ function Solace({ onBack, onPrevious, onNext, previousName, nextName, currentSub
                   }}
                   onMouseLeave={(e) => {
                     if (selectedConcept.id !== concept.id) {
-                      e.currentTarget.style.backgroundColor = '#f9fafb'
-                      e.currentTarget.style.borderColor = '#e5e7eb'
+                      e.currentTarget.style.backgroundColor = '#1f2937'
+                      e.currentTarget.style.borderColor = '#374151'
                     }
                   }}
                 >
@@ -334,7 +346,7 @@ function Solace({ onBack, onPrevious, onNext, previousName, nextName, currentSub
                   <div style={{
                     fontSize: '0.9rem',
                     fontWeight: '600',
-                    color: '#1f2937'
+                    color: '#e5e7eb'
                   }}>
                     {concept.name}
                   </div>
@@ -355,14 +367,14 @@ function Solace({ onBack, onPrevious, onNext, previousName, nextName, currentSub
                 <h2 style={{
                   fontSize: '2rem',
                   fontWeight: '800',
-                  color: '#1f2937',
+                  color: '#f3f4f6',
                   marginBottom: '1rem'
                 }}>
                   {selectedConcept.name}
                 </h2>
                 <p style={{
                   fontSize: '1.1rem',
-                  color: '#4b5563',
+                  color: '#9ca3af',
                   lineHeight: '1.8'
                 }}>
                   {selectedConcept.description}
@@ -377,11 +389,11 @@ function Solace({ onBack, onPrevious, onNext, previousName, nextName, currentSub
                   <div
                     key={index}
                     style={{
-                      backgroundColor: 'white',
+                      backgroundColor: '#1f2937',
                       padding: '1.5rem',
                       borderRadius: '12px',
                       border: `2px solid ${selectedConcept.color}30`,
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                     }}
                   >
                     <div style={{
@@ -407,7 +419,7 @@ function Solace({ onBack, onPrevious, onNext, previousName, nextName, currentSub
                       <h3 style={{
                         fontSize: '1.1rem',
                         fontWeight: '700',
-                        color: '#1f2937',
+                        color: '#f3f4f6',
                         margin: 0
                       }}>
                         {detail.name}
@@ -415,7 +427,7 @@ function Solace({ onBack, onPrevious, onNext, previousName, nextName, currentSub
                     </div>
                     <p style={{
                       fontSize: '1rem',
-                      color: '#4b5563',
+                      color: '#9ca3af',
                       lineHeight: '1.7',
                       margin: 0
                     }}>
@@ -442,7 +454,7 @@ function Solace({ onBack, onPrevious, onNext, previousName, nextName, currentSub
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-8px)'
-                e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.15)'
+                e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.3)'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)'
@@ -453,14 +465,14 @@ function Solace({ onBack, onPrevious, onNext, previousName, nextName, currentSub
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: '#f3f4f6',
                 marginBottom: '0.75rem'
               }}>
                 {concept.name}
               </h3>
               <p style={{
                 fontSize: '0.95rem',
-                color: '#4b5563',
+                color: '#9ca3af',
                 lineHeight: '1.6',
                 marginBottom: '1rem'
               }}>
@@ -481,6 +493,7 @@ function Solace({ onBack, onPrevious, onNext, previousName, nextName, currentSub
           ))
         )}
       </div>
+    </div>
     </div>
   )
 }

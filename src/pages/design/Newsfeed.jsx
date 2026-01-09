@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import Breadcrumb from '../../components/Breadcrumb';
 
-export default function Newsfeed({ onBack }) {
+export default function Newsfeed({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview');
 
   const tabs = [
@@ -36,6 +37,8 @@ export default function Newsfeed({ onBack }) {
             Design a scalable newsfeed system like Facebook or Twitter with fan-out strategies, ranking algorithms, and personalized content delivery
           </p>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b-2 border-gray-200 overflow-x-auto pb-0">

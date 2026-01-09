@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function CollectionsModule({ onBack }) {
+function CollectionsModule({ onBack, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
 
   const concepts = [
@@ -555,6 +556,8 @@ print(settings_parent.maps)  # [{'port': 3000}, {'debug': False, 'port': 8000}]`
             </h1>
           </div>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <p style={{

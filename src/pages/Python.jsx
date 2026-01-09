@@ -1,7 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-function Python({ onBack, onSelectItem }) {
-  const [selectedCategory, setSelectedCategory] = useState(null)
+function Python({ onBack, onSelectItem, initialCategory }) {
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory || null)
+
+  // Update selectedCategory when initialCategory prop changes
+  useEffect(() => {
+    if (initialCategory) {
+      setSelectedCategory(initialCategory)
+    }
+  }, [initialCategory])
 
   const categories = [
     {
@@ -100,6 +107,22 @@ function Python({ onBack, onSelectItem }) {
           color: '#ef4444',
           complexity: 'All Levels',
           description: 'Master 11 sorting algorithms: Bubble, Selection, Insertion, Merge, Quick, Heap, Counting, Radix, Bucket, Tim, and Shell sort with Python implementations.'
+        },
+        {
+          id: 'String Algorithms',
+          name: 'String Algorithms',
+          icon: '🔤',
+          color: '#8b5cf6',
+          complexity: 'Medium-Hard',
+          description: 'Master string pattern matching algorithms: Rabin-Karp, KMP, Z-Algorithm, Boyer-Moore, Aho-Corasick, Suffix Arrays, and more.'
+        },
+        {
+          id: 'DP Patterns',
+          name: 'DP Patterns',
+          icon: '📈',
+          color: '#3b82f6',
+          complexity: 'All Levels',
+          description: 'Master 13 essential Dynamic Programming patterns: Linear DP, LIS, Knapsack, Grid DP, String DP, Interval DP, State Machine, Tree DP, and more.'
         }
       ]
     },

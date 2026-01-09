@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Simple syntax highlighter for Java code
 const SyntaxHighlighter = ({ code }) => {
@@ -58,7 +59,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function RestAPI({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function RestAPI({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedTopic, setSelectedTopic] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
 
@@ -2562,13 +2563,20 @@ management.metrics.export.prometheus.enabled=true
 
   return (
     <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #064e3b, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
+    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{
       padding: '2rem',
       maxWidth: '95%',
       margin: '120px auto 0',
-      backgroundColor: 'white',
+      background: 'linear-gradient(to bottom right, #1f2937, #111827)',
       borderRadius: '16px',
-      boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-      border: '3px solid rgba(14, 165, 233, 0.4)'
+      boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.5)',
+      border: '1px solid #374151'
     }}>
       <div style={{
         display: 'flex',
@@ -2585,34 +2593,39 @@ management.metrics.export.prometheus.enabled=true
               padding: '0.75rem 1.5rem',
               fontSize: '1rem',
               fontWeight: '600',
-              backgroundColor: '#3b82f6',
+              backgroundColor: '#10b981',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+              boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
             }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
           >
-            ← Back to Menu
+            Back to Frameworks
           </button>
           <div>
             <h1 style={{
               fontSize: '2.5rem',
               fontWeight: '800',
-              color: '#1f2937',
+              background: 'linear-gradient(to right, #6ee7b7, #34d399)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
               margin: 0,
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
             }}>
-              🌐 REST API
+              REST API
             </h1>
             {currentSubcategory && (
               <span style={{
                 padding: '0.25rem 0.75rem',
                 fontSize: '0.85rem',
                 fontWeight: '600',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
+                backgroundColor: '#064e3b',
+                color: '#6ee7b7',
                 borderRadius: '6px',
                 marginTop: '0.25rem',
                 display: 'inline-block'
@@ -2674,16 +2687,18 @@ management.metrics.export.prometheus.enabled=true
         </div>
       </div>
 
+      <Breadcrumb breadcrumb={breadcrumb} />
+
       <div style={{
-        backgroundColor: 'rgba(14, 165, 233, 0.05)',
+        backgroundColor: '#064e3b',
         padding: '2.5rem 10rem',
         borderRadius: '16px',
-        border: '3px solid rgba(14, 165, 233, 0.3)',
+        borderLeft: '4px solid #10b981',
         marginBottom: '2rem'
       }}>
         <p style={{
           fontSize: '1.3rem',
-          color: '#374151',
+          color: '#6ee7b7',
           fontWeight: '500',
           margin: 0,
           lineHeight: '1.8',
@@ -2705,10 +2720,10 @@ management.metrics.export.prometheus.enabled=true
               key={topic.id}
               onClick={() => setSelectedTopic(topic)}
               style={{
-                backgroundColor: 'rgba(14, 165, 233, 0.05)',
+                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
                 padding: '2rem',
                 borderRadius: '12px',
-                border: '2px solid rgba(14, 165, 233, 0.2)',
+                border: '1px solid #374151',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 height: '200px',
@@ -2717,14 +2732,14 @@ management.metrics.export.prometheus.enabled=true
                 justifyContent: 'space-between'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(14, 165, 233, 0.1)'
-                e.currentTarget.style.borderColor = topic.color
+                e.currentTarget.style.background = 'linear-gradient(to bottom right, #1f2937, #064e3b)'
+                e.currentTarget.style.borderColor = '#10b981'
                 e.currentTarget.style.transform = 'translateY(-4px)'
-                e.currentTarget.style.boxShadow = `0 8px 16px ${topic.color}33`
+                e.currentTarget.style.boxShadow = '0 8px 16px rgba(16, 185, 129, 0.2)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(14, 165, 233, 0.05)'
-                e.currentTarget.style.borderColor = 'rgba(14, 165, 233, 0.2)'
+                e.currentTarget.style.background = 'linear-gradient(to bottom right, #1f2937, #111827)'
+                e.currentTarget.style.borderColor = '#374151'
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = 'none'
               }}
@@ -2734,14 +2749,14 @@ management.metrics.export.prometheus.enabled=true
                 <h3 style={{
                   fontSize: '1.3rem',
                   fontWeight: '700',
-                  color: topic.color,
+                  color: '#6ee7b7',
                   margin: '0 0 0.5rem 0'
                 }}>
                   {topic.name}
                 </h3>
                 <p style={{
                   fontSize: '0.9rem',
-                  color: '#6b7280',
+                  color: '#d1d5db',
                   margin: 0,
                   lineHeight: '1.5'
                 }}>
@@ -2751,10 +2766,10 @@ management.metrics.export.prometheus.enabled=true
               <div style={{
                 fontSize: '0.85rem',
                 fontWeight: '600',
-                color: topic.color,
+                color: '#10b981',
                 marginTop: '1rem'
               }}>
-                Click to explore →
+                Click to explore
               </div>
             </div>
           ))
@@ -2764,7 +2779,7 @@ management.metrics.export.prometheus.enabled=true
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: '#6ee7b7',
                 marginBottom: '1.5rem'
               }}>
                 REST API Topics
@@ -2776,26 +2791,26 @@ management.metrics.export.prometheus.enabled=true
                     onClick={() => setSelectedTopic(topic)}
                     style={{
                       backgroundColor: selectedTopic?.id === topic.id
-                        ? `${topic.color}15`
-                        : 'rgba(14, 165, 233, 0.05)',
+                        ? '#064e3b'
+                        : '#1f2937',
                       padding: '1rem',
                       borderRadius: '8px',
                       border: selectedTopic?.id === topic.id
-                        ? `3px solid ${topic.color}`
-                        : '2px solid rgba(14, 165, 233, 0.2)',
+                        ? '2px solid #10b981'
+                        : '1px solid #374151',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
                       if (selectedTopic?.id !== topic.id) {
-                        e.currentTarget.style.backgroundColor = 'rgba(14, 165, 233, 0.1)'
-                        e.currentTarget.style.borderColor = 'rgba(14, 165, 233, 0.4)'
+                        e.currentTarget.style.backgroundColor = '#374151'
+                        e.currentTarget.style.borderColor = '#10b981'
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (selectedTopic?.id !== topic.id) {
-                        e.currentTarget.style.backgroundColor = 'rgba(14, 165, 233, 0.05)'
-                        e.currentTarget.style.borderColor = 'rgba(14, 165, 233, 0.2)'
+                        e.currentTarget.style.backgroundColor = '#1f2937'
+                        e.currentTarget.style.borderColor = '#374151'
                       }
                     }}
                   >
@@ -2808,7 +2823,7 @@ management.metrics.export.prometheus.enabled=true
                       <div style={{
                         fontSize: '1rem',
                         fontWeight: '700',
-                        color: selectedTopic?.id === topic.id ? topic.color : '#1f2937'
+                        color: selectedTopic?.id === topic.id ? '#6ee7b7' : '#d1d5db'
                       }}>
                         {topic.name}
                       </div>
@@ -2822,7 +2837,7 @@ management.metrics.export.prometheus.enabled=true
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
-                color: selectedTopic.color,
+                color: '#6ee7b7',
                 marginBottom: '1.5rem',
                 display: 'flex',
                 alignItems: 'center',
@@ -2833,15 +2848,15 @@ management.metrics.export.prometheus.enabled=true
               </h3>
 
               <div style={{
-                backgroundColor: `${selectedTopic.color}08`,
+                backgroundColor: '#064e3b',
                 padding: '1.5rem',
                 borderRadius: '12px',
-                border: `2px solid ${selectedTopic.color}33`,
+                borderLeft: '4px solid #10b981',
                 marginBottom: '1.5rem'
               }}>
                 <p style={{
                   fontSize: '1rem',
-                  color: '#374151',
+                  color: '#d1d5db',
                   fontWeight: '500',
                   margin: 0,
                   lineHeight: '1.7',
@@ -2852,19 +2867,19 @@ management.metrics.export.prometheus.enabled=true
               </div>
 
               <div style={{
-                backgroundColor: 'white',
+                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
                 padding: '1.5rem',
                 borderRadius: '12px',
-                border: `2px solid ${selectedTopic.color}33`,
+                border: '1px solid #374151',
                 marginBottom: '1.5rem'
               }}>
                 <h4 style={{
                   fontSize: '1.1rem',
                   fontWeight: '700',
-                  color: selectedTopic.color,
+                  color: '#6ee7b7',
                   margin: '0 0 1rem 0'
                 }}>
-                  📌 Key Points
+                  Key Points
                 </h4>
                 <div style={{ display: 'grid', gap: '0.75rem' }}>
                   {selectedTopic.content.keyPoints.map((point, idx) => (
@@ -2875,20 +2890,20 @@ management.metrics.export.prometheus.enabled=true
                         alignItems: 'flex-start',
                         gap: '0.5rem',
                         padding: '0.75rem',
-                        backgroundColor: `${selectedTopic.color}08`,
+                        backgroundColor: '#1f2937',
                         borderRadius: '6px',
                         fontSize: '0.9rem',
-                        color: '#374151',
+                        color: '#d1d5db',
                         lineHeight: '1.6'
                       }}
                     >
                       <span style={{
-                        color: selectedTopic.color,
+                        color: '#10b981',
                         fontWeight: '700',
                         fontSize: '1.2rem',
                         lineHeight: '1'
                       }}>
-                        •
+                        *
                       </span>
                       {point}
                     </div>
@@ -2900,10 +2915,10 @@ management.metrics.export.prometheus.enabled=true
                 <h4 style={{
                   fontSize: '1.1rem',
                   fontWeight: '700',
-                  color: selectedTopic.color,
+                  color: '#6ee7b7',
                   margin: '0 0 1rem 0'
                 }}>
-                  💻 Code Examples
+                  Code Examples
                 </h4>
                 {(() => {
                   const sections = parseCodeSections(selectedTopic.content.codeExample)
@@ -2913,7 +2928,7 @@ management.metrics.export.prometheus.enabled=true
                         backgroundColor: '#1e293b',
                         padding: '1.5rem',
                         borderRadius: '12px',
-                        border: '2px solid #334155'
+                        border: '1px solid #374151'
                       }}>
                         <SyntaxHighlighter code={selectedTopic.content.codeExample} />
                       </div>
@@ -2928,9 +2943,9 @@ management.metrics.export.prometheus.enabled=true
                           <div
                             key={index}
                             style={{
-                              backgroundColor: 'white',
+                              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
                               borderRadius: '12px',
-                              border: `2px solid ${selectedTopic.color}33`,
+                              border: '1px solid #374151',
                               overflow: 'hidden'
                             }}
                           >
@@ -2939,9 +2954,9 @@ management.metrics.export.prometheus.enabled=true
                               style={{
                                 width: '100%',
                                 padding: '1.25rem',
-                                backgroundColor: isExpanded ? `${selectedTopic.color}15` : 'white',
+                                backgroundColor: isExpanded ? '#064e3b' : '#1f2937',
                                 border: 'none',
-                                borderBottom: isExpanded ? `2px solid ${selectedTopic.color}33` : 'none',
+                                borderBottom: isExpanded ? '1px solid #10b981' : 'none',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 justifyContent: 'space-between',
@@ -2950,28 +2965,28 @@ management.metrics.export.prometheus.enabled=true
                                 textAlign: 'left'
                               }}
                               onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = `${selectedTopic.color}15`
+                                e.currentTarget.style.backgroundColor = '#064e3b'
                               }}
                               onMouseLeave={(e) => {
                                 if (!isExpanded) {
-                                  e.currentTarget.style.backgroundColor = 'white'
+                                  e.currentTarget.style.backgroundColor = '#1f2937'
                                 }
                               }}
                             >
                               <span style={{
                                 fontSize: '1.05rem',
                                 fontWeight: '700',
-                                color: selectedTopic.color
+                                color: '#6ee7b7'
                               }}>
                                 {section.title}
                               </span>
                               <span style={{
                                 fontSize: '1.5rem',
-                                color: selectedTopic.color,
+                                color: '#10b981',
                                 transition: 'transform 0.3s ease',
                                 transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
                               }}>
-                                ▼
+                                v
                               </span>
                             </button>
                             {isExpanded && (
@@ -2993,6 +3008,8 @@ management.metrics.export.prometheus.enabled=true
           </>
         )}
       </div>
+    </div>
+    </div>
     </div>
   )
 }

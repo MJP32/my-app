@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-export default function CICD({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+export default function CICD({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedPipeline, setSelectedPipeline] = useState(null)
 
   const pipelines = [
@@ -704,6 +705,8 @@ spec:
           )}
         </div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         backgroundColor: '#f0f9ff',

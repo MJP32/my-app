@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Simple syntax highlighter for configuration files and build scripts
 const SyntaxHighlighter = ({ code }) => {
@@ -57,7 +58,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function TeamCity({ onBack }) {
+function TeamCity({ onBack, breadcrumb }) {
   const [selectedTopic, setSelectedTopic] = useState(null)
 
   const topics = [
@@ -715,7 +716,7 @@ object MuteFailingTests : BuildType({
   ]
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#f5f3ff', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#111827', minHeight: '100vh' }}>
       <div style={{ marginBottom: '2rem' }}>
         <button
           onClick={onBack}
@@ -739,15 +740,17 @@ object MuteFailingTests : BuildType({
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '800',
-          color: '#1f2937',
+          color: 'white',
           margin: '1rem 0 0.5rem 0'
         }}>
           🏗️ TeamCity
         </h1>
-        <p style={{ fontSize: '1.1rem', color: '#6b7280', margin: 0 }}>
+        <p style={{ fontSize: '1.1rem', color: '#9ca3af', margin: 0 }}>
           Continuous Integration and Deployment with TeamCity by JetBrains
         </p>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       {!selectedTopic ? (
         <div style={{
@@ -760,29 +763,29 @@ object MuteFailingTests : BuildType({
               key={topic.id}
               onClick={() => setSelectedTopic(topic)}
               style={{
-                backgroundColor: 'white',
+                backgroundColor: '#1f2937',
                 padding: '2rem',
                 borderRadius: '12px',
                 border: `3px solid ${topic.color}`,
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
                 textAlign: 'left',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-8px)'
-                e.currentTarget.style.boxShadow = `0 0 0 4px ${topic.color}40, 0 12px 24px rgba(0,0,0,0.2)`
+                e.currentTarget.style.boxShadow = `0 0 0 4px ${topic.color}40, 0 12px 24px rgba(0,0,0,0.4)`
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)'
               }}
             >
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{topic.icon}</div>
-              <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#1f2937', marginBottom: '0.5rem' }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: 'white', marginBottom: '0.5rem' }}>
                 {topic.name}
               </h3>
-              <p style={{ fontSize: '0.95rem', color: '#6b7280', lineHeight: '1.6' }}>
+              <p style={{ fontSize: '0.95rem', color: '#9ca3af', lineHeight: '1.6' }}>
                 {topic.description}
               </p>
             </button>
@@ -809,7 +812,7 @@ object MuteFailingTests : BuildType({
           </button>
 
           <div style={{
-            backgroundColor: 'white',
+            backgroundColor: '#1f2937',
             padding: '2rem',
             borderRadius: '12px',
             border: `3px solid ${selectedTopic.color}`,
@@ -817,25 +820,25 @@ object MuteFailingTests : BuildType({
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
               <div style={{ fontSize: '3rem' }}>{selectedTopic.icon}</div>
-              <h2 style={{ fontSize: '2rem', fontWeight: '800', color: '#1f2937', margin: 0 }}>
+              <h2 style={{ fontSize: '2rem', fontWeight: '800', color: 'white', margin: 0 }}>
                 {selectedTopic.name}
               </h2>
             </div>
 
-            <div style={{ fontSize: '1.05rem', color: '#4b5563', lineHeight: '1.8', marginBottom: '1.5rem' }}>
+            <div style={{ fontSize: '1.05rem', color: '#d1d5db', lineHeight: '1.8', marginBottom: '1.5rem' }}>
               {selectedTopic.content.explanation}
             </div>
 
-            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#1f2937', marginBottom: '1rem' }}>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: 'white', marginBottom: '1rem' }}>
               Key Points:
             </h3>
-            <ul style={{ color: '#4b5563', lineHeight: '1.8', marginBottom: '2rem' }}>
+            <ul style={{ color: '#d1d5db', lineHeight: '1.8', marginBottom: '2rem' }}>
               {selectedTopic.content.keyPoints.map((point, index) => (
                 <li key={index} style={{ marginBottom: '0.5rem' }}>{point}</li>
               ))}
             </ul>
 
-            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#1f2937', marginBottom: '1rem' }}>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: 'white', marginBottom: '1rem' }}>
               Code Example:
             </h3>
             <div style={{

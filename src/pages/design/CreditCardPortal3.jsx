@@ -4,8 +4,9 @@ import {
   CreditCard, TrendingUp, Zap, Server, Globe, Shield, Activity, Layers,
   GitBranch, Box, FileText, BarChart, Network, Cpu, HardDrive, ArrowRight
 } from 'lucide-react';
+import Breadcrumb from '../../components/Breadcrumb';
 
-export default function CreditCardPortal3({ onBack }) {
+export default function CreditCardPortal3({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('main');
   const [expandedLayers, setExpandedLayers] = useState({});
   const [selectedFlow, setSelectedFlow] = useState(null);
@@ -949,6 +950,8 @@ export default function CreditCardPortal3({ onBack }) {
             <span className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium border border-indigo-100">Database Sharding</span>
           </div>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b-2 border-gray-100 overflow-x-auto pb-0">

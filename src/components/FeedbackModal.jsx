@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
+import { useTheme } from '../contexts/ThemeContext'
 
 export default function FeedbackModal({ onClose }) {
+  const { isDark, colors } = useTheme()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -85,7 +87,7 @@ ${formData.message}
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.5)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -97,19 +99,22 @@ ${formData.message}
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          backgroundColor: 'white',
+          backgroundColor: colors.bgSecondary,
           borderRadius: '16px',
           maxWidth: '600px',
           width: '100%',
           maxHeight: '90vh',
           overflow: 'auto',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+          boxShadow: isDark
+            ? '0 25px 50px -12px rgba(0, 0, 0, 0.7)'
+            : '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          border: `1px solid ${colors.border}`
         }}
       >
         {/* Header */}
         <div style={{
           padding: '1.5rem',
-          borderBottom: '2px solid #e5e7eb',
+          borderBottom: `2px solid ${colors.border}`,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
@@ -118,7 +123,7 @@ ${formData.message}
             <h2 style={{
               fontSize: '1.75rem',
               fontWeight: '800',
-              color: '#1f2937',
+              color: colors.textPrimary,
               margin: 0,
               marginBottom: '0.25rem'
             }}>
@@ -126,7 +131,7 @@ ${formData.message}
             </h2>
             <p style={{
               fontSize: '0.875rem',
-              color: '#6b7280',
+              color: colors.textMuted,
               margin: 0
             }}>
               We'd love to hear from you! Your feedback helps us improve.
@@ -139,18 +144,18 @@ ${formData.message}
               border: 'none',
               fontSize: '1.5rem',
               cursor: 'pointer',
-              color: '#6b7280',
+              color: colors.textMuted,
               padding: '0.5rem',
               borderRadius: '8px',
               transition: 'all 0.2s'
             }}
             onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#f3f4f6'
-              e.target.style.color = '#1f2937'
+              e.target.style.backgroundColor = colors.bgTertiary
+              e.target.style.color = colors.textPrimary
             }}
             onMouseLeave={(e) => {
               e.target.style.backgroundColor = 'transparent'
-              e.target.style.color = '#6b7280'
+              e.target.style.color = colors.textMuted
             }}
           >
             ✕
@@ -165,7 +170,7 @@ ${formData.message}
               display: 'block',
               fontSize: '0.875rem',
               fontWeight: '600',
-              color: '#374151',
+              color: colors.textSecondary,
               marginBottom: '0.5rem'
             }}>
               Name <span style={{ color: '#ef4444' }}>*</span>
@@ -180,15 +185,17 @@ ${formData.message}
               style={{
                 width: '100%',
                 padding: '0.75rem',
-                border: '2px solid #e5e7eb',
+                border: `2px solid ${colors.border}`,
                 borderRadius: '8px',
                 fontSize: '1rem',
                 transition: 'border-color 0.2s',
                 outline: 'none',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                backgroundColor: colors.bgPrimary,
+                color: colors.textPrimary
               }}
               onFocus={(e) => e.target.style.borderColor = '#8b5cf6'}
-              onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+              onBlur={(e) => e.target.style.borderColor = colors.border}
             />
           </div>
 
@@ -198,7 +205,7 @@ ${formData.message}
               display: 'block',
               fontSize: '0.875rem',
               fontWeight: '600',
-              color: '#374151',
+              color: colors.textSecondary,
               marginBottom: '0.5rem'
             }}>
               Email <span style={{ color: '#ef4444' }}>*</span>
@@ -213,15 +220,17 @@ ${formData.message}
               style={{
                 width: '100%',
                 padding: '0.75rem',
-                border: '2px solid #e5e7eb',
+                border: `2px solid ${colors.border}`,
                 borderRadius: '8px',
                 fontSize: '1rem',
                 transition: 'border-color 0.2s',
                 outline: 'none',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                backgroundColor: colors.bgPrimary,
+                color: colors.textPrimary
               }}
               onFocus={(e) => e.target.style.borderColor = '#8b5cf6'}
-              onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+              onBlur={(e) => e.target.style.borderColor = colors.border}
             />
           </div>
 
@@ -231,7 +240,7 @@ ${formData.message}
               display: 'block',
               fontSize: '0.875rem',
               fontWeight: '600',
-              color: '#374151',
+              color: colors.textSecondary,
               marginBottom: '0.5rem'
             }}>
               Category <span style={{ color: '#ef4444' }}>*</span>
@@ -244,17 +253,18 @@ ${formData.message}
               style={{
                 width: '100%',
                 padding: '0.75rem',
-                border: '2px solid #e5e7eb',
+                border: `2px solid ${colors.border}`,
                 borderRadius: '8px',
                 fontSize: '1rem',
                 transition: 'border-color 0.2s',
                 outline: 'none',
-                backgroundColor: 'white',
+                backgroundColor: colors.bgPrimary,
+                color: colors.textPrimary,
                 cursor: 'pointer',
                 boxSizing: 'border-box'
               }}
               onFocus={(e) => e.target.style.borderColor = '#8b5cf6'}
-              onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+              onBlur={(e) => e.target.style.borderColor = colors.border}
             >
               <option value="general">General Feedback</option>
               <option value="bug">Bug Report</option>
@@ -271,7 +281,7 @@ ${formData.message}
               display: 'block',
               fontSize: '0.875rem',
               fontWeight: '600',
-              color: '#374151',
+              color: colors.textSecondary,
               marginBottom: '0.5rem'
             }}>
               Message <span style={{ color: '#ef4444' }}>*</span>
@@ -286,17 +296,19 @@ ${formData.message}
               style={{
                 width: '100%',
                 padding: '0.75rem',
-                border: '2px solid #e5e7eb',
+                border: `2px solid ${colors.border}`,
                 borderRadius: '8px',
                 fontSize: '1rem',
                 transition: 'border-color 0.2s',
                 outline: 'none',
                 resize: 'vertical',
                 fontFamily: 'inherit',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                backgroundColor: colors.bgPrimary,
+                color: colors.textPrimary
               }}
               onFocus={(e) => e.target.style.borderColor = '#8b5cf6'}
-              onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+              onBlur={(e) => e.target.style.borderColor = colors.border}
             />
           </div>
 
@@ -369,18 +381,18 @@ ${formData.message}
                 padding: '0.875rem 1.5rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                backgroundColor: '#f3f4f6',
-                color: '#374151',
-                border: '2px solid #e5e7eb',
+                backgroundColor: colors.bgTertiary,
+                color: colors.textSecondary,
+                border: `2px solid ${colors.border}`,
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s'
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#e5e7eb'
+                e.target.style.backgroundColor = colors.border
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#f3f4f6'
+                e.target.style.backgroundColor = colors.bgTertiary
               }}
             >
               Cancel
@@ -391,14 +403,14 @@ ${formData.message}
         {/* Footer Note */}
         <div style={{
           padding: '1rem 1.5rem',
-          backgroundColor: '#f9fafb',
-          borderTop: '2px solid #e5e7eb',
+          backgroundColor: colors.bgTertiary,
+          borderTop: `2px solid ${colors.border}`,
           borderBottomLeftRadius: '16px',
           borderBottomRightRadius: '16px'
         }}>
           <p style={{
             fontSize: '0.75rem',
-            color: '#6b7280',
+            color: colors.textMuted,
             margin: 0,
             textAlign: 'center'
           }}>

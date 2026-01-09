@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { createSearchIndex, searchContent, groupSearchResults } from '../utils/searchIndex.js'
+import { useTheme } from '../contexts/ThemeContext'
 
 function GlobalSearch({ isOpen, onClose, onNavigate }) {
+  const { isDark, colors } = useTheme()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [groupedResults, setGroupedResults] = useState({ categories: [], subcategories: [], components: [] })
@@ -155,23 +157,26 @@ function GlobalSearch({ isOpen, onClose, onNavigate }) {
           transform: 'translateX(-50%)',
           width: '90%',
           maxWidth: '600px',
-          backgroundColor: 'white',
+          backgroundColor: colors.bgSecondary,
           borderRadius: '12px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          boxShadow: isDark
+            ? '0 25px 50px -12px rgba(0, 0, 0, 0.7)'
+            : '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
           zIndex: 1000000,
-          overflow: 'hidden'
+          overflow: 'hidden',
+          border: `1px solid ${colors.border}`
         }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Input */}
         <div style={{
           padding: '1.5rem',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: `1px solid ${colors.border}`,
           display: 'flex',
           alignItems: 'center',
           gap: '1rem'
         }}>
-          <div style={{ fontSize: '1.25rem', color: '#6b7280' }}>🔍</div>
+          <div style={{ fontSize: '1.25rem', color: colors.textMuted }}>🔍</div>
           <input
             ref={searchInputRef}
             type="text"
@@ -190,12 +195,12 @@ function GlobalSearch({ isOpen, onClose, onNavigate }) {
             style={{
               flex: 1,
               fontSize: '1.1rem',
-              border: '2px solid #e5e7eb',
+              border: `2px solid ${colors.border}`,
               borderRadius: '6px',
               padding: '0.5rem',
               outline: 'none',
-              color: '#1f2937',
-              backgroundColor: 'white',
+              color: colors.textPrimary,
+              backgroundColor: colors.bgPrimary,
               width: '100%',
               minWidth: 0
             }}
@@ -212,7 +217,7 @@ function GlobalSearch({ isOpen, onClose, onNavigate }) {
                 padding: '0.5rem',
                 border: 'none',
                 backgroundColor: 'transparent',
-                color: '#6b7280',
+                color: colors.textMuted,
                 cursor: 'pointer',
                 borderRadius: '4px',
                 fontSize: '1rem'
@@ -224,9 +229,9 @@ function GlobalSearch({ isOpen, onClose, onNavigate }) {
           )}
           <div style={{
             fontSize: '0.75rem',
-            color: '#9ca3af',
+            color: colors.textMuted,
             padding: '0.25rem 0.5rem',
-            backgroundColor: '#f3f4f6',
+            backgroundColor: colors.bgTertiary,
             borderRadius: '4px',
             fontFamily: 'monospace'
           }}>
@@ -243,16 +248,16 @@ function GlobalSearch({ isOpen, onClose, onNavigate }) {
             <div style={{
               padding: '2rem',
               textAlign: 'center',
-              color: '#6b7280'
+              color: colors.textMuted
             }}>
               <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🔍</div>
-              <div style={{ fontSize: '1rem', fontWeight: '500', marginBottom: '0.5rem' }}>
+              <div style={{ fontSize: '1rem', fontWeight: '500', marginBottom: '0.5rem', color: colors.textSecondary }}>
                 Search across all content
               </div>
               <div style={{ fontSize: '0.875rem' }}>
                 Find components, categories, topics, and more...
               </div>
-              <div style={{ fontSize: '0.75rem', marginTop: '1rem', color: '#9ca3af' }}>
+              <div style={{ fontSize: '0.75rem', marginTop: '1rem', color: colors.textMuted }}>
                 Try searching for "streams", "java", "design patterns", or "algorithms"
               </div>
             </div>
@@ -260,10 +265,10 @@ function GlobalSearch({ isOpen, onClose, onNavigate }) {
             <div style={{
               padding: '2rem',
               textAlign: 'center',
-              color: '#6b7280'
+              color: colors.textMuted
             }}>
               <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>😔</div>
-              <div style={{ fontSize: '1rem', fontWeight: '500', marginBottom: '0.5rem' }}>
+              <div style={{ fontSize: '1rem', fontWeight: '500', marginBottom: '0.5rem', color: colors.textSecondary }}>
                 No results found
               </div>
               <div style={{ fontSize: '0.875rem' }}>
@@ -282,7 +287,7 @@ function GlobalSearch({ isOpen, onClose, onNavigate }) {
                     margin: '0.25rem',
                     borderRadius: '8px',
                     cursor: 'pointer',
-                    backgroundColor: focusedIndex === index ? '#f3f4f6' : 'transparent',
+                    backgroundColor: focusedIndex === index ? colors.bgTertiary : 'transparent',
                     border: focusedIndex === index ? '2px solid #3b82f6' : '2px solid transparent',
                     transition: 'all 0.2s ease'
                   }}
@@ -304,21 +309,21 @@ function GlobalSearch({ isOpen, onClose, onNavigate }) {
                       <div style={{
                         fontSize: '1rem',
                         fontWeight: '600',
-                        color: '#1f2937',
+                        color: colors.textPrimary,
                         marginBottom: '0.25rem'
                       }}
                         dangerouslySetInnerHTML={{ __html: result.highlightedTitle }}
                       />
                       <div style={{
                         fontSize: '0.875rem',
-                        color: '#6b7280',
+                        color: colors.textSecondary,
                         marginBottom: '0.25rem'
                       }}
                         dangerouslySetInnerHTML={{ __html: result.highlightedDescription }}
                       />
                       <div style={{
                         fontSize: '0.75rem',
-                        color: '#9ca3af',
+                        color: colors.textMuted,
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.5rem'
@@ -348,10 +353,10 @@ function GlobalSearch({ isOpen, onClose, onNavigate }) {
         {results.length > 0 && (
           <div style={{
             padding: '0.75rem 1.5rem',
-            borderTop: '1px solid #e5e7eb',
-            backgroundColor: '#f9fafb',
+            borderTop: `1px solid ${colors.border}`,
+            backgroundColor: colors.bgTertiary,
             fontSize: '0.75rem',
-            color: '#6b7280',
+            color: colors.textMuted,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'

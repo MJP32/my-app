@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { KEYS, AriaUtils } from '../../utils/keyboardNavigation.js'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Normalize indentation by removing common leading whitespace
 const normalizeIndentation = (code) => {
@@ -92,7 +93,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function Java8({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function Java8({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedConcept, setSelectedConcept] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
@@ -3458,13 +3459,15 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
 
   return (
     <div style={{
-      padding: '2rem',
-      maxWidth: '95%',
-      margin: '120px auto 0',
-      backgroundColor: 'white',
+      padding: '1.5rem',
+      maxWidth: '80rem',
+      margin: '0 auto',
+      background: 'linear-gradient(to bottom right, #111827, #78350f, #111827)',
+      color: 'white',
+      minHeight: '100vh',
       borderRadius: '16px',
       boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-      border: '3px solid rgba(16, 185, 129, 0.4)'
+      border: '3px solid rgba(245, 158, 11, 0.4)'
     }}>
       <div style={{
         display: 'flex',
@@ -3481,25 +3484,29 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
               padding: '0.75rem 1.5rem',
               fontSize: '1rem',
               fontWeight: '600',
-              backgroundColor: '#3b82f6',
+              background: '#f59e0b',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
             }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#d97706'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#f59e0b'}
           >
-            ← Back to Menu
+            ← Back to Java Topics
           </button>
           <h1 style={{
             fontSize: '2rem',
             fontWeight: '800',
-            color: '#1f2937',
+            background: 'linear-gradient(to right, #fbbf24, #f97316)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
             margin: 0,
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
           }}>
-            🚀 Java 8 Features
+            Java 8 Features
           </h1>
           {currentSubcategory && (
             <span style={{
@@ -3523,19 +3530,19 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
                 padding: '0.75rem 1.25rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                backgroundColor: '#10b981',
+                background: '#374151',
                 color: 'white',
-                border: 'none',
+                border: '1px solid #f59e0b',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                boxShadow: '0 2px 8px rgba(55, 65, 81, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#4b5563'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#374151'}
             >
               ← {previousName}
             </button>
@@ -3547,19 +3554,19 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
                 padding: '0.75rem 1.25rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                backgroundColor: '#10b981',
+                background: '#374151',
                 color: 'white',
-                border: 'none',
+                border: '1px solid #f59e0b',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                boxShadow: '0 2px 8px rgba(55, 65, 81, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#4b5563'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#374151'}
             >
               {nextName} →
             </button>
@@ -3567,16 +3574,18 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
         </div>
       </div>
 
+      <Breadcrumb breadcrumb={breadcrumb} />
+
       <div style={{
-        backgroundColor: 'rgba(16, 185, 129, 0.05)',
+        background: 'linear-gradient(to bottom right, #1f2937, #111827)',
         padding: '2.5rem 10rem',
         borderRadius: '16px',
-        border: '3px solid rgba(16, 185, 129, 0.3)',
+        border: '2px solid #f59e0b',
         marginBottom: '2rem'
       }}>
         <p style={{
           fontSize: '1.3rem',
-          color: '#374151',
+          color: '#d1d5db',
           fontWeight: '500',
           margin: 0,
           lineHeight: '1.8',
@@ -3607,9 +3616,9 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
               aria-label={`${category.name} - ${category.description}`}
               style={{
                 padding: '2rem',
-                backgroundColor: `${category.color}10`,
-                border: focusedCategoryIndex === index && isKeyboardUser ? `3px solid ${category.color}` : `3px solid ${category.color}40`,
-                outline: focusedCategoryIndex === index && isKeyboardUser ? `2px solid ${category.color}` : 'none',
+                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                border: focusedCategoryIndex === index && isKeyboardUser ? `3px solid #f59e0b` : `2px solid #f59e0b`,
+                outline: focusedCategoryIndex === index && isKeyboardUser ? `2px solid #f59e0b` : 'none',
                 outlineOffset: '2px',
                 borderRadius: '16px',
                 cursor: 'pointer',
@@ -3621,12 +3630,12 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-4px)'
                 e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.15)'
-                e.currentTarget.style.borderColor = `${category.color}80`
+                e.currentTarget.style.borderColor = '#fbbf24'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                e.currentTarget.style.borderColor = `${category.color}40`
+                e.currentTarget.style.borderColor = '#f59e0b'
               }}
             >
               <div style={{ fontSize: '3.5rem', marginBottom: '1rem', textAlign: 'center' }}>
@@ -3635,7 +3644,7 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
               <h3 style={{
                 fontSize: '1.75rem',
                 fontWeight: '700',
-                color: category.color,
+                color: '#fbbf24',
                 marginBottom: '0.75rem',
                 textAlign: 'center'
               }}>
@@ -3643,7 +3652,7 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
               </h3>
               <p style={{
                 fontSize: '1rem',
-                color: '#6b7280',
+                color: '#d1d5db',
                 lineHeight: '1.6',
                 textAlign: 'center',
                 marginBottom: '1rem'
@@ -3652,7 +3661,7 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
               </p>
               <p style={{
                 fontSize: '0.85rem',
-                color: category.color,
+                color: '#fbbf24',
                 fontWeight: '600',
                 textAlign: 'center'
               }}>
@@ -3690,7 +3699,7 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              background: 'linear-gradient(to bottom right, #111827, #1f2937)',
               borderRadius: '16px',
               maxWidth: '1400px',
               width: '100%',
@@ -3698,16 +3707,16 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
               display: 'flex',
               flexDirection: 'column',
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              border: `3px solid ${selectedCategory.color}`,
+              border: '2px solid #f59e0b',
               position: 'relative',
               overflow: 'hidden'
             }}
           >
             {/* Header */}
             <div style={{
-              backgroundColor: `${selectedCategory.color}`,
+              background: 'linear-gradient(to right, #1f2937, #374151)',
               padding: '1.5rem 2rem',
-              borderBottom: `3px solid ${selectedCategory.color}`,
+              borderBottom: '2px solid #f59e0b',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
@@ -3716,7 +3725,7 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
               <h2 style={{
                 fontSize: '2rem',
                 fontWeight: '700',
-                color: 'white',
+                color: '#fbbf24',
                 margin: 0,
                 display: 'flex',
                 alignItems: 'center',
@@ -3733,18 +3742,18 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
                   padding: '0.5rem 1rem',
                   fontSize: '1.5rem',
                   fontWeight: '700',
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  color: 'white',
-                  border: '2px solid white',
+                  backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                  color: '#fbbf24',
+                  border: '2px solid #f59e0b',
                   borderRadius: '8px',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)'
+                  e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.3)'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'
+                  e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.2)'
                 }}
               >
                 ✕
@@ -3761,15 +3770,15 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
               <div style={{
                 width: '300px',
                 flexShrink: 0,
-                backgroundColor: '#f9fafb',
-                borderRight: `2px solid ${selectedCategory.color}40`,
+                background: 'linear-gradient(to bottom, #1f2937, #111827)',
+                borderRight: '2px solid #f59e0b40',
                 overflowY: 'auto',
                 padding: '1.5rem'
               }}>
                 <h3 style={{
                   fontSize: '1rem',
                   fontWeight: '700',
-                  color: '#6b7280',
+                  color: '#fbbf24',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                   marginBottom: '1rem',
@@ -3792,11 +3801,11 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
                         style={{
                           padding: '0.75rem 1rem',
                           backgroundColor: isActive
-                            ? `${selectedCategory.color}20`
-                            : 'white',
+                            ? 'rgba(245, 158, 11, 0.2)'
+                            : '#374151',
                           borderRadius: '8px',
                           border: isActive
-                            ? `2px solid ${selectedCategory.color}`
+                            ? '2px solid #f59e0b'
                             : '2px solid transparent',
                           cursor: 'pointer',
                           transition: 'all 0.2s ease',
@@ -3807,19 +3816,19 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
                         }}
                         onMouseEnter={(e) => {
                           if (!isActive) {
-                            e.currentTarget.style.backgroundColor = '#f3f4f6'
+                            e.currentTarget.style.backgroundColor = '#4b5563'
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (!isActive) {
-                            e.currentTarget.style.backgroundColor = 'white'
+                            e.currentTarget.style.backgroundColor = '#374151'
                           }
                         }}
                       >
                         <span style={{ fontSize: '1.25rem' }}>{concept.icon || '🔹'}</span>
                         <span style={{
                           fontWeight: isActive ? '700' : '600',
-                          color: isActive ? selectedCategory.color : '#374151',
+                          color: isActive ? '#fbbf24' : '#d1d5db',
                           fontSize: '0.9rem'
                         }}>
                           {concept.name}
@@ -3834,12 +3843,13 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
               <div style={{
                 flex: 1,
                 overflowY: 'auto',
-                padding: '2rem'
+                padding: '2rem',
+                background: 'linear-gradient(to bottom right, #1f2937, #111827)'
               }}>
                 <h3 style={{
                   fontSize: '1.75rem',
                   fontWeight: '700',
-                  color: selectedCategory.color,
+                  color: '#fbbf24',
                   marginTop: 0,
                   marginBottom: '1.5rem',
                   display: 'flex',
@@ -3850,10 +3860,10 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
                 </h3>
 
                 <div style={{
-                  backgroundColor: `${selectedCategory.color}10`,
+                  background: 'linear-gradient(to bottom right, #374151, #1f2937)',
                   padding: '1.5rem',
                   borderRadius: '12px',
-                  border: `2px solid ${selectedCategory.color}40`,
+                  border: '2px solid #f59e0b40',
                   marginBottom: '2rem'
                 }}>
                   {selectedConcept.explanation.split('\n\n').map((section, idx) => {
@@ -3869,7 +3879,7 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
                             <h3 style={{
                               fontSize: '1.1rem',
                               fontWeight: '700',
-                              color: selectedCategory.color,
+                              color: '#fbbf24',
                               marginBottom: '0.75rem',
                               display: 'flex',
                               alignItems: 'center',
@@ -3878,14 +3888,14 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
                               <span style={{
                                 width: '4px',
                                 height: '20px',
-                                backgroundColor: selectedCategory.color,
+                                backgroundColor: '#f59e0b',
                                 borderRadius: '2px'
                               }}></span>
                               {header}
                             </h3>
                             <div style={{
                               paddingLeft: '1.25rem',
-                              color: '#4b5563',
+                              color: '#d1d5db',
                               fontSize: '0.95rem',
                               lineHeight: '1.8'
                             }}>
@@ -3904,14 +3914,14 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
                                         paddingLeft: '0.5rem'
                                       }}>
                                         <span style={{
-                                          color: selectedCategory.color,
+                                          color: '#fbbf24',
                                           marginRight: '0.75rem',
                                           fontWeight: '600',
                                           flexShrink: 0
                                         }}>•</span>
                                         <span>
-                                          <strong style={{ color: '#1f2937' }}>{dashMatch[1]}</strong>
-                                          <span style={{ color: '#6b7280' }}> - {dashMatch[2]}</span>
+                                          <strong style={{ color: '#fbbf24' }}>{dashMatch[1]}</strong>
+                                          <span style={{ color: '#9ca3af' }}> - {dashMatch[2]}</span>
                                         </span>
                                       </div>
                                     )
@@ -3923,12 +3933,12 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
                                         paddingLeft: '0.5rem'
                                       }}>
                                         <span style={{
-                                          color: selectedCategory.color,
+                                          color: '#fbbf24',
                                           marginRight: '0.75rem',
                                           fontWeight: '600',
                                           flexShrink: 0
                                         }}>•</span>
-                                        <span style={{ color: '#374151' }}>{bulletContent}</span>
+                                        <span style={{ color: '#d1d5db' }}>{bulletContent}</span>
                                       </div>
                                     )
                                   }
@@ -3943,19 +3953,19 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
                                       paddingLeft: '2rem'
                                     }}>
                                       <span style={{
-                                        color: '#6b7280',
+                                        color: '#9ca3af',
                                         marginRight: '0.75rem',
                                         fontSize: '0.9rem',
                                         flexShrink: 0
                                       }}>◦</span>
-                                      <span style={{ color: '#4b5563', fontSize: '0.9rem' }}>{subBulletContent}</span>
+                                      <span style={{ color: '#9ca3af', fontSize: '0.9rem' }}>{subBulletContent}</span>
                                     </div>
                                   )
                                 }
                                 // Regular text
                                 else if (line.trim()) {
                                   return (
-                                    <div key={lineIdx} style={{ marginBottom: '0.5rem', color: '#374151' }}>
+                                    <div key={lineIdx} style={{ marginBottom: '0.5rem', color: '#d1d5db' }}>
                                       {line}
                                     </div>
                                   )

@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function JenkinsQuestions({ onBack }) {
+function JenkinsQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
 
   const renderFormattedAnswer = (text) => {
@@ -2143,7 +2144,7 @@ TeamCity:
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', backgroundColor: '#fef3c7', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', backgroundColor: '#111827', minHeight: '100vh' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -2172,17 +2173,19 @@ TeamCity:
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '800',
-          color: '#1f2937',
+          color: '#f9fafb',
           margin: 0
         }}>
-          🔧 Jenkins Interview Questions
+          Jenkins Interview Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
 
+      <Breadcrumb breadcrumb={breadcrumb} />
+
       <p style={{
         fontSize: '1.1rem',
-        color: '#4b5563',
+        color: '#d1d5db',
         textAlign: 'center',
         marginBottom: '2rem',
         lineHeight: '1.6'

@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function VirtualNumbers({ onBack }) {
+function VirtualNumbers({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview')
 
   const cardExamples = [
@@ -208,6 +209,8 @@ function VirtualNumbers({ onBack }) {
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <p style={{ fontSize: '1.1rem', color: '#4b5563', textAlign: 'center', marginBottom: '2rem', lineHeight: '1.6' }}>
         Understanding credit card number structure, network identifiers, and the Luhn Algorithm validation

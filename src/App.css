@@ -1,19 +1,189 @@
+/* Theme-aware App styles */
+
 #root {
-  max-width: 1280px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 2rem;
   text-align: center;
 }
 
+/* Main app container - theme aware */
+.app-container {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Card and panel styles */
+.theme-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.theme-card:hover {
+  border-color: var(--border-light);
+}
+
+/* Override ALL divs with dark backgrounds in light mode */
+[data-theme="light"] div[style*="background-color: #111827"],
+[data-theme="light"] div[style*="backgroundColor: '#111827"],
+[data-theme="light"] div[style*="background-color: #1f2937"],
+[data-theme="light"] div[style*="backgroundColor: '#1f2937"],
+[data-theme="light"] div[style*="background-color: #374151"],
+[data-theme="light"] div[style*="backgroundColor: '#374151"],
+[data-theme="light"] div[style*="background: #111827"],
+[data-theme="light"] div[style*="background: #1f2937"],
+[data-theme="light"] div[style*="background: #374151"],
+[data-theme="light"] main[style*="background"],
+[data-theme="light"] section[style*="background"],
+[data-theme="light"] header[style*="background"] {
+  background-color: var(--bg-primary) !important;
+  background: var(--bg-primary) !important;
+}
+
+/* Light backgrounds should stay light but use theme colors */
+[data-theme="light"] div[style*="background-color: white"],
+[data-theme="light"] div[style*="backgroundColor: 'white"],
+[data-theme="light"] div[style*="background: white"] {
+  background-color: var(--bg-secondary) !important;
+  background: var(--bg-secondary) !important;
+}
+
+/* Override text colors in light mode */
+[data-theme="light"] [style*="color: #f9fafb"],
+[data-theme="light"] [style*="color: '#f9fafb"],
+[data-theme="light"] [style*="color: #e5e7eb"],
+[data-theme="light"] [style*="color: '#e5e7eb"],
+[data-theme="light"] [style*="color: white"],
+[data-theme="light"] [style*="color: '#fff"],
+[data-theme="light"] [style*="color: #fff"] {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] [style*="color: #d1d5db"],
+[data-theme="light"] [style*="color: '#d1d5db"],
+[data-theme="light"] [style*="color: #9ca3af"],
+[data-theme="light"] [style*="color: '#9ca3af"] {
+  color: var(--text-secondary) !important;
+}
+
+/* Border colors */
+[data-theme="light"] [style*="border"][style*="#374151"],
+[data-theme="light"] [style*="border"][style*="#4b5563"] {
+  border-color: var(--border-color) !important;
+}
+
+/* Navigation and sidebar */
+[data-theme="light"] nav,
+[data-theme="light"] aside,
+[data-theme="light"] .sidebar {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Modal backgrounds */
+[data-theme="light"] .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme="light"] .modal-content {
+  background-color: var(--bg-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Buttons - preserve accent colors but adjust base buttons */
+[data-theme="light"] button:not([style*="background-color: #f59e0b"]):not([style*="background-color: #3b82f6"]):not([style*="background-color: #10b981"]):not([style*="background-color: #ef4444"]) {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+/* Code blocks */
+[data-theme="light"] pre,
+[data-theme="light"] code {
+  background-color: var(--code-bg) !important;
+  color: var(--code-text) !important;
+}
+
+/* Input fields */
+[data-theme="light"] input,
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Tables */
+[data-theme="light"] table {
+  border-color: var(--border-color) !important;
+}
+
+[data-theme="light"] th {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] td {
+  border-color: var(--border-color) !important;
+}
+
+/* Scrollbar for light mode */
+[data-theme="light"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 4px;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Dark mode scrollbar */
+[data-theme="dark"] ::-webkit-scrollbar,
+:root:not([data-theme="light"]) ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track,
+:root:not([data-theme="light"]) ::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb,
+:root:not([data-theme="light"]) ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover,
+:root:not([data-theme="light"]) ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Logo animations */
 .logo {
   height: 6em;
   padding: 1.5em;
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
@@ -38,5 +208,5 @@
 }
 
 .read-the-docs {
-  color: #888;
+  color: var(--text-muted);
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-export default function SpringCoreQuestions({ onBack }) {
+export default function SpringCoreQuestions({ onBack, breadcrumb }) {
   const [expandedQuestionId, setExpandedQuestionId] = useState(null)
   const categoryColor = '#10b981'
 
@@ -415,10 +416,12 @@ public class CustomScopeConfig {
           color: '#1f2937',
           margin: 0
         }}>
-          🌱 Spring Core Questions
+          Spring Core Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         display: 'flex',

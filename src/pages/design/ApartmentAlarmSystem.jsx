@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import Breadcrumb from '../../components/Breadcrumb';
 
-export default function ApartmentAlarmSystem({ onBack }) {
+export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview');
 
   const tabs = [
@@ -36,6 +37,8 @@ export default function ApartmentAlarmSystem({ onBack }) {
             Design an IoT-based security system for apartment buildings with real-time monitoring, sensor integration, mobile alerts, and emergency response
           </p>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b-2 border-gray-200 overflow-x-auto pb-0">

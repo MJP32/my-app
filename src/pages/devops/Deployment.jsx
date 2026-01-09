@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Simple syntax highlighter for code
 const SyntaxHighlighter = ({ code }) => {
@@ -56,7 +57,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function Deployment({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function Deployment({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedPhase, setSelectedPhase] = useState(null)
   const [expandedStep, setExpandedStep] = useState(null)
 
@@ -1147,6 +1148,8 @@ curl -X DELETE https://gitlab.com/api/v4/projects/123/pipelines/456 \\
           )}
         </div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         backgroundColor: 'rgba(14, 165, 233, 0.05)',

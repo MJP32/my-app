@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function ActuatorQuestions({ onBack }) {
+function ActuatorQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
 
   const renderFormattedAnswer = (text) => {
@@ -1137,7 +1138,7 @@ groups:
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', backgroundColor: '#fef3c7', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', backgroundColor: '#111827', minHeight: '100vh' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -1169,10 +1170,12 @@ groups:
           color: '#1f2937',
           margin: 0
         }}>
-          ⚙️ Spring Boot Actuator Questions
+          Spring Boot Actuator Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <p style={{
         fontSize: '1.1rem',

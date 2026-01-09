@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useModalFocus } from '../../hooks/useModalFocus'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Simple syntax highlighter for Java code
 const SyntaxHighlighter = ({ code }) => {
@@ -72,7 +73,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function DesignPatterns({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function DesignPatterns({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedConcept, setSelectedConcept] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
@@ -3963,7 +3964,7 @@ saveManager.restore(game, 0);
         backgroundColor: 'white',
         borderRadius: '16px',
         boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-        border: '3px solid rgba(99, 102, 241, 0.4)'
+        border: '3px solid rgba(147, 51, 234, 0.4)'
       }}>
       <div style={{
         display: 'flex',
@@ -3981,16 +3982,16 @@ saveManager.restore(game, 0);
               padding: '0.75rem 1.5rem',
               fontSize: '1rem',
               fontWeight: '600',
-              backgroundColor: '#3b82f6',
+              backgroundColor: '#9333ea',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+              boxShadow: '0 2px 8px rgba(147, 51, 234, 0.3)'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7e22ce'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#9333ea'}
           >
             ← Back to Menu
           </button>
@@ -4009,8 +4010,8 @@ saveManager.restore(game, 0);
                 padding: '0.25rem 0.75rem',
                 fontSize: '0.85rem',
                 fontWeight: '600',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
+                backgroundColor: '#f3e8ff',
+                color: '#7e22ce',
                 borderRadius: '6px',
                 marginTop: '0.25rem',
                 display: 'inline-block'
@@ -4028,19 +4029,19 @@ saveManager.restore(game, 0);
                 padding: '0.75rem 1.25rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                backgroundColor: '#10b981',
+                backgroundColor: '#8b5cf6',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
             >
               ← {previousName}
             </button>
@@ -4052,25 +4053,27 @@ saveManager.restore(game, 0);
                 padding: '0.75rem 1.25rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                backgroundColor: '#10b981',
+                backgroundColor: '#8b5cf6',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
             >
               {nextName} →
             </button>
           )}
         </div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         backgroundColor: 'rgba(99, 102, 241, 0.05)',

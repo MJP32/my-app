@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-export default function SpringAnnotationsQuestions({ onBack }) {
+export default function SpringAnnotationsQuestions({ onBack, breadcrumb }) {
   const [expandedQuestionId, setExpandedQuestionId] = useState(null)
   const categoryColor = '#a855f7'
 
@@ -2166,10 +2167,12 @@ public class UserService {
           color: '#1f2937',
           margin: 0
         }}>
-          📝 Spring Annotations Questions
+          Spring Annotations Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         display: 'flex',

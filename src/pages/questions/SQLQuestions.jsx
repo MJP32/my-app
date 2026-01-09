@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function SQLQuestions({ onBack }) {
+function SQLQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
 
   // Helper function to render formatted text with colors for bold sections
@@ -1167,10 +1168,12 @@ ORDER BY month;
           color: '#1f2937',
           margin: 0
         }}>
-          🗃️ SQL Interview Questions
+          SQL Interview Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <p style={{
         fontSize: '1.1rem',

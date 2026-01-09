@@ -1,9 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, lazy, Suspense, useMemo } from 'react'
+import { useNavigate, useLocation, Routes, Route } from 'react-router-dom'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import KeyboardShortcutsDialog from './components/KeyboardShortcutsDialog.jsx'
 import GlobalSearch from './components/GlobalSearch.jsx'
+import ThemeToggle from './components/ThemeToggle.jsx'
+import { useTheme } from './contexts/ThemeContext'
+import ProgressDashboard from './pages/ProgressDashboard.jsx'
+import BookmarkButton from './components/BookmarkButton.jsx'
+import LoadingSpinner from './components/LoadingSpinner.jsx'
 import { KEYS, SHORTCUTS, FocusManager, AriaUtils } from './utils/keyboardNavigation.js'
 import { FocusManager as FocusManagerUtil, focusHistory } from './utils/focusManagement.js'
 // Project pages
@@ -25,6 +31,7 @@ import VarCvar3 from './pages/projects/VarCvar3.jsx'
 import Testing from './pages/projects/Testing.jsx'
 import MyProjects from './pages/projects/MyProjects.jsx'
 import VirtualNumbers from './pages/projects/VirtualNumbers.jsx'
+import AIInterviewTips from './pages/projects/AIInterviewTips.jsx'
 
 // Messaging pages
 import ApacheKafka from './pages/messaging/ApacheKafka.jsx'
@@ -125,67 +132,69 @@ import GCP from './pages/cloud/GCP.jsx'
 import Azure from './pages/cloud/Azure.jsx'
 import Cloud from './pages/cloud/Cloud.jsx'
 
-// Algorithm pages
-import Arrays from './pages/algorithms/Arrays.jsx'
-import HashTables from './pages/algorithms/HashTables.jsx'
-import Strings from './pages/algorithms/Strings.jsx'
-import LinkedLists from './pages/algorithms/LinkedLists.jsx'
-import Stacks from './pages/algorithms/Stacks.jsx'
-import Queues from './pages/algorithms/Queues.jsx'
-import Sorting from './pages/algorithms/Sorting.jsx'
-import BinarySearch from './pages/algorithms/BinarySearch.jsx'
-import Recursion from './pages/algorithms/Recursion.jsx'
-import DataStructures from './pages/algorithms/DataStructures.jsx'
-import DynamicProgramming from './pages/algorithms/DynamicProgramming.jsx'
-import DynamicProgrammingPatterns from './pages/practice/DynamicProgrammingPatterns.jsx'
-import Trees from './pages/algorithms/Trees.jsx'
-import BinaryTrees from './pages/algorithms/BinaryTrees.jsx'
-import BinarySearchTrees from './pages/algorithms/BinarySearchTrees.jsx'
-import Graphs from './pages/algorithms/Graphs.jsx'
-import Heaps from './pages/algorithms/Heaps.jsx'
-import UnionFind from './pages/algorithms/UnionFind.jsx'
-import Trie from './pages/algorithms/Trie.jsx'
-import Searching from './pages/algorithms/Searching.jsx'
-import GreedyAlgorithms from './pages/algorithms/GreedyAlgorithms.jsx'
-import FamousAlgorithms from './pages/algorithms/FamousAlgorithms.jsx'
-import SlidingWindow from './pages/algorithms/SlidingWindow.jsx'
-import Backtracking from './pages/algorithms/Backtracking.jsx'
-import Intervals from './pages/algorithms/Intervals.jsx'
-import MathGeometry from './pages/algorithms/MathGeometry.jsx'
-import AdvancedGraphs from './pages/algorithms/AdvancedGraphs.jsx'
+// Algorithm pages - lazy loaded for better performance
+const Arrays = lazy(() => import('./pages/algorithms/Arrays.jsx'))
+const HashTables = lazy(() => import('./pages/algorithms/HashTables.jsx'))
+const Strings = lazy(() => import('./pages/algorithms/Strings.jsx'))
+const LinkedLists = lazy(() => import('./pages/algorithms/LinkedLists.jsx'))
+const Stacks = lazy(() => import('./pages/algorithms/Stacks.jsx'))
+const Queues = lazy(() => import('./pages/algorithms/Queues.jsx'))
+const Sorting = lazy(() => import('./pages/algorithms/Sorting.jsx'))
+const BinarySearch = lazy(() => import('./pages/algorithms/BinarySearch.jsx'))
+const Recursion = lazy(() => import('./pages/algorithms/Recursion.jsx'))
+const DataStructures = lazy(() => import('./pages/algorithms/DataStructures.jsx'))
+const DynamicProgramming = lazy(() => import('./pages/algorithms/DynamicProgramming.jsx'))
+const DynamicProgrammingPatterns = lazy(() => import('./pages/practice/DynamicProgrammingPatterns.jsx'))
+const Trees = lazy(() => import('./pages/algorithms/Trees.jsx'))
+const BinaryTrees = lazy(() => import('./pages/algorithms/BinaryTrees.jsx'))
+const BinarySearchTrees = lazy(() => import('./pages/algorithms/BinarySearchTrees.jsx'))
+const Graphs = lazy(() => import('./pages/algorithms/Graphs.jsx'))
+const Heaps = lazy(() => import('./pages/algorithms/Heaps.jsx'))
+const UnionFind = lazy(() => import('./pages/algorithms/UnionFind.jsx'))
+const Trie = lazy(() => import('./pages/algorithms/Trie.jsx'))
+const Searching = lazy(() => import('./pages/algorithms/Searching.jsx'))
+const GreedyAlgorithms = lazy(() => import('./pages/algorithms/GreedyAlgorithms.jsx'))
+const FamousAlgorithms = lazy(() => import('./pages/algorithms/FamousAlgorithms.jsx'))
+const SlidingWindow = lazy(() => import('./pages/algorithms/SlidingWindow.jsx'))
+const Backtracking = lazy(() => import('./pages/algorithms/Backtracking.jsx'))
+const Intervals = lazy(() => import('./pages/algorithms/Intervals.jsx'))
+const MathGeometry = lazy(() => import('./pages/algorithms/MathGeometry.jsx'))
+const AdvancedGraphs = lazy(() => import('./pages/algorithms/AdvancedGraphs.jsx'))
+const BitManipulation = lazy(() => import('./pages/algorithms/BitManipulation.jsx'))
+const TwoPointers = lazy(() => import('./pages/algorithms/TwoPointers.jsx'))
 
-// Design pages
-import DesignPatterns from './pages/design/DesignPatterns.jsx'
-import MicroservicePatterns from './pages/design/MicroservicePatterns.jsx'
-import SystemDesign from './pages/design/SystemDesign.jsx'
-import LRUCache from './pages/design/LRUCache.jsx'
-import RateLimiter from './pages/design/RateLimiter.jsx'
-import DesignProblems from './pages/design/DesignProblems.jsx'
-import DesignPatternsInteractive from './pages/design/DesignPatternsInteractive.jsx'
-import Design from './pages/design/Design.jsx'
-import CreditCardPortal from './pages/design/CreditCardPortal.jsx'
-import CreditCardPortal2 from './pages/design/CreditCardPortal2.jsx'
-import CreditCardPortal3 from './pages/design/CreditCardPortal3.jsx'
-import RideShare from './pages/design/RideShare.jsx'
-import GoogleDocs from './pages/design/GoogleDocs.jsx'
-import YouTube from './pages/design/YouTube.jsx'
-import Newsfeed from './pages/design/Newsfeed.jsx'
-import TinyURL from './pages/design/TinyURL.jsx'
-import WhatsApp from './pages/design/WhatsApp.jsx'
-import TypeAhead from './pages/design/TypeAhead.jsx'
-import Instagram from './pages/design/Instagram.jsx'
-import Netflix from './pages/design/Netflix.jsx'
-import Twitter from './pages/design/Twitter.jsx'
-import Amazon from './pages/design/Amazon.jsx'
-import Zoom from './pages/design/Zoom.jsx'
-import Dropbox from './pages/design/Dropbox.jsx'
-import NotificationSystem from './pages/design/NotificationSystem.jsx'
-import RateLimiterDesign from './pages/design/RateLimiterDesign.jsx'
-import FoodDelivery from './pages/design/FoodDelivery.jsx'
-import MobileWeatherApp from './pages/design/MobileWeatherApp.jsx'
-import ApartmentAlarmSystem from './pages/design/ApartmentAlarmSystem.jsx'
-import EventDrivenArchitecture from './pages/design/EventDrivenArchitecture.jsx'
-import DomainDrivenDesign from './pages/design/DomainDrivenDesign.jsx'
+// Design pages - lazy loaded for better performance
+const DesignPatterns = lazy(() => import('./pages/design/DesignPatterns.jsx'))
+const MicroservicePatterns = lazy(() => import('./pages/design/MicroservicePatterns.jsx'))
+const SystemDesign = lazy(() => import('./pages/design/SystemDesign.jsx'))
+const LRUCache = lazy(() => import('./pages/design/LRUCache.jsx'))
+const RateLimiter = lazy(() => import('./pages/design/RateLimiter.jsx'))
+const DesignProblems = lazy(() => import('./pages/design/DesignProblems.jsx'))
+const DesignPatternsInteractive = lazy(() => import('./pages/design/DesignPatternsInteractive.jsx'))
+const Design = lazy(() => import('./pages/design/Design.jsx'))
+const CreditCardPortal = lazy(() => import('./pages/design/CreditCardPortal.jsx'))
+const CreditCardPortal2 = lazy(() => import('./pages/design/CreditCardPortal2.jsx'))
+const CreditCardPortal3 = lazy(() => import('./pages/design/CreditCardPortal3.jsx'))
+const RideShare = lazy(() => import('./pages/design/RideShare.jsx'))
+const GoogleDocs = lazy(() => import('./pages/design/GoogleDocs.jsx'))
+const YouTube = lazy(() => import('./pages/design/YouTube.jsx'))
+const Newsfeed = lazy(() => import('./pages/design/Newsfeed.jsx'))
+const TinyURL = lazy(() => import('./pages/design/TinyURL.jsx'))
+const WhatsApp = lazy(() => import('./pages/design/WhatsApp.jsx'))
+const TypeAhead = lazy(() => import('./pages/design/TypeAhead.jsx'))
+const Instagram = lazy(() => import('./pages/design/Instagram.jsx'))
+const Netflix = lazy(() => import('./pages/design/Netflix.jsx'))
+const Twitter = lazy(() => import('./pages/design/Twitter.jsx'))
+const Amazon = lazy(() => import('./pages/design/Amazon.jsx'))
+const Zoom = lazy(() => import('./pages/design/Zoom.jsx'))
+const Dropbox = lazy(() => import('./pages/design/Dropbox.jsx'))
+const NotificationSystem = lazy(() => import('./pages/design/NotificationSystem.jsx'))
+const RateLimiterDesign = lazy(() => import('./pages/design/RateLimiterDesign.jsx'))
+const FoodDelivery = lazy(() => import('./pages/design/FoodDelivery.jsx'))
+const MobileWeatherApp = lazy(() => import('./pages/design/MobileWeatherApp.jsx'))
+const ApartmentAlarmSystem = lazy(() => import('./pages/design/ApartmentAlarmSystem.jsx'))
+const EventDrivenArchitecture = lazy(() => import('./pages/design/EventDrivenArchitecture.jsx'))
+const DomainDrivenDesign = lazy(() => import('./pages/design/DomainDrivenDesign.jsx'))
 
 // System Design Concept pages
 import LoadBalancing from './pages/concepts/LoadBalancing.jsx'
@@ -236,6 +245,7 @@ import CollectionsModule from './pages/python/CollectionsModule.jsx'
 import SortingFunctions from './pages/python/SortingFunctions.jsx'
 import LeetCodePatterns from './pages/python/LeetCodePatterns.jsx'
 import SortingAlgorithms from './pages/python/SortingAlgorithms.jsx'
+import StringAlgorithms from './pages/python/StringAlgorithms.jsx'
 import Frameworks from './pages/Frameworks.jsx'
 import StudyGuideModal from './components/StudyGuideModal.jsx'
 import AccountDropdown from './components/AccountDropdown.jsx'
@@ -243,7 +253,9 @@ import KeyboardGuide from './components/KeyboardGuide.jsx'
 import FeedbackModal from './components/FeedbackModal.jsx'
 import GoogleAnalytics from './components/GoogleAnalytics.jsx'
 import { initializeUser, getProgressStats, getCategoryStats, getCategoryGroupings, getAllPracticeProblems, getCompletedProblems, migrateCompletionData } from './services/progressService'
-import { onAuthStateChange } from './services/authService'
+import { onAuthStateChange, getCurrentUser } from './services/authService'
+import { GamificationHeader, XPGainNotification } from './components/gamification'
+import { checkStreakStatus } from './services/gamificationService'
 
 // Category organization metadata (for visual grouping)
 const categoryOrganization = {
@@ -271,6 +283,13 @@ const categoryOrganization = {
 
 // Main category groups (defined outside component to prevent recreation)
 const categoryGroups = {
+  'Progress Dashboard': {
+    icon: '📊',
+    color: '#6366f1',
+    groupSection: 'Overview',
+    description: 'Track your learning progress',
+    items: []
+  },
   'Java': {
     icon: '☕',
     color: '#f59e0b',
@@ -611,9 +630,40 @@ const getDesignComponentIndex = (componentName) => {
   return DESIGN_COMPONENTS_ORDER.indexOf(componentName)
 }
 
+// Route mapping for URL-based navigation
+const ROUTE_TO_PAGE = {
+  '/': '',
+  '/java': 'Java',
+  '/python': 'Python',
+  '/practice': 'Practice',
+  '/design': 'Design',
+  '/questions': 'Questions',
+  '/frameworks': 'Frameworks',
+  '/databases': 'Databases',
+  '/devops': 'DevOps',
+  '/cloud': 'Cloud',
+  '/security': 'Security',
+  '/messaging': 'Messaging',
+  '/projects': 'Projects',
+  '/progress': 'Progress'
+}
+
+const PAGE_TO_ROUTE = Object.fromEntries(
+  Object.entries(ROUTE_TO_PAGE).map(([route, page]) => [page, route])
+)
+
 function App() {
+  const navigate = useNavigate()
+  const location = useLocation()
+
   const [count, setCount] = useState(0)
-  const [selectedOption, setSelectedOption] = useState('')
+  const [selectedOption, setSelectedOption] = useState(() => {
+    // Initialize from URL on first load
+    return ROUTE_TO_PAGE[location.pathname] || ''
+  })
+  const [pythonInitialCategory, setPythonInitialCategory] = useState(null)
+  const [javaInitialCategory, setJavaInitialCategory] = useState(null)
+  const [designInitialCategory, setDesignInitialCategory] = useState(null)
   const [hoveredOption, setHoveredOption] = useState(null)
   const [expandedGroup, setExpandedGroup] = useState(null)
   const [expandedSubcategory, setExpandedSubcategory] = useState(null)
@@ -758,14 +808,27 @@ function App() {
   // Initialize user and progress tracking on mount
   useEffect(() => {
     initializeUser()
-    
-    // Read initial page from URL parameter
-    const params = new URLSearchParams(window.location.search)
-    const pageParam = params.get('page')
-    if (pageParam) {
-      setSelectedOption(pageParam)
-    }
   }, [])
+
+  // Sync URL with selectedOption (URL -> State)
+  useEffect(() => {
+    const pageFromUrl = ROUTE_TO_PAGE[location.pathname]
+    if (pageFromUrl !== undefined && pageFromUrl !== selectedOption) {
+      setSelectedOption(pageFromUrl)
+    }
+  }, [location.pathname])
+
+  // Helper to navigate with URL update
+  const setSelectedOptionAndNavigate = useCallback((option) => {
+    setSelectedOption(option)
+    const route = PAGE_TO_ROUTE[option]
+    if (route && location.pathname !== route) {
+      navigate(route)
+    } else if (!route && option && location.pathname !== '/') {
+      // For pages without routes, go to home but keep state
+      navigate('/')
+    }
+  }, [navigate, location.pathname])
 
   // Listen for auth state changes
   useEffect(() => {
@@ -774,6 +837,8 @@ function App() {
       // Migrate old completion data to user-specific storage when user logs in
       if (user) {
         migrateCompletionData()
+        // Check streak status when user logs in
+        checkStreakStatus(user.uid)
       }
     })
 
@@ -1011,6 +1076,14 @@ function App() {
 
     selectedOptionRef.current = value
     setSelectedOption(value)
+
+    // Update URL for main sections
+    const route = PAGE_TO_ROUTE[value]
+    if (route) {
+      navigate(route, { replace: true })
+    } else if (!value) {
+      navigate('/', { replace: true })
+    }
   }
 
   // Practice component navigation helpers
@@ -1265,7 +1338,77 @@ function App() {
       }, 50)
     } : null
 
-    return { onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory }
+    // Create close function for current component
+    const closeCurrentModal = {
+      'Arrays': () => setShowArraysModal(false),
+      'Hash Tables': () => setShowHashTablesModal(false),
+      'Stacks': () => setShowStacksModal(false),
+      'Queues': () => setShowQueuesModal(false),
+      'Trees': () => setShowTreesModal(false),
+      'Binary Trees': () => setShowBinaryTreesModal(false),
+      'Binary Search Trees': () => setShowBinarySearchTreesModal(false),
+      'Graphs': () => setShowGraphsModal(false),
+      'Heaps': () => setShowHeapsModal(false),
+      'Linked Lists': () => setShowLinkedListsModal(false),
+      'Sorting': () => setShowSortingModal(false),
+      'Binary Search': () => setShowBinarySearchModal(false),
+      'Recursion': () => setShowRecursionModal(false),
+      'Dynamic Programming': () => setShowDynamicProgrammingModal(false),
+      'Streams': () => setShowStreamsModal(false),
+      'Streams Advanced': () => setShowStreamsAdvancedModal(false),
+      'Lambdas': () => setShowLambdasModal(false),
+      'Lambdas Advanced': () => setShowLambdasAdvancedModal(false),
+      'Functional Interfaces': () => setShowFunctionalInterfacesModal(false),
+      'Collections Framework': () => setShowCollectionsFrameworkModal(false),
+      'Concurrency': () => setShowConcurrencyModal(false),
+      'Multithreading': () => setShowMultithreadingModal(false),
+      'Object-Oriented Programming': () => setShowObjectOrientedProgrammingModal(false),
+      'Exception Handling': () => setShowExceptionHandlingModal(false),
+      'File I/O': () => setShowFileIOModal(false),
+      'JVM Internals': () => setShowJVMInternalsModal(false),
+      'Memory Management': () => setShowMemoryManagementModal(false),
+      'Data Structures': () => setShowDataStructuresModal(false),
+      'Strings': () => setShowStringsModal(false),
+      'Generics': () => setShowGenericsModal(false),
+      'Design Patterns Practice': () => setShowDesignPatternsPracticeModal(false),
+      'LRU Cache': () => setShowLRUCacheModal(false),
+      'Rate Limiter': () => setShowRateLimiterModal(false),
+      'Design Problems': () => setShowDesignProblemsModal(false),
+      'Union Find': () => setShowUnionFindModal(false),
+      'Trie': () => setShowTrieModal(false),
+      'Advanced Graphs': () => setShowAdvancedGraphsModal(false),
+      'Backtracking': () => setShowBacktrackingModal(false),
+      'Greedy Algorithms': () => setShowGreedyAlgorithmsModal(false),
+      'Intervals': () => setShowIntervalsModal(false),
+      'Math Geometry': () => setShowMathGeometryModal(false),
+      'Searching': () => setShowSearchingModal(false),
+      'Sliding Window': () => setShowSlidingWindowModal(false),
+      'Two Pointers': () => setShowTwoPointersModal(false),
+      'Famous Algorithms': () => setShowFamousAlgorithmsModal(false),
+      'Bit Manipulation': () => setShowBitManipulationModal(false)
+    }[currentComponentName]
+
+    // Breadcrumb for Practice section navigation
+    const breadcrumb = {
+      section: {
+        name: 'Practice',
+        icon: '🎯',
+        onClick: () => {
+          if (closeCurrentModal) closeCurrentModal()
+          setSelectedOptionAndRef('Practice')
+        }
+      },
+      category: currentSubcategory ? {
+        name: currentSubcategory,
+        onClick: () => {
+          if (closeCurrentModal) closeCurrentModal()
+          setSelectedOptionAndRef('Practice')
+        }
+      } : null,
+      topic: currentComponentName
+    }
+
+    return { onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb }
   }
 
   // Create navigation callbacks for learning components
@@ -2763,46 +2906,126 @@ function App() {
     showSpringAnnotationsQuestionsModal
   ]);
 
+  // Design topic category mapping for breadcrumbs (component level for modal access)
+  const designTopicCategories = {
+    'Design Patterns': { name: 'Software Patterns', id: 'patterns' },
+    'Class': { name: 'Software Patterns', id: 'patterns' },
+    'Module': { name: 'Software Patterns', id: 'patterns' },
+    'Function': { name: 'Software Patterns', id: 'patterns' },
+    'Interface': { name: 'Software Patterns', id: 'patterns' },
+    'System Design': { name: 'Architecture', id: 'architecture' },
+    'Microservice Design Patterns': { name: 'Architecture', id: 'architecture' },
+    'Event Driven Architecture': { name: 'Architecture', id: 'architecture' },
+    'Domain Driven Design': { name: 'Architecture', id: 'architecture' }
+  }
+
+  // Helper function to navigate to Design with a specific category
+  const goToDesignCategory = (categoryId) => {
+    setDesignInitialCategory(categoryId)
+    setSelectedOptionAndRef('Design')
+  }
+
   // Component rendering logic
   const renderSelectedComponent = () => {
     if (selectedOption === 'Java') {
       return <Java
-        onBack={() => setSelectedOptionAndRef('')}
+        onBack={() => {
+          setJavaInitialCategory(null)
+          setSelectedOptionAndRef('')
+        }}
         onSelectItem={(item) => {
           // Open the appropriate Java version component
           setSelectedOptionAndRef(item)
         }}
+        initialCategory={javaInitialCategory}
       />
     }
     if (selectedOption === 'Python') {
       return <Python
-        onBack={() => setSelectedOptionAndRef('')}
+        onBack={() => {
+          setPythonInitialCategory(null)
+          setSelectedOptionAndRef('')
+        }}
         onSelectItem={(item) => {
           setSelectedOptionAndRef(item)
         }}
+        initialCategory={pythonInitialCategory}
       />
     }
+    // Python topic category mapping for breadcrumbs
+    const pythonTopicCategories = {
+      'Core Python': { name: 'Fundamentals', id: 'fundamentals' },
+      'Python OOP': { name: 'Fundamentals', id: 'fundamentals' },
+      'Index Slicing': { name: 'Fundamentals', id: 'fundamentals' },
+      'Bitwise Operations': { name: 'Fundamentals', id: 'fundamentals' },
+      'Python Set Operations': { name: 'Data Structures & Collections', id: 'data-structures' },
+      'Python Dict Operations': { name: 'Data Structures & Collections', id: 'data-structures' },
+      'Python Tuples': { name: 'Data Structures & Collections', id: 'data-structures' },
+      'List Comprehension': { name: 'Data Structures & Collections', id: 'data-structures' },
+      'Sorting Algorithms': { name: 'Algorithms', id: 'algorithms' },
+      'String Algorithms': { name: 'Algorithms', id: 'algorithms' },
+      'DP Patterns': { name: 'Algorithms', id: 'algorithms' },
+      'Lambda': { name: 'Functional Programming', id: 'functional' },
+      'Python Map Functions': { name: 'Functional Programming', id: 'functional' },
+      'Itertools': { name: 'Modules & Utilities', id: 'modules' },
+      'Collections Module': { name: 'Modules & Utilities', id: 'modules' },
+      'Sorting Functions': { name: 'Modules & Utilities', id: 'modules' },
+      'Bisect Functions': { name: 'Modules & Utilities', id: 'modules' },
+      'Python String Methods': { name: 'Modules & Utilities', id: 'modules' },
+      'Python Advanced': { name: 'Advanced Topics', id: 'advanced' },
+      'Async Python': { name: 'Advanced Topics', id: 'advanced' },
+      'Web Frameworks': { name: 'Web Development', id: 'web' },
+      'Data Science': { name: 'Data Science & ML', id: 'data-science' },
+      'Machine Learning': { name: 'Data Science & ML', id: 'data-science' },
+      'Python Heaps': { name: 'Reference & Best Practices', id: 'reference' },
+      'Python Pitfalls': { name: 'Reference & Best Practices', id: 'reference' },
+      'Python Regex': { name: 'Reference & Best Practices', id: 'reference' },
+      'LeetCode Patterns': { name: 'Interview Preparation', id: 'interview' }
+    }
+
+    // Helper function to navigate to Python with a specific category
+    const goToPythonCategory = (categoryId) => {
+      setPythonInitialCategory(categoryId)
+      setSelectedOptionAndRef('Python')
+    }
+
+    // Java topic category mapping for breadcrumbs
+    const javaTopicCategories = {
+      'Core Java': { name: 'Fundamentals', id: 'fundamentals' },
+      'Java 8': { name: 'Modern Java (8-11)', id: 'modern-java' },
+      'Java 11': { name: 'Modern Java (8-11)', id: 'modern-java' },
+      'Java 15': { name: 'Recent Releases (15-21)', id: 'recent-releases' },
+      'Java 21': { name: 'Recent Releases (15-21)', id: 'recent-releases' },
+      'Java 24': { name: 'Preview Features', id: 'preview' }
+    }
+
+    // Helper function to navigate to Java with a specific category
+    const goToJavaCategory = (categoryId) => {
+      setJavaInitialCategory(categoryId)
+      setSelectedOptionAndRef('Java')
+    }
+
     // Python topic routes
     if (selectedOption === 'Core Python') {
-      return <CorePython onBack={() => setSelectedOptionAndRef('Python')} />
+      return <CorePython onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Core Python'].name, topic: 'Core Python', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Core Python'].id) }} />
     }
     if (selectedOption === 'Python OOP') {
-      return <PythonOOP onBack={() => setSelectedOptionAndRef('Python')} />
+      return <PythonOOP onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Python OOP'].name, topic: 'Object-Oriented Programming', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Python OOP'].id) }} />
     }
     if (selectedOption === 'Index Slicing') {
-      return <IndexSlicing onBack={() => setSelectedOptionAndRef('Python')} />
+      return <IndexSlicing onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Index Slicing'].name, topic: 'Index Slicing', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Index Slicing'].id) }} />
     }
     if (selectedOption === 'Bitwise Operations') {
-      return <BitwiseOperations onBack={() => setSelectedOptionAndRef('Python')} />
+      return <BitwiseOperations onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Bitwise Operations'].name, topic: 'Bitwise Operations', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Bitwise Operations'].id) }} />
     }
     if (selectedOption === 'List Comprehension') {
-      return <ListComprehension onBack={() => setSelectedOptionAndRef('Python')} />
+      return <ListComprehension onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['List Comprehension'].name, topic: 'List Comprehension', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['List Comprehension'].id) }} />
     }
     if (selectedOption === 'Lambda') {
-      return <LambdaFunctions onBack={() => setSelectedOptionAndRef('Python')} />
+      return <LambdaFunctions onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Lambda'].name, topic: 'Lambda Functions', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Lambda'].id) }} />
     }
     if (selectedOption === 'Bisect Functions') {
-      return <BisectFunctions onBack={() => setSelectedOptionAndRef('Python')} />
+      return <BisectFunctions onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Bisect Functions'].name, topic: 'Bisect Functions', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Bisect Functions'].id) }} />
     }
     if (selectedOption === 'Set Operations') {
       return <SetOperations onBack={() => setSelectedOptionAndRef('Practice')} />
@@ -2811,58 +3034,64 @@ function App() {
       return <MapOperations onBack={() => setSelectedOptionAndRef('Practice')} />
     }
     if (selectedOption === 'Python Advanced') {
-      return <PythonAdvanced onBack={() => setSelectedOptionAndRef('Python')} />
+      return <PythonAdvanced onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Python Advanced'].name, topic: 'Python Advanced', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Python Advanced'].id) }} />
     }
     if (selectedOption === 'Data Science') {
-      return <PythonTopicPlaceholder topicName="Data Science" onBack={() => setSelectedOptionAndRef('Python')} />
+      return <PythonTopicPlaceholder topicName="Data Science" onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Data Science'].name, topic: 'Data Science', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Data Science'].id) }} />
     }
     if (selectedOption === 'Machine Learning') {
-      return <PythonTopicPlaceholder topicName="Machine Learning" onBack={() => setSelectedOptionAndRef('Python')} />
+      return <PythonTopicPlaceholder topicName="Machine Learning" onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Machine Learning'].name, topic: 'Machine Learning', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Machine Learning'].id) }} />
     }
     if (selectedOption === 'Web Frameworks') {
-      return <PythonTopicPlaceholder topicName="Web Frameworks" onBack={() => setSelectedOptionAndRef('Python')} />
+      return <PythonTopicPlaceholder topicName="Web Frameworks" onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Web Frameworks'].name, topic: 'Web Frameworks', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Web Frameworks'].id) }} />
     }
     if (selectedOption === 'Async Python') {
-      return <PythonTopicPlaceholder topicName="Async Python" onBack={() => setSelectedOptionAndRef('Python')} />
+      return <PythonTopicPlaceholder topicName="Async Python" onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Async Python'].name, topic: 'Async Python', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Async Python'].id) }} />
     }
     if (selectedOption === 'Python Set Operations') {
-      return <PythonSetOperations onBack={() => setSelectedOptionAndRef('Python')} />
+      return <PythonSetOperations onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Python Set Operations'].name, topic: 'Set Operations', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Python Set Operations'].id) }} />
     }
     if (selectedOption === 'Python Dict Operations') {
-      return <PythonDictOperations onBack={() => setSelectedOptionAndRef('Python')} />
+      return <PythonDictOperations onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Python Dict Operations'].name, topic: 'Dictionary Operations', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Python Dict Operations'].id) }} />
     }
     if (selectedOption === 'Python Tuples') {
-      return <PythonTuples onBack={() => setSelectedOptionAndRef('Python')} />
+      return <PythonTuples onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Python Tuples'].name, topic: 'Tuple Operations', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Python Tuples'].id) }} />
     }
     if (selectedOption === 'Python Map Functions') {
-      return <PythonMapFunctions onBack={() => setSelectedOptionAndRef('Python')} />
+      return <PythonMapFunctions onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Python Map Functions'].name, topic: 'Map Functions', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Python Map Functions'].id) }} />
     }
     if (selectedOption === 'Python String Methods') {
-      return <PythonStringMethods onBack={() => setSelectedOptionAndRef('Python')} />
+      return <PythonStringMethods onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Python String Methods'].name, topic: 'String Methods', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Python String Methods'].id) }} />
     }
     if (selectedOption === 'Python Heaps') {
-      return <PythonHeaps onBack={() => setSelectedOptionAndRef('Python')} />
+      return <PythonHeaps onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Python Heaps'].name, topic: 'Heaps Reference', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Python Heaps'].id) }} />
     }
     if (selectedOption === 'Python Pitfalls') {
-      return <PythonPitfalls onBack={() => setSelectedOptionAndRef('Python')} />
+      return <PythonPitfalls onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Python Pitfalls'].name, topic: 'Common Pitfalls', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Python Pitfalls'].id) }} />
     }
     if (selectedOption === 'Python Regex') {
-      return <PythonRegex onBack={() => setSelectedOptionAndRef('Python')} />
+      return <PythonRegex onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Python Regex'].name, topic: 'Regular Expressions', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Python Regex'].id) }} />
     }
     if (selectedOption === 'Itertools') {
-      return <Itertools onBack={() => setSelectedOptionAndRef('Python')} />
+      return <Itertools onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Itertools'].name, topic: 'Itertools', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Itertools'].id) }} />
     }
     if (selectedOption === 'Collections Module') {
-      return <CollectionsModule onBack={() => setSelectedOptionAndRef('Python')} />
+      return <CollectionsModule onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Collections Module'].name, topic: 'Collections Module', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Collections Module'].id) }} />
     }
     if (selectedOption === 'Sorting Functions') {
-      return <SortingFunctions onBack={() => setSelectedOptionAndRef('Python')} />
+      return <SortingFunctions onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Sorting Functions'].name, topic: 'Sorting Functions', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Sorting Functions'].id) }} />
     }
     if (selectedOption === 'LeetCode Patterns') {
-      return <LeetCodePatterns onBack={() => setSelectedOptionAndRef('Python')} />
+      return <LeetCodePatterns onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['LeetCode Patterns'].name, topic: 'LeetCode Patterns', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['LeetCode Patterns'].id) }} />
+    }
+    if (selectedOption === 'DP Patterns') {
+      return <DynamicProgrammingPatterns onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['DP Patterns'].name, topic: 'DP Patterns', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['DP Patterns'].id) }} />
     }
     if (selectedOption === 'Sorting Algorithms') {
-      return <SortingAlgorithms onBack={() => setSelectedOptionAndRef('Python')} />
+      return <SortingAlgorithms onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['Sorting Algorithms'].name, topic: 'Sorting Algorithms', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['Sorting Algorithms'].id) }} />
+    }
+    if (selectedOption === 'String Algorithms') {
+      return <StringAlgorithms onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ category: pythonTopicCategories['String Algorithms'].name, topic: 'String Algorithms', onPythonClick: () => setSelectedOptionAndRef('Python'), onCategoryClick: () => goToPythonCategory(pythonTopicCategories['String Algorithms'].id) }} />
     }
     if (selectedOption === 'Event Driven Architecture') {
       setShowEventDrivenArchitectureModal(true)
@@ -2876,11 +3105,15 @@ function App() {
     }
     if (selectedOption === 'Design') {
       return <Design
-        onBack={() => setSelectedOptionAndRef('')}
+        onBack={() => {
+          setDesignInitialCategory(null)
+          setSelectedOptionAndRef('')
+        }}
         onSelectItem={(item) => {
           // Open the appropriate design topic
           setSelectedOptionAndRef(item)
         }}
+        initialCategory={designInitialCategory}
       />
     }
     if (selectedOption === 'Databases') {
@@ -2890,6 +3123,12 @@ function App() {
           // Open the appropriate database topic
           setSelectedOptionAndRef(item)
         }}
+      />
+    }
+    if (selectedOption === 'Progress Dashboard') {
+      return <ProgressDashboard
+        onBack={() => setSelectedOptionAndRef('')}
+        onNavigate={(item) => setSelectedOptionAndRef(item)}
       />
     }
     if (selectedOption === 'My Projects') {
@@ -2982,7 +3221,7 @@ function App() {
     }
     if (selectedOption === 'Core Java') {
       const navCallbacks = createLearningNavigationCallbacks('Core Java')
-      return <CoreJava onBack={() => setSelectedOptionAndRef('')} {...navCallbacks} />
+      return <CoreJava onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Core Java'].name, onClick: () => goToJavaCategory(javaTopicCategories['Core Java'].id) }, topic: 'Core Java' }} />
     }
     if (selectedOption === 'Function') {
       setShowFunctionModal(true)
@@ -2991,23 +3230,23 @@ function App() {
     }
     if (selectedOption === 'Java 11') {
       const navCallbacks = createLearningNavigationCallbacks('Java 11')
-      return <Java11 onBack={() => setSelectedOptionAndRef('')} {...navCallbacks} />
+      return <Java11 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 11'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 11'].id) }, topic: 'Java 11 LTS' }} />
     }
     if (selectedOption === 'Java 8') {
       const navCallbacks = createLearningNavigationCallbacks('Java 8')
-      return <Java8 onBack={() => setSelectedOptionAndRef('')} {...navCallbacks} />
+      return <Java8 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 8'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 8'].id) }, topic: 'Java 8' }} />
     }
     if (selectedOption === 'Java 15') {
       const navCallbacks = createLearningNavigationCallbacks('Java 15')
-      return <Java15 onBack={() => setSelectedOptionAndRef('')} {...navCallbacks} />
+      return <Java15 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 15'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 15'].id) }, topic: 'Java 15' }} />
     }
     if (selectedOption === 'Java 21') {
       const navCallbacks = createLearningNavigationCallbacks('Java 21')
-      return <Java21 onBack={() => setSelectedOptionAndRef('')} {...navCallbacks} />
+      return <Java21 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 21'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 21'].id) }, topic: 'Java 21 LTS' }} />
     }
     if (selectedOption === 'Java 24') {
       const navCallbacks = createLearningNavigationCallbacks('Java 24')
-      return <Java24 onBack={() => setSelectedOptionAndRef('')} {...navCallbacks} />
+      return <Java24 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 24'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 24'].id) }, topic: 'Java 24 Preview' }} />
     }
     if (selectedOption === 'Design Patterns') {
       setShowDesignPatternsModal(true)
@@ -3106,13 +3345,22 @@ function App() {
     }
 
     if (selectedOption === 'JWT') {
-      return <JWT onBack={() => setSelectedOptionAndRef('DevOps')} {...createDevOpsNavigationCallbacks('JWT')} />
+      return <JWT onBack={() => setSelectedOptionAndRef('Security')} {...createDevOpsNavigationCallbacks('JWT')} breadcrumb={{
+        section: { name: 'Security', icon: '🔒', onClick: () => setSelectedOptionAndRef('Security') },
+        topic: 'JWT (JSON Web Tokens)'
+      }} />
     }
     if (selectedOption === 'OAuth') {
-      return <OAuth onBack={() => setSelectedOptionAndRef('DevOps')} {...createDevOpsNavigationCallbacks('OAuth')} />
+      return <OAuth onBack={() => setSelectedOptionAndRef('Security')} {...createDevOpsNavigationCallbacks('OAuth')} breadcrumb={{
+        section: { name: 'Security', icon: '🔒', onClick: () => setSelectedOptionAndRef('Security') },
+        topic: 'OAuth 1.0'
+      }} />
     }
     if (selectedOption === 'OAuth2') {
-      return <OAuth2 onBack={() => setSelectedOptionAndRef('DevOps')} {...createDevOpsNavigationCallbacks('OAuth2')} />
+      return <OAuth2 onBack={() => setSelectedOptionAndRef('Security')} {...createDevOpsNavigationCallbacks('OAuth2')} breadcrumb={{
+        section: { name: 'Security', icon: '🔒', onClick: () => setSelectedOptionAndRef('Security') },
+        topic: 'OAuth 2.0'
+      }} />
     }
     if (selectedOption === 'System Design') {
       setShowSystemDesignModal(true)
@@ -3120,128 +3368,302 @@ function App() {
       return null
     }
     if (selectedOption === 'Financial Banking') {
-      return <FinancialBanking onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <FinancialBanking onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'Financial & Trading Systems', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Financial Banking'
+      }} />
     }
     if (selectedOption === 'Credit Card Portal') {
-      return <CreditCardPortal onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <CreditCardPortal onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'Financial & Trading Systems', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Credit Card Portal'
+      }} />
     }
     if (selectedOption === 'Credit Card Portal 2') {
-      return <CreditCardPortal2 onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <CreditCardPortal2 onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'Financial & Trading Systems', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Credit Card Portal 2'
+      }} />
     }
     if (selectedOption === 'Credit Card Portal 3') {
-      return <CreditCardPortal3 onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <CreditCardPortal3 onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'Financial & Trading Systems', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Credit Card Portal 3'
+      }} />
     }
     if (selectedOption === 'Virtual Numbers') {
-      return <VirtualNumbers onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <VirtualNumbers onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'Financial & Trading Systems', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Virtual Numbers'
+      }} />
+    }
+    if (selectedOption === 'AI Interview Tips') {
+      return <AIInterviewTips
+        onBack={() => setSelectedOptionAndRef('My Projects')}
+        breadcrumb={{
+          section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          category: { name: 'Interview Preparation', onClick: () => setSelectedOptionAndRef('My Projects') },
+          topic: 'AI-Enabled Technical Interview'
+        }}
+      />
     }
     if (selectedOption === 'Ride Share') {
-      return <RideShare onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <RideShare onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Projects', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Ride Share'
+      }} />
     }
     if (selectedOption === 'Google Docs') {
-      return <GoogleDocs onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <GoogleDocs onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Projects', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Google Docs'
+      }} />
     }
     if (selectedOption === 'YouTube') {
-      return <YouTube onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <YouTube onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Projects', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'YouTube'
+      }} />
     }
     if (selectedOption === 'Newsfeed System') {
-      return <Newsfeed onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <Newsfeed onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Projects', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Newsfeed System'
+      }} />
     }
     if (selectedOption === 'TinyURL') {
-      return <TinyURL onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <TinyURL onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Projects', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'TinyURL'
+      }} />
     }
     if (selectedOption === 'WhatsApp') {
-      return <WhatsApp onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <WhatsApp onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Projects', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'WhatsApp'
+      }} />
     }
     if (selectedOption === 'Type Ahead System') {
-      return <TypeAhead onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <TypeAhead onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Projects', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Type Ahead System'
+      }} />
     }
     if (selectedOption === 'Instagram') {
-      return <Instagram onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <Instagram onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Projects', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Instagram'
+      }} />
     }
     if (selectedOption === 'Netflix') {
-      return <Netflix onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <Netflix onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Projects', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Netflix'
+      }} />
     }
     if (selectedOption === 'Twitter') {
-      return <Twitter onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <Twitter onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Projects', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Twitter/X'
+      }} />
     }
     if (selectedOption === 'Amazon') {
-      return <Amazon onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <Amazon onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Projects', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Amazon E-Commerce'
+      }} />
     }
     if (selectedOption === 'Zoom') {
-      return <Zoom onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <Zoom onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Projects', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Zoom'
+      }} />
     }
     if (selectedOption === 'Dropbox') {
-      return <Dropbox onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <Dropbox onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Projects', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Dropbox'
+      }} />
     }
     if (selectedOption === 'Notification System') {
-      return <NotificationSystem onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <NotificationSystem onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Projects', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Notification System'
+      }} />
     }
     if (selectedOption === 'Rate Limiter') {
-      return <RateLimiterDesign onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <RateLimiterDesign onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Projects', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Rate Limiter'
+      }} />
     }
     if (selectedOption === 'Food Delivery') {
-      return <FoodDelivery onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <FoodDelivery onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Projects', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Food Delivery'
+      }} />
     }
     if (selectedOption === 'Mobile Weather App') {
-      return <MobileWeatherApp onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <MobileWeatherApp onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'Mobile & IoT', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Mobile Weather App'
+      }} />
     }
     if (selectedOption === 'Apartment Alarm System') {
-      return <ApartmentAlarmSystem onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <ApartmentAlarmSystem onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'Mobile & IoT', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Apartment Alarm System'
+      }} />
     }
     // System Design Concepts
     if (selectedOption === 'Load Balancing') {
-      return <LoadBalancing onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <LoadBalancing onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Concepts', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Load Balancing'
+      }} />
     }
     if (selectedOption === 'Caching Strategies') {
-      return <CachingStrategies onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <CachingStrategies onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Concepts', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Caching Strategies'
+      }} />
     }
     if (selectedOption === 'Database Sharding') {
-      return <DatabaseSharding onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <DatabaseSharding onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Concepts', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Database Sharding'
+      }} />
     }
     if (selectedOption === 'CAP Theorem') {
-      return <CAPTheorem onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <CAPTheorem onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Concepts', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'CAP Theorem'
+      }} />
     }
     if (selectedOption === 'Consistency Patterns') {
-      return <ConsistencyPatterns onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <ConsistencyPatterns onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Concepts', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Consistency Patterns'
+      }} />
     }
     if (selectedOption === 'API Design') {
-      return <APIDesign onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <APIDesign onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Concepts', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'API Design & REST'
+      }} />
     }
     if (selectedOption === 'Message Queues') {
-      return <MessageQueues onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <MessageQueues onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Concepts', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Message Queues'
+      }} />
     }
     if (selectedOption === 'CDN') {
-      return <CDN onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <CDN onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Concepts', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Content Delivery Network'
+      }} />
     }
     if (selectedOption === 'Database Replication') {
-      return <DatabaseReplication onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <DatabaseReplication onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Concepts', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Database Replication'
+      }} />
     }
     if (selectedOption === 'Scaling') {
-      return <Scaling onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <Scaling onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Concepts', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Horizontal vs Vertical Scaling'
+      }} />
     }
     if (selectedOption === 'Proxies') {
-      return <Proxies onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <Proxies onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Concepts', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Proxies & Reverse Proxies'
+      }} />
     }
     if (selectedOption === 'Data Partitioning') {
-      return <DataPartitioning onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <DataPartitioning onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Concepts', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Data Partitioning'
+      }} />
     }
     if (selectedOption === 'SQL vs NoSQL') {
-      return <SQLvsNoSQL onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <SQLvsNoSQL onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Concepts', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'SQL vs NoSQL'
+      }} />
     }
     if (selectedOption === 'Consistent Hashing') {
-      return <ConsistentHashing onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <ConsistentHashing onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Concepts', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Consistent Hashing'
+      }} />
     }
     if (selectedOption === 'WebSockets') {
-      return <WebSockets onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <WebSockets onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Concepts', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Long Polling vs WebSockets'
+      }} />
     }
     if (selectedOption === 'Blob Storage') {
-      return <BlobStorage onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <BlobStorage onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Concepts', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Blob Storage'
+      }} />
     }
     if (selectedOption === 'Microservices') {
-      return <Microservices onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <Microservices onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Concepts', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Microservices Architecture'
+      }} />
     }
     if (selectedOption === 'Event-Driven') {
-      return <EventDriven onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <EventDriven onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+        category: { name: 'System Design Concepts', onClick: () => setSelectedOptionAndRef('My Projects') },
+        topic: 'Event-Driven Architecture'
+      }} />
     }
     if (selectedOption === 'Solace') {
       setShowSolaceModal(true)
@@ -3545,8 +3967,51 @@ function App() {
     return null
   }
 
+  // Get theme from context
+  const { isDark, colors } = useTheme()
+
+  // Reusable modal styles
+  const modalOverlayStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000000,
+    padding: '1rem',
+    overflow: 'auto'
+  }
+
+  const modalContentStyle = {
+    backgroundColor: colors.bgSecondary,
+    borderRadius: '16px',
+    maxWidth: '95vw',
+    width: '1400px',
+    maxHeight: '95vh',
+    overflow: 'auto',
+    boxShadow: isDark
+      ? '0 25px 50px -12px rgba(0, 0, 0, 0.7)'
+      : '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    position: 'relative',
+    border: `1px solid ${colors.border}`
+  }
+
+  // Tooltip/dropdown style for hover menus
+  const tooltipStyle = {
+    backgroundColor: colors.bgSecondary,
+    color: colors.textPrimary,
+    border: `2px solid ${colors.border}`,
+    boxShadow: isDark
+      ? '0 15px 25px -8px rgba(0, 0, 0, 0.5)'
+      : '0 15px 25px -8px rgba(0, 0, 0, 0.15)'
+  }
+
   return (
-    <>
+    <div className="app-container" data-theme={isDark ? 'dark' : 'light'}>
       {/* Google Analytics - Replace G-XXXXXXXXXX with your actual GA4 Measurement ID */}
       <GoogleAnalytics measurementId="G-XXXXXXXXXX" />
 
@@ -3596,36 +4061,16 @@ function App() {
       {/* Design Patterns Modal */}
       {showDesignPatternsModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowDesignPatternsModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <DesignPatterns onBack={() => { setShowDesignPatternsModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('DesignPatterns')} />
+            <Suspense fallback={<LoadingSpinner text="Loading Design Patterns..." />}>
+              <DesignPatterns onBack={() => { setShowDesignPatternsModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('DesignPatterns')} breadcrumb={{ section: { name: 'Design', icon: '🎨', onClick: () => { setShowDesignPatternsModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Design Patterns'].name, onClick: () => { setShowDesignPatternsModal(false); goToDesignCategory(designTopicCategories['Design Patterns'].id); } }, topic: 'Design Patterns' }} />
+            </Suspense>
           </div>
         </div>
       )}
@@ -3633,36 +4078,16 @@ function App() {
       {/* Microservice Patterns Modal */}
       {showMicroservicePatternsModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowMicroservicePatternsModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <MicroservicePatterns onBack={() => { setShowMicroservicePatternsModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('MicroservicePatterns')} />
+            <Suspense fallback={<LoadingSpinner text="Loading Microservice Patterns..." />}>
+              <MicroservicePatterns onBack={() => { setShowMicroservicePatternsModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('MicroservicePatterns')} breadcrumb={{ section: { name: 'Design', icon: '🎨', onClick: () => { setShowMicroservicePatternsModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Microservice Design Patterns'].name, onClick: () => { setShowMicroservicePatternsModal(false); goToDesignCategory(designTopicCategories['Microservice Design Patterns'].id); } }, topic: 'Microservice Patterns' }} />
+            </Suspense>
           </div>
         </div>
       )}
@@ -3670,36 +4095,16 @@ function App() {
       {/* Event Driven Architecture Modal */}
       {showEventDrivenArchitectureModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowEventDrivenArchitectureModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <EventDrivenArchitecture onBack={() => { setShowEventDrivenArchitectureModal(false); setSelectedOptionAndRef('Design'); }} />
+            <Suspense fallback={<LoadingSpinner text="Loading Event Driven Architecture..." />}>
+              <EventDrivenArchitecture onBack={() => { setShowEventDrivenArchitectureModal(false); setSelectedOptionAndRef('Design'); }} breadcrumb={{ section: { name: 'Design', icon: '🎨', onClick: () => { setShowEventDrivenArchitectureModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Event Driven Architecture'].name, onClick: () => { setShowEventDrivenArchitectureModal(false); goToDesignCategory(designTopicCategories['Event Driven Architecture'].id); } }, topic: 'Event Driven Architecture' }} />
+            </Suspense>
           </div>
         </div>
       )}
@@ -3707,36 +4112,16 @@ function App() {
       {/* Domain Driven Design Modal */}
       {showDomainDrivenDesignModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowDomainDrivenDesignModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <DomainDrivenDesign onBack={() => { setShowDomainDrivenDesignModal(false); setSelectedOptionAndRef('Design'); }} />
+            <Suspense fallback={<LoadingSpinner text="Loading Domain Driven Design..." />}>
+              <DomainDrivenDesign onBack={() => { setShowDomainDrivenDesignModal(false); setSelectedOptionAndRef('Design'); }} breadcrumb={{ section: { name: 'Design', icon: '🎨', onClick: () => { setShowDomainDrivenDesignModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Domain Driven Design'].name, onClick: () => { setShowDomainDrivenDesignModal(false); goToDesignCategory(designTopicCategories['Domain Driven Design'].id); } }, topic: 'Domain Driven Design' }} />
+            </Suspense>
           </div>
         </div>
       )}
@@ -3744,36 +4129,14 @@ function App() {
       {/* Class Modal */}
       {showClassModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowClassModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Class onBack={() => { setShowClassModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Class')} />
+            <Class onBack={() => { setShowClassModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Class')} breadcrumb={{ section: { name: 'Design', icon: '🎨', onClick: () => { setShowClassModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Class'].name, onClick: () => { setShowClassModal(false); goToDesignCategory(designTopicCategories['Class'].id); } }, topic: 'Object-Oriented Design' }} />
           </div>
         </div>
       )}
@@ -3781,36 +4144,16 @@ function App() {
       {/* System Design Modal */}
       {showSystemDesignModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowSystemDesignModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <SystemDesign onBack={() => { setShowSystemDesignModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('SystemDesign')} />
+            <Suspense fallback={<LoadingSpinner text="Loading System Design..." />}>
+              <SystemDesign onBack={() => { setShowSystemDesignModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('SystemDesign')} breadcrumb={{ section: { name: 'Design', icon: '🎨', onClick: () => { setShowSystemDesignModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['System Design'].name, onClick: () => { setShowSystemDesignModal(false); goToDesignCategory(designTopicCategories['System Design'].id); } }, topic: 'System Design' }} />
+            </Suspense>
           </div>
         </div>
       )}
@@ -3818,36 +4161,14 @@ function App() {
       {/* Module Modal */}
       {showModuleModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowModuleModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Module onBack={() => { setShowModuleModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Module')} />
+            <Module onBack={() => { setShowModuleModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Module')} breadcrumb={{ section: { name: 'Design', icon: '🎨', onClick: () => { setShowModuleModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Module'].name, onClick: () => { setShowModuleModal(false); goToDesignCategory(designTopicCategories['Module'].id); } }, topic: 'Module System' }} />
           </div>
         </div>
       )}
@@ -3855,36 +4176,14 @@ function App() {
       {/* Function Modal */}
       {showFunctionModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowFunctionModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <FunctionalProgramming onBack={() => { setShowFunctionModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Function')} />
+            <FunctionalProgramming onBack={() => { setShowFunctionModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Function')} breadcrumb={{ section: { name: 'Design', icon: '🎨', onClick: () => { setShowFunctionModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Function'].name, onClick: () => { setShowFunctionModal(false); goToDesignCategory(designTopicCategories['Function'].id); } }, topic: 'Functional Programming' }} />
           </div>
         </div>
       )}
@@ -3892,36 +4191,14 @@ function App() {
       {/* Interface Modal */}
       {showInterfaceModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowInterfaceModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Interface onBack={() => { setShowInterfaceModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Interface')} />
+            <Interface onBack={() => { setShowInterfaceModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Interface')} breadcrumb={{ section: { name: 'Design', icon: '🎨', onClick: () => { setShowInterfaceModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Interface'].name, onClick: () => { setShowInterfaceModal(false); goToDesignCategory(designTopicCategories['Interface'].id); } }, topic: 'Interface Design' }} />
           </div>
         </div>
       )}
@@ -3929,36 +4206,17 @@ function App() {
       {/* SQL Modal */}
       {showSQLModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowSQLModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <SQL onBack={() => setShowSQLModal(false)} {...createDatabaseNavigationCallbacks('SQL')} />
+            <SQL onBack={() => setShowSQLModal(false)} {...createDatabaseNavigationCallbacks('SQL')} breadcrumb={{
+              section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowSQLModal(false); setSelectedOptionAndRef('Databases') } },
+              topic: 'SQL Databases'
+            }} />
           </div>
         </div>
       )}
@@ -3966,36 +4224,17 @@ function App() {
       {/* NoSQL Modal */}
       {showNoSQLModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowNoSQLModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <NoSQL onBack={() => setShowNoSQLModal(false)} {...createDatabaseNavigationCallbacks('NoSQL')} />
+            <NoSQL onBack={() => setShowNoSQLModal(false)} {...createDatabaseNavigationCallbacks('NoSQL')} breadcrumb={{
+              section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowNoSQLModal(false); setSelectedOptionAndRef('Databases') } },
+              topic: 'NoSQL Databases'
+            }} />
           </div>
         </div>
       )}
@@ -4003,36 +4242,17 @@ function App() {
       {/* Oracle Modal */}
       {showOracleModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowOracleModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Oracle onBack={() => setShowOracleModal(false)} {...createDatabaseNavigationCallbacks('Oracle')} />
+            <Oracle onBack={() => setShowOracleModal(false)} {...createDatabaseNavigationCallbacks('Oracle')} breadcrumb={{
+              section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowOracleModal(false); setSelectedOptionAndRef('Databases') } },
+              topic: 'Oracle Database'
+            }} />
           </div>
         </div>
       )}
@@ -4040,36 +4260,17 @@ function App() {
       {/* ORM Modal */}
       {showORMModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowORMModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <ORM onBack={() => setShowORMModal(false)} {...createDatabaseNavigationCallbacks('ORM')} />
+            <ORM onBack={() => setShowORMModal(false)} {...createDatabaseNavigationCallbacks('ORM')} breadcrumb={{
+              section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowORMModal(false); setSelectedOptionAndRef('Databases') } },
+              topic: 'ORM & Data Access'
+            }} />
           </div>
         </div>
       )}
@@ -4077,36 +4278,17 @@ function App() {
       {/* Redis Modal */}
       {showRedisModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowRedisModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Redis onBack={() => setShowRedisModal(false)} {...createDatabaseNavigationCallbacks('Redis')} />
+            <Redis onBack={() => setShowRedisModal(false)} {...createDatabaseNavigationCallbacks('Redis')} breadcrumb={{
+              section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowRedisModal(false); setSelectedOptionAndRef('Databases') } },
+              topic: 'Redis'
+            }} />
           </div>
         </div>
       )}
@@ -4114,36 +4296,17 @@ function App() {
       {/* Spring Modal */}
       {showSpringModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowSpringModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Spring onBack={() => setShowSpringModal(false)} {...createFrameworksNavigationCallbacks('Spring')} />
+            <Spring onBack={() => setShowSpringModal(false)} {...createFrameworksNavigationCallbacks('Spring')} breadcrumb={{
+              section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowSpringModal(false); setSelectedOptionAndRef('Frameworks') } },
+              topic: 'Spring Framework'
+            }} />
           </div>
         </div>
       )}
@@ -4151,36 +4314,17 @@ function App() {
       {/* Spring Boot Modal */}
       {showSpringBootModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowSpringBootModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <SpringBoot onBack={() => setShowSpringBootModal(false)} {...createFrameworksNavigationCallbacks('SpringBoot')} />
+            <SpringBoot onBack={() => setShowSpringBootModal(false)} {...createFrameworksNavigationCallbacks('SpringBoot')} breadcrumb={{
+              section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowSpringBootModal(false); setSelectedOptionAndRef('Frameworks') } },
+              topic: 'Spring Boot'
+            }} />
           </div>
         </div>
       )}
@@ -4188,36 +4332,17 @@ function App() {
       {/* REST API Modal */}
       {showRESTAPIModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowRESTAPIModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <RestAPI onBack={() => setShowRESTAPIModal(false)} {...createFrameworksNavigationCallbacks('RestAPI')} />
+            <RestAPI onBack={() => setShowRESTAPIModal(false)} {...createFrameworksNavigationCallbacks('RestAPI')} breadcrumb={{
+              section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowRESTAPIModal(false); setSelectedOptionAndRef('Frameworks') } },
+              topic: 'REST API Design'
+            }} />
           </div>
         </div>
       )}
@@ -4225,36 +4350,17 @@ function App() {
       {/* Hibernate Modal */}
       {showHibernateModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowHibernateModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Hibernate onBack={() => setShowHibernateModal(false)} {...createFrameworksNavigationCallbacks('Hibernate')} />
+            <Hibernate onBack={() => setShowHibernateModal(false)} {...createFrameworksNavigationCallbacks('Hibernate')} breadcrumb={{
+              section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowHibernateModal(false); setSelectedOptionAndRef('Frameworks') } },
+              topic: 'Hibernate ORM'
+            }} />
           </div>
         </div>
       )}
@@ -4262,36 +4368,17 @@ function App() {
       {/* Actuator Modal */}
       {showActuatorModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowActuatorModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Actuator onBack={() => setShowActuatorModal(false)} />
+            <Actuator onBack={() => setShowActuatorModal(false)} breadcrumb={{
+              section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowActuatorModal(false); setSelectedOptionAndRef('Frameworks') } },
+              topic: 'Spring Boot Actuator'
+            }} />
           </div>
         </div>
       )}
@@ -4299,36 +4386,17 @@ function App() {
       {/* gRPC Modal */}
       {showGRPCModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowGRPCModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <GRPC onBack={() => setShowGRPCModal(false)} {...createFrameworksNavigationCallbacks('gRPC')} />
+            <GRPC onBack={() => setShowGRPCModal(false)} {...createFrameworksNavigationCallbacks('gRPC')} breadcrumb={{
+              section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowGRPCModal(false); setSelectedOptionAndRef('Frameworks') } },
+              topic: 'gRPC'
+            }} />
           </div>
         </div>
       )}
@@ -4336,36 +4404,17 @@ function App() {
       {/* SOAP Modal */}
       {showSOAPModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowSOAPModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <SOAP onBack={() => setShowSOAPModal(false)} {...createFrameworksNavigationCallbacks('SOAP')} />
+            <SOAP onBack={() => setShowSOAPModal(false)} {...createFrameworksNavigationCallbacks('SOAP')} breadcrumb={{
+              section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowSOAPModal(false); setSelectedOptionAndRef('Frameworks') } },
+              topic: 'SOAP Web Services'
+            }} />
           </div>
         </div>
       )}
@@ -4373,36 +4422,17 @@ function App() {
       {/* React Modal */}
       {showReactModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowReactModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <ReactFramework onBack={() => setShowReactModal(false)} {...createFrameworksNavigationCallbacks('React')} />
+            <ReactFramework onBack={() => setShowReactModal(false)} {...createFrameworksNavigationCallbacks('React')} breadcrumb={{
+              section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowReactModal(false); setSelectedOptionAndRef('Frameworks') } },
+              topic: 'React'
+            }} />
           </div>
         </div>
       )}
@@ -4410,36 +4440,17 @@ function App() {
       {/* Deployment Modal */}
       {showDeploymentModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowDeploymentModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Deployment onBack={() => setShowDeploymentModal(false)} {...createDevOpsNavigationCallbacks('Deployment')} />
+            <Deployment onBack={() => setShowDeploymentModal(false)} {...createDevOpsNavigationCallbacks('Deployment')} breadcrumb={{
+                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowDeploymentModal(false); setSelectedOptionAndRef('DevOps') } },
+                  topic: 'Deployment'
+                }} />
           </div>
         </div>
       )}
@@ -4447,36 +4458,17 @@ function App() {
       {/* Docker Modal */}
       {showDockerModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowDockerModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Docker onBack={() => setShowDockerModal(false)} {...createDevOpsNavigationCallbacks('Docker')} />
+            <Docker onBack={() => setShowDockerModal(false)} {...createDevOpsNavigationCallbacks('Docker')} breadcrumb={{
+                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowDockerModal(false); setSelectedOptionAndRef('DevOps') } },
+                  topic: 'Docker'
+                }} />
           </div>
         </div>
       )}
@@ -4484,36 +4476,17 @@ function App() {
       {/* Kubernetes Modal */}
       {showKubernetesModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowKubernetesModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Kubernetes onBack={() => setShowKubernetesModal(false)} {...createDevOpsNavigationCallbacks('Kubernetes')} />
+            <Kubernetes onBack={() => setShowKubernetesModal(false)} {...createDevOpsNavigationCallbacks('Kubernetes')} breadcrumb={{
+                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowKubernetesModal(false); setSelectedOptionAndRef('DevOps') } },
+                  topic: 'Kubernetes'
+                }} />
           </div>
         </div>
       )}
@@ -4521,36 +4494,17 @@ function App() {
       {/* Testing Modal */}
       {showTestingModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowTestingModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Testing onBack={() => setShowTestingModal(false)} {...createDevOpsNavigationCallbacks('Testing')} />
+            <Testing onBack={() => setShowTestingModal(false)} {...createDevOpsNavigationCallbacks('Testing')} breadcrumb={{
+                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowTestingModal(false); setSelectedOptionAndRef('DevOps') } },
+                  topic: 'Testing'
+                }} />
           </div>
         </div>
       )}
@@ -4558,36 +4512,17 @@ function App() {
       {/* CI/CD Modal */}
       {showCICDModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowCICDModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <CICD onBack={() => setShowCICDModal(false)} {...createDevOpsNavigationCallbacks('CICD')} />
+            <CICD onBack={() => setShowCICDModal(false)} {...createDevOpsNavigationCallbacks('CICD')} breadcrumb={{
+                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowCICDModal(false); setSelectedOptionAndRef('DevOps') } },
+                  topic: 'CI/CD'
+                }} />
           </div>
         </div>
       )}
@@ -4595,36 +4530,17 @@ function App() {
       {/* Agile Scrum Modal */}
       {showAgileScrumModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowAgileScrumModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <AgileScrum onBack={() => setShowAgileScrumModal(false)} {...createDevOpsNavigationCallbacks('AgileScrum')} />
+            <AgileScrum onBack={() => setShowAgileScrumModal(false)} {...createDevOpsNavigationCallbacks('AgileScrum')} breadcrumb={{
+                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowAgileScrumModal(false); setSelectedOptionAndRef('DevOps') } },
+                  topic: 'Agile & Scrum'
+                }} />
           </div>
         </div>
       )}
@@ -4632,36 +4548,17 @@ function App() {
       {/* Production Support Modal */}
       {showProductionSupportModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowProductionSupportModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <ProductionSupport onBack={() => setShowProductionSupportModal(false)} {...createDevOpsNavigationCallbacks('ProductionSupport')} />
+            <ProductionSupport onBack={() => setShowProductionSupportModal(false)} {...createDevOpsNavigationCallbacks('ProductionSupport')} breadcrumb={{
+                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowProductionSupportModal(false); setSelectedOptionAndRef('DevOps') } },
+                  topic: 'Production Support'
+                }} />
           </div>
         </div>
       )}
@@ -4669,36 +4566,17 @@ function App() {
       {/* TeamCity Modal */}
       {showTeamCityModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowTeamCityModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <TeamCity onBack={() => setShowTeamCityModal(false)} {...createDevOpsNavigationCallbacks('TeamCity')} />
+            <TeamCity onBack={() => setShowTeamCityModal(false)} {...createDevOpsNavigationCallbacks('TeamCity')} breadcrumb={{
+                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowTeamCityModal(false); setSelectedOptionAndRef('DevOps') } },
+                  topic: 'TeamCity'
+                }} />
           </div>
         </div>
       )}
@@ -4706,36 +4584,17 @@ function App() {
       {/* Jenkins Modal */}
       {showJenkinsModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowJenkinsModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Jenkins onBack={() => setShowJenkinsModal(false)} {...createDevOpsNavigationCallbacks('Jenkins')} />
+            <Jenkins onBack={() => setShowJenkinsModal(false)} {...createDevOpsNavigationCallbacks('Jenkins')} breadcrumb={{
+                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowJenkinsModal(false); setSelectedOptionAndRef('DevOps') } },
+                  topic: 'Jenkins'
+                }} />
           </div>
         </div>
       )}
@@ -4743,36 +4602,17 @@ function App() {
       {/* Prometheus Modal */}
       {showPrometheusModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowPrometheusModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Prometheus onBack={() => setShowPrometheusModal(false)} {...createDevOpsNavigationCallbacks('Prometheus')} />
+            <Prometheus onBack={() => setShowPrometheusModal(false)} {...createDevOpsNavigationCallbacks('Prometheus')} breadcrumb={{
+                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowPrometheusModal(false); setSelectedOptionAndRef('DevOps') } },
+                  topic: 'Prometheus'
+                }} />
           </div>
         </div>
       )}
@@ -4780,36 +4620,17 @@ function App() {
       {/* Grafana Modal */}
       {showGrafanaModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowGrafanaModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Grafana onBack={() => setShowGrafanaModal(false)} {...createDevOpsNavigationCallbacks('Grafana')} />
+            <Grafana onBack={() => setShowGrafanaModal(false)} {...createDevOpsNavigationCallbacks('Grafana')} breadcrumb={{
+                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowGrafanaModal(false); setSelectedOptionAndRef('DevOps') } },
+                  topic: 'Grafana'
+                }} />
           </div>
         </div>
       )}
@@ -4817,36 +4638,17 @@ function App() {
       {/* Security OWASP Modal */}
       {showSecurityOWASPModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowSecurityOWASPModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <SecurityOWASP onBack={() => setShowSecurityOWASPModal(false)} {...createDevOpsNavigationCallbacks('SecurityOWASP')} />
+            <SecurityOWASP onBack={() => setShowSecurityOWASPModal(false)} {...createDevOpsNavigationCallbacks('SecurityOWASP')} breadcrumb={{
+                  section: { name: 'Security', icon: '🔒', onClick: () => { setShowSecurityOWASPModal(false); setSelectedOptionAndRef('Security') } },
+                  topic: 'Security & OWASP'
+                }} />
           </div>
         </div>
       )}
@@ -4854,36 +4656,17 @@ function App() {
       {/* Kafka Modal */}
       {showKafkaModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowKafkaModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <ApacheKafka onBack={() => setShowKafkaModal(false)} {...createDevOpsNavigationCallbacks('Kafka')} />
+            <ApacheKafka onBack={() => setShowKafkaModal(false)} {...createDevOpsNavigationCallbacks('Kafka')} breadcrumb={{
+                  section: { name: 'Messaging', icon: '📨', onClick: () => { setShowKafkaModal(false); setSelectedOptionAndRef('Messaging') } },
+                  topic: 'Apache Kafka'
+                }} />
           </div>
         </div>
       )}
@@ -4891,36 +4674,17 @@ function App() {
       {/* Apache Flink Modal */}
       {showApacheFlinkModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowApacheFlinkModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <ApacheFlink onBack={() => setShowApacheFlinkModal(false)} {...createDevOpsNavigationCallbacks('ApacheFlink')} />
+            <ApacheFlink onBack={() => setShowApacheFlinkModal(false)} {...createDevOpsNavigationCallbacks('ApacheFlink')} breadcrumb={{
+                  section: { name: 'Messaging', icon: '📨', onClick: () => { setShowApacheFlinkModal(false); setSelectedOptionAndRef('Messaging') } },
+                  topic: 'Apache Flink'
+                }} />
           </div>
         </div>
       )}
@@ -4957,7 +4721,10 @@ function App() {
               position: 'relative'
             }}
           >
-            <Solace onBack={() => setShowSolaceModal(false)} {...createDevOpsNavigationCallbacks('Solace')} />
+            <Solace onBack={() => setShowSolaceModal(false)} {...createDevOpsNavigationCallbacks('Solace')} breadcrumb={{
+                  section: { name: 'Messaging', icon: '📨', onClick: () => { setShowSolaceModal(false); setSelectedOptionAndRef('Messaging') } },
+                  topic: 'Solace PubSub+'
+                }} />
           </div>
         </div>
       )}
@@ -4994,7 +4761,10 @@ function App() {
               position: 'relative'
             }}
           >
-            <RabbitMQ onBack={() => setShowRabbitMQModal(false)} {...createDevOpsNavigationCallbacks('RabbitMQ')} />
+            <RabbitMQ onBack={() => setShowRabbitMQModal(false)} {...createDevOpsNavigationCallbacks('RabbitMQ')} breadcrumb={{
+                  section: { name: 'Messaging', icon: '📨', onClick: () => { setShowRabbitMQModal(false); setSelectedOptionAndRef('Messaging') } },
+                  topic: 'RabbitMQ'
+                }} />
           </div>
         </div>
       )}
@@ -5067,7 +4837,10 @@ function App() {
               position: 'relative'
             }}
           >
-            <AWS onBack={() => setShowAWSModal(false)} {...createCloudNavigationCallbacks('AWS')} />
+            <AWS onBack={() => setShowAWSModal(false)} {...createCloudNavigationCallbacks('AWS')} breadcrumb={{
+                  section: { name: 'Cloud', icon: '☁️', onClick: () => { setShowAWSModal(false); setSelectedOptionAndRef('Cloud') } },
+                  topic: 'Amazon Web Services'
+                }} />
           </div>
         </div>
       )}
@@ -5103,7 +4876,10 @@ function App() {
               position: 'relative'
             }}
           >
-            <GCP onBack={() => setShowGCPModal(false)} {...createCloudNavigationCallbacks('GCP')} />
+            <GCP onBack={() => setShowGCPModal(false)} {...createCloudNavigationCallbacks('GCP')} breadcrumb={{
+                  section: { name: 'Cloud', icon: '☁️', onClick: () => { setShowGCPModal(false); setSelectedOptionAndRef('Cloud') } },
+                  topic: 'Google Cloud Platform'
+                }} />
           </div>
         </div>
       )}
@@ -5139,241 +4915,124 @@ function App() {
               position: 'relative'
             }}
           >
-            <Azure onBack={() => setShowAzureModal(false)} {...createCloudNavigationCallbacks('Azure')} />
+            <Azure onBack={() => setShowAzureModal(false)} {...createCloudNavigationCallbacks('Azure')} breadcrumb={{
+                  section: { name: 'Cloud', icon: '☁️', onClick: () => { setShowAzureModal(false); setSelectedOptionAndRef('Cloud') } },
+                  topic: 'Microsoft Azure'
+                }} />
           </div>
         </div>
       )}
 
       {showArraysModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowArraysModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Arrays
-              onBack={() => setShowArraysModal(false)}
-              {...createNavigationCallbacks('Arrays')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Arrays..." />}>
+              <Arrays
+                onBack={() => setShowArraysModal(false)}
+                {...createNavigationCallbacks('Arrays')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
 
       {showHashTablesModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowHashTablesModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <HashTables
-              onBack={() => setShowHashTablesModal(false)}
-              {...createNavigationCallbacks('Hash Tables')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Hash Tables..." />}>
+              <HashTables
+                onBack={() => setShowHashTablesModal(false)}
+                {...createNavigationCallbacks('Hash Tables')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
 
       {showStacksModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowStacksModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Stacks
-              onBack={() => setShowStacksModal(false)}
-              {...createNavigationCallbacks('Stacks')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Stacks..." />}>
+              <Stacks
+                onBack={() => setShowStacksModal(false)}
+                {...createNavigationCallbacks('Stacks')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
 
       {showQueuesModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowQueuesModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Queues
-              onBack={() => setShowQueuesModal(false)}
-              {...createNavigationCallbacks('Queues')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Queues..." />}>
+              <Queues
+                onBack={() => setShowQueuesModal(false)}
+                {...createNavigationCallbacks('Queues')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
 
       {showTreesModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowTreesModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Trees
-              onBack={() => setShowTreesModal(false)}
-              {...createNavigationCallbacks('Trees')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Trees..." />}>
+              <Trees
+                onBack={() => setShowTreesModal(false)}
+                {...createNavigationCallbacks('Trees')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
 
       {showBinaryTreesModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowBinaryTreesModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <BinaryTrees
-              onBack={() => setShowBinaryTreesModal(false)}
-              {...createNavigationCallbacks('Binary Trees')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Binary Trees..." />}>
+              <BinaryTrees
+                onBack={() => setShowBinaryTreesModal(false)}
+                {...createNavigationCallbacks('Binary Trees')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -5409,49 +5068,31 @@ function App() {
               position: 'relative'
             }}
           >
-            <BinarySearchTrees
-              onBack={() => setShowBinarySearchTreesModal(false)}
-              {...createNavigationCallbacks('Binary Search Trees')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Binary Search Trees..." />}>
+              <BinarySearchTrees
+                onBack={() => setShowBinarySearchTreesModal(false)}
+                {...createNavigationCallbacks('Binary Search Trees')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
 
       {showGraphsModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000000,
-            padding: '1rem',
-            overflow: 'auto'
-          }}
+          style={modalOverlayStyle}
           onClick={() => setShowGraphsModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              maxWidth: '95vw',
-              width: '1400px',
-              maxHeight: '95vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              position: 'relative'
-            }}
+            style={modalContentStyle}
           >
-            <Graphs
-              onBack={() => setShowGraphsModal(false)}
-              {...createNavigationCallbacks('Graphs')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Graphs..." />}>
+              <Graphs
+                onBack={() => setShowGraphsModal(false)}
+                {...createNavigationCallbacks('Graphs')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -5487,10 +5128,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <Heaps
-              onBack={() => setShowHeapsModal(false)}
-              {...createNavigationCallbacks('Heaps')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Heaps..." />}>
+              <Heaps
+                onBack={() => setShowHeapsModal(false)}
+                {...createNavigationCallbacks('Heaps')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -5526,10 +5169,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <UnionFind
-              onBack={() => setShowUnionFindModal(false)}
-              {...createNavigationCallbacks('UnionFind')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Union Find..." />}>
+              <UnionFind
+                onBack={() => setShowUnionFindModal(false)}
+                {...createNavigationCallbacks('UnionFind')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -5565,10 +5210,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <Trie
-              onBack={() => setShowTrieModal(false)}
-              {...createNavigationCallbacks('Trie')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Trie..." />}>
+              <Trie
+                onBack={() => setShowTrieModal(false)}
+                {...createNavigationCallbacks('Trie')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -5604,10 +5251,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <LinkedLists
-              onBack={() => setShowLinkedListsModal(false)}
-              {...createNavigationCallbacks('Linked Lists')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Linked Lists..." />}>
+              <LinkedLists
+                onBack={() => setShowLinkedListsModal(false)}
+                {...createNavigationCallbacks('Linked Lists')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -5643,10 +5292,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <Sorting
-              onBack={() => setShowSortingModal(false)}
-              {...createNavigationCallbacks('Sorting')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Sorting..." />}>
+              <Sorting
+                onBack={() => setShowSortingModal(false)}
+                {...createNavigationCallbacks('Sorting')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -5682,10 +5333,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <BinarySearch
-              onBack={() => setShowBinarySearchModal(false)}
-              {...createNavigationCallbacks('Binary Search')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Binary Search..." />}>
+              <BinarySearch
+                onBack={() => setShowBinarySearchModal(false)}
+                {...createNavigationCallbacks('Binary Search')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -5721,10 +5374,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <Recursion
-              onBack={() => setShowRecursionModal(false)}
-              {...createNavigationCallbacks('Recursion')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Recursion..." />}>
+              <Recursion
+                onBack={() => setShowRecursionModal(false)}
+                {...createNavigationCallbacks('Recursion')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -5760,10 +5415,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <DynamicProgramming
-              onBack={() => setShowDynamicProgrammingModal(false)}
-              {...createNavigationCallbacks('Dynamic Programming')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Dynamic Programming..." />}>
+              <DynamicProgramming
+                onBack={() => setShowDynamicProgrammingModal(false)}
+                {...createNavigationCallbacks('Dynamic Programming')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -5799,10 +5456,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <SlidingWindow
-              onBack={() => setShowSlidingWindowModal(false)}
-              {...createNavigationCallbacks('Sliding Window')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Sliding Window..." />}>
+              <SlidingWindow
+                onBack={() => setShowSlidingWindowModal(false)}
+                {...createNavigationCallbacks('Sliding Window')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -5838,10 +5497,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <Backtracking
-              onBack={() => setShowBacktrackingModal(false)}
-              {...createNavigationCallbacks('Backtracking')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Backtracking..." />}>
+              <Backtracking
+                onBack={() => setShowBacktrackingModal(false)}
+                {...createNavigationCallbacks('Backtracking')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -5877,10 +5538,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <Intervals
-              onBack={() => setShowIntervalsModal(false)}
-              {...createNavigationCallbacks('Intervals')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Intervals..." />}>
+              <Intervals
+                onBack={() => setShowIntervalsModal(false)}
+                {...createNavigationCallbacks('Intervals')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -5916,10 +5579,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <MathGeometry
-              onBack={() => setShowMathGeometryModal(false)}
-              {...createNavigationCallbacks('Math & Geometry')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Math & Geometry..." />}>
+              <MathGeometry
+                onBack={() => setShowMathGeometryModal(false)}
+                {...createNavigationCallbacks('Math & Geometry')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -5955,10 +5620,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <AdvancedGraphs
-              onBack={() => setShowAdvancedGraphsModal(false)}
-              {...createNavigationCallbacks('Advanced Graphs')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Advanced Graphs..." />}>
+              <AdvancedGraphs
+                onBack={() => setShowAdvancedGraphsModal(false)}
+                {...createNavigationCallbacks('Advanced Graphs')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -5994,10 +5661,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <Searching
-              onBack={() => setShowSearchingModal(false)}
-              {...createNavigationCallbacks('Searching')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Searching..." />}>
+              <Searching
+                onBack={() => setShowSearchingModal(false)}
+                {...createNavigationCallbacks('Searching')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -6033,10 +5702,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <GreedyAlgorithms
-              onBack={() => setShowGreedyAlgorithmsModal(false)}
-              {...createNavigationCallbacks('Greedy Algorithms')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Greedy Algorithms..." />}>
+              <GreedyAlgorithms
+                onBack={() => setShowGreedyAlgorithmsModal(false)}
+                {...createNavigationCallbacks('Greedy Algorithms')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -6072,10 +5743,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <FamousAlgorithms
-              onBack={() => setShowFamousAlgorithmsModal(false)}
-              {...createNavigationCallbacks('Famous Algorithms')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Famous Algorithms..." />}>
+              <FamousAlgorithms
+                onBack={() => setShowFamousAlgorithmsModal(false)}
+                {...createNavigationCallbacks('Famous Algorithms')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -6114,6 +5787,10 @@ function App() {
             <Streams
               onBack={() => setShowStreamsModal(false)}
               {...createNavigationCallbacks('Streams')}
+              breadcrumb={{
+                section: { name: 'Java', icon: '☕', onClick: () => { setShowStreamsModal(false); setSelectedOptionAndRef('Java') } },
+                topic: 'Streams'
+              }}
             />
           </div>
         </div>
@@ -6152,6 +5829,10 @@ function App() {
           >
             <StreamsAdvanced
               onBack={() => setShowStreamsAdvancedModal(false)}
+              breadcrumb={{
+                section: { name: 'Java', icon: '☕', onClick: () => { setShowStreamsAdvancedModal(false); setSelectedOptionAndRef('Java') } },
+                topic: 'Streams Advanced'
+              }}
             />
           </div>
         </div>
@@ -6191,6 +5872,10 @@ function App() {
             <Lambdas
               onBack={() => setShowLambdasModal(false)}
               {...createNavigationCallbacks('Lambdas')}
+              breadcrumb={{
+                section: { name: 'Java', icon: '☕', onClick: () => { setShowLambdasModal(false); setSelectedOptionAndRef('Java') } },
+                topic: 'Lambdas'
+              }}
             />
           </div>
         </div>
@@ -6229,6 +5914,10 @@ function App() {
           >
             <LambdasAdvanced
               onBack={() => setShowLambdasAdvancedModal(false)}
+              breadcrumb={{
+                section: { name: 'Java', icon: '☕', onClick: () => { setShowLambdasAdvancedModal(false); setSelectedOptionAndRef('Java') } },
+                topic: 'Lambdas Advanced'
+              }}
             />
           </div>
         </div>
@@ -6268,6 +5957,10 @@ function App() {
             <FunctionalInterfaces
               onBack={() => setShowFunctionalInterfacesModal(false)}
               {...createNavigationCallbacks('Functional Interfaces')}
+              breadcrumb={{
+                section: { name: 'Java', icon: '☕', onClick: () => { setShowFunctionalInterfacesModal(false); setSelectedOptionAndRef('Java') } },
+                topic: 'Functional Interfaces'
+              }}
             />
           </div>
         </div>
@@ -6307,6 +6000,10 @@ function App() {
             <CollectionsFramework
               onBack={() => setShowCollectionsFrameworkModal(false)}
               {...createNavigationCallbacks('Collections Framework')}
+              breadcrumb={{
+                section: { name: 'Java', icon: '☕', onClick: () => { setShowCollectionsFrameworkModal(false); setSelectedOptionAndRef('Java') } },
+                topic: 'Collections Framework'
+              }}
             />
           </div>
         </div>
@@ -6346,6 +6043,10 @@ function App() {
             <Concurrency
               onBack={() => setShowConcurrencyModal(false)}
               {...createNavigationCallbacks('Concurrency')}
+              breadcrumb={{
+                section: { name: 'Java', icon: '☕', onClick: () => { setShowConcurrencyModal(false); setSelectedOptionAndRef('Java') } },
+                topic: 'Concurrency'
+              }}
             />
           </div>
         </div>
@@ -6385,6 +6086,10 @@ function App() {
             <Multithreading
               onBack={() => setShowMultithreadingModal(false)}
               {...createNavigationCallbacks('Multithreading')}
+              breadcrumb={{
+                section: { name: 'Java', icon: '☕', onClick: () => { setShowMultithreadingModal(false); setSelectedOptionAndRef('Java') } },
+                topic: 'Multithreading'
+              }}
             />
           </div>
         </div>
@@ -6424,6 +6129,10 @@ function App() {
             <ObjectOrientedProgramming
               onBack={() => setShowObjectOrientedProgrammingModal(false)}
               {...createNavigationCallbacks('Object-Oriented Programming')}
+              breadcrumb={{
+                section: { name: 'Java', icon: '☕', onClick: () => { setShowObjectOrientedProgrammingModal(false); setSelectedOptionAndRef('Java') } },
+                topic: 'Object-Oriented Programming'
+              }}
             />
           </div>
         </div>
@@ -6463,6 +6172,10 @@ function App() {
             <ExceptionHandling
               onBack={() => setShowExceptionHandlingModal(false)}
               {...createNavigationCallbacks('Exception Handling')}
+              breadcrumb={{
+                section: { name: 'Java', icon: '☕', onClick: () => { setShowExceptionHandlingModal(false); setSelectedOptionAndRef('Java') } },
+                topic: 'Exception Handling'
+              }}
             />
           </div>
         </div>
@@ -6502,6 +6215,10 @@ function App() {
             <FileIO
               onBack={() => setShowFileIOModal(false)}
               {...createNavigationCallbacks('File I/O')}
+              breadcrumb={{
+                section: { name: 'Java', icon: '☕', onClick: () => { setShowFileIOModal(false); setSelectedOptionAndRef('Java') } },
+                topic: 'File I/O'
+              }}
             />
           </div>
         </div>
@@ -6580,6 +6297,10 @@ function App() {
             <MemoryManagement
               onBack={() => setShowMemoryManagementModal(false)}
               {...createNavigationCallbacks('Memory Management')}
+              breadcrumb={{
+                section: { name: 'Java', icon: '☕', onClick: () => { setShowMemoryManagementModal(false); setSelectedOptionAndRef('Java') } },
+                topic: 'Memory Management'
+              }}
             />
           </div>
         </div>
@@ -6616,10 +6337,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <DataStructures
-              onBack={() => setShowDataStructuresModal(false)}
-              {...createNavigationCallbacks('Data Structures')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Data Structures..." />}>
+              <DataStructures
+                onBack={() => setShowDataStructuresModal(false)}
+                {...createNavigationCallbacks('Data Structures')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -6655,10 +6378,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <Strings
-              onBack={() => setShowStringsModal(false)}
-              {...createNavigationCallbacks('Strings')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Strings..." />}>
+              <Strings
+                onBack={() => setShowStringsModal(false)}
+                {...createNavigationCallbacks('Strings')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -6697,6 +6422,10 @@ function App() {
             <Generics
               onBack={() => setShowGenericsModal(false)}
               {...createNavigationCallbacks('Generics')}
+              breadcrumb={{
+                section: { name: 'Java', icon: '☕', onClick: () => { setShowGenericsModal(false); setSelectedOptionAndRef('Java') } },
+                topic: 'Generics'
+              }}
             />
           </div>
         </div>
@@ -6733,10 +6462,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <DesignPatternsInteractive
-              onBack={() => setShowDesignPatternsInteractiveModal(false)}
-              {...createNavigationCallbacks('Design Patterns Practice')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Design Patterns Practice..." />}>
+              <DesignPatternsInteractive
+                onBack={() => setShowDesignPatternsPracticeModal(false)}
+                {...createNavigationCallbacks('Design Patterns Practice')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -6772,10 +6503,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <LRUCache
-              onBack={() => setShowLRUCacheModal(false)}
-              {...createNavigationCallbacks('LRU Cache')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading LRU Cache..." />}>
+              <LRUCache
+                onBack={() => setShowLRUCacheModal(false)}
+                {...createNavigationCallbacks('LRU Cache')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -6811,10 +6544,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <RateLimiter
-              onBack={() => setShowRateLimiterModal(false)}
-              {...createNavigationCallbacks('Rate Limiter')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Rate Limiter..." />}>
+              <RateLimiter
+                onBack={() => setShowRateLimiterModal(false)}
+                {...createNavigationCallbacks('Rate Limiter')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -6850,10 +6585,12 @@ function App() {
               position: 'relative'
             }}
           >
-            <DesignProblems
-              onBack={() => setShowDesignProblemsModal(false)}
-              {...createNavigationCallbacks('Design Problems')}
-            />
+            <Suspense fallback={<LoadingSpinner text="Loading Design Problems..." />}>
+              <DesignProblems
+                onBack={() => setShowDesignProblemsModal(false)}
+                {...createNavigationCallbacks('Design Problems')}
+              />
+            </Suspense>
           </div>
         </div>
       )}
@@ -6890,7 +6627,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <JavaQuestions onBack={() => setShowJavaQuestionsModal(false)} />
+            <JavaQuestions
+              onBack={() => setShowJavaQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowJavaQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Java'
+              }}
+            />
           </div>
         </div>
       )}
@@ -6926,7 +6669,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <CoreJavaQuestions onBack={() => setShowCoreJavaQuestionsModal(false)} />
+            <CoreJavaQuestions
+              onBack={() => setShowCoreJavaQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowCoreJavaQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Core Java'
+              }}
+            />
           </div>
         </div>
       )}
@@ -6962,7 +6711,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <Java8Questions onBack={() => setShowJava8QuestionsModal(false)} />
+            <Java8Questions
+              onBack={() => setShowJava8QuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowJava8QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Java 8'
+              }}
+            />
           </div>
         </div>
       )}
@@ -6998,7 +6753,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <Java11Questions onBack={() => setShowJava11QuestionsModal(false)} />
+            <Java11Questions
+              onBack={() => setShowJava11QuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowJava11QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Java 11'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7034,7 +6795,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <Java15Questions onBack={() => setShowJava15QuestionsModal(false)} />
+            <Java15Questions
+              onBack={() => setShowJava15QuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowJava15QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Java 15'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7070,7 +6837,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <Java21Questions onBack={() => setShowJava21QuestionsModal(false)} />
+            <Java21Questions
+              onBack={() => setShowJava21QuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowJava21QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Java 21'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7106,7 +6879,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <Java24Questions onBack={() => setShowJava24QuestionsModal(false)} />
+            <Java24Questions
+              onBack={() => setShowJava24QuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowJava24QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Java 24'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7142,7 +6921,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <SQLQuestions onBack={() => setShowSQLQuestionsModal(false)} />
+            <SQLQuestions
+              onBack={() => setShowSQLQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowSQLQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'SQL'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7178,7 +6963,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <HibernateQuestions onBack={() => setShowHibernateQuestionsModal(false)} />
+            <HibernateQuestions
+              onBack={() => setShowHibernateQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowHibernateQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Hibernate'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7214,7 +7005,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <KafkaQuestions onBack={() => setShowKafkaQuestionsModal(false)} />
+            <KafkaQuestions
+              onBack={() => setShowKafkaQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowKafkaQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Kafka'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7250,7 +7047,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <ApacheFlinkQuestions onBack={() => setShowApacheFlinkQuestionsModal(false)} />
+            <ApacheFlinkQuestions
+              onBack={() => setShowApacheFlinkQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowApacheFlinkQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Apache Flink'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7286,7 +7089,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <RabbitMQQuestions onBack={() => setShowRabbitMQQuestionsModal(false)} />
+            <RabbitMQQuestions
+              onBack={() => setShowRabbitMQQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowRabbitMQQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'RabbitMQ'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7322,7 +7131,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <SolaceQuestions onBack={() => setShowSolaceQuestionsModal(false)} />
+            <SolaceQuestions
+              onBack={() => setShowSolaceQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowSolaceQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Solace'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7358,7 +7173,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <RestAPIQuestions onBack={() => setShowRestAPIQuestionsModal(false)} />
+            <RestAPIQuestions
+              onBack={() => setShowRestAPIQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowRestAPIQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'REST API'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7394,7 +7215,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <JenkinsQuestions onBack={() => setShowJenkinsQuestionsModal(false)} />
+            <JenkinsQuestions
+              onBack={() => setShowJenkinsQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowJenkinsQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Jenkins'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7430,7 +7257,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <TeamCityQuestions onBack={() => setShowTeamCityQuestionsModal(false)} />
+            <TeamCityQuestions
+              onBack={() => setShowTeamCityQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowTeamCityQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'TeamCity'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7466,7 +7299,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <PrometheusQuestions onBack={() => setShowPrometheusQuestionsModal(false)} />
+            <PrometheusQuestions
+              onBack={() => setShowPrometheusQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowPrometheusQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Prometheus'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7502,7 +7341,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <GrafanaQuestions onBack={() => setShowGrafanaQuestionsModal(false)} />
+            <GrafanaQuestions
+              onBack={() => setShowGrafanaQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowGrafanaQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Grafana'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7538,7 +7383,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <ZipkinQuestions onBack={() => setShowZipkinQuestionsModal(false)} />
+            <ZipkinQuestions
+              onBack={() => setShowZipkinQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowZipkinQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Zipkin'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7576,7 +7427,13 @@ function App() {
                 position: 'relative'
               }}
             >
-              <ActuatorQuestions onBack={() => setShowActuatorQuestionsModal(false)} />
+              <ActuatorQuestions
+              onBack={() => setShowActuatorQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowActuatorQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Spring Actuator'
+              }}
+            />
             </div>
           </div>
         </>
@@ -7613,7 +7470,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <SpringCoreQuestions onBack={() => setShowSpringCoreQuestionsModal(false)} />
+            <SpringCoreQuestions
+              onBack={() => setShowSpringCoreQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringCoreQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Spring Core'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7649,7 +7512,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <SpringAnnotationsQuestions onBack={() => setShowSpringAnnotationsQuestionsModal(false)} />
+            <SpringAnnotationsQuestions
+              onBack={() => setShowSpringAnnotationsQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringAnnotationsQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Spring Annotations'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7685,7 +7554,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <SpringBootQuestions onBack={() => setShowSpringBootQuestionsModal(false)} />
+            <SpringBootQuestions
+              onBack={() => setShowSpringBootQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringBootQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Spring Boot'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7721,7 +7596,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <SpringSecurityQuestions onBack={() => setShowSpringSecurityQuestionsModal(false)} />
+            <SpringSecurityQuestions
+              onBack={() => setShowSpringSecurityQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringSecurityQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Spring Security'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7757,7 +7638,13 @@ function App() {
               position: 'relative'
             }}
           >
-            <SpringDataJPAQuestions onBack={() => setShowSpringDataJPAQuestionsModal(false)} />
+            <SpringDataJPAQuestions
+              onBack={() => setShowSpringDataJPAQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringDataJPAQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Spring Data JPA'
+              }}
+            />
           </div>
         </div>
       )}
@@ -7771,7 +7658,7 @@ function App() {
         left: 0,
         right: 0,
         backgroundColor: 'white',
-        padding: '0.75rem 1.5rem',
+        padding: '0.5rem 1rem',
         borderBottom: '3px solid rgba(59, 130, 246, 0.4)',
         boxShadow: '0 4px 20px -5px rgba(0, 0, 0, 0.15)',
         background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.03) 0%, rgba(147, 197, 253, 0.08) 100%)',
@@ -7780,28 +7667,27 @@ function App() {
         transform: isHeaderVisible ? 'translateY(0)' : 'translateY(-100%)',
         transition: 'transform 0.3s ease-in-out'
       }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          marginBottom: '0.75rem'
-        }}>
-          {isKeyboardUser && (
+        {isKeyboardUser && (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginBottom: '0.35rem'
+          }}>
             <div
               id="main-title"
               style={{
                 margin: 0,
-                fontSize: '0.85rem',
+                fontSize: '0.75rem',
                 color: '#6b7280',
                 fontWeight: '500',
-                textAlign: 'center',
-                marginBottom: '0.5rem'
+                textAlign: 'center'
               }}
             >
               Press H for keyboard shortcuts
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Navigation Row with Category Buttons and Utility Buttons */}
         <div
@@ -7811,8 +7697,8 @@ function App() {
             display: 'flex',
             alignItems: 'flex-start',
             justifyContent: 'center',
-            gap: '0.5rem',
-            flexWrap: 'wrap',
+            gap: '0.3rem',
+            flexWrap: 'nowrap',
             marginBottom: expandedGroup ? '1rem' : '0'
           }}
         >
@@ -7882,8 +7768,8 @@ function App() {
               }}
               onFocus={() => setFocusedCategoryIndex(index)}
               style={{
-                padding: '0.4rem 0.75rem',
-                fontSize: '0.8rem',
+                padding: '0.3rem 0.5rem',
+                fontSize: '0.7rem',
                 fontWeight: '700',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                 backgroundColor: expandedGroup === groupName
@@ -7904,15 +7790,15 @@ function App() {
                 outline: 'none',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem',
+                gap: '0.3rem',
                 transform: focusedCategoryIndex === index && !expandedGroup ? 'scale(1.08)' : 'scale(1)',
                 borderWidth: focusedCategoryIndex === index && !expandedGroup ? '3px' : '2px',
                 position: 'relative'
               }}
             >
-              <span style={{ fontSize: '0.95rem' }}>{group.icon}</span>
+              <span style={{ fontSize: '0.8rem' }}>{group.icon}</span>
               <span>{groupName}</span>
-              <span style={{ fontSize: '0.65rem', opacity: 0.8, backgroundColor: expandedGroup === groupName ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.05)', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>
+              <span style={{ fontSize: '0.55rem', opacity: 0.8, backgroundColor: expandedGroup === groupName ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.05)', padding: '0.05rem 0.2rem', borderRadius: '3px' }}>
                 {group.hasSubcategories ? Object.keys(group.subcategories).length : (group.items?.length || 0)}
               </span>
             </button>
@@ -7921,9 +7807,9 @@ function App() {
           {/* Divider */}
           <div style={{
             width: '2px',
-            height: '32px',
+            height: '26px',
             backgroundColor: '#e5e7eb',
-            margin: '0 0.25rem',
+            margin: '0 0.15rem',
             alignSelf: 'center'
           }}></div>
 
@@ -7940,9 +7826,9 @@ function App() {
               aria-label="Open global search (Ctrl+K)"
               className={focusedUtilityButton === 'search' ? 'btn-focus-green' : ''}
               style={{
-                width: '40px',
-                height: '40px',
-                fontSize: '1.2rem',
+                width: '32px',
+                height: '32px',
+                fontSize: '1rem',
                 backgroundColor: showGlobalSearch ? '#059669' : '#10b981',
                 color: 'white',
                 border: 'none',
@@ -7975,6 +7861,14 @@ function App() {
               <span>🔍</span>
             </button>
 
+            {/* Gamification Header - Only show when user is logged in */}
+            {currentUser && (
+              <GamificationHeader userId={currentUser.uid} size="small" />
+            )}
+
+            {/* Theme Toggle */}
+            <ThemeToggle size="small" />
+
             {/* Account Button - Circular */}
             <div style={{ position: 'relative' }}>
               <button
@@ -7995,9 +7889,9 @@ function App() {
                 aria-haspopup="true"
                 className={focusedUtilityButton === 'account' ? 'btn-focus-blue' : ''}
                 style={{
-                  width: '40px',
-                  height: '40px',
-                  fontSize: '1.2rem',
+                  width: '32px',
+                  height: '32px',
+                  fontSize: '1rem',
                   backgroundColor: showAccountDropdown ? '#2563eb' : '#3b82f6',
                   color: 'white',
                   border: 'none',
@@ -8274,21 +8168,18 @@ function App() {
 
                     {hoveredOption?.value === option.value && (
                       <div style={{
+                        ...tooltipStyle,
                         position: 'absolute',
                         top: '100%',
                         left: '50%',
                         transform: 'translateX(-50%)',
-                        backgroundColor: '#1f2937',
-                        color: 'white',
                         padding: '1.25rem',
                         borderRadius: '10px',
                         fontSize: '0.85rem',
                         lineHeight: '1.5',
                         width: '350px',
-                        boxShadow: '0 15px 25px -8px rgba(0, 0, 0, 0.3)',
                         zIndex: 1001,
-                        marginTop: '8px',
-                        border: '2px solid #374151'
+                        marginTop: '8px'
                       }}>
                         <div style={{
                           position: 'absolute',
@@ -8299,7 +8190,7 @@ function App() {
                           height: 0,
                           borderLeft: '6px solid transparent',
                           borderRight: '6px solid transparent',
-                          borderBottom: '6px solid #1f2937'
+                          borderBottom: `6px solid ${colors.bgSecondary}`
                         }}></div>
 
                         <div style={{
@@ -8314,7 +8205,7 @@ function App() {
                         </div>
 
                         <div style={{
-                          borderTop: '1px solid #374151',
+                          borderTop: `1px solid ${colors.border}`,
                           paddingTop: '0.5rem',
                           marginTop: '0.5rem'
                         }}>
@@ -8432,21 +8323,18 @@ function App() {
 
                     {hoveredOption?.value === option.value && (
                       <div style={{
+                        ...tooltipStyle,
                         position: 'absolute',
                         top: '100%',
                         left: '50%',
                         transform: 'translateX(-50%)',
-                        backgroundColor: '#1f2937',
-                        color: 'white',
                         padding: '1.25rem',
                         borderRadius: '10px',
                         fontSize: '0.85rem',
                         lineHeight: '1.5',
                         width: '350px',
-                        boxShadow: '0 15px 25px -8px rgba(0, 0, 0, 0.3)',
                         zIndex: 1001,
-                        marginTop: '8px',
-                        border: '2px solid #374151'
+                        marginTop: '8px'
                       }}>
                         <div style={{
                           position: 'absolute',
@@ -8457,7 +8345,7 @@ function App() {
                           height: 0,
                           borderLeft: '6px solid transparent',
                           borderRight: '6px solid transparent',
-                          borderBottom: '6px solid #1f2937'
+                          borderBottom: `6px solid ${colors.bgSecondary}`
                         }}></div>
 
                         <div style={{
@@ -8472,7 +8360,7 @@ function App() {
                         </div>
 
                         <div style={{
-                          borderTop: '1px solid #374151',
+                          borderTop: `1px solid ${colors.border}`,
                           paddingTop: '0.5rem',
                           marginTop: '0.5rem'
                         }}>
@@ -8597,21 +8485,18 @@ function App() {
 
                     {hoveredOption?.value === option.value && (
                       <div style={{
+                        ...tooltipStyle,
                         position: 'absolute',
                         top: '100%',
                         left: '50%',
                         transform: 'translateX(-50%)',
-                        backgroundColor: '#1f2937',
-                        color: 'white',
                         padding: '1.25rem',
                         borderRadius: '10px',
                         fontSize: '0.85rem',
                         lineHeight: '1.5',
                         width: '350px',
-                        boxShadow: '0 15px 25px -8px rgba(0, 0, 0, 0.3)',
                         zIndex: 1001,
-                        marginTop: '8px',
-                        border: '2px solid #374151'
+                        marginTop: '8px'
                       }}>
                         <div style={{
                           position: 'absolute',
@@ -8622,7 +8507,7 @@ function App() {
                           height: 0,
                           borderLeft: '6px solid transparent',
                           borderRight: '6px solid transparent',
-                          borderBottom: '6px solid #1f2937'
+                          borderBottom: `6px solid ${colors.bgSecondary}`
                         }}></div>
 
                         <div style={{
@@ -8637,7 +8522,7 @@ function App() {
                         </div>
 
                         <div style={{
-                          borderTop: '1px solid #374151',
+                          borderTop: `1px solid ${colors.border}`,
                           paddingTop: '0.5rem',
                           marginTop: '0.5rem'
                         }}>
@@ -8755,21 +8640,18 @@ function App() {
 
                     {hoveredOption?.value === option.value && (
                       <div style={{
+                        ...tooltipStyle,
                         position: 'absolute',
                         top: '100%',
                         left: '50%',
                         transform: 'translateX(-50%)',
-                        backgroundColor: '#1f2937',
-                        color: 'white',
                         padding: '1.25rem',
                         borderRadius: '10px',
                         fontSize: '0.85rem',
                         lineHeight: '1.5',
                         width: '350px',
-                        boxShadow: '0 15px 25px -8px rgba(0, 0, 0, 0.3)',
                         zIndex: 1001,
-                        marginTop: '8px',
-                        border: '2px solid #374151'
+                        marginTop: '8px'
                       }}>
                         <div style={{
                           position: 'absolute',
@@ -8780,7 +8662,7 @@ function App() {
                           height: 0,
                           borderLeft: '6px solid transparent',
                           borderRight: '6px solid transparent',
-                          borderBottom: '6px solid #1f2937'
+                          borderBottom: `6px solid ${colors.bgSecondary}`
                         }}></div>
 
                         <div style={{
@@ -8795,7 +8677,7 @@ function App() {
                         </div>
 
                         <div style={{
-                          borderTop: '1px solid #374151',
+                          borderTop: `1px solid ${colors.border}`,
                           paddingTop: '0.5rem',
                           marginTop: '0.5rem'
                         }}>
@@ -8875,16 +8757,16 @@ function App() {
           margin: '140px auto 0'
         }}>
           <div style={{
-            backgroundColor: 'white',
+            backgroundColor: colors.bgSecondary,
             borderRadius: '16px',
             padding: '3rem',
-            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.1)',
-            border: '2px solid #e5e7eb'
+            boxShadow: isDark ? '0 4px 24px rgba(0, 0, 0, 0.3)' : '0 4px 24px rgba(0, 0, 0, 0.1)',
+            border: `2px solid ${colors.border}`
           }}>
             <h2 style={{
               fontSize: '2rem',
               fontWeight: '800',
-              color: '#1f2937',
+              color: colors.textPrimary,
               marginBottom: '1rem',
               textAlign: 'center'
             }}>
@@ -8892,7 +8774,7 @@ function App() {
             </h2>
             <p style={{
               fontSize: '1.1rem',
-              color: '#6b7280',
+              color: colors.textMuted,
               textAlign: 'center',
               marginBottom: '2rem'
             }}>
@@ -9281,7 +9163,10 @@ function App() {
           </div>
         </main>
       )}
-    </>
+
+      {/* XP Gain Notifications */}
+      <XPGainNotification />
+    </div>
   )
 }
 

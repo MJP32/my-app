@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
 import LanguageToggle from '../../components/LanguageToggle.jsx'
+import Breadcrumb from '../../components/Breadcrumb'
 import { isProblemCompleted, getUserCode } from '../../services/progressService'
 import { getPreferredLanguage } from '../../services/languageService'
 
-function LRUCache({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory }) {
+function LRUCache({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null)
   const [showSolution, setShowSolution] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
@@ -3040,6 +3041,8 @@ Two Stacks:
         >
           ← Back to Practice
         </button>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         <h1 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#1f2937' }}>
           LRU Cache & Variants Practice

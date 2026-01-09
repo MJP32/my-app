@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Normalize indentation by removing common leading whitespace
 const normalizeIndentation = (code) => {
@@ -104,7 +105,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function CoreJava({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function CoreJava({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
 
@@ -1918,86 +1919,81 @@ System.out.println(str.length());
   ]
 
   return (
-    <>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #78350f, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
       <div style={{
-        padding: '2rem',
-        maxWidth: '95%',
-        margin: '120px auto 0',
-        backgroundColor: 'white',
-        borderRadius: '16px',
-        boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-        border: '3px solid rgba(16, 185, 129, 0.4)'
+        maxWidth: '80rem',
+        margin: '0 auto'
       }}>
         <div style={{
           display: 'flex',
-          justifyContent: 'space-between',
           alignItems: 'center',
+          justifyContent: 'space-between',
           marginBottom: '2rem',
-          gap: '1rem',
-          flexWrap: 'wrap'
+          flexWrap: 'wrap',
+          gap: '1rem'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <button
               onClick={onBack}
               style={{
-                padding: '0.75rem 1.5rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: '#3b82f6',
+                background: '#f59e0b',
                 color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '0.5rem',
                 border: 'none',
-                borderRadius: '8px',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontWeight: '500',
+                fontSize: '1rem',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#d97706'
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f59e0b'
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
               }}
             >
-              ← Back to Menu
+              ← Back to Java Topics
             </button>
             <h1 style={{
-              fontSize: '2.5rem',
-              fontWeight: '800',
-              color: '#1f2937',
-              margin: 0,
-              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+              fontSize: '2.25rem',
+              fontWeight: 'bold',
+              background: 'linear-gradient(to right, #fbbf24, #f97316)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
             }}>
               ☕ Core Java Fundamentals
             </h1>
-            {currentSubcategory && (
-              <span style={{
-                padding: '0.5rem 1rem',
-                fontSize: '0.9rem',
-                fontWeight: '600',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
-                borderRadius: '8px',
-                marginLeft: '1rem'
-              }}>
-                {currentSubcategory}
-              </span>
-            )}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
             {onPrevious && (
               <button
                 onClick={onPrevious}
                 style={{
-                  padding: '0.75rem 1.25rem',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  backgroundColor: '#10b981',
+                  background: '#374151',
                   color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
+                  padding: '0.75rem 1.25rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid #f59e0b',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
+                  fontWeight: '500',
+                  fontSize: '1rem',
+                  transition: 'all 0.2s'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#4b5563'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#374151'}
               >
                 ← {previousName}
               </button>
@@ -2006,22 +2002,18 @@ System.out.println(str.length());
               <button
                 onClick={onNext}
                 style={{
-                  padding: '0.75rem 1.25rem',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  backgroundColor: '#10b981',
+                  background: '#374151',
                   color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
+                  padding: '0.75rem 1.25rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid #f59e0b',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
+                  fontWeight: '500',
+                  fontSize: '1rem',
+                  transition: 'all 0.2s'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#4b5563'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#374151'}
               >
                 {nextName} →
               </button>
@@ -2029,53 +2021,46 @@ System.out.println(str.length());
           </div>
         </div>
 
-        <div style={{
-          backgroundColor: 'rgba(16, 185, 129, 0.05)',
-          padding: '2.5rem 10rem',
-          borderRadius: '16px',
-          border: '3px solid rgba(16, 185, 129, 0.3)',
-          marginBottom: '2rem'
+        <Breadcrumb breadcrumb={breadcrumb} />
+
+        <p style={{
+          fontSize: '1.2rem',
+          color: '#d1d5db',
+          textAlign: 'center',
+          marginBottom: '2rem',
+          lineHeight: '1.8'
         }}>
-          <p style={{
-            fontSize: '1.3rem',
-            color: '#374151',
-            fontWeight: '500',
-            margin: 0,
-            lineHeight: '1.8',
-            textAlign: 'center'
-          }}>
-            Master the foundational concepts of Java programming including OOP principles, data structures, exception handling, and core APIs.
-          </p>
-        </div>
+          Master the foundational concepts of Java programming including OOP principles, data structures, exception handling, and core APIs.
+        </p>
 
 
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '2rem'
+          gap: '1.5rem'
         }}>
           {concepts.map((concept, idx) => (
             <div
               key={idx}
               onClick={() => handleConceptClick(concept)}
               style={{
-                backgroundColor: 'rgba(16, 185, 129, 0.05)',
-                padding: '2rem',
-                borderRadius: '16px',
-                border: '3px solid rgba(16, 185, 129, 0.3)',
+                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                padding: '1.5rem',
+                borderRadius: '0.75rem',
+                border: '2px solid #f59e0b',
                 cursor: 'pointer',
-                transition: 'all 0.3s ease',
+                transition: 'all 0.3s',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)'
-                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.15)'
-                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.5)'
+                e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(245, 158, 11, 0.4)'
+                e.currentTarget.style.borderColor = '#fbbf24'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.3)'
+                e.currentTarget.style.borderColor = '#f59e0b'
               }}
             >
               <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>
@@ -2083,16 +2068,16 @@ System.out.println(str.length());
               </div>
               <h3 style={{
                 fontSize: '1.5rem',
-                fontWeight: '700',
-                color: '#047857',
-                marginBottom: '1rem',
+                fontWeight: 'bold',
+                color: '#fbbf24',
+                marginBottom: '0.75rem',
                 textAlign: 'center'
               }}>
                 {concept.name}
               </h3>
               <p style={{
-                fontSize: '1rem',
-                color: '#6b7280',
+                fontSize: '0.9rem',
+                color: '#d1d5db',
                 lineHeight: '1.6',
                 textAlign: 'center'
               }}>
@@ -2125,14 +2110,14 @@ System.out.println(str.length());
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              background: 'linear-gradient(to bottom right, #111827, #1f2937)',
               borderRadius: '16px',
               maxWidth: '90vw',
               maxHeight: '90vh',
               width: '1200px',
               overflow: 'hidden',
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              border: '3px solid rgba(16, 185, 129, 0.4)',
+              border: '2px solid #f59e0b',
               display: 'flex',
               flexDirection: 'column'
             }}
@@ -2140,16 +2125,16 @@ System.out.println(str.length());
             {/* Modal Header */}
             <div style={{
               padding: '1.5rem 2rem',
-              borderBottom: '2px solid rgba(16, 185, 129, 0.2)',
+              borderBottom: '2px solid rgba(245, 158, 11, 0.3)',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              backgroundColor: 'rgba(16, 185, 129, 0.05)'
+              background: 'rgba(245, 158, 11, 0.1)'
             }}>
               <h2 style={{
                 fontSize: '2rem',
                 fontWeight: '700',
-                color: '#047857',
+                color: '#fbbf24',
                 margin: 0
               }}>
                 {selectedConcept.icon || '🔹'} {selectedConcept.name}
@@ -2161,14 +2146,14 @@ System.out.println(str.length());
                   fontSize: '1.5rem',
                   fontWeight: '600',
                   backgroundColor: 'transparent',
-                  color: '#6b7280',
+                  color: '#d1d5db',
                   border: 'none',
                   borderRadius: '8px',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(107, 114, 128, 0.1)'
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = 'transparent'
@@ -2185,10 +2170,10 @@ System.out.println(str.length());
               flex: 1
             }}>
               <div style={{
-                backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                backgroundColor: 'rgba(245, 158, 11, 0.1)',
                 padding: '1.5rem',
                 borderRadius: '12px',
-                border: '2px solid rgba(16, 185, 129, 0.2)',
+                border: '2px solid rgba(245, 158, 11, 0.3)',
                 marginBottom: '2rem'
               }}>
                 {selectedConcept.explanation.split('\n\n').map((section, idx) => {
@@ -2204,7 +2189,7 @@ System.out.println(str.length());
                           <h3 style={{
                             fontSize: '1.1rem',
                             fontWeight: '700',
-                            color: '#047857',
+                            color: '#fbbf24',
                             marginBottom: '0.75rem',
                             display: 'flex',
                             alignItems: 'center',
@@ -2263,7 +2248,7 @@ System.out.println(str.length());
                                         fontWeight: '600',
                                         flexShrink: 0
                                       }}>•</span>
-                                      <span style={{ color: '#374151' }}>{bulletContent}</span>
+                                      <span style={{ color: '#d1d5db' }}>{bulletContent}</span>
                                     </div>
                                   )
                                 }
@@ -2290,7 +2275,7 @@ System.out.println(str.length());
                               // Regular text
                               else if (line.trim()) {
                                 return (
-                                  <div key={lineIdx} style={{ marginBottom: '0.5rem', color: '#374151' }}>
+                                  <div key={lineIdx} style={{ marginBottom: '0.5rem', color: '#d1d5db' }}>
                                     {line}
                                   </div>
                                 )
@@ -2369,7 +2354,7 @@ System.out.println(str.length());
           </div>
         </div>
       )}
-    </>
+    </div>
   )
 }
 

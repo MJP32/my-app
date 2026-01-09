@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import Breadcrumb from '../../components/Breadcrumb'
 
 const customTheme = {
   ...vscDarkPlus,
@@ -14,7 +15,7 @@ const customTheme = {
   },
 }
 
-function SortingAlgorithms({ onBack }) {
+function SortingAlgorithms({ onBack, breadcrumb }) {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState(null)
 
   const algorithms = [
@@ -1082,6 +1083,8 @@ Regular insertion sort
             </h1>
           </div>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         <p style={{
           fontSize: '1.2rem',

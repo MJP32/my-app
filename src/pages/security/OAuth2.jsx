@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-export default function OAuth2({ onBack }) {
+export default function OAuth2({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview')
 
   const tabs = [
@@ -11,26 +12,34 @@ export default function OAuth2({ onBack }) {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <button
-            onClick={onBack}
-            className="mb-6 px-6 py-3 bg-white text-gray-700 rounded-lg shadow-md hover:shadow-lg hover:bg-gray-50 transition-all duration-200 font-semibold flex items-center gap-2"
-          >
-            <span>←</span>
-            <span>Back to Security</span>
-          </button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-green-950 to-gray-900 text-white p-6">
+      <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            <button
+              onClick={onBack}
+              className="mb-6 px-6 py-3 bg-gray-800 border border-green-700 text-green-300 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 font-semibold flex items-center gap-2"
+            >
+              <span>←</span>
+              <span>Back to Security</span>
+            </button>
 
-          <div className="bg-gradient-to-r from-green-600 to-emerald-700 rounded-2xl shadow-2xl p-8 text-white">
-            <h1 className="text-4xl font-bold mb-3">🛡️ OAuth 2.0</h1>
-            <p className="text-xl opacity-90">Modern Authorization Framework</p>
+            <div className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 rounded-2xl shadow-2xl p-8 text-white border border-green-700">
+              <h1 className="text-4xl font-bold mb-3" style={{
+                background: 'linear-gradient(to right, #fca5a5, #ef4444)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}>🛡️ OAuth 2.0</h1>
+              <p className="text-xl text-gray-300">Modern Authorization Framework</p>
+            </div>
           </div>
-        </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-md p-2 mb-8">
+        <div className="bg-gray-800 rounded-xl shadow-md p-2 mb-8">
           <div className="flex flex-wrap gap-2">
             {tabs.map((tab) => (
               <button
@@ -39,7 +48,7 @@ export default function OAuth2({ onBack }) {
                 className={`flex-1 min-w-fit px-4 py-3 rounded-lg font-semibold transition-all duration-200 ${
                   activeTab === tab.id
                     ? 'bg-green-600 text-white shadow-lg'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                 }`}
               >
                 <span className="mr-2">{tab.icon}</span>
@@ -54,12 +63,12 @@ export default function OAuth2({ onBack }) {
           {activeTab === 'overview' && (
             <div className="space-y-8">
               {/* What is OAuth 2.0 */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-green-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-green-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">💡</span>
                   What is OAuth 2.0?
                 </h3>
-                <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                <p className="text-lg text-gray-300 leading-relaxed mb-6">
                   OAuth 2.0 is an authorization framework (RFC 6749) that enables applications to obtain limited access
                   to user accounts on an HTTP service. It works by delegating user authentication to the service hosting
                   the user account and authorizing third-party applications to access that account.
@@ -74,17 +83,17 @@ export default function OAuth2({ onBack }) {
                     'Supports refresh tokens',
                     'Extensible framework (not a protocol)'
                   ].map((feature, idx) => (
-                    <div key={idx} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
-                      <span className="text-green-600 font-bold text-sm mt-0.5">{idx + 1}</span>
-                      <span className="text-gray-800 text-sm font-medium">{feature}</span>
+                    <div key={idx} className="flex items-start gap-3 p-3 bg-green-900/30 rounded-lg">
+                      <span className="text-green-400 font-bold text-sm mt-0.5">{idx + 1}</span>
+                      <span className="text-gray-300 text-sm font-medium">{feature}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Roles */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-blue-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-blue-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">👥</span>
                   OAuth 2.0 Roles
                 </h3>
@@ -120,13 +129,13 @@ export default function OAuth2({ onBack }) {
                       color: 'orange'
                     }
                   ].map((item, index) => (
-                    <div key={index} className={`bg-${item.color}-50 p-6 rounded-xl border-l-4 border-${item.color}-500`}>
+                    <div key={index} className={`bg-${item.color}-900/30 p-6 rounded-xl border-l-4 border-${item.color}-500`}>
                       <div className="flex items-start gap-4">
                         <span className="text-4xl">{item.icon}</span>
                         <div>
-                          <h4 className={`font-bold text-${item.color}-900 text-lg mb-2`}>{item.role}</h4>
-                          <p className="text-gray-700 mb-2 text-sm">{item.description}</p>
-                          <div className="text-xs text-gray-600 bg-white p-2 rounded">
+                          <h4 className={`font-bold text-${item.color}-400 text-lg mb-2`}>{item.role}</h4>
+                          <p className="text-gray-300 mb-2 text-sm">{item.description}</p>
+                          <div className="text-xs text-gray-400 bg-gray-900 p-2 rounded">
                             <strong>Example:</strong> {item.example}
                           </div>
                         </div>
@@ -137,18 +146,18 @@ export default function OAuth2({ onBack }) {
               </div>
 
               {/* Tokens */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-purple-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-purple-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">🎫</span>
                   Token Types
                 </h3>
 
                 <div className="space-y-4">
-                  <div className="bg-green-50 p-6 rounded-xl border-2 border-green-200">
-                    <h4 className="font-bold text-green-900 mb-3 text-lg flex items-center gap-2">
+                  <div className="bg-green-900/30 p-6 rounded-xl border-2 border-green-700">
+                    <h4 className="font-bold text-green-400 mb-3 text-lg flex items-center gap-2">
                       <span>✅</span> Access Token
                     </h4>
-                    <p className="text-gray-700 mb-3">
+                    <p className="text-gray-300 mb-3">
                       Short-lived token used to access protected resources. Typically expires in 5-60 minutes.
                     </p>
                     <div className="bg-gray-900 p-3 rounded-lg">
@@ -156,16 +165,16 @@ export default function OAuth2({ onBack }) {
                         Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
                       </code>
                     </div>
-                    <div className="mt-3 text-sm text-gray-600">
+                    <div className="mt-3 text-sm text-gray-400">
                       <strong>Format:</strong> Can be JWT (self-contained) or opaque string (requires validation)
                     </div>
                   </div>
 
-                  <div className="bg-blue-50 p-6 rounded-xl border-2 border-blue-200">
-                    <h4 className="font-bold text-blue-900 mb-3 text-lg flex items-center gap-2">
+                  <div className="bg-blue-900/30 p-6 rounded-xl border-2 border-blue-700">
+                    <h4 className="font-bold text-blue-400 mb-3 text-lg flex items-center gap-2">
                       <span>🔄</span> Refresh Token
                     </h4>
-                    <p className="text-gray-700 mb-3">
+                    <p className="text-gray-300 mb-3">
                       Long-lived token used to obtain new access tokens without re-authentication. Typically expires in days/weeks.
                     </p>
                     <div className="bg-gray-900 p-3 rounded-lg">
@@ -174,16 +183,16 @@ export default function OAuth2({ onBack }) {
                         <br />grant_type=refresh_token&amp;refresh_token=tGzv3JOkF0XG5Qx2TlKWIA
                       </code>
                     </div>
-                    <div className="mt-3 text-sm text-gray-600">
+                    <div className="mt-3 text-sm text-gray-400">
                       <strong>Security:</strong> Must be stored securely, can be revoked by authorization server
                     </div>
                   </div>
 
-                  <div className="bg-orange-50 p-6 rounded-xl border-2 border-orange-200">
-                    <h4 className="font-bold text-orange-900 mb-3 text-lg flex items-center gap-2">
+                  <div className="bg-orange-900/30 p-6 rounded-xl border-2 border-orange-700">
+                    <h4 className="font-bold text-orange-400 mb-3 text-lg flex items-center gap-2">
                       <span>🔑</span> ID Token (OpenID Connect)
                     </h4>
-                    <p className="text-gray-700 mb-3">
+                    <p className="text-gray-300 mb-3">
                       JWT containing user identity information. Part of OpenID Connect (built on OAuth 2.0).
                     </p>
                     <div className="bg-gray-900 p-3 rounded-lg">
@@ -191,7 +200,7 @@ export default function OAuth2({ onBack }) {
                         {`{"sub": "user123", "name": "John Doe", "email": "john@example.com"}`}
                       </code>
                     </div>
-                    <div className="mt-3 text-sm text-gray-600">
+                    <div className="mt-3 text-sm text-gray-400">
                       <strong>Use Case:</strong> Authentication (who the user is) vs authorization (what they can access)
                     </div>
                   </div>
@@ -199,8 +208,8 @@ export default function OAuth2({ onBack }) {
               </div>
 
               {/* OAuth 2.0 vs 1.0 */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-amber-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-amber-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">🔄</span>
                   Key Improvements over OAuth 1.0
                 </h3>
@@ -216,9 +225,9 @@ export default function OAuth2({ onBack }) {
                     'Extensible framework (vs fixed protocol)',
                     'Widespread adoption and tooling'
                   ].map((improvement, idx) => (
-                    <div key={idx} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+                    <div key={idx} className="flex items-start gap-3 p-3 bg-green-900/30 rounded-lg">
                       <span className="text-green-500 text-xl">✓</span>
-                      <span className="text-gray-800 text-sm">{improvement}</span>
+                      <span className="text-gray-300 text-sm">{improvement}</span>
                     </div>
                   ))}
                 </div>
@@ -229,19 +238,19 @@ export default function OAuth2({ onBack }) {
           {activeTab === 'flows' && (
             <div className="space-y-8">
               {/* Authorization Code Flow */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-blue-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-blue-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">1️⃣</span>
                   Authorization Code Flow (Most Secure)
                 </h3>
-                <p className="text-lg text-gray-700 mb-6">
+                <p className="text-lg text-gray-300 mb-6">
                   Best for server-side web applications. The authorization code is exchanged for tokens on the server,
                   keeping client secret secure.
                 </p>
 
-                <div className="bg-blue-50 p-6 rounded-xl mb-6">
-                  <h4 className="font-bold text-blue-900 mb-3">Use Cases</h4>
-                  <div className="text-sm text-gray-700">
+                <div className="bg-blue-900/30 p-6 rounded-xl mb-6 border border-blue-700">
+                  <h4 className="font-bold text-blue-400 mb-3">Use Cases</h4>
+                  <div className="text-sm text-gray-300">
                     ✓ Server-side web apps (Node.js, Java, Python, .NET)
                     <br />✓ Applications that can securely store client secret
                     <br />✓ Most secure flow, recommended for production
@@ -249,12 +258,12 @@ export default function OAuth2({ onBack }) {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="bg-white border-l-4 border-green-500 p-4 rounded-lg shadow">
+                  <div className="bg-gray-800 border-l-4 border-green-500 p-4 rounded-lg shadow">
                     <div className="flex items-start gap-3">
                       <div className="bg-green-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shrink-0">1</div>
                       <div>
-                        <strong>User → Authorization Request</strong>
-                        <div className="text-sm text-gray-600 mt-1">Client redirects user to authorization server</div>
+                        <strong className="text-white">User → Authorization Request</strong>
+                        <div className="text-sm text-gray-400 mt-1">Client redirects user to authorization server</div>
                         <div className="bg-gray-900 p-2 rounded mt-2 text-xs overflow-x-auto">
                           <code className="text-green-400">
                             GET /authorize?response_type=code&amp;client_id=CLIENT_ID&amp;redirect_uri=CALLBACK&amp;scope=read&amp;state=xyz
@@ -264,22 +273,22 @@ export default function OAuth2({ onBack }) {
                     </div>
                   </div>
 
-                  <div className="bg-white border-l-4 border-blue-500 p-4 rounded-lg shadow">
+                  <div className="bg-gray-800 border-l-4 border-blue-500 p-4 rounded-lg shadow">
                     <div className="flex items-start gap-3">
                       <div className="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shrink-0">2</div>
                       <div>
-                        <strong>User Authenticates & Grants Permission</strong>
-                        <div className="text-sm text-gray-600 mt-1">User logs in and approves access</div>
+                        <strong className="text-white">User Authenticates & Grants Permission</strong>
+                        <div className="text-sm text-gray-400 mt-1">User logs in and approves access</div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-white border-l-4 border-purple-500 p-4 rounded-lg shadow">
+                  <div className="bg-gray-800 border-l-4 border-purple-500 p-4 rounded-lg shadow">
                     <div className="flex items-start gap-3">
                       <div className="bg-purple-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shrink-0">3</div>
                       <div>
-                        <strong>Authorization Server → Authorization Code</strong>
-                        <div className="text-sm text-gray-600 mt-1">Redirects back with code</div>
+                        <strong className="text-white">Authorization Server → Authorization Code</strong>
+                        <div className="text-sm text-gray-400 mt-1">Redirects back with code</div>
                         <div className="bg-gray-900 p-2 rounded mt-2 text-xs overflow-x-auto">
                           <code className="text-green-400">
                             GET /callback?code=AUTHORIZATION_CODE&amp;state=xyz
@@ -289,12 +298,12 @@ export default function OAuth2({ onBack }) {
                     </div>
                   </div>
 
-                  <div className="bg-white border-l-4 border-orange-500 p-4 rounded-lg shadow">
+                  <div className="bg-gray-800 border-l-4 border-orange-500 p-4 rounded-lg shadow">
                     <div className="flex items-start gap-3">
                       <div className="bg-orange-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shrink-0">4</div>
                       <div>
-                        <strong>Client → Token Request (Backend)</strong>
-                        <div className="text-sm text-gray-600 mt-1">Exchange code for access token + refresh token</div>
+                        <strong className="text-white">Client → Token Request (Backend)</strong>
+                        <div className="text-sm text-gray-400 mt-1">Exchange code for access token + refresh token</div>
                         <div className="bg-gray-900 p-2 rounded mt-2 text-xs overflow-x-auto">
                           <code className="text-green-400">
                             POST /token
@@ -309,12 +318,12 @@ export default function OAuth2({ onBack }) {
                     </div>
                   </div>
 
-                  <div className="bg-white border-l-4 border-cyan-500 p-4 rounded-lg shadow">
+                  <div className="bg-gray-800 border-l-4 border-cyan-500 p-4 rounded-lg shadow">
                     <div className="flex items-start gap-3">
                       <div className="bg-cyan-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shrink-0">5</div>
                       <div>
-                        <strong>Authorization Server → Tokens</strong>
-                        <div className="text-sm text-gray-600 mt-1">Returns access token and refresh token</div>
+                        <strong className="text-white">Authorization Server → Tokens</strong>
+                        <div className="text-sm text-gray-400 mt-1">Returns access token and refresh token</div>
                         <div className="bg-gray-900 p-2 rounded mt-2 text-xs overflow-x-auto">
                           <code className="text-green-400">
                             {`{"access_token": "eyJhbGc...", "token_type": "Bearer", "expires_in": 3600, "refresh_token": "tGzv3..."}`}
@@ -327,18 +336,18 @@ export default function OAuth2({ onBack }) {
               </div>
 
               {/* Client Credentials Flow */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-purple-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-purple-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">2️⃣</span>
                   Client Credentials Flow (Machine-to-Machine)
                 </h3>
-                <p className="text-lg text-gray-700 mb-6">
+                <p className="text-lg text-gray-300 mb-6">
                   Used for server-to-server authentication where no user is involved. Client authenticates with its own credentials.
                 </p>
 
-                <div className="bg-purple-50 p-6 rounded-xl mb-6">
-                  <h4 className="font-bold text-purple-900 mb-3">Use Cases</h4>
-                  <div className="text-sm text-gray-700">
+                <div className="bg-purple-900/30 p-6 rounded-xl mb-6 border border-purple-700">
+                  <h4 className="font-bold text-purple-400 mb-3">Use Cases</h4>
+                  <div className="text-sm text-gray-300">
                     ✓ Microservices communication
                     <br />✓ CLI tools
                     <br />✓ Batch jobs and cron tasks
@@ -367,25 +376,25 @@ Response:
                   </pre>
                 </div>
 
-                <div className="mt-4 p-4 bg-amber-50 rounded-lg">
-                  <strong className="text-amber-900">⚠️ Security Note:</strong>
-                  <span className="text-gray-700"> No refresh token issued. Client must request new token when expired. Protect client secret!</span>
+                <div className="mt-4 p-4 bg-amber-900/30 rounded-lg border border-amber-700">
+                  <strong className="text-amber-400">⚠️ Security Note:</strong>
+                  <span className="text-gray-300"> No refresh token issued. Client must request new token when expired. Protect client secret!</span>
                 </div>
               </div>
 
               {/* PKCE Flow */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-green-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-green-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">3️⃣</span>
                   Authorization Code + PKCE (For Mobile & SPA)
                 </h3>
-                <p className="text-lg text-gray-700 mb-6">
+                <p className="text-lg text-gray-300 mb-6">
                   Proof Key for Code Exchange (PKCE) protects authorization code flow for public clients that can't securely store secrets.
                 </p>
 
-                <div className="bg-green-50 p-6 rounded-xl mb-6">
-                  <h4 className="font-bold text-green-900 mb-3">Use Cases</h4>
-                  <div className="text-sm text-gray-700">
+                <div className="bg-green-900/30 p-6 rounded-xl mb-6 border border-green-700">
+                  <h4 className="font-bold text-green-400 mb-3">Use Cases</h4>
+                  <div className="text-sm text-gray-300">
                     ✓ Single Page Applications (React, Vue, Angular)
                     <br />✓ Mobile apps (iOS, Android)
                     <br />✓ Desktop applications
@@ -394,13 +403,13 @@ Response:
                 </div>
 
                 <div className="space-y-4">
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <h4 className="font-bold text-green-900 mb-2">How PKCE Works</h4>
-                    <ol className="space-y-2 text-sm text-gray-700">
-                      <li>1. Client generates random <code className="bg-white px-2 py-1 rounded">code_verifier</code> (43-128 characters)</li>
-                      <li>2. Client creates <code className="bg-white px-2 py-1 rounded">code_challenge</code> = SHA256(code_verifier)</li>
-                      <li>3. Authorization request includes <code className="bg-white px-2 py-1 rounded">code_challenge</code></li>
-                      <li>4. Token request includes original <code className="bg-white px-2 py-1 rounded">code_verifier</code></li>
+                  <div className="bg-green-900/30 p-4 rounded-lg border border-green-700">
+                    <h4 className="font-bold text-green-400 mb-2">How PKCE Works</h4>
+                    <ol className="space-y-2 text-sm text-gray-300">
+                      <li>1. Client generates random <code className="bg-gray-900 px-2 py-1 rounded text-green-400">code_verifier</code> (43-128 characters)</li>
+                      <li>2. Client creates <code className="bg-gray-900 px-2 py-1 rounded text-green-400">code_challenge</code> = SHA256(code_verifier)</li>
+                      <li>3. Authorization request includes <code className="bg-gray-900 px-2 py-1 rounded text-green-400">code_challenge</code></li>
+                      <li>4. Token request includes original <code className="bg-gray-900 px-2 py-1 rounded text-green-400">code_verifier</code></li>
                       <li>5. Server verifies: SHA256(code_verifier) == stored code_challenge</li>
                     </ol>
                   </div>
@@ -434,48 +443,48 @@ grant_type=authorization_code
               </div>
 
               {/* Implicit Flow (Deprecated) */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-red-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-red-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">❌</span>
                   Implicit Flow (Deprecated)
                 </h3>
-                <p className="text-lg text-gray-700 mb-6">
+                <p className="text-lg text-gray-300 mb-6">
                   Returns access token directly in URL fragment. <strong>No longer recommended - use PKCE instead!</strong>
                 </p>
 
-                <div className="bg-red-50 p-6 rounded-xl border-2 border-red-200">
-                  <h4 className="font-bold text-red-900 mb-3">⚠️ Security Issues</h4>
-                  <ul className="space-y-2 text-sm text-gray-700">
+                <div className="bg-red-900/30 p-6 rounded-xl border-2 border-red-700">
+                  <h4 className="font-bold text-red-400 mb-3">⚠️ Security Issues</h4>
+                  <ul className="space-y-2 text-sm text-gray-300">
                     <li>• Token exposed in URL (browser history, logs)</li>
                     <li>• No refresh tokens (less secure re-authentication)</li>
                     <li>• Susceptible to token injection attacks</li>
                     <li>• Cannot verify client identity</li>
                   </ul>
-                  <div className="mt-4 p-3 bg-white rounded">
-                    <strong className="text-red-900">Recommendation:</strong>
-                    <span className="text-gray-700"> Use Authorization Code + PKCE for all SPAs and mobile apps</span>
+                  <div className="mt-4 p-3 bg-gray-900 rounded">
+                    <strong className="text-red-400">Recommendation:</strong>
+                    <span className="text-gray-300"> Use Authorization Code + PKCE for all SPAs and mobile apps</span>
                   </div>
                 </div>
               </div>
 
               {/* Password Grant (Deprecated) */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-orange-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-orange-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">⚠️</span>
                   Resource Owner Password Credentials (Legacy)
                 </h3>
-                <p className="text-lg text-gray-700 mb-6">
+                <p className="text-lg text-gray-300 mb-6">
                   User provides username/password directly to client. <strong>Only for highly trusted applications!</strong>
                 </p>
 
-                <div className="bg-orange-50 p-6 rounded-xl">
-                  <h4 className="font-bold text-orange-900 mb-3">When to Use (Rarely)</h4>
-                  <ul className="space-y-2 text-sm text-gray-700">
+                <div className="bg-orange-900/30 p-6 rounded-xl border border-orange-700">
+                  <h4 className="font-bold text-orange-400 mb-3">When to Use (Rarely)</h4>
+                  <ul className="space-y-2 text-sm text-gray-300">
                     <li>• First-party apps only (e.g., official mobile app)</li>
                     <li>• Migration from legacy auth systems</li>
                     <li>• When other flows are not feasible</li>
                   </ul>
-                  <div className="mt-4 bg-white p-3 rounded">
+                  <div className="mt-4 bg-gray-900 p-3 rounded">
                     <div className="bg-gray-900 p-2 rounded text-xs overflow-x-auto">
                       <code className="text-green-400">
                         POST /token
@@ -491,15 +500,15 @@ grant_type=authorization_code
           {activeTab === 'implementation' && (
             <div className="space-y-8">
               {/* Spring Boot Implementation */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-green-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-green-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">☕</span>
                   Spring Boot OAuth 2.0 Client
                 </h3>
 
                 <div className="space-y-6">
                   <div>
-                    <h4 className="text-lg font-bold text-green-900 mb-3">1. Add Dependencies (Maven)</h4>
+                    <h4 className="text-lg font-bold text-green-400 mb-3">1. Add Dependencies (Maven)</h4>
                     <div className="bg-gray-900 p-4 rounded-lg overflow-x-auto">
                       <pre className="text-green-400 text-sm">
 {`<dependency>
@@ -515,7 +524,7 @@ grant_type=authorization_code
                   </div>
 
                   <div>
-                    <h4 className="text-lg font-bold text-green-900 mb-3">2. Configure application.yml</h4>
+                    <h4 className="text-lg font-bold text-green-400 mb-3">2. Configure application.yml</h4>
                     <div className="bg-gray-900 p-4 rounded-lg overflow-x-auto">
                       <pre className="text-green-400 text-sm">
 {`spring:
@@ -540,7 +549,7 @@ grant_type=authorization_code
                   </div>
 
                   <div>
-                    <h4 className="text-lg font-bold text-green-900 mb-3">3. Security Configuration</h4>
+                    <h4 className="text-lg font-bold text-green-400 mb-3">3. Security Configuration</h4>
                     <div className="bg-gray-900 p-4 rounded-lg overflow-x-auto">
                       <pre className="text-green-400 text-sm">
 {`@Configuration
@@ -568,7 +577,7 @@ public class SecurityConfig {
                   </div>
 
                   <div>
-                    <h4 className="text-lg font-bold text-green-900 mb-3">4. Access User Info in Controller</h4>
+                    <h4 className="text-lg font-bold text-green-400 mb-3">4. Access User Info in Controller</h4>
                     <div className="bg-gray-900 p-4 rounded-lg overflow-x-auto">
                       <pre className="text-green-400 text-sm">
 {`@RestController
@@ -593,15 +602,15 @@ public class UserController {
               </div>
 
               {/* Resource Server */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-blue-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-blue-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">🗄️</span>
                   Spring Boot OAuth 2.0 Resource Server
                 </h3>
 
                 <div className="space-y-6">
                   <div>
-                    <h4 className="text-lg font-bold text-blue-900 mb-3">1. Add Dependency</h4>
+                    <h4 className="text-lg font-bold text-blue-400 mb-3">1. Add Dependency</h4>
                     <div className="bg-gray-900 p-4 rounded-lg overflow-x-auto">
                       <pre className="text-green-400 text-sm">
 {`<dependency>
@@ -613,7 +622,7 @@ public class UserController {
                   </div>
 
                   <div>
-                    <h4 className="text-lg font-bold text-blue-900 mb-3">2. Configure JWT Validation</h4>
+                    <h4 className="text-lg font-bold text-blue-400 mb-3">2. Configure JWT Validation</h4>
                     <div className="bg-gray-900 p-4 rounded-lg overflow-x-auto">
                       <pre className="text-green-400 text-sm">
 {`spring:
@@ -628,7 +637,7 @@ public class UserController {
                   </div>
 
                   <div>
-                    <h4 className="text-lg font-bold text-blue-900 mb-3">3. Security Configuration</h4>
+                    <h4 className="text-lg font-bold text-blue-400 mb-3">3. Security Configuration</h4>
                     <div className="bg-gray-900 p-4 rounded-lg overflow-x-auto">
                       <pre className="text-green-400 text-sm">
 {`@Configuration
@@ -669,7 +678,7 @@ public class ResourceServerConfig {
                   </div>
 
                   <div>
-                    <h4 className="text-lg font-bold text-blue-900 mb-3">4. Protected API Endpoints</h4>
+                    <h4 className="text-lg font-bold text-blue-400 mb-3">4. Protected API Endpoints</h4>
                     <div className="bg-gray-900 p-4 rounded-lg overflow-x-auto">
                       <pre className="text-green-400 text-sm">
 {`@RestController
@@ -704,8 +713,8 @@ public class ApiController {
               </div>
 
               {/* Token Refresh */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-purple-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-purple-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">🔄</span>
                   Implementing Token Refresh
                 </h3>
@@ -789,8 +798,8 @@ public class OAuth2TokenService {
           {activeTab === 'security' && (
             <div className="space-y-8">
               {/* Security Best Practices */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-red-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-red-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">🛡️</span>
                   OAuth 2.0 Security Best Practices
                 </h3>
@@ -846,9 +855,9 @@ public class OAuth2TokenService {
                       color: 'cyan'
                     }
                   ].map((practice, index) => (
-                    <div key={index} className={`bg-${practice.color}-50 p-5 rounded-xl border-l-4 border-${practice.color}-500`}>
-                      <h4 className={`font-bold text-${practice.color}-900 mb-2`}>{practice.title}</h4>
-                      <p className="text-gray-700 mb-3">{practice.description}</p>
+                    <div key={index} className={`bg-${practice.color}-900/30 p-5 rounded-xl border-l-4 border-${practice.color}-500`}>
+                      <h4 className={`font-bold text-${practice.color}-400 mb-2`}>{practice.title}</h4>
+                      <p className="text-gray-300 mb-3">{practice.description}</p>
                       <div className="bg-gray-900 p-3 rounded-lg">
                         <code className="text-green-400 text-sm">{practice.code}</code>
                       </div>
@@ -858,8 +867,8 @@ public class OAuth2TokenService {
               </div>
 
               {/* Common Vulnerabilities */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-purple-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-purple-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">⚠️</span>
                   Common OAuth 2.0 Vulnerabilities
                 </h3>
@@ -897,12 +906,12 @@ public class OAuth2TokenService {
                       severity: 'MEDIUM'
                     }
                   ].map((item, idx) => (
-                    <div key={idx} className="bg-red-50 p-6 rounded-xl border-2 border-red-200">
+                    <div key={idx} className="bg-red-900/30 p-6 rounded-xl border-2 border-red-700">
                       <div className="flex items-start gap-4 mb-4">
                         <span className="text-3xl">🚨</span>
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-bold text-red-900 text-lg">{item.vuln}</h4>
+                            <h4 className="font-bold text-red-400 text-lg">{item.vuln}</h4>
                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                               item.severity === 'HIGH' ? 'bg-red-600 text-white' : 'bg-orange-500 text-white'
                             }`}>
@@ -911,12 +920,12 @@ public class OAuth2TokenService {
                           </div>
                           <div className="space-y-2 text-sm">
                             <div>
-                              <strong className="text-red-900">Attack:</strong>
-                              <span className="text-gray-700"> {item.attack}</span>
+                              <strong className="text-red-400">Attack:</strong>
+                              <span className="text-gray-300"> {item.attack}</span>
                             </div>
                             <div>
-                              <strong className="text-green-900">Mitigation:</strong>
-                              <span className="text-gray-700"> {item.mitigation}</span>
+                              <strong className="text-green-400">Mitigation:</strong>
+                              <span className="text-gray-300"> {item.mitigation}</span>
                             </div>
                           </div>
                         </div>
@@ -960,6 +969,7 @@ public class OAuth2TokenService {
               </div>
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>

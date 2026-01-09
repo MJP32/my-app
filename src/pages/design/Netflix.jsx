@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
+import Breadcrumb from '../../components/Breadcrumb';
 
-export default function Netflix({ onBack }) {
+export default function Netflix({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview');
 
   return (
-    <div className="min-h-screen bg-white p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {onBack && (
           <button
             onClick={onBack}
-            className="mb-8 px-5 py-2.5 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900 font-medium rounded-xl transition-all flex items-center gap-2 shadow-sm hover:shadow-md"
+            className="mb-8 px-5 py-2.5 bg-gray-800 border-2 border-gray-700 hover:border-gray-600 text-gray-300 hover:text-white font-medium rounded-xl transition-all flex items-center gap-2 shadow-sm hover:shadow-md"
           >
             ← Back to Projects
           </button>
@@ -17,35 +18,35 @@ export default function Netflix({ onBack }) {
 
         <div className="mb-10">
           <div className="flex items-center gap-3 mb-3">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
+            <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
               🎬 Netflix System Design
             </h1>
-            <span className="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-xs font-bold uppercase tracking-wide">
+            <span className="px-3 py-1 bg-red-900/30 text-red-400 rounded-lg text-xs font-bold uppercase tracking-wide">
               Streaming Platform
             </span>
           </div>
-          <p className="text-xl text-gray-600 mb-6 font-light">
+          <p className="text-xl text-gray-300 mb-6 font-light">
             Global streaming platform · 230M+ subscribers · 70+ countries · 1 billion hours watched/week · Adaptive bitrate streaming
           </p>
           <div className="flex gap-2 flex-wrap">
-            <span className="px-4 py-2 bg-red-50 text-red-700 rounded-lg text-sm font-medium border border-red-100">Video Encoding</span>
-            <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium border border-blue-100">CDN Architecture</span>
-            <span className="px-4 py-2 bg-green-50 text-green-700 rounded-lg text-sm font-medium border border-green-100">ML Recommendations</span>
-            <span className="px-4 py-2 bg-purple-50 text-purple-700 rounded-lg text-sm font-medium border border-purple-100">Microservices</span>
-            <span className="px-4 py-2 bg-orange-50 text-orange-700 rounded-lg text-sm font-medium border border-orange-100">AWS Cloud</span>
+            <span className="px-4 py-2 bg-red-900/30 text-red-400 rounded-lg text-sm font-medium border border-red-700">Video Encoding</span>
+            <span className="px-4 py-2 bg-blue-900/30 text-blue-400 rounded-lg text-sm font-medium border border-blue-700">CDN Architecture</span>
+            <span className="px-4 py-2 bg-green-900/30 text-green-400 rounded-lg text-sm font-medium border border-green-700">ML Recommendations</span>
+            <span className="px-4 py-2 bg-purple-900/30 text-purple-400 rounded-lg text-sm font-medium border border-purple-700">Microservices</span>
+            <span className="px-4 py-2 bg-orange-900/30 text-orange-400 rounded-lg text-sm font-medium border border-orange-700">AWS Cloud</span>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 border-b-2 border-gray-100 overflow-x-auto pb-0">
+        <div className="flex gap-2 mb-8 border-b-2 border-gray-700 overflow-x-auto pb-0">
           {['overview', 'architecture', 'encoding', 'cdn', 'recommendations', 'scalability'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-6 py-3 font-semibold transition-all whitespace-nowrap rounded-t-lg ${
                 activeTab === tab
-                  ? 'text-red-600 bg-red-50 border-b-2 border-red-600 -mb-0.5'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  ? 'text-red-400 bg-red-900/30 border-b-2 border-red-400 -mb-0.5'
+                  : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800'
               }`}
             >
               {tab === 'overview' && 'Overview'}

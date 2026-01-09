@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react'
 import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
 import LanguageToggle from '../../components/LanguageToggle.jsx'
 import DrawingCanvas from '../../components/DrawingCanvas.jsx'
+import Breadcrumb from '../../components/Breadcrumb'
 import { isProblemCompleted } from '../../services/progressService'
 import { getPreferredLanguage } from '../../services/languageService'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 
-function SystemDesign({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory }) {
+function SystemDesign({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null)
   const [showSolution, setShowSolution] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
@@ -21,16 +22,6 @@ function SystemDesign({ onBack, onPrevious, onNext, previousName, nextName, curr
     Easy: true,
     Medium: true,
     Hard: true
-  })
-
-  useKeyboardNavigation({
-    onBack,
-    onPrevious,
-    onNext,
-    onPreviousSubcategory,
-    onNextSubcategory,
-    isQuestionView: !!selectedQuestion,
-    setSelectedQuestion
   })
 
   useEffect(() => {
@@ -3164,6 +3155,16 @@ Throughput:
     setCurrentDrawing(null)
   }
 
+  // Use keyboard navigation for question list (arrow keys, Enter to select, Escape to go back)
+  const { focusedIndex, itemRefs } = useKeyboardNavigation({
+    items: questions,
+    onSelect: (question) => selectQuestion(question),
+    onBack: selectedQuestion ? () => setSelectedQuestion(null) : onBack,
+    enabled: !selectedQuestion,
+    gridColumns: 2,
+    loop: true
+  })
+
   const toggleSection = (difficulty) => {
     setExpandedSections(prev => ({ ...prev, [difficulty]: !prev[difficulty] }))
   }
@@ -3179,7 +3180,7 @@ Throughput:
 
   if (selectedQuestion) {
     return (
-      <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto', backgroundColor: '#f0f9ff', minHeight: '100vh' }}>
+      <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto', backgroundColor: '#faf5ff', minHeight: '100vh' }}>
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <button onClick={() => setSelectedQuestion(null)} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#6b7280', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
             ← Back to Problems
@@ -3222,7 +3223,7 @@ Throughput:
             <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
               <button
                 onClick={() => setShowDrawing(!showDrawing)}
-                style={{ padding: '0.75rem 1.5rem', backgroundColor: showDrawing ? '#10b981' : '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.875rem', fontWeight: '600' }}
+                style={{ padding: '0.75rem 1.5rem', backgroundColor: showDrawing ? '#8b5cf6' : '#9333ea', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.875rem', fontWeight: '600' }}
               >
                 {showDrawing ? '✓ Drawing' : '✏️ Draw Solution'}
               </button>
@@ -3255,7 +3256,7 @@ Throughput:
                     setUserCode(language === 'java' ? selectedQuestion.javaCode : selectedQuestion.pythonCode || selectedQuestion.javaCode)
                   }
                 }}
-                style={{ padding: '0.75rem 1.5rem', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.875rem', fontWeight: '600' }}
+                style={{ padding: '0.75rem 1.5rem', backgroundColor: '#8b5cf6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.875rem', fontWeight: '600' }}
               >
                 {showSolution ? 'Hide' : 'Show'} Solution
               </button>
@@ -3292,27 +3293,29 @@ Throughput:
   const grouped = groupedQuestions()
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#f0f9ff', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#faf5ff', minHeight: '100vh' }}>
       <div style={{ marginBottom: '2rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#1e3a8a', margin: 0 }}>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#7e22ce', margin: 0 }}>
             System Design
           </h1>
-          <button onClick={onBack} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#6b7280', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
+          <button onClick={onBack} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#9333ea', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
             ← Back
           </button>
         </div>
 
+        <Breadcrumb breadcrumb={breadcrumb} />
+
         <div style={{ display: 'flex', gap: '2rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
-          <div style={{ flex: '1', minWidth: '200px', backgroundColor: 'white', padding: '1.5rem', borderRadius: '12px', border: '2px solid #3b82f6' }}>
-            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#3b82f6', marginBottom: '0.5rem' }}>
+          <div style={{ flex: '1', minWidth: '200px', backgroundColor: 'white', padding: '1.5rem', borderRadius: '12px', border: '2px solid #9333ea' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#9333ea', marginBottom: '0.5rem' }}>
               {stats.completed}/{stats.total}
             </div>
             <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>Problems Completed</div>
           </div>
 
-          <div style={{ flex: '1', minWidth: '200px', backgroundColor: 'white', padding: '1.5rem', borderRadius: '12px', border: '2px solid #10b981' }}>
-            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#10b981', marginBottom: '0.5rem' }}>
+          <div style={{ flex: '1', minWidth: '200px', backgroundColor: 'white', padding: '1.5rem', borderRadius: '12px', border: '2px solid #8b5cf6' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#8b5cf6', marginBottom: '0.5rem' }}>
               {stats.percentage}%
             </div>
             <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>Completion Rate</div>
@@ -3342,22 +3345,55 @@ Throughput:
 
             {expandedSections[difficulty] && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '1rem' }}>
-                {difficultyQuestions.map((question) => (
-                  <div key={question.id} onClick={() => selectQuestion(question)} style={{ backgroundColor: 'white', padding: '1.5rem', borderRadius: '12px', border: '2px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)' }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937', margin: 0, flex: 1 }}>{question.id}. {question.title}</h3>
-                    </div>
-                    <p style={{ fontSize: '0.875rem', color: '#6b7280', lineHeight: '1.5', marginBottom: '1rem' }}>{question.description.substring(0, 100)}...</p>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '600', backgroundColor: getDifficultyColor(question.difficulty) + '20', color: getDifficultyColor(question.difficulty) }}>{question.difficulty}</span>
-                      <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ transform: 'scale(0.85)' }}>
-                          <CompletionCheckbox problemId={`System Design-${question.id}`} />
+                {difficultyQuestions.map((question) => {
+                  const globalIndex = questions.findIndex(q => q.id === question.id)
+                  const isFocused = focusedIndex === globalIndex
+                  return (
+                    <button
+                      key={question.id}
+                      ref={(el) => itemRefs.current[globalIndex] = el}
+                      onClick={() => selectQuestion(question)}
+                      tabIndex={isFocused ? 0 : -1}
+                      style={{
+                        backgroundColor: 'white',
+                        padding: '1.5rem',
+                        borderRadius: '12px',
+                        border: isFocused ? '2px solid #9333ea' : '2px solid #e5e7eb',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        textAlign: 'left',
+                        width: '100%',
+                        transform: isFocused ? 'translateY(-4px)' : 'translateY(0)',
+                        boxShadow: isFocused ? '0 0 0 3px rgba(147, 51, 234, 0.3), 0 8px 16px rgba(0,0,0,0.1)' : 'none'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isFocused) {
+                          e.currentTarget.style.transform = 'translateY(-4px)'
+                          e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)'
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isFocused) {
+                          e.currentTarget.style.transform = 'translateY(0)'
+                          e.currentTarget.style.boxShadow = 'none'
+                        }
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937', margin: 0, flex: 1 }}>{question.id}. {question.title}</h3>
+                      </div>
+                      <p style={{ fontSize: '0.875rem', color: '#6b7280', lineHeight: '1.5', marginBottom: '1rem' }}>{question.description.substring(0, 100)}...</p>
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '600', backgroundColor: getDifficultyColor(question.difficulty) + '20', color: getDifficultyColor(question.difficulty) }}>{question.difficulty}</span>
+                        <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <div style={{ transform: 'scale(0.85)' }}>
+                            <CompletionCheckbox problemId={`System Design-${question.id}`} />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                ))}
+                    </button>
+                  )
+                })}
               </div>
             )}
           </div>

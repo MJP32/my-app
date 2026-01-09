@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function DarkPoolMatchingEngineBasic({ onBack }) {
+function DarkPoolMatchingEngineBasic({ onBack, breadcrumb }) {
   const [expandedSections, setExpandedSections] = useState({})
 
   const toggleSection = (sectionId) => {
@@ -539,6 +540,8 @@ function DarkPoolMatchingEngineBasic({ onBack }) {
         </h1>
         <div style={{ width: '120px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         backgroundColor: 'rgba(16, 185, 129, 0.05)',

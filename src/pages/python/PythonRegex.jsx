@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react'
 import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
 import LanguageToggle from '../../components/LanguageToggle.jsx'
 import DrawingCanvas from '../../components/DrawingCanvas.jsx'
+import Breadcrumb from '../../components/Breadcrumb'
 import { isProblemCompleted } from '../../services/progressService'
 import { getPreferredLanguage } from '../../services/languageService'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 
-function PythonRegex({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory }) {
+function PythonRegex({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null)
   const [showSolution, setShowSolution] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
@@ -784,6 +785,8 @@ print(extract_person_info("Bob (invalid)"))  # None
           }}>
             Master Python's powerful regex module (re) for pattern matching, validation, and text processing.
           </p>
+
+          <Breadcrumb breadcrumb={breadcrumb} />
 
           {/* Regex Guide Section */}
           <div style={{

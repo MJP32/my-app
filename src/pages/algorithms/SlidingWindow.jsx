@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
+import BookmarkButton from '../../components/BookmarkButton.jsx'
 import LanguageToggle from '../../components/LanguageToggle.jsx'
 import DrawingCanvas from '../../components/DrawingCanvas.jsx'
+import Breadcrumb from '../../components/Breadcrumb'
 import { isProblemCompleted } from '../../services/progressService'
 import { getPreferredLanguage } from '../../services/languageService'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 
-function SlidingWindow({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory }) {
+function SlidingWindow({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null)
   const [showSolution, setShowSolution] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
@@ -763,8 +765,9 @@ function SlidingWindow({ onBack, onPrevious, onNext, previousName, nextName, cur
               </span>
             </div>
 
-            <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
               <CompletionCheckbox problemId={`Sliding Window-${selectedQuestion.id}`} />
+              <BookmarkButton problemId={`SlidingWindow-${selectedQuestion.id}`} problemData={{ title: selectedQuestion.title, difficulty: selectedQuestion.difficulty, category: 'SlidingWindow' }} />
             </div>
 
             {selectedQuestion.leetcodeUrl && (
@@ -858,6 +861,8 @@ function SlidingWindow({ onBack, onPrevious, onNext, previousName, nextName, cur
         </button>
       </div>
 
+      <Breadcrumb breadcrumb={breadcrumb} />
+
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#1f2937', marginBottom: '0.5rem' }}>🪟 Sliding Window</h1>
         <p style={{ fontSize: '1.2rem', color: '#6b7280' }}>Master the sliding window technique for substring and subarray problems</p>
@@ -899,6 +904,7 @@ function SlidingWindow({ onBack, onPrevious, onNext, previousName, nextName, cur
                         <div style={{ transform: 'scale(0.85)' }}>
                           <CompletionCheckbox problemId={`Sliding Window-${question.id}`} />
                         </div>
+                        <BookmarkButton size="small" problemId={`SlidingWindow-${question.id}`} problemData={{ title: question.title, difficulty: question.difficulty, category: 'SlidingWindow' }} />
                         {question.leetcodeUrl && (
                           <a
                             href={question.leetcodeUrl}

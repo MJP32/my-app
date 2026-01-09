@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function PrometheusQuestions({ onBack }) {
+function PrometheusQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
 
   const renderFormattedAnswer = (text) => {
@@ -1045,10 +1046,12 @@ rate(http_server_requests_seconds_count{application="my-app",status=~"5.."}[5m])
           color: '#1f2937',
           margin: 0
         }}>
-          📊 Prometheus Interview Questions
+          Prometheus Interview Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <p style={{
         fontSize: '1.1rem',

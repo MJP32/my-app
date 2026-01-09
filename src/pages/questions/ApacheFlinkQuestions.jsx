@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function ApacheFlinkQuestions({ onBack }) {
+function ApacheFlinkQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
 
   // Helper function to render formatted text with colors for bold sections
@@ -1268,7 +1269,7 @@ curl http://jobmanager:8081/jobs/<job-id>/metrics
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', backgroundColor: '#eff6ff', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', backgroundColor: '#111827', minHeight: '100vh' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -1299,10 +1300,12 @@ curl http://jobmanager:8081/jobs/<job-id>/metrics
           color: '#1f2937',
           margin: 0
         }}>
-          🌊 Apache Flink Interview Questions
+          Apache Flink Interview Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <p style={{
         fontSize: '1.1rem',

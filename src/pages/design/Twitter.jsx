@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
+import Breadcrumb from '../../components/Breadcrumb';
 
-export default function Twitter({ onBack }) {
+export default function Twitter({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview');
 
   return (
-    <div className="min-h-screen bg-white p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {onBack && (
           <button
             onClick={onBack}
-            className="mb-8 px-5 py-2.5 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900 font-medium rounded-xl transition-all flex items-center gap-2 shadow-sm hover:shadow-md"
+            className="mb-8 px-5 py-2.5 bg-gray-800 border-2 border-gray-700 hover:border-gray-600 text-gray-300 hover:text-white font-medium rounded-xl transition-all flex items-center gap-2 shadow-sm hover:shadow-md"
           >
             ← Back to Projects
           </button>
@@ -17,35 +18,35 @@ export default function Twitter({ onBack }) {
 
         <div className="mb-10">
           <div className="flex items-center gap-3 mb-3">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
+            <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
               🐦 Twitter/X System Design
             </h1>
-            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-bold uppercase tracking-wide">
+            <span className="px-3 py-1 bg-blue-900/30 text-blue-400 rounded-lg text-xs font-bold uppercase tracking-wide">
               Social Media
             </span>
           </div>
-          <p className="text-xl text-gray-600 mb-6 font-light">
+          <p className="text-xl text-gray-300 mb-6 font-light">
             Scalable social media platform · 350M+ users · 500M+ tweets/day · Real-time timelines · Trending topics
           </p>
           <div className="flex gap-2 flex-wrap">
-            <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium border border-blue-100">Fan-out Strategy</span>
-            <span className="px-4 py-2 bg-green-50 text-green-700 rounded-lg text-sm font-medium border border-green-100">Real-time Feeds</span>
-            <span className="px-4 py-2 bg-purple-50 text-purple-700 rounded-lg text-sm font-medium border border-purple-100">Graph Database</span>
-            <span className="px-4 py-2 bg-orange-50 text-orange-700 rounded-lg text-sm font-medium border border-orange-100">Redis Cache</span>
-            <span className="px-4 py-2 bg-pink-50 text-pink-700 rounded-lg text-sm font-medium border border-pink-100">Search & Trends</span>
+            <span className="px-4 py-2 bg-blue-900/30 text-blue-400 rounded-lg text-sm font-medium border border-blue-700">Fan-out Strategy</span>
+            <span className="px-4 py-2 bg-green-900/30 text-green-400 rounded-lg text-sm font-medium border border-green-700">Real-time Feeds</span>
+            <span className="px-4 py-2 bg-purple-900/30 text-purple-400 rounded-lg text-sm font-medium border border-purple-700">Graph Database</span>
+            <span className="px-4 py-2 bg-orange-900/30 text-orange-400 rounded-lg text-sm font-medium border border-orange-700">Redis Cache</span>
+            <span className="px-4 py-2 bg-pink-900/30 text-pink-400 rounded-lg text-sm font-medium border border-pink-700">Search & Trends</span>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 border-b-2 border-gray-100 overflow-x-auto pb-0">
+        <div className="flex gap-2 mb-8 border-b-2 border-gray-700 overflow-x-auto pb-0">
           {['overview', 'architecture', 'timeline', 'features', 'scalability', 'api'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-6 py-3 font-semibold transition-all whitespace-nowrap rounded-t-lg ${
                 activeTab === tab
-                  ? 'text-blue-600 bg-blue-50 border-b-2 border-blue-600 -mb-0.5'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  ? 'text-blue-400 bg-blue-900/30 border-b-2 border-blue-400 -mb-0.5'
+                  : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800'
               }`}
             >
               {tab === 'overview' && 'Overview'}
@@ -62,68 +63,68 @@ export default function Twitter({ onBack }) {
         {activeTab === 'overview' && (
           <div className="space-y-8">
             {/* Requirements */}
-            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-8 border-2 border-blue-200">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">System Requirements</h2>
+            <div className="bg-gradient-to-br from-blue-900/30 to-cyan-900/30 rounded-2xl p-8 border-2 border-blue-700">
+              <h2 className="text-3xl font-bold text-white mb-6">System Requirements</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-xl border border-blue-100 shadow-sm">
-                  <h3 className="text-lg font-bold text-blue-700 mb-4">Functional Requirements</h3>
+                <div className="bg-gray-800 p-6 rounded-xl border border-blue-700 shadow-sm">
+                  <h3 className="text-lg font-bold text-blue-400 mb-4">Functional Requirements</h3>
                   <ul className="space-y-2.5">
-                    <li className="flex items-start gap-2 text-gray-700">
+                    <li className="flex items-start gap-2 text-gray-300">
                       <span className="text-blue-500 font-bold">•</span>
                       <span><strong>Post Tweets:</strong> Text, images, videos (280 chars)</span>
                     </li>
-                    <li className="flex items-start gap-2 text-gray-700">
+                    <li className="flex items-start gap-2 text-gray-300">
                       <span className="text-blue-500 font-bold">•</span>
                       <span><strong>Follow/Unfollow:</strong> Build social graph</span>
                     </li>
-                    <li className="flex items-start gap-2 text-gray-700">
+                    <li className="flex items-start gap-2 text-gray-300">
                       <span className="text-blue-500 font-bold">•</span>
                       <span><strong>Timeline:</strong> View tweets from followed users</span>
                     </li>
-                    <li className="flex items-start gap-2 text-gray-700">
+                    <li className="flex items-start gap-2 text-gray-300">
                       <span className="text-blue-500 font-bold">•</span>
                       <span><strong>Engagement:</strong> Like, retweet, reply, quote</span>
                     </li>
-                    <li className="flex items-start gap-2 text-gray-700">
+                    <li className="flex items-start gap-2 text-gray-300">
                       <span className="text-blue-500 font-bold">•</span>
                       <span><strong>Search:</strong> Find tweets, users, hashtags</span>
                     </li>
-                    <li className="flex items-start gap-2 text-gray-700">
+                    <li className="flex items-start gap-2 text-gray-300">
                       <span className="text-blue-500 font-bold">•</span>
                       <span><strong>Trends:</strong> Show trending topics globally/locally</span>
                     </li>
-                    <li className="flex items-start gap-2 text-gray-700">
+                    <li className="flex items-start gap-2 text-gray-300">
                       <span className="text-blue-500 font-bold">•</span>
                       <span><strong>Notifications:</strong> Real-time mentions, likes, follows</span>
                     </li>
                   </ul>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl border border-blue-100 shadow-sm">
-                  <h3 className="text-lg font-bold text-blue-700 mb-4">Non-Functional Requirements</h3>
+                <div className="bg-gray-800 p-6 rounded-xl border border-blue-700 shadow-sm">
+                  <h3 className="text-lg font-bold text-blue-400 mb-4">Non-Functional Requirements</h3>
                   <ul className="space-y-2.5">
-                    <li className="flex items-start gap-2 text-gray-700">
+                    <li className="flex items-start gap-2 text-gray-300">
                       <span className="text-blue-500 font-bold">•</span>
                       <span><strong>High Availability:</strong> 99.99% uptime</span>
                     </li>
-                    <li className="flex items-start gap-2 text-gray-700">
+                    <li className="flex items-start gap-2 text-gray-300">
                       <span className="text-blue-500 font-bold">•</span>
                       <span><strong>Low Latency:</strong> Timeline load &lt;200ms</span>
                     </li>
-                    <li className="flex items-start gap-2 text-gray-700">
+                    <li className="flex items-start gap-2 text-gray-300">
                       <span className="text-blue-500 font-bold">•</span>
                       <span><strong>Eventual Consistency:</strong> Acceptable for timelines</span>
                     </li>
-                    <li className="flex items-start gap-2 text-gray-700">
+                    <li className="flex items-start gap-2 text-gray-300">
                       <span className="text-blue-500 font-bold">•</span>
                       <span><strong>Scalability:</strong> Handle 500M tweets/day</span>
                     </li>
-                    <li className="flex items-start gap-2 text-gray-700">
+                    <li className="flex items-start gap-2 text-gray-300">
                       <span className="text-blue-500 font-bold">•</span>
                       <span><strong>Real-time:</strong> Tweets appear instantly</span>
                     </li>
-                    <li className="flex items-start gap-2 text-gray-700">
+                    <li className="flex items-start gap-2 text-gray-300">
                       <span className="text-blue-500 font-bold">•</span>
                       <span><strong>Fault Tolerance:</strong> Graceful degradation</span>
                     </li>
@@ -302,9 +303,9 @@ export default function Twitter({ onBack }) {
 
             {/* Key Components */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white rounded-xl p-6 border-2 border-blue-200 shadow-lg">
-                <h3 className="text-xl font-bold text-blue-700 mb-4">🎯 Core Services</h3>
-                <ul className="space-y-3 text-gray-700">
+              <div className="bg-gray-800 rounded-xl p-6 border-2 border-blue-700 shadow-lg">
+                <h3 className="text-xl font-bold text-blue-400 mb-4">🎯 Core Services</h3>
+                <ul className="space-y-3 text-gray-300">
                   <li className="flex items-start gap-2">
                     <span className="text-blue-500 font-bold mt-1">▸</span>
                     <div>
@@ -332,9 +333,9 @@ export default function Twitter({ onBack }) {
                 </ul>
               </div>
 
-              <div className="bg-white rounded-xl p-6 border-2 border-green-200 shadow-lg">
-                <h3 className="text-xl font-bold text-green-700 mb-4">💾 Data Storage</h3>
-                <ul className="space-y-3 text-gray-700">
+              <div className="bg-gray-800 rounded-xl p-6 border-2 border-green-700 shadow-lg">
+                <h3 className="text-xl font-bold text-green-400 mb-4">💾 Data Storage</h3>
+                <ul className="space-y-3 text-gray-300">
                   <li className="flex items-start gap-2">
                     <span className="text-green-500 font-bold mt-1">▸</span>
                     <div>
@@ -532,112 +533,112 @@ export default function Twitter({ onBack }) {
             {/* Features Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Trending Topics */}
-              <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-6 border-2 border-orange-200">
-                <h3 className="text-xl font-bold text-orange-800 mb-4">🔥 Trending Topics</h3>
+              <div className="bg-gradient-to-br from-orange-900/30 to-red-900/30 rounded-xl p-6 border-2 border-orange-700">
+                <h3 className="text-xl font-bold text-orange-400 mb-4">🔥 Trending Topics</h3>
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3">
                     <span className="text-2xl">📊</span>
                     <div>
-                      <div className="font-semibold text-gray-900">Real-time Analytics</div>
-                      <div className="text-sm text-gray-600">Count hashtag mentions in sliding window (1 hour)</div>
+                      <div className="font-semibold text-white">Real-time Analytics</div>
+                      <div className="text-sm text-gray-400">Count hashtag mentions in sliding window (1 hour)</div>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-2xl">⚡</span>
                     <div>
-                      <div className="font-semibold text-gray-900">Redis Sorted Sets</div>
-                      <div className="text-sm text-gray-600">Store trending scores, auto-expire after 24h</div>
+                      <div className="font-semibold text-white">Redis Sorted Sets</div>
+                      <div className="text-sm text-gray-400">Store trending scores, auto-expire after 24h</div>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-2xl">🌍</span>
                     <div>
-                      <div className="font-semibold text-gray-900">Geo-based Trends</div>
-                      <div className="text-sm text-gray-600">Different trends per country/city</div>
+                      <div className="font-semibold text-white">Geo-based Trends</div>
+                      <div className="text-sm text-gray-400">Different trends per country/city</div>
                     </div>
                   </li>
                 </ul>
               </div>
 
               {/* Search */}
-              <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border-2 border-blue-200">
-                <h3 className="text-xl font-bold text-blue-800 mb-4">🔍 Search</h3>
+              <div className="bg-gradient-to-br from-blue-900/30 to-cyan-900/30 rounded-xl p-6 border-2 border-blue-700">
+                <h3 className="text-xl font-bold text-blue-400 mb-4">🔍 Search</h3>
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3">
                     <span className="text-2xl">📝</span>
                     <div>
-                      <div className="font-semibold text-gray-900">Elasticsearch Indexing</div>
-                      <div className="text-sm text-gray-600">Full-text search on tweets, users, hashtags</div>
+                      <div className="font-semibold text-white">Elasticsearch Indexing</div>
+                      <div className="text-sm text-gray-400">Full-text search on tweets, users, hashtags</div>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-2xl">⚡</span>
                     <div>
-                      <div className="font-semibold text-gray-900">Real-time Indexing</div>
-                      <div className="text-sm text-gray-600">Tweets indexed within seconds via Kafka</div>
+                      <div className="font-semibold text-white">Real-time Indexing</div>
+                      <div className="text-sm text-gray-400">Tweets indexed within seconds via Kafka</div>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-2xl">🎯</span>
                     <div>
-                      <div className="font-semibold text-gray-900">Ranking Algorithm</div>
-                      <div className="text-sm text-gray-600">Sort by relevance, recency, engagement</div>
+                      <div className="font-semibold text-white">Ranking Algorithm</div>
+                      <div className="text-sm text-gray-400">Sort by relevance, recency, engagement</div>
                     </div>
                   </li>
                 </ul>
               </div>
 
               {/* Notifications */}
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
-                <h3 className="text-xl font-bold text-green-800 mb-4">🔔 Notifications</h3>
+              <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 rounded-xl p-6 border-2 border-green-700">
+                <h3 className="text-xl font-bold text-green-400 mb-4">🔔 Notifications</h3>
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3">
                     <span className="text-2xl">📱</span>
                     <div>
-                      <div className="font-semibold text-gray-900">Push Notifications</div>
-                      <div className="text-sm text-gray-600">APNs (iOS) and FCM (Android)</div>
+                      <div className="font-semibold text-white">Push Notifications</div>
+                      <div className="text-sm text-gray-400">APNs (iOS) and FCM (Android)</div>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-2xl">⚡</span>
                     <div>
-                      <div className="font-semibold text-gray-900">WebSockets</div>
-                      <div className="text-sm text-gray-600">Real-time updates for web clients</div>
+                      <div className="font-semibold text-white">WebSockets</div>
+                      <div className="text-sm text-gray-400">Real-time updates for web clients</div>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-2xl">🎯</span>
                     <div>
-                      <div className="font-semibold text-gray-900">Smart Batching</div>
-                      <div className="text-sm text-gray-600">Aggregate notifications to reduce noise</div>
+                      <div className="font-semibold text-white">Smart Batching</div>
+                      <div className="text-sm text-gray-400">Aggregate notifications to reduce noise</div>
                     </div>
                   </li>
                 </ul>
               </div>
 
               {/* Media Upload */}
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200">
-                <h3 className="text-xl font-bold text-purple-800 mb-4">📸 Media Upload</h3>
+              <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-xl p-6 border-2 border-purple-700">
+                <h3 className="text-xl font-bold text-purple-400 mb-4">📸 Media Upload</h3>
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3">
                     <span className="text-2xl">☁️</span>
                     <div>
-                      <div className="font-semibold text-gray-900">S3 Storage</div>
-                      <div className="text-sm text-gray-600">Scalable object storage for images/videos</div>
+                      <div className="font-semibold text-white">S3 Storage</div>
+                      <div className="text-sm text-gray-400">Scalable object storage for images/videos</div>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-2xl">🎬</span>
                     <div>
-                      <div className="font-semibold text-gray-900">Video Processing</div>
-                      <div className="text-sm text-gray-600">Transcode to multiple formats and resolutions</div>
+                      <div className="font-semibold text-white">Video Processing</div>
+                      <div className="text-sm text-gray-400">Transcode to multiple formats and resolutions</div>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-2xl">🌐</span>
                     <div>
-                      <div className="font-semibold text-gray-900">CDN Delivery</div>
-                      <div className="text-sm text-gray-600">CloudFlare for fast global distribution</div>
+                      <div className="font-semibold text-white">CDN Delivery</div>
+                      <div className="text-sm text-gray-400">CloudFlare for fast global distribution</div>
                     </div>
                   </li>
                 </ul>
@@ -733,23 +734,23 @@ export default function Twitter({ onBack }) {
         {activeTab === 'api' && (
           <div className="space-y-8">
             {/* API Overview */}
-            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-8 border-2 border-blue-200">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">API Overview</h2>
-              <p className="text-gray-700 mb-4">
+            <div className="bg-gradient-to-br from-blue-900/30 to-cyan-900/30 rounded-2xl p-8 border-2 border-blue-700">
+              <h2 className="text-3xl font-bold text-white mb-4">API Overview</h2>
+              <p className="text-gray-300 mb-4">
                 RESTful API with OAuth 2.0 authentication. All endpoints return JSON responses and support pagination.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white p-4 rounded-xl border border-blue-100">
-                  <div className="font-bold text-blue-600 mb-2">Base URL</div>
-                  <code className="text-sm text-gray-700">https://api.twitter.com/v2</code>
+                <div className="bg-gray-800 p-4 rounded-xl border border-blue-700">
+                  <div className="font-bold text-blue-400 mb-2">Base URL</div>
+                  <code className="text-sm text-gray-300">https://api.twitter.com/v2</code>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-blue-100">
-                  <div className="font-bold text-blue-600 mb-2">Authentication</div>
-                  <code className="text-sm text-gray-700">Bearer Token / OAuth 2.0</code>
+                <div className="bg-gray-800 p-4 rounded-xl border border-blue-700">
+                  <div className="font-bold text-blue-400 mb-2">Authentication</div>
+                  <code className="text-sm text-gray-300">Bearer Token / OAuth 2.0</code>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-blue-100">
-                  <div className="font-bold text-blue-600 mb-2">Rate Limit</div>
-                  <code className="text-sm text-gray-700">300 requests / 15 min</code>
+                <div className="bg-gray-800 p-4 rounded-xl border border-blue-700">
+                  <div className="font-bold text-blue-400 mb-2">Rate Limit</div>
+                  <code className="text-sm text-gray-300">300 requests / 15 min</code>
                 </div>
               </div>
             </div>

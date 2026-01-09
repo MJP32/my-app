@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-export default function SpringDataJPAQuestions({ onBack }) {
+export default function SpringDataJPAQuestions({ onBack, breadcrumb }) {
   const [expandedQuestionId, setExpandedQuestionId] = useState(null)
   const categoryColor = '#10b981'
 
@@ -729,7 +730,7 @@ private List<Child> children;
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#faf5ff', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#111827', minHeight: '100vh' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -758,13 +759,15 @@ private List<Child> children;
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '800',
-          color: '#1f2937',
+          color: '#f9fafb',
           margin: 0
         }}>
-          🗄️ Spring Data JPA Questions
+          Spring Data JPA Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         display: 'flex',
@@ -775,14 +778,14 @@ private List<Child> children;
           <div
             key={q.id}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: '#1f2937',
               borderRadius: '12px',
-              border: `3px solid ${categoryColor}40`,
+              border: `3px solid ${categoryColor}60`,
               overflow: 'hidden',
               transition: 'all 0.3s ease',
               boxShadow: expandedQuestionId === q.id
-                ? `0 0 0 4px ${categoryColor}20, 0 8px 16px rgba(0,0,0,0.1)`
-                : '0 2px 8px rgba(0,0,0,0.05)'
+                ? `0 0 0 4px ${categoryColor}30, 0 8px 16px rgba(0,0,0,0.3)`
+                : '0 2px 8px rgba(0,0,0,0.2)'
             }}
           >
             <div
@@ -790,7 +793,7 @@ private List<Child> children;
               style={{
                 padding: '1.5rem',
                 cursor: 'pointer',
-                backgroundColor: expandedQuestionId === q.id ? `${categoryColor}10` : 'white',
+                backgroundColor: expandedQuestionId === q.id ? `${categoryColor}25` : '#1f2937',
                 transition: 'background-color 0.2s ease'
               }}
             >
@@ -809,7 +812,7 @@ private List<Child> children;
                 }}>
                   <span style={{
                     padding: '0.25rem 0.75rem',
-                    backgroundColor: `${categoryColor}20`,
+                    backgroundColor: `${categoryColor}30`,
                     color: categoryColor,
                     borderRadius: '6px',
                     fontSize: '0.85rem',
@@ -819,7 +822,7 @@ private List<Child> children;
                   </span>
                   <span style={{
                     padding: '0.25rem 0.75rem',
-                    backgroundColor: `${getDifficultyColor(q.difficulty)}20`,
+                    backgroundColor: `${getDifficultyColor(q.difficulty)}30`,
                     color: getDifficultyColor(q.difficulty),
                     borderRadius: '6px',
                     fontSize: '0.85rem',
@@ -841,7 +844,7 @@ private List<Child> children;
               <h3 style={{
                 fontSize: '1.25rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: '#f9fafb',
                 margin: 0
               }}>
                 {q.question}
@@ -851,15 +854,15 @@ private List<Child> children;
             {expandedQuestionId === q.id && (
               <div style={{
                 padding: '1.5rem',
-                backgroundColor: '#f9fafb',
-                borderTop: `2px solid ${categoryColor}20`,
+                backgroundColor: '#111827',
+                borderTop: `2px solid ${categoryColor}40`,
                 animation: 'fadeIn 0.3s ease'
               }}>
                 <div style={{
                   fontSize: '1rem',
           textAlign: 'left',
                   lineHeight: '1.8',
-                  color: '#374151',
+                  color: '#d1d5db',
                   whiteSpace: 'pre-wrap'
                 }}>
                   {renderFormattedAnswer(q.answer)}
@@ -873,14 +876,14 @@ private List<Child> children;
       <div style={{
         marginTop: '3rem',
         padding: '2rem',
-        backgroundColor: 'white',
+        backgroundColor: '#1f2937',
         borderRadius: '12px',
-        border: `3px solid ${categoryColor}40`
+        border: `3px solid ${categoryColor}60`
       }}>
         <h3 style={{
           fontSize: '1.5rem',
           fontWeight: '700',
-          color: '#1f2937',
+          color: '#f9fafb',
           marginBottom: '1rem'
         }}>
           💡 JPA Best Practices
@@ -889,19 +892,19 @@ private List<Child> children;
           fontSize: '1rem',
           textAlign: 'left',
           lineHeight: '2',
-          color: '#4b5563',
+          color: '#d1d5db',
           paddingLeft: '1.5rem'
         }}>
-          <li><strong>Always use FetchType.LAZY</strong> to prevent loading unnecessary data</li>
-          <li><strong>Avoid N+1 queries</strong> - use JOIN FETCH or @EntityGraph</li>
-          <li><strong>Implement equals() and hashCode()</strong> correctly for entities</li>
-          <li><strong>Use @Transactional</strong> on service layer, not on repository</li>
-          <li><strong>Prefer method name queries</strong> for simple cases, @Query for complex</li>
-          <li><strong>Use Specifications or QueryDSL</strong> for dynamic queries</li>
-          <li><strong>Set appropriate cascade types</strong> - avoid CascadeType.ALL unless needed</li>
-          <li><strong>Use orphanRemoval</strong> carefully - only for parent-child relationships</li>
-          <li><strong>Enable query logging</strong> in development to detect issues early</li>
-          <li><strong>Use database indexes</strong> on frequently queried columns</li>
+          <li><strong style={{ color: '#f9fafb' }}>Always use FetchType.LAZY</strong> to prevent loading unnecessary data</li>
+          <li><strong style={{ color: '#f9fafb' }}>Avoid N+1 queries</strong> - use JOIN FETCH or @EntityGraph</li>
+          <li><strong style={{ color: '#f9fafb' }}>Implement equals() and hashCode()</strong> correctly for entities</li>
+          <li><strong style={{ color: '#f9fafb' }}>Use @Transactional</strong> on service layer, not on repository</li>
+          <li><strong style={{ color: '#f9fafb' }}>Prefer method name queries</strong> for simple cases, @Query for complex</li>
+          <li><strong style={{ color: '#f9fafb' }}>Use Specifications or QueryDSL</strong> for dynamic queries</li>
+          <li><strong style={{ color: '#f9fafb' }}>Set appropriate cascade types</strong> - avoid CascadeType.ALL unless needed</li>
+          <li><strong style={{ color: '#f9fafb' }}>Use orphanRemoval</strong> carefully - only for parent-child relationships</li>
+          <li><strong style={{ color: '#f9fafb' }}>Enable query logging</strong> in development to detect issues early</li>
+          <li><strong style={{ color: '#f9fafb' }}>Use database indexes</strong> on frequently queried columns</li>
         </ul>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useModalFocus } from '../../hooks/useModalFocus'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Simple syntax highlighter for Java code
 const SyntaxHighlighter = ({ code }) => {
@@ -56,7 +57,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function DomainDrivenDesign({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function DomainDrivenDesign({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
   const { modalRef, firstFocusableRef } = useModalFocus(onBack)
@@ -188,6 +189,11 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
   ]
 
   return (
+    <div style={{
+      background: 'linear-gradient(to bottom right, #111827, #1f2937, #111827)',
+      minHeight: '100vh',
+      padding: '2rem'
+    }}>
     <div
       ref={modalRef}
       onClick={(e) => e.stopPropagation()}
@@ -195,7 +201,7 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
         padding: '2rem',
         maxWidth: '1600px',
         margin: '0 auto',
-        backgroundColor: 'white',
+        backgroundColor: '#111827',
         borderRadius: '16px',
         boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
         border: '3px solid rgba(20, 184, 166, 0.4)'
@@ -233,11 +239,11 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
             <h1 style={{
               fontSize: '2.5rem',
               fontWeight: '800',
-              color: '#1f2937',
+              color: 'white',
               margin: 0,
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
             }}>
-              🏛️ Domain Driven Design
+              Domain Driven Design
             </h1>
             {currentSubcategory && (
               <span style={{
@@ -263,19 +269,19 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
                 padding: '0.75rem 1.25rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                backgroundColor: '#10b981',
+                backgroundColor: '#8b5cf6',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
             >
               ← {previousName}
             </button>
@@ -287,19 +293,19 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
                 padding: '0.75rem 1.25rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                backgroundColor: '#10b981',
+                backgroundColor: '#8b5cf6',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
             >
               {nextName} →
             </button>
@@ -307,8 +313,10 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
         </div>
       </div>
 
+      <Breadcrumb breadcrumb={breadcrumb} />
+
       <div style={{
-        backgroundColor: 'rgba(20, 184, 166, 0.05)',
+        backgroundColor: 'rgba(20, 184, 166, 0.15)',
         padding: '2.5rem 10rem',
         borderRadius: '16px',
         border: '3px solid rgba(20, 184, 166, 0.3)',
@@ -316,7 +324,7 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
       }}>
         <p style={{
           fontSize: '1.3rem',
-          color: '#374151',
+          color: '#d1d5db',
           fontWeight: '500',
           margin: 0,
           lineHeight: '1.8',
@@ -373,7 +381,7 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
                 </h3>
                 <p style={{
                   fontSize: '0.9rem',
-                  color: '#6b7280',
+                  color: '#d1d5db',
                   margin: 0,
                   lineHeight: '1.5'
                 }}>
@@ -396,7 +404,7 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: 'white',
                 marginBottom: '1.5rem'
               }}>
                 DDD Patterns
@@ -413,19 +421,19 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
                         ? '2px solid #14b8a6'
                         : '2px solid rgba(20, 184, 166, 0.2)',
                       backgroundColor: selectedConcept?.name === pattern.name
-                        ? 'rgba(20, 184, 166, 0.1)'
-                        : 'white',
+                        ? 'rgba(20, 184, 166, 0.2)'
+                        : 'rgba(20, 184, 166, 0.1)',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
                       if (selectedConcept?.name !== pattern.name) {
-                        e.currentTarget.style.backgroundColor = 'rgba(20, 184, 166, 0.05)'
+                        e.currentTarget.style.backgroundColor = 'rgba(20, 184, 166, 0.15)'
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (selectedConcept?.name !== pattern.name) {
-                        e.currentTarget.style.backgroundColor = 'white'
+                        e.currentTarget.style.backgroundColor = 'rgba(20, 184, 166, 0.1)'
                       }
                     }}
                   >
@@ -434,7 +442,7 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
                       <span style={{
                         fontSize: '1rem',
                         fontWeight: '600',
-                        color: selectedConcept?.name === pattern.name ? '#14b8a6' : '#1f2937'
+                        color: selectedConcept?.name === pattern.name ? '#14b8a6' : 'white'
                       }}>
                         {pattern.name}
                       </span>
@@ -445,7 +453,7 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
             </div>
 
             <div style={{
-              backgroundColor: 'white',
+              backgroundColor: '#111827',
               borderRadius: '12px',
               padding: '2rem'
             }}>
@@ -459,7 +467,7 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
                 <h2 style={{
                   fontSize: '2rem',
                   fontWeight: '800',
-                  color: '#1f2937',
+                  color: 'white',
                   margin: 0
                 }}>
                   {selectedConcept.name}
@@ -477,11 +485,11 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
                   color: '#14b8a6',
                   margin: '0 0 1rem 0'
                 }}>
-                  📖 Explanation
+                  Explanation
                 </h4>
                 <p style={{
                   fontSize: '1rem',
-                  color: '#374151',
+                  color: '#d1d5db',
                   lineHeight: '1.8',
                   whiteSpace: 'pre-line',
                   margin: 0
@@ -497,7 +505,7 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
                   color: '#14b8a6',
                   margin: '0 0 1rem 0'
                 }}>
-                  💻 Code Examples
+                  Code Examples
                 </h4>
                 {(() => {
                   const sections = parseCodeSections(selectedConcept.codeExample)
@@ -522,7 +530,7 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
                           <div
                             key={index}
                             style={{
-                              backgroundColor: 'white',
+                              backgroundColor: '#1f2937',
                               borderRadius: '12px',
                               border: '2px solid rgba(20, 184, 166, 0.3)',
                               overflow: 'hidden'
@@ -533,7 +541,7 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
                               style={{
                                 width: '100%',
                                 padding: '1.25rem',
-                                backgroundColor: isExpanded ? 'rgba(20, 184, 166, 0.15)' : 'white',
+                                backgroundColor: isExpanded ? 'rgba(20, 184, 166, 0.25)' : '#1f2937',
                                 border: 'none',
                                 borderBottom: isExpanded ? '2px solid rgba(20, 184, 166, 0.3)' : 'none',
                                 cursor: 'pointer',
@@ -544,11 +552,11 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
                                 textAlign: 'left'
                               }}
                               onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = 'rgba(20, 184, 166, 0.15)'
+                                e.currentTarget.style.backgroundColor = 'rgba(20, 184, 166, 0.25)'
                               }}
                               onMouseLeave={(e) => {
                                 if (!isExpanded) {
-                                  e.currentTarget.style.backgroundColor = 'white'
+                                  e.currentTarget.style.backgroundColor = '#1f2937'
                                 }
                               }}
                             >
@@ -587,6 +595,7 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
           </>
         )}
       </div>
+    </div>
     </div>
   )
 }

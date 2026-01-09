@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function Itertools({ onBack }) {
+function Itertools({ onBack, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
 
   const concepts = [
@@ -462,6 +463,8 @@ print(list(flatten(matrix)))  # [1, 2, 3, 4, 5, 6, 7, 8, 9]`
             </h1>
           </div>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <p style={{

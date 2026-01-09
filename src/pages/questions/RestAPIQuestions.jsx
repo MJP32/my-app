@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function RestAPIQuestions({ onBack }) {
+function RestAPIQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
 
   const renderFormattedAnswer = (text) => {
@@ -1312,10 +1313,12 @@ public ResponseEntity<Product> createProduct(
           color: '#1f2937',
           margin: 0
         }}>
-          🌐 REST API Interview Questions
+          REST API Interview Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <p style={{
         fontSize: '1.1rem',

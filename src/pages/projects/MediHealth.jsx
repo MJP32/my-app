@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Simple syntax highlighter for Java code
 const SyntaxHighlighter = ({ code }) => {
@@ -56,7 +57,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function MediHealth({ onBack }) {
+function MediHealth({ onBack, breadcrumb }) {
   const [selectedTopic, setSelectedTopic] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
 
@@ -3678,6 +3679,8 @@ public class ClaimService {
           Healthcare management system with patient records, appointment scheduling, e-prescribing, clinical documentation, HIPAA compliance, HL7/FHIR integration, and medical billing
         </p>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       {/* Topics Grid */}
       {!selectedTopic && (

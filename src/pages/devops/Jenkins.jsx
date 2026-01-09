@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 const SyntaxHighlighter = ({ code }) => {
   const highlightCode = (code) => {
@@ -51,7 +52,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function Jenkins({ onBack }) {
+function Jenkins({ onBack, breadcrumb }) {
   const [selectedTopic, setSelectedTopic] = useState(null)
 
   const topics = [
@@ -787,6 +788,8 @@ sh 'chmod +x deploy.sh && ./deploy.sh'`
           Open-source automation server for CI/CD pipelines
         </p>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       {!selectedTopic ? (
         <div style={{

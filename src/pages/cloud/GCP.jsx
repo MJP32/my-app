@@ -1,6 +1,7 @@
+import Breadcrumb from '../../components/Breadcrumb'
 import { useState } from 'react'
 
-function GCP({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function GCP({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedService, setSelectedService] = useState(null)
 
   const services = [
@@ -198,6 +199,12 @@ function GCP({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
 
   return (
     <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #0c4a6e, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
+    <div style={{
       padding: '2rem',
       maxWidth: '1400px',
       margin: '0 auto',
@@ -221,28 +228,31 @@ function GCP({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
               padding: '0.75rem 1.5rem',
               fontSize: '1rem',
               fontWeight: '600',
-              backgroundColor: '#3b82f6',
+              backgroundColor: '#0ea5e9',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+              boxShadow: '0 2px 8px rgba(14, 165, 233, 0.3)'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0284c7'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0ea5e9'}
           >
-            ← Back to Menu
+            ← Back to Cloud
           </button>
           <div>
             <h1 style={{
               margin: 0,
               fontSize: '2.5rem',
               fontWeight: '800',
-              color: '#202124',
+              background: 'linear-gradient(to right, #7dd3fc, #38bdf8)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
             }}>
-              ☁️ Google Cloud Platform (GCP)
+              Google Cloud Platform (GCP)
             </h1>
             {currentSubcategory && (
               <span style={{
@@ -318,6 +328,8 @@ function GCP({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
           )}
         </div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       {/* Services Grid */}
       <div style={{
@@ -496,6 +508,7 @@ function GCP({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
           what's next with secure infrastructure, developer-friendly tools, and advanced AI/ML capabilities.
         </p>
       </div>
+    </div>
     </div>
   )
 }

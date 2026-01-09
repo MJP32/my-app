@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react'
 import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
 import LanguageToggle from '../../components/LanguageToggle.jsx'
 import DrawingCanvas from '../../components/DrawingCanvas.jsx'
+import Breadcrumb from '../../components/Breadcrumb'
+import BookmarkButton from '../../components/BookmarkButton.jsx'
 import { isProblemCompleted } from '../../services/progressService'
 import { getPreferredLanguage } from '../../services/languageService'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 
-function Arrays({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory }) {
+function Arrays({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null)
   const [showSolution, setShowSolution] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
@@ -2658,8 +2660,12 @@ def twoSum(self, numbers: List[int], target: int) -> List[int]:
               </span>
             </div>
 
-            <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <CompletionCheckbox problemId={`Arrays-${selectedQuestion.id}`} />
+              <BookmarkButton
+                problemId={`Arrays-${selectedQuestion.id}`}
+                problemData={{ title: selectedQuestion.title, difficulty: selectedQuestion.difficulty, category: 'Arrays' }}
+              />
             </div>
 
             {selectedQuestion.leetcodeUrl && (
@@ -2753,6 +2759,8 @@ def twoSum(self, numbers: List[int], target: int) -> List[int]:
         </button>
       </div>
 
+      <Breadcrumb breadcrumb={breadcrumb} />
+
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#1f2937', marginBottom: '0.5rem' }}>🔢 Arrays</h1>
         <p style={{ fontSize: '1.2rem', color: '#6b7280' }}>Master arrays problems</p>
@@ -2794,6 +2802,11 @@ def twoSum(self, numbers: List[int], target: int) -> List[int]:
                         <div style={{ transform: 'scale(0.85)' }}>
                           <CompletionCheckbox problemId={`Arrays-${question.id}`} />
                         </div>
+                        <BookmarkButton
+                          problemId={`Arrays-${question.id}`}
+                          problemData={{ title: question.title, difficulty: question.difficulty, category: 'Arrays' }}
+                          size="small"
+                        />
                         {question.leetcodeUrl && (
                           <a
                             href={question.leetcodeUrl}

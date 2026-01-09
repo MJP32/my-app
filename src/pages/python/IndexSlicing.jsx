@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function IndexSlicing({ onBack }) {
+function IndexSlicing({ onBack, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
 
@@ -595,6 +596,8 @@ print(f"Deep copy: {deep_copy}")            # [[99, 2], [3, 4]]`
               </h1>
             </div>
           </div>
+
+          <Breadcrumb breadcrumb={breadcrumb} />
 
           <div style={{
             display: 'grid',

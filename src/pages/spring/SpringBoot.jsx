@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Simple syntax highlighter for Java code
 const SyntaxHighlighter = ({ code }) => {
@@ -71,7 +72,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
 
@@ -1203,6 +1204,378 @@ public class DatabaseProperties {
   // Getters and setters
 }
 // Invalid configuration throws exception at startup`
+    },
+    {
+      name: 'Spring Boot Annotations',
+      explanation: `**Overview:**
+Spring Boot annotations provide declarative configuration, reducing boilerplate and enabling convention-over-configuration. These annotations control everything from application bootstrapping to request mapping, dependency injection, and data access.
+
+**Core Application Annotations:**
+• @SpringBootApplication - Combines @Configuration, @EnableAutoConfiguration, and @ComponentScan. Entry point for Spring Boot apps
+• @EnableAutoConfiguration - Tells Spring Boot to automatically configure beans based on classpath dependencies
+• @ComponentScan - Scans for Spring components (@Component, @Service, @Repository, @Controller) in specified packages
+• @Configuration - Marks class as source of bean definitions, replacing XML configuration
+
+**Stereotype Annotations (Component Types):**
+• @Component - Generic Spring-managed component, base annotation for all stereotypes
+• @Service - Business logic layer, semantic marker for service classes
+• @Repository - Data access layer, enables exception translation for persistence exceptions
+• @Controller - Web layer for MVC controllers returning views
+• @RestController - Combines @Controller + @ResponseBody for REST APIs returning JSON/XML
+
+**Dependency Injection Annotations:**
+• @Autowired - Injects dependencies automatically by type (constructor, field, or setter injection)
+• @Qualifier - Disambiguates when multiple beans of same type exist
+• @Primary - Marks bean as primary candidate when multiple beans qualify
+• @Value - Injects values from properties files or SpEL expressions
+• @Bean - Declares a method as a bean producer in @Configuration classes
+
+**Web/REST Annotations:**
+• @RequestMapping - Maps HTTP requests to handler methods (class or method level)
+• @GetMapping - Shortcut for @RequestMapping(method = GET)
+• @PostMapping - Shortcut for @RequestMapping(method = POST)
+• @PutMapping - Shortcut for @RequestMapping(method = PUT)
+• @DeleteMapping - Shortcut for @RequestMapping(method = DELETE)
+• @PatchMapping - Shortcut for @RequestMapping(method = PATCH)
+• @PathVariable - Extracts values from URI path (e.g., /users/{id})
+• @RequestParam - Extracts query parameters from URL
+• @RequestBody - Binds HTTP request body to method parameter (JSON to object)
+• @ResponseBody - Writes return value directly to HTTP response body
+• @ResponseStatus - Sets HTTP status code for response
+
+**Validation Annotations:**
+• @Valid - Triggers validation on method parameters or return values
+• @Validated - Spring variant of @Valid with group support
+• @NotNull, @NotBlank, @NotEmpty - Null and empty checks
+• @Size, @Min, @Max - Size and range constraints
+• @Pattern - Regex pattern matching
+• @Email - Email format validation
+
+**JPA/Data Annotations:**
+• @Entity - Marks class as JPA entity mapped to database table
+• @Table - Specifies table name and schema
+• @Id - Marks primary key field
+• @GeneratedValue - Configures primary key generation strategy
+• @Column - Customizes column mapping (name, nullable, length)
+• @Transactional - Manages transaction boundaries
+• @Query - Custom JPQL or native SQL queries in repositories
+
+**Conditional Annotations:**
+• @ConditionalOnClass - Applies configuration only if specified class is on classpath
+• @ConditionalOnMissingBean - Applies only if specified bean doesn't exist
+• @ConditionalOnProperty - Applies based on property value
+• @Profile - Activates beans only for specific profiles (dev, prod, test)
+
+**Best Practices:**
+• Prefer constructor injection with @Autowired (or implicit in single-constructor classes)
+• Use stereotype annotations (@Service, @Repository) for semantic clarity
+• Combine @RestController with @RequestMapping at class level for cleaner REST APIs
+• Use @Validated with groups for complex validation scenarios
+• Apply @Transactional at service layer, not repository layer`,
+      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Core Application Annotations
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Main application class - combines 3 annotations
+@SpringBootApplication  // = @Configuration + @EnableAutoConfiguration + @ComponentScan
+public class MyApplication {
+  public static void main(String[] args) {
+    SpringApplication.run(MyApplication.class, args);
+  }
+}
+
+// Equivalent explicit configuration
+@Configuration
+@EnableAutoConfiguration
+@ComponentScan(basePackages = "com.example")
+public class MyApplicationExplicit {
+  public static void main(String[] args) {
+    SpringApplication.run(MyApplicationExplicit.class, args);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Stereotype Annotations
+// ═══════════════════════════════════════════════════════════════════════════
+
+@Component  // Generic component - base for all stereotypes
+public class EmailValidator {
+  public boolean isValid(String email) {
+    return email != null && email.contains("@");
+  }
+}
+
+@Service  // Business logic layer
+public class UserService {
+  @Autowired
+  private UserRepository userRepository;
+
+  public User createUser(User user) {
+    return userRepository.save(user);
+  }
+}
+
+@Repository  // Data access layer - enables exception translation
+public interface UserRepository extends JpaRepository<User, Long> {
+  Optional<User> findByEmail(String email);
+}
+
+@Controller  // MVC controller - returns views
+public class HomeController {
+  @GetMapping("/")
+  public String home(Model model) {
+    model.addAttribute("message", "Welcome!");
+    return "home";  // Returns view name
+  }
+}
+
+@RestController  // REST API - returns JSON/XML directly
+public class ApiController {
+  @GetMapping("/api/status")
+  public Map<String, String> status() {
+    return Map.of("status", "UP");  // Automatically serialized to JSON
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Dependency Injection Annotations
+// ═══════════════════════════════════════════════════════════════════════════
+
+@Service
+public class OrderService {
+
+  // Constructor injection (preferred - immutable, testable)
+  private final UserService userService;
+  private final PaymentService paymentService;
+
+  @Autowired  // Optional on single constructor (Spring 4.3+)
+  public OrderService(UserService userService, PaymentService paymentService) {
+    this.userService = userService;
+    this.paymentService = paymentService;
+  }
+
+  // Field injection (avoid - harder to test)
+  @Autowired
+  private NotificationService notificationService;
+
+  // Qualifier for multiple implementations
+  @Autowired
+  @Qualifier("stripePayment")
+  private PaymentGateway paymentGateway;
+
+  // Value injection from properties
+  @Value("\${app.order.max-items:100}")
+  private int maxItems;
+}
+
+// Primary bean - default when multiple candidates exist
+@Configuration
+public class PaymentConfig {
+
+  @Bean
+  @Primary  // Default payment gateway
+  public PaymentGateway stripePayment() {
+    return new StripePaymentGateway();
+  }
+
+  @Bean
+  public PaymentGateway paypalPayment() {
+    return new PayPalPaymentGateway();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Web/REST Annotations
+// ═══════════════════════════════════════════════════════════════════════════
+
+@RestController
+@RequestMapping("/api/users")  // Base path for all endpoints
+public class UserController {
+
+  @Autowired
+  private UserService userService;
+
+  // GET /api/users
+  @GetMapping
+  public List<User> getAllUsers() {
+    return userService.findAll();
+  }
+
+  // GET /api/users/123
+  @GetMapping("/{id}")
+  public User getUser(@PathVariable Long id) {
+    return userService.findById(id);
+  }
+
+  // GET /api/users/search?email=test@example.com
+  @GetMapping("/search")
+  public User searchByEmail(@RequestParam String email) {
+    return userService.findByEmail(email);
+  }
+
+  // POST /api/users (JSON body)
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)  // Returns 201 instead of 200
+  public User createUser(@RequestBody @Valid UserDTO userDto) {
+    return userService.create(userDto);
+  }
+
+  // PUT /api/users/123
+  @PutMapping("/{id}")
+  public User updateUser(@PathVariable Long id, @RequestBody UserDTO userDto) {
+    return userService.update(id, userDto);
+  }
+
+  // DELETE /api/users/123
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)  // Returns 204
+  public void deleteUser(@PathVariable Long id) {
+    userService.delete(id);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Validation Annotations
+// ═══════════════════════════════════════════════════════════════════════════
+
+public class UserDTO {
+
+  @NotNull(message = "Name is required")
+  @Size(min = 2, max = 50, message = "Name must be 2-50 characters")
+  private String name;
+
+  @NotBlank(message = "Email is required")
+  @Email(message = "Invalid email format")
+  private String email;
+
+  @NotNull
+  @Min(value = 18, message = "Must be at least 18")
+  @Max(value = 120, message = "Invalid age")
+  private Integer age;
+
+  @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Invalid phone number")
+  private String phone;
+
+  // Getters and setters
+}
+
+// Using validation in controller
+@PostMapping("/users")
+public User createUser(@RequestBody @Valid UserDTO dto) {
+  // Validation errors throw MethodArgumentNotValidException
+  return userService.create(dto);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ JPA/Data Annotations
+// ═══════════════════════════════════════════════════════════════════════════
+
+@Entity
+@Table(name = "users", schema = "public")
+public class User {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @Column(name = "full_name", nullable = false, length = 100)
+  private String name;
+
+  @Column(unique = true, nullable = false)
+  private String email;
+
+  @Column(name = "created_at")
+  private LocalDateTime createdAt;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+  private List<Order> orders;
+
+  // Getters and setters
+}
+
+// Repository with custom queries
+public interface UserRepository extends JpaRepository<User, Long> {
+
+  // Derived query method
+  Optional<User> findByEmail(String email);
+
+  // Custom JPQL query
+  @Query("SELECT u FROM User u WHERE u.name LIKE %:name%")
+  List<User> searchByName(@Param("name") String name);
+
+  // Native SQL query
+  @Query(value = "SELECT * FROM users WHERE created_at > :date", nativeQuery = true)
+  List<User> findRecentUsers(@Param("date") LocalDateTime date);
+}
+
+// Transactional service
+@Service
+public class OrderService {
+
+  @Transactional  // Manages transaction - rollback on exception
+  public Order createOrder(OrderDTO dto) {
+    Order order = new Order();
+    orderRepository.save(order);
+    paymentService.charge(dto.getAmount());  // Rolls back if this fails
+    return order;
+  }
+
+  @Transactional(readOnly = true)  // Optimized for read operations
+  public List<Order> getOrders() {
+    return orderRepository.findAll();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✦ Conditional and Profile Annotations
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Only applies if Redis is on classpath
+@Configuration
+@ConditionalOnClass(RedisTemplate.class)
+public class RedisConfig {
+  @Bean
+  public RedisTemplate<String, Object> redisTemplate() {
+    return new RedisTemplate<>();
+  }
+}
+
+// Only applies if no DataSource bean exists
+@Configuration
+@ConditionalOnMissingBean(DataSource.class)
+public class DefaultDataSourceConfig {
+  @Bean
+  public DataSource dataSource() {
+    return new EmbeddedDatabaseBuilder().build();
+  }
+}
+
+// Only applies if property is set
+@Configuration
+@ConditionalOnProperty(name = "app.cache.enabled", havingValue = "true")
+public class CacheConfig {
+  @Bean
+  public CacheManager cacheManager() {
+    return new ConcurrentMapCacheManager();
+  }
+}
+
+// Profile-specific beans
+@Configuration
+public class DatabaseConfig {
+
+  @Bean
+  @Profile("dev")
+  public DataSource devDataSource() {
+    return new H2DataSource();  // In-memory for development
+  }
+
+  @Bean
+  @Profile("prod")
+  public DataSource prodDataSource() {
+    return new PostgresDataSource();  // Production database
+  }
+}`
     }
   ]
 
@@ -1238,13 +1611,14 @@ public class DatabaseProperties {
 
   return (
     <div style={{
-      padding: '2rem',
-      maxWidth: '95%',
-      margin: '120px auto 0',
-      backgroundColor: 'white',
-      borderRadius: '16px',
-      boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-      border: '3px solid rgba(16, 185, 129, 0.4)'
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #064e3b, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
+    <div style={{
+      maxWidth: '1400px',
+      margin: '0 auto'
     }}>
       <div style={{
         display: 'flex',
@@ -1261,34 +1635,39 @@ public class DatabaseProperties {
               padding: '0.75rem 1.5rem',
               fontSize: '1rem',
               fontWeight: '600',
-              backgroundColor: '#3b82f6',
+              backgroundColor: '#10b981',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+              boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
             }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
           >
-            ← Back to Menu
+            Back to Frameworks
           </button>
           <div>
             <h1 style={{
               fontSize: '2.5rem',
               fontWeight: '800',
-              color: '#1f2937',
+              background: 'linear-gradient(to right, #6ee7b7, #34d399)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
               margin: 0,
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
             }}>
-              🚀 Spring Boot
+              Spring Boot
             </h1>
             {currentSubcategory && (
               <span style={{
                 padding: '0.25rem 0.75rem',
                 fontSize: '0.85rem',
                 fontWeight: '600',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
+                backgroundColor: '#064e3b',
+                color: '#6ee7b7',
                 borderRadius: '6px',
                 marginTop: '0.25rem',
                 display: 'inline-block'
@@ -1350,20 +1729,75 @@ public class DatabaseProperties {
         </div>
       </div>
 
+      {/* Breadcrumb Navigation */}
       <div style={{
-        backgroundColor: 'rgba(16, 185, 129, 0.05)',
-        padding: '2.5rem 10rem',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        padding: '0.75rem 1rem',
+        backgroundColor: '#064e3b',
+        borderRadius: '8px',
+        marginBottom: '1.5rem',
+        flexWrap: 'wrap',
+        border: '1px solid #065f46'
+      }}>
+        <button
+          onClick={breadcrumb?.section?.onClick || onBack}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#6ee7b7',
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+            fontWeight: '500',
+            padding: '0.25rem 0.5rem',
+            borderRadius: '4px',
+            transition: 'all 0.2s',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.25rem'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#065f46'
+            e.currentTarget.style.color = '#a7f3d0'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent'
+            e.currentTarget.style.color = '#6ee7b7'
+          }}
+        >
+          <span>🌱</span> Frameworks
+        </button>
+        <span style={{ color: '#10b981', fontSize: '0.9rem' }}>→</span>
+        <span style={{
+          color: '#e2e8f0',
+          fontSize: '0.9rem',
+          fontWeight: '600',
+          padding: '0.25rem 0.75rem',
+          backgroundColor: '#065f46',
+          borderRadius: '4px'
+        }}>
+          Spring Boot
+        </span>
+      </div>
+
+      <div style={{
+        backgroundColor: '#064e3b',
+        padding: '2rem',
         borderRadius: '16px',
-        border: '3px solid rgba(16, 185, 129, 0.3)',
+        borderLeft: '4px solid #10b981',
         marginBottom: '2rem'
       }}>
         <p style={{
-          fontSize: '1.3rem',
-          color: '#374151',
+          fontSize: '1.2rem',
+          color: '#d1d5db',
           fontWeight: '500',
           margin: 0,
           lineHeight: '1.8',
-          textAlign: 'center'
+          textAlign: 'center',
+          maxWidth: '1000px',
+          marginLeft: 'auto',
+          marginRight: 'auto'
         }}>
           Spring Boot is an opinionated framework built on top of the Spring Framework that simplifies application development
           with auto-configuration, embedded servers, starter dependencies, production-ready actuators, and convention-over-configuration approach.
@@ -1381,10 +1815,10 @@ public class DatabaseProperties {
               key={idx}
               onClick={() => handleConceptClick(feature)}
               style={{
-                backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
                 padding: '2rem',
                 borderRadius: '12px',
-                border: '2px solid rgba(16, 185, 129, 0.2)',
+                border: '1px solid #374151',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 height: '200px',
@@ -1393,14 +1827,12 @@ public class DatabaseProperties {
                 justifyContent: 'space-between'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.1)'
                 e.currentTarget.style.borderColor = '#10b981'
                 e.currentTarget.style.transform = 'translateY(-4px)'
                 e.currentTarget.style.boxShadow = '0 8px 16px rgba(16, 185, 129, 0.2)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.05)'
-                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.2)'
+                e.currentTarget.style.borderColor = '#374151'
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = 'none'
               }}
@@ -1410,14 +1842,14 @@ public class DatabaseProperties {
                 <h3 style={{
                   fontSize: '1.3rem',
                   fontWeight: '700',
-                  color: '#10b981',
+                  color: '#6ee7b7',
                   margin: '0 0 0.5rem 0'
                 }}>
                   {feature.name}
                 </h3>
                 <p style={{
                   fontSize: '0.9rem',
-                  color: '#6b7280',
+                  color: '#d1d5db',
                   margin: 0,
                   lineHeight: '1.5'
                 }}>
@@ -1440,7 +1872,7 @@ public class DatabaseProperties {
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: 'white',
                 marginBottom: '1.5rem'
               }}>
                 Spring Boot Features
@@ -1451,27 +1883,25 @@ public class DatabaseProperties {
                     key={idx}
                     onClick={() => handleConceptClick(feature)}
                     style={{
-                      backgroundColor: selectedConcept?.name === feature.name
-                        ? 'rgba(16, 185, 129, 0.15)'
-                        : 'rgba(16, 185, 129, 0.05)',
+                      background: selectedConcept?.name === feature.name
+                        ? '#064e3b'
+                        : 'linear-gradient(to bottom right, #1f2937, #111827)',
                       padding: '1rem',
                       borderRadius: '8px',
                       border: selectedConcept?.name === feature.name
-                        ? '3px solid #10b981'
-                        : '2px solid rgba(16, 185, 129, 0.2)',
+                        ? '2px solid #10b981'
+                        : '1px solid #374151',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
                       if (selectedConcept?.name !== feature.name) {
-                        e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.1)'
-                        e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.4)'
+                        e.currentTarget.style.borderColor = '#10b981'
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (selectedConcept?.name !== feature.name) {
-                        e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.05)'
-                        e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.2)'
+                        e.currentTarget.style.borderColor = '#374151'
                       }
                     }}
                   >
@@ -1484,7 +1914,7 @@ public class DatabaseProperties {
                       <div style={{
                         fontSize: '1rem',
                         fontWeight: '700',
-                        color: selectedConcept?.name === feature.name ? '#10b981' : '#1f2937'
+                        color: selectedConcept?.name === feature.name ? '#6ee7b7' : '#d1d5db'
                       }}>
                         {feature.name}
                       </div>
@@ -1509,15 +1939,15 @@ public class DatabaseProperties {
               </h3>
 
               <div style={{
-                backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
                 padding: '1.5rem',
                 borderRadius: '12px',
-                border: '2px solid rgba(16, 185, 129, 0.3)',
+                border: '1px solid #374151',
                 marginBottom: '1.5rem'
               }}>
                 <div style={{
                   fontSize: '1rem',
-                  color: '#374151',
+                  color: '#d1d5db',
                   fontWeight: '500',
                   textAlign: 'left'
                 }}>
@@ -1542,7 +1972,7 @@ public class DatabaseProperties {
                         backgroundColor: '#1e293b',
                         padding: '1.5rem',
                         borderRadius: '12px',
-                        border: '2px solid #334155'
+                        border: '1px solid #374151'
                       }}>
                         <SyntaxHighlighter code={selectedConcept.codeExample} />
                       </div>
@@ -1557,9 +1987,9 @@ public class DatabaseProperties {
                           <div
                             key={index}
                             style={{
-                              backgroundColor: 'white',
+                              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
                               borderRadius: '12px',
-                              border: '2px solid rgba(16, 185, 129, 0.3)',
+                              border: '1px solid #374151',
                               overflow: 'hidden'
                             }}
                           >
@@ -1568,9 +1998,9 @@ public class DatabaseProperties {
                               style={{
                                 width: '100%',
                                 padding: '1.25rem',
-                                backgroundColor: isExpanded ? 'rgba(16, 185, 129, 0.15)' : 'white',
+                                backgroundColor: isExpanded ? '#064e3b' : 'transparent',
                                 border: 'none',
-                                borderBottom: isExpanded ? '2px solid rgba(16, 185, 129, 0.3)' : 'none',
+                                borderBottom: isExpanded ? '1px solid #374151' : 'none',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 justifyContent: 'space-between',
@@ -1579,24 +2009,24 @@ public class DatabaseProperties {
                                 textAlign: 'left'
                               }}
                               onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.15)'
+                                e.currentTarget.style.backgroundColor = '#064e3b'
                               }}
                               onMouseLeave={(e) => {
                                 if (!isExpanded) {
-                                  e.currentTarget.style.backgroundColor = 'white'
+                                  e.currentTarget.style.backgroundColor = 'transparent'
                                 }
                               }}
                             >
                               <span style={{
                                 fontSize: '1.05rem',
                                 fontWeight: '700',
-                                color: '#10b981'
+                                color: '#6ee7b7'
                               }}>
                                 {section.title}
                               </span>
                               <span style={{
                                 fontSize: '1.5rem',
-                                color: '#10b981',
+                                color: '#6ee7b7',
                                 transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
                                 transition: 'transform 0.2s ease'
                               }}>
@@ -1622,6 +2052,7 @@ public class DatabaseProperties {
           </>
         )}
       </div>
+    </div>
     </div>
   )
 }

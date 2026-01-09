@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function KafkaQuestions({ onBack }) {
+function KafkaQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
 
   // Helper function to render formatted text with colors for bold sections
@@ -833,10 +834,12 @@ max.partition.fetch.bytes=1048576
           color: '#1f2937',
           margin: 0
         }}>
-          📨 Kafka Interview Questions
+          Kafka Interview Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <p style={{
         fontSize: '1.1rem',

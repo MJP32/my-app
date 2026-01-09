@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function ORM({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function ORM({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
 
   // Handle Escape key for modal navigation
@@ -290,44 +291,53 @@ function ORM({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
   ]
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1600px', margin: '0 auto' }}>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '2rem',
-        gap: '1rem',
-        flexWrap: 'wrap'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button
-            onClick={onBack}
-            style={{
-              padding: '0.75rem 1.5rem',
-              fontSize: '1rem',
-              fontWeight: '600',
-              backgroundColor: '#3b82f6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
-          >
-            ← Back to Menu
-          </button>
-          <div>
-            <h1 style={{
-              fontSize: '2.5rem',
-              fontWeight: '800',
-              color: '#1f2937',
-              margin: 0
-            }}>
-              🔄 Object-Relational Mapping
-            </h1>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
+      <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '2rem',
+          gap: '1rem',
+          flexWrap: 'wrap'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <button
+              onClick={onBack}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+            >
+              ← Back to Databases
+            </button>
+            <div>
+              <h1 style={{
+                fontSize: '2.5rem',
+                fontWeight: '800',
+                background: 'linear-gradient(to right, #93c5fd, #60a5fa)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                margin: 0
+              }}>
+                Object-Relational Mapping
+              </h1>
             {currentSubcategory && (
               <span style={{
                 padding: '0.25rem 0.75rem',
@@ -396,9 +406,11 @@ function ORM({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
         </div>
       </div>
 
+      <Breadcrumb breadcrumb={breadcrumb} />
+
       <p style={{
         fontSize: '1.2rem',
-        color: '#4b5563',
+        color: '#9ca3af',
         textAlign: 'center',
         marginBottom: '3rem',
         lineHeight: '1.8'
@@ -445,22 +457,22 @@ function ORM({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
                   onClick={() => setSelectedConcept(concept)}
                   style={{
                     padding: '1rem',
-                    backgroundColor: selectedConcept.id === concept.id ? concept.color + '20' : '#f9fafb',
-                    border: `2px solid ${selectedConcept.id === concept.id ? concept.color : '#e5e7eb'}`,
+                    backgroundColor: selectedConcept.id === concept.id ? concept.color + '20' : '#1f2937',
+                    border: `2px solid ${selectedConcept.id === concept.id ? concept.color : '#374151'}`,
                     borderRadius: '8px',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
                   onMouseEnter={(e) => {
                     if (selectedConcept.id !== concept.id) {
-                      e.currentTarget.style.backgroundColor = concept.color + '10'
-                      e.currentTarget.style.borderColor = concept.color
+                      e.currentTarget.style.backgroundColor = '#374151'
+                      e.currentTarget.style.borderColor = '#4b5563'
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (selectedConcept.id !== concept.id) {
-                      e.currentTarget.style.backgroundColor = '#f9fafb'
-                      e.currentTarget.style.borderColor = '#e5e7eb'
+                      e.currentTarget.style.backgroundColor = '#1f2937'
+                      e.currentTarget.style.borderColor = '#374151'
                     }
                   }}
                 >
@@ -468,7 +480,7 @@ function ORM({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
                   <div style={{
                     fontSize: '0.9rem',
                     fontWeight: '600',
-                    color: '#1f2937'
+                    color: 'white'
                   }}>
                     {concept.name}
                   </div>
@@ -489,14 +501,14 @@ function ORM({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
                 <h2 style={{
                   fontSize: '2rem',
                   fontWeight: '800',
-                  color: '#1f2937',
+                  color: 'white',
                   marginBottom: '1rem'
                 }}>
                   {selectedConcept.name}
                 </h2>
                 <p style={{
                   fontSize: '1.1rem',
-                  color: '#4b5563',
+                  color: '#9ca3af',
                   lineHeight: '1.8'
                 }}>
                   {selectedConcept.description}
@@ -511,10 +523,10 @@ function ORM({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
                   <div
                     key={index}
                     style={{
-                      backgroundColor: 'white',
+                      backgroundColor: '#1f2937',
                       padding: '1.5rem',
                       borderRadius: '12px',
-                      border: `2px solid ${selectedConcept.color}30`,
+                      border: `2px solid #374151`,
                       boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                     }}
                   >
@@ -541,7 +553,7 @@ function ORM({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
                       <h3 style={{
                         fontSize: '1.1rem',
                         fontWeight: '700',
-                        color: '#1f2937',
+                        color: 'white',
                         margin: 0
                       }}>
                         {detail.name}
@@ -549,7 +561,7 @@ function ORM({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
                     </div>
                     <p style={{
                       fontSize: '1rem',
-                      color: '#4b5563',
+                      color: '#9ca3af',
                       lineHeight: '1.7',
                       margin: 0
                     }}>
@@ -587,14 +599,14 @@ function ORM({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: 'white',
                 marginBottom: '0.75rem'
               }}>
                 {concept.name}
               </h3>
               <p style={{
                 fontSize: '0.95rem',
-                color: '#4b5563',
+                color: '#9ca3af',
                 lineHeight: '1.6',
                 marginBottom: '1rem'
               }}>
@@ -615,6 +627,7 @@ function ORM({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
           ))
         )}
       </div>
+    </div>
     </div>
   )
 }

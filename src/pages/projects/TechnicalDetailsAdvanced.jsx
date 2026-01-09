@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, ChevronRight, Code, Database, Cloud, Monitor, Zap, Server, GitBranch, BarChart, Target, Settings, AlertCircle, ArrowLeft, Info } from 'lucide-react';
 import '../../idea-syntax-darcula.css';
 import { FocusManager as FocusManagerUtil } from '../../utils/focusManagement.js';
+import Breadcrumb from '../../components/Breadcrumb';
 
 // IntelliJ IDEA Darcula theme CSS is imported from external file
 
@@ -892,7 +893,7 @@ const ModernDiagram = ({ diagramType, title, onComponentClick }) => {
   );
 };
 
-const TechnicalDetailsAdvanced = ({ onBack }) => {
+const TechnicalDetailsAdvanced = ({ onBack, breadcrumb }) => {
   const [expandedItems, setExpandedItems] = useState({});
   const [expandedSubItems, setExpandedSubItems] = useState({});
   const [selectedComponent, setSelectedComponent] = useState(null);
@@ -3652,6 +3653,8 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
             </p>
           </div>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         {/* Tech Stack */}
         <div style={{

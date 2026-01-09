@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Simple syntax highlighter for YAML and kubectl commands
 const SyntaxHighlighter = ({ code }) => {
@@ -59,7 +60,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function Kubernetes({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function Kubernetes({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedTopic, setSelectedTopic] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
 
@@ -3024,6 +3025,8 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
           )}
         </div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         backgroundColor: 'rgba(59, 130, 246, 0.05)',

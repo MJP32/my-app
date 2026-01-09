@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 const SyntaxHighlighter = ({ code }) => {
   const highlightCode = (code) => {
@@ -51,7 +52,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function Grafana({ onBack }) {
+function Grafana({ onBack, breadcrumb }) {
   const [selectedTopic, setSelectedTopic] = useState(null)
 
   const topics = [
@@ -920,6 +921,8 @@ curl -X POST http://localhost:3000/api/auth/keys \\
           Open-source analytics and monitoring platform
         </p>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       {!selectedTopic ? (
         <div style={{

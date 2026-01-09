@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import Breadcrumb from '../../components/Breadcrumb';
 
-export default function WhatsApp({ onBack }) {
+export default function WhatsApp({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview');
 
   const tabs = [
@@ -12,19 +13,19 @@ export default function WhatsApp({ onBack }) {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-950 to-gray-900 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8 bg-white rounded-2xl shadow-lg p-6 border-l-8 border-green-500">
+        <div className="mb-8 bg-gray-800 rounded-2xl shadow-lg p-6 border-l-8 border-green-500">
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={onBack}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-gray-700 font-medium"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-gray-300 font-medium"
             >
               <span>←</span>
               <span>Back</span>
             </button>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 flex items-center gap-3">
+            <h1 className="text-4xl md:text-5xl font-bold text-white flex items-center gap-3">
               <span className="text-5xl">💬</span>
               <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                 WhatsApp System Design
@@ -32,21 +33,21 @@ export default function WhatsApp({ onBack }) {
             </h1>
             <div className="w-24"></div>
           </div>
-          <p className="text-gray-600 text-lg text-center">
+          <p className="text-gray-300 text-lg text-center">
             Design a messaging platform like WhatsApp with real-time messaging, end-to-end encryption, group chats, media sharing, and billions of messages daily
           </p>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 border-b-2 border-gray-200 overflow-x-auto pb-0">
+        <div className="flex gap-2 mb-8 border-b-2 border-gray-700 overflow-x-auto pb-0">
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`px-6 py-3 font-semibold transition-all whitespace-nowrap rounded-t-lg ${
                 activeTab === tab.id
-                  ? 'text-green-600 bg-green-50 border-b-4 border-green-600 -mb-0.5'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  ? 'text-green-400 bg-green-900/30 border-b-4 border-green-500 -mb-0.5'
+                  : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800'
               }`}
             >
               {tab.label}
@@ -58,16 +59,16 @@ export default function WhatsApp({ onBack }) {
         {activeTab === 'overview' && (
           <div className="space-y-8">
             {/* Requirements */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-green-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <span className="text-green-600">📝</span>
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-green-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                <span className="text-green-400">📝</span>
                 System Requirements
               </h2>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-green-700 mb-3">✅ Functional Requirements</h3>
-                  <div className="space-y-2 text-gray-700">
+                  <h3 className="text-xl font-bold text-green-400 mb-3">✅ Functional Requirements</h3>
+                  <div className="space-y-2 text-gray-300">
                     <div className="flex items-start gap-2">
                       <span className="text-green-500 mt-1">•</span>
                       <span><strong>1-on-1 Messaging:</strong> Send/receive text messages in real-time</span>
@@ -100,8 +101,8 @@ export default function WhatsApp({ onBack }) {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-orange-700 mb-3">⚡ Non-Functional Requirements</h3>
-                  <div className="space-y-2 text-gray-700">
+                  <h3 className="text-xl font-bold text-orange-400 mb-3">⚡ Non-Functional Requirements</h3>
+                  <div className="space-y-2 text-gray-300">
                     <div className="flex items-start gap-2">
                       <span className="text-orange-500 mt-1">•</span>
                       <span><strong>Low Latency:</strong> Message delivery &lt;100ms (same region)</span>
@@ -132,13 +133,13 @@ export default function WhatsApp({ onBack }) {
             </div>
 
             {/* Architecture Diagram */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-emerald-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <span className="text-emerald-600">🏗️</span>
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-emerald-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                <span className="text-emerald-400">🏗️</span>
                 High-Level Architecture
               </h2>
 
-              <div className="bg-gradient-to-br from-emerald-50 to-green-50 p-8 rounded-xl border-2 border-emerald-200">
+              <div className="bg-gradient-to-br from-emerald-900/30 to-green-900/30 p-8 rounded-xl border-2 border-emerald-700">
                 <svg viewBox="0 0 1400 900" className="w-full h-auto">
                   {/* Clients */}
                   <rect x="50" y="50" width="160" height="70" fill="#25d366" rx="8"/>
@@ -255,32 +256,32 @@ export default function WhatsApp({ onBack }) {
               </div>
 
               <div className="mt-6 grid md:grid-cols-3 gap-4">
-                <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
-                  <div className="font-bold text-green-900 mb-2">Client Layer</div>
-                  <div className="text-sm text-green-800">Mobile and web clients maintain persistent WebSocket connections</div>
+                <div className="bg-green-900/30 p-4 rounded-lg border-l-4 border-green-500">
+                  <div className="font-bold text-green-400 mb-2">Client Layer</div>
+                  <div className="text-sm text-green-300">Mobile and web clients maintain persistent WebSocket connections</div>
                 </div>
-                <div className="bg-emerald-50 p-4 rounded-lg border-l-4 border-emerald-500">
-                  <div className="font-bold text-emerald-900 mb-2">Service Layer</div>
-                  <div className="text-sm text-emerald-800">Microservices handle messaging, media, groups, and presence</div>
+                <div className="bg-emerald-900/30 p-4 rounded-lg border-l-4 border-emerald-500">
+                  <div className="font-bold text-emerald-400 mb-2">Service Layer</div>
+                  <div className="text-sm text-emerald-300">Microservices handle messaging, media, groups, and presence</div>
                 </div>
-                <div className="bg-teal-50 p-4 rounded-lg border-l-4 border-teal-500">
-                  <div className="font-bold text-teal-900 mb-2">Data Layer</div>
-                  <div className="text-sm text-teal-800">Distributed databases with Redis for caching and S3 for media</div>
+                <div className="bg-teal-900/30 p-4 rounded-lg border-l-4 border-teal-500">
+                  <div className="font-bold text-teal-400 mb-2">Data Layer</div>
+                  <div className="text-sm text-teal-300">Distributed databases with Redis for caching and S3 for media</div>
                 </div>
               </div>
             </div>
 
             {/* Scale Estimates */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-blue-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <span className="text-blue-600">📊</span>
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-blue-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                <span className="text-blue-400">📊</span>
                 Scale & Capacity Estimates
               </h2>
 
               <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border-2 border-blue-200">
-                  <h3 className="font-bold text-blue-900 mb-4 text-lg">User Base & Traffic</h3>
-                  <div className="space-y-2 text-gray-700">
+                <div className="bg-gradient-to-br from-blue-900/30 to-indigo-900/30 p-6 rounded-xl border-2 border-blue-700">
+                  <h3 className="font-bold text-blue-400 mb-4 text-lg">User Base & Traffic</h3>
+                  <div className="space-y-2 text-gray-300">
                     <div>• Total users: <strong>2 billion</strong></div>
                     <div>• Daily active users (DAU): <strong>600 million</strong></div>
                     <div>• Average messages per user/day: <strong>~170</strong></div>
@@ -290,9 +291,9 @@ export default function WhatsApp({ onBack }) {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border-2 border-green-200">
-                  <h3 className="font-bold text-green-900 mb-4 text-lg">Storage Requirements</h3>
-                  <div className="space-y-2 text-gray-700">
+                <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 p-6 rounded-xl border-2 border-green-700">
+                  <h3 className="font-bold text-green-400 mb-4 text-lg">Storage Requirements</h3>
+                  <div className="space-y-2 text-gray-300">
                     <div>• Average message size: <strong>~100 bytes</strong></div>
                     <div>• Daily message storage: <strong>10 TB/day</strong></div>
                     <div>• 5-year message storage: <strong>~18 PB</strong></div>
@@ -302,9 +303,9 @@ export default function WhatsApp({ onBack }) {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border-2 border-purple-200">
-                  <h3 className="font-bold text-purple-900 mb-4 text-lg">WebSocket Connections</h3>
-                  <div className="space-y-2 text-gray-700">
+                <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 p-6 rounded-xl border-2 border-purple-700">
+                  <h3 className="font-bold text-purple-400 mb-4 text-lg">WebSocket Connections</h3>
+                  <div className="space-y-2 text-gray-300">
                     <div>• Concurrent connections: <strong>~300 million</strong></div>
                     <div>• Connections per server: <strong>~50,000</strong></div>
                     <div>• Required servers: <strong>~6,000</strong></div>
@@ -313,9 +314,9 @@ export default function WhatsApp({ onBack }) {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-xl border-2 border-orange-200">
-                  <h3 className="font-bold text-orange-900 mb-4 text-lg">Bandwidth Estimates</h3>
-                  <div className="space-y-2 text-gray-700">
+                <div className="bg-gradient-to-br from-orange-900/30 to-red-900/30 p-6 rounded-xl border-2 border-orange-700">
+                  <h3 className="font-bold text-orange-400 mb-4 text-lg">Bandwidth Estimates</h3>
+                  <div className="space-y-2 text-gray-300">
                     <div>• Message traffic: <strong>~120 MB/s</strong></div>
                     <div>• Media upload: <strong>~6 GB/s</strong></div>
                     <div>• Media download: <strong>~60 GB/s</strong></div>
@@ -334,16 +335,16 @@ export default function WhatsApp({ onBack }) {
         {activeTab === 'components' && (
           <div className="space-y-8">
             {/* Message Service */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-green-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <span className="text-green-600">💬</span>
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-green-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                <span className="text-green-400">💬</span>
                 1. Message Service
               </h2>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-green-700 mb-3">Responsibilities</h3>
-                  <div className="space-y-2 text-gray-700">
+                  <h3 className="text-xl font-bold text-green-400 mb-3">Responsibilities</h3>
+                  <div className="space-y-2 text-gray-300">
                     <div className="flex items-start gap-2">
                       <span className="text-green-500 mt-1">•</span>
                       <span><strong>Message Routing:</strong> Route messages to recipients through WebSocket connections</span>
@@ -368,9 +369,9 @@ export default function WhatsApp({ onBack }) {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-blue-700 mb-3">Implementation</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg text-sm font-mono text-gray-800 space-y-2">
-                    <div className="text-green-600">// Message delivery flow</div>
+                  <h3 className="text-xl font-bold text-blue-400 mb-3">Implementation</h3>
+                  <div className="bg-gray-900 p-4 rounded-lg text-sm font-mono text-gray-300 space-y-2">
+                    <div className="text-green-400">// Message delivery flow</div>
                     <div>1. Client sends encrypted message</div>
                     <div>2. Message Service receives via WebSocket</div>
                     <div>3. Store in Cassandra (encrypted)</div>
@@ -378,16 +379,16 @@ export default function WhatsApp({ onBack }) {
                     <div>5. If online: push via WebSocket</div>
                     <div>6. If offline: queue + send push notification</div>
                     <div>7. Send delivery receipt to sender</div>
-                    <div className="mt-3 text-orange-600">// At-least-once delivery</div>
+                    <div className="mt-3 text-orange-400">// At-least-once delivery</div>
                     <div>• Use message IDs for deduplication</div>
                     <div>• Retry with exponential backoff</div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
-                <div className="font-bold text-green-900 mb-2">Key Technology</div>
-                <div className="text-sm text-green-800">
+              <div className="mt-6 bg-green-900/30 p-4 rounded-lg border-l-4 border-green-500">
+                <div className="font-bold text-green-400 mb-2">Key Technology</div>
+                <div className="text-sm text-green-300">
                   <strong>Signal Protocol:</strong> Implements Perfect Forward Secrecy (PFS) using Double Ratchet Algorithm.
                   Each message encrypted with unique key. Server never has access to decryption keys.
                 </div>
@@ -395,16 +396,16 @@ export default function WhatsApp({ onBack }) {
             </div>
 
             {/* Media Service */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-red-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <span className="text-red-600">📎</span>
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-red-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                <span className="text-red-400">📎</span>
                 2. Media Service
               </h2>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-red-700 mb-3">Responsibilities</h3>
-                  <div className="space-y-2 text-gray-700">
+                  <h3 className="text-xl font-bold text-red-400 mb-3">Responsibilities</h3>
+                  <div className="space-y-2 text-gray-300">
                     <div className="flex items-start gap-2">
                       <span className="text-red-500 mt-1">•</span>
                       <span><strong>Upload:</strong> Handle images, videos, audio, documents (up to 2GB)</span>
@@ -429,15 +430,15 @@ export default function WhatsApp({ onBack }) {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-blue-700 mb-3">Media Pipeline</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg text-sm font-mono text-gray-800 space-y-2">
-                    <div className="text-red-600">// Upload Flow</div>
+                  <h3 className="text-xl font-bold text-blue-400 mb-3">Media Pipeline</h3>
+                  <div className="bg-gray-900 p-4 rounded-lg text-sm font-mono text-gray-300 space-y-2">
+                    <div className="text-red-400">// Upload Flow</div>
                     <div>1. Client requests upload URL (signed)</div>
                     <div>2. Client encrypts media locally</div>
                     <div>3. Upload to S3 via presigned URL</div>
                     <div>4. Async: compress + generate thumbnails</div>
                     <div>5. Send media reference in message</div>
-                    <div className="mt-3 text-orange-600">// Download Flow</div>
+                    <div className="mt-3 text-orange-400">// Download Flow</div>
                     <div>1. Client requests download URL</div>
                     <div>2. Serve from CDN (cached)</div>
                     <div>3. Client decrypts locally</div>
@@ -447,32 +448,32 @@ export default function WhatsApp({ onBack }) {
               </div>
 
               <div className="mt-6 grid md:grid-cols-3 gap-4">
-                <div className="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
-                  <div className="font-bold text-red-900 mb-2">Image Compression</div>
-                  <div className="text-sm text-red-800">JPEG/WebP with 80% quality. Resize to max 1600px width.</div>
+                <div className="bg-red-900/30 p-4 rounded-lg border-l-4 border-red-500">
+                  <div className="font-bold text-red-400 mb-2">Image Compression</div>
+                  <div className="text-sm text-red-300">JPEG/WebP with 80% quality. Resize to max 1600px width.</div>
                 </div>
-                <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
-                  <div className="font-bold text-orange-900 mb-2">Video Compression</div>
-                  <div className="text-sm text-orange-800">H.264 codec, 720p max, 1.5Mbps bitrate for bandwidth efficiency.</div>
+                <div className="bg-orange-900/30 p-4 rounded-lg border-l-4 border-orange-500">
+                  <div className="font-bold text-orange-400 mb-2">Video Compression</div>
+                  <div className="text-sm text-orange-300">H.264 codec, 720p max, 1.5Mbps bitrate for bandwidth efficiency.</div>
                 </div>
-                <div className="bg-amber-50 p-4 rounded-lg border-l-4 border-amber-500">
-                  <div className="font-bold text-amber-900 mb-2">E2E Encryption</div>
-                  <div className="text-sm text-amber-800">AES-256 encryption. Keys shared via Signal Protocol messages.</div>
+                <div className="bg-amber-900/30 p-4 rounded-lg border-l-4 border-amber-500">
+                  <div className="font-bold text-amber-400 mb-2">E2E Encryption</div>
+                  <div className="text-sm text-amber-300">AES-256 encryption. Keys shared via Signal Protocol messages.</div>
                 </div>
               </div>
             </div>
 
             {/* Group Chat Service */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-amber-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <span className="text-amber-600">👥</span>
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-amber-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                <span className="text-amber-400">👥</span>
                 3. Group Chat Service
               </h2>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-amber-700 mb-3">Responsibilities</h3>
-                  <div className="space-y-2 text-gray-700">
+                  <h3 className="text-xl font-bold text-amber-400 mb-3">Responsibilities</h3>
+                  <div className="space-y-2 text-gray-300">
                     <div className="flex items-start gap-2">
                       <span className="text-amber-500 mt-1">•</span>
                       <span><strong>Group Management:</strong> Create, update, delete groups (up to 256 members)</span>
@@ -497,24 +498,24 @@ export default function WhatsApp({ onBack }) {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-blue-700 mb-3">Group Message Flow</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg text-sm font-mono text-gray-800 space-y-2">
-                    <div className="text-amber-600">// Sender Key Protocol</div>
+                  <h3 className="text-xl font-bold text-blue-400 mb-3">Group Message Flow</h3>
+                  <div className="bg-gray-900 p-4 rounded-lg text-sm font-mono text-gray-300 space-y-2">
+                    <div className="text-amber-400">// Sender Key Protocol</div>
                     <div>1. Group creator generates sender key</div>
                     <div>2. Distribute key to all members (encrypted)</div>
                     <div>3. Member sends message encrypted with sender key</div>
                     <div>4. Fan-out to all members via Message Service</div>
                     <div>5. Each member decrypts with sender key</div>
-                    <div className="mt-3 text-orange-600">// Key Rotation</div>
+                    <div className="mt-3 text-orange-400">// Key Rotation</div>
                     <div>• Rotate sender key when member leaves</div>
                     <div>• Prevents removed members from reading new messages</div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 bg-amber-50 p-4 rounded-lg border-l-4 border-amber-500">
-                <div className="font-bold text-amber-900 mb-2">Fan-out Strategy</div>
-                <div className="text-sm text-amber-800">
+              <div className="mt-6 bg-amber-900/30 p-4 rounded-lg border-l-4 border-amber-500">
+                <div className="font-bold text-amber-400 mb-2">Fan-out Strategy</div>
+                <div className="text-sm text-amber-300">
                   Use <strong>fan-out on write</strong> for groups. Single message from sender → N copies to N members.
                   Cache group member lists in Redis for fast lookup. Use Kafka for async fan-out processing.
                 </div>
@@ -522,16 +523,16 @@ export default function WhatsApp({ onBack }) {
             </div>
 
             {/* Presence Service */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-pink-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <span className="text-pink-600">🟢</span>
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-pink-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                <span className="text-pink-400">🟢</span>
                 4. Presence Service
               </h2>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-pink-700 mb-3">Responsibilities</h3>
-                  <div className="space-y-2 text-gray-700">
+                  <h3 className="text-xl font-bold text-pink-400 mb-3">Responsibilities</h3>
+                  <div className="space-y-2 text-gray-300">
                     <div className="flex items-start gap-2">
                       <span className="text-pink-500 mt-1">•</span>
                       <span><strong>Online Status:</strong> Track online/offline status of users</span>
@@ -556,26 +557,26 @@ export default function WhatsApp({ onBack }) {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-blue-700 mb-3">Implementation</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg text-sm font-mono text-gray-800 space-y-2">
-                    <div className="text-pink-600">// Redis for Presence</div>
+                  <h3 className="text-xl font-bold text-blue-400 mb-3">Implementation</h3>
+                  <div className="bg-gray-900 p-4 rounded-lg text-sm font-mono text-gray-300 space-y-2">
+                    <div className="text-pink-400">// Redis for Presence</div>
                     <div>Key: user:&lt;user_id&gt;:presence</div>
                     <div>Value: &#123; online: true, lastSeen: timestamp &#125;</div>
                     <div>TTL: 60 seconds (refresh via heartbeat)</div>
-                    <div className="mt-3 text-orange-600">// Heartbeat Protocol</div>
+                    <div className="mt-3 text-orange-400">// Heartbeat Protocol</div>
                     <div>• Client sends heartbeat every 30s</div>
                     <div>• Server updates Redis TTL</div>
                     <div>• If no heartbeat: mark offline after TTL expires</div>
-                    <div className="mt-3 text-green-600">// Typing Indicator</div>
+                    <div className="mt-3 text-green-400">// Typing Indicator</div>
                     <div>• Broadcast "typing" event to chat participants</div>
                     <div>• Stop after 5s of no activity</div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 bg-pink-50 p-4 rounded-lg border-l-4 border-pink-500">
-                <div className="font-bold text-pink-900 mb-2">Scalability</div>
-                <div className="text-sm text-pink-800">
+              <div className="mt-6 bg-pink-900/30 p-4 rounded-lg border-l-4 border-pink-500">
+                <div className="font-bold text-pink-400 mb-2">Scalability</div>
+                <div className="text-sm text-pink-300">
                   Store presence in Redis Cluster with replication. Use pub/sub for typing indicators.
                   Cache "last seen" in Redis with write-through to PostgreSQL for persistence.
                 </div>
@@ -583,16 +584,16 @@ export default function WhatsApp({ onBack }) {
             </div>
 
             {/* Auth Service */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-purple-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <span className="text-purple-600">🔐</span>
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-purple-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                <span className="text-purple-400">🔐</span>
                 5. Authentication Service
               </h2>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-purple-700 mb-3">Responsibilities</h3>
-                  <div className="space-y-2 text-gray-700">
+                  <h3 className="text-xl font-bold text-purple-400 mb-3">Responsibilities</h3>
+                  <div className="space-y-2 text-gray-300">
                     <div className="flex items-start gap-2">
                       <span className="text-purple-500 mt-1">•</span>
                       <span><strong>Phone Verification:</strong> SMS/voice OTP for registration</span>
@@ -617,9 +618,9 @@ export default function WhatsApp({ onBack }) {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-blue-700 mb-3">Registration Flow</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg text-sm font-mono text-gray-800 space-y-2">
-                    <div className="text-purple-600">// Phone Number Verification</div>
+                  <h3 className="text-xl font-bold text-blue-400 mb-3">Registration Flow</h3>
+                  <div className="bg-gray-900 p-4 rounded-lg text-sm font-mono text-gray-300 space-y-2">
+                    <div className="text-purple-400">// Phone Number Verification</div>
                     <div>1. User enters phone number</div>
                     <div>2. Server sends 6-digit OTP via SMS</div>
                     <div>3. User submits OTP</div>
@@ -632,9 +633,9 @@ export default function WhatsApp({ onBack }) {
                 </div>
               </div>
 
-              <div className="mt-6 bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
-                <div className="font-bold text-purple-900 mb-2">Multi-Device Support</div>
-                <div className="text-sm text-purple-800">
+              <div className="mt-6 bg-purple-900/30 p-4 rounded-lg border-l-4 border-purple-500">
+                <div className="font-bold text-purple-400 mb-2">Multi-Device Support</div>
+                <div className="text-sm text-purple-300">
                   Each device has its own identity key pair. Messages sent to all devices of a recipient.
                   Use device IDs in message routing. Sync message history via end-to-end encrypted backup.
                 </div>
@@ -642,16 +643,16 @@ export default function WhatsApp({ onBack }) {
             </div>
 
             {/* Notification Service */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-cyan-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <span className="text-cyan-600">🔔</span>
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-cyan-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                <span className="text-cyan-400">🔔</span>
                 6. Notification Service
               </h2>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-cyan-700 mb-3">Responsibilities</h3>
-                  <div className="space-y-2 text-gray-700">
+                  <h3 className="text-xl font-bold text-cyan-400 mb-3">Responsibilities</h3>
+                  <div className="space-y-2 text-gray-300">
                     <div className="flex items-start gap-2">
                       <span className="text-cyan-500 mt-1">•</span>
                       <span><strong>Push Notifications:</strong> FCM (Android) and APNS (iOS)</span>
@@ -676,25 +677,25 @@ export default function WhatsApp({ onBack }) {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-blue-700 mb-3">Notification Flow</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg text-sm font-mono text-gray-800 space-y-2">
-                    <div className="text-cyan-600">// Push Notification</div>
+                  <h3 className="text-xl font-bold text-blue-400 mb-3">Notification Flow</h3>
+                  <div className="bg-gray-900 p-4 rounded-lg text-sm font-mono text-gray-300 space-y-2">
+                    <div className="text-cyan-400">// Push Notification</div>
                     <div>1. Message Service detects offline recipient</div>
                     <div>2. Publish to Kafka notification topic</div>
                     <div>3. Notification Service consumes event</div>
                     <div>4. Check user preferences (muted?)</div>
                     <div>5. Send to FCM/APNS</div>
                     <div>6. Notification: "New message from [Sender]"</div>
-                    <div className="mt-3 text-orange-600">// Privacy Consideration</div>
+                    <div className="mt-3 text-orange-400">// Privacy Consideration</div>
                     <div>• Never include encrypted message content</div>
                     <div>• Only sender name + generic alert</div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 bg-cyan-50 p-4 rounded-lg border-l-4 border-cyan-500">
-                <div className="font-bold text-cyan-900 mb-2">Optimization</div>
-                <div className="text-sm text-cyan-800">
+              <div className="mt-6 bg-cyan-900/30 p-4 rounded-lg border-l-4 border-cyan-500">
+                <div className="font-bold text-cyan-400 mb-2">Optimization</div>
+                <div className="text-sm text-cyan-300">
                   Batch notifications: If user receives 5 messages in 10s, send single notification "5 new messages from [Sender]".
                   Use silent push for delivery receipts. Respect quiet hours and mute settings.
                 </div>
@@ -706,90 +707,90 @@ export default function WhatsApp({ onBack }) {
         {activeTab === 'dataflow' && (
           <div className="space-y-8">
             {/* 1-on-1 Message Flow */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-green-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-green-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
                 <span className="text-green-600">💬</span>
                 1-on-1 Message Delivery Flow
               </h2>
 
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border-2 border-green-200">
-                <div className="space-y-4 text-gray-800">
+              <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 p-6 rounded-xl border-2 border-green-700">
+                <div className="space-y-4 text-gray-300">
                   <div className="flex items-start gap-3">
                     <div className="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">1</div>
                     <div>
-                      <strong className="text-green-900">Client A Encryption:</strong>
-                      <div className="text-gray-700 mt-1">User A types message → Encrypt with Signal Protocol using recipient's public key → Generate unique message ID → Send via WebSocket to Gateway</div>
+                      <strong className="text-green-400">Client A Encryption:</strong>
+                      <div className="text-gray-300 mt-1">User A types message → Encrypt with Signal Protocol using recipient's public key → Generate unique message ID → Send via WebSocket to Gateway</div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <div className="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">2</div>
                     <div>
-                      <strong className="text-green-900">WebSocket Gateway:</strong>
-                      <div className="text-gray-700 mt-1">Authenticate WebSocket connection → Route to Message Service based on sender ID → Maintain persistent connection for real-time delivery</div>
+                      <strong className="text-green-400">WebSocket Gateway:</strong>
+                      <div className="text-gray-300 mt-1">Authenticate WebSocket connection → Route to Message Service based on sender ID → Maintain persistent connection for real-time delivery</div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <div className="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">3</div>
                     <div>
-                      <strong className="text-green-900">Message Service Processing:</strong>
-                      <div className="text-gray-700 mt-1">Validate message → Check recipient exists → Store encrypted message in Cassandra (partitioned by user ID) → Generate delivery receipt</div>
+                      <strong className="text-green-400">Message Service Processing:</strong>
+                      <div className="text-gray-300 mt-1">Validate message → Check recipient exists → Store encrypted message in Cassandra (partitioned by user ID) → Generate delivery receipt</div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <div className="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">4</div>
                     <div>
-                      <strong className="text-green-900">Presence Check:</strong>
-                      <div className="text-gray-700 mt-1">Query Redis for recipient online status → If online: get WebSocket server ID → If offline: add to offline queue + trigger notification</div>
+                      <strong className="text-green-400">Presence Check:</strong>
+                      <div className="text-gray-300 mt-1">Query Redis for recipient online status → If online: get WebSocket server ID → If offline: add to offline queue + trigger notification</div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <div className="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">5</div>
                     <div>
-                      <strong className="text-green-900">Delivery to Recipient:</strong>
-                      <div className="text-gray-700 mt-1">If online: push encrypted message via WebSocket to Client B → Client B decrypts locally with private key → Display message</div>
+                      <strong className="text-green-400">Delivery to Recipient:</strong>
+                      <div className="text-gray-300 mt-1">If online: push encrypted message via WebSocket to Client B → Client B decrypts locally with private key → Display message</div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <div className="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">6</div>
                     <div>
-                      <strong className="text-green-900">Delivery Receipts:</strong>
-                      <div className="text-gray-700 mt-1">Client B sends "delivered" receipt → Server forwards to Client A (✓✓) → When user reads: send "read" receipt → Forward to Client A (blue ✓✓)</div>
+                      <strong className="text-green-400">Delivery Receipts:</strong>
+                      <div className="text-gray-300 mt-1">Client B sends "delivered" receipt → Server forwards to Client A (✓✓) → When user reads: send "read" receipt → Forward to Client A (blue ✓✓)</div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <div className="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">7</div>
                     <div>
-                      <strong className="text-green-900">Offline Queue:</strong>
-                      <div className="text-gray-700 mt-1">If recipient offline: store in offline queue (Cassandra) → When client comes online: fetch all queued messages → Deliver in order → Clear queue</div>
+                      <strong className="text-green-400">Offline Queue:</strong>
+                      <div className="text-gray-300 mt-1">If recipient offline: store in offline queue (Cassandra) → When client comes online: fetch all queued messages → Deliver in order → Clear queue</div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <div className="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">8</div>
                     <div>
-                      <strong className="text-green-900">Push Notification:</strong>
-                      <div className="text-gray-700 mt-1">For offline users: Notification Service sends push via FCM/APNS → Generic notification "New message from [Name]" (no content for privacy)</div>
+                      <strong className="text-green-400">Push Notification:</strong>
+                      <div className="text-gray-300 mt-1">For offline users: Notification Service sends push via FCM/APNS → Generic notification "New message from [Name]" (no content for privacy)</div>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="mt-6 grid md:grid-cols-2 gap-4">
-                <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
-                  <div className="font-bold text-green-900 mb-2">Message Structure</div>
-                  <div className="text-sm text-green-800 font-mono">
+                <div className="bg-green-900/30 p-4 rounded-lg border-l-4 border-green-500">
+                  <div className="font-bold text-green-400 mb-2">Message Structure</div>
+                  <div className="text-sm text-green-300 font-mono">
                     &#123; messageId, senderId, recipientId, encryptedContent, timestamp, type: "text" &#125;
                   </div>
                 </div>
-                <div className="bg-emerald-50 p-4 rounded-lg border-l-4 border-emerald-500">
-                  <div className="font-bold text-emerald-900 mb-2">Latency</div>
-                  <div className="text-sm text-emerald-800">
+                <div className="bg-emerald-900/30 p-4 rounded-lg border-l-4 border-emerald-500">
+                  <div className="font-bold text-emerald-400 mb-2">Latency</div>
+                  <div className="text-sm text-emerald-300">
                     Same region: &lt;100ms | Cross-region: 200-500ms | Offline delivery: when user reconnects
                   </div>
                 </div>
@@ -797,67 +798,67 @@ export default function WhatsApp({ onBack }) {
             </div>
 
             {/* Group Message Flow */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-amber-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <span className="text-amber-600">👥</span>
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-amber-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                <span className="text-amber-400">👥</span>
                 Group Message Flow
               </h2>
 
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-xl border-2 border-amber-200">
-                <div className="space-y-4 text-gray-800">
+              <div className="bg-gradient-to-br from-amber-900/30 to-orange-900/30 p-6 rounded-xl border-2 border-amber-700">
+                <div className="space-y-4 text-gray-300">
                   <div className="flex items-start gap-3">
                     <div className="bg-amber-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">1</div>
                     <div>
-                      <strong className="text-amber-900">Sender Key Encryption:</strong>
-                      <div className="text-gray-700 mt-1">User types message in group → Encrypt with group's sender key (shared secret) → Single encrypted message for all members</div>
+                      <strong className="text-amber-400">Sender Key Encryption:</strong>
+                      <div className="text-gray-300 mt-1">User types message in group → Encrypt with group's sender key (shared secret) → Single encrypted message for all members</div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <div className="bg-amber-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">2</div>
                     <div>
-                      <strong className="text-amber-900">Message Service Receives:</strong>
-                      <div className="text-gray-700 mt-1">Validate message → Verify sender is group member → Fetch group member list from Redis cache (256 members max)</div>
+                      <strong className="text-amber-400">Message Service Receives:</strong>
+                      <div className="text-gray-300 mt-1">Validate message → Verify sender is group member → Fetch group member list from Redis cache (256 members max)</div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <div className="bg-amber-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">3</div>
                     <div>
-                      <strong className="text-amber-900">Fan-out Processing:</strong>
-                      <div className="text-gray-700 mt-1">Publish to Kafka topic for async processing → Group Chat Service consumes event → Create N copies (one per member) → Store in each member's Cassandra partition</div>
+                      <strong className="text-amber-400">Fan-out Processing:</strong>
+                      <div className="text-gray-300 mt-1">Publish to Kafka topic for async processing → Group Chat Service consumes event → Create N copies (one per member) → Store in each member's Cassandra partition</div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <div className="bg-amber-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">4</div>
                     <div>
-                      <strong className="text-amber-900">Delivery to Online Members:</strong>
-                      <div className="text-gray-700 mt-1">Check presence for each member → Push to online members via WebSocket → Each client decrypts with sender key</div>
+                      <strong className="text-amber-400">Delivery to Online Members:</strong>
+                      <div className="text-gray-300 mt-1">Check presence for each member → Push to online members via WebSocket → Each client decrypts with sender key</div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <div className="bg-amber-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">5</div>
                     <div>
-                      <strong className="text-amber-900">Offline Members:</strong>
-                      <div className="text-gray-700 mt-1">Add to each offline member's queue → Send push notification → When they reconnect: fetch queued messages</div>
+                      <strong className="text-amber-400">Offline Members:</strong>
+                      <div className="text-gray-300 mt-1">Add to each offline member's queue → Send push notification → When they reconnect: fetch queued messages</div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <div className="bg-amber-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">6</div>
                     <div>
-                      <strong className="text-amber-900">Read Receipts:</strong>
-                      <div className="text-gray-700 mt-1">Track which members read message → Aggregate receipts → Show "Read by 15/20" to sender</div>
+                      <strong className="text-amber-400">Read Receipts:</strong>
+                      <div className="text-gray-300 mt-1">Track which members read message → Aggregate receipts → Show "Read by 15/20" to sender</div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 bg-amber-50 p-4 rounded-lg border-l-4 border-amber-500">
-                <div className="font-bold text-amber-900 mb-2">Key Rotation on Member Removal</div>
-                <div className="text-sm text-amber-800">
+              <div className="mt-6 bg-amber-900/30 p-4 rounded-lg border-l-4 border-amber-500">
+                <div className="font-bold text-amber-400 mb-2">Key Rotation on Member Removal</div>
+                <div className="text-sm text-amber-300">
                   When member leaves: Generate new sender key → Distribute to remaining members via encrypted 1-on-1 messages →
                   Old member cannot decrypt new messages (forward secrecy maintained)
                 </div>
@@ -865,16 +866,16 @@ export default function WhatsApp({ onBack }) {
             </div>
 
             {/* Media Upload/Download Flow */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-red-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <span className="text-red-600">📎</span>
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-red-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
+                <span className="text-red-400">📎</span>
                 Media Upload & Download Flow
               </h2>
 
               <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-gradient-to-br from-red-50 to-orange-50 p-6 rounded-xl border-2 border-red-200">
-                  <h3 className="font-bold text-red-900 mb-4 text-lg">Upload Flow</h3>
-                  <div className="space-y-3 text-gray-800">
+                <div className="bg-gradient-to-br from-red-900/30 to-orange-900/30 p-6 rounded-xl border-2 border-red-700">
+                  <h3 className="font-bold text-red-400 mb-4 text-lg">Upload Flow</h3>
+                  <div className="space-y-3 text-gray-300">
                     <div className="flex items-start gap-2">
                       <span className="text-red-600 font-bold">1.</span>
                       <div className="text-sm">User selects media (photo/video/document) in app</div>
@@ -910,9 +911,9 @@ export default function WhatsApp({ onBack }) {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-xl border-2 border-blue-200">
-                  <h3 className="font-bold text-blue-900 mb-4 text-lg">Download Flow</h3>
-                  <div className="space-y-3 text-gray-800">
+                <div className="bg-gradient-to-br from-blue-900/30 to-cyan-900/30 p-6 rounded-xl border-2 border-blue-700">
+                  <h3 className="font-bold text-blue-400 mb-4 text-lg">Download Flow</h3>
+                  <div className="space-y-3 text-gray-300">
                     <div className="flex items-start gap-2">
                       <span className="text-blue-600 font-bold">1.</span>
                       <div className="text-sm">User opens chat → sees media thumbnail placeholder</div>
@@ -950,75 +951,75 @@ export default function WhatsApp({ onBack }) {
               </div>
 
               <div className="mt-6 grid md:grid-cols-3 gap-4">
-                <div className="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
-                  <div className="font-bold text-red-900 mb-2">Security</div>
-                  <div className="text-sm text-red-800">Media never stored unencrypted on server. S3 stores encrypted blobs only.</div>
+                <div className="bg-red-900/30 p-4 rounded-lg border-l-4 border-red-500">
+                  <div className="font-bold text-red-400 mb-2">Security</div>
+                  <div className="text-sm text-red-300">Media never stored unencrypted on server. S3 stores encrypted blobs only.</div>
                 </div>
-                <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
-                  <div className="font-bold text-orange-900 mb-2">Performance</div>
-                  <div className="text-sm text-orange-800">CDN caching reduces latency. Progressive download for large videos.</div>
+                <div className="bg-orange-900/30 p-4 rounded-lg border-l-4 border-orange-500">
+                  <div className="font-bold text-orange-400 mb-2">Performance</div>
+                  <div className="text-sm text-orange-300">CDN caching reduces latency. Progressive download for large videos.</div>
                 </div>
-                <div className="bg-amber-50 p-4 rounded-lg border-l-4 border-amber-500">
-                  <div className="font-bold text-amber-900 mb-2">Compression</div>
-                  <div className="text-sm text-amber-800">Images: 80% JPEG quality. Videos: H.264, 720p max, 1.5Mbps.</div>
+                <div className="bg-amber-900/30 p-4 rounded-lg border-l-4 border-amber-500">
+                  <div className="font-bold text-amber-400 mb-2">Compression</div>
+                  <div className="text-sm text-amber-300">Images: 80% JPEG quality. Videos: H.264, 720p max, 1.5Mbps.</div>
                 </div>
               </div>
             </div>
 
             {/* Connection Lifecycle */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-purple-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-purple-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
                 <span className="text-purple-600">🔌</span>
                 WebSocket Connection Lifecycle
               </h2>
 
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border-2 border-purple-200">
-                <div className="space-y-4 text-gray-800">
+              <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 p-6 rounded-xl border-2 border-purple-700">
+                <div className="space-y-4 text-gray-300">
                   <div className="flex items-start gap-3">
                     <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">1</div>
                     <div>
-                      <strong className="text-purple-900">Connection Establishment:</strong>
-                      <div className="text-gray-700 mt-1">Client sends WebSocket upgrade request → Load balancer routes to Gateway server → Auth Service validates JWT token → Connection established + stored in Redis</div>
+                      <strong className="text-purple-400">Connection Establishment:</strong>
+                      <div className="text-gray-300 mt-1">Client sends WebSocket upgrade request → Load balancer routes to Gateway server → Auth Service validates JWT token → Connection established + stored in Redis</div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">2</div>
                     <div>
-                      <strong className="text-purple-900">Heartbeat Protocol:</strong>
-                      <div className="text-gray-700 mt-1">Client sends ping every 30s → Server responds with pong → Update presence in Redis (TTL: 60s) → If no ping: connection considered dead</div>
+                      <strong className="text-purple-400">Heartbeat Protocol:</strong>
+                      <div className="text-gray-300 mt-1">Client sends ping every 30s → Server responds with pong → Update presence in Redis (TTL: 60s) → If no ping: connection considered dead</div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">3</div>
                     <div>
-                      <strong className="text-purple-900">Message Flow:</strong>
-                      <div className="text-gray-700 mt-1">Bidirectional: Client sends → Server routes to recipient | Server pushes → Client receives → Real-time delivery via persistent connection</div>
+                      <strong className="text-purple-400">Message Flow:</strong>
+                      <div className="text-gray-300 mt-1">Bidirectional: Client sends → Server routes to recipient | Server pushes → Client receives → Real-time delivery via persistent connection</div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">4</div>
                     <div>
-                      <strong className="text-purple-900">Disconnection:</strong>
-                      <div className="text-gray-700 mt-1">Network loss or app close → Remove from Redis presence → Mark offline → Queue new messages → Send push notifications</div>
+                      <strong className="text-purple-400">Disconnection:</strong>
+                      <div className="text-gray-300 mt-1">Network loss or app close → Remove from Redis presence → Mark offline → Queue new messages → Send push notifications</div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">5</div>
                     <div>
-                      <strong className="text-purple-900">Reconnection:</strong>
-                      <div className="text-gray-700 mt-1">Client reconnects → Fetch all queued messages (pagination) → Mark as delivered → Update presence to online</div>
+                      <strong className="text-purple-400">Reconnection:</strong>
+                      <div className="text-gray-300 mt-1">Client reconnects → Fetch all queued messages (pagination) → Mark as delivered → Update presence to online</div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
-                <div className="font-bold text-purple-900 mb-2">Scalability</div>
-                <div className="text-sm text-purple-800">
+              <div className="mt-6 bg-purple-900/30 p-4 rounded-lg border-l-4 border-purple-500">
+                <div className="font-bold text-purple-400 mb-2">Scalability</div>
+                <div className="text-sm text-purple-300">
                   Each Gateway server handles ~50,000 concurrent WebSocket connections. 300M concurrent users require ~6,000 servers.
                   Use consistent hashing to route users to same server for session affinity.
                 </div>
@@ -1030,57 +1031,57 @@ export default function WhatsApp({ onBack }) {
         {activeTab === 'scalability' && (
           <div className="space-y-8">
             {/* Database Sharding */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-blue-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-blue-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
                 <span className="text-blue-600">💾</span>
                 Database Sharding Strategy
               </h2>
 
               <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border-2 border-blue-200">
-                  <h3 className="font-bold text-blue-900 mb-4 text-lg">Cassandra (Messages)</h3>
-                  <div className="space-y-3 text-gray-800">
+                <div className="bg-gradient-to-br from-blue-900/30 to-indigo-900/30 p-6 rounded-xl border-2 border-blue-700">
+                  <h3 className="font-bold text-blue-400 mb-4 text-lg">Cassandra (Messages)</h3>
+                  <div className="space-y-3 text-gray-300">
                     <div className="text-sm">
-                      <strong className="text-blue-900">Partition Key:</strong> user_id (ensures all user's messages on same node)
+                      <strong className="text-blue-400">Partition Key:</strong> user_id (ensures all user's messages on same node)
                     </div>
                     <div className="text-sm">
-                      <strong className="text-blue-900">Clustering Key:</strong> timestamp (messages sorted by time)
+                      <strong className="text-blue-400">Clustering Key:</strong> timestamp (messages sorted by time)
                     </div>
                     <div className="text-sm">
-                      <strong className="text-blue-900">Replication:</strong> RF=3 (3 copies across datacenters)
+                      <strong className="text-blue-400">Replication:</strong> RF=3 (3 copies across datacenters)
                     </div>
                     <div className="text-sm">
-                      <strong className="text-blue-900">Consistency:</strong> QUORUM (balance consistency + availability)
+                      <strong className="text-blue-400">Consistency:</strong> QUORUM (balance consistency + availability)
                     </div>
                     <div className="text-sm">
-                      <strong className="text-blue-900">Shards:</strong> 1000+ nodes for horizontal scaling
+                      <strong className="text-blue-400">Shards:</strong> 1000+ nodes for horizontal scaling
                     </div>
                     <div className="text-sm">
-                      <strong className="text-blue-900">TTL:</strong> Messages auto-deleted after 30 days (configurable)
+                      <strong className="text-blue-400">TTL:</strong> Messages auto-deleted after 30 days (configurable)
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border-2 border-green-200">
-                  <h3 className="font-bold text-green-900 mb-4 text-lg">PostgreSQL (Users & Groups)</h3>
-                  <div className="space-y-3 text-gray-800">
+                <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 p-6 rounded-xl border-2 border-green-700">
+                  <h3 className="font-bold text-green-400 mb-4 text-lg">PostgreSQL (Users & Groups)</h3>
+                  <div className="space-y-3 text-gray-300">
                     <div className="text-sm">
-                      <strong className="text-green-900">Sharding:</strong> Hash-based on user_id / group_id
+                      <strong className="text-green-400">Sharding:</strong> Hash-based on user_id / group_id
                     </div>
                     <div className="text-sm">
-                      <strong className="text-green-900">Shards:</strong> 128 shards (grows with user base)
+                      <strong className="text-green-400">Shards:</strong> 128 shards (grows with user base)
                     </div>
                     <div className="text-sm">
-                      <strong className="text-green-900">Read Replicas:</strong> 5 replicas per master for read scaling
+                      <strong className="text-green-400">Read Replicas:</strong> 5 replicas per master for read scaling
                     </div>
                     <div className="text-sm">
-                      <strong className="text-green-900">Connection Pooling:</strong> PgBouncer for efficient connections
+                      <strong className="text-green-400">Connection Pooling:</strong> PgBouncer for efficient connections
                     </div>
                     <div className="text-sm">
-                      <strong className="text-green-900">Indexes:</strong> B-tree on phone_number, username for fast lookups
+                      <strong className="text-green-400">Indexes:</strong> B-tree on phone_number, username for fast lookups
                     </div>
                     <div className="text-sm">
-                      <strong className="text-green-900">Backup:</strong> Continuous archiving with PITR (Point-in-Time Recovery)
+                      <strong className="text-green-400">Backup:</strong> Continuous archiving with PITR (Point-in-Time Recovery)
                     </div>
                   </div>
                 </div>
@@ -1088,15 +1089,15 @@ export default function WhatsApp({ onBack }) {
 
               <div className="mt-6 grid md:grid-cols-2 gap-4">
                 <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-                  <div className="font-bold text-blue-900 mb-2">S3 Media Storage</div>
-                  <div className="text-sm text-blue-800">
+                  <div className="font-bold text-blue-400 mb-2">S3 Media Storage</div>
+                  <div className="text-sm text-blue-300">
                     Partition by: /media/&#123;year&#125;/&#123;month&#125;/&#123;day&#125;/&#123;user_id&#125;/&#123;file_id&#125;
                     <br/>Lifecycle: Move to Glacier after 90 days for cost savings
                   </div>
                 </div>
-                <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
-                  <div className="font-bold text-green-900 mb-2">Data Partitioning Benefits</div>
-                  <div className="text-sm text-green-800">
+                <div className="bg-green-900/30 p-4 rounded-lg border-l-4 border-green-500">
+                  <div className="font-bold text-green-400 mb-2">Data Partitioning Benefits</div>
+                  <div className="text-sm text-green-300">
                     Hot shard mitigation, independent scaling, fault isolation, faster queries
                   </div>
                 </div>
@@ -1104,18 +1105,18 @@ export default function WhatsApp({ onBack }) {
             </div>
 
             {/* Caching Strategy */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-red-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-red-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
                 <span className="text-red-600">⚡</span>
                 Multi-Layer Caching
               </h2>
 
               <div className="space-y-4">
-                <div className="bg-gradient-to-br from-red-50 to-orange-50 p-6 rounded-xl border-2 border-red-200">
-                  <h3 className="font-bold text-red-900 mb-4 text-lg">Redis Cluster Architecture</h3>
+                <div className="bg-gradient-to-br from-red-900/30 to-orange-900/30 p-6 rounded-xl border-2 border-red-700">
+                  <h3 className="font-bold text-red-400 mb-4 text-lg">Redis Cluster Architecture</h3>
                   <div className="grid md:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <div className="font-bold text-orange-900">Presence Cache</div>
+                      <div className="font-bold text-orange-400">Presence Cache</div>
                       <div className="text-sm text-gray-700">
                         • Online/offline status<br/>
                         • Last seen timestamps<br/>
@@ -1125,7 +1126,7 @@ export default function WhatsApp({ onBack }) {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <div className="font-bold text-orange-900">Session Cache</div>
+                      <div className="font-bold text-orange-400">Session Cache</div>
                       <div className="text-sm text-gray-700">
                         • User sessions (JWT)<br/>
                         • WebSocket connections<br/>
@@ -1135,7 +1136,7 @@ export default function WhatsApp({ onBack }) {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <div className="font-bold text-orange-900">Message Cache</div>
+                      <div className="font-bold text-orange-400">Message Cache</div>
                       <div className="text-sm text-gray-700">
                         • Recent messages (last hour)<br/>
                         • Group member lists<br/>
@@ -1149,14 +1150,14 @@ export default function WhatsApp({ onBack }) {
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
-                    <div className="font-bold text-orange-900 mb-2">Redis Configuration</div>
-                    <div className="text-sm text-orange-800">
+                    <div className="font-bold text-orange-400 mb-2">Redis Configuration</div>
+                    <div className="text-sm text-orange-300">
                       Cluster mode: 100 shards | Replication: Master + 2 replicas | Eviction: LRU policy | Persistence: RDB snapshots
                     </div>
                   </div>
                   <div className="bg-amber-50 p-4 rounded-lg border-l-4 border-amber-500">
-                    <div className="font-bold text-amber-900 mb-2">CDN for Media</div>
-                    <div className="text-sm text-amber-800">
+                    <div className="font-bold text-amber-400 mb-2">CDN for Media</div>
+                    <div className="text-sm text-amber-300">
                       CloudFront with 200+ edge locations | Cache images/videos/documents | TTL: 7 days | 95% cache hit rate
                     </div>
                   </div>
@@ -1165,45 +1166,45 @@ export default function WhatsApp({ onBack }) {
             </div>
 
             {/* Load Balancing & Auto-scaling */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-purple-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-purple-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
                 <span className="text-purple-600">⚖️</span>
                 Load Balancing & Auto-scaling
               </h2>
 
               <div className="space-y-6">
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border-2 border-purple-200">
-                  <h3 className="font-bold text-purple-900 mb-4 text-lg">Load Balancer Hierarchy</h3>
-                  <div className="space-y-3 text-gray-800">
+                <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 p-6 rounded-xl border-2 border-purple-700">
+                  <h3 className="font-bold text-purple-400 mb-4 text-lg">Load Balancer Hierarchy</h3>
+                  <div className="space-y-3 text-gray-300">
                     <div className="flex items-start gap-3">
                       <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">1</div>
                       <div>
-                        <strong className="text-purple-900">DNS Load Balancing (Route 53):</strong>
-                        <div className="text-sm text-gray-700 mt-1">Geo-routing to nearest datacenter | Latency-based routing | Health checks with failover</div>
+                        <strong className="text-purple-400">DNS Load Balancing (Route 53):</strong>
+                        <div className="text-sm text-gray-300 mt-1">Geo-routing to nearest datacenter | Latency-based routing | Health checks with failover</div>
                       </div>
                     </div>
 
                     <div className="flex items-start gap-3">
                       <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">2</div>
                       <div>
-                        <strong className="text-purple-900">Application Load Balancer (ALB):</strong>
-                        <div className="text-sm text-gray-700 mt-1">Distribute across WebSocket Gateway servers | Sticky sessions with cookies | HTTP/2 support</div>
+                        <strong className="text-purple-400">Application Load Balancer (ALB):</strong>
+                        <div className="text-sm text-gray-300 mt-1">Distribute across WebSocket Gateway servers | Sticky sessions with cookies | HTTP/2 support</div>
                       </div>
                     </div>
 
                     <div className="flex items-start gap-3">
                       <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">3</div>
                       <div>
-                        <strong className="text-purple-900">Consistent Hashing:</strong>
-                        <div className="text-sm text-gray-700 mt-1">Route user to same WebSocket server for session affinity | Virtual nodes for better distribution</div>
+                        <strong className="text-purple-400">Consistent Hashing:</strong>
+                        <div className="text-sm text-gray-300 mt-1">Route user to same WebSocket server for session affinity | Virtual nodes for better distribution</div>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
-                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border-2 border-green-200">
-                    <h3 className="font-bold text-green-900 mb-4">Auto-scaling Policies</h3>
+                  <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 p-6 rounded-xl border-2 border-green-700">
+                    <h3 className="font-bold text-green-400 mb-4">Auto-scaling Policies</h3>
                     <div className="space-y-2 text-sm text-gray-700">
                       <div><strong>WebSocket Gateways:</strong> Scale on CPU &gt; 70% or connection count &gt; 45K</div>
                       <div><strong>Message Service:</strong> Scale on message queue depth &gt; 10K</div>
@@ -1213,8 +1214,8 @@ export default function WhatsApp({ onBack }) {
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border-2 border-blue-200">
-                    <h3 className="font-bold text-blue-900 mb-4">Traffic Patterns</h3>
+                  <div className="bg-gradient-to-br from-blue-900/30 to-indigo-900/30 p-6 rounded-xl border-2 border-blue-700">
+                    <h3 className="font-bold text-blue-400 mb-4">Traffic Patterns</h3>
                     <div className="space-y-2 text-sm text-gray-700">
                       <div><strong>Peak Hours:</strong> 6-10 PM local time (4x normal traffic)</div>
                       <div><strong>Geographic Distribution:</strong> Follow the sun pattern</div>
@@ -1228,8 +1229,8 @@ export default function WhatsApp({ onBack }) {
             </div>
 
             {/* WebSocket Scaling */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-cyan-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-cyan-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
                 <span className="text-cyan-600">🔌</span>
                 WebSocket Connection Management
               </h2>
@@ -1237,7 +1238,7 @@ export default function WhatsApp({ onBack }) {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="bg-gradient-to-br from-cyan-50 to-blue-50 p-6 rounded-xl border-2 border-cyan-200">
                   <h3 className="font-bold text-cyan-900 mb-4 text-lg">Connection Distribution</h3>
-                  <div className="space-y-3 text-gray-800">
+                  <div className="space-y-3 text-gray-300">
                     <div className="text-sm">
                       <strong>Concurrent Connections:</strong> 300 million active users
                     </div>
@@ -1258,7 +1259,7 @@ export default function WhatsApp({ onBack }) {
 
                 <div className="bg-gradient-to-br from-teal-50 to-green-50 p-6 rounded-xl border-2 border-teal-200">
                   <h3 className="font-bold text-teal-900 mb-4 text-lg">Connection Handling</h3>
-                  <div className="space-y-3 text-gray-800">
+                  <div className="space-y-3 text-gray-300">
                     <div className="text-sm">
                       <strong>Sticky Sessions:</strong> User always routed to same server
                     </div>
@@ -1278,9 +1279,9 @@ export default function WhatsApp({ onBack }) {
                 </div>
               </div>
 
-              <div className="mt-6 bg-cyan-50 p-4 rounded-lg border-l-4 border-cyan-500">
-                <div className="font-bold text-cyan-900 mb-2">Message Routing</div>
-                <div className="text-sm text-cyan-800">
+              <div className="mt-6 bg-cyan-900/30 p-4 rounded-lg border-l-4 border-cyan-500">
+                <div className="font-bold text-cyan-400 mb-2">Message Routing</div>
+                <div className="text-sm text-cyan-300">
                   When user sends message: WebSocket Gateway → Message Service → Query Redis for recipient's server ID →
                   Route to that server → Deliver via WebSocket. Cross-server communication via internal message bus (RabbitMQ).
                 </div>
@@ -1288,23 +1289,23 @@ export default function WhatsApp({ onBack }) {
             </div>
 
             {/* Performance Optimizations */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-green-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-green-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
                 <span className="text-green-600">🚀</span>
                 Performance Optimizations
               </h2>
 
               <div className="grid md:grid-cols-3 gap-4">
-                <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
-                  <div className="font-bold text-green-900 mb-2">Message Batching</div>
-                  <div className="text-sm text-green-800">
+                <div className="bg-green-900/30 p-4 rounded-lg border-l-4 border-green-500">
+                  <div className="font-bold text-green-400 mb-2">Message Batching</div>
+                  <div className="text-sm text-green-300">
                     Batch delivery receipts (sent/delivered/read) to reduce network calls. Send batch every 2s or 50 receipts.
                   </div>
                 </div>
 
-                <div className="bg-emerald-50 p-4 rounded-lg border-l-4 border-emerald-500">
-                  <div className="font-bold text-emerald-900 mb-2">Connection Pooling</div>
-                  <div className="text-sm text-emerald-800">
+                <div className="bg-emerald-900/30 p-4 rounded-lg border-l-4 border-emerald-500">
+                  <div className="font-bold text-emerald-400 mb-2">Connection Pooling</div>
+                  <div className="text-sm text-emerald-300">
                     Database connection pools (100 per service). Redis connection multiplexing. Reuse HTTP/2 connections.
                   </div>
                 </div>
@@ -1317,8 +1318,8 @@ export default function WhatsApp({ onBack }) {
                 </div>
 
                 <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-                  <div className="font-bold text-blue-900 mb-2">Lazy Loading</div>
-                  <div className="text-sm text-blue-800">
+                  <div className="font-bold text-blue-400 mb-2">Lazy Loading</div>
+                  <div className="text-sm text-blue-300">
                     Load chat history on demand (50 messages at a time). Download media only when user scrolls to it.
                   </div>
                 </div>
@@ -1331,8 +1332,8 @@ export default function WhatsApp({ onBack }) {
                 </div>
 
                 <div className="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
-                  <div className="font-bold text-purple-900 mb-2">Database Optimization</div>
-                  <div className="text-sm text-purple-800">
+                  <div className="font-bold text-purple-400 mb-2">Database Optimization</div>
+                  <div className="text-sm text-purple-300">
                     Denormalize for read performance. Materialized views for analytics. Partition pruning for faster queries.
                   </div>
                 </div>
@@ -1344,15 +1345,15 @@ export default function WhatsApp({ onBack }) {
         {activeTab === 'tradeoffs' && (
           <div className="space-y-8">
             {/* Technology Stack */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-purple-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-purple-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
                 <span className="text-purple-600">🛠️</span>
                 Technology Stack Decisions
               </h2>
 
               <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border-2 border-purple-200">
-                  <h3 className="font-bold text-purple-900 mb-4 text-lg">Backend Technologies</h3>
+                <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 p-6 rounded-xl border-2 border-purple-700">
+                  <h3 className="font-bold text-purple-400 mb-4 text-lg">Backend Technologies</h3>
                   <div className="space-y-3">
                     <div>
                       <div className="font-bold text-gray-900 text-sm">Programming Languages</div>
@@ -1377,8 +1378,8 @@ export default function WhatsApp({ onBack }) {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border-2 border-blue-200">
-                  <h3 className="font-bold text-blue-900 mb-4 text-lg">Infrastructure</h3>
+                <div className="bg-gradient-to-br from-blue-900/30 to-indigo-900/30 p-6 rounded-xl border-2 border-blue-700">
+                  <h3 className="font-bold text-blue-400 mb-4 text-lg">Infrastructure</h3>
                   <div className="space-y-3">
                     <div>
                       <div className="font-bold text-gray-900 text-sm">Cloud Provider</div>
@@ -1404,8 +1405,8 @@ export default function WhatsApp({ onBack }) {
             </div>
 
             {/* Encryption Trade-off */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-green-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-green-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
                 <span className="text-green-600">🔐</span>
                 Trade-off 1: End-to-End Encryption Implementation
               </h2>
@@ -1413,7 +1414,7 @@ export default function WhatsApp({ onBack }) {
               <div className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="bg-red-50 p-6 rounded-xl border-2 border-red-200">
-                    <h3 className="font-bold text-red-900 mb-3 text-lg">❌ Server-Side Encryption</h3>
+                    <h3 className="font-bold text-red-400 mb-3 text-lg">❌ Server-Side Encryption</h3>
                     <div className="space-y-2 text-sm text-gray-700">
                       <div><strong>Pros:</strong></div>
                       <div>• Easier to implement message search/indexing</div>
@@ -1429,7 +1430,7 @@ export default function WhatsApp({ onBack }) {
                   </div>
 
                   <div className="bg-green-50 p-6 rounded-xl border-2 border-green-200">
-                    <h3 className="font-bold text-green-900 mb-3 text-lg">✅ End-to-End Encryption (Signal Protocol)</h3>
+                    <h3 className="font-bold text-green-400 mb-3 text-lg">✅ End-to-End Encryption (Signal Protocol)</h3>
                     <div className="space-y-2 text-sm text-gray-700">
                       <div><strong>Pros:</strong></div>
                       <div>• Maximum privacy - only participants can read</div>
@@ -1445,9 +1446,9 @@ export default function WhatsApp({ onBack }) {
                   </div>
                 </div>
 
-                <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
-                  <div className="font-bold text-green-900 mb-2">Decision: End-to-End Encryption ✅</div>
-                  <div className="text-sm text-green-800">
+                <div className="bg-green-900/30 p-4 rounded-lg border-l-4 border-green-500">
+                  <div className="font-bold text-green-400 mb-2">Decision: End-to-End Encryption ✅</div>
+                  <div className="text-sm text-green-300">
                     WhatsApp chose E2E encryption because <strong>user privacy is paramount</strong>. The drawbacks (no server search, complex sync) are acceptable trade-offs.
                     Implemented using <strong>Signal Protocol</strong> with Double Ratchet Algorithm for PFS. Each message encrypted with unique ephemeral key.
                   </div>
@@ -1456,8 +1457,8 @@ export default function WhatsApp({ onBack }) {
             </div>
 
             {/* Database Trade-off */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-blue-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-blue-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
                 <span className="text-blue-600">💾</span>
                 Trade-off 2: SQL vs NoSQL for Messages
               </h2>
@@ -1465,7 +1466,7 @@ export default function WhatsApp({ onBack }) {
               <div className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="bg-red-50 p-6 rounded-xl border-2 border-red-200">
-                    <h3 className="font-bold text-red-900 mb-3 text-lg">❌ PostgreSQL (SQL)</h3>
+                    <h3 className="font-bold text-red-400 mb-3 text-lg">❌ PostgreSQL (SQL)</h3>
                     <div className="space-y-2 text-sm text-gray-700">
                       <div><strong>Pros:</strong></div>
                       <div>• ACID transactions</div>
@@ -1481,7 +1482,7 @@ export default function WhatsApp({ onBack }) {
                   </div>
 
                   <div className="bg-blue-50 p-6 rounded-xl border-2 border-blue-200">
-                    <h3 className="font-bold text-blue-900 mb-3 text-lg">✅ Cassandra (NoSQL)</h3>
+                    <h3 className="font-bold text-blue-400 mb-3 text-lg">✅ Cassandra (NoSQL)</h3>
                     <div className="space-y-2 text-sm text-gray-700">
                       <div><strong>Pros:</strong></div>
                       <div>• Excellent write performance (1.2M writes/sec)</div>
@@ -1498,8 +1499,8 @@ export default function WhatsApp({ onBack }) {
                 </div>
 
                 <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-                  <div className="font-bold text-blue-900 mb-2">Decision: Cassandra for Messages ✅</div>
-                  <div className="text-sm text-blue-800">
+                  <div className="font-bold text-blue-400 mb-2">Decision: Cassandra for Messages ✅</div>
+                  <div className="text-sm text-blue-300">
                     Messages are <strong>write-heavy</strong> (100B messages/day) and don't require complex queries. Cassandra's horizontal scaling and write performance make it ideal.
                     Use <strong>PostgreSQL for users/groups</strong> where ACID is important. Partition key: user_id. Clustering key: timestamp.
                   </div>
@@ -1508,8 +1509,8 @@ export default function WhatsApp({ onBack }) {
             </div>
 
             {/* Push vs Pull Trade-off */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
                 <span className="text-orange-600">🔄</span>
                 Trade-off 3: Push vs Pull for Message Delivery
               </h2>
@@ -1517,7 +1518,7 @@ export default function WhatsApp({ onBack }) {
               <div className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="bg-red-50 p-6 rounded-xl border-2 border-red-200">
-                    <h3 className="font-bold text-red-900 mb-3 text-lg">❌ Pull (Client Polling)</h3>
+                    <h3 className="font-bold text-red-400 mb-3 text-lg">❌ Pull (Client Polling)</h3>
                     <div className="space-y-2 text-sm text-gray-700">
                       <div><strong>Pros:</strong></div>
                       <div>• Simpler server architecture</div>
@@ -1533,7 +1534,7 @@ export default function WhatsApp({ onBack }) {
                   </div>
 
                   <div className="bg-orange-50 p-6 rounded-xl border-2 border-orange-200">
-                    <h3 className="font-bold text-orange-900 mb-3 text-lg">✅ Push (WebSocket)</h3>
+                    <h3 className="font-bold text-orange-400 mb-3 text-lg">✅ Push (WebSocket)</h3>
                     <div className="space-y-2 text-sm text-gray-700">
                       <div><strong>Pros:</strong></div>
                       <div>• Real-time delivery (&lt;100ms)</div>
@@ -1549,9 +1550,9 @@ export default function WhatsApp({ onBack }) {
                   </div>
                 </div>
 
-                <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
-                  <div className="font-bold text-orange-900 mb-2">Decision: Push via WebSocket ✅</div>
-                  <div className="text-sm text-orange-800">
+                <div className="bg-orange-900/30 p-4 rounded-lg border-l-4 border-orange-500">
+                  <div className="font-bold text-orange-400 mb-2">Decision: Push via WebSocket ✅</div>
+                  <div className="text-sm text-orange-300">
                     Messaging requires <strong>real-time delivery</strong>. WebSocket provides instant push with low latency.
                     Use <strong>FCM/APNS push notifications</strong> as fallback for offline users. Maintain 300M concurrent WebSocket connections across 6,000 servers.
                   </div>
@@ -1560,8 +1561,8 @@ export default function WhatsApp({ onBack }) {
             </div>
 
             {/* Media Storage Trade-off */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-cyan-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-cyan-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
                 <span className="text-cyan-600">📁</span>
                 Trade-off 4: Media Storage (S3 vs Database)
               </h2>
@@ -1569,7 +1570,7 @@ export default function WhatsApp({ onBack }) {
               <div className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="bg-red-50 p-6 rounded-xl border-2 border-red-200">
-                    <h3 className="font-bold text-red-900 mb-3 text-lg">❌ Store in Database (BLOB)</h3>
+                    <h3 className="font-bold text-red-400 mb-3 text-lg">❌ Store in Database (BLOB)</h3>
                     <div className="space-y-2 text-sm text-gray-700">
                       <div><strong>Pros:</strong></div>
                       <div>• Simpler architecture (single storage system)</div>
@@ -1603,7 +1604,7 @@ export default function WhatsApp({ onBack }) {
 
                 <div className="bg-cyan-50 p-4 rounded-lg border-l-4 border-cyan-500">
                   <div className="font-bold text-cyan-900 mb-2">Decision: S3 + CDN ✅</div>
-                  <div className="text-sm text-cyan-800">
+                  <div className="text-sm text-cyan-300">
                     500 TB/day media upload requires <strong>cheap, scalable object storage</strong>. S3 cost: ~$150K/month vs millions in database storage.
                     Use <strong>CloudFront CDN</strong> for fast global delivery (95% cache hit rate). Store metadata in database, files in S3.
                   </div>
@@ -1612,8 +1613,8 @@ export default function WhatsApp({ onBack }) {
             </div>
 
             {/* Consistency Trade-off */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-pink-500">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-pink-500">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
                 <span className="text-pink-600">⚖️</span>
                 Trade-off 5: Strong vs Eventual Consistency
               </h2>
@@ -1635,7 +1636,7 @@ export default function WhatsApp({ onBack }) {
                   </div>
 
                   <div className="bg-purple-50 p-6 rounded-xl border-2 border-purple-200">
-                    <h3 className="font-bold text-purple-900 mb-3 text-lg">Tunable Consistency (QUORUM)</h3>
+                    <h3 className="font-bold text-purple-400 mb-3 text-lg">Tunable Consistency (QUORUM)</h3>
                     <div className="space-y-2 text-sm text-gray-700">
                       <div><strong>Pros:</strong></div>
                       <div>• Balance consistency + availability</div>
@@ -1650,8 +1651,8 @@ export default function WhatsApp({ onBack }) {
                 </div>
 
                 <div className="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
-                  <div className="font-bold text-purple-900 mb-2">Decision: QUORUM Consistency ✅</div>
-                  <div className="text-sm text-purple-800">
+                  <div className="font-bold text-purple-400 mb-2">Decision: QUORUM Consistency ✅</div>
+                  <div className="text-sm text-purple-300">
                     Use <strong>QUORUM</strong> (majority of replicas) for Cassandra. With RF=3, need 2/3 nodes to confirm.
                     Provides <strong>balance</strong>: tolerate 1 node failure while maintaining consistency. Message ordering guaranteed per conversation.
                     For critical operations (user registration), use stronger consistency.
@@ -1662,7 +1663,7 @@ export default function WhatsApp({ onBack }) {
 
             {/* Summary */}
             <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl shadow-lg p-8 border-2 border-green-300">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
                 <span className="text-green-600">📊</span>
                 Summary of Key Decisions
               </h2>
@@ -1670,29 +1671,29 @@ export default function WhatsApp({ onBack }) {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <div className="font-bold text-green-900 mb-1">✅ End-to-End Encryption</div>
+                    <div className="font-bold text-green-400 mb-1">✅ End-to-End Encryption</div>
                     <div className="text-sm text-gray-700">Privacy over convenience</div>
                   </div>
                   <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <div className="font-bold text-green-900 mb-1">✅ Cassandra for Messages</div>
+                    <div className="font-bold text-green-400 mb-1">✅ Cassandra for Messages</div>
                     <div className="text-sm text-gray-700">Write performance + horizontal scaling</div>
                   </div>
                   <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <div className="font-bold text-green-900 mb-1">✅ WebSocket Push</div>
+                    <div className="font-bold text-green-400 mb-1">✅ WebSocket Push</div>
                     <div className="text-sm text-gray-700">Real-time delivery &lt; 100ms</div>
                   </div>
                 </div>
                 <div className="space-y-4">
                   <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <div className="font-bold text-green-900 mb-1">✅ S3 + CDN</div>
+                    <div className="font-bold text-green-400 mb-1">✅ S3 + CDN</div>
                     <div className="text-sm text-gray-700">Cost-effective media at scale</div>
                   </div>
                   <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <div className="font-bold text-green-900 mb-1">✅ QUORUM Consistency</div>
+                    <div className="font-bold text-green-400 mb-1">✅ QUORUM Consistency</div>
                     <div className="text-sm text-gray-700">Balance availability + consistency</div>
                   </div>
                   <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <div className="font-bold text-green-900 mb-1">✅ Multi-cloud</div>
+                    <div className="font-bold text-green-400 mb-1">✅ Multi-cloud</div>
                     <div className="text-sm text-gray-700">Avoid vendor lock-in + resilience</div>
                   </div>
                 </div>

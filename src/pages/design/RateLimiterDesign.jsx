@@ -1,10 +1,11 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function RateLimiterDesign({ onBack }) {
+function RateLimiterDesign({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview')
 
   return (
-    <div style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#f3e8ff', minHeight: '100vh' }}>
+    <div style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
       {/* Header */}
       <div style={{
         display: 'flex',
@@ -30,7 +31,7 @@ function RateLimiterDesign({ onBack }) {
         <h1 style={{
           fontSize: '2rem',
           fontWeight: '800',
-          color: '#1f2937',
+          color: '#ffffff',
           margin: 0
         }}>
           ⏱️ Rate Limiter System Design
@@ -38,16 +39,18 @@ function RateLimiterDesign({ onBack }) {
         <div style={{ width: '140px' }}></div>
       </div>
 
+      <Breadcrumb breadcrumb={breadcrumb} />
+
       {/* Tabs */}
       <div style={{
         display: 'flex',
         gap: '0.5rem',
         marginBottom: '1.5rem',
         flexWrap: 'wrap',
-        backgroundColor: 'white',
+        backgroundColor: '#1f2937',
         padding: '0.75rem',
         borderRadius: '10px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
       }}>
         {[
           { id: 'overview', label: 'Overview', icon: '📋' },
@@ -64,8 +67,8 @@ function RateLimiterDesign({ onBack }) {
               padding: '0.6rem 1.25rem',
               fontSize: '0.9rem',
               fontWeight: '600',
-              backgroundColor: activeTab === tab.id ? '#8b5cf6' : '#f3f4f6',
-              color: activeTab === tab.id ? 'white' : '#4b5563',
+              backgroundColor: activeTab === tab.id ? '#8b5cf6' : '#374151',
+              color: activeTab === tab.id ? 'white' : '#d1d5db',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
@@ -79,18 +82,18 @@ function RateLimiterDesign({ onBack }) {
 
       {/* Content */}
       <div style={{
-        backgroundColor: 'white',
+        backgroundColor: '#1f2937',
         padding: '2rem',
         borderRadius: '10px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
         minHeight: '500px'
       }}>
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <div className="space-y-8">
             <div>
-              <h2 className="text-3xl font-bold mb-4 text-gray-800">System Overview</h2>
-              <p className="text-gray-600 leading-relaxed">
+              <h2 className="text-3xl font-bold mb-4 text-white">System Overview</h2>
+              <p className="text-gray-300 leading-relaxed">
                 Design a distributed rate limiting system that protects APIs from abuse, prevents DDoS attacks,
                 ensures fair resource allocation, and maintains system stability. Implement using token bucket
                 or sliding window algorithms with Redis for distributed coordination.
@@ -98,43 +101,43 @@ function RateLimiterDesign({ onBack }) {
             </div>
 
             {/* Scale Metrics */}
-            <div className="bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl p-6 border-2 border-purple-200">
-              <h3 className="text-2xl font-bold mb-4 text-purple-800">📊 Scale & Metrics</h3>
+            <div className="bg-gradient-to-br from-purple-900/30 to-purple-900/30 rounded-xl p-6 border-2 border-purple-700">
+              <h3 className="text-2xl font-bold mb-4 text-purple-400">📊 Scale & Metrics</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="bg-white rounded-lg p-4 shadow-md">
-                  <div className="text-3xl font-bold text-purple-600 mb-1">100K</div>
-                  <div className="text-sm text-gray-600">Rate limit checks per second</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl font-bold text-purple-400 mb-1">100K</div>
+                  <div className="text-sm text-gray-300">Rate limit checks per second</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow-md">
-                  <div className="text-3xl font-bold text-purple-600 mb-1">{'<'} 1ms</div>
-                  <div className="text-sm text-gray-600">Rate limit check latency (p95)</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl font-bold text-purple-400 mb-1">{'<'} 1ms</div>
+                  <div className="text-sm text-gray-300">Rate limit check latency (p95)</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow-md">
-                  <div className="text-3xl font-bold text-purple-600 mb-1">1M+</div>
-                  <div className="text-sm text-gray-600">Unique rate limit keys</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl font-bold text-purple-400 mb-1">1M+</div>
+                  <div className="text-sm text-gray-300">Unique rate limit keys</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow-md">
-                  <div className="text-3xl font-bold text-purple-600 mb-1">99.99%</div>
-                  <div className="text-sm text-gray-600">Accuracy</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl font-bold text-purple-400 mb-1">99.99%</div>
+                  <div className="text-sm text-gray-300">Accuracy</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow-md">
-                  <div className="text-3xl font-bold text-purple-600 mb-1">99.9%</div>
-                  <div className="text-sm text-gray-600">Availability</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl font-bold text-purple-400 mb-1">99.9%</div>
+                  <div className="text-sm text-gray-300">Availability</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow-md">
-                  <div className="text-3xl font-bold text-purple-600 mb-1">10 regions</div>
-                  <div className="text-sm text-gray-600">Global deployment</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl font-bold text-purple-400 mb-1">10 regions</div>
+                  <div className="text-sm text-gray-300">Global deployment</div>
                 </div>
               </div>
             </div>
 
             {/* Use Cases */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border-2 border-blue-200">
-              <h3 className="text-2xl font-bold mb-4 text-blue-800">🎯 Common Use Cases</h3>
+            <div className="bg-gradient-to-br from-blue-900/30 to-blue-900/30 rounded-xl p-6 border-2 border-blue-700">
+              <h3 className="text-2xl font-bold mb-4 text-blue-400">🎯 Common Use Cases</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-bold text-blue-700 mb-2">API Protection:</h4>
-                  <ul className="space-y-2 text-gray-700">
+                  <h4 className="font-bold text-blue-400 mb-2">API Protection:</h4>
+                  <ul className="space-y-2 text-gray-300">
                     <li>✓ Limit requests per user/IP</li>
                     <li>✓ Prevent DDoS attacks</li>
                     <li>✓ Throttle expensive operations</li>
@@ -142,8 +145,8 @@ function RateLimiterDesign({ onBack }) {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-bold text-blue-700 mb-2">Resource Protection:</h4>
-                  <ul className="space-y-2 text-gray-700">
+                  <h4 className="font-bold text-blue-400 mb-2">Resource Protection:</h4>
+                  <ul className="space-y-2 text-gray-300">
                     <li>✓ Database query limiting</li>
                     <li>✓ Email/SMS quotas</li>
                     <li>✓ Login attempt throttling</li>
@@ -154,12 +157,12 @@ function RateLimiterDesign({ onBack }) {
             </div>
 
             {/* Requirements */}
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-200">
-              <h3 className="text-2xl font-bold mb-4 text-green-800">⚙️ Requirements</h3>
+            <div className="bg-gradient-to-br from-green-900/30 to-green-900/30 rounded-xl p-6 border-2 border-green-700">
+              <h3 className="text-2xl font-bold mb-4 text-green-400">⚙️ Requirements</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-bold text-green-700 mb-2">Functional:</h4>
-                  <ul className="space-y-2 text-gray-700">
+                  <h4 className="font-bold text-green-400 mb-2">Functional:</h4>
+                  <ul className="space-y-2 text-gray-300">
                     <li>✓ Allow N requests per time window</li>
                     <li>✓ Configurable time windows (second, minute, hour, day)</li>
                     <li>✓ Multiple limiting strategies</li>
@@ -167,8 +170,8 @@ function RateLimiterDesign({ onBack }) {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-bold text-green-700 mb-2">Non-Functional:</h4>
-                  <ul className="space-y-2 text-gray-700">
+                  <h4 className="font-bold text-green-400 mb-2">Non-Functional:</h4>
+                  <ul className="space-y-2 text-gray-300">
                     <li>✓ Low latency ({'<'}1ms)</li>
                     <li>✓ High throughput (100K+ checks/sec)</li>
                     <li>✓ Fault tolerant (graceful degradation)</li>
@@ -184,49 +187,49 @@ function RateLimiterDesign({ onBack }) {
         {activeTab === 'api' && (
           <div className="space-y-6">
             {/* API Overview */}
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border-2 border-purple-200">
-              <h2 className="text-2xl font-bold mb-4 text-purple-800">🔌 Rate Limiter API Overview</h2>
-              <p className="text-gray-700 mb-4">
+            <div className="bg-gradient-to-br from-purple-900/30 to-purple-900/30 rounded-xl p-6 border-2 border-purple-700">
+              <h2 className="text-2xl font-bold mb-4 text-purple-400">🔌 Rate Limiter API Overview</h2>
+              <p className="text-gray-300 mb-4">
                 RESTful API for checking and enforcing rate limits across your services. Supports multiple limiting strategies and custom rules.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-purple-600 mb-2">Base URL</div>
-                  <code className="text-sm text-gray-700">https://api.ratelimiter.com/v1</code>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-purple-400 mb-2">Base URL</div>
+                  <code className="text-sm text-gray-300">https://api.ratelimiter.com/v1</code>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-purple-600 mb-2">Authentication</div>
-                  <code className="text-sm text-gray-700">API Key</code>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-purple-400 mb-2">Authentication</div>
+                  <code className="text-sm text-gray-300">API Key</code>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-purple-600 mb-2">Latency</div>
-                  <code className="text-sm text-gray-700">{'<'} 1ms (p95)</code>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-purple-400 mb-2">Latency</div>
+                  <code className="text-sm text-gray-300">{'<'} 1ms (p95)</code>
                 </div>
               </div>
             </div>
 
             {/* Rate Limit Check APIs */}
-            <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">✅ Rate Limit Check APIs</h3>
+            <div className="bg-gray-800 rounded-xl p-6 border-2 border-gray-700">
+              <h3 className="text-2xl font-bold mb-4 text-white">✅ Rate Limit Check APIs</h3>
 
               <div className="space-y-4">
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/check</code>
+                    <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/check</code>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">Check if request is allowed under rate limit</p>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <div className="text-xs font-semibold text-gray-700 mb-1">Request:</div>
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
+                  <p className="text-sm text-gray-300 mb-2">Check if request is allowed under rate limit</p>
+                  <div className="bg-gray-900 p-3 rounded">
+                    <div className="text-xs font-semibold text-gray-300 mb-1">Request:</div>
+                    <pre className="text-xs text-gray-300 overflow-x-auto">
 {`{
   "key": "user:123:api",
   "limit": 100,
   "window": 60
 }`}
                     </pre>
-                    <div className="text-xs font-semibold text-gray-700 mt-2 mb-1">Response:</div>
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
+                    <div className="text-xs font-semibold text-gray-300 mt-2 mb-1">Response:</div>
+                    <pre className="text-xs text-gray-300 overflow-x-auto">
 {`{
   "allowed": true,
   "remaining": 99,
@@ -239,35 +242,35 @@ function RateLimiterDesign({ onBack }) {
 
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/check/multi</code>
+                    <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/check/multi</code>
                   </div>
-                  <p className="text-sm text-gray-600">Check multiple rate limits at once</p>
+                  <p className="text-sm text-gray-300">Check multiple rate limits at once</p>
                 </div>
 
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/status/:key</code>
+                    <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/status/:key</code>
                   </div>
-                  <p className="text-sm text-gray-600">Get current rate limit status for a key</p>
+                  <p className="text-sm text-gray-300">Get current rate limit status for a key</p>
                 </div>
               </div>
             </div>
 
             {/* Rule Management APIs */}
-            <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">⚙️ Rule Management APIs</h3>
+            <div className="bg-gray-800 rounded-xl p-6 border-2 border-gray-700">
+              <h3 className="text-2xl font-bold mb-4 text-white">⚙️ Rule Management APIs</h3>
 
               <div className="space-y-4">
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/rules</code>
+                    <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/rules</code>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">Create a new rate limit rule</p>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
+                  <p className="text-sm text-gray-300 mb-2">Create a new rate limit rule</p>
+                  <div className="bg-gray-900 p-3 rounded">
+                    <pre className="text-xs text-gray-300 overflow-x-auto">
 {`{
   "name": "api_user_limit",
   "pattern": "user:*:api",
@@ -282,51 +285,51 @@ function RateLimiterDesign({ onBack }) {
 
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/rules</code>
+                    <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/rules</code>
                   </div>
-                  <p className="text-sm text-gray-600">List all rate limit rules</p>
+                  <p className="text-sm text-gray-300">List all rate limit rules</p>
                 </div>
 
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/rules/:ruleId</code>
+                    <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/rules/:ruleId</code>
                   </div>
-                  <p className="text-sm text-gray-600">Get rule details</p>
+                  <p className="text-sm text-gray-300">Get rule details</p>
                 </div>
 
                 <div className="border-l-4 border-yellow-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-bold">PUT</span>
-                    <code className="text-sm text-gray-700">/rules/:ruleId</code>
+                    <span className="px-2 py-1 bg-yellow-900/30 text-yellow-400 rounded text-xs font-bold">PUT</span>
+                    <code className="text-sm text-gray-300">/rules/:ruleId</code>
                   </div>
-                  <p className="text-sm text-gray-600">Update a rule</p>
+                  <p className="text-sm text-gray-300">Update a rule</p>
                 </div>
 
                 <div className="border-l-4 border-red-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold">DELETE</span>
-                    <code className="text-sm text-gray-700">/rules/:ruleId</code>
+                    <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs font-bold">DELETE</span>
+                    <code className="text-sm text-gray-300">/rules/:ruleId</code>
                   </div>
-                  <p className="text-sm text-gray-600">Delete a rule</p>
+                  <p className="text-sm text-gray-300">Delete a rule</p>
                 </div>
               </div>
             </div>
 
             {/* Override & Exemption APIs */}
-            <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">🔓 Override & Exemption APIs</h3>
+            <div className="bg-gray-800 rounded-xl p-6 border-2 border-gray-700">
+              <h3 className="text-2xl font-bold mb-4 text-white">🔓 Override & Exemption APIs</h3>
 
               <div className="space-y-4">
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/exemptions</code>
+                    <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/exemptions</code>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">Create an exemption (whitelist key)</p>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
+                  <p className="text-sm text-gray-300 mb-2">Create an exemption (whitelist key)</p>
+                  <div className="bg-gray-900 p-3 rounded">
+                    <pre className="text-xs text-gray-300 overflow-x-auto">
 {`{
   "key": "user:admin:api",
   "expires_at": "2024-12-31T23:59:59Z",
@@ -338,35 +341,35 @@ function RateLimiterDesign({ onBack }) {
 
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/exemptions</code>
+                    <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/exemptions</code>
                   </div>
-                  <p className="text-sm text-gray-600">List all exemptions</p>
+                  <p className="text-sm text-gray-300">List all exemptions</p>
                 </div>
 
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/reset</code>
+                    <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/reset</code>
                   </div>
-                  <p className="text-sm text-gray-600">Reset rate limit counter for a key</p>
+                  <p className="text-sm text-gray-300">Reset rate limit counter for a key</p>
                 </div>
               </div>
             </div>
 
             {/* Analytics APIs */}
-            <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">📊 Analytics APIs</h3>
+            <div className="bg-gray-800 rounded-xl p-6 border-2 border-gray-700">
+              <h3 className="text-2xl font-bold mb-4 text-white">📊 Analytics APIs</h3>
 
               <div className="space-y-4">
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/analytics/top-consumers</code>
+                    <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/analytics/top-consumers</code>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">Get keys with highest request rates</p>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
+                  <p className="text-sm text-gray-300 mb-2">Get keys with highest request rates</p>
+                  <div className="bg-gray-900 p-3 rounded">
+                    <pre className="text-xs text-gray-300 overflow-x-auto">
 {`{
   "period": "1h",
   "top_consumers": [
@@ -383,18 +386,18 @@ function RateLimiterDesign({ onBack }) {
 
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/analytics/blocked</code>
+                    <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/analytics/blocked</code>
                   </div>
-                  <p className="text-sm text-gray-600">Get recently blocked requests</p>
+                  <p className="text-sm text-gray-300">Get recently blocked requests</p>
                 </div>
 
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/analytics/metrics</code>
+                    <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/analytics/metrics</code>
                   </div>
-                  <p className="text-sm text-gray-600">Get overall metrics (total requests, blocked rate, avg latency)</p>
+                  <p className="text-sm text-gray-300">Get overall metrics (total requests, blocked rate, avg latency)</p>
                 </div>
               </div>
             </div>
@@ -430,7 +433,7 @@ function RateLimiterDesign({ onBack }) {
 
         {/* Additional tabs would go here - continuing from where the previous attempt left off */}
         {activeTab !== 'overview' && activeTab !== 'api' && (
-          <div className="text-center text-gray-500 py-8">
+          <div className="text-center text-gray-400 py-8">
             Content for {activeTab} tab coming soon...
           </div>
         )}

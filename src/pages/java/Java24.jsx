@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 const normalizeIndentation = (code) => {
   const lines = code.split('\n')
@@ -69,7 +70,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function Java24({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function Java24({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedConcept, setSelectedConcept] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
@@ -2554,13 +2555,15 @@ class KotlinCompiler {
 
   return (
     <div style={{
-      padding: '2rem',
-      maxWidth: '95%',
-      margin: '120px auto 0',
-      backgroundColor: 'white',
+      padding: '1.5rem',
+      maxWidth: '80rem',
+      margin: '0 auto',
+      background: 'linear-gradient(to bottom right, #111827, #78350f, #111827)',
+      color: 'white',
+      minHeight: '100vh',
       borderRadius: '16px',
       boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-      border: '3px solid rgba(16, 185, 129, 0.4)'
+      border: '3px solid rgba(245, 158, 11, 0.4)'
     }}>
       <div style={{
         display: 'flex',
@@ -2577,33 +2580,37 @@ class KotlinCompiler {
               padding: '0.75rem 1.5rem',
               fontSize: '1rem',
               fontWeight: '600',
-              backgroundColor: '#3b82f6',
+              background: '#f59e0b',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
             }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#d97706'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#f59e0b'}
           >
-            ← Back to Menu
+            ← Back to Java Topics
           </button>
           <h1 style={{
             fontSize: '2rem',
             fontWeight: '800',
-            color: '#1f2937',
+            background: 'linear-gradient(to right, #fbbf24, #f97316)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
             margin: 0,
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
           }}>
-            🔮 Java 24 Preview
+            Java 24 Preview
           </h1>
           {currentSubcategory && (
             <span style={{
               padding: '0.5rem 1rem',
               fontSize: '0.9rem',
               fontWeight: '600',
-              backgroundColor: '#dbeafe',
-              color: '#1e40af',
+              backgroundColor: 'rgba(245, 158, 11, 0.2)',
+              color: '#fbbf24',
               borderRadius: '8px',
               marginLeft: '1rem'
             }}>
@@ -2619,19 +2626,19 @@ class KotlinCompiler {
                 padding: '0.75rem 1.25rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                backgroundColor: '#10b981',
+                background: '#374151',
                 color: 'white',
-                border: 'none',
+                border: '1px solid #f59e0b',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#4b5563'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#374151'}
             >
               ← {previousName}
             </button>
@@ -2643,19 +2650,19 @@ class KotlinCompiler {
                 padding: '0.75rem 1.25rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                backgroundColor: '#10b981',
+                background: '#374151',
                 color: 'white',
-                border: 'none',
+                border: '1px solid #f59e0b',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#4b5563'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#374151'}
             >
               {nextName} →
             </button>
@@ -2663,12 +2670,14 @@ class KotlinCompiler {
         </div>
       </div>
 
+      <Breadcrumb breadcrumb={breadcrumb} />
+
       <div style={{
-        backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '2.5rem 10rem',
-        borderRadius: '16px', border: '3px solid rgba(16, 185, 129, 0.3)', marginBottom: '2rem'
+        background: 'linear-gradient(to bottom right, #1f2937, #111827)', padding: '2.5rem 10rem',
+        borderRadius: '16px', border: '2px solid #f59e0b', marginBottom: '2rem'
       }}>
         <p style={{
-          fontSize: '1.3rem', color: '#374151', fontWeight: '500', margin: 0,
+          fontSize: '1.3rem', color: '#d1d5db', fontWeight: '500', margin: 0,
           lineHeight: '1.8', textAlign: 'center'
         }}>
           Discover the latest Java 24 features including advanced pattern matching, structured concurrency, and modern APIs.
@@ -2686,30 +2695,30 @@ class KotlinCompiler {
               setSelectedCategory(category);
               setSelectedConcept(concepts[category.conceptIds[0]]);
             }} style={{
-                backgroundColor: `${category.color}10`, padding: '2rem',
-                borderRadius: '16px', border: `3px solid ${category.color}30`,
+                background: 'linear-gradient(to bottom right, #1f2937, #111827)', padding: '2rem',
+                borderRadius: '16px', border: '2px solid #f59e0b',
                 cursor: 'pointer', transition: 'all 0.3s ease',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-4px)'
                 e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.15)'
-                e.currentTarget.style.borderColor = `${category.color}60`
+                e.currentTarget.style.borderColor = '#fbbf24'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                e.currentTarget.style.borderColor = `${category.color}30`
+                e.currentTarget.style.borderColor = '#f59e0b'
               }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>
                 {category.icon}
               </div>
               <h3 style={{
-                fontSize: '1.5rem', fontWeight: '700', color: category.color,
+                fontSize: '1.5rem', fontWeight: '700', color: '#fbbf24',
                 marginBottom: '1rem', textAlign: 'center'
               }}>{category.name}</h3>
               <p style={{
-                fontSize: '1rem', color: '#6b7280', lineHeight: '1.6', textAlign: 'center'
+                fontSize: '1rem', color: '#d1d5db', lineHeight: '1.6', textAlign: 'center'
               }}>
                 {category.description}
               </p>
@@ -2738,7 +2747,7 @@ class KotlinCompiler {
           }}
         >
           <div onClick={(e) => e.stopPropagation()} style={{
-            backgroundColor: 'white',
+            background: 'linear-gradient(to bottom right, #111827, #1f2937)',
             borderRadius: '16px',
             maxWidth: '1400px',
             width: '100%',
@@ -2746,21 +2755,22 @@ class KotlinCompiler {
             display: 'flex',
             flexDirection: 'column',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            border: '2px solid #f59e0b'
           }}>
             {/* Modal Header */}
             <div style={{
-              backgroundColor: `${selectedCategory.color}`,
+              backgroundColor: '#1f2937',
               padding: '1.5rem 2rem',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              borderBottom: '2px solid rgba(0, 0, 0, 0.1)'
+              borderBottom: '2px solid #f59e0b'
             }}>
               <h2 style={{
                 fontSize: '2rem',
                 fontWeight: '700',
-                color: 'white',
+                color: '#fbbf24',
                 margin: 0,
                 display: 'flex',
                 alignItems: 'center',
@@ -2774,9 +2784,9 @@ class KotlinCompiler {
                   setSelectedCategory(null);
                 }}
                 style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  color: 'white',
-                  border: 'none',
+                  backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                  color: '#fbbf24',
+                  border: '1px solid #f59e0b',
                   borderRadius: '8px',
                   padding: '0.5rem 1rem',
                   fontSize: '1.5rem',
@@ -2785,10 +2795,10 @@ class KotlinCompiler {
                   fontWeight: 'bold'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)'
+                  e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.3)'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'
+                  e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.2)'
                 }}
               >
                 ✕
@@ -2804,9 +2814,9 @@ class KotlinCompiler {
               {/* Left Sidebar - Concepts List */}
               <div style={{
                 width: '300px',
-                borderRight: `3px solid ${selectedCategory.color}40`,
+                borderRight: '2px solid #f59e0b',
                 overflowY: 'auto',
-                backgroundColor: '#f9fafb',
+                backgroundColor: '#111827',
                 padding: '1.5rem'
               }}>
                 {selectedCategory.conceptIds.map((conceptId) => {
@@ -2821,29 +2831,29 @@ class KotlinCompiler {
                         padding: '1rem',
                         marginBottom: '0.5rem',
                         backgroundColor: isActive
-                          ? `${selectedCategory.color}20`
-                          : 'white',
+                          ? 'rgba(245, 158, 11, 0.2)'
+                          : '#1f2937',
                         border: isActive
-                          ? `2px solid ${selectedCategory.color}`
-                          : '2px solid #e5e7eb',
+                          ? '2px solid #f59e0b'
+                          : '2px solid #374151',
                         borderRadius: '8px',
                         cursor: 'pointer',
                         textAlign: 'left',
                         transition: 'all 0.2s ease',
                         fontWeight: isActive ? '700' : '600',
-                        color: isActive ? selectedCategory.color : '#374151',
+                        color: isActive ? '#fbbf24' : '#d1d5db',
                         fontSize: '0.95rem'
                       }}
                       onMouseEnter={(e) => {
                         if (!isActive) {
-                          e.currentTarget.style.backgroundColor = '#f3f4f6'
-                          e.currentTarget.style.borderColor = selectedCategory.color
+                          e.currentTarget.style.backgroundColor = '#374151'
+                          e.currentTarget.style.borderColor = '#f59e0b'
                         }
                       }}
                       onMouseLeave={(e) => {
                         if (!isActive) {
-                          e.currentTarget.style.backgroundColor = 'white'
-                          e.currentTarget.style.borderColor = '#e5e7eb'
+                          e.currentTarget.style.backgroundColor = '#1f2937'
+                          e.currentTarget.style.borderColor = '#374151'
                         }
                       }}
                     >
@@ -2857,12 +2867,13 @@ class KotlinCompiler {
               <div style={{
                 flex: 1,
                 overflowY: 'auto',
-                padding: '2rem'
+                padding: '2rem',
+                backgroundColor: '#1f2937'
               }}>
                 <h2 style={{
                   fontSize: '2.25rem',
                   fontWeight: '700',
-                  color: selectedCategory.color,
+                  color: '#fbbf24',
                   marginBottom: '1.5rem'
                 }}>
                   {selectedConcept.icon || '🔹'} {selectedConcept.name}
@@ -2870,10 +2881,10 @@ class KotlinCompiler {
 
                 {/* Description */}
                 <div style={{
-                  backgroundColor: `${selectedCategory.color}10`,
+                  background: 'linear-gradient(to bottom right, #1f2937, #111827)',
                   padding: '2rem',
                   borderRadius: '12px',
-                  border: `2px solid ${selectedCategory.color}40`,
+                  border: '2px solid #f59e0b',
                   marginBottom: '2rem'
                 }}>
                   {selectedConcept.explanation.split('\n\n').map((section, idx) => {
@@ -2889,7 +2900,7 @@ class KotlinCompiler {
                             <h3 style={{
                               fontSize: '1.3rem',
                               fontWeight: '700',
-                              color: selectedCategory.color,
+                              color: '#fbbf24',
                               marginBottom: '0.75rem',
                               display: 'flex',
                               alignItems: 'center',
@@ -2898,7 +2909,7 @@ class KotlinCompiler {
                               <span style={{
                                 width: '4px',
                                 height: '1.3rem',
-                                backgroundColor: selectedCategory.color,
+                                backgroundColor: '#f59e0b',
                                 borderRadius: '2px'
                               }}></span>
                               {header}
@@ -2906,7 +2917,7 @@ class KotlinCompiler {
                             <div style={{
                               fontSize: '1.05rem',
                               lineHeight: '1.8',
-                              color: '#374151'
+                              color: '#d1d5db'
                             }}>
                               {content.split('\n').map((line, lineIdx) => {
                                 const trimmedLine = line.trim()
@@ -2927,12 +2938,12 @@ class KotlinCompiler {
                                         marginLeft: '0.5rem'
                                       }}>
                                         <span style={{
-                                          color: selectedCategory.color,
+                                          color: '#fbbf24',
                                           fontWeight: 'bold',
                                           minWidth: '0.5rem'
                                         }}>•</span>
                                         <span>
-                                          <strong style={{ color: selectedCategory.color }}>{name}</strong>
+                                          <strong style={{ color: '#fbbf24' }}>{name}</strong>
                                           {' - '}
                                           {description}
                                         </span>
@@ -2947,7 +2958,7 @@ class KotlinCompiler {
                                       marginLeft: '0.5rem'
                                     }}>
                                       <span style={{
-                                        color: selectedCategory.color,
+                                        color: '#fbbf24',
                                         fontWeight: 'bold',
                                         minWidth: '0.5rem'
                                       }}>•</span>
@@ -2967,10 +2978,10 @@ class KotlinCompiler {
                                       marginLeft: '2rem'
                                     }}>
                                       <span style={{
-                                        color: '#6b7280',
+                                        color: '#9ca3af',
                                         minWidth: '0.5rem'
                                       }}>◦</span>
-                                      <span style={{ color: '#4b5563' }}>{bulletContent}</span>
+                                      <span style={{ color: '#9ca3af' }}>{bulletContent}</span>
                                     </div>
                                   )
                                 }
@@ -2991,7 +3002,7 @@ class KotlinCompiler {
                     return (
                       <p key={idx} style={{
                         fontSize: '1.1rem',
-                        color: '#374151',
+                        color: '#d1d5db',
                         lineHeight: '1.8',
                         marginBottom: idx < selectedConcept.explanation.split('\n\n').length - 1 ? '1rem' : 0
                       }}>
@@ -3014,16 +3025,17 @@ class KotlinCompiler {
                             backgroundColor: '#1e293b',
                             borderRadius: '12px',
                             overflow: 'hidden',
-                            border: '2px solid #334155'
+                            border: '2px solid #f59e0b'
                           }}>
                             <button
                               onClick={() => toggleSection(sectionKey)}
                               style={{
                                 width: '100%',
                                 padding: '1rem 1.5rem',
-                                backgroundColor: '#334155',
+                                backgroundColor: '#1f2937',
                                 border: 'none',
-                                color: '#60a5fa',
+                                borderBottom: '1px solid #f59e0b',
+                                color: '#fbbf24',
                                 fontSize: '1rem',
                                 fontWeight: '600',
                                 cursor: 'pointer',
@@ -3033,7 +3045,7 @@ class KotlinCompiler {
                                 transition: 'all 0.2s ease'
                               }}
                             >
-                              <span>💻 {section.title}</span>
+                              <span>{section.title}</span>
                               <span style={{ fontSize: '1.2rem' }}>{isExpanded ? '▼' : '▶'}</span>
                             </button>
                             {isExpanded && (
@@ -3050,7 +3062,7 @@ class KotlinCompiler {
                       backgroundColor: '#1e293b',
                       padding: '1.5rem',
                       borderRadius: '12px',
-                      border: '2px solid #334155'
+                      border: '2px solid #f59e0b'
                     }}>
                       <SyntaxHighlighter code={selectedConcept.codeExample} />
                     </div>

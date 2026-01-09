@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
+import BookmarkButton from '../../components/BookmarkButton.jsx'
 import LanguageToggle from '../../components/LanguageToggle.jsx'
 import DrawingCanvas from '../../components/DrawingCanvas.jsx'
+import Breadcrumb from '../../components/Breadcrumb'
 import { isProblemCompleted } from '../../services/progressService'
 import { getPreferredLanguage } from '../../services/languageService'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 
-function Strings({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory }) {
+function Strings({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null)
   const [showSolution, setShowSolution] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
@@ -1832,7 +1834,7 @@ def justify(self, words, num_chars, max_width, is_last_line):
 
   if (selectedQuestion) {
     return (
-      <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto', backgroundColor: '#f0f9ff', minHeight: '100vh' }}>
+      <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto', backgroundColor: '#111827', minHeight: '100vh' }}>
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <button onClick={() => setSelectedQuestion(null)} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#6b7280', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
             ← Back to Problems
@@ -1850,8 +1852,12 @@ def justify(self, words, num_chars, max_width, is_last_line):
               </span>
             </div>
 
-            <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <CompletionCheckbox problemId={`Strings-${selectedQuestion.id}`} />
+              <BookmarkButton
+                problemId={`Strings-${selectedQuestion.id}`}
+                problemData={{ title: selectedQuestion.title, difficulty: selectedQuestion.difficulty, category: 'Strings' }}
+              />
             </div>
 
             {selectedQuestion.leetcodeUrl && (
@@ -1938,12 +1944,14 @@ def justify(self, words, num_chars, max_width, is_last_line):
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#f0f9ff', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#111827', minHeight: '100vh' }}>
       <div style={{ marginBottom: '2rem' }}>
         <button onClick={onBack} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#6b7280', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
           ← Back
         </button>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#1f2937', marginBottom: '0.5rem' }}>🔤 Strings</h1>
@@ -1986,6 +1994,11 @@ def justify(self, words, num_chars, max_width, is_last_line):
                         <div style={{ transform: 'scale(0.85)' }}>
                           <CompletionCheckbox problemId={`Strings-${question.id}`} />
                         </div>
+                        <BookmarkButton
+                          size="small"
+                          problemId={`Strings-${question.id}`}
+                          problemData={{ title: question.title, difficulty: question.difficulty, category: 'Strings' }}
+                        />
                         {question.leetcodeUrl && (
                           <a
                             href={question.leetcodeUrl}

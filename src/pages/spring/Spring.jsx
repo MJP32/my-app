@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Simple syntax highlighter for Java code
 const SyntaxHighlighter = ({ code }) => {
@@ -71,7 +72,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function Spring({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function Spring({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
 
@@ -6013,14 +6014,21 @@ public @interface UniqueEmail {
 
   return (
     <div style={{
-      padding: '2rem',
-      maxWidth: '95%',
-      margin: '120px auto 0',
-      backgroundColor: 'white',
-      borderRadius: '16px',
-      boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-      border: '3px solid rgba(16, 185, 129, 0.4)'
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #064e3b, #111827)',
+      color: 'white',
+      padding: '1.5rem'
     }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <div style={{
+          padding: '2rem',
+          maxWidth: '95%',
+          margin: '120px auto 0',
+          background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+          borderRadius: '16px',
+          boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
+          border: '1px solid #374151'
+        }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -6036,34 +6044,39 @@ public @interface UniqueEmail {
               padding: '0.75rem 1.5rem',
               fontSize: '1rem',
               fontWeight: '600',
-              backgroundColor: '#3b82f6',
+              backgroundColor: '#10b981',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+              boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
             }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
           >
-            ← Back to Menu
+            ← Back to Frameworks
           </button>
           <div>
             <h1 style={{
               fontSize: '2.5rem',
               fontWeight: '800',
-              color: '#1f2937',
+              background: 'linear-gradient(to right, #6ee7b7, #34d399)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
               margin: 0,
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
             }}>
-              🌱 Spring Framework
+              Spring Framework
             </h1>
             {currentSubcategory && (
               <span style={{
                 padding: '0.25rem 0.75rem',
                 fontSize: '0.85rem',
                 fontWeight: '600',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
+                backgroundColor: '#064e3b',
+                color: '#6ee7b7',
                 borderRadius: '6px',
                 marginTop: '0.25rem',
                 display: 'inline-block'
@@ -6125,16 +6138,18 @@ public @interface UniqueEmail {
         </div>
       </div>
 
+      <Breadcrumb breadcrumb={breadcrumb} />
+
       <div style={{
-        backgroundColor: 'rgba(16, 185, 129, 0.05)',
+        backgroundColor: '#064e3b',
         padding: '2.5rem 10rem',
         borderRadius: '16px',
-        border: '3px solid rgba(16, 185, 129, 0.3)',
+        borderLeft: '4px solid #10b981',
         marginBottom: '2rem'
       }}>
         <p style={{
           fontSize: '1.3rem',
-          color: '#374151',
+          color: '#d1d5db',
           fontWeight: '500',
           margin: 0,
           lineHeight: '1.8',
@@ -6156,10 +6171,10 @@ public @interface UniqueEmail {
               key={idx}
               onClick={() => handleConceptClick(concept)}
               style={{
-                backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
                 padding: '2rem',
                 borderRadius: '12px',
-                border: '2px solid rgba(16, 185, 129, 0.2)',
+                border: '1px solid #374151',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 height: '200px',
@@ -6168,14 +6183,14 @@ public @interface UniqueEmail {
                 justifyContent: 'space-between'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.1)'
+                e.currentTarget.style.background = 'linear-gradient(to bottom right, #1f2937, #064e3b)'
                 e.currentTarget.style.borderColor = '#10b981'
                 e.currentTarget.style.transform = 'translateY(-4px)'
                 e.currentTarget.style.boxShadow = '0 8px 16px rgba(16, 185, 129, 0.2)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.05)'
-                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.2)'
+                e.currentTarget.style.background = 'linear-gradient(to bottom right, #1f2937, #111827)'
+                e.currentTarget.style.borderColor = '#374151'
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = 'none'
               }}
@@ -6185,14 +6200,14 @@ public @interface UniqueEmail {
                 <h3 style={{
                   fontSize: '1.3rem',
                   fontWeight: '700',
-                  color: '#10b981',
+                  color: '#6ee7b7',
                   margin: '0 0 0.5rem 0'
                 }}>
                   {concept.name}
                 </h3>
                 <p style={{
                   fontSize: '0.9rem',
-                  color: '#6b7280',
+                  color: '#d1d5db',
                   margin: 0,
                   lineHeight: '1.5'
                 }}>
@@ -6215,7 +6230,7 @@ public @interface UniqueEmail {
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: 'white',
                 marginBottom: '1.5rem'
               }}>
                 Spring Concepts
@@ -6227,26 +6242,26 @@ public @interface UniqueEmail {
                     onClick={() => handleConceptClick(concept)}
                     style={{
                       backgroundColor: selectedConcept?.name === concept.name
-                        ? 'rgba(16, 185, 129, 0.15)'
-                        : 'rgba(16, 185, 129, 0.05)',
+                        ? '#064e3b'
+                        : '#1f2937',
                       padding: '1rem',
                       borderRadius: '8px',
                       border: selectedConcept?.name === concept.name
-                        ? '3px solid #10b981'
-                        : '2px solid rgba(16, 185, 129, 0.2)',
+                        ? '2px solid #10b981'
+                        : '1px solid #374151',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
                       if (selectedConcept?.name !== concept.name) {
-                        e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.1)'
-                        e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.4)'
+                        e.currentTarget.style.backgroundColor = '#374151'
+                        e.currentTarget.style.borderColor = '#10b981'
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (selectedConcept?.name !== concept.name) {
-                        e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.05)'
-                        e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.2)'
+                        e.currentTarget.style.backgroundColor = '#1f2937'
+                        e.currentTarget.style.borderColor = '#374151'
                       }
                     }}
                   >
@@ -6259,7 +6274,7 @@ public @interface UniqueEmail {
                       <div style={{
                         fontSize: '1rem',
                         fontWeight: '700',
-                        color: selectedConcept?.name === concept.name ? '#10b981' : '#1f2937'
+                        color: selectedConcept?.name === concept.name ? '#6ee7b7' : 'white'
                       }}>
                         {concept.name}
                       </div>
@@ -6273,7 +6288,7 @@ public @interface UniqueEmail {
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
-                color: '#10b981',
+                color: '#6ee7b7',
                 marginBottom: '1.5rem',
                 display: 'flex',
                 alignItems: 'center',
@@ -6284,15 +6299,15 @@ public @interface UniqueEmail {
               </h3>
 
               <div style={{
-                backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                backgroundColor: '#064e3b',
                 padding: '1.5rem',
                 borderRadius: '12px',
-                border: '2px solid rgba(16, 185, 129, 0.3)',
+                borderLeft: '4px solid #10b981',
                 marginBottom: '1.5rem'
               }}>
                 <div style={{
                   fontSize: '1rem',
-                  color: '#374151',
+                  color: '#d1d5db',
                   fontWeight: '500',
                   textAlign: 'left'
                 }}>
@@ -6304,10 +6319,10 @@ public @interface UniqueEmail {
                 <h4 style={{
                   fontSize: '1.1rem',
                   fontWeight: '700',
-                  color: '#10b981',
+                  color: '#6ee7b7',
                   margin: '0 0 1rem 0'
                 }}>
-                  💻 Code Examples
+                  Code Examples
                 </h4>
                 {(() => {
                   const sections = parseCodeSections(selectedConcept.codeExample)
@@ -6317,7 +6332,7 @@ public @interface UniqueEmail {
                         backgroundColor: '#1e293b',
                         padding: '1.5rem',
                         borderRadius: '12px',
-                        border: '2px solid #334155'
+                        border: '1px solid #374151'
                       }}>
                         <SyntaxHighlighter code={selectedConcept.codeExample} />
                       </div>
@@ -6332,9 +6347,9 @@ public @interface UniqueEmail {
                           <div
                             key={index}
                             style={{
-                              backgroundColor: 'white',
+                              backgroundColor: '#1f2937',
                               borderRadius: '12px',
-                              border: '2px solid rgba(16, 185, 129, 0.3)',
+                              border: '1px solid #374151',
                               overflow: 'hidden'
                             }}
                           >
@@ -6343,9 +6358,9 @@ public @interface UniqueEmail {
                               style={{
                                 width: '100%',
                                 padding: '1.25rem',
-                                backgroundColor: isExpanded ? 'rgba(16, 185, 129, 0.15)' : 'white',
+                                backgroundColor: isExpanded ? '#064e3b' : '#1f2937',
                                 border: 'none',
-                                borderBottom: isExpanded ? '2px solid rgba(16, 185, 129, 0.3)' : 'none',
+                                borderBottom: isExpanded ? '1px solid #10b981' : 'none',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 justifyContent: 'space-between',
@@ -6354,18 +6369,18 @@ public @interface UniqueEmail {
                                 textAlign: 'left'
                               }}
                               onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.15)'
+                                e.currentTarget.style.backgroundColor = '#064e3b'
                               }}
                               onMouseLeave={(e) => {
                                 if (!isExpanded) {
-                                  e.currentTarget.style.backgroundColor = 'white'
+                                  e.currentTarget.style.backgroundColor = '#1f2937'
                                 }
                               }}
                             >
                               <span style={{
                                 fontSize: '1.05rem',
                                 fontWeight: '700',
-                                color: '#10b981'
+                                color: '#6ee7b7'
                               }}>
                                 {section.title}
                               </span>
@@ -6396,6 +6411,8 @@ public @interface UniqueEmail {
             </div>
           </>
         )}
+      </div>
+        </div>
       </div>
     </div>
   )

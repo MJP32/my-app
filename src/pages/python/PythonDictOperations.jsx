@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import CompletionCheckbox from '../../components/CompletionCheckbox'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function PythonDictOperations({ onBack }) {
+function PythonDictOperations({ onBack, breadcrumb }) {
   const [selectedProblem, setSelectedProblem] = useState(null)
 
   const problems = [
@@ -952,6 +953,8 @@ def reorganizeString_alt(s: str) -> str:
             Master Python dictionary (map) operations including get, update, pop, setdefault, and more
           </p>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         <div style={{
           display: 'grid',

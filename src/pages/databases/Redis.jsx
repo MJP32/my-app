@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
 
   // Handle Escape key for modal navigation
@@ -258,7 +259,13 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1600px', margin: '0 auto' }}>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
+      <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -283,11 +290,19 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
               boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
             }}
           >
-            ← Back to Menu
+            ← Back to Databases
           </button>
           <div>
-            <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '800', color: '#1f2937' }}>
-              ⚡ Redis
+            <h1 style={{
+              margin: 0,
+              fontSize: '2rem',
+              fontWeight: '800',
+              background: 'linear-gradient(to right, #93c5fd, #60a5fa)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              Redis
             </h1>
             {currentSubcategory && (
               <span style={{
@@ -357,10 +372,12 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
         </div>
       </div>
 
+      <Breadcrumb breadcrumb={breadcrumb} />
+
       <p style={{
         textAlign: 'center',
         fontSize: '1.1rem',
-        color: '#4b5563',
+        color: '#9ca3af',
         marginBottom: '2rem',
         maxWidth: '900px',
         margin: '0 auto 2rem'
@@ -408,7 +425,7 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
                 <h3 style={{
                   fontSize: '1.25rem',
                   fontWeight: '700',
-                  color: '#1f2937',
+                  color: 'white',
                   margin: '0 0 0.5rem 0'
                 }}>
                   {concept.name}
@@ -416,7 +433,7 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
               </div>
               <p style={{
                 fontSize: '0.95rem',
-                color: '#4b5563',
+                color: '#9ca3af',
                 margin: 0,
                 lineHeight: '1.5'
               }}>
@@ -438,21 +455,21 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
                   padding: '0.75rem 1rem',
                   fontSize: '0.95rem',
                   fontWeight: '600',
-                  backgroundColor: '#f3f4f6',
-                  color: '#1f2937',
-                  border: '2px solid #e5e7eb',
+                  backgroundColor: '#1f2937',
+                  color: 'white',
+                  border: '2px solid #374151',
                   borderRadius: '8px',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   marginBottom: '0.5rem'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#e5e7eb'
-                  e.currentTarget.style.borderColor = '#d1d5db'
+                  e.currentTarget.style.backgroundColor = '#374151'
+                  e.currentTarget.style.borderColor = '#4b5563'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f3f4f6'
-                  e.currentTarget.style.borderColor = '#e5e7eb'
+                  e.currentTarget.style.backgroundColor = '#1f2937'
+                  e.currentTarget.style.borderColor = '#374151'
                 }}
               >
                 ← Back to All
@@ -465,21 +482,21 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
                   style={{
                     padding: '1rem',
                     borderRadius: '8px',
-                    backgroundColor: selectedConcept.id === concept.id ? `${concept.color}1A` : '#f9fafb',
-                    border: `2px solid ${selectedConcept.id === concept.id ? concept.color : '#e5e7eb'}`,
+                    backgroundColor: selectedConcept.id === concept.id ? `${concept.color}1A` : '#1f2937',
+                    border: `2px solid ${selectedConcept.id === concept.id ? concept.color : '#374151'}`,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
                   onMouseEnter={(e) => {
                     if (selectedConcept.id !== concept.id) {
-                      e.currentTarget.style.backgroundColor = '#f3f4f6'
-                      e.currentTarget.style.borderColor = '#d1d5db'
+                      e.currentTarget.style.backgroundColor = '#374151'
+                      e.currentTarget.style.borderColor = '#4b5563'
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (selectedConcept.id !== concept.id) {
-                      e.currentTarget.style.backgroundColor = '#f9fafb'
-                      e.currentTarget.style.borderColor = '#e5e7eb'
+                      e.currentTarget.style.backgroundColor = '#1f2937'
+                      e.currentTarget.style.borderColor = '#374151'
                     }
                   }}
                 >
@@ -489,7 +506,7 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
                   <div style={{
                     fontSize: '0.95rem',
                     fontWeight: '600',
-                    color: '#1f2937'
+                    color: 'white'
                   }}>
                     {concept.name}
                   </div>
@@ -514,14 +531,14 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
                     <h2 style={{
                       fontSize: '2rem',
                       fontWeight: '800',
-                      color: '#1f2937',
+                      color: 'white',
                       margin: 0
                     }}>
                       {selectedConcept.name}
                     </h2>
                     <p style={{
                       fontSize: '1.1rem',
-                      color: '#4b5563',
+                      color: '#9ca3af',
                       margin: '0.5rem 0 0 0',
                       lineHeight: '1.6'
                     }}>
@@ -539,10 +556,10 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
                   <div
                     key={idx}
                     style={{
-                      backgroundColor: 'white',
+                      backgroundColor: '#1f2937',
                       padding: '1.5rem',
                       borderRadius: '10px',
-                      border: '2px solid #e5e7eb',
+                      border: '2px solid #374151',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
@@ -550,14 +567,14 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
                       e.currentTarget.style.boxShadow = `0 4px 12px ${selectedConcept.color}20`
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = '#e5e7eb'
+                      e.currentTarget.style.borderColor = '#374151'
                       e.currentTarget.style.boxShadow = 'none'
                     }}
                   >
                     <h3 style={{
                       fontSize: '1.2rem',
                       fontWeight: '700',
-                      color: '#1f2937',
+                      color: 'white',
                       margin: '0 0 0.75rem 0',
                       display: 'flex',
                       alignItems: 'center',
@@ -581,7 +598,7 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
                     </h3>
                     <p style={{
                       fontSize: '1rem',
-                      color: '#374151',
+                      color: '#9ca3af',
                       margin: 0,
                       lineHeight: '1.7',
                       paddingLeft: '2.25rem'
@@ -594,6 +611,7 @@ function Redis({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
             </div>
           </>
         )}
+      </div>
       </div>
     </div>
   )

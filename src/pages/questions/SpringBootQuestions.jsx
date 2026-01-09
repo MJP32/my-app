@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-export default function SpringBootQuestions({ onBack }) {
+export default function SpringBootQuestions({ onBack, breadcrumb }) {
   const [expandedQuestionId, setExpandedQuestionId] = useState(null)
   const categoryColor = '#10b981'
 
@@ -572,10 +573,12 @@ For Redis data access
           color: '#1f2937',
           margin: 0
         }}>
-          🚀 Spring Boot Questions
+          Spring Boot Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         display: 'flex',

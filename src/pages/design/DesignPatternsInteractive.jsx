@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
 import LanguageToggle from '../../components/LanguageToggle.jsx'
+import Breadcrumb from '../../components/Breadcrumb'
 import { isProblemCompleted } from '../../services/progressService'
 import { getPreferredLanguage } from '../../services/languageService'
 
-function DesignPatternsInteractive({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory }) {
+function DesignPatternsInteractive({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null)
   const [showSolution, setShowSolution] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
@@ -1688,6 +1689,8 @@ Complexity: O(1) time, O(1) space`
             )}
           </div>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         <p style={{ fontSize: '1.1rem', color: '#6b7280', marginBottom: '2rem' }}>
           Implement classic GoF design patterns with hands-on coding exercises

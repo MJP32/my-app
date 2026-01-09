@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import Breadcrumb from '../../components/Breadcrumb';
 
-export default function MonolithToMicroservice({ onBack }) {
+export default function MonolithToMicroservice({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview');
 
   const tabs = [
@@ -35,6 +36,8 @@ export default function MonolithToMicroservice({ onBack }) {
             Decomposed a monolithic VaR/CVaR system into microservices using the Strangler Fig Pattern, eliminating vendor dependencies and achieving 40% performance improvement
           </p>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b-2 border-gray-200 overflow-x-auto pb-0">

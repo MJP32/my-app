@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useModalFocus } from '../../hooks/useModalFocus'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
   // Comprehensive modal focus management
   const { modalRef, firstFocusableRef } = useModalFocus(onBack)
@@ -11,7 +12,7 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
       id: 'pure-functions',
       name: 'Pure Functions',
       icon: '🔄',
-      color: '#3b82f6',
+      color: '#9333ea',
       description: 'Functions that always return the same output for the same input and have no side effects',
       details: [
         {
@@ -69,7 +70,7 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
       id: 'higher-order-functions',
       name: 'Higher-Order Functions',
       icon: '📈',
-      color: '#10b981',
+      color: '#a855f7',
       description: 'Functions that take other functions as parameters or return functions',
       details: [
         {
@@ -222,6 +223,7 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
 
 
   return (
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #111827, #78350f, #111827)', color: 'white', padding: '1.5rem' }}>
     <div ref={modalRef} style={{ padding: '2rem', maxWidth: '1600px', margin: '0 auto' }}>
       <div style={{
         display: 'flex',
@@ -239,21 +241,21 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
               padding: '0.75rem 1.5rem',
               fontSize: '1rem',
               fontWeight: '600',
-              backgroundColor: '#3b82f6',
+              backgroundColor: '#9333ea',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+              boxShadow: '0 2px 8px rgba(147, 51, 234, 0.3)'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7e22ce'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#9333ea'}
           >
             ← Back to Menu
           </button>
           <div>
-            <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '800', color: '#1f2937' }}>
+            <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '800', background: 'linear-gradient(to right, #fbbf24, #f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               Functional Programming
             </h1>
             {currentSubcategory && (
@@ -261,8 +263,8 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
                 padding: '0.25rem 0.75rem',
                 fontSize: '0.85rem',
                 fontWeight: '600',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
+                backgroundColor: '#f3e8ff',
+                color: '#7e22ce',
                 borderRadius: '6px',
                 marginTop: '0.25rem',
                 display: 'inline-block'
@@ -280,19 +282,19 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
                 padding: '0.75rem 1.25rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                backgroundColor: '#10b981',
+                backgroundColor: '#8b5cf6',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
             >
               ← {previousName}
             </button>
@@ -304,25 +306,27 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
                 padding: '0.75rem 1.25rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                backgroundColor: '#10b981',
+                backgroundColor: '#8b5cf6',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
             >
               {nextName} →
             </button>
           )}
         </div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         display: 'grid',
@@ -364,7 +368,7 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
                 <h3 style={{
                   fontSize: '1.25rem',
                   fontWeight: '700',
-                  color: '#1f2937',
+                  color: '#fbbf24',
                   margin: '0 0 0.5rem 0'
                 }}>
                   {concept.name}
@@ -372,7 +376,7 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
               </div>
               <p style={{
                 fontSize: '0.95rem',
-                color: '#4b5563',
+                color: '#d1d5db',
                 margin: 0,
                 lineHeight: '1.5'
               }}>
@@ -394,21 +398,21 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
                   padding: '0.75rem 1rem',
                   fontSize: '0.95rem',
                   fontWeight: '600',
-                  backgroundColor: '#f3f4f6',
-                  color: '#1f2937',
-                  border: '2px solid #e5e7eb',
+                  backgroundColor: '#f59e0b',
+                  color: 'white',
+                  border: '2px solid #374151',
                   borderRadius: '8px',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   marginBottom: '0.5rem'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#e5e7eb'
-                  e.currentTarget.style.borderColor = '#d1d5db'
+                  e.currentTarget.style.backgroundColor = '#d97706'
+                  e.currentTarget.style.borderColor = '#374151'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f3f4f6'
-                  e.currentTarget.style.borderColor = '#e5e7eb'
+                  e.currentTarget.style.backgroundColor = '#f59e0b'
+                  e.currentTarget.style.borderColor = '#374151'
                 }}
               >
                 ← Back to All
@@ -421,21 +425,21 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
                   style={{
                     padding: '1rem',
                     borderRadius: '8px',
-                    backgroundColor: selectedConcept.id === concept.id ? `${concept.color}1A` : '#f9fafb',
-                    border: `2px solid ${selectedConcept.id === concept.id ? concept.color : '#e5e7eb'}`,
+                    backgroundColor: selectedConcept.id === concept.id ? `${concept.color}1A` : 'rgba(31, 41, 55, 0.5)',
+                    border: `2px solid ${selectedConcept.id === concept.id ? concept.color : '#374151'}`,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
                   onMouseEnter={(e) => {
                     if (selectedConcept.id !== concept.id) {
-                      e.currentTarget.style.backgroundColor = '#f3f4f6'
-                      e.currentTarget.style.borderColor = '#d1d5db'
+                      e.currentTarget.style.backgroundColor = 'rgba(55, 65, 81, 0.5)'
+                      e.currentTarget.style.borderColor = '#4b5563'
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (selectedConcept.id !== concept.id) {
-                      e.currentTarget.style.backgroundColor = '#f9fafb'
-                      e.currentTarget.style.borderColor = '#e5e7eb'
+                      e.currentTarget.style.backgroundColor = 'rgba(31, 41, 55, 0.5)'
+                      e.currentTarget.style.borderColor = '#374151'
                     }
                   }}
                 >
@@ -445,7 +449,7 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
                   <div style={{
                     fontSize: '0.95rem',
                     fontWeight: '600',
-                    color: '#1f2937'
+                    color: '#fbbf24'
                   }}>
                     {concept.name}
                   </div>
@@ -470,14 +474,14 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
                     <h2 style={{
                       fontSize: '2rem',
                       fontWeight: '800',
-                      color: '#1f2937',
+                      color: '#fbbf24',
                       margin: 0
                     }}>
                       {selectedConcept.name}
                     </h2>
                     <p style={{
                       fontSize: '1.1rem',
-                      color: '#4b5563',
+                      color: '#d1d5db',
                       margin: '0.5rem 0 0 0',
                       lineHeight: '1.6'
                     }}>
@@ -495,10 +499,10 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
                   <div
                     key={idx}
                     style={{
-                      backgroundColor: 'white',
+                      background: 'linear-gradient(to bottom right, #1f2937, #111827)',
                       padding: '1.5rem',
                       borderRadius: '10px',
-                      border: '2px solid #e5e7eb',
+                      border: '2px solid #374151',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
@@ -506,14 +510,14 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
                       e.currentTarget.style.boxShadow = `0 4px 12px ${selectedConcept.color}20`
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = '#e5e7eb'
+                      e.currentTarget.style.borderColor = '#374151'
                       e.currentTarget.style.boxShadow = 'none'
                     }}
                   >
                     <h3 style={{
                       fontSize: '1.2rem',
                       fontWeight: '700',
-                      color: '#1f2937',
+                      color: '#fbbf24',
                       margin: '0 0 0.75rem 0',
                       display: 'flex',
                       alignItems: 'center',
@@ -537,7 +541,7 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
                     </h3>
                     <p style={{
                       fontSize: '1rem',
-                      color: '#374151',
+                      color: '#d1d5db',
                       margin: 0,
                       lineHeight: '1.7',
                       paddingLeft: '2.25rem'
@@ -551,6 +555,7 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
           </>
         )}
       </div>
+    </div>
     </div>
   )
 }

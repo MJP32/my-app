@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function ZipkinQuestions({ onBack }) {
+function ZipkinQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
 
   const renderFormattedAnswer = (text) => {
@@ -927,7 +928,7 @@ Bad: "query"
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', backgroundColor: '#e0f2fe', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', backgroundColor: '#111827', minHeight: '100vh' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -941,32 +942,34 @@ Bad: "query"
             fontSize: '1rem',
           textAlign: 'left',
             fontWeight: '600',
-            backgroundColor: '#6b7280',
+            backgroundColor: '#4b5563',
             color: 'white',
             border: 'none',
             borderRadius: '8px',
             cursor: 'pointer',
             transition: 'all 0.2s ease'
           }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#6b7280'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#4b5563'}
         >
           ← Back to Questions
         </button>
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '800',
-          color: '#1f2937',
+          color: '#f9fafb',
           margin: 0
         }}>
-          🔍 Zipkin Interview Questions
+          Zipkin Interview Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
 
+      <Breadcrumb breadcrumb={breadcrumb} />
+
       <p style={{
         fontSize: '1.1rem',
-        color: '#4b5563',
+        color: '#9ca3af',
         textAlign: 'center',
         marginBottom: '2rem',
         lineHeight: '1.6'
@@ -979,14 +982,14 @@ Bad: "query"
           <div
             key={q.id}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: '#1f2937',
               borderRadius: '12px',
-              border: `3px solid ${expandedQuestion === q.id ? getCategoryColor(q.category) : '#e5e7eb'}`,
+              border: `3px solid ${expandedQuestion === q.id ? getCategoryColor(q.category) : '#374151'}`,
               overflow: 'hidden',
               transition: 'all 0.3s ease',
               boxShadow: expandedQuestion === q.id
-                ? '0 8px 16px rgba(0,0,0,0.1)'
-                : '0 2px 8px rgba(0,0,0,0.05)'
+                ? '0 8px 16px rgba(0,0,0,0.3)'
+                : '0 2px 8px rgba(0,0,0,0.2)'
             }}
           >
             <button
@@ -995,8 +998,8 @@ Bad: "query"
                 width: '100%',
                 padding: '1.5rem',
                 backgroundColor: expandedQuestion === q.id
-                  ? `${getCategoryColor(q.category)}15`
-                  : 'white',
+                  ? `${getCategoryColor(q.category)}25`
+                  : '#1f2937',
                 border: 'none',
                 cursor: 'pointer',
                 textAlign: 'left',
@@ -1007,12 +1010,12 @@ Bad: "query"
               }}
               onMouseEnter={(e) => {
                 if (expandedQuestion !== q.id) {
-                  e.currentTarget.style.backgroundColor = '#f9fafb'
+                  e.currentTarget.style.backgroundColor = '#374151'
                 }
               }}
               onMouseLeave={(e) => {
                 if (expandedQuestion !== q.id) {
-                  e.currentTarget.style.backgroundColor = 'white'
+                  e.currentTarget.style.backgroundColor = '#1f2937'
                 }
               }}
             >
@@ -1044,7 +1047,7 @@ Bad: "query"
                 <h3 style={{
                   fontSize: '1.15rem',
                   fontWeight: '700',
-                  color: '#1f2937',
+                  color: '#f9fafb',
                   margin: 0
                 }}>
                   Q{q.id}. {q.question}
@@ -1065,16 +1068,16 @@ Bad: "query"
             {expandedQuestion === q.id && (
               <div style={{
                 padding: '1.5rem',
-                backgroundColor: '#fafafa',
+                backgroundColor: '#111827',
                 borderTop: `2px solid ${getCategoryColor(q.category)}40`
               }}>
                 <div style={{
                   fontSize: '1rem',
           textAlign: 'left',
                   lineHeight: '1.8',
-                  color: '#374151',
+                  color: '#d1d5db',
                   fontFamily: 'system-ui, -apple-system, sans-serif',
-                  
+
                 }}>
                   {renderFormattedAnswer(q.answer)}
                 </div>
@@ -1087,14 +1090,14 @@ Bad: "query"
       <div style={{
         marginTop: '2rem',
         padding: '1.5rem',
-        backgroundColor: '#dbeafe',
+        backgroundColor: '#1e3a5f',
         borderRadius: '12px',
         border: '2px solid #3b82f6'
       }}>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: '#1e40af', marginBottom: '0.5rem', textAlign: 'left' }}>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: '#93c5fd', marginBottom: '0.5rem', textAlign: 'left' }}>
           💡 Zipkin Best Practices
         </h3>
-        <ul style={{ color: '#1e3a8a', lineHeight: '1.8', margin: '0.5rem 0' }}>
+        <ul style={{ color: '#bfdbfe', lineHeight: '1.8', margin: '0.5rem 0' }}>
           <li>Use appropriate sampling rates (10-20% in production)</li>
           <li>Always sample errors and critical paths</li>
           <li>Use meaningful span names and tags</li>

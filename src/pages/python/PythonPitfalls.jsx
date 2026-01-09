@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function PythonPitfalls({ onBack }) {
+function PythonPitfalls({ onBack, breadcrumb }) {
   const [selectedPitfall, setSelectedPitfall] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -723,6 +724,8 @@ Note: get(key, []) creates a new list each call, but it's not added to dict. Use
             Learn about common Python mistakes and how to avoid them with correct patterns
           </p>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         {/* Search Bar */}
         <div style={{ marginBottom: '2rem' }}>

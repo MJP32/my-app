@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, ChevronRight, Code, Database, Cloud, Monitor, Zap, Server, GitBranch, BarChart, Target, Settings, AlertCircle, ArrowLeft } from 'lucide-react';
 import { KEYS, FocusManager, AriaUtils } from '../../utils/keyboardNavigation.js';
 import { FocusManager as FocusManagerUtil } from '../../utils/focusManagement.js';
+import Breadcrumb from '../../components/Breadcrumb';
 
 const highlightCode = (code) => {
   // Clean input: remove legacy inline HTML markup from code strings (e.g., <span>, <font>, style/color attributes)
@@ -69,7 +70,7 @@ const highlightCode = (code) => {
   return highlighted;
 };
 
-const TechnicalDetails = ({ onBack }) => {
+const TechnicalDetails = ({ onBack, breadcrumb }) => {
   const [expandedItems, setExpandedItems] = useState({});
   const [expandedSubItems, setExpandedSubItems] = useState({});
   const [selectedPattern, setSelectedPattern] = useState(null);
@@ -1276,6 +1277,8 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
           ))}
         </div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {technicalPoints.map((point, index) => (

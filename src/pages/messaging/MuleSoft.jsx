@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function MuleSoft({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function MuleSoft({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
 
   // Handle Escape key for modal navigation
@@ -200,89 +201,102 @@ function MuleSoft({ onBack, onPrevious, onNext, previousName, nextName, currentS
   if (selectedConcept && selectedConceptData) {
     return (
       <div style={{
-        padding: '2rem',
-        maxWidth: '1200px',
-        margin: '0 auto',
-        backgroundColor: '#f0f9ff',
-        minHeight: '100vh'
+        minHeight: '100vh',
+        background: 'linear-gradient(to bottom right, #111827, #7c2d12, #111827)',
+        color: 'white',
+        padding: '1.5rem'
       }}>
-        <button
-          onClick={() => setSelectedConcept(null)}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            fontWeight: '600',
-            backgroundColor: '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto'
+        }}>
+          <button
+            onClick={() => setSelectedConcept(null)}
+            style={{
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              backgroundColor: '#f59e0b',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              marginBottom: '2rem'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#d97706'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#f59e0b'
+            }}
+          >
+            ← Back to Concepts
+          </button>
+
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem',
             marginBottom: '2rem'
-          }}
-        >
-          ← Back to Concepts
-        </button>
-
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem',
-          marginBottom: '2rem'
-        }}>
-          <span style={{ fontSize: '3rem' }}>{selectedConceptData.icon}</span>
-          <h1 style={{
-            fontSize: '2.5rem',
-            fontWeight: '800',
-            color: '#1f2937',
-            margin: 0
           }}>
-            {selectedConceptData.name}
-          </h1>
-        </div>
+            <span style={{ fontSize: '3rem' }}>{selectedConceptData.icon}</span>
+            <h1 style={{
+              fontSize: '2.5rem',
+              fontWeight: '800',
+              background: 'linear-gradient(to right, #fcd34d, #f59e0b)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              margin: 0
+            }}>
+              {selectedConceptData.name}
+            </h1>
+          </div>
 
-        <p style={{
-          fontSize: '1.2rem',
-          color: '#4b5563',
-          marginBottom: '2rem',
-          lineHeight: '1.8'
-        }}>
-          {selectedConceptData.description}
-        </p>
+          <p style={{
+            fontSize: '1.2rem',
+            color: '#d1d5db',
+            marginBottom: '2rem',
+            lineHeight: '1.8'
+          }}>
+            {selectedConceptData.description}
+          </p>
 
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1.5rem'
-        }}>
-          {selectedConceptData.details.map((detail, index) => (
-            <div
-              key={index}
-              style={{
-                backgroundColor: 'white',
-                padding: '1.5rem',
-                borderRadius: '12px',
-                border: `2px solid ${selectedConceptData.color}`,
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-              }}
-            >
-              <h3 style={{
-                fontSize: '1.3rem',
-                fontWeight: '700',
-                color: selectedConceptData.color,
-                marginBottom: '0.75rem'
-              }}>
-                {detail.name}
-              </h3>
-              <p style={{
-                fontSize: '1rem',
-                color: '#4b5563',
-                lineHeight: '1.8',
-                margin: 0
-              }}>
-                {detail.explanation}
-              </p>
-            </div>
-          ))}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.5rem'
+          }}>
+            {selectedConceptData.details.map((detail, index) => (
+              <div
+                key={index}
+                style={{
+                  backgroundColor: 'rgba(31, 41, 55, 0.8)',
+                  padding: '1.5rem',
+                  borderRadius: '12px',
+                  border: `2px solid ${selectedConceptData.color}`,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                }}
+              >
+                <h3 style={{
+                  fontSize: '1.3rem',
+                  fontWeight: '700',
+                  color: selectedConceptData.color,
+                  marginBottom: '0.75rem'
+                }}>
+                  {detail.name}
+                </h3>
+                <p style={{
+                  fontSize: '1rem',
+                  color: '#d1d5db',
+                  lineHeight: '1.8',
+                  margin: 0
+                }}>
+                  {detail.explanation}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     )
@@ -290,159 +304,174 @@ function MuleSoft({ onBack, onPrevious, onNext, previousName, nextName, currentS
 
   return (
     <div style={{
-      padding: '2rem',
-      maxWidth: '1400px',
-      margin: '0 auto',
-      backgroundColor: '#f0f9ff',
-      minHeight: '100vh'
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #7c2d12, #111827)',
+      color: 'white',
+      padding: '1.5rem'
     }}>
       <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '2rem'
+        maxWidth: '1400px',
+        margin: '0 auto'
       }}>
-        <button
-          onClick={onBack}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            fontWeight: '600',
-            backgroundColor: '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}
-        >
-          ← Back to {currentSubcategory || 'DevOps'}
-        </button>
-        <h1 style={{
-          fontSize: '2.5rem',
-          fontWeight: '800',
-          color: '#1f2937',
-          margin: 0
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '2rem'
         }}>
-          🔗 MuleSoft
-        </h1>
-        <div style={{ width: '150px' }}></div>
-      </div>
-
-      {/* Navigation */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        gap: '1rem',
-        marginBottom: '2rem'
-      }}>
-        {onPrevious && (
           <button
-            onClick={onPrevious}
+            onClick={onBack}
             style={{
-              padding: '0.5rem 1rem',
-              fontSize: '0.9rem',
-              backgroundColor: '#e5e7eb',
-              color: '#374151',
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              backgroundColor: '#f59e0b',
+              color: 'white',
               border: 'none',
-              borderRadius: '6px',
+              borderRadius: '8px',
               cursor: 'pointer'
-            }}
-          >
-            ← {previousName}
-          </button>
-        )}
-        {onNext && (
-          <button
-            onClick={onNext}
-            style={{
-              padding: '0.5rem 1rem',
-              fontSize: '0.9rem',
-              backgroundColor: '#e5e7eb',
-              color: '#374151',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer'
-            }}
-          >
-            {nextName} →
-          </button>
-        )}
-      </div>
-
-      <p style={{
-        fontSize: '1.2rem',
-        color: '#4b5563',
-        textAlign: 'center',
-        marginBottom: '3rem',
-        lineHeight: '1.8'
-      }}>
-        Master MuleSoft Anypoint Platform for building integrations, APIs, and connecting enterprise applications.
-      </p>
-
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-        gap: '1.5rem'
-      }}>
-        {concepts.map((concept) => (
-          <button
-            key={concept.id}
-            onClick={() => setSelectedConcept(concept.id)}
-            style={{
-              backgroundColor: 'white',
-              padding: '1.5rem',
-              borderRadius: '12px',
-              border: `3px solid ${concept.color}`,
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              textAlign: 'left',
-              width: '100%'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.boxShadow = `0 8px 24px ${concept.color}40`
+              e.currentTarget.style.backgroundColor = '#d97706'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.backgroundColor = '#f59e0b'
             }}
           >
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem',
-              marginBottom: '1rem'
-            }}>
-              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
-              <h3 style={{
-                fontSize: '1.3rem',
-                fontWeight: '700',
-                color: '#1f2937',
+            ← Back to Messaging
+          </button>
+          <h1 style={{
+            fontSize: '2.5rem',
+            fontWeight: '800',
+            background: 'linear-gradient(to right, #fcd34d, #f59e0b)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            margin: 0
+          }}>
+            MuleSoft
+          </h1>
+          <div style={{ width: '150px' }}></div>
+        </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
+
+        {/* Navigation */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '1rem',
+          marginBottom: '2rem'
+        }}>
+          {onPrevious && (
+            <button
+              onClick={onPrevious}
+              style={{
+                padding: '0.5rem 1rem',
+                fontSize: '0.9rem',
+                backgroundColor: 'rgba(55, 65, 81, 0.8)',
+                color: '#d1d5db',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              ← {previousName}
+            </button>
+          )}
+          {onNext && (
+            <button
+              onClick={onNext}
+              style={{
+                padding: '0.5rem 1rem',
+                fontSize: '0.9rem',
+                backgroundColor: 'rgba(55, 65, 81, 0.8)',
+                color: '#d1d5db',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              {nextName} →
+            </button>
+          )}
+        </div>
+
+        <p style={{
+          fontSize: '1.2rem',
+          color: '#d1d5db',
+          textAlign: 'center',
+          marginBottom: '3rem',
+          lineHeight: '1.8'
+        }}>
+          Master MuleSoft Anypoint Platform for building integrations, APIs, and connecting enterprise applications.
+        </p>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: '1.5rem'
+        }}>
+          {concepts.map((concept) => (
+            <button
+              key={concept.id}
+              onClick={() => setSelectedConcept(concept.id)}
+              style={{
+                backgroundColor: 'rgba(31, 41, 55, 0.8)',
+                padding: '1.5rem',
+                borderRadius: '12px',
+                border: `3px solid ${concept.color}`,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                textAlign: 'left',
+                width: '100%'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)'
+                e.currentTarget.style.boxShadow = `0 8px 24px ${concept.color}40`
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+            >
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                marginBottom: '1rem'
+              }}>
+                <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
+                <h3 style={{
+                  fontSize: '1.3rem',
+                  fontWeight: '700',
+                  color: '#f3f4f6',
+                  margin: 0
+                }}>
+                  {concept.name}
+                </h3>
+              </div>
+              <p style={{
+                fontSize: '0.95rem',
+                color: '#9ca3af',
+                lineHeight: '1.6',
                 margin: 0
               }}>
-                {concept.name}
-              </h3>
-            </div>
-            <p style={{
-              fontSize: '0.95rem',
-              color: '#6b7280',
-              lineHeight: '1.6',
-              margin: 0
-            }}>
-              {concept.description}
-            </p>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              marginTop: '1rem',
-              color: concept.color,
-              fontWeight: '600',
-              fontSize: '0.9rem'
-            }}>
-              Learn More →
-            </div>
-          </button>
-        ))}
+                {concept.description}
+              </p>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                marginTop: '1rem',
+                color: concept.color,
+                fontWeight: '600',
+                fontSize: '0.9rem'
+              }}>
+                Learn More →
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   )

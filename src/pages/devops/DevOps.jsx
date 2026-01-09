@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 const ModernDiagram = ({ components, onComponentClick, title, width = 1400, height = 800, containerWidth = 1800, focusedIndex }) => {
   const [hoveredComponent, setHoveredComponent] = useState(null)
@@ -209,7 +210,7 @@ const ModernDiagram = ({ components, onComponentClick, title, width = 1400, heig
   )
 }
 
-function DevOps({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function DevOps({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedComponent, setSelectedComponent] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [focusedComponentIndex, setFocusedComponentIndex] = useState(0)
@@ -560,130 +561,142 @@ describe('sum', () => {
 
   return (
     <div style={{
-      padding: '2rem',
-      maxWidth: '95%',
-      margin: '120px auto 0',
-      backgroundColor: 'white',
-      borderRadius: '16px',
-      boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-      border: '3px solid rgba(14, 165, 233, 0.4)'
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
+      color: 'white',
+      padding: '1.5rem'
     }}>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '2rem',
-        gap: '1rem',
-        flexWrap: 'wrap'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button
-            onClick={onBack}
-            style={{
-              padding: '0.75rem 1.5rem',
-              fontSize: '1rem',
-              fontWeight: '600',
-              backgroundColor: '#3b82f6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
-          >
-            ← Back to Menu
-          </button>
-          <div>
-            <h1 style={{
-              fontSize: '2.5rem',
-              fontWeight: '800',
-              color: '#1f2937',
-              margin: 0,
-              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-            }}>
-              🛠️ DevOps
-            </h1>
-            {currentSubcategory && (
-              <span style={{
-                padding: '0.25rem 0.75rem',
-                fontSize: '0.85rem',
-                fontWeight: '600',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
-                borderRadius: '6px',
-                marginTop: '0.25rem',
-                display: 'inline-block'
+      <div style={{ maxWidth: '95%', margin: '0 auto' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '2rem',
+          gap: '1rem',
+          flexWrap: 'wrap'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <button
+              onClick={onBack}
+              style={{
+                background: '#3b82f6',
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontWeight: '500',
+                fontSize: '1rem',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#2563eb'
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#3b82f6'
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              ← Back to Menu
+            </button>
+            <div>
+              <h1 style={{
+                fontSize: '2.25rem',
+                fontWeight: 'bold',
+                background: 'linear-gradient(to right, #93c5fd, #60a5fa)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                margin: 0
               }}>
-                {currentSubcategory}
-              </span>
+                🛠️ DevOps
+              </h1>
+              {currentSubcategory && (
+                <span style={{
+                  padding: '0.25rem 0.75rem',
+                  fontSize: '0.85rem',
+                  fontWeight: '600',
+                  backgroundColor: '#1e3a5f',
+                  color: '#93c5fd',
+                  borderRadius: '6px',
+                  marginTop: '0.25rem',
+                  display: 'inline-block'
+                }}>
+                  {currentSubcategory}
+                </span>
+              )}
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            {onPrevious && (
+              <button
+                onClick={onPrevious}
+                style={{
+                  padding: '0.75rem 1.25rem',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              >
+                ← {previousName}
+              </button>
+            )}
+            {onNext && (
+              <button
+                onClick={onNext}
+                style={{
+                  padding: '0.75rem 1.25rem',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              >
+                {nextName} →
+              </button>
             )}
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-          {onPrevious && (
-            <button
-              onClick={onPrevious}
-              style={{
-                padding: '0.75rem 1.25rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
-            >
-              ← {previousName}
-            </button>
-          )}
-          {onNext && (
-            <button
-              onClick={onNext}
-              style={{
-                padding: '0.75rem 1.25rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
-            >
-              {nextName} →
-            </button>
-          )}
-        </div>
-      </div>
 
-      <p style={{
-        textAlign: 'center',
-        fontSize: '1.1rem',
-        color: '#4b5563',
-        marginBottom: '2rem',
-        maxWidth: '900px',
-        margin: '0 auto 2rem'
-      }}>
-        End-to-end CI/CD automation, containerization, orchestration, and testing practices for modern cloud-native development
-      </p>
+        <Breadcrumb breadcrumb={breadcrumb} />
+
+        <p style={{
+          textAlign: 'center',
+          fontSize: '1.2rem',
+          color: '#d1d5db',
+          marginBottom: '2rem',
+          maxWidth: '900px',
+          margin: '0 auto 2rem',
+          lineHeight: '1.8'
+        }}>
+          End-to-end CI/CD automation, containerization, orchestration, and testing practices for modern cloud-native development
+        </p>
 
       <ModernDiagram
         components={components}
@@ -806,6 +819,7 @@ describe('sum', () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }

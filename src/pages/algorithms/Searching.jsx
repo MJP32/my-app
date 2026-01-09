@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
+import BookmarkButton from '../../components/BookmarkButton.jsx'
 import LanguageToggle from '../../components/LanguageToggle.jsx'
 import DrawingCanvas from '../../components/DrawingCanvas.jsx'
+import Breadcrumb from '../../components/Breadcrumb'
 import { isProblemCompleted } from '../../services/progressService'
 import { getPreferredLanguage } from '../../services/languageService'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 
-function Searching({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory }) {
+function Searching({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null)
   const [showSolution, setShowSolution] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
@@ -250,8 +252,9 @@ function Searching({ onBack, onPrevious, onNext, previousName, nextName, current
               </span>
             </div>
 
-            <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
               <CompletionCheckbox problemId={`Searching-${selectedQuestion.id}`} />
+              <BookmarkButton problemId={`Searching-${selectedQuestion.id}`} problemData={{ title: selectedQuestion.title, difficulty: selectedQuestion.difficulty, category: 'Searching' }} />
             </div>
 
             {selectedQuestion.leetcodeUrl && (
@@ -345,6 +348,8 @@ function Searching({ onBack, onPrevious, onNext, previousName, nextName, current
         </button>
       </div>
 
+      <Breadcrumb breadcrumb={breadcrumb} />
+
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#1f2937', marginBottom: '0.5rem' }}>🔍 Searching</h1>
         <p style={{ fontSize: '1.2rem', color: '#6b7280' }}>Master essential searching techniques and algorithms</p>
@@ -386,6 +391,7 @@ function Searching({ onBack, onPrevious, onNext, previousName, nextName, current
                         <div style={{ transform: 'scale(0.85)' }}>
                           <CompletionCheckbox problemId={`Searching-${question.id}`} />
                         </div>
+                        <BookmarkButton size="small" problemId={`Searching-${question.id}`} problemData={{ title: question.title, difficulty: question.difficulty, category: 'Searching' }} />
                         {question.leetcodeUrl && (
                           <a
                             href={question.leetcodeUrl}

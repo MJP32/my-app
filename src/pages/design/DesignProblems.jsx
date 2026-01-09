@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
 import LanguageToggle from '../../components/LanguageToggle.jsx'
+import Breadcrumb from '../../components/Breadcrumb'
 import { isProblemCompleted, getUserCode } from '../../services/progressService'
 import { getPreferredLanguage } from '../../services/languageService'
 
-function DesignProblems({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory }) {
+function DesignProblems({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null)
   const [showSolution, setShowSolution] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
@@ -3381,6 +3382,8 @@ class LFUCacheDetailed:
             )}
           </div>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         <p style={{ fontSize: '1.1rem', color: '#6b7280', marginBottom: '2rem' }}>
           Master common design interview problems: HashMap, ArrayList, Circular Buffer, and more

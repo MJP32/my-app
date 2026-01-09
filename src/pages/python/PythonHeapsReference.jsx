@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function PythonHeapsReference({ onBack }) {
+function PythonHeapsReference({ onBack, breadcrumb }) {
   const [selectedMethod, setSelectedMethod] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -1175,6 +1176,8 @@ print(f"Evicted: {evicted}")  # Critical`
             Complete documentation for all heapq module methods with examples and complexity analysis
           </p>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         {/* Search Bar */}
         <div style={{ marginBottom: '2rem' }}>

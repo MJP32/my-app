@@ -384,6 +384,20 @@ function MyProjects({ onBack, onSelectItem }) {
           description: 'IoT-based security alarm system for apartment buildings. Real-time monitoring, sensor integration, mobile alerts, access control, and emergency response coordination.'
         }
       ]
+    },
+    {
+      title: 'Interview Preparation',
+      icon: '🎯',
+      color: '#8b5cf6',
+      projects: [
+        {
+          id: 'AI Interview Tips',
+          name: 'AI-Enabled Technical Interview',
+          icon: '🤖',
+          color: '#8b5cf6',
+          description: 'Master the art of AI-assisted technical interviews. Learn strategies for coding with AI tools, effective prompting, debugging approaches, and how to demonstrate your skills when AI is part of the interview process.'
+        }
+      ]
     }
   ]
 
@@ -400,51 +414,77 @@ function MyProjects({ onBack, onSelectItem }) {
   })
 
   return (
-    <div style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#d1fae5', minHeight: '100vh' }}>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #134e4a, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
       <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '1.5rem'
+        maxWidth: '80rem',
+        margin: '0 auto'
       }}>
-        <button
-          onClick={onBack}
-          style={{
-            padding: '0.6rem 1.25rem',
-            fontSize: '0.95rem',
-            fontWeight: '600',
-            backgroundColor: '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
-        >
-          ← Back to Menu
-        </button>
-        <h1 style={{
-          fontSize: '2rem',
-          fontWeight: '800',
-          color: '#1f2937',
-          margin: 0
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '2rem'
         }}>
-          💼 My Projects
-        </h1>
-        <div style={{ width: '120px' }}></div>
-      </div>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem'
+          }}>
+            <button
+              onClick={onBack}
+              style={{
+                background: '#0d9488',
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontWeight: '500',
+                fontSize: '1rem',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#0f766e'
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#0d9488'
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              ← Back to Menu
+            </button>
+            <h1 style={{
+              fontSize: '2.25rem',
+              fontWeight: 'bold',
+              background: 'linear-gradient(to right, #2dd4bf, #22d3ee)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              💼 My Projects
+            </h1>
+          </div>
+        </div>
 
-      <p style={{
-        fontSize: '1rem',
-        color: '#4b5563',
-        textAlign: 'center',
-        marginBottom: '1.5rem',
-        lineHeight: '1.6'
-      }}>
-        Real-world projects spanning financial systems, healthcare, and enterprise applications showcasing practical implementations.
-      </p>
+        <p style={{
+          fontSize: '1.2rem',
+          color: '#d1d5db',
+          textAlign: 'center',
+          marginBottom: '3rem',
+          lineHeight: '1.8'
+        }}>
+          Real-world projects spanning financial systems, healthcare, and enterprise applications showcasing practical implementations.
+        </p>
 
       {projectGroups.map((group, groupIndex) => {
         const groupStartIndex = projectGroups
@@ -452,28 +492,35 @@ function MyProjects({ onBack, onSelectItem }) {
           .reduce((sum, g) => sum + g.projects.length, 0)
 
         return (
-          <div key={group.title} style={{ marginBottom: '2rem' }}>
+          <div key={group.title} style={{ marginBottom: '2.5rem' }}>
             {/* Group Header */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.75rem',
-              marginBottom: '1rem',
-              padding: '0.75rem 1rem',
-              backgroundColor: 'white',
-              borderRadius: '10px',
-              borderLeft: `5px solid ${group.color}`,
-              boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
+              gap: '1rem',
+              marginBottom: '1.5rem',
+              padding: '1rem 1.5rem',
+              background: 'linear-gradient(to right, rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.9))',
+              borderRadius: '0.75rem',
+              borderLeft: `4px solid ${group.color}`,
+              boxShadow: `0 4px 15px -3px ${group.color}30`
             }}>
-              <span style={{ fontSize: '1.5rem' }}>{group.icon}</span>
+              <span style={{ fontSize: '2rem' }}>{group.icon}</span>
               <h2 style={{
-                fontSize: '1.4rem',
+                fontSize: '1.5rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: group.color,
                 margin: 0
               }}>
                 {group.title}
               </h2>
+              <span style={{
+                fontSize: '0.875rem',
+                color: '#9ca3af',
+                marginLeft: 'auto'
+              }}>
+                {group.projects.length} {group.projects.length === 1 ? 'project' : 'projects'}
+              </span>
             </div>
 
             {/* Dropdown or Project Cards */}
@@ -492,22 +539,22 @@ function MyProjects({ onBack, onSelectItem }) {
                     padding: '1rem',
                     fontSize: '1rem',
                     fontWeight: '600',
-                    color: '#1f2937',
-                    backgroundColor: 'white',
+                    color: '#e5e7eb',
+                    backgroundColor: '#1f2937',
                     border: `2px solid ${group.color}`,
-                    borderRadius: '10px',
+                    borderRadius: '0.75rem',
                     cursor: 'pointer',
                     outline: 'none',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                     transition: 'all 0.2s ease'
                   }}
                   onFocus={(e) => {
                     e.target.style.borderColor = group.color
-                    e.target.style.boxShadow = `0 0 0 3px ${group.color}40, 0 2px 8px rgba(0,0,0,0.08)`
+                    e.target.style.boxShadow = `0 0 0 3px ${group.color}40, 0 4px 6px rgba(0,0,0,0.1)`
                   }}
                   onBlur={(e) => {
                     e.target.style.borderColor = group.color
-                    e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'
+                    e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                   }}
                 >
                   <option value="">Select a concept to learn...</option>
@@ -522,7 +569,7 @@ function MyProjects({ onBack, onSelectItem }) {
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '1rem'
+                gap: '1.5rem'
               }}>
                 {group.projects.map((item, projIndex) => {
                   const index = groupStartIndex + projIndex
@@ -535,27 +582,27 @@ function MyProjects({ onBack, onSelectItem }) {
                       role="link"
                       aria-label={`${item.name}. ${item.description}`}
                       style={{
-                        backgroundColor: 'white',
-                        padding: '1rem',
-                        borderRadius: '10px',
+                        background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                        padding: '1.5rem',
+                        borderRadius: '0.75rem',
                         border: `2px solid ${item.color}`,
                         cursor: 'pointer',
-                        transition: 'all 0.3s ease',
-                        transform: focusedIndex === index ? 'translateY(-4px)' : 'translateY(0)',
+                        transition: 'all 0.3s',
+                        transform: focusedIndex === index ? 'translateY(-0.5rem)' : 'translateY(0)',
                         boxShadow: focusedIndex === index
-                          ? `0 0 0 3px ${item.color}40, 0 8px 16px rgba(0,0,0,0.15)`
-                          : '0 2px 8px rgba(0,0,0,0.08)',
+                          ? `0 25px 50px -12px ${item.color}50`
+                          : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                         textAlign: 'left',
                         width: '100%'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-4px)'
-                        e.currentTarget.style.boxShadow = `0 0 0 3px ${item.color}40, 0 8px 16px rgba(0,0,0,0.15)`
+                        e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                        e.currentTarget.style.boxShadow = `0 25px 50px -12px ${item.color}50`
                       }}
                       onMouseLeave={(e) => {
                         if (focusedIndex !== index) {
                           e.currentTarget.style.transform = 'translateY(0)'
-                          e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'
+                          e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                         }
                       }}
                     >
@@ -563,29 +610,26 @@ function MyProjects({ onBack, onSelectItem }) {
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.75rem',
-                        marginBottom: '0.75rem'
+                        marginBottom: '1rem'
                       }}>
-                        <div style={{
-                          fontSize: '2rem',
-                          lineHeight: 1
-                        }}>
-                          {item.icon}
+                        <span style={{ fontSize: '2.5rem' }}>{item.icon}</span>
+                        <div>
+                          <h3 style={{
+                            fontSize: '1.25rem',
+                            fontWeight: 'bold',
+                            color: '#5eead4',
+                            marginBottom: '0.25rem'
+                          }}>
+                            {item.name}
+                          </h3>
                         </div>
-                        <h3 style={{
-                          fontSize: '1.1rem',
-                          fontWeight: '700',
-                          color: '#1f2937',
-                          margin: 0
-                        }}>
-                          {item.name}
-                        </h3>
                       </div>
 
                       <p style={{
-                        fontSize: '0.85rem',
-                        color: '#6b7280',
-                        lineHeight: '1.5',
-                        margin: '0.5rem 0'
+                        fontSize: '0.9rem',
+                        color: '#d1d5db',
+                        lineHeight: '1.6',
+                        marginBottom: '1rem'
                       }}>
                         {item.description}
                       </p>
@@ -594,11 +638,12 @@ function MyProjects({ onBack, onSelectItem }) {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'flex-end',
-                        gap: '0.4rem',
-                        fontSize: '0.8rem',
+                        gap: '0.5rem',
+                        fontSize: '0.9rem',
                         color: item.color,
                         fontWeight: '600',
-                        marginTop: '0.75rem'
+                        paddingTop: '0.75rem',
+                        borderTop: '1px solid #374151'
                       }}>
                         <span>Explore Project</span>
                         <span>→</span>
@@ -611,6 +656,7 @@ function MyProjects({ onBack, onSelectItem }) {
           </div>
         )
       })}
+      </div>
     </div>
   )
 }

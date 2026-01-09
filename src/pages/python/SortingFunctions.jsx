@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function SortingFunctions({ onBack }) {
+function SortingFunctions({ onBack, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
 
   const concepts = [
@@ -572,6 +573,8 @@ sorted(data, key=lambda x: (x is None, x or 0))  # OK`
             </h1>
           </div>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <p style={{

@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import CompletionCheckbox from '../../components/CompletionCheckbox'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function PythonStringMethods({ onBack }) {
+function PythonStringMethods({ onBack, breadcrumb }) {
   const [selectedProblem, setSelectedProblem] = useState(null)
   const [showSolution, setShowSolution] = useState(false)
 
@@ -1563,6 +1564,8 @@ def safe_encode(text, encoding='utf-8'):
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <p style={{
         fontSize: '1.2rem',

@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function RabbitMQQuestions({ onBack }) {
+function RabbitMQQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
 
   const renderFormattedAnswer = (text) => {
@@ -1392,10 +1393,12 @@ public class RabbitHealthIndicator implements HealthIndicator {
           color: '#1f2937',
           margin: 0
         }}>
-          🐰 RabbitMQ Interview Questions
+          RabbitMQ Interview Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <p style={{
         fontSize: '1.1rem',

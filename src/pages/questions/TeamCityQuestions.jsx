@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function TeamCityQuestions({ onBack }) {
+function TeamCityQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
 
   const renderFormattedAnswer = (text) => {
@@ -1465,10 +1466,12 @@ Extensive integrations:
           color: '#1f2937',
           margin: 0
         }}>
-          🏗️ TeamCity Interview Questions
+          TeamCity Interview Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <p style={{
         fontSize: '1.1rem',

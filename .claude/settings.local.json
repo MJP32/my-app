@@ -60,7 +60,20 @@
       "Bash(/mnt/c/Windows/py.exe:*)",
       "Bash(/mnt/c/Users/micha/AppData/Local/Programs/Python/Launcher/py.exe:*)",
       "WebSearch",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(timeout 30 npm run build:*)",
+      "Bash(timeout 15 npm run dev:vite:*)",
+      "Bash(timeout 60 npm run build)",
+      "Bash(ls:*)",
+      "Bash(do if grep -q \"import Breadcrumb\" \"$file\")",
+      "Bash(! grep -q \"<Breadcrumb\" \"$file\")",
+      "Bash(then echo \"$file\")",
+      "Bash(then :)",
+      "Bash(else echo \"$file\")",
+      "Bash(timeout 90 npm run build)",
+      "Bash(npm install:*)",
+      "Bash(timeout 10 npm run dev:vite:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

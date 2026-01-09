@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Normalize indentation by removing common leading whitespace
 const normalizeIndentation = (code) => {
@@ -72,7 +73,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function Java11({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory }) {
+function Java11({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedConcept, setSelectedConcept] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
@@ -3577,13 +3578,15 @@ public class GCInterfaceDemo {
 
   return (
     <div style={{
-      padding: '2rem',
-      maxWidth: '95%',
-      margin: '120px auto 0',
-      backgroundColor: 'white',
+      padding: '1.5rem',
+      maxWidth: '80rem',
+      margin: '0 auto',
+      background: 'linear-gradient(to bottom right, #111827, #78350f, #111827)',
+      color: 'white',
+      minHeight: '100vh',
       borderRadius: '16px',
       boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-      border: '3px solid rgba(16, 185, 129, 0.4)'
+      border: '3px solid rgba(245, 158, 11, 0.4)'
     }}>
       <div style={{
         display: 'flex',
@@ -3600,21 +3603,25 @@ public class GCInterfaceDemo {
               padding: '0.75rem 1.5rem',
               fontSize: '1rem',
               fontWeight: '600',
-              backgroundColor: '#3b82f6',
+              background: '#f59e0b',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
             }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#d97706'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#f59e0b'}
           >
-            ← Back to Menu
+            ← Back to Java Topics
           </button>
           <h1 style={{
             fontSize: '2rem',
             fontWeight: '800',
-            color: '#1f2937',
+            background: 'linear-gradient(to right, #fbbf24, #f97316)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
             margin: 0,
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
           }}>
@@ -3642,19 +3649,19 @@ public class GCInterfaceDemo {
                 padding: '0.75rem 1.25rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                backgroundColor: '#10b981',
+                background: '#374151',
                 color: 'white',
-                border: 'none',
+                border: '1px solid #f59e0b',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#4b5563'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#374151'}
             >
               ← {previousName}
             </button>
@@ -3666,19 +3673,19 @@ public class GCInterfaceDemo {
                 padding: '0.75rem 1.25rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                backgroundColor: '#10b981',
+                background: '#374151',
                 color: 'white',
-                border: 'none',
+                border: '1px solid #f59e0b',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#4b5563'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#374151'}
             >
               {nextName} →
             </button>
@@ -3686,12 +3693,14 @@ public class GCInterfaceDemo {
         </div>
       </div>
 
+      <Breadcrumb breadcrumb={breadcrumb} />
+
       <div style={{
-        backgroundColor: 'rgba(16, 185, 129, 0.05)', padding: '2.5rem 10rem',
-        borderRadius: '16px', border: '3px solid rgba(16, 185, 129, 0.3)', marginBottom: '2rem'
+        background: 'linear-gradient(to bottom right, #1f2937, #111827)', padding: '2.5rem 10rem',
+        borderRadius: '16px', border: '2px solid #f59e0b', marginBottom: '2rem'
       }}>
         <p style={{
-          fontSize: '1.3rem', color: '#374151', fontWeight: '500', margin: 0,
+          fontSize: '1.3rem', color: '#d1d5db', fontWeight: '500', margin: 0,
           lineHeight: '1.8', textAlign: 'center'
         }}>
           Discover Java 11 enhancements including var in lambdas, new String methods, HTTP Client API, and performance improvements.
@@ -3714,10 +3723,10 @@ public class GCInterfaceDemo {
                 setSelectedConcept(concepts[category.conceptIds[0]]);
               }}
               style={{
-                backgroundColor: `${category.color}10`,
+                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
                 padding: '2.5rem',
                 borderRadius: '16px',
-                border: `3px solid ${category.color}40`,
+                border: '2px solid #f59e0b',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
@@ -3725,12 +3734,12 @@ public class GCInterfaceDemo {
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-8px)'
                 e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.15)'
-                e.currentTarget.style.borderColor = `${category.color}80`
+                e.currentTarget.style.borderColor = '#fbbf24'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                e.currentTarget.style.borderColor = `${category.color}40`
+                e.currentTarget.style.borderColor = '#f59e0b'
               }}
             >
               <div style={{ fontSize: '4rem', marginBottom: '1rem', textAlign: 'center' }}>
@@ -3739,7 +3748,7 @@ public class GCInterfaceDemo {
               <h3 style={{
                 fontSize: '1.75rem',
                 fontWeight: '700',
-                color: category.color,
+                color: '#fbbf24',
                 marginBottom: '1rem',
                 textAlign: 'center'
               }}>
@@ -3747,7 +3756,7 @@ public class GCInterfaceDemo {
               </h3>
               <p style={{
                 fontSize: '1rem',
-                color: '#6b7280',
+                color: '#d1d5db',
                 lineHeight: '1.6',
                 textAlign: 'center'
               }}>
@@ -3757,7 +3766,7 @@ public class GCInterfaceDemo {
                 marginTop: '1.5rem',
                 textAlign: 'center',
                 fontSize: '0.9rem',
-                color: '#9ca3af',
+                color: '#d1d5db',
                 fontWeight: '600'
               }}>
                 {category.conceptIds.length} topics
@@ -3791,7 +3800,7 @@ public class GCInterfaceDemo {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              background: 'linear-gradient(to bottom right, #111827, #1f2937)',
               borderRadius: '16px',
               maxWidth: '1400px',
               width: '100%',
@@ -3799,22 +3808,23 @@ public class GCInterfaceDemo {
               display: 'flex',
               flexDirection: 'column',
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              border: '2px solid #f59e0b'
             }}
           >
             {/* Modal Header */}
             <div style={{
-              backgroundColor: `${selectedCategory.color}`,
+              backgroundColor: '#1f2937',
               padding: '1.5rem 2rem',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              borderBottom: '2px solid rgba(0, 0, 0, 0.1)'
+              borderBottom: '2px solid #f59e0b'
             }}>
               <h2 style={{
                 fontSize: '2rem',
                 fontWeight: '700',
-                color: 'white',
+                color: '#fbbf24',
                 margin: 0,
                 display: 'flex',
                 alignItems: 'center',
@@ -3858,9 +3868,9 @@ public class GCInterfaceDemo {
               {/* Left Sidebar - Concepts List */}
               <div style={{
                 width: '300px',
-                borderRight: `3px solid ${selectedCategory.color}40`,
+                borderRight: '2px solid #f59e0b',
                 overflowY: 'auto',
-                backgroundColor: '#f9fafb',
+                backgroundColor: '#1f2937',
                 padding: '1.5rem'
               }}>
                 {selectedCategory.conceptIds.map((conceptId) => {
@@ -3875,29 +3885,29 @@ public class GCInterfaceDemo {
                         padding: '1rem',
                         marginBottom: '0.5rem',
                         backgroundColor: isActive
-                          ? `${selectedCategory.color}20`
-                          : 'white',
+                          ? '#374151'
+                          : '#111827',
                         border: isActive
-                          ? `2px solid ${selectedCategory.color}`
-                          : '2px solid #e5e7eb',
+                          ? '2px solid #f59e0b'
+                          : '2px solid #374151',
                         borderRadius: '8px',
                         cursor: 'pointer',
                         textAlign: 'left',
                         transition: 'all 0.2s ease',
                         fontWeight: isActive ? '700' : '600',
-                        color: isActive ? selectedCategory.color : '#374151',
+                        color: isActive ? '#fbbf24' : '#d1d5db',
                         fontSize: '0.95rem'
                       }}
                       onMouseEnter={(e) => {
                         if (!isActive) {
-                          e.currentTarget.style.backgroundColor = '#f3f4f6'
-                          e.currentTarget.style.borderColor = selectedCategory.color
+                          e.currentTarget.style.backgroundColor = '#374151'
+                          e.currentTarget.style.borderColor = '#f59e0b'
                         }
                       }}
                       onMouseLeave={(e) => {
                         if (!isActive) {
-                          e.currentTarget.style.backgroundColor = 'white'
-                          e.currentTarget.style.borderColor = '#e5e7eb'
+                          e.currentTarget.style.backgroundColor = '#111827'
+                          e.currentTarget.style.borderColor = '#374151'
                         }
                       }}
                     >
@@ -3911,12 +3921,13 @@ public class GCInterfaceDemo {
               <div style={{
                 flex: 1,
                 overflowY: 'auto',
-                padding: '2rem'
+                padding: '2rem',
+                backgroundColor: '#111827'
               }}>
                 <h2 style={{
                   fontSize: '2.25rem',
                   fontWeight: '700',
-                  color: selectedCategory.color,
+                  color: '#fbbf24',
                   marginBottom: '1.5rem'
                 }}>
                   {selectedConcept.icon || '🔹'} {selectedConcept.name}
@@ -3924,10 +3935,10 @@ public class GCInterfaceDemo {
 
                 {/* Description */}
                 <div style={{
-                  backgroundColor: `${selectedCategory.color}10`,
+                  background: 'linear-gradient(to bottom right, #1f2937, #111827)',
                   padding: '2rem',
                   borderRadius: '12px',
-                  border: `2px solid ${selectedCategory.color}40`,
+                  border: '2px solid #f59e0b',
                   marginBottom: '2rem'
                 }}>
                   {selectedConcept.explanation.split('\n\n').map((section, idx) => {
@@ -3943,7 +3954,7 @@ public class GCInterfaceDemo {
                             <h3 style={{
                               fontSize: '1.3rem',
                               fontWeight: '700',
-                              color: selectedCategory.color,
+                              color: '#fbbf24',
                               marginBottom: '0.75rem',
                               display: 'flex',
                               alignItems: 'center',
@@ -3952,7 +3963,7 @@ public class GCInterfaceDemo {
                               <span style={{
                                 width: '4px',
                                 height: '1.3rem',
-                                backgroundColor: selectedCategory.color,
+                                backgroundColor: '#f59e0b',
                                 borderRadius: '2px'
                               }}></span>
                               {header}
@@ -3960,7 +3971,7 @@ public class GCInterfaceDemo {
                             <div style={{
                               fontSize: '1.05rem',
                               lineHeight: '1.8',
-                              color: '#374151'
+                              color: '#d1d5db'
                             }}>
                               {content.split('\n').map((line, lineIdx) => {
                                 const trimmedLine = line.trim()
@@ -3981,12 +3992,12 @@ public class GCInterfaceDemo {
                                         marginLeft: '0.5rem'
                                       }}>
                                         <span style={{
-                                          color: selectedCategory.color,
+                                          color: '#fbbf24',
                                           fontWeight: 'bold',
                                           minWidth: '0.5rem'
                                         }}>•</span>
                                         <span>
-                                          <strong style={{ color: selectedCategory.color }}>{name}</strong>
+                                          <strong style={{ color: '#fbbf24' }}>{name}</strong>
                                           {' - '}
                                           {description}
                                         </span>
@@ -4001,7 +4012,7 @@ public class GCInterfaceDemo {
                                       marginLeft: '0.5rem'
                                     }}>
                                       <span style={{
-                                        color: selectedCategory.color,
+                                        color: '#fbbf24',
                                         fontWeight: 'bold',
                                         minWidth: '0.5rem'
                                       }}>•</span>
@@ -4021,10 +4032,10 @@ public class GCInterfaceDemo {
                                       marginLeft: '2rem'
                                     }}>
                                       <span style={{
-                                        color: '#6b7280',
+                                        color: '#9ca3af',
                                         minWidth: '0.5rem'
                                       }}>◦</span>
-                                      <span style={{ color: '#4b5563' }}>{bulletContent}</span>
+                                      <span style={{ color: '#d1d5db' }}>{bulletContent}</span>
                                     </div>
                                   )
                                 }
@@ -4045,7 +4056,7 @@ public class GCInterfaceDemo {
                     return (
                       <p key={idx} style={{
                         fontSize: '1.1rem',
-                        color: '#374151',
+                        color: '#d1d5db',
                         lineHeight: '1.8',
                         marginBottom: idx < selectedConcept.explanation.split('\n\n').length - 1 ? '1rem' : 0
                       }}>

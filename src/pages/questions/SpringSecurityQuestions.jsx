@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-export default function SpringSecurityQuestions({ onBack }) {
+export default function SpringSecurityQuestions({ onBack, breadcrumb }) {
   const [expandedQuestionId, setExpandedQuestionId] = useState(null)
   const categoryColor = '#10b981'
 
@@ -774,10 +775,12 @@ public class UserController {
           color: '#1f2937',
           margin: 0
         }}>
-          🔒 Spring Security Questions
+          Spring Security Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         display: 'flex',

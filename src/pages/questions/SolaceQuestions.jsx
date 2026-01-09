@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function SolaceQuestions({ onBack }) {
+function SolaceQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
 
   const renderFormattedAnswer = (text) => {
@@ -1499,10 +1500,12 @@ public class SolaceHealthIndicator implements HealthIndicator {
           color: '#1f2937',
           margin: 0
         }}>
-          📡 Solace Interview Questions
+          Solace Interview Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <p style={{
         fontSize: '1.1rem',

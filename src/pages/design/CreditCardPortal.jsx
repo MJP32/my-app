@@ -5,8 +5,9 @@ import {
   ArrowUpRight, ArrowDownLeft, Calendar, DollarSign, Shield, Star,
   Filter, Search, MoreHorizontal, RefreshCw, PlusCircle
 } from 'lucide-react';
+import Breadcrumb from '../../components/Breadcrumb';
 
-export default function CreditCardPortal({ onBack }) {
+export default function CreditCardPortal({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('portal');
   const [expandedLayers, setExpandedLayers] = useState({});
   const [selectedComponent, setSelectedComponent] = useState(null);
@@ -354,6 +355,8 @@ export default function CreditCardPortal({ onBack }) {
             <span className="px-3 py-1 bg-blue-900/50 text-blue-300 rounded-full text-sm">Circuit Breaker</span>
           </div>
         </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         <div className="flex gap-4 mb-8 border-b border-gray-700 overflow-x-auto">
           {['portal', 'main', 'detailed', 'flows', 'techstack'].map(tab => (

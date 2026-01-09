@@ -154,7 +154,7 @@ const KeyboardShortcutsDialog = ({ isOpen, onClose, triggerElement = null }) => 
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 10000,
+        zIndex: 2000000,
         padding: '2rem'
       }}
       onClick={(e) => {

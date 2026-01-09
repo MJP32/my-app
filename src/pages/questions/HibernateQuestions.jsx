@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function HibernateQuestions({ onBack }) {
+function HibernateQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
 
   // Helper function to render formatted text with colors for bold sections
@@ -714,10 +715,12 @@ sessionFactory.getCache().evictAllRegions();
           color: '#1f2937',
           margin: 0
         }}>
-          🔧 Hibernate Interview Questions
+          Hibernate Interview Questions
         </h1>
         <div style={{ width: '150px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <p style={{
         fontSize: '1.1rem',

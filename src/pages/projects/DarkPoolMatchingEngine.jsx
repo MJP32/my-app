@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 const ModernDiagram = ({ components, onComponentClick, title, width = 1400, height = 800, containerWidth = 1800, focusedIndex }) => {
   const [hoveredComponent, setHoveredComponent] = useState(null)
@@ -207,7 +208,7 @@ const ModernDiagram = ({ components, onComponentClick, title, width = 1400, heig
   )
 }
 
-function DarkPoolMatchingEngine({ onBack }) {
+function DarkPoolMatchingEngine({ onBack, breadcrumb }) {
   const [selectedComponent, setSelectedComponent] = useState(null)
   const [selectedConcept, setSelectedConcept] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -409,6 +410,8 @@ function DarkPoolMatchingEngine({ onBack }) {
         </h1>
         <div style={{ width: '120px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         backgroundColor: 'rgba(59, 130, 246, 0.05)',

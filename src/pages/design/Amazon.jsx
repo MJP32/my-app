@@ -1,10 +1,11 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function Amazon({ onBack }) {
+function Amazon({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview')
 
   return (
-    <div style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#fff5e6', minHeight: '100vh' }}>
+    <div style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
       {/* Header */}
       <div style={{
         display: 'flex',
@@ -18,9 +19,9 @@ function Amazon({ onBack }) {
             padding: '0.6rem 1.25rem',
             fontSize: '0.95rem',
             fontWeight: '600',
-            backgroundColor: '#6b7280',
-            color: 'white',
-            border: 'none',
+            backgroundColor: '#1f2937',
+            color: '#fdba74',
+            border: '1px solid #c2410c',
             borderRadius: '8px',
             cursor: 'pointer'
           }}
@@ -30,7 +31,7 @@ function Amazon({ onBack }) {
         <h1 style={{
           fontSize: '2rem',
           fontWeight: '800',
-          color: '#1f2937',
+          color: '#ffffff',
           margin: 0
         }}>
           🛒 Amazon E-Commerce System Design
@@ -44,10 +45,10 @@ function Amazon({ onBack }) {
         gap: '0.5rem',
         marginBottom: '1.5rem',
         flexWrap: 'wrap',
-        backgroundColor: 'white',
+        backgroundColor: '#1f2937',
         padding: '0.75rem',
         borderRadius: '10px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
       }}>
         {[
           { id: 'overview', label: 'Overview', icon: '📋' },
@@ -65,8 +66,8 @@ function Amazon({ onBack }) {
               padding: '0.6rem 1.25rem',
               fontSize: '0.9rem',
               fontWeight: '600',
-              backgroundColor: activeTab === tab.id ? '#ff9900' : '#f3f4f6',
-              color: activeTab === tab.id ? 'white' : '#4b5563',
+              backgroundColor: activeTab === tab.id ? '#ff9900' : '#374151',
+              color: activeTab === tab.id ? 'white' : '#d1d5db',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
@@ -80,18 +81,18 @@ function Amazon({ onBack }) {
 
       {/* Content */}
       <div style={{
-        backgroundColor: 'white',
+        backgroundColor: '#1f2937',
         padding: '2rem',
         borderRadius: '10px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
         minHeight: '500px'
       }}>
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <div className="space-y-8">
             <div>
-              <h2 className="text-3xl font-bold mb-4 text-gray-800">System Overview</h2>
-              <p className="text-gray-600 leading-relaxed">
+              <h2 className="text-3xl font-bold mb-4 text-white">System Overview</h2>
+              <p className="text-gray-300 leading-relaxed">
                 Design a highly scalable e-commerce platform like Amazon that handles millions of products,
                 concurrent users, transactions, and provides features like product search, recommendations,
                 shopping cart, order processing, and payment integration.
@@ -99,43 +100,43 @@ function Amazon({ onBack }) {
             </div>
 
             {/* Scale Metrics */}
-            <div className="bg-gradient-to-br from-orange-100 to-orange-50 rounded-xl p-6 border-2 border-orange-200">
-              <h3 className="text-2xl font-bold mb-4 text-orange-800">📊 Scale & Metrics</h3>
+            <div className="bg-gradient-to-br from-orange-900/30 to-orange-900/30 rounded-xl p-6 border-2 border-orange-700">
+              <h3 className="text-2xl font-bold mb-4 text-orange-400">📊 Scale & Metrics</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="bg-white rounded-lg p-4 shadow-md">
-                  <div className="text-3xl font-bold text-orange-600 mb-1">300M+</div>
-                  <div className="text-sm text-gray-600">Active customers</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl font-bold text-orange-400 mb-1">300M+</div>
+                  <div className="text-sm text-gray-300">Active customers</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow-md">
-                  <div className="text-3xl font-bold text-orange-600 mb-1">12M+</div>
-                  <div className="text-sm text-gray-600">Product SKUs</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl font-bold text-orange-400 mb-1">12M+</div>
+                  <div className="text-sm text-gray-300">Product SKUs</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow-md">
-                  <div className="text-3xl font-bold text-orange-600 mb-1">1.7M</div>
-                  <div className="text-sm text-gray-600">Sellers</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl font-bold text-orange-400 mb-1">1.7M</div>
+                  <div className="text-sm text-gray-300">Sellers</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow-md">
-                  <div className="text-3xl font-bold text-orange-600 mb-1">5B+</div>
-                  <div className="text-sm text-gray-600">Orders per year</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl font-bold text-orange-400 mb-1">5B+</div>
+                  <div className="text-sm text-gray-300">Orders per year</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow-md">
-                  <div className="text-3xl font-bold text-orange-600 mb-1">$500B+</div>
-                  <div className="text-sm text-gray-600">GMV annually</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl font-bold text-orange-400 mb-1">$500B+</div>
+                  <div className="text-sm text-gray-300">GMV annually</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow-md">
-                  <div className="text-3xl font-bold text-orange-600 mb-1">100K</div>
-                  <div className="text-sm text-gray-600">Peak orders/min</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl font-bold text-orange-400 mb-1">100K</div>
+                  <div className="text-sm text-gray-300">Peak orders/min</div>
                 </div>
               </div>
             </div>
 
             {/* Functional Requirements */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border-2 border-blue-200">
-              <h3 className="text-2xl font-bold mb-4 text-blue-800">🎯 Functional Requirements</h3>
+            <div className="bg-gradient-to-br from-blue-900/30 to-blue-900/30 rounded-xl p-6 border-2 border-blue-700">
+              <h3 className="text-2xl font-bold mb-4 text-blue-400">🎯 Functional Requirements</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-bold text-blue-700 mb-2">Core Features:</h4>
-                  <ul className="space-y-2 text-gray-700">
+                  <h4 className="font-bold text-blue-400 mb-2">Core Features:</h4>
+                  <ul className="space-y-2 text-gray-300">
                     <li>✓ Product catalog browsing</li>
                     <li>✓ Product search & filtering</li>
                     <li>✓ Shopping cart management</li>
@@ -145,8 +146,8 @@ function Amazon({ onBack }) {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-bold text-blue-700 mb-2">Advanced Features:</h4>
-                  <ul className="space-y-2 text-gray-700">
+                  <h4 className="font-bold text-blue-400 mb-2">Advanced Features:</h4>
+                  <ul className="space-y-2 text-gray-300">
                     <li>✓ Product recommendations</li>
                     <li>✓ Inventory management</li>
                     <li>✓ Seller dashboard</li>
@@ -159,18 +160,18 @@ function Amazon({ onBack }) {
             </div>
 
             {/* Non-Functional Requirements */}
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border-2 border-purple-200">
-              <h3 className="text-2xl font-bold mb-4 text-purple-800">⚙️ Non-Functional Requirements</h3>
+            <div className="bg-gradient-to-br from-purple-900/30 to-purple-900/30 rounded-xl p-6 border-2 border-purple-700">
+              <h3 className="text-2xl font-bold mb-4 text-purple-400">⚙️ Non-Functional Requirements</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <ul className="space-y-2 text-gray-700">
+                  <ul className="space-y-2 text-gray-300">
                     <li><strong>Availability:</strong> 99.99% uptime (53 min/year downtime)</li>
                     <li><strong>Latency:</strong> {'<'} 200ms for product search</li>
                     <li><strong>Consistency:</strong> Strong consistency for orders/inventory</li>
                   </ul>
                 </div>
                 <div>
-                  <ul className="space-y-2 text-gray-700">
+                  <ul className="space-y-2 text-gray-300">
                     <li><strong>Scalability:</strong> Handle 10M concurrent users</li>
                     <li><strong>Security:</strong> PCI DSS compliance for payments</li>
                     <li><strong>Reliability:</strong> No lost transactions</li>
@@ -184,7 +185,7 @@ function Amazon({ onBack }) {
         {/* Architecture Tab */}
         {activeTab === 'architecture' && (
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold mb-6 text-gray-800">🏗️ High-Level Architecture</h2>
+            <h2 className="text-3xl font-bold mb-6 text-white">🏗️ High-Level Architecture</h2>
 
             <div className="flex flex-col items-center space-y-4">
               {/* Client Layer */}
@@ -305,24 +306,24 @@ function Amazon({ onBack }) {
             </div>
 
             {/* Key Design Patterns */}
-            <div className="mt-8 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border-2 border-yellow-200">
-              <h3 className="text-2xl font-bold mb-4 text-yellow-800">🎨 Key Design Patterns</h3>
+            <div className="mt-8 bg-gradient-to-br from-yellow-900/30 to-yellow-900/30 rounded-xl p-6 border-2 border-yellow-700">
+              <h3 className="text-2xl font-bold mb-4 text-yellow-400">🎨 Key Design Patterns</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🔄 CQRS Pattern</div>
-                  <div className="text-sm text-gray-600">Separate read/write operations for better performance</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">🔄 CQRS Pattern</div>
+                  <div className="text-sm text-gray-300">Separate read/write operations for better performance</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📦 Event Sourcing</div>
-                  <div className="text-sm text-gray-600">Store all order state changes as events</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">📦 Event Sourcing</div>
+                  <div className="text-sm text-gray-300">Store all order state changes as events</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🎪 Saga Pattern</div>
-                  <div className="text-sm text-gray-600">Distributed transactions for order processing</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">🎪 Saga Pattern</div>
+                  <div className="text-sm text-gray-300">Distributed transactions for order processing</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🔌 Circuit Breaker</div>
-                  <div className="text-sm text-gray-600">Prevent cascade failures in microservices</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">🔌 Circuit Breaker</div>
+                  <div className="text-sm text-gray-300">Prevent cascade failures in microservices</div>
                 </div>
               </div>
             </div>
@@ -332,13 +333,13 @@ function Amazon({ onBack }) {
         {/* Product Catalog Tab */}
         {activeTab === 'catalog' && (
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold mb-6 text-gray-800">📦 Product Catalog & Inventory</h2>
+            <h2 className="text-3xl font-bold mb-6 text-white">📦 Product Catalog & Inventory</h2>
 
             {/* Product Data Model */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border-2 border-blue-200">
-              <h3 className="text-2xl font-bold mb-4 text-blue-800">Product Data Model</h3>
-              <div className="bg-white rounded-lg p-4 shadow">
-                <div className="font-mono text-sm text-gray-800 space-y-1">
+            <div className="bg-gradient-to-br from-blue-900/30 to-blue-900/30 rounded-xl p-6 border-2 border-blue-700">
+              <h3 className="text-2xl font-bold mb-4 text-blue-400">Product Data Model</h3>
+              <div className="bg-gray-800 rounded-lg p-4 shadow">
+                <div className="font-mono text-sm text-gray-300 space-y-1">
                   <div><strong>Product:</strong></div>
                   <div className="ml-4">- product_id: UUID</div>
                   <div className="ml-4">- name: string</div>
@@ -355,7 +356,7 @@ function Amazon({ onBack }) {
 
             {/* Inventory System Flow */}
             <div className="space-y-4">
-              <h3 className="text-2xl font-bold text-gray-800">Inventory Management Flow</h3>
+              <h3 className="text-2xl font-bold text-white">Inventory Management Flow</h3>
 
               <div className="flex flex-col items-center space-y-4">
                 {/* Real-time Inventory Check */}
@@ -405,24 +406,24 @@ function Amazon({ onBack }) {
             </div>
 
             {/* Inventory Strategies */}
-            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border-2 border-orange-200">
-              <h3 className="text-2xl font-bold mb-4 text-orange-800">Inventory Strategies</h3>
+            <div className="bg-gradient-to-br from-orange-900/30 to-orange-900/30 rounded-xl p-6 border-2 border-orange-700">
+              <h3 className="text-2xl font-bold mb-4 text-orange-400">Inventory Strategies</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🔢 Database Sharding</div>
-                  <div className="text-sm text-gray-600">Shard by product_id for horizontal scaling</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">🔢 Database Sharding</div>
+                  <div className="text-sm text-gray-300">Shard by product_id for horizontal scaling</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">⚡ Redis Caching</div>
-                  <div className="text-sm text-gray-600">Cache hot products (80/20 rule), 5-min TTL</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">⚡ Redis Caching</div>
+                  <div className="text-sm text-gray-300">Cache hot products (80/20 rule), 5-min TTL</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🎯 Optimistic Locking</div>
-                  <div className="text-sm text-gray-600">Version-based concurrency control to prevent overselling</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">🎯 Optimistic Locking</div>
+                  <div className="text-sm text-gray-300">Version-based concurrency control to prevent overselling</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📦 Multi-Warehouse</div>
-                  <div className="text-sm text-gray-600">Track inventory across multiple fulfillment centers</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">📦 Multi-Warehouse</div>
+                  <div className="text-sm text-gray-300">Track inventory across multiple fulfillment centers</div>
                 </div>
               </div>
             </div>
@@ -432,24 +433,24 @@ function Amazon({ onBack }) {
         {/* Shopping & Checkout Tab */}
         {activeTab === 'shopping' && (
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold mb-6 text-gray-800">🛒 Shopping Cart & Checkout Flow</h2>
+            <h2 className="text-3xl font-bold mb-6 text-white">🛒 Shopping Cart & Checkout Flow</h2>
 
             {/* Shopping Cart Architecture */}
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-200">
-              <h3 className="text-2xl font-bold mb-4 text-green-800">Shopping Cart Storage</h3>
+            <div className="bg-gradient-to-br from-green-900/30 to-green-900/30 rounded-xl p-6 border-2 border-green-700">
+              <h3 className="text-2xl font-bold mb-4 text-green-400">Shopping Cart Storage</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">👤 Logged-in Users</div>
-                  <div className="text-sm text-gray-600 mb-3">Store in DynamoDB for persistence</div>
-                  <div className="text-xs font-mono text-gray-500">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">👤 Logged-in Users</div>
+                  <div className="text-sm text-gray-300 mb-3">Store in DynamoDB for persistence</div>
+                  <div className="text-xs font-mono text-gray-400">
                     Key: user_id<br/>
                     TTL: 90 days
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">👻 Anonymous Users</div>
-                  <div className="text-sm text-gray-600 mb-3">Store in Redis with session_id</div>
-                  <div className="text-xs font-mono text-gray-500">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">👻 Anonymous Users</div>
+                  <div className="text-sm text-gray-300 mb-3">Store in Redis with session_id</div>
+                  <div className="text-xs font-mono text-gray-400">
                     Key: session_id<br/>
                     TTL: 7 days
                   </div>
@@ -459,7 +460,7 @@ function Amazon({ onBack }) {
 
             {/* Checkout Flow */}
             <div className="space-y-4">
-              <h3 className="text-2xl font-bold text-gray-800">Checkout Flow</h3>
+              <h3 className="text-2xl font-bold text-white">Checkout Flow</h3>
 
               <div className="flex flex-col items-center space-y-4">
                 {/* Step 1 */}
@@ -545,24 +546,24 @@ function Amazon({ onBack }) {
             </div>
 
             {/* Payment Gateway Integration */}
-            <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-6 border-2 border-indigo-200">
-              <h3 className="text-2xl font-bold mb-4 text-indigo-800">💳 Payment Gateway Integration</h3>
+            <div className="bg-gradient-to-br from-indigo-900/30 to-indigo-900/30 rounded-xl p-6 border-2 border-indigo-700">
+              <h3 className="text-2xl font-bold mb-4 text-indigo-400">💳 Payment Gateway Integration</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🔐 PCI DSS Compliance</div>
-                  <div className="text-sm text-gray-600">Never store raw card data, use tokenization (Stripe, Braintree)</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">🔐 PCI DSS Compliance</div>
+                  <div className="text-sm text-gray-300">Never store raw card data, use tokenization (Stripe, Braintree)</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🛡️ Fraud Detection</div>
-                  <div className="text-sm text-gray-600">Real-time fraud scoring, velocity checks, device fingerprinting</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">🛡️ Fraud Detection</div>
+                  <div className="text-sm text-gray-300">Real-time fraud scoring, velocity checks, device fingerprinting</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🔄 Retry Logic</div>
-                  <div className="text-sm text-gray-600">Exponential backoff for failed payments, idempotency keys</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">🔄 Retry Logic</div>
+                  <div className="text-sm text-gray-300">Exponential backoff for failed payments, idempotency keys</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">💰 Multiple Payment Methods</div>
-                  <div className="text-sm text-gray-600">Credit/Debit cards, digital wallets, BNPL, gift cards</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">💰 Multiple Payment Methods</div>
+                  <div className="text-sm text-gray-300">Credit/Debit cards, digital wallets, BNPL, gift cards</div>
                 </div>
               </div>
             </div>
@@ -572,11 +573,11 @@ function Amazon({ onBack }) {
         {/* Order Processing Tab */}
         {activeTab === 'order' && (
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold mb-6 text-gray-800">📮 Order Processing & Fulfillment</h2>
+            <h2 className="text-3xl font-bold mb-6 text-white">📮 Order Processing & Fulfillment</h2>
 
             {/* Order State Machine */}
             <div className="space-y-4">
-              <h3 className="text-2xl font-bold text-gray-800">Order State Machine</h3>
+              <h3 className="text-2xl font-bold text-white">Order State Machine</h3>
 
               <div className="flex flex-col items-center space-y-4">
                 <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-4 shadow-xl border-2 border-blue-400 max-w-2xl w-full">
@@ -611,28 +612,28 @@ function Amazon({ onBack }) {
             </div>
 
             {/* Saga Pattern for Distributed Transaction */}
-            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border-2 border-red-200">
-              <h3 className="text-2xl font-bold mb-4 text-red-800">🎪 Saga Pattern: Order Processing</h3>
+            <div className="bg-gradient-to-br from-red-900/30 to-red-900/30 rounded-xl p-6 border-2 border-red-700">
+              <h3 className="text-2xl font-bold mb-4 text-red-400">🎪 Saga Pattern: Order Processing</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">Step 1: Reserve Inventory</div>
-                  <div className="text-sm text-gray-600">Compensating: Release inventory reservation</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">Step 1: Reserve Inventory</div>
+                  <div className="text-sm text-gray-300">Compensating: Release inventory reservation</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">Step 2: Process Payment</div>
-                  <div className="text-sm text-gray-600">Compensating: Refund payment</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">Step 2: Process Payment</div>
+                  <div className="text-sm text-gray-300">Compensating: Refund payment</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">Step 3: Create Shipment</div>
-                  <div className="text-sm text-gray-600">Compensating: Cancel shipment</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">Step 3: Create Shipment</div>
+                  <div className="text-sm text-gray-300">Compensating: Cancel shipment</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">Step 4: Send Confirmation</div>
-                  <div className="text-sm text-gray-600">Compensating: Send cancellation email</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">Step 4: Send Confirmation</div>
+                  <div className="text-sm text-gray-300">Compensating: Send cancellation email</div>
                 </div>
               </div>
-              <div className="mt-4 p-4 bg-red-100 rounded-lg border border-red-300">
-                <div className="text-sm text-gray-700">
+              <div className="mt-4 p-4 bg-red-900/50 rounded-lg border border-red-700">
+                <div className="text-sm text-gray-300">
                   <strong>Note:</strong> Each step publishes success/failure events to Kafka.
                   Saga orchestrator coordinates the flow and triggers compensating transactions on failure.
                 </div>
@@ -640,47 +641,47 @@ function Amazon({ onBack }) {
             </div>
 
             {/* Fulfillment Centers */}
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-200">
-              <h3 className="text-2xl font-bold mb-4 text-green-800">📦 Fulfillment Center Selection</h3>
+            <div className="bg-gradient-to-br from-green-900/30 to-green-900/30 rounded-xl p-6 border-2 border-green-700">
+              <h3 className="text-2xl font-bold mb-4 text-green-400">📦 Fulfillment Center Selection</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🗺️ Geographic Proximity</div>
-                  <div className="text-sm text-gray-600">Select nearest FC to customer address for faster delivery</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">🗺️ Geographic Proximity</div>
+                  <div className="text-sm text-gray-300">Select nearest FC to customer address for faster delivery</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📊 Inventory Availability</div>
-                  <div className="text-sm text-gray-600">Check real-time stock levels across all FCs</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">📊 Inventory Availability</div>
+                  <div className="text-sm text-gray-300">Check real-time stock levels across all FCs</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">⚖️ Load Balancing</div>
-                  <div className="text-sm text-gray-600">Distribute orders evenly to prevent FC overload</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">⚖️ Load Balancing</div>
+                  <div className="text-sm text-gray-300">Distribute orders evenly to prevent FC overload</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">💰 Cost Optimization</div>
-                  <div className="text-sm text-gray-600">Minimize shipping costs while meeting delivery SLAs</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">💰 Cost Optimization</div>
+                  <div className="text-sm text-gray-300">Minimize shipping costs while meeting delivery SLAs</div>
                 </div>
               </div>
             </div>
 
             {/* Order Tracking */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border-2 border-blue-200">
-              <h3 className="text-2xl font-bold mb-4 text-blue-800">📍 Real-time Order Tracking</h3>
+            <div className="bg-gradient-to-br from-blue-900/30 to-blue-900/30 rounded-xl p-6 border-2 border-blue-700">
+              <h3 className="text-2xl font-bold mb-4 text-blue-400">📍 Real-time Order Tracking</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🚚 Carrier Integration</div>
-                  <div className="text-sm text-gray-600">FedEx, UPS, USPS APIs for tracking updates</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">🚚 Carrier Integration</div>
+                  <div className="text-sm text-gray-300">FedEx, UPS, USPS APIs for tracking updates</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📱 Push Notifications</div>
-                  <div className="text-sm text-gray-600">Real-time updates on order status changes</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">📱 Push Notifications</div>
+                  <div className="text-sm text-gray-300">Real-time updates on order status changes</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🗺️ GPS Tracking</div>
-                  <div className="text-sm text-gray-600">Live location of delivery vehicle (Amazon Logistics)</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">🗺️ GPS Tracking</div>
+                  <div className="text-sm text-gray-300">Live location of delivery vehicle (Amazon Logistics)</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📧 Email Updates</div>
-                  <div className="text-sm text-gray-600">Shipped, out for delivery, delivered confirmations</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">📧 Email Updates</div>
+                  <div className="text-sm text-gray-300">Shipped, out for delivery, delivered confirmations</div>
                 </div>
               </div>
             </div>
@@ -690,128 +691,128 @@ function Amazon({ onBack }) {
         {/* Scalability Tab */}
         {activeTab === 'scalability' && (
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold mb-6 text-gray-800">⚡ Scalability & Performance</h2>
+            <h2 className="text-3xl font-bold mb-6 text-white">⚡ Scalability & Performance</h2>
 
             {/* Database Scaling */}
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border-2 border-purple-200">
-              <h3 className="text-2xl font-bold mb-4 text-purple-800">🗄️ Database Scaling Strategies</h3>
+            <div className="bg-gradient-to-br from-purple-900/30 to-purple-900/30 rounded-xl p-6 border-2 border-purple-700">
+              <h3 className="text-2xl font-bold mb-4 text-purple-400">🗄️ Database Scaling Strategies</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📊 Sharding</div>
-                  <div className="text-sm text-gray-600 mb-2">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">📊 Sharding</div>
+                  <div className="text-sm text-gray-300 mb-2">
                     <strong>Product DB:</strong> Shard by product_id<br/>
                     <strong>User DB:</strong> Shard by user_id<br/>
                     <strong>Order DB:</strong> Shard by order_id or user_id
                   </div>
-                  <div className="text-xs text-gray-500">Horizontal scaling across multiple database servers</div>
+                  <div className="text-xs text-gray-400">Horizontal scaling across multiple database servers</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🔄 Read Replicas</div>
-                  <div className="text-sm text-gray-600">Multiple read replicas per shard, route reads to replicas (95% reads, 5% writes)</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">🔄 Read Replicas</div>
+                  <div className="text-sm text-gray-300">Multiple read replicas per shard, route reads to replicas (95% reads, 5% writes)</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📈 Connection Pooling</div>
-                  <div className="text-sm text-gray-600">PgBouncer/RDS Proxy to manage thousands of concurrent connections</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">📈 Connection Pooling</div>
+                  <div className="text-sm text-gray-300">PgBouncer/RDS Proxy to manage thousands of concurrent connections</div>
                 </div>
               </div>
             </div>
 
             {/* Caching Strategy */}
-            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border-2 border-red-200">
-              <h3 className="text-2xl font-bold mb-4 text-red-800">⚡ Multi-layer Caching</h3>
+            <div className="bg-gradient-to-br from-red-900/30 to-red-900/30 rounded-xl p-6 border-2 border-red-700">
+              <h3 className="text-2xl font-bold mb-4 text-red-400">⚡ Multi-layer Caching</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">1️⃣ CDN (CloudFront)</div>
-                  <div className="text-sm text-gray-600">Cache static assets, product images, CSS/JS (TTL: 7 days)</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">1️⃣ CDN (CloudFront)</div>
+                  <div className="text-sm text-gray-300">Cache static assets, product images, CSS/JS (TTL: 7 days)</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">2️⃣ Redis (Application Cache)</div>
-                  <div className="text-sm text-gray-600">Hot products, user sessions, shopping carts (TTL: 5-30 min)</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">2️⃣ Redis (Application Cache)</div>
+                  <div className="text-sm text-gray-300">Hot products, user sessions, shopping carts (TTL: 5-30 min)</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">3️⃣ Elasticsearch Cache</div>
-                  <div className="text-sm text-gray-600">Search results, popular queries, filters (TTL: 10 min)</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">3️⃣ Elasticsearch Cache</div>
+                  <div className="text-sm text-gray-300">Search results, popular queries, filters (TTL: 10 min)</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">4️⃣ Browser Cache</div>
-                  <div className="text-sm text-gray-600">Client-side caching for images, scripts, API responses</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">4️⃣ Browser Cache</div>
+                  <div className="text-sm text-gray-300">Client-side caching for images, scripts, API responses</div>
                 </div>
               </div>
             </div>
 
             {/* Search Optimization */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border-2 border-blue-200">
-              <h3 className="text-2xl font-bold mb-4 text-blue-800">🔍 Product Search at Scale</h3>
+            <div className="bg-gradient-to-br from-blue-900/30 to-blue-900/30 rounded-xl p-6 border-2 border-blue-700">
+              <h3 className="text-2xl font-bold mb-4 text-blue-400">🔍 Product Search at Scale</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📚 Elasticsearch Cluster</div>
-                  <div className="text-sm text-gray-600">12M+ products indexed, sharded across 50+ nodes</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">📚 Elasticsearch Cluster</div>
+                  <div className="text-sm text-gray-300">12M+ products indexed, sharded across 50+ nodes</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🎯 Relevance Ranking</div>
-                  <div className="text-sm text-gray-600">BM25 scoring + personalized ranking based on user history</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">🎯 Relevance Ranking</div>
+                  <div className="text-sm text-gray-300">BM25 scoring + personalized ranking based on user history</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🔤 Autocomplete</div>
-                  <div className="text-sm text-gray-600">N-gram tokenization, edge n-grams for prefix matching</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">🔤 Autocomplete</div>
+                  <div className="text-sm text-gray-300">N-gram tokenization, edge n-grams for prefix matching</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🎨 Faceted Search</div>
-                  <div className="text-sm text-gray-600">Category, brand, price range, ratings filters with aggregations</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">🎨 Faceted Search</div>
+                  <div className="text-sm text-gray-300">Category, brand, price range, ratings filters with aggregations</div>
                 </div>
               </div>
             </div>
 
             {/* Performance Metrics */}
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-200">
-              <h3 className="text-2xl font-bold mb-4 text-green-800">📊 Performance Targets</h3>
+            <div className="bg-gradient-to-br from-green-900/30 to-green-900/30 rounded-xl p-6 border-2 border-green-700">
+              <h3 className="text-2xl font-bold mb-4 text-green-400">📊 Performance Targets</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="text-2xl font-bold text-green-600 mb-1">{'<'} 200ms</div>
-                  <div className="text-sm text-gray-600">Product search response time (p95)</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="text-2xl font-bold text-green-400 mb-1">{'<'} 200ms</div>
+                  <div className="text-sm text-gray-300">Product search response time (p95)</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="text-2xl font-bold text-green-600 mb-1">{'<'} 100ms</div>
-                  <div className="text-sm text-gray-600">Add to cart operation (p95)</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="text-2xl font-bold text-green-400 mb-1">{'<'} 100ms</div>
+                  <div className="text-sm text-gray-300">Add to cart operation (p95)</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="text-2xl font-bold text-green-600 mb-1">{'<'} 3 sec</div>
-                  <div className="text-sm text-gray-600">Checkout completion time (p95)</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="text-2xl font-bold text-green-400 mb-1">{'<'} 3 sec</div>
+                  <div className="text-sm text-gray-300">Checkout completion time (p95)</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="text-2xl font-bold text-green-600 mb-1">99.99%</div>
-                  <div className="text-sm text-gray-600">System availability (53 min/year downtime)</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="text-2xl font-bold text-green-400 mb-1">99.99%</div>
+                  <div className="text-sm text-gray-300">System availability (53 min/year downtime)</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="text-2xl font-bold text-green-600 mb-1">100K</div>
-                  <div className="text-sm text-gray-600">Orders processed per minute (peak)</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="text-2xl font-bold text-green-400 mb-1">100K</div>
+                  <div className="text-sm text-gray-300">Orders processed per minute (peak)</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="text-2xl font-bold text-green-600 mb-1">10M</div>
-                  <div className="text-sm text-gray-600">Concurrent users supported</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="text-2xl font-bold text-green-400 mb-1">10M</div>
+                  <div className="text-sm text-gray-300">Concurrent users supported</div>
                 </div>
               </div>
             </div>
 
             {/* Monitoring & Observability */}
-            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border-2 border-orange-200">
-              <h3 className="text-2xl font-bold mb-4 text-orange-800">📈 Monitoring & Observability</h3>
+            <div className="bg-gradient-to-br from-orange-900/30 to-orange-900/30 rounded-xl p-6 border-2 border-orange-700">
+              <h3 className="text-2xl font-bold mb-4 text-orange-400">📈 Monitoring & Observability</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📊 Metrics (Datadog/CloudWatch)</div>
-                  <div className="text-sm text-gray-600">CPU, memory, latency, throughput, error rates</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">📊 Metrics (Datadog/CloudWatch)</div>
+                  <div className="text-sm text-gray-300">CPU, memory, latency, throughput, error rates</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📝 Logging (ELK Stack)</div>
-                  <div className="text-sm text-gray-600">Centralized logging, structured logs, log aggregation</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">📝 Logging (ELK Stack)</div>
+                  <div className="text-sm text-gray-300">Centralized logging, structured logs, log aggregation</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🔍 Tracing (Jaeger/X-Ray)</div>
-                  <div className="text-sm text-gray-600">Distributed tracing across microservices</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">🔍 Tracing (Jaeger/X-Ray)</div>
+                  <div className="text-sm text-gray-300">Distributed tracing across microservices</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🚨 Alerting (PagerDuty)</div>
-                  <div className="text-sm text-gray-600">On-call rotation, incident management, SLA alerts</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-white mb-2">🚨 Alerting (PagerDuty)</div>
+                  <div className="text-sm text-gray-300">On-call rotation, incident management, SLA alerts</div>
                 </div>
               </div>
             </div>
@@ -822,40 +823,40 @@ function Amazon({ onBack }) {
         {activeTab === 'api' && (
           <div className="space-y-6">
             {/* API Overview */}
-            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border-2 border-orange-200">
-              <h2 className="text-2xl font-bold mb-4 text-orange-800">🔌 API Overview</h2>
-              <p className="text-gray-700 mb-4">
+            <div className="bg-gradient-to-br from-orange-900/30 to-orange-900/30 rounded-xl p-6 border-2 border-orange-700">
+              <h2 className="text-2xl font-bold mb-4 text-orange-400">🔌 API Overview</h2>
+              <p className="text-gray-300 mb-4">
                 RESTful microservices architecture with API Gateway. Each service exposes its own REST API.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-orange-600 mb-2">Base URL</div>
-                  <code className="text-sm text-gray-700">https://api.amazon.com/v1</code>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-orange-400 mb-2">Base URL</div>
+                  <code className="text-sm text-gray-300">https://api.amazon.com/v1</code>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-orange-600 mb-2">Authentication</div>
-                  <code className="text-sm text-gray-700">API Key + OAuth 2.0</code>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-orange-400 mb-2">Authentication</div>
+                  <code className="text-sm text-gray-300">API Key + OAuth 2.0</code>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-orange-600 mb-2">Rate Limit</div>
-                  <code className="text-sm text-gray-700">1000 req/min per user</code>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-orange-400 mb-2">Rate Limit</div>
+                  <code className="text-sm text-gray-300">1000 req/min per user</code>
                 </div>
               </div>
             </div>
 
             {/* Product Endpoints */}
-            <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">📦 Product Service APIs</h3>
+            <div className="bg-gray-800 rounded-xl p-6 border-2 border-gray-700">
+              <h3 className="text-2xl font-bold mb-4 text-white">📦 Product Service APIs</h3>
 
               <div className="space-y-4">
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/products/:id</code>
+                    <span className="px-2 py-1 bg-blue-900/50 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/products/:id</code>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">Get product details</p>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
+                  <p className="text-sm text-gray-400 mb-2">Get product details</p>
+                  <div className="bg-gray-900 p-3 rounded">
+                    <pre className="text-xs text-gray-300 overflow-x-auto">
 {`{
   "id": "B08N5WRWNW",
   "name": "Echo Dot (4th Gen)",
@@ -871,43 +872,43 @@ function Amazon({ onBack }) {
 
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/products/search?q=laptop&page=1&limit=20</code>
+                    <span className="px-2 py-1 bg-blue-900/50 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/products/search?q=laptop&page=1&limit=20</code>
                   </div>
-                  <p className="text-sm text-gray-600">Search products with filters</p>
+                  <p className="text-sm text-gray-400">Search products with filters</p>
                 </div>
 
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/products/:id/reviews</code>
+                    <span className="px-2 py-1 bg-blue-900/50 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/products/:id/reviews</code>
                   </div>
-                  <p className="text-sm text-gray-600">Get product reviews</p>
+                  <p className="text-sm text-gray-400">Get product reviews</p>
                 </div>
 
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/products/:id/reviews</code>
+                    <span className="px-2 py-1 bg-green-900/50 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/products/:id/reviews</code>
                   </div>
-                  <p className="text-sm text-gray-600">Submit a product review</p>
+                  <p className="text-sm text-gray-400">Submit a product review</p>
                 </div>
               </div>
             </div>
 
             {/* Cart Endpoints */}
-            <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">🛒 Cart Service APIs</h3>
+            <div className="bg-gray-800 rounded-xl p-6 border-2 border-gray-700">
+              <h3 className="text-2xl font-bold mb-4 text-white">🛒 Cart Service APIs</h3>
 
               <div className="space-y-4">
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/cart</code>
+                    <span className="px-2 py-1 bg-blue-900/50 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/cart</code>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">Get user's cart</p>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
+                  <p className="text-sm text-gray-400 mb-2">Get user's cart</p>
+                  <div className="bg-gray-900 p-3 rounded">
+                    <pre className="text-xs text-gray-300 overflow-x-auto">
 {`{
   "cart_id": "cart_abc123",
   "user_id": "user_789",
@@ -928,43 +929,43 @@ function Amazon({ onBack }) {
 
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/cart/items</code>
+                    <span className="px-2 py-1 bg-green-900/50 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/cart/items</code>
                   </div>
-                  <p className="text-sm text-gray-600">Add item to cart</p>
+                  <p className="text-sm text-gray-400">Add item to cart</p>
                 </div>
 
                 <div className="border-l-4 border-yellow-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-bold">PUT</span>
-                    <code className="text-sm text-gray-700">/cart/items/:id</code>
+                    <span className="px-2 py-1 bg-yellow-900/50 text-yellow-400 rounded text-xs font-bold">PUT</span>
+                    <code className="text-sm text-gray-300">/cart/items/:id</code>
                   </div>
-                  <p className="text-sm text-gray-600">Update item quantity</p>
+                  <p className="text-sm text-gray-400">Update item quantity</p>
                 </div>
 
                 <div className="border-l-4 border-red-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold">DELETE</span>
-                    <code className="text-sm text-gray-700">/cart/items/:id</code>
+                    <span className="px-2 py-1 bg-red-900/50 text-red-400 rounded text-xs font-bold">DELETE</span>
+                    <code className="text-sm text-gray-300">/cart/items/:id</code>
                   </div>
-                  <p className="text-sm text-gray-600">Remove item from cart</p>
+                  <p className="text-sm text-gray-400">Remove item from cart</p>
                 </div>
               </div>
             </div>
 
             {/* Order Endpoints */}
-            <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">📮 Order Service APIs</h3>
+            <div className="bg-gray-800 rounded-xl p-6 border-2 border-gray-700">
+              <h3 className="text-2xl font-bold mb-4 text-white">📮 Order Service APIs</h3>
 
               <div className="space-y-4">
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/orders</code>
+                    <span className="px-2 py-1 bg-green-900/50 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/orders</code>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">Create a new order</p>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
+                  <p className="text-sm text-gray-400 mb-2">Create a new order</p>
+                  <div className="bg-gray-900 p-3 rounded">
+                    <pre className="text-xs text-gray-300 overflow-x-auto">
 {`{
   "cart_id": "cart_abc123",
   "shipping_address_id": "addr_123",
@@ -977,12 +978,12 @@ function Amazon({ onBack }) {
 
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/orders/:id</code>
+                    <span className="px-2 py-1 bg-blue-900/50 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/orders/:id</code>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">Get order details</p>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
+                  <p className="text-sm text-gray-400 mb-2">Get order details</p>
+                  <div className="bg-gray-900 p-3 rounded">
+                    <pre className="text-xs text-gray-300 overflow-x-auto">
 {`{
   "order_id": "112-1234567-8901234",
   "status": "shipped",
@@ -997,90 +998,90 @@ function Amazon({ onBack }) {
 
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/orders</code>
+                    <span className="px-2 py-1 bg-blue-900/50 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/orders</code>
                   </div>
-                  <p className="text-sm text-gray-600">Get user's order history</p>
+                  <p className="text-sm text-gray-400">Get user's order history</p>
                 </div>
 
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/orders/:id/cancel</code>
+                    <span className="px-2 py-1 bg-green-900/50 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/orders/:id/cancel</code>
                   </div>
-                  <p className="text-sm text-gray-600">Cancel an order</p>
+                  <p className="text-sm text-gray-400">Cancel an order</p>
                 </div>
 
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/orders/:id/return</code>
+                    <span className="px-2 py-1 bg-green-900/50 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/orders/:id/return</code>
                   </div>
-                  <p className="text-sm text-gray-600">Initiate order return</p>
+                  <p className="text-sm text-gray-400">Initiate order return</p>
                 </div>
               </div>
             </div>
 
             {/* User & Account Endpoints */}
-            <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">👤 User Service APIs</h3>
+            <div className="bg-gray-800 rounded-xl p-6 border-2 border-gray-700">
+              <h3 className="text-2xl font-bold mb-4 text-white">👤 User Service APIs</h3>
 
               <div className="space-y-4">
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/users/profile</code>
+                    <span className="px-2 py-1 bg-blue-900/50 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/users/profile</code>
                   </div>
-                  <p className="text-sm text-gray-600">Get user profile</p>
+                  <p className="text-sm text-gray-400">Get user profile</p>
                 </div>
 
                 <div className="border-l-4 border-yellow-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-bold">PUT</span>
-                    <code className="text-sm text-gray-700">/users/profile</code>
+                    <span className="px-2 py-1 bg-yellow-900/50 text-yellow-400 rounded text-xs font-bold">PUT</span>
+                    <code className="text-sm text-gray-300">/users/profile</code>
                   </div>
-                  <p className="text-sm text-gray-600">Update user profile</p>
+                  <p className="text-sm text-gray-400">Update user profile</p>
                 </div>
 
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/users/addresses</code>
+                    <span className="px-2 py-1 bg-blue-900/50 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/users/addresses</code>
                   </div>
-                  <p className="text-sm text-gray-600">Get saved addresses</p>
+                  <p className="text-sm text-gray-400">Get saved addresses</p>
                 </div>
 
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/users/addresses</code>
+                    <span className="px-2 py-1 bg-green-900/50 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/users/addresses</code>
                   </div>
-                  <p className="text-sm text-gray-600">Add new address</p>
+                  <p className="text-sm text-gray-400">Add new address</p>
                 </div>
 
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/users/payment-methods</code>
+                    <span className="px-2 py-1 bg-blue-900/50 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/users/payment-methods</code>
                   </div>
-                  <p className="text-sm text-gray-600">Get saved payment methods</p>
+                  <p className="text-sm text-gray-400">Get saved payment methods</p>
                 </div>
               </div>
             </div>
 
             {/* Payment Endpoints */}
-            <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">💳 Payment Service APIs</h3>
+            <div className="bg-gray-800 rounded-xl p-6 border-2 border-gray-700">
+              <h3 className="text-2xl font-bold mb-4 text-white">💳 Payment Service APIs</h3>
 
               <div className="space-y-4">
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/payments/process</code>
+                    <span className="px-2 py-1 bg-green-900/50 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/payments/process</code>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">Process payment</p>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
+                  <p className="text-sm text-gray-400 mb-2">Process payment</p>
+                  <div className="bg-gray-900 p-3 rounded">
+                    <pre className="text-xs text-gray-300 overflow-x-auto">
 {`{
   "order_id": "112-1234567-8901234",
   "payment_method_id": "pm_456",
@@ -1093,18 +1094,18 @@ function Amazon({ onBack }) {
 
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/payments/refund</code>
+                    <span className="px-2 py-1 bg-green-900/50 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/payments/refund</code>
                   </div>
-                  <p className="text-sm text-gray-600">Process refund</p>
+                  <p className="text-sm text-gray-400">Process refund</p>
                 </div>
 
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/payments/:id/status</code>
+                    <span className="px-2 py-1 bg-blue-900/50 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/payments/:id/status</code>
                   </div>
-                  <p className="text-sm text-gray-600">Check payment status</p>
+                  <p className="text-sm text-gray-400">Check payment status</p>
                 </div>
               </div>
             </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function Dropbox({ onBack }) {
+function Dropbox({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview')
 
   return (
@@ -37,6 +38,8 @@ function Dropbox({ onBack }) {
         </h1>
         <div style={{ width: '140px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       {/* Tabs */}
       <div style={{

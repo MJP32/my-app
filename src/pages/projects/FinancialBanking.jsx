@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 // Simple syntax highlighter for Java code
 const SyntaxHighlighter = ({ code }) => {
@@ -58,7 +59,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function FinancialBanking({ onBack }) {
+function FinancialBanking({ onBack, breadcrumb }) {
   const [selectedTopic, setSelectedTopic] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
 
@@ -2411,6 +2412,8 @@ public class IsolatedService {
         </h1>
         <div style={{ width: '120px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
         backgroundColor: 'rgba(16, 185, 129, 0.05)',

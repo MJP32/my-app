@@ -2,15 +2,20 @@ import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { getUserInfo, getProgressStats, getCategoryStats } from '../services/progressService'
 import { getCurrentUser, logOut } from '../services/authService'
+import { useTheme } from '../contexts/ThemeContext'
+import { getGamificationSummary, checkStreakStatus } from '../services/gamificationService'
+import { StreakDisplay, LevelBadge, XPDisplay } from './gamification'
 import SignInModal from './SignInModal'
 import CategoryProgressModal from './CategoryProgressModal'
 import SocialShare from './SocialShare'
 
 function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome, onGoToPractice, triggerRef }) {
+  const { isDark, colors } = useTheme()
   const [userInfo, setUserInfo] = useState(null)
   const [stats, setStats] = useState(null)
   const [categoryStats, setCategoryStats] = useState(null)
   const [authUser, setAuthUser] = useState(null)
+  const [gamificationData, setGamificationData] = useState(null)
   const [showSignInModal, setShowSignInModal] = useState(false)
   const [showCategoryModal, setShowCategoryModal] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
@@ -32,6 +37,13 @@ function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome, onGoTo
         setUserInfo(info)
         setStats(progressStats)
         setCategoryStats(catStats)
+
+        // Update gamification data
+        if (currentUser) {
+          checkStreakStatus(currentUser.uid)
+          const gamification = getGamificationSummary(currentUser.uid)
+          setGamificationData(gamification)
+        }
       }
     }
 
@@ -42,10 +54,23 @@ function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome, onGoTo
       updateStats()
     }
 
+    // Listen for gamification updates
+    const handleGamificationUpdate = () => {
+      updateStats()
+    }
+
     window.addEventListener('progressUpdate', handleProgressUpdate)
+    window.addEventListener('gamificationUpdate', handleGamificationUpdate)
+    window.addEventListener('xpGained', handleGamificationUpdate)
+    window.addEventListener('levelUp', handleGamificationUpdate)
+    window.addEventListener('streakUpdated', handleGamificationUpdate)
 
     return () => {
       window.removeEventListener('progressUpdate', handleProgressUpdate)
+      window.removeEventListener('gamificationUpdate', handleGamificationUpdate)
+      window.removeEventListener('xpGained', handleGamificationUpdate)
+      window.removeEventListener('levelUp', handleGamificationUpdate)
+      window.removeEventListener('streakUpdated', handleGamificationUpdate)
     }
   }, [isOpen])
 
@@ -143,10 +168,12 @@ function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome, onGoTo
           position: 'fixed',
           top: '60px',
           right: '20px',
-          backgroundColor: 'white',
+          backgroundColor: colors.bgSecondary,
           borderRadius: '12px',
-          boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15)',
-          border: '2px solid #e5e7eb',
+          boxShadow: isDark
+            ? '0 10px 40px rgba(0, 0, 0, 0.5)'
+            : '0 10px 40px rgba(0, 0, 0, 0.15)',
+          border: `2px solid ${colors.border}`,
           width: '320px',
           zIndex: 1000002,
           overflow: 'hidden'
@@ -157,7 +184,7 @@ function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome, onGoTo
         padding: '1.25rem',
         backgroundColor: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
         background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-        borderBottom: '2px solid #e5e7eb'
+        borderBottom: `2px solid ${colors.border}`
       }}>
         {authUser && userInfo ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
@@ -200,12 +227,12 @@ function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome, onGoTo
       {authUser && stats && (
         <div style={{
           padding: '1.25rem',
-          backgroundColor: '#f9fafb',
-          borderBottom: '1px solid #e5e7eb'
+          backgroundColor: colors.bgTertiary,
+          borderBottom: `1px solid ${colors.border}`
         }}>
           <div style={{ marginBottom: '0.75rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#6b7280' }}>
+              <span style={{ fontSize: '0.875rem', fontWeight: '600', color: colors.textMuted }}>
                 Overall Progress
               </span>
               <span style={{ fontSize: '1.25rem', fontWeight: '700', color: '#3b82f6' }}>
@@ -217,7 +244,7 @@ function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome, onGoTo
             <div style={{
               width: '100%',
               height: '8px',
-              backgroundColor: '#e5e7eb',
+              backgroundColor: colors.border,
               borderRadius: '4px',
               overflow: 'hidden'
             }}>
@@ -235,46 +262,117 @@ function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome, onGoTo
             <div style={{
               textAlign: 'center',
               padding: '0.5rem',
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '8px',
-              border: '1px solid #e5e7eb'
+              border: `1px solid ${colors.border}`
             }}>
               <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#3b82f6' }}>
                 {stats.total}
               </div>
-              <div style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '500' }}>
+              <div style={{ fontSize: '0.75rem', color: colors.textMuted, fontWeight: '500' }}>
                 Total
               </div>
             </div>
             <div style={{
               textAlign: 'center',
               padding: '0.5rem',
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '8px',
-              border: '1px solid #e5e7eb'
+              border: `1px solid ${colors.border}`
             }}>
               <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#10b981' }}>
                 {stats.completed}
               </div>
-              <div style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '500' }}>
+              <div style={{ fontSize: '0.75rem', color: colors.textMuted, fontWeight: '500' }}>
                 Done
               </div>
             </div>
             <div style={{
               textAlign: 'center',
               padding: '0.5rem',
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '8px',
-              border: '1px solid #e5e7eb'
+              border: `1px solid ${colors.border}`
             }}>
               <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#f59e0b' }}>
                 {stats.remaining}
               </div>
-              <div style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '500' }}>
+              <div style={{ fontSize: '0.75rem', color: colors.textMuted, fontWeight: '500' }}>
                 Left
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Gamification Stats - Only show when authenticated */}
+      {authUser && gamificationData && (
+        <div style={{
+          padding: '1rem 1.25rem',
+          backgroundColor: colors.bgSecondary,
+          borderBottom: `1px solid ${colors.border}`
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '0.75rem'
+          }}>
+            {/* Level Badge */}
+            <LevelBadge
+              level={gamificationData.level.current}
+              progressPercent={gamificationData.xp.progressPercent}
+              size="medium"
+              showProgress={true}
+            />
+
+            {/* XP Display */}
+            <XPDisplay
+              xp={gamificationData.xp.total}
+              todayXP={gamificationData.xp.todayXP}
+              showToday={true}
+              size="small"
+            />
+
+            {/* Streak Display */}
+            <StreakDisplay
+              streak={gamificationData.streak.current}
+              showLabel={true}
+              size="small"
+            />
+          </div>
+
+          {/* Level Progress Bar */}
+          {!gamificationData.level.isMaxLevel && (
+            <div style={{ marginTop: '0.75rem' }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: '0.75rem',
+                color: colors.textMuted,
+                marginBottom: '0.25rem'
+              }}>
+                <span>Level {gamificationData.level.current}</span>
+                <span>{gamificationData.xp.progressPercent}% to Level {gamificationData.level.current + 1}</span>
+              </div>
+              <div style={{
+                width: '100%',
+                height: '6px',
+                backgroundColor: colors.border,
+                borderRadius: '3px',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  width: `${gamificationData.xp.progressPercent}%`,
+                  height: '100%',
+                  backgroundColor: gamificationData.level.color,
+                  transition: 'width 0.3s ease',
+                  borderRadius: '3px'
+                }} />
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -328,7 +426,7 @@ function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome, onGoTo
                 <span style={{
                   fontSize: '0.95rem',
                   fontWeight: '500',
-                  color: '#1f2937'
+                  color: colors.textPrimary
                 }}>Settings</span>
               </div>
 
@@ -340,13 +438,13 @@ function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome, onGoTo
               }}>
                 <span style={{
                   fontSize: '0.875rem',
-                  color: '#6b7280',
+                  color: colors.textMuted,
                   fontWeight: '500'
                 }}>Theme</span>
                 <div style={{
                   display: 'flex',
                   gap: '0.5rem',
-                  backgroundColor: '#f3f4f6',
+                  backgroundColor: colors.bgTertiary,
                   padding: '0.25rem',
                   borderRadius: '8px'
                 }}>
@@ -616,10 +714,10 @@ function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome, onGoTo
       {authUser && userInfo && (
         <div style={{
           padding: '0.75rem 1rem',
-          backgroundColor: '#f9fafb',
-          borderTop: '1px solid #e5e7eb',
+          backgroundColor: colors.bgTertiary,
+          borderTop: `1px solid ${colors.border}`,
           fontSize: '0.75rem',
-          color: '#6b7280',
+          color: colors.textMuted,
           textAlign: 'center'
         }}>
           Member since {new Date(userInfo.joinedDate).toLocaleDateString()}
@@ -665,7 +763,7 @@ function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome, onGoTo
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.5)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -678,24 +776,27 @@ function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome, onGoTo
         <div
           onClick={(e) => e.stopPropagation()}
           style={{
-            backgroundColor: 'white',
+            backgroundColor: colors.bgSecondary,
             borderRadius: '16px',
             maxWidth: '500px',
             width: '100%',
             maxHeight: '90vh',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+            boxShadow: isDark
+              ? '0 20px 60px rgba(0, 0, 0, 0.6)'
+              : '0 20px 60px rgba(0, 0, 0, 0.3)',
             overflow: 'auto',
-            margin: 'auto'
+            margin: 'auto',
+            border: `1px solid ${colors.border}`
           }}
         >
           <div style={{
             padding: '1.5rem',
-            borderBottom: '2px solid #e5e7eb',
+            borderBottom: `2px solid ${colors.border}`,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'
           }}>
-            <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '700', color: '#1f2937' }}>
+            <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '700', color: colors.textPrimary }}>
               🔗 Share This Page
             </h2>
             <button
@@ -705,7 +806,7 @@ function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome, onGoTo
                 border: 'none',
                 fontSize: '1.5rem',
                 cursor: 'pointer',
-                color: '#6b7280',
+                color: colors.textMuted,
                 padding: '0.25rem'
               }}
             >
@@ -713,7 +814,7 @@ function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome, onGoTo
             </button>
           </div>
           <div style={{ padding: '1.5rem' }}>
-            <p style={{ margin: '0 0 1.5rem 0', color: '#6b7280', fontSize: '0.95rem' }}>
+            <p style={{ margin: '0 0 1.5rem 0', color: colors.textMuted, fontSize: '0.95rem' }}>
               Help others discover this Java learning platform! Share on social media or copy the link.
             </p>
             <SocialShare

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
 import LanguageToggle from "../../components/LanguageToggle.jsx"
+import Breadcrumb from '../../components/Breadcrumb'
 import { getUserCode, saveUserCode, isProblemCompleted } from '../../services/progressService'
 
-function JVMInternals({ onBack }) {
+function JVMInternals({ onBack, breadcrumb }) {
   const exercises = [
     {
       title: "String Pool and Interning",
@@ -240,9 +241,11 @@ function JVMInternals({ onBack }) {
           ← Back to Menu
         </button>
         <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '800', color: '#1f2937' }}>
-          ⚙️ JVM Internals Practice
+          JVM Internals Practice
         </h1>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       {/* Exercise Selector */}
       <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '2rem', flexWrap: 'wrap' }}>

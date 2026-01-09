@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { signInWithEmail, signUpWithEmail, signInWithGoogle } from '../services/authService'
+import { useTheme } from '../contexts/ThemeContext'
 
 function SignInModal({ isOpen, onClose }) {
+  const { isDark, colors } = useTheme()
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -140,14 +142,17 @@ function SignInModal({ isOpen, onClose }) {
         ref={modalRef}
         onClick={(e) => e.stopPropagation()}
         style={{
-          backgroundColor: 'white',
+          backgroundColor: colors.bgSecondary,
           borderRadius: '16px',
           maxWidth: '440px',
           width: '100%',
-          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+          boxShadow: isDark
+            ? '0 20px 60px rgba(0, 0, 0, 0.6)'
+            : '0 20px 60px rgba(0, 0, 0, 0.3)',
           overflow: 'hidden',
           margin: 'auto 0',
-          pointerEvents: 'auto'
+          pointerEvents: 'auto',
+          border: `1px solid ${colors.border}`
         }}
       >
         {/* Header */}
@@ -223,7 +228,7 @@ function SignInModal({ isOpen, onClose }) {
                     marginBottom: '0.5rem',
                     fontWeight: '600',
                     fontSize: '0.875rem',
-                    color: '#374151'
+                    color: colors.textSecondary
                   }}
                 >
                   Full Name
@@ -240,14 +245,16 @@ function SignInModal({ isOpen, onClose }) {
                     width: '100%',
                     padding: '0.75rem 1rem',
                     fontSize: '1rem',
-                    border: '2px solid #e5e7eb',
+                    border: `2px solid ${colors.border}`,
                     borderRadius: '8px',
                     outline: 'none',
                     transition: 'border-color 0.2s',
-                    fontFamily: 'inherit'
+                    fontFamily: 'inherit',
+                    backgroundColor: colors.bgPrimary,
+                    color: colors.textPrimary
                   }}
                   onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
-                  onBlur={(e) => e.currentTarget.style.borderColor = '#e5e7eb'}
+                  onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
                 />
               </div>
             )}
@@ -261,7 +268,7 @@ function SignInModal({ isOpen, onClose }) {
                   marginBottom: '0.5rem',
                   fontWeight: '600',
                   fontSize: '0.875rem',
-                  color: '#374151'
+                  color: colors.textSecondary
                 }}
               >
                 Email
@@ -279,14 +286,16 @@ function SignInModal({ isOpen, onClose }) {
                   width: '100%',
                   padding: '0.75rem 1rem',
                   fontSize: '1rem',
-                  border: '2px solid #e5e7eb',
+                  border: `2px solid ${colors.border}`,
                   borderRadius: '8px',
                   outline: 'none',
                   transition: 'border-color 0.2s',
-                  fontFamily: 'inherit'
+                  fontFamily: 'inherit',
+                  backgroundColor: colors.bgPrimary,
+                  color: colors.textPrimary
                 }}
                 onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
-                onBlur={(e) => e.currentTarget.style.borderColor = '#e5e7eb'}
+                onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
               />
             </div>
 
@@ -299,7 +308,7 @@ function SignInModal({ isOpen, onClose }) {
                   marginBottom: '0.5rem',
                   fontWeight: '600',
                   fontSize: '0.875rem',
-                  color: '#374151'
+                  color: colors.textSecondary
                 }}
               >
                 Password
@@ -317,16 +326,18 @@ function SignInModal({ isOpen, onClose }) {
                   width: '100%',
                   padding: '0.75rem 1rem',
                   fontSize: '1rem',
-                  border: '2px solid #e5e7eb',
+                  border: `2px solid ${colors.border}`,
                   borderRadius: '8px',
                   outline: 'none',
                   transition: 'border-color 0.2s',
-                  fontFamily: 'inherit'
+                  fontFamily: 'inherit',
+                  backgroundColor: colors.bgPrimary,
+                  color: colors.textPrimary
                 }}
                 onFocus={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
-                onBlur={(e) => e.currentTarget.style.borderColor = '#e5e7eb'}
+                onBlur={(e) => e.currentTarget.style.borderColor = colors.border}
               />
-              <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+              <div style={{ fontSize: '0.75rem', color: colors.textMuted, marginTop: '0.25rem' }}>
                 Minimum 6 characters
               </div>
             </div>
@@ -367,11 +378,11 @@ function SignInModal({ isOpen, onClose }) {
                 margin: '1.5rem 0'
               }}
             >
-              <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }} />
-              <span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '500' }}>
+              <div style={{ flex: 1, height: '1px', backgroundColor: colors.border }} />
+              <span style={{ fontSize: '0.875rem', color: colors.textMuted, fontWeight: '500' }}>
                 OR
               </span>
-              <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }} />
+              <div style={{ flex: 1, height: '1px', backgroundColor: colors.border }} />
             </div>
 
             {/* Google Sign In */}
@@ -384,9 +395,9 @@ function SignInModal({ isOpen, onClose }) {
                 padding: '0.875rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                backgroundColor: 'white',
-                color: '#374151',
-                border: '2px solid #e5e7eb',
+                backgroundColor: colors.bgPrimary,
+                color: colors.textSecondary,
+                border: `2px solid ${colors.border}`,
                 borderRadius: '8px',
                 cursor: isLoading ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s',
@@ -397,14 +408,14 @@ function SignInModal({ isOpen, onClose }) {
               }}
               onMouseEnter={(e) => {
                 if (!isLoading) {
-                  e.currentTarget.style.backgroundColor = '#f9fafb'
+                  e.currentTarget.style.backgroundColor = colors.bgTertiary
                   e.currentTarget.style.borderColor = '#3b82f6'
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isLoading) {
-                  e.currentTarget.style.backgroundColor = 'white'
-                  e.currentTarget.style.borderColor = '#e5e7eb'
+                  e.currentTarget.style.backgroundColor = colors.bgPrimary
+                  e.currentTarget.style.borderColor = colors.border
                 }
               }}
             >
@@ -436,7 +447,7 @@ function SignInModal({ isOpen, onClose }) {
               marginTop: '1.5rem',
               textAlign: 'center',
               fontSize: '0.875rem',
-              color: '#6b7280'
+              color: colors.textMuted
             }}
           >
             {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}

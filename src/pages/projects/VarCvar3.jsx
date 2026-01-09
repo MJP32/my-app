@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
 const SyntaxHighlighter = ({ code }) => {
   const highlightJava = (code) => {
@@ -57,7 +58,7 @@ const SyntaxHighlighter = ({ code }) => {
   )
 }
 
-function VarCvar3({ onBack }) {
+function VarCvar3({ onBack, breadcrumb }) {
   const [selectedTopic, setSelectedTopic] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
 
@@ -2169,6 +2170,8 @@ public class LowLatencyVarService {
           Enterprise Financial Risk Analytics Platform
         </p>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       {/* Topic cards */}
       <div style={{

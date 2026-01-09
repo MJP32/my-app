@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function DevOpsPage({ onBack, onSelectItem }) {
+function DevOpsPage({ onBack, onSelectItem, breadcrumb }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
 
   const categories = [
@@ -274,6 +275,8 @@ function DevOpsPage({ onBack, onSelectItem }) {
         </h1>
         <div style={{ width: '180px' }}></div>
       </div>
+
+      <Breadcrumb breadcrumb={breadcrumb} />
 
       <p style={{
         fontSize: '1.2rem',

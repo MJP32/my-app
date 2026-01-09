@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-export default function JWT({ onBack }) {
+export default function JWT({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview')
 
   const tabs = [
@@ -11,26 +12,34 @@ export default function JWT({ onBack }) {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <button
-            onClick={onBack}
-            className="mb-6 px-6 py-3 bg-white text-gray-700 rounded-lg shadow-md hover:shadow-lg hover:bg-gray-50 transition-all duration-200 font-semibold flex items-center gap-2"
-          >
-            <span>←</span>
-            <span>Back to Security</span>
-          </button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-green-950 to-gray-900 text-white p-6">
+      <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            <button
+              onClick={onBack}
+              className="mb-6 px-6 py-3 bg-gray-800 border border-green-700 text-green-300 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 font-semibold flex items-center gap-2"
+            >
+              <span>←</span>
+              <span>Back to Security</span>
+            </button>
 
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-700 rounded-2xl shadow-2xl p-8 text-white">
-            <h1 className="text-4xl font-bold mb-3">🔑 JWT (JSON Web Tokens)</h1>
-            <p className="text-xl opacity-90">Stateless Authentication & Authorization</p>
+            <div className="bg-gradient-to-r from-purple-900/30 to-indigo-900/30 rounded-2xl shadow-2xl p-8 text-white border border-purple-700">
+              <h1 className="text-4xl font-bold mb-3" style={{
+                background: 'linear-gradient(to right, #fca5a5, #ef4444)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}>JWT (JSON Web Tokens)</h1>
+              <p className="text-xl text-gray-300">Stateless Authentication & Authorization</p>
+            </div>
           </div>
-        </div>
+
+        <Breadcrumb breadcrumb={breadcrumb} />
 
         {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-md p-2 mb-8">
+        <div className="bg-gray-800 rounded-xl shadow-md p-2 mb-8">
           <div className="flex flex-wrap gap-2">
             {tabs.map((tab) => (
               <button
@@ -39,7 +48,7 @@ export default function JWT({ onBack }) {
                 className={`flex-1 min-w-fit px-4 py-3 rounded-lg font-semibold transition-all duration-200 ${
                   activeTab === tab.id
                     ? 'bg-purple-600 text-white shadow-lg'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                 }`}
               >
                 <span className="mr-2">{tab.icon}</span>
@@ -54,12 +63,12 @@ export default function JWT({ onBack }) {
           {activeTab === 'overview' && (
             <div className="space-y-8">
               {/* What is JWT */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-purple-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-purple-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">💡</span>
                   What is JWT?
                 </h3>
-                <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                <p className="text-lg text-gray-300 leading-relaxed mb-6">
                   JSON Web Token (JWT) is an open standard (RFC 7519) for securely transmitting information between parties as a JSON object.
                   It's digitally signed, making the information verifiable and trustworthy. JWTs are commonly used for authentication and
                   authorization in modern web applications.
@@ -74,17 +83,17 @@ export default function JWT({ onBack }) {
                     'Industry standard: widely supported across platforms',
                     'Scalable: works well in distributed systems'
                   ].map((feature, idx) => (
-                    <div key={idx} className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg">
-                      <span className="text-purple-600 font-bold text-sm mt-0.5">{idx + 1}</span>
-                      <span className="text-gray-800 text-sm font-medium">{feature}</span>
+                    <div key={idx} className="flex items-start gap-3 p-3 bg-purple-900/30 rounded-lg">
+                      <span className="text-purple-400 font-bold text-sm mt-0.5">{idx + 1}</span>
+                      <span className="text-gray-300 text-sm font-medium">{feature}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Use Cases */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-indigo-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-indigo-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">🎯</span>
                   Common Use Cases
                 </h3>
@@ -116,12 +125,12 @@ export default function JWT({ onBack }) {
                       color: 'orange'
                     }
                   ].map((useCase, index) => (
-                    <div key={index} className={`bg-${useCase.color}-50 p-6 rounded-xl border-l-4 border-${useCase.color}-500`}>
+                    <div key={index} className={`bg-${useCase.color}-900/30 p-6 rounded-xl border-l-4 border-${useCase.color}-500`}>
                       <div className="flex items-start gap-4">
                         <span className="text-4xl">{useCase.icon}</span>
                         <div>
-                          <h4 className={`text-xl font-bold text-${useCase.color}-900 mb-2`}>{useCase.title}</h4>
-                          <p className="text-gray-700">{useCase.description}</p>
+                          <h4 className={`text-xl font-bold text-${useCase.color}-400 mb-2`}>{useCase.title}</h4>
+                          <p className="text-gray-300">{useCase.description}</p>
                         </div>
                       </div>
                     </div>
@@ -130,18 +139,18 @@ export default function JWT({ onBack }) {
               </div>
 
               {/* JWT vs Sessions */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-amber-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-amber-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">⚖️</span>
                   JWT vs Traditional Sessions
                 </h3>
 
                 <div className="grid md:grid-cols-2 gap-6">
-                  <div className="bg-green-50 p-6 rounded-xl border-2 border-green-200">
-                    <h4 className="font-bold text-green-900 mb-4 text-lg flex items-center gap-2">
+                  <div className="bg-green-900/30 p-6 rounded-xl border-2 border-green-700">
+                    <h4 className="font-bold text-green-400 mb-4 text-lg flex items-center gap-2">
                       <span>✅</span> JWT Advantages
                     </h4>
-                    <ul className="space-y-2 text-sm text-gray-700">
+                    <ul className="space-y-2 text-sm text-gray-300">
                       <li>• No server-side storage (stateless)</li>
                       <li>• Better scalability across servers</li>
                       <li>• Works across domains (CORS friendly)</li>
@@ -151,11 +160,11 @@ export default function JWT({ onBack }) {
                     </ul>
                   </div>
 
-                  <div className="bg-amber-50 p-6 rounded-xl border-2 border-amber-200">
-                    <h4 className="font-bold text-amber-900 mb-4 text-lg flex items-center gap-2">
+                  <div className="bg-amber-900/30 p-6 rounded-xl border-2 border-amber-700">
+                    <h4 className="font-bold text-amber-400 mb-4 text-lg flex items-center gap-2">
                       <span>⚠️</span> Session Advantages
                     </h4>
-                    <ul className="space-y-2 text-sm text-gray-700">
+                    <ul className="space-y-2 text-sm text-gray-300">
                       <li>• Instant revocation (logout, ban user)</li>
                       <li>• Smaller payload (just session ID)</li>
                       <li>• Server controls all session data</li>
@@ -172,12 +181,12 @@ export default function JWT({ onBack }) {
           {activeTab === 'structure' && (
             <div className="space-y-8">
               {/* Token Structure */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-blue-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-blue-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">🔍</span>
                   JWT Token Structure
                 </h3>
-                <p className="text-lg text-gray-700 mb-6">
+                <p className="text-lg text-gray-300 mb-6">
                   A JWT consists of three parts separated by dots (.): <strong>Header.Payload.Signature</strong>
                 </p>
 
@@ -193,36 +202,36 @@ export default function JWT({ onBack }) {
 
                 <div className="space-y-6">
                   {/* Header */}
-                  <div className="bg-red-50 p-6 rounded-xl border-l-4 border-red-500">
-                    <h4 className="text-xl font-bold text-red-900 mb-3 flex items-center gap-2">
+                  <div className="bg-red-900/30 p-6 rounded-xl border-l-4 border-red-500">
+                    <h4 className="text-xl font-bold text-red-400 mb-3 flex items-center gap-2">
                       <span>1.</span> Header (Algorithm & Token Type)
                     </h4>
-                    <p className="text-gray-700 mb-4">
+                    <p className="text-gray-300 mb-4">
                       Contains metadata about the token: signing algorithm and token type.
                     </p>
-                    <div className="bg-white p-4 rounded-lg">
-                      <pre className="text-sm">
+                    <div className="bg-gray-900 p-4 rounded-lg">
+                      <pre className="text-sm text-gray-300">
 {`{
   "alg": "HS256",      // Algorithm: HMAC SHA-256
   "typ": "JWT"         // Type: JSON Web Token
 }`}
                       </pre>
                     </div>
-                    <div className="mt-4 text-sm text-gray-600">
+                    <div className="mt-4 text-sm text-gray-400">
                       <strong>Common Algorithms:</strong> HS256 (HMAC), RS256 (RSA), ES256 (ECDSA)
                     </div>
                   </div>
 
                   {/* Payload */}
-                  <div className="bg-purple-50 p-6 rounded-xl border-l-4 border-purple-500">
-                    <h4 className="text-xl font-bold text-purple-900 mb-3 flex items-center gap-2">
+                  <div className="bg-purple-900/30 p-6 rounded-xl border-l-4 border-purple-500">
+                    <h4 className="text-xl font-bold text-purple-400 mb-3 flex items-center gap-2">
                       <span>2.</span> Payload (Claims)
                     </h4>
-                    <p className="text-gray-700 mb-4">
+                    <p className="text-gray-300 mb-4">
                       Contains claims: statements about the user and additional metadata.
                     </p>
-                    <div className="bg-white p-4 rounded-lg mb-4">
-                      <pre className="text-sm">
+                    <div className="bg-gray-900 p-4 rounded-lg mb-4">
+                      <pre className="text-sm text-gray-300">
 {`{
   "sub": "1234567890",     // Subject: user ID
   "name": "John Doe",      // Custom claim
@@ -234,31 +243,31 @@ export default function JWT({ onBack }) {
                       </pre>
                     </div>
                     <div className="grid md:grid-cols-3 gap-4 text-sm">
-                      <div className="bg-white p-3 rounded-lg">
-                        <div className="font-bold text-purple-900 mb-2">Registered Claims</div>
-                        <div className="text-gray-600">iss, sub, aud, exp, nbf, iat, jti</div>
+                      <div className="bg-gray-900 p-3 rounded-lg">
+                        <div className="font-bold text-purple-400 mb-2">Registered Claims</div>
+                        <div className="text-gray-400">iss, sub, aud, exp, nbf, iat, jti</div>
                       </div>
-                      <div className="bg-white p-3 rounded-lg">
-                        <div className="font-bold text-purple-900 mb-2">Public Claims</div>
-                        <div className="text-gray-600">Standardized in IANA registry</div>
+                      <div className="bg-gray-900 p-3 rounded-lg">
+                        <div className="font-bold text-purple-400 mb-2">Public Claims</div>
+                        <div className="text-gray-400">Standardized in IANA registry</div>
                       </div>
-                      <div className="bg-white p-3 rounded-lg">
-                        <div className="font-bold text-purple-900 mb-2">Private Claims</div>
-                        <div className="text-gray-600">Custom claims (name, role, etc.)</div>
+                      <div className="bg-gray-900 p-3 rounded-lg">
+                        <div className="font-bold text-purple-400 mb-2">Private Claims</div>
+                        <div className="text-gray-400">Custom claims (name, role, etc.)</div>
                       </div>
                     </div>
                   </div>
 
                   {/* Signature */}
-                  <div className="bg-blue-50 p-6 rounded-xl border-l-4 border-blue-500">
-                    <h4 className="text-xl font-bold text-blue-900 mb-3 flex items-center gap-2">
+                  <div className="bg-blue-900/30 p-6 rounded-xl border-l-4 border-blue-500">
+                    <h4 className="text-xl font-bold text-blue-400 mb-3 flex items-center gap-2">
                       <span>3.</span> Signature (Verification)
                     </h4>
-                    <p className="text-gray-700 mb-4">
+                    <p className="text-gray-300 mb-4">
                       Ensures the token hasn't been tampered with. Created by encoding header + payload and signing with secret/private key.
                     </p>
-                    <div className="bg-white p-4 rounded-lg">
-                      <pre className="text-sm">
+                    <div className="bg-gray-900 p-4 rounded-lg">
+                      <pre className="text-sm text-gray-300">
 {`HMACSHA256(
   base64UrlEncode(header) + "." +
   base64UrlEncode(payload),
@@ -266,17 +275,17 @@ export default function JWT({ onBack }) {
 )`}
                       </pre>
                     </div>
-                    <div className="mt-4 p-3 bg-amber-50 rounded-lg">
-                      <strong className="text-amber-900">⚠️ Security Note:</strong>
-                      <span className="text-gray-700"> The signature protects integrity but does NOT encrypt the payload. Never store sensitive data in JWT claims!</span>
+                    <div className="mt-4 p-3 bg-amber-900/30 rounded-lg border border-amber-700">
+                      <strong className="text-amber-400">⚠️ Security Note:</strong>
+                      <span className="text-gray-300"> The signature protects integrity but does NOT encrypt the payload. Never store sensitive data in JWT claims!</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Standard Claims */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-green-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-green-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">📝</span>
                   Standard Claims (RFC 7519)
                 </h3>
@@ -291,9 +300,9 @@ export default function JWT({ onBack }) {
                     { claim: 'iat (Issued At)', desc: 'When the token was issued (Unix timestamp)' },
                     { claim: 'jti (JWT ID)', desc: 'Unique identifier for the token' }
                   ].map((item, idx) => (
-                    <div key={idx} className="bg-green-50 p-4 rounded-lg border-2 border-green-200">
-                      <div className="font-bold text-green-900 mb-1">{item.claim}</div>
-                      <div className="text-sm text-gray-700">{item.desc}</div>
+                    <div key={idx} className="bg-green-900/30 p-4 rounded-lg border-2 border-green-700">
+                      <div className="font-bold text-green-400 mb-1">{item.claim}</div>
+                      <div className="text-sm text-gray-300">{item.desc}</div>
                     </div>
                   ))}
                 </div>
@@ -304,15 +313,15 @@ export default function JWT({ onBack }) {
           {activeTab === 'implementation' && (
             <div className="space-y-8">
               {/* Java Implementation */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-orange-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-orange-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">☕</span>
                   Java Implementation (jjwt library)
                 </h3>
 
                 <div className="space-y-6">
                   <div>
-                    <h4 className="text-lg font-bold text-orange-900 mb-3">1. Add Dependency (Maven)</h4>
+                    <h4 className="text-lg font-bold text-orange-400 mb-3">1. Add Dependency (Maven)</h4>
                     <div className="bg-gray-900 p-4 rounded-lg overflow-x-auto">
                       <pre className="text-green-400 text-sm">
 {`<dependency>
@@ -337,7 +346,7 @@ export default function JWT({ onBack }) {
                   </div>
 
                   <div>
-                    <h4 className="text-lg font-bold text-orange-900 mb-3">2. Generate JWT Token</h4>
+                    <h4 className="text-lg font-bold text-orange-400 mb-3">2. Generate JWT Token</h4>
                     <div className="bg-gray-900 p-4 rounded-lg overflow-x-auto">
                       <pre className="text-green-400 text-sm">
 {`@Service
@@ -366,7 +375,7 @@ public class JwtService {
                   </div>
 
                   <div>
-                    <h4 className="text-lg font-bold text-orange-900 mb-3">3. Validate & Parse JWT Token</h4>
+                    <h4 className="text-lg font-bold text-orange-400 mb-3">3. Validate & Parse JWT Token</h4>
                     <div className="bg-gray-900 p-4 rounded-lg overflow-x-auto">
                       <pre className="text-green-400 text-sm">
 {`public Claims extractAllClaims(String token) {
@@ -394,7 +403,7 @@ private boolean isTokenExpired(String token) {
                   </div>
 
                   <div>
-                    <h4 className="text-lg font-bold text-orange-900 mb-3">4. Spring Security Filter</h4>
+                    <h4 className="text-lg font-bold text-orange-400 mb-3">4. Spring Security Filter</h4>
                     <div className="bg-gray-900 p-4 rounded-lg overflow-x-auto">
                       <pre className="text-green-400 text-sm">
 {`@Component
@@ -444,12 +453,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
               </div>
 
               {/* Token Refresh */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-cyan-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-cyan-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">🔄</span>
                   Refresh Token Strategy
                 </h3>
-                <p className="text-gray-700 mb-6">
+                <p className="text-gray-300 mb-6">
                   Use short-lived access tokens (15 min) with long-lived refresh tokens (7 days) for better security.
                 </p>
 
@@ -483,9 +492,9 @@ public String refreshAccessToken(String refreshToken) {
                   </pre>
                 </div>
 
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <strong className="text-blue-900">💡 Best Practice:</strong>
-                  <span className="text-gray-700"> Store refresh tokens securely (HttpOnly cookies or encrypted storage). Rotate refresh tokens on each use.</span>
+                <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-700">
+                  <strong className="text-blue-400">💡 Best Practice:</strong>
+                  <span className="text-gray-300"> Store refresh tokens securely (HttpOnly cookies or encrypted storage). Rotate refresh tokens on each use.</span>
                 </div>
               </div>
             </div>
@@ -494,8 +503,8 @@ public String refreshAccessToken(String refreshToken) {
           {activeTab === 'security' && (
             <div className="space-y-8">
               {/* Security Best Practices */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-red-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-red-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">🛡️</span>
                   Security Best Practices
                 </h3>
@@ -539,9 +548,9 @@ public String refreshAccessToken(String refreshToken) {
                       color: 'green'
                     }
                   ].map((practice, index) => (
-                    <div key={index} className={`bg-${practice.color}-50 p-5 rounded-xl border-l-4 border-${practice.color}-500`}>
-                      <h4 className={`font-bold text-${practice.color}-900 mb-2`}>{practice.title}</h4>
-                      <p className="text-gray-700 mb-3">{practice.description}</p>
+                    <div key={index} className={`bg-${practice.color}-900/30 p-5 rounded-xl border-l-4 border-${practice.color}-500`}>
+                      <h4 className={`font-bold text-${practice.color}-400 mb-2`}>{practice.title}</h4>
+                      <p className="text-gray-300 mb-3">{practice.description}</p>
                       <div className="bg-gray-900 p-3 rounded-lg">
                         <code className="text-green-400 text-sm">{practice.code}</code>
                       </div>
@@ -551,8 +560,8 @@ public String refreshAccessToken(String refreshToken) {
               </div>
 
               {/* Common Vulnerabilities */}
-              <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-purple-600">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-purple-600">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                   <span className="text-3xl">⚠️</span>
                   Common Vulnerabilities
                 </h3>
@@ -584,13 +593,13 @@ public String refreshAccessToken(String refreshToken) {
                       code: 'cookie.setHttpOnly(true); cookie.setSecure(true);'
                     }
                   ].map((item, idx) => (
-                    <div key={idx} className="bg-red-50 p-6 rounded-xl border-2 border-red-200">
+                    <div key={idx} className="bg-red-900/30 p-6 rounded-xl border-2 border-red-700">
                       <div className="flex items-start gap-4 mb-4">
                         <span className="text-3xl">🚨</span>
                         <div>
-                          <h4 className="font-bold text-red-900 text-lg mb-1">{item.vuln}</h4>
-                          <p className="text-gray-700 mb-2"><strong>Issue:</strong> {item.desc}</p>
-                          <p className="text-gray-700 mb-3"><strong>Mitigation:</strong> {item.mitigation}</p>
+                          <h4 className="font-bold text-red-400 text-lg mb-1">{item.vuln}</h4>
+                          <p className="text-gray-300 mb-2"><strong>Issue:</strong> {item.desc}</p>
+                          <p className="text-gray-300 mb-3"><strong>Mitigation:</strong> {item.mitigation}</p>
                           <div className="bg-gray-900 p-3 rounded-lg">
                             <code className="text-green-400 text-sm">{item.code}</code>
                           </div>
@@ -631,6 +640,7 @@ public String refreshAccessToken(String refreshToken) {
               </div>
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>

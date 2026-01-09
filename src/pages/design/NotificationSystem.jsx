@@ -1,10 +1,11 @@
 import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function NotificationSystem({ onBack }) {
+function NotificationSystem({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview')
 
   return (
-    <div style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#fff8e6', minHeight: '100vh' }}>
+    <div style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
       {/* Header */}
       <div style={{
         display: 'flex',
@@ -30,7 +31,7 @@ function NotificationSystem({ onBack }) {
         <h1 style={{
           fontSize: '2rem',
           fontWeight: '800',
-          color: '#1f2937',
+          color: '#ffffff',
           margin: 0
         }}>
           🔔 Notification System Design
@@ -38,16 +39,18 @@ function NotificationSystem({ onBack }) {
         <div style={{ width: '140px' }}></div>
       </div>
 
+      <Breadcrumb breadcrumb={breadcrumb} />
+
       {/* Tabs */}
       <div style={{
         display: 'flex',
         gap: '0.5rem',
         marginBottom: '1.5rem',
         flexWrap: 'wrap',
-        backgroundColor: 'white',
+        backgroundColor: '#1f2937',
         padding: '0.75rem',
         borderRadius: '10px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
       }}>
         {[
           { id: 'overview', label: 'Overview', icon: '📋' },
@@ -64,8 +67,8 @@ function NotificationSystem({ onBack }) {
               padding: '0.6rem 1.25rem',
               fontSize: '0.9rem',
               fontWeight: '600',
-              backgroundColor: activeTab === tab.id ? '#f59e0b' : '#f3f4f6',
-              color: activeTab === tab.id ? 'white' : '#4b5563',
+              backgroundColor: activeTab === tab.id ? '#f59e0b' : '#374151',
+              color: activeTab === tab.id ? 'white' : '#d1d5db',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
@@ -79,18 +82,18 @@ function NotificationSystem({ onBack }) {
 
       {/* Content */}
       <div style={{
-        backgroundColor: 'white',
+        backgroundColor: '#1f2937',
         padding: '2rem',
         borderRadius: '10px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
         minHeight: '500px'
       }}>
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <div className="space-y-8">
             <div>
-              <h2 className="text-3xl font-bold mb-4 text-gray-800">System Overview</h2>
-              <p className="text-gray-600 leading-relaxed">
+              <h2 className="text-3xl font-bold mb-4 text-white">System Overview</h2>
+              <p className="text-gray-300 leading-relaxed">
                 Design a scalable notification system that can send millions of notifications per second across
                 multiple channels (push, email, SMS) with rate limiting, prioritization, delivery tracking,
                 and retry mechanisms to ensure reliable delivery.
@@ -98,43 +101,43 @@ function NotificationSystem({ onBack }) {
             </div>
 
             {/* Scale Metrics */}
-            <div className="bg-gradient-to-br from-yellow-100 to-yellow-50 rounded-xl p-6 border-2 border-yellow-200">
-              <h3 className="text-2xl font-bold mb-4 text-yellow-800">📊 Scale & Metrics</h3>
+            <div className="bg-gradient-to-br from-yellow-900/30 to-yellow-900/30 rounded-xl p-6 border-2 border-yellow-700">
+              <h3 className="text-2xl font-bold mb-4 text-yellow-400">📊 Scale & Metrics</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="bg-white rounded-lg p-4 shadow-md">
-                  <div className="text-3xl font-bold text-yellow-600 mb-1">10M+</div>
-                  <div className="text-sm text-gray-600">Notifications per second (peak)</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl font-bold text-yellow-400 mb-1">10M+</div>
+                  <div className="text-sm text-gray-300">Notifications per second (peak)</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow-md">
-                  <div className="text-3xl font-bold text-yellow-600 mb-1">100B+</div>
-                  <div className="text-sm text-gray-600">Notifications per day</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl font-bold text-yellow-400 mb-1">100B+</div>
+                  <div className="text-sm text-gray-300">Notifications per day</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow-md">
-                  <div className="text-3xl font-bold text-yellow-600 mb-1">500M</div>
-                  <div className="text-sm text-gray-600">Active users</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl font-bold text-yellow-400 mb-1">500M</div>
+                  <div className="text-sm text-gray-300">Active users</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow-md">
-                  <div className="text-3xl font-bold text-yellow-600 mb-1">{'<'} 1 sec</div>
-                  <div className="text-sm text-gray-600">Push notification latency (p95)</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl font-bold text-yellow-400 mb-1">{'<'} 1 sec</div>
+                  <div className="text-sm text-gray-300">Push notification latency (p95)</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow-md">
-                  <div className="text-3xl font-bold text-yellow-600 mb-1">99.9%</div>
-                  <div className="text-sm text-gray-600">Delivery success rate</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl font-bold text-yellow-400 mb-1">99.9%</div>
+                  <div className="text-sm text-gray-300">Delivery success rate</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow-md">
-                  <div className="text-3xl font-bold text-yellow-600 mb-1">3 channels</div>
-                  <div className="text-sm text-gray-600">Push, Email, SMS</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow-md">
+                  <div className="text-3xl font-bold text-yellow-400 mb-1">3 channels</div>
+                  <div className="text-sm text-gray-300">Push, Email, SMS</div>
                 </div>
               </div>
             </div>
 
             {/* Functional Requirements */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border-2 border-blue-200">
-              <h3 className="text-2xl font-bold mb-4 text-blue-800">🎯 Functional Requirements</h3>
+            <div className="bg-gradient-to-br from-blue-900/30 to-blue-900/30 rounded-xl p-6 border-2 border-blue-700">
+              <h3 className="text-2xl font-bold mb-4 text-blue-400">🎯 Functional Requirements</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-bold text-blue-700 mb-2">Core Features:</h4>
-                  <ul className="space-y-2 text-gray-700">
+                  <h4 className="font-bold text-blue-400 mb-2">Core Features:</h4>
+                  <ul className="space-y-2 text-gray-300">
                     <li>✓ Send push notifications (iOS, Android, Web)</li>
                     <li>✓ Send emails (transactional, marketing)</li>
                     <li>✓ Send SMS messages</li>
@@ -144,8 +147,8 @@ function NotificationSystem({ onBack }) {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-bold text-blue-700 mb-2">Advanced Features:</h4>
-                  <ul className="space-y-2 text-gray-700">
+                  <h4 className="font-bold text-blue-400 mb-2">Advanced Features:</h4>
+                  <ul className="space-y-2 text-gray-300">
                     <li>✓ Rate limiting per user</li>
                     <li>✓ Priority levels (urgent, high, normal, low)</li>
                     <li>✓ Batching and deduplication</li>
@@ -158,18 +161,18 @@ function NotificationSystem({ onBack }) {
             </div>
 
             {/* Non-Functional Requirements */}
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-200">
-              <h3 className="text-2xl font-bold mb-4 text-green-800">⚙️ Non-Functional Requirements</h3>
+            <div className="bg-gradient-to-br from-green-900/30 to-green-900/30 rounded-xl p-6 border-2 border-green-700">
+              <h3 className="text-2xl font-bold mb-4 text-green-400">⚙️ Non-Functional Requirements</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <ul className="space-y-2 text-gray-700">
+                  <ul className="space-y-2 text-gray-300">
                     <li><strong>Scalability:</strong> Handle 10M+ notifications/sec</li>
                     <li><strong>Availability:</strong> 99.9% uptime</li>
                     <li><strong>Latency:</strong> {'<'} 1 sec for push, {'<'} 30 sec for email</li>
                   </ul>
                 </div>
                 <div>
-                  <ul className="space-y-2 text-gray-700">
+                  <ul className="space-y-2 text-gray-300">
                     <li><strong>Reliability:</strong> At-least-once delivery guarantee</li>
                     <li><strong>Ordering:</strong> FIFO within priority level</li>
                     <li><strong>Security:</strong> Encrypt sensitive data, auth checks</li>
@@ -183,7 +186,7 @@ function NotificationSystem({ onBack }) {
         {/* Architecture Tab */}
         {activeTab === 'architecture' && (
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold mb-6 text-gray-800">🏗️ High-Level Architecture</h2>
+            <h2 className="text-3xl font-bold mb-6 text-white">🏗️ High-Level Architecture</h2>
 
             <div className="flex flex-col items-center space-y-4">
               {/* Services/Apps */}
@@ -299,12 +302,12 @@ function NotificationSystem({ onBack }) {
             </div>
 
             {/* API Example */}
-            <div className="mt-8 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border-2 border-yellow-200">
-              <h3 className="text-2xl font-bold mb-4 text-yellow-800">📝 API Example</h3>
-              <div className="bg-white rounded-lg p-4 shadow font-mono text-sm">
-                <div className="text-gray-800">
+            <div className="mt-8 bg-gradient-to-br from-yellow-900/30 to-yellow-900/30 rounded-xl p-6 border-2 border-yellow-700">
+              <h3 className="text-2xl font-bold mb-4 text-yellow-400">📝 API Example</h3>
+              <div className="bg-gray-800 rounded-lg p-4 shadow font-mono text-sm">
+                <div className="text-gray-200">
                   <strong>POST /api/v1/notifications</strong>
-                  <pre className="mt-2 text-xs bg-gray-100 p-3 rounded">
+                  <pre className="mt-2 text-xs bg-gray-900 p-3 rounded">
 {`{
   "user_ids": ["user123", "user456"],
   "channels": ["push", "email"],
@@ -326,39 +329,39 @@ function NotificationSystem({ onBack }) {
         {/* Notification Channels Tab */}
         {activeTab === 'channels' && (
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold mb-6 text-gray-800">📡 Notification Channels</h2>
+            <h2 className="text-3xl font-bold mb-6 text-white">📡 Notification Channels</h2>
 
             {/* Push Notifications */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border-2 border-blue-200">
-              <h3 className="text-2xl font-bold mb-4 text-blue-800">📱 Push Notifications</h3>
+            <div className="bg-gradient-to-br from-blue-900/30 to-blue-900/30 rounded-xl p-6 border-2 border-blue-700">
+              <h3 className="text-2xl font-bold mb-4 text-blue-400">📱 Push Notifications</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🍎 iOS - APNs (Apple Push Notification service)</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">🍎 iOS - APNs (Apple Push Notification service)</div>
+                  <div className="text-sm text-gray-300">
                     • Token-based authentication (JWT)<br/>
                     • HTTP/2 connection to api.push.apple.com<br/>
                     • Payload limit: 4KB
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🤖 Android - FCM (Firebase Cloud Messaging)</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">🤖 Android - FCM (Firebase Cloud Messaging)</div>
+                  <div className="text-sm text-gray-300">
                     • API key authentication<br/>
                     • HTTP v1 API<br/>
                     • Payload limit: 4KB
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🌐 Web Push - Service Workers</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">🌐 Web Push - Service Workers</div>
+                  <div className="text-sm text-gray-300">
                     • Push API + Notifications API<br/>
                     • VAPID authentication<br/>
                     • Works offline via service workers
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🔔 Device Token Management</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">🔔 Device Token Management</div>
+                  <div className="text-sm text-gray-300">
                     • Store device tokens in PostgreSQL (user_id → [tokens])<br/>
                     • Handle token refresh/expiration<br/>
                     • Remove invalid tokens after feedback
@@ -368,36 +371,36 @@ function NotificationSystem({ onBack }) {
             </div>
 
             {/* Email Notifications */}
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-200">
-              <h3 className="text-2xl font-bold mb-4 text-green-800">📧 Email Notifications</h3>
+            <div className="bg-gradient-to-br from-green-900/30 to-green-900/30 rounded-xl p-6 border-2 border-green-700">
+              <h3 className="text-2xl font-bold mb-4 text-green-400">📧 Email Notifications</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📮 Email Service Providers</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">📮 Email Service Providers</div>
+                  <div className="text-sm text-gray-300">
                     • <strong>SendGrid:</strong> High deliverability, template engine<br/>
                     • <strong>Amazon SES:</strong> Cost-effective, scalable<br/>
                     • <strong>Mailgun:</strong> Developer-friendly APIs
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📝 Template Engine</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">📝 Template Engine</div>
+                  <div className="text-sm text-gray-300">
                     • HTML/plain text templates<br/>
                     • Variable substitution (Handlebars, Jinja2)<br/>
                     • Preview and testing tools
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📊 Email Analytics</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">📊 Email Analytics</div>
+                  <div className="text-sm text-gray-300">
                     • Open rate tracking (tracking pixel)<br/>
                     • Click-through tracking (redirect links)<br/>
                     • Bounce and spam complaint handling
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🛡️ Deliverability</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">🛡️ Deliverability</div>
+                  <div className="text-sm text-gray-300">
                     • SPF, DKIM, DMARC configuration<br/>
                     • IP warming and reputation management<br/>
                     • Unsubscribe link compliance (CAN-SPAM)
@@ -407,29 +410,28 @@ function NotificationSystem({ onBack }) {
             </div>
 
             {/* SMS Notifications */}
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border-2 border-purple-200">
-              <h3 className="text-2xl font-bold mb-4 text-purple-800">💬 SMS Notifications</h3>
+            <div className="bg-gradient-to-br from-purple-900/30 to-purple-900/30 rounded-xl p-6 border-2 border-purple-700">
+              <h3 className="text-2xl font-bold mb-4 text-purple-400">💬 SMS Notifications</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📱 SMS Gateways</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">📱 SMS Gateways</div>
+                  <div className="text-sm text-gray-300">
                     • <strong>Twilio:</strong> Global coverage, robust APIs<br/>
                     • <strong>Amazon SNS:</strong> Cost-effective, AWS integration<br/>
                     • <strong>Nexmo (Vonage):</strong> Two-way messaging
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">💰 Cost Optimization</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">💰 Cost Optimization</div>
+                  <div className="text-sm text-gray-300">
                     • SMS is expensive ($0.01-0.05 per message)<br/>
                     • Use only for critical notifications (2FA, alerts)<br/>
-                    • Rate limit aggressive
-ly (max 5 SMS/day per user)
+                    • Rate limit aggressively (max 5 SMS/day per user)
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🌍 International Support</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">🌍 International Support</div>
+                  <div className="text-sm text-gray-300">
                     • Phone number validation (E.164 format)<br/>
                     • Country-specific regulations (GDPR, TCPA)<br/>
                     • Local sender IDs for better delivery
@@ -439,20 +441,20 @@ ly (max 5 SMS/day per user)
             </div>
 
             {/* User Preferences */}
-            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border-2 border-orange-200">
-              <h3 className="text-2xl font-bold mb-4 text-orange-800">⚙️ User Notification Preferences</h3>
+            <div className="bg-gradient-to-br from-orange-900/30 to-orange-900/30 rounded-xl p-6 border-2 border-orange-700">
+              <h3 className="text-2xl font-bold mb-4 text-orange-400">⚙️ User Notification Preferences</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🎛️ Granular Controls</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">🎛️ Granular Controls</div>
+                  <div className="text-sm text-gray-300">
                     • Per-channel preferences (push, email, SMS)<br/>
                     • Per-category preferences (marketing, transactional, social)<br/>
                     • Quiet hours (don't disturb 10pm - 8am)
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🔕 Opt-out Management</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">🔕 Opt-out Management</div>
+                  <div className="text-sm text-gray-300">
                     • Easy unsubscribe links<br/>
                     • Global opt-out (all notifications)<br/>
                     • Compliance with GDPR, CAN-SPAM
@@ -466,55 +468,55 @@ ly (max 5 SMS/day per user)
         {/* Reliability Tab */}
         {activeTab === 'reliability' && (
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold mb-6 text-gray-800">🛡️ Reliability & Delivery Guarantees</h2>
+            <h2 className="text-3xl font-bold mb-6 text-white">🛡️ Reliability & Delivery Guarantees</h2>
 
             {/* Delivery Guarantees */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border-2 border-blue-200">
-              <h3 className="text-2xl font-bold mb-4 text-blue-800">✅ At-Least-Once Delivery</h3>
+            <div className="bg-gradient-to-br from-blue-900/30 to-blue-900/30 rounded-xl p-6 border-2 border-blue-700">
+              <h3 className="text-2xl font-bold mb-4 text-blue-400">✅ At-Least-Once Delivery</h3>
               <div className="space-y-3">
-                <p className="text-gray-700">
+                <p className="text-gray-300">
                   We guarantee at-least-once delivery (not exactly-once) to balance reliability and cost:
                 </p>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">1️⃣ Kafka Message Queue</div>
-                  <div className="text-sm text-gray-600">Messages persisted to disk, not lost even if consumer crashes</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">1️⃣ Kafka Message Queue</div>
+                  <div className="text-sm text-gray-300">Messages persisted to disk, not lost even if consumer crashes</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">2️⃣ Worker Acknowledgment</div>
-                  <div className="text-sm text-gray-600">Worker commits offset only after successful delivery to provider</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">2️⃣ Worker Acknowledgment</div>
+                  <div className="text-sm text-gray-300">Worker commits offset only after successful delivery to provider</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">3️⃣ Retry Logic</div>
-                  <div className="text-sm text-gray-600">Exponential backoff: 1s, 2s, 4s, 8s, 16s, 32s, 64s (max 7 retries)</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">3️⃣ Retry Logic</div>
+                  <div className="text-sm text-gray-300">Exponential backoff: 1s, 2s, 4s, 8s, 16s, 32s, 64s (max 7 retries)</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">4️⃣ Dead Letter Queue (DLQ)</div>
-                  <div className="text-sm text-gray-600">After max retries, move to DLQ for manual investigation</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">4️⃣ Dead Letter Queue (DLQ)</div>
+                  <div className="text-sm text-gray-300">After max retries, move to DLQ for manual investigation</div>
                 </div>
               </div>
             </div>
 
             {/* Idempotency */}
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-200">
-              <h3 className="text-2xl font-bold mb-4 text-green-800">🔁 Idempotency & Deduplication</h3>
+            <div className="bg-gradient-to-br from-green-900/30 to-green-900/30 rounded-xl p-6 border-2 border-green-700">
+              <h3 className="text-2xl font-bold mb-4 text-green-400">🔁 Idempotency & Deduplication</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🆔 Notification ID</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">🆔 Notification ID</div>
+                  <div className="text-sm text-gray-300">
                     Generate unique notification_id (UUID) at API gateway<br/>
                     Store in Redis with 24-hour TTL
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">✅ Duplicate Detection</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">✅ Duplicate Detection</div>
+                  <div className="text-sm text-gray-300">
                     Before sending, check if notification_id exists in Redis<br/>
                     If exists, skip (already sent)
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📦 Batching</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">📦 Batching</div>
+                  <div className="text-sm text-gray-300">
                     Group similar notifications (e.g., "5 new messages")<br/>
                     Reduce notification fatigue
                   </div>
@@ -523,33 +525,33 @@ ly (max 5 SMS/day per user)
             </div>
 
             {/* Priority Handling */}
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border-2 border-purple-200">
-              <h3 className="text-2xl font-bold mb-4 text-purple-800">⚡ Priority Levels</h3>
+            <div className="bg-gradient-to-br from-purple-900/30 to-purple-900/30 rounded-xl p-6 border-2 border-purple-700">
+              <h3 className="text-2xl font-bold mb-4 text-purple-400">⚡ Priority Levels</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow border-2 border-red-400">
-                  <div className="font-bold text-gray-800 mb-2">🚨 Urgent (P0)</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow border-2 border-red-400">
+                  <div className="font-bold text-gray-200 mb-2">🚨 Urgent (P0)</div>
+                  <div className="text-sm text-gray-300">
                     Security alerts, fraud detection, system outages<br/>
                     <strong>Latency:</strong> {'<'} 100ms | <strong>Retry:</strong> Aggressive
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow border-2 border-orange-400">
-                  <div className="font-bold text-gray-800 mb-2">⚠️ High (P1)</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow border-2 border-orange-400">
+                  <div className="font-bold text-gray-200 mb-2">⚠️ High (P1)</div>
+                  <div className="text-sm text-gray-300">
                     Order updates, payment confirmations, 2FA codes<br/>
                     <strong>Latency:</strong> {'<'} 1 sec | <strong>Retry:</strong> Normal
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow border-2 border-blue-400">
-                  <div className="font-bold text-gray-800 mb-2">📊 Normal (P2)</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow border-2 border-blue-400">
+                  <div className="font-bold text-gray-200 mb-2">📊 Normal (P2)</div>
+                  <div className="text-sm text-gray-300">
                     Social notifications, reminders<br/>
                     <strong>Latency:</strong> {'<'} 5 sec | <strong>Retry:</strong> Normal
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow border-2 border-gray-400">
-                  <div className="font-bold text-gray-800 mb-2">📢 Low (P3)</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow border-2 border-gray-400">
+                  <div className="font-bold text-gray-200 mb-2">📢 Low (P3)</div>
+                  <div className="text-sm text-gray-300">
                     Marketing emails, newsletters<br/>
                     <strong>Latency:</strong> Best effort | <strong>Retry:</strong> Limited
                   </div>
@@ -558,29 +560,29 @@ ly (max 5 SMS/day per user)
             </div>
 
             {/* Monitoring */}
-            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border-2 border-yellow-200">
-              <h3 className="text-2xl font-bold mb-4 text-yellow-800">📊 Monitoring & Alerting</h3>
+            <div className="bg-gradient-to-br from-yellow-900/30 to-yellow-900/30 rounded-xl p-6 border-2 border-yellow-700">
+              <h3 className="text-2xl font-bold mb-4 text-yellow-400">📊 Monitoring & Alerting</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📈 Key Metrics</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">📈 Key Metrics</div>
+                  <div className="text-sm text-gray-300">
                     • Delivery rate (successful / total)<br/>
                     • Latency (p50, p95, p99)<br/>
                     • Queue depth (Kafka lag)<br/>
                     • Error rate per channel
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🚨 Alerts</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">🚨 Alerts</div>
+                  <div className="text-sm text-gray-300">
                     • Delivery rate {'<'} 99% for 5 minutes<br/>
                     • Latency p95 {'>'} 5 seconds<br/>
                     • DLQ size {'>'} 1000 messages
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🔍 Distributed Tracing</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">🔍 Distributed Tracing</div>
+                  <div className="text-sm text-gray-300">
                     Trace notification from API → Queue → Worker → Provider → Delivery<br/>
                     Use Jaeger/Zipkin for end-to-end visibility
                   </div>
@@ -593,30 +595,30 @@ ly (max 5 SMS/day per user)
         {/* Scalability Tab */}
         {activeTab === 'scalability' && (
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold mb-6 text-gray-800">⚡ Scalability & Performance</h2>
+            <h2 className="text-3xl font-bold mb-6 text-white">⚡ Scalability & Performance</h2>
 
             {/* Rate Limiting */}
-            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border-2 border-red-200">
-              <h3 className="text-2xl font-bold mb-4 text-red-800">🚦 Rate Limiting</h3>
+            <div className="bg-gradient-to-br from-red-900/30 to-red-900/30 rounded-xl p-6 border-2 border-red-700">
+              <h3 className="text-2xl font-bold mb-4 text-red-400">🚦 Rate Limiting</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">👤 Per-User Rate Limiting</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">👤 Per-User Rate Limiting</div>
+                  <div className="text-sm text-gray-300">
                     • Max 100 notifications/hour per user (push)<br/>
                     • Max 10 emails/hour per user<br/>
                     • Max 5 SMS/day per user
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🏢 Per-Service Rate Limiting</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">🏢 Per-Service Rate Limiting</div>
+                  <div className="text-sm text-gray-300">
                     Prevent one service from overwhelming system<br/>
                     Max 10K notifications/sec per service
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🔧 Implementation</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">🔧 Implementation</div>
+                  <div className="text-sm text-gray-300">
                     • Redis Token Bucket algorithm<br/>
                     • Key: user_id:channel | Value: token count<br/>
                     • TTL: 1 hour (sliding window)
@@ -626,28 +628,28 @@ ly (max 5 SMS/day per user)
             </div>
 
             {/* Kafka Scaling */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border-2 border-blue-200">
-              <h3 className="text-2xl font-bold mb-4 text-blue-800">📬 Kafka Queue Scaling</h3>
+            <div className="bg-gradient-to-br from-blue-900/30 to-blue-900/30 rounded-xl p-6 border-2 border-blue-700">
+              <h3 className="text-2xl font-bold mb-4 text-blue-400">📬 Kafka Queue Scaling</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📊 Partitioning Strategy</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">📊 Partitioning Strategy</div>
+                  <div className="text-sm text-gray-300">
                     • Partition by user_id (consistent hashing)<br/>
                     • 100 partitions per topic<br/>
                     • Enables parallel processing
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🔄 Consumer Groups</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">🔄 Consumer Groups</div>
+                  <div className="text-sm text-gray-300">
                     • 100 workers per consumer group<br/>
                     • Each worker processes 1+ partitions<br/>
                     • Auto-rebalancing on worker failure
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">💾 Retention Policy</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">💾 Retention Policy</div>
+                  <div className="text-sm text-gray-300">
                     • Retain messages for 7 days<br/>
                     • Replay in case of bugs<br/>
                     • Size-based deletion after 100 GB
@@ -657,27 +659,27 @@ ly (max 5 SMS/day per user)
             </div>
 
             {/* Worker Scaling */}
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-200">
-              <h3 className="text-2xl font-bold mb-4 text-green-800">⚙️ Worker Auto-Scaling</h3>
+            <div className="bg-gradient-to-br from-green-900/30 to-green-900/30 rounded-xl p-6 border-2 border-green-700">
+              <h3 className="text-2xl font-bold mb-4 text-green-400">⚙️ Worker Auto-Scaling</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📈 Scaling Metrics</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">📈 Scaling Metrics</div>
+                  <div className="text-sm text-gray-300">
                     • Scale up if: Kafka consumer lag {'>'} 1M messages<br/>
                     • Scale down if: CPU {'<'} 30% for 10 minutes
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🐳 Kubernetes HPA</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">🐳 Kubernetes HPA</div>
+                  <div className="text-sm text-gray-300">
                     • Horizontal Pod Autoscaler<br/>
                     • Min: 10 pods, Max: 1000 pods<br/>
                     • Target CPU: 70%
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">⚡ Batch Processing</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">⚡ Batch Processing</div>
+                  <div className="text-sm text-gray-300">
                     • Workers pull 100 messages at a time<br/>
                     • Process in parallel (10 threads per worker)<br/>
                     • Commit offset after batch completion
@@ -687,28 +689,28 @@ ly (max 5 SMS/day per user)
             </div>
 
             {/* Database Scaling */}
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border-2 border-purple-200">
-              <h3 className="text-2xl font-bold mb-4 text-purple-800">🗄️ Database Scaling</h3>
+            <div className="bg-gradient-to-br from-purple-900/30 to-purple-900/30 rounded-xl p-6 border-2 border-purple-700">
+              <h3 className="text-2xl font-bold mb-4 text-purple-400">🗄️ Database Scaling</h3>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">📚 Cassandra for Logs</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">📚 Cassandra for Logs</div>
+                  <div className="text-sm text-gray-300">
                     • Write-optimized for high throughput<br/>
                     • Partition by (user_id, date)<br/>
                     • TTL: 90 days (auto-delete old logs)
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">🐘 PostgreSQL for Preferences</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">🐘 PostgreSQL for Preferences</div>
+                  <div className="text-sm text-gray-300">
                     • Shard by user_id<br/>
                     • Read replicas for read-heavy queries<br/>
                     • Cache in Redis (5-min TTL)
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-gray-800 mb-2">⚡ Redis for Rate Limiting</div>
-                  <div className="text-sm text-gray-600">
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-gray-200 mb-2">⚡ Redis for Rate Limiting</div>
+                  <div className="text-sm text-gray-300">
                     • In-memory for sub-millisecond latency<br/>
                     • Redis Cluster for horizontal scaling<br/>
                     • 50+ nodes, 500GB total memory
@@ -718,32 +720,32 @@ ly (max 5 SMS/day per user)
             </div>
 
             {/* Performance Targets */}
-            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border-2 border-orange-200">
-              <h3 className="text-2xl font-bold mb-4 text-orange-800">📊 Performance Targets</h3>
+            <div className="bg-gradient-to-br from-orange-900/30 to-orange-900/30 rounded-xl p-6 border-2 border-orange-700">
+              <h3 className="text-2xl font-bold mb-4 text-orange-400">📊 Performance Targets</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="text-2xl font-bold text-orange-600 mb-1">10M+/sec</div>
-                  <div className="text-sm text-gray-600">Peak throughput</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="text-2xl font-bold text-orange-400 mb-1">10M+/sec</div>
+                  <div className="text-sm text-gray-300">Peak throughput</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="text-2xl font-bold text-orange-600 mb-1">{'<'} 1 sec</div>
-                  <div className="text-sm text-gray-600">Push notification latency (p95)</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="text-2xl font-bold text-orange-400 mb-1">{'<'} 1 sec</div>
+                  <div className="text-sm text-gray-300">Push notification latency (p95)</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="text-2xl font-bold text-orange-600 mb-1">99.9%</div>
-                  <div className="text-sm text-gray-600">Delivery success rate</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="text-2xl font-bold text-orange-400 mb-1">99.9%</div>
+                  <div className="text-sm text-gray-300">Delivery success rate</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="text-2xl font-bold text-orange-600 mb-1">{'<'} 50ms</div>
-                  <div className="text-sm text-gray-600">API response time (p95)</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="text-2xl font-bold text-orange-400 mb-1">{'<'} 50ms</div>
+                  <div className="text-sm text-gray-300">API response time (p95)</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="text-2xl font-bold text-orange-600 mb-1">99.9%</div>
-                  <div className="text-sm text-gray-600">System uptime</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="text-2xl font-bold text-orange-400 mb-1">99.9%</div>
+                  <div className="text-sm text-gray-300">System uptime</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="text-2xl font-bold text-orange-600 mb-1">{'<'} 0.1%</div>
-                  <div className="text-sm text-gray-600">Duplicate notification rate</div>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="text-2xl font-bold text-orange-400 mb-1">{'<'} 0.1%</div>
+                  <div className="text-sm text-gray-300">Duplicate notification rate</div>
                 </div>
               </div>
             </div>
@@ -754,40 +756,40 @@ ly (max 5 SMS/day per user)
         {activeTab === 'api' && (
           <div className="space-y-6">
             {/* API Overview */}
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-200">
-              <h2 className="text-2xl font-bold mb-4 text-green-800">🔌 Notification API Overview</h2>
-              <p className="text-gray-700 mb-4">
+            <div className="bg-gradient-to-br from-green-900/30 to-green-900/30 rounded-xl p-6 border-2 border-green-700">
+              <h2 className="text-2xl font-bold mb-4 text-green-400">🔌 Notification API Overview</h2>
+              <p className="text-gray-300 mb-4">
                 RESTful API for sending notifications across multiple channels (push, email, SMS). Supports templates, scheduling, and user preferences.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-green-600 mb-2">Base URL</div>
-                  <code className="text-sm text-gray-700">https://api.notifications.com/v1</code>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-green-400 mb-2">Base URL</div>
+                  <code className="text-sm text-gray-300">https://api.notifications.com/v1</code>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-green-600 mb-2">Authentication</div>
-                  <code className="text-sm text-gray-700">API Key + OAuth 2.0</code>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-green-400 mb-2">Authentication</div>
+                  <code className="text-sm text-gray-300">API Key + OAuth 2.0</code>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="font-bold text-green-600 mb-2">Rate Limit</div>
-                  <code className="text-sm text-gray-700">1000 req/min per service</code>
+                <div className="bg-gray-800 rounded-lg p-4 shadow">
+                  <div className="font-bold text-green-400 mb-2">Rate Limit</div>
+                  <code className="text-sm text-gray-300">1000 req/min per service</code>
                 </div>
               </div>
             </div>
 
             {/* Send Notification APIs */}
-            <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">📤 Send Notification APIs</h3>
+            <div className="bg-gray-800 rounded-xl p-6 border-2 border-gray-700">
+              <h3 className="text-2xl font-bold mb-4 text-white">📤 Send Notification APIs</h3>
 
               <div className="space-y-4">
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/notifications/send</code>
+                    <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/notifications/send</code>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">Send a notification to one or more users</p>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
+                  <p className="text-sm text-gray-300 mb-2">Send a notification to one or more users</p>
+                  <div className="bg-gray-900 p-3 rounded">
+                    <pre className="text-xs text-gray-300 overflow-x-auto">
 {`{
   "user_ids": ["user123", "user456"],
   "channel": "push",
@@ -805,12 +807,12 @@ ly (max 5 SMS/day per user)
 
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/notifications/send/bulk</code>
+                    <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/notifications/send/bulk</code>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">Send notification to many users (batch)</p>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
+                  <p className="text-sm text-gray-300 mb-2">Send notification to many users (batch)</p>
+                  <div className="bg-gray-900 p-3 rounded">
+                    <pre className="text-xs text-gray-300 overflow-x-auto">
 {`{
   "user_ids": ["user1", "user2", ...1000 users],
   "channel": "email",
@@ -825,20 +827,20 @@ ly (max 5 SMS/day per user)
 
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/notifications/send/topic</code>
+                    <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/notifications/send/topic</code>
                   </div>
-                  <p className="text-sm text-gray-600">Send notification to all users subscribed to a topic</p>
+                  <p className="text-sm text-gray-300">Send notification to all users subscribed to a topic</p>
                 </div>
 
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/notifications/schedule</code>
+                    <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/notifications/schedule</code>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">Schedule a notification for later</p>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
+                  <p className="text-sm text-gray-300 mb-2">Schedule a notification for later</p>
+                  <div className="bg-gray-900 p-3 rounded">
+                    <pre className="text-xs text-gray-300 overflow-x-auto">
 {`{
   "user_ids": ["user123"],
   "channel": "push",
@@ -853,18 +855,18 @@ ly (max 5 SMS/day per user)
             </div>
 
             {/* User Preferences APIs */}
-            <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">⚙️ User Preferences APIs</h3>
+            <div className="bg-gray-800 rounded-xl p-6 border-2 border-gray-700">
+              <h3 className="text-2xl font-bold mb-4 text-white">⚙️ User Preferences APIs</h3>
 
               <div className="space-y-4">
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/users/:userId/preferences</code>
+                    <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/users/:userId/preferences</code>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">Get user's notification preferences</p>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
+                  <p className="text-sm text-gray-300 mb-2">Get user's notification preferences</p>
+                  <div className="bg-gray-900 p-3 rounded">
+                    <pre className="text-xs text-gray-300 overflow-x-auto">
 {`{
   "user_id": "user123",
   "channels": {
@@ -890,43 +892,43 @@ ly (max 5 SMS/day per user)
 
                 <div className="border-l-4 border-yellow-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-bold">PUT</span>
-                    <code className="text-sm text-gray-700">/users/:userId/preferences</code>
+                    <span className="px-2 py-1 bg-yellow-900/30 text-yellow-400 rounded text-xs font-bold">PUT</span>
+                    <code className="text-sm text-gray-300">/users/:userId/preferences</code>
                   </div>
-                  <p className="text-sm text-gray-600">Update notification preferences</p>
+                  <p className="text-sm text-gray-300">Update notification preferences</p>
                 </div>
 
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/users/:userId/devices</code>
+                    <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/users/:userId/devices</code>
                   </div>
-                  <p className="text-sm text-gray-600">Register device for push notifications</p>
+                  <p className="text-sm text-gray-300">Register device for push notifications</p>
                 </div>
 
                 <div className="border-l-4 border-red-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold">DELETE</span>
-                    <code className="text-sm text-gray-700">/users/:userId/devices/:deviceId</code>
+                    <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs font-bold">DELETE</span>
+                    <code className="text-sm text-gray-300">/users/:userId/devices/:deviceId</code>
                   </div>
-                  <p className="text-sm text-gray-600">Unregister a device</p>
+                  <p className="text-sm text-gray-300">Unregister a device</p>
                 </div>
               </div>
             </div>
 
             {/* Template APIs */}
-            <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">📝 Template APIs</h3>
+            <div className="bg-gray-800 rounded-xl p-6 border-2 border-gray-700">
+              <h3 className="text-2xl font-bold mb-4 text-white">📝 Template APIs</h3>
 
               <div className="space-y-4">
                 <div className="border-l-4 border-green-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">POST</span>
-                    <code className="text-sm text-gray-700">/templates</code>
+                    <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs font-bold">POST</span>
+                    <code className="text-sm text-gray-300">/templates</code>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">Create a notification template</p>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
+                  <p className="text-sm text-gray-300 mb-2">Create a notification template</p>
+                  <div className="bg-gray-900 p-3 rounded">
+                    <pre className="text-xs text-gray-300 overflow-x-auto">
 {`{
   "name": "order_shipped",
   "channel": "email",
@@ -940,43 +942,43 @@ ly (max 5 SMS/day per user)
 
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/templates/:templateId</code>
+                    <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/templates/:templateId</code>
                   </div>
-                  <p className="text-sm text-gray-600">Get template details</p>
+                  <p className="text-sm text-gray-300">Get template details</p>
                 </div>
 
                 <div className="border-l-4 border-yellow-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-bold">PUT</span>
-                    <code className="text-sm text-gray-700">/templates/:templateId</code>
+                    <span className="px-2 py-1 bg-yellow-900/30 text-yellow-400 rounded text-xs font-bold">PUT</span>
+                    <code className="text-sm text-gray-300">/templates/:templateId</code>
                   </div>
-                  <p className="text-sm text-gray-600">Update a template</p>
+                  <p className="text-sm text-gray-300">Update a template</p>
                 </div>
 
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/templates</code>
+                    <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/templates</code>
                   </div>
-                  <p className="text-sm text-gray-600">List all templates</p>
+                  <p className="text-sm text-gray-300">List all templates</p>
                 </div>
               </div>
             </div>
 
             {/* Status & Analytics APIs */}
-            <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">📊 Status & Analytics APIs</h3>
+            <div className="bg-gray-800 rounded-xl p-6 border-2 border-gray-700">
+              <h3 className="text-2xl font-bold mb-4 text-white">📊 Status & Analytics APIs</h3>
 
               <div className="space-y-4">
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/notifications/:notificationId/status</code>
+                    <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/notifications/:notificationId/status</code>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">Check notification delivery status</p>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
+                  <p className="text-sm text-gray-300 mb-2">Check notification delivery status</p>
+                  <div className="bg-gray-900 p-3 rounded">
+                    <pre className="text-xs text-gray-300 overflow-x-auto">
 {`{
   "notification_id": "notif_abc123",
   "status": "delivered",
@@ -990,18 +992,18 @@ ly (max 5 SMS/day per user)
 
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/notifications/:notificationId/analytics</code>
+                    <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/notifications/:notificationId/analytics</code>
                   </div>
-                  <p className="text-sm text-gray-600">Get analytics (delivery rate, open rate, click rate)</p>
+                  <p className="text-sm text-gray-300">Get analytics (delivery rate, open rate, click rate)</p>
                 </div>
 
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">GET</span>
-                    <code className="text-sm text-gray-700">/users/:userId/notifications</code>
+                    <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs font-bold">GET</span>
+                    <code className="text-sm text-gray-300">/users/:userId/notifications</code>
                   </div>
-                  <p className="text-sm text-gray-600">Get user's notification history</p>
+                  <p className="text-sm text-gray-300">Get user's notification history</p>
                 </div>
               </div>
             </div>
