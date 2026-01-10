@@ -19,6 +19,23 @@ const customTheme = {
 function LeetCodePatterns({ onBack, breadcrumb }) {
   const [selectedPattern, setSelectedPattern] = useState(null)
   const [selectedCategory, setSelectedCategory] = useState(null)
+  const [expandedSections, setExpandedSections] = useState({})
+
+  const toggleSection = (conceptIndex, sectionIndex) => {
+    const key = `${conceptIndex}-${sectionIndex}`
+    setExpandedSections(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }))
+  }
+
+  const parseCodeSections = (codeString) => {
+    const sections = codeString.split('\n\n')
+    return sections.map((section, index) => ({
+      id: index,
+      code: section.trim()
+    }))
+  }
 
   const categories = [
     {
@@ -7152,41 +7169,63 @@ def detectArbitrage(rates):
             }}>
               Implementation Examples
             </h3>
-            <div style={{
-              backgroundColor: '#1e1e1e',
-              borderRadius: '0.5rem',
-              overflow: 'auto',
-              border: '1px solid #3b82f6'
-            }}>
-              {pattern.codeExample.split(/(?=# Pattern:)/g).map((section, idx) => (
-                <div key={idx}>
-                  {idx > 0 && (
-                    <div style={{
-                      borderTop: '1px solid #3b82f6',
-                      margin: '0 1.5rem',
-                    }} />
-                  )}
-                  <SyntaxHighlighter
-                    language="python"
-                    style={customTheme}
-                    customStyle={{
-                      margin: 0,
-                      padding: '1.5rem',
-                      fontSize: '14px',
-                      lineHeight: '1.6',
-                      background: '#1e1e1e'
+            {parseCodeSections(pattern.codeExample).map(
+              (section, idx) => (
+                <div key={section.id} style={{ marginBottom: '1rem' }}>
+                  <button
+                    onClick={() =>
+                      toggleSection(
+                        patterns.indexOf(pattern),
+                        idx
+                      )
+                    }
+                    style={{
+                      width: '100%',
+                      background: '#2563eb',
+                      color: 'white',
+                      padding: '0.5rem 1rem',
+                      borderRadius: '0.5rem',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      marginBottom: '0.5rem',
+                      textAlign: 'left',
+                      fontWeight: '500',
+                      fontSize: '1rem'
                     }}
-                    codeTagProps={{
-                      style: {
-                        background: 'transparent'
-                      }
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#1d4ed8'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = '#2563eb'
                     }}
                   >
-                    {section.trim()}
-                  </SyntaxHighlighter>
+                    {expandedSections[
+                      `${patterns.indexOf(pattern)}-${idx}`
+                    ]
+                      ? '▼'
+                      : '▶'}{' '}
+                    Code Block {idx + 1}
+                  </button>
+                  {expandedSections[
+                    `${patterns.indexOf(pattern)}-${idx}`
+                  ] && (
+                    <SyntaxHighlighter
+                      language="python"
+                      style={customTheme}
+                      customStyle={{
+                        padding: '1.5rem',
+                        borderRadius: '0.5rem',
+                        fontSize: '0.9rem',
+                        border: '1px solid #3b82f6'
+                      }}
+                    >
+                      {section.code}
+                    </SyntaxHighlighter>
+                  )}
                 </div>
-              ))}
-            </div>
+              )
+            )}
           </div>
 
           {/* Common Problems */}

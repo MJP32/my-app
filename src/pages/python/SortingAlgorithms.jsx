@@ -17,6 +17,23 @@ const customTheme = {
 
 function SortingAlgorithms({ onBack, breadcrumb }) {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState(null)
+  const [expandedSections, setExpandedSections] = useState({})
+
+  const toggleSection = (conceptIndex, sectionIndex) => {
+    const key = `${conceptIndex}-${sectionIndex}`
+    setExpandedSections(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }))
+  }
+
+  const parseCodeSections = (codeString) => {
+    const sections = codeString.split('\n\n')
+    return sections.map((section, index) => ({
+      id: index,
+      code: section.trim()
+    }))
+  }
 
   const algorithms = [
     {
@@ -1006,26 +1023,63 @@ Regular insertion sort
             <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem', color: '#93c5fd' }}>
               Python Implementation
             </h3>
-            <div style={{
-              backgroundColor: '#1e1e1e',
-              borderRadius: '0.5rem',
-              overflow: 'auto',
-              border: '1px solid #3b82f6'
-            }}>
-              <SyntaxHighlighter
-                language="python"
-                style={customTheme}
-                customStyle={{
-                  margin: 0,
-                  padding: '1.5rem',
-                  fontSize: '14px',
-                  lineHeight: '1.6',
-                  background: '#1e1e1e'
-                }}
-              >
-                {algorithm.codeExample}
-              </SyntaxHighlighter>
-            </div>
+            {parseCodeSections(algorithm.codeExample).map(
+              (section, idx) => (
+                <div key={section.id} style={{ marginBottom: '1rem' }}>
+                  <button
+                    onClick={() =>
+                      toggleSection(
+                        algorithms.indexOf(algorithm),
+                        idx
+                      )
+                    }
+                    style={{
+                      width: '100%',
+                      background: '#2563eb',
+                      color: 'white',
+                      padding: '0.5rem 1rem',
+                      borderRadius: '0.5rem',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      marginBottom: '0.5rem',
+                      textAlign: 'left',
+                      fontWeight: '500',
+                      fontSize: '1rem'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#1d4ed8'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = '#2563eb'
+                    }}
+                  >
+                    {expandedSections[
+                      `${algorithms.indexOf(algorithm)}-${idx}`
+                    ]
+                      ? '▼'
+                      : '▶'}{' '}
+                    Code Block {idx + 1}
+                  </button>
+                  {expandedSections[
+                    `${algorithms.indexOf(algorithm)}-${idx}`
+                  ] && (
+                    <SyntaxHighlighter
+                      language="python"
+                      style={customTheme}
+                      customStyle={{
+                        padding: '1.5rem',
+                        borderRadius: '0.5rem',
+                        fontSize: '0.9rem',
+                        border: '1px solid #3b82f6'
+                      }}
+                    >
+                      {section.code}
+                    </SyntaxHighlighter>
+                  )}
+                </div>
+              )
+            )}
           </div>
         </div>
       </div>

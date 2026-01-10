@@ -7,6 +7,23 @@ import Breadcrumb from '../../components/Breadcrumb'
 function PythonTuples({ onBack, breadcrumb }) {
   const [selectedProblem, setSelectedProblem] = useState(null)
   const [showSolution, setShowSolution] = useState(false)
+  const [expandedSections, setExpandedSections] = useState({})
+
+  const toggleSection = (conceptIndex, sectionIndex) => {
+    const key = `${conceptIndex}-${sectionIndex}`
+    setExpandedSections(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }))
+  }
+
+  const parseCodeSections = (codeString) => {
+    const sections = codeString.split('\n\n')
+    return sections.map((section, index) => ({
+      id: index,
+      code: section.trim()
+    }))
+  }
 
   const problems = [
     {
@@ -1016,18 +1033,63 @@ list2 = list(gen)  # [] - empty! Already consumed`,
               <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#93c5fd', marginBottom: '1rem' }}>
                 Example:
               </h3>
-              <SyntaxHighlighter
-                language="python"
-                style={vscDarkPlus}
-                customStyle={{
-                  borderRadius: '8px',
-                  padding: '1rem',
-                  fontSize: '0.9rem',
-                  border: '1px solid #3b82f6'
-                }}
-              >
-                {problem.example}
-              </SyntaxHighlighter>
+              {parseCodeSections(problem.example).map(
+                (section, idx) => (
+                  <div key={section.id} style={{ marginBottom: '1rem' }}>
+                    <button
+                      onClick={() =>
+                        toggleSection(
+                          `example-${problems.findIndex(p => p.id === selectedProblem)}`,
+                          idx
+                        )
+                      }
+                      style={{
+                        width: '100%',
+                        background: '#2563eb',
+                        color: 'white',
+                        padding: '0.5rem 1rem',
+                        borderRadius: '0.5rem',
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        marginBottom: '0.5rem',
+                        textAlign: 'left',
+                        fontWeight: '500',
+                        fontSize: '1rem'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#1d4ed8'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = '#2563eb'
+                      }}
+                    >
+                      {expandedSections[
+                        `example-${problems.findIndex(p => p.id === selectedProblem)}-${idx}`
+                      ]
+                        ? '▼'
+                        : '▶'}{' '}
+                      Code Block {idx + 1}
+                    </button>
+                    {expandedSections[
+                      `example-${problems.findIndex(p => p.id === selectedProblem)}-${idx}`
+                    ] && (
+                      <SyntaxHighlighter
+                        language="python"
+                        style={vscDarkPlus}
+                        customStyle={{
+                          padding: '1.5rem',
+                          borderRadius: '0.5rem',
+                          fontSize: '0.9rem',
+                          border: '1px solid #3b82f6'
+                        }}
+                      >
+                        {section.code}
+                      </SyntaxHighlighter>
+                    )}
+                  </div>
+                )
+              )}
             </div>
 
             {problem.testCases && (
@@ -1092,19 +1154,63 @@ list2 = list(gen)  # [] - empty! Already consumed`,
                 <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#93c5fd', marginBottom: '1rem' }}>
                   Solution:
                 </h3>
-                <SyntaxHighlighter
-                  language="python"
-                  style={vscDarkPlus}
-                  customStyle={{
-                    borderRadius: '8px',
-                    padding: '1rem',
-                    fontSize: '0.9rem',
-                    marginBottom: '2rem',
-                    border: '1px solid #3b82f6'
-                  }}
-                >
-                  {problem.solution}
-                </SyntaxHighlighter>
+                {parseCodeSections(problem.solution).map(
+                  (section, idx) => (
+                    <div key={section.id} style={{ marginBottom: '1rem' }}>
+                      <button
+                        onClick={() =>
+                          toggleSection(
+                            `solution-${problems.findIndex(p => p.id === selectedProblem)}`,
+                            idx
+                          )
+                        }
+                        style={{
+                          width: '100%',
+                          background: '#2563eb',
+                          color: 'white',
+                          padding: '0.5rem 1rem',
+                          borderRadius: '0.5rem',
+                          border: 'none',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          marginBottom: '0.5rem',
+                          textAlign: 'left',
+                          fontWeight: '500',
+                          fontSize: '1rem'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#1d4ed8'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = '#2563eb'
+                        }}
+                      >
+                        {expandedSections[
+                          `solution-${problems.findIndex(p => p.id === selectedProblem)}-${idx}`
+                        ]
+                          ? '▼'
+                          : '▶'}{' '}
+                        Code Block {idx + 1}
+                      </button>
+                      {expandedSections[
+                        `solution-${problems.findIndex(p => p.id === selectedProblem)}-${idx}`
+                      ] && (
+                        <SyntaxHighlighter
+                          language="python"
+                          style={vscDarkPlus}
+                          customStyle={{
+                            padding: '1.5rem',
+                            borderRadius: '0.5rem',
+                            fontSize: '0.9rem',
+                            border: '1px solid #3b82f6'
+                          }}
+                        >
+                          {section.code}
+                        </SyntaxHighlighter>
+                      )}
+                    </div>
+                  )
+                )}
 
                 <div style={{
                   backgroundColor: '#1f2937',

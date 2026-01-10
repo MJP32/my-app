@@ -101,6 +101,143 @@ function Design({ onBack, onSelectItem, initialCategory, breadcrumb }) {
           description: 'Strategic and tactical patterns for complex domain modeling including bounded contexts, aggregates, entities, value objects, and ubiquitous language.'
         }
       ]
+    },
+    {
+      id: 'concepts',
+      name: 'System Design Topics',
+      icon: '🧠',
+      color: '#10b981',
+      description: 'Core system design concepts and building blocks for designing scalable, reliable distributed systems. Master these fundamentals before tackling complex system design interviews.',
+      topics: [
+        {
+          id: 'Load Balancing',
+          name: 'Load Balancing',
+          icon: '⚖️',
+          color: '#10b981',
+          complexity: 'Intermediate',
+          description: 'Distribute incoming traffic across multiple servers to ensure high availability and reliability. Learn about L4/L7 load balancers, algorithms (round-robin, least connections, IP hash), health checks, and sticky sessions.'
+        },
+        {
+          id: 'Caching Strategies',
+          name: 'Caching Strategies',
+          icon: '💾',
+          color: '#059669',
+          complexity: 'Intermediate',
+          description: 'Speed up data retrieval and reduce database load using caching. Covers cache-aside, write-through, write-behind patterns, cache invalidation, TTL, eviction policies (LRU, LFU), and distributed caching with Redis/Memcached.'
+        },
+        {
+          id: 'CAP Theorem',
+          name: 'CAP Theorem',
+          icon: '🔺',
+          color: '#047857',
+          complexity: 'Intermediate',
+          description: 'Understand the fundamental trade-offs in distributed systems: Consistency, Availability, and Partition Tolerance. Learn when to choose CP vs AP systems and real-world examples of each approach.'
+        },
+        {
+          id: 'Consistency Patterns',
+          name: 'Consistency Patterns',
+          icon: '🔄',
+          color: '#065f46',
+          complexity: 'Advanced',
+          description: 'Deep dive into consistency models: strong consistency, eventual consistency, causal consistency, and read-your-writes. Understand quorum-based systems, vector clocks, and conflict resolution strategies.'
+        },
+        {
+          id: 'Database Sharding',
+          name: 'Database Sharding',
+          icon: '🗂️',
+          color: '#0d9488',
+          complexity: 'Advanced',
+          description: 'Horizontally partition data across multiple database instances. Learn sharding strategies (hash-based, range-based, geographic), shard key selection, cross-shard queries, and rebalancing techniques.'
+        },
+        {
+          id: 'Database Replication',
+          name: 'Database Replication',
+          icon: '📋',
+          color: '#14b8a6',
+          complexity: 'Intermediate',
+          description: 'Replicate data across multiple database nodes for fault tolerance and read scaling. Covers master-slave, master-master replication, synchronous vs asynchronous replication, and handling replication lag.'
+        },
+        {
+          id: 'Consistent Hashing',
+          name: 'Consistent Hashing',
+          icon: '🎯',
+          color: '#2dd4bf',
+          complexity: 'Advanced',
+          description: 'Distribute data evenly across nodes while minimizing redistribution when nodes join or leave. Essential for distributed caches, databases, and load balancers. Learn virtual nodes and implementation details.'
+        },
+        {
+          id: 'Message Queues',
+          name: 'Message Queues',
+          icon: '📨',
+          color: '#f59e0b',
+          complexity: 'Intermediate',
+          description: 'Decouple system components with asynchronous communication. Covers message brokers (Kafka, RabbitMQ, SQS), delivery guarantees (at-most-once, at-least-once, exactly-once), ordering, and dead letter queues.'
+        },
+        {
+          id: 'CDN',
+          name: 'Content Delivery Network',
+          icon: '🌐',
+          color: '#d97706',
+          complexity: 'Intermediate',
+          description: 'Serve static content from edge servers geographically close to users. Learn push vs pull CDNs, cache invalidation, origin shield, and optimizing for performance with proper cache headers.'
+        },
+        {
+          id: 'Proxies',
+          name: 'Proxies',
+          icon: '🔀',
+          color: '#b45309',
+          complexity: 'Intermediate',
+          description: 'Intermediary servers that handle requests between clients and servers. Covers forward proxies, reverse proxies (Nginx, HAProxy), API gateways, and use cases like caching, security, and load balancing.'
+        },
+        {
+          id: 'API Design',
+          name: 'API Design',
+          icon: '🔌',
+          color: '#78350f',
+          complexity: 'Intermediate',
+          description: 'Design clean, maintainable APIs. Covers REST principles, GraphQL, gRPC, versioning strategies, pagination, rate limiting, authentication, error handling, and documentation best practices.'
+        },
+        {
+          id: 'Scaling',
+          name: 'Scaling Strategies',
+          icon: '📈',
+          color: '#3b82f6',
+          complexity: 'Intermediate',
+          description: 'Scale systems to handle growing load. Covers vertical vs horizontal scaling, stateless design, auto-scaling, capacity planning, and identifying bottlenecks through performance testing.'
+        },
+        {
+          id: 'Data Partitioning',
+          name: 'Data Partitioning',
+          icon: '🧩',
+          color: '#2563eb',
+          complexity: 'Advanced',
+          description: 'Divide data into smaller, manageable pieces. Learn horizontal (sharding) vs vertical partitioning, partition keys, hotspots, and strategies for different data access patterns.'
+        },
+        {
+          id: 'SQL vs NoSQL',
+          name: 'SQL vs NoSQL',
+          icon: '🗄️',
+          color: '#1d4ed8',
+          complexity: 'Intermediate',
+          description: 'Choose the right database for your use case. Compare relational databases (ACID, joins, normalization) with NoSQL options (document, key-value, column-family, graph) and their trade-offs.'
+        },
+        {
+          id: 'WebSockets',
+          name: 'WebSockets',
+          icon: '🔗',
+          color: '#1e40af',
+          complexity: 'Intermediate',
+          description: 'Enable real-time, bidirectional communication between clients and servers. Learn WebSocket protocol, connection management, scaling with pub/sub, and alternatives like Server-Sent Events and long polling.'
+        },
+        {
+          id: 'Blob Storage',
+          name: 'Blob Storage',
+          icon: '📦',
+          color: '#1e3a8a',
+          complexity: 'Intermediate',
+          description: 'Store and serve large binary objects like images, videos, and files. Covers object storage services (S3, GCS, Azure Blob), access patterns, lifecycle policies, and integration with CDNs.'
+        }
+      ]
     }
   ]
 

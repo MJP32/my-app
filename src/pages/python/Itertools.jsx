@@ -5,6 +5,23 @@ import Breadcrumb from '../../components/Breadcrumb'
 
 function Itertools({ onBack, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
+  const [expandedSections, setExpandedSections] = useState({})
+
+  const toggleSection = (conceptIndex, sectionIndex) => {
+    const key = `${conceptIndex}-${sectionIndex}`
+    setExpandedSections(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }))
+  }
+
+  const parseCodeSections = (codeString) => {
+    const sections = codeString.split('\n\n')
+    return sections.map((section, index) => ({
+      id: index,
+      code: section.trim()
+    }))
+  }
 
   const concepts = [
     {
@@ -367,33 +384,63 @@ print(list(flatten(matrix)))  # [1, 2, 3, 4, 5, 6, 7, 8, 9]`
               }}>
                 Code Examples
               </h3>
-              <div style={{
-                backgroundColor: '#1e293b',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                border: '1px solid #3b82f6'
-              }}>
-                <div style={{
-                  padding: '0.75rem 1.25rem',
-                  backgroundColor: '#334155',
-                  borderBottom: '1px solid #475569'
-                }}>
-                  <span style={{ color: '#94a3b8', fontSize: '0.875rem', fontWeight: '600' }}>
-                    Python Example
-                  </span>
-                </div>
-                <SyntaxHighlighter
-                  language="python"
-                  style={vscDarkPlus}
-                  customStyle={{
-                    borderRadius: '8px',
-                    padding: '1rem',
-                    fontSize: '0.9rem'
-                  }}
-                >
-                  {concept.codeExample}
-                </SyntaxHighlighter>
-              </div>
+              {parseCodeSections(concept.codeExample).map(
+                (section, idx) => (
+                  <div key={section.id} style={{ marginBottom: '1rem' }}>
+                    <button
+                      onClick={() =>
+                        toggleSection(
+                          concepts.indexOf(concept),
+                          idx
+                        )
+                      }
+                      style={{
+                        width: '100%',
+                        background: '#2563eb',
+                        color: 'white',
+                        padding: '0.5rem 1rem',
+                        borderRadius: '0.5rem',
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        marginBottom: '0.5rem',
+                        textAlign: 'left',
+                        fontWeight: '500',
+                        fontSize: '1rem'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#1d4ed8'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = '#2563eb'
+                      }}
+                    >
+                      {expandedSections[
+                        `${concepts.indexOf(concept)}-${idx}`
+                      ]
+                        ? '▼'
+                        : '▶'}{' '}
+                      Code Block {idx + 1}
+                    </button>
+                    {expandedSections[
+                      `${concepts.indexOf(concept)}-${idx}`
+                    ] && (
+                      <SyntaxHighlighter
+                        language="python"
+                        style={vscDarkPlus}
+                        customStyle={{
+                          padding: '1.5rem',
+                          borderRadius: '0.5rem',
+                          fontSize: '0.9rem',
+                          border: '1px solid #3b82f6'
+                        }}
+                      >
+                        {section.code}
+                      </SyntaxHighlighter>
+                    )}
+                  </div>
+                )
+              )}
             </div>
           </div>
         </div>

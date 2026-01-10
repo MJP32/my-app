@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation'
 import { isProblemCompleted } from '../services/progressService'
+import { useTheme } from '../contexts/ThemeContext'
 
 function Practice({ onBack, onSelectItem }) {
+  const { colors } = useTheme()
   const [selectedSubcategory, setSelectedSubcategory] = useState(null)
   const [itemProgress, setItemProgress] = useState({})
   const [refreshKey, setRefreshKey] = useState(0)
@@ -228,7 +230,7 @@ function Practice({ onBack, onSelectItem }) {
   })
 
   return (
-    <div style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#f0f9ff', minHeight: '100vh' }}>
+    <div style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: colors.bgPrimary, minHeight: '100vh' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -256,7 +258,7 @@ function Practice({ onBack, onSelectItem }) {
         <h1 style={{
           fontSize: '2rem',
           fontWeight: '800',
-          color: '#1f2937',
+          color: colors.textPrimary,
           margin: 0
         }}>
           {selectedSubcategory ? `${selectedSubcategory.icon} ${selectedSubcategory.name}` : '💪 Practice'}
@@ -268,7 +270,7 @@ function Practice({ onBack, onSelectItem }) {
         <>
           <p style={{
             fontSize: '1rem',
-            color: '#4b5563',
+            color: colors.textSecondary,
             textAlign: 'center',
             marginBottom: '1.5rem',
             lineHeight: '1.6'
@@ -291,7 +293,7 @@ function Practice({ onBack, onSelectItem }) {
                   gap: '0.75rem',
                   marginBottom: '1rem',
                   padding: '0.75rem 1rem',
-                  backgroundColor: 'white',
+                  backgroundColor: colors.bgSecondary,
                   borderRadius: '10px',
                   borderLeft: `5px solid ${group.color}`,
                   boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
@@ -300,7 +302,7 @@ function Practice({ onBack, onSelectItem }) {
                   <h2 style={{
                     fontSize: '1.4rem',
                     fontWeight: '700',
-                    color: '#1f2937',
+                    color: colors.textPrimary,
                     margin: 0
                   }}>
                     {group.title}
@@ -358,7 +360,7 @@ function Practice({ onBack, onSelectItem }) {
                         <h3 style={{
                           fontSize: '1.15rem',
                           fontWeight: '700',
-                          color: '#1f2937',
+                          color: colors.textPrimary,
                           marginBottom: '0.5rem',
                           textAlign: 'center'
                         }}>
@@ -386,7 +388,7 @@ function Practice({ onBack, onSelectItem }) {
                                 </span>
                                 <span style={{
                                   fontSize: '0.8rem',
-                                  color: '#6b7280',
+                                  color: colors.textSecondary,
                                   fontWeight: '600'
                                 }}>
                                   ({progress.percentage}%)
@@ -395,7 +397,7 @@ function Practice({ onBack, onSelectItem }) {
                               <div style={{
                                 width: '100%',
                                 height: '8px',
-                                backgroundColor: '#e5e7eb',
+                                backgroundColor: colors.border,
                                 borderRadius: '4px',
                                 overflow: 'hidden'
                               }}>
@@ -414,7 +416,7 @@ function Practice({ onBack, onSelectItem }) {
                         <p style={{
                           fontSize: '0.9rem',
                           fontWeight: '600',
-                          color: '#6b7280',
+                          color: colors.textSecondary,
                           textAlign: 'center',
                           margin: '0.5rem 0'
                         }}>
@@ -422,7 +424,7 @@ function Practice({ onBack, onSelectItem }) {
                         </p>
                         <div style={{
                           fontSize: '0.8rem',
-                          color: '#6b7280',
+                          color: colors.textSecondary,
                           lineHeight: '1.5',
                           marginTop: '0.75rem'
                         }}>
@@ -432,7 +434,7 @@ function Practice({ onBack, onSelectItem }) {
                             </div>
                           ))}
                           {subcategory.items.length > 3 && (
-                            <div style={{ fontStyle: 'italic', color: '#9ca3af' }}>
+                            <div style={{ fontStyle: 'italic', color: colors.textMuted }}>
                               + {subcategory.items.length - 3} more
                             </div>
                           )}
@@ -449,7 +451,7 @@ function Practice({ onBack, onSelectItem }) {
         <>
           <p style={{
             fontSize: '1rem',
-            color: '#4b5563',
+            color: colors.textSecondary,
             textAlign: 'center',
             marginBottom: '1.5rem',
             lineHeight: '1.6'
@@ -471,7 +473,7 @@ function Practice({ onBack, onSelectItem }) {
                 role="link"
                 aria-label={`${item} practice problem`}
                 style={{
-                  backgroundColor: 'white',
+                  backgroundColor: colors.bgSecondary,
                   padding: '1rem',
                   borderRadius: '10px',
                   border: focusedItemIndex === index
@@ -523,7 +525,7 @@ function Practice({ onBack, onSelectItem }) {
                   <h3 style={{
                     fontSize: '0.95rem',
                     fontWeight: '700',
-                    color: '#1f2937',
+                    color: colors.textPrimary,
                     margin: 0
                   }}>
                     {item}
@@ -541,7 +543,7 @@ function Practice({ onBack, onSelectItem }) {
                     }}>
                       <span style={{
                         fontSize: '0.75rem',
-                        color: '#6b7280',
+                        color: colors.textSecondary,
                         fontWeight: '600'
                       }}>
                         Progress
@@ -557,7 +559,7 @@ function Practice({ onBack, onSelectItem }) {
                     <div style={{
                       width: '100%',
                       height: '6px',
-                      backgroundColor: '#e5e7eb',
+                      backgroundColor: colors.border,
                       borderRadius: '3px',
                       overflow: 'hidden'
                     }}>
@@ -572,7 +574,7 @@ function Practice({ onBack, onSelectItem }) {
                     <div style={{
                       marginTop: '0.4rem',
                       fontSize: '0.7rem',
-                      color: itemProgress[item].percentage === 100 ? '#10b981' : '#6b7280',
+                      color: itemProgress[item].percentage === 100 ? '#10b981' : colors.textSecondary,
                       fontWeight: '600',
                       textAlign: 'center'
                     }}>

@@ -17,6 +17,23 @@ const customTheme = {
 
 function StringAlgorithms({ onBack, breadcrumb }) {
   const [expandedAlgorithm, setExpandedAlgorithm] = useState(null)
+  const [expandedSections, setExpandedSections] = useState({})
+
+  const toggleSection = (conceptIndex, sectionIndex) => {
+    const key = `${conceptIndex}-${sectionIndex}`
+    setExpandedSections(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }))
+  }
+
+  const parseCodeSections = (codeString) => {
+    const sections = codeString.split('\n\n')
+    return sections.map((section, index) => ({
+      id: index,
+      code: section.trim()
+    }))
+  }
 
   const algorithms = [
     {
@@ -2037,51 +2054,63 @@ print(f"Autocomplete 'app': {trie.autocomplete('app')}")`
                   <h4 style={{ fontSize: '0.9rem', fontWeight: '700', color: '#d1d5db', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <span style={{ fontSize: '1rem' }}>🐍</span> Python Implementation
                   </h4>
-                  <div style={{
-                    borderRadius: '12px',
-                    overflow: 'hidden',
-                    border: '1px solid #30363d',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-                  }}>
-                    <div style={{
-                      backgroundColor: '#161b22',
-                      padding: '0.5rem 1rem',
-                      borderBottom: '1px solid #30363d',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem'
-                    }}>
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#ff5f56' }}></div>
-                        <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#ffbd2e' }}></div>
-                        <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#27ca40' }}></div>
+                  {parseCodeSections(algo.code).map(
+                    (section, idx) => (
+                      <div key={section.id} style={{ marginBottom: '1rem' }}>
+                        <button
+                          onClick={() =>
+                            toggleSection(
+                              algorithms.indexOf(algo),
+                              idx
+                            )
+                          }
+                          style={{
+                            width: '100%',
+                            background: '#2563eb',
+                            color: 'white',
+                            padding: '0.5rem 1rem',
+                            borderRadius: '0.5rem',
+                            border: 'none',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            marginBottom: '0.5rem',
+                            textAlign: 'left',
+                            fontWeight: '500',
+                            fontSize: '1rem'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = '#1d4ed8'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = '#2563eb'
+                          }}
+                        >
+                          {expandedSections[
+                            `${algorithms.indexOf(algo)}-${idx}`
+                          ]
+                            ? '▼'
+                            : '▶'}{' '}
+                          Code Block {idx + 1}
+                        </button>
+                        {expandedSections[
+                          `${algorithms.indexOf(algo)}-${idx}`
+                        ] && (
+                          <SyntaxHighlighter
+                            language="python"
+                            style={customTheme}
+                            customStyle={{
+                              padding: '1.5rem',
+                              borderRadius: '0.5rem',
+                              fontSize: '0.9rem',
+                              border: '1px solid #3b82f6'
+                            }}
+                          >
+                            {section.code}
+                          </SyntaxHighlighter>
+                        )}
                       </div>
-                      <span style={{ fontSize: '0.75rem', color: '#8b949e', marginLeft: '0.5rem' }}>{algo.name.toLowerCase().replace(/[^a-z0-9]/g, '_')}.py</span>
-                    </div>
-                    <SyntaxHighlighter
-                      language="python"
-                      style={customTheme}
-                      showLineNumbers={true}
-                      wrapLines={true}
-                      customStyle={{
-                        margin: 0,
-                        padding: '1.25rem',
-                        fontSize: '0.875rem',
-                        lineHeight: '1.7',
-                        background: '#0d1117',
-                        maxHeight: '600px'
-                      }}
-                      lineNumberStyle={{
-                        minWidth: '2.5em',
-                        paddingRight: '1em',
-                        color: '#6e7681',
-                        borderRight: '1px solid #30363d',
-                        marginRight: '1em'
-                      }}
-                    >
-                      {algo.code}
-                    </SyntaxHighlighter>
-                  </div>
+                    )
+                  )}
                 </div>
               </div>
             )}

@@ -205,15 +205,34 @@ code {
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --bg-tertiary: #f3f4f6;
+    --bg-card: linear-gradient(to bottom right, #ffffff, #f9fafb);
 
-  a:hover {
-    color: #64748b;
+    --text-primary: #111827;
+    --text-secondary: #374151;
+    --text-muted: #6b7280;
+
+    --border-color: #e5e7eb;
+    --border-light: #d1d5db;
+
+    --accent: #f59e0b;
+    --accent-hover: #d97706;
+    --success: #059669;
+    --error: #dc2626;
+    --info: #2563eb;
+
+    --code-bg: #f8f9fa;
+    --code-text: #1f2937;
+
+    color-scheme: light;
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
   }
 
   button {
-    background-color: #f9f9f9;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
   }
 }

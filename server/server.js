@@ -5,6 +5,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import Anthropic from '@anthropic-ai/sdk';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -378,6 +379,481 @@ app.post('/api/execute-python-tests', async (req, res) => {
       error: error.message,
       stage: 'system',
       testResults: []
+    });
+  }
+});
+
+// Initialize Anthropic client (optional - only if API key is set)
+const anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY
+}) : null;
+
+// AI Interview Chat endpoint
+app.post('/api/ai/chat', async (req, res) => {
+  if (!anthropic) {
+    return res.status(503).json({
+      error: 'AI service not configured. Please set ANTHROPIC_API_KEY environment variable.',
+      configured: false
+    });
+  }
+
+  const { messages, context, mode } = req.body;
+
+  if (!messages || !Array.isArray(messages)) {
+    return res.status(400).json({ error: 'Messages array is required' });
+  }
+
+  try {
+    // Build system prompt based on mode
+    let systemPrompt = '';
+
+    if (mode === 'interviewer') {
+      systemPrompt = `You are an experienced technical interviewer at a top tech company conducting an AI-enabled coding interview. Your role is to:
+1. Present coding problems clearly and professionally
+2. Ask clarifying questions when the candidate's approach is unclear
+3. Provide hints when the candidate is stuck (but don't give away the solution)
+4. Evaluate their problem-solving approach, code quality, and communication
+5. Ask follow-up questions about time/space complexity
+6. Be encouraging but maintain professional standards
+
+The candidate is using an AI assistant (you) during this interview, which is the new format at companies like Meta. Evaluate how well they leverage AI assistance - they should review AI suggestions critically, not blindly accept them.
+
+Keep responses concise and interview-appropriate. Ask one question at a time.`;
+    } else if (mode === 'code-review') {
+      systemPrompt = `You are an expert code reviewer providing feedback on interview code. Analyze the code for:
+1. Correctness - Does it solve the problem?
+2. Edge cases - Are all edge cases handled?
+3. Time complexity - What is the Big O?
+4. Space complexity - Is memory usage optimal?
+5. Code quality - Is it readable and maintainable?
+6. Best practices - Does it follow coding standards?
+
+Provide specific, actionable feedback. Be constructive and educational.`;
+    } else if (mode === 'hint') {
+      systemPrompt = `You are a helpful coding mentor. When asked for hints:
+1. Start with a small conceptual hint
+2. If they're still stuck, provide a more specific algorithmic hint
+3. Never give the complete solution directly
+4. Guide them to discover the answer themselves
+5. Ask leading questions that prompt thinking
+
+Be encouraging and patient. The goal is learning, not just getting the answer.`;
+    } else {
+      systemPrompt = `You are a helpful AI assistant for coding interview preparation. You can help with:
+- Explaining algorithms and data structures
+- Reviewing code and suggesting improvements
+- Providing hints without giving away solutions
+- Discussing time and space complexity
+- Explaining best practices and patterns
+
+Be concise, helpful, and educational.`;
+    }
+
+    if (context) {
+      systemPrompt += `\n\nCurrent context:\n${context}`;
+    }
+
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1024,
+      system: systemPrompt,
+      messages: messages.map(m => ({
+        role: m.role,
+        content: m.content
+      }))
+    });
+
+    res.json({
+      success: true,
+      message: response.content[0].text,
+      usage: response.usage
+    });
+
+  } catch (error) {
+    console.error('AI Chat error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get AI response'
+    });
+  }
+});
+
+// AI Code Analysis endpoint
+app.post('/api/ai/analyze-code', async (req, res) => {
+  if (!anthropic) {
+    return res.status(503).json({
+      error: 'AI service not configured',
+      configured: false
+    });
+  }
+
+  const { code, language, problemDescription } = req.body;
+
+  if (!code) {
+    return res.status(400).json({ error: 'Code is required' });
+  }
+
+  try {
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1500,
+      system: `You are an expert code reviewer for coding interviews. Analyze the provided code and return a JSON response with the following structure:
+{
+  "correctness": { "score": 1-10, "feedback": "..." },
+  "efficiency": { "timeComplexity": "O(...)", "spaceComplexity": "O(...)", "feedback": "..." },
+  "codeQuality": { "score": 1-10, "feedback": "..." },
+  "edgeCases": { "handled": ["..."], "missing": ["..."] },
+  "suggestions": ["..."],
+  "overallScore": 1-10,
+  "summary": "..."
+}
+Only respond with valid JSON, no other text.`,
+      messages: [{
+        role: 'user',
+        content: `Problem: ${problemDescription || 'Not specified'}\n\nLanguage: ${language || 'Unknown'}\n\nCode:\n\`\`\`\n${code}\n\`\`\``
+      }]
+    });
+
+    const analysisText = response.content[0].text;
+    let analysis;
+
+    try {
+      analysis = JSON.parse(analysisText);
+    } catch {
+      // If JSON parsing fails, return the raw text
+      analysis = { summary: analysisText, parseError: true };
+    }
+
+    res.json({
+      success: true,
+      analysis
+    });
+
+  } catch (error) {
+    console.error('Code analysis error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// AI Interview Question Generator
+app.post('/api/ai/generate-question', async (req, res) => {
+  if (!anthropic) {
+    return res.status(503).json({
+      error: 'AI service not configured',
+      configured: false
+    });
+  }
+
+  const { difficulty, topic, previousQuestions } = req.body;
+
+  try {
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system: `You are an interview question generator. Generate a coding interview question suitable for a ${difficulty || 'medium'} difficulty level${topic ? ` focused on ${topic}` : ''}.
+
+Return a JSON object with:
+{
+  "title": "Problem title",
+  "difficulty": "Easy/Medium/Hard",
+  "description": "Full problem description",
+  "examples": [{"input": "...", "output": "...", "explanation": "..."}],
+  "constraints": ["..."],
+  "hints": ["hint1", "hint2", "hint3"],
+  "topics": ["topic1", "topic2"]
+}
+
+Only respond with valid JSON.`,
+      messages: [{
+        role: 'user',
+        content: previousQuestions
+          ? `Generate a new question. Avoid these topics already covered: ${previousQuestions.join(', ')}`
+          : 'Generate an interview coding question.'
+      }]
+    });
+
+    const questionText = response.content[0].text;
+    let question;
+
+    try {
+      question = JSON.parse(questionText);
+    } catch {
+      question = { description: questionText, parseError: true };
+    }
+
+    res.json({
+      success: true,
+      question
+    });
+
+  } catch (error) {
+    console.error('Question generation error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Check AI service status
+app.get('/api/ai/status', (req, res) => {
+  res.json({
+    configured: !!anthropic,
+    model: anthropic ? 'claude-sonnet-4-20250514' : null
+  });
+});
+
+// AI Evaluate Code Output - Evaluates execution results against expected output
+app.post('/api/ai/evaluate-output', async (req, res) => {
+  if (!anthropic) {
+    return res.status(503).json({
+      error: 'AI service not configured',
+      configured: false
+    });
+  }
+
+  const { code, output, expectedOutput, problemDescription, testCases } = req.body;
+
+  if (!code || output === undefined) {
+    return res.status(400).json({ error: 'Code and output are required' });
+  }
+
+  try {
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system: `You are an expert code evaluator for coding interviews. Analyze the code execution output and determine if the solution is correct.
+
+Return a JSON object with:
+{
+  "passed": true/false,
+  "score": 0-100,
+  "testResults": [{"input": "...", "expected": "...", "actual": "...", "passed": true/false}],
+  "feedback": "Detailed feedback about what's working and what's not",
+  "issues": ["List of specific issues found"],
+  "suggestions": ["Specific suggestions to fix the issues"]
+}
+
+Be thorough but encouraging. If the output is close but not exact, explain what's different.
+Only respond with valid JSON.`,
+      messages: [{
+        role: 'user',
+        content: `Problem: ${problemDescription || 'Not specified'}
+
+Test Cases:
+${testCases ? testCases.map(tc => `Input: ${tc.input} → Expected: ${tc.expected}`).join('\n') : 'Not provided'}
+
+Code:
+\`\`\`python
+${code}
+\`\`\`
+
+Actual Output:
+\`\`\`
+${output}
+\`\`\`
+
+${expectedOutput ? `Expected Output:\n\`\`\`\n${expectedOutput}\n\`\`\`` : ''}`
+      }]
+    });
+
+    const evalText = response.content[0].text;
+    let evaluation;
+
+    try {
+      evaluation = JSON.parse(evalText);
+    } catch {
+      evaluation = { feedback: evalText, parseError: true, passed: false };
+    }
+
+    res.json({
+      success: true,
+      evaluation
+    });
+
+  } catch (error) {
+    console.error('Output evaluation error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// AI Follow-up Questions - Generate follow-up questions after solving a problem
+app.post('/api/ai/follow-up-questions', async (req, res) => {
+  if (!anthropic) {
+    return res.status(503).json({
+      error: 'AI service not configured',
+      configured: false
+    });
+  }
+
+  const { problemTitle, problemDescription, code, complexity } = req.body;
+
+  if (!problemTitle || !code) {
+    return res.status(400).json({ error: 'Problem title and code are required' });
+  }
+
+  try {
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1200,
+      system: `You are an experienced technical interviewer. After a candidate solves a coding problem, you ask follow-up questions to:
+1. Test their understanding of the solution
+2. Explore edge cases they might have missed
+3. Discuss potential optimizations
+4. Test their knowledge of related concepts
+5. See how they'd adapt the solution to new requirements
+
+Return a JSON object with:
+{
+  "questions": [
+    {
+      "question": "The follow-up question",
+      "category": "optimization|edge-cases|complexity|scalability|variations|concepts",
+      "difficulty": "easy|medium|hard",
+      "expectedAnswer": "Brief expected answer or key points"
+    }
+  ],
+  "overallAssessment": "Brief assessment of the solution quality"
+}
+
+Generate 4-6 relevant follow-up questions. Make them specific to their code.
+Only respond with valid JSON.`,
+      messages: [{
+        role: 'user',
+        content: `Problem: ${problemTitle}
+
+Description: ${problemDescription || 'Not provided'}
+
+Candidate's Solution:
+\`\`\`python
+${code}
+\`\`\`
+
+${complexity ? `Stated Complexity: Time: ${complexity.time}, Space: ${complexity.space}` : ''}`
+      }]
+    });
+
+    const questionsText = response.content[0].text;
+    let followUp;
+
+    try {
+      followUp = JSON.parse(questionsText);
+    } catch {
+      followUp = { questions: [{ question: questionsText, category: 'general' }], parseError: true };
+    }
+
+    res.json({
+      success: true,
+      followUp
+    });
+
+  } catch (error) {
+    console.error('Follow-up questions error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// AI Optimization Suggestions - Get specific optimization recommendations
+app.post('/api/ai/optimize', async (req, res) => {
+  if (!anthropic) {
+    return res.status(503).json({
+      error: 'AI service not configured',
+      configured: false
+    });
+  }
+
+  const { code, language, problemDescription, currentComplexity } = req.body;
+
+  if (!code) {
+    return res.status(400).json({ error: 'Code is required' });
+  }
+
+  try {
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1500,
+      system: `You are an expert algorithm optimizer. Analyze the code and provide specific optimization suggestions focused on improving time and space complexity.
+
+Return a JSON object with:
+{
+  "currentAnalysis": {
+    "timeComplexity": "O(...)",
+    "spaceComplexity": "O(...)",
+    "bottlenecks": ["List of performance bottlenecks in the code"]
+  },
+  "optimizations": [
+    {
+      "title": "Optimization name",
+      "description": "What this optimization does",
+      "impact": "How it improves complexity (e.g., 'O(n²) → O(n log n)')",
+      "tradeoffs": "Any tradeoffs (memory vs speed, readability, etc.)",
+      "codeHint": "Brief code hint or pseudocode showing the approach"
+    }
+  ],
+  "optimalApproach": {
+    "timeComplexity": "O(...)",
+    "spaceComplexity": "O(...)",
+    "description": "Brief description of the optimal approach"
+  },
+  "alternativeApproaches": [
+    {
+      "name": "Approach name",
+      "complexity": "O(...)",
+      "description": "Brief description",
+      "whenToUse": "When this approach is preferred"
+    }
+  ]
+}
+
+Be specific about WHERE in the code to make changes. Mention line-level improvements when possible.
+Only respond with valid JSON.`,
+      messages: [{
+        role: 'user',
+        content: `Problem: ${problemDescription || 'Not specified'}
+
+Language: ${language || 'Python'}
+
+Current Code:
+\`\`\`${language || 'python'}
+${code}
+\`\`\`
+
+${currentComplexity ? `Candidate's stated complexity: Time: ${currentComplexity.time}, Space: ${currentComplexity.space}` : ''}`
+      }]
+    });
+
+    const optimizeText = response.content[0].text;
+    let optimization;
+
+    try {
+      optimization = JSON.parse(optimizeText);
+    } catch {
+      optimization = {
+        currentAnalysis: { timeComplexity: 'Unknown', spaceComplexity: 'Unknown', bottlenecks: [] },
+        optimizations: [{ title: 'Analysis', description: optimizeText }],
+        parseError: true
+      };
+    }
+
+    res.json({
+      success: true,
+      optimization
+    });
+
+  } catch (error) {
+    console.error('Optimization analysis error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });

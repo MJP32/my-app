@@ -6,6 +6,23 @@ import Breadcrumb from '../../components/Breadcrumb'
 function PythonHeapsReference({ onBack, breadcrumb }) {
   const [selectedMethod, setSelectedMethod] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
+  const [expandedSections, setExpandedSections] = useState({})
+
+  const toggleSection = (conceptIndex, sectionIndex) => {
+    const key = `${conceptIndex}-${sectionIndex}`
+    setExpandedSections(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }))
+  }
+
+  const parseCodeSections = (codeString) => {
+    const sections = codeString.split('\n\n')
+    return sections.map((section, index) => ({
+      id: index,
+      code: section.trim()
+    }))
+  }
 
   const heapMethods = [
     {
@@ -1063,22 +1080,52 @@ print(f"Evicted: {evicted}")  # Critical`
           {/* Examples */}
           <div style={{ marginBottom: '2rem' }}>
             <h3 style={{ color: '#93c5fd', marginBottom: '0.75rem', fontSize: '1.25rem' }}>Examples</h3>
-            {selectedMethod.examples.map((example, idx) => (
-              <div key={idx} style={{ marginBottom: '1.5rem' }}>
+            {selectedMethod.examples.map((example, exampleIdx) => (
+              <div key={exampleIdx} style={{ marginBottom: '1.5rem' }}>
                 <h4 style={{ color: '#93c5fd', marginBottom: '0.5rem', fontSize: '1rem' }}>{example.title}</h4>
-                <SyntaxHighlighter
-                  language="python"
-                  style={vscDarkPlus}
-                  customStyle={{
-                    borderRadius: '8px',
-                    padding: '1rem',
-                    fontSize: '0.9rem',
-                    border: '1px solid #3b82f6',
-                    margin: 0
-                  }}
-                >
-                  {example.code}
-                </SyntaxHighlighter>
+                {parseCodeSections(example.code).map((section, idx) => (
+                  <div key={section.id} style={{ marginBottom: '1rem' }}>
+                    <button
+                      onClick={() => toggleSection(`${selectedMethod.id}-${exampleIdx}`, idx)}
+                      style={{
+                        width: '100%',
+                        background: '#2563eb',
+                        color: 'white',
+                        padding: '0.5rem 1rem',
+                        borderRadius: '0.5rem',
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        marginBottom: '0.5rem',
+                        textAlign: 'left',
+                        fontWeight: '500',
+                        fontSize: '1rem'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#1d4ed8'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = '#2563eb'
+                      }}
+                    >
+                      {expandedSections[`${selectedMethod.id}-${exampleIdx}-${idx}`] ? '▼' : '▶'} Code Block {idx + 1}
+                    </button>
+                    {expandedSections[`${selectedMethod.id}-${exampleIdx}-${idx}`] && (
+                      <SyntaxHighlighter
+                        language="python"
+                        style={vscDarkPlus}
+                        customStyle={{
+                          padding: '1.5rem',
+                          borderRadius: '0.5rem',
+                          fontSize: '0.9rem',
+                          border: '1px solid #3b82f6'
+                        }}
+                      >
+                        {section.code}
+                      </SyntaxHighlighter>
+                    )}
+                  </div>
+                ))}
               </div>
             ))}
           </div>

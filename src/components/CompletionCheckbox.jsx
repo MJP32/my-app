@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
-import { isProblemCompleted, toggleProblemCompletion } from '../services/progressService'
+import { isProblemCompleted, toggleProblemCompletion, getCompletedProblems } from '../services/progressService'
 import { getCurrentUser, onAuthStateChange } from '../services/authService'
 import { recordProblemCompletion, recordProblemUncompletion } from '../services/gamificationService'
+import { checkProblemCompletionAchievements } from '../services/achievementService'
+import { logActivity } from '../services/activityLogService'
 
 function CompletionCheckbox({ problemId, label = "Mark as Completed", onCompletionChange, difficulty = "Medium" }) {
   const [isCompleted, setIsCompleted] = useState(false)
@@ -52,6 +54,13 @@ function CompletionCheckbox({ problemId, label = "Mark as Completed", onCompleti
     if (newState) {
       // Problem completed - award XP
       recordProblemCompletion(userId, problemId, difficulty)
+
+      // Log activity for charts
+      logActivity(userId)
+
+      // Check for achievements
+      const totalCompleted = getCompletedProblems().length
+      checkProblemCompletionAchievements(userId, totalCompleted, difficulty)
     } else {
       // Problem uncompleted - record removal (XP is kept)
       recordProblemUncompletion(userId, problemId)

@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation'
+import { useTheme } from '../contexts/ThemeContext'
 
 function Questions({ onBack, onSelectItem }) {
+  const { colors } = useTheme()
   const [selectedSubcategory, setSelectedSubcategory] = useState(null)
 
   // Organized into logical groups
@@ -140,7 +142,7 @@ function Questions({ onBack, onSelectItem }) {
   })
 
   return (
-    <div style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#faf5ff', minHeight: '100vh' }}>
+    <div style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: colors.bgPrimary, minHeight: '100vh' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -168,7 +170,7 @@ function Questions({ onBack, onSelectItem }) {
         <h1 style={{
           fontSize: '2rem',
           fontWeight: '800',
-          color: '#1f2937',
+          color: colors.textPrimary,
           margin: 0
         }}>
           {selectedSubcategory ? `${selectedSubcategory.icon} ${selectedSubcategory.name}` : '❓ Questions'}
@@ -180,7 +182,7 @@ function Questions({ onBack, onSelectItem }) {
         <>
           <p style={{
             fontSize: '1rem',
-            color: '#4b5563',
+            color: colors.textSecondary,
             textAlign: 'center',
             marginBottom: '1.5rem',
             lineHeight: '1.6'
@@ -203,7 +205,7 @@ function Questions({ onBack, onSelectItem }) {
                   gap: '0.75rem',
                   marginBottom: '1rem',
                   padding: '0.75rem 1rem',
-                  backgroundColor: 'white',
+                  backgroundColor: colors.bgSecondary,
                   borderRadius: '10px',
                   borderLeft: `5px solid ${group.color}`,
                   boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
@@ -212,7 +214,7 @@ function Questions({ onBack, onSelectItem }) {
                   <h2 style={{
                     fontSize: '1.4rem',
                     fontWeight: '700',
-                    color: '#1f2937',
+                    color: colors.textPrimary,
                     margin: 0
                   }}>
                     {group.title}
@@ -270,7 +272,7 @@ function Questions({ onBack, onSelectItem }) {
                         <h3 style={{
                           fontSize: '1.15rem',
                           fontWeight: '700',
-                          color: '#1f2937',
+                          color: colors.textPrimary,
                           marginBottom: '0.5rem',
                           textAlign: 'center'
                         }}>
@@ -287,7 +289,7 @@ function Questions({ onBack, onSelectItem }) {
                         </p>
                         <div style={{
                           fontSize: '0.8rem',
-                          color: '#6b7280',
+                          color: colors.textSecondary,
                           lineHeight: '1.5',
                           marginTop: '0.75rem'
                         }}>
@@ -297,7 +299,7 @@ function Questions({ onBack, onSelectItem }) {
                             </div>
                           ))}
                           {subcategory.items.length > 3 && (
-                            <div style={{ fontStyle: 'italic', color: '#9ca3af' }}>
+                            <div style={{ fontStyle: 'italic', color: colors.textMuted }}>
                               + {subcategory.items.length - 3} more
                             </div>
                           )}
@@ -314,7 +316,7 @@ function Questions({ onBack, onSelectItem }) {
         <>
           <p style={{
             fontSize: '1rem',
-            color: '#4b5563',
+            color: colors.textSecondary,
             textAlign: 'center',
             marginBottom: '1.5rem',
             lineHeight: '1.6'
@@ -336,7 +338,7 @@ function Questions({ onBack, onSelectItem }) {
                 role="link"
                 aria-label={`${item} interview questions`}
                 style={{
-                  backgroundColor: 'white',
+                  backgroundColor: colors.bgSecondary,
                   padding: '1rem',
                   borderRadius: '10px',
                   border: focusedItemIndex === index
@@ -388,7 +390,7 @@ function Questions({ onBack, onSelectItem }) {
                   <h3 style={{
                     fontSize: '0.95rem',
                     fontWeight: '700',
-                    color: '#1f2937',
+                    color: colors.textPrimary,
                     margin: 0
                   }}>
                     {item}

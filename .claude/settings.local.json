@@ -73,7 +73,12 @@
       "Bash(timeout 90 npm run build)",
       "Bash(npm install:*)",
       "Bash(timeout 10 npm run dev:vite:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)",
+      "Bash(timeout:*)",
+      "Bash(start http://localhost:5173)",
+      "Skill(push)"
     ],
     "deny": [],
     "ask": []

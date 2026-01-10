@@ -1,6 +1,25 @@
+import { useState } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
 
 function PythonTopicPlaceholder({ topicName, onBack, breadcrumb }) {
+  const [expandedSections, setExpandedSections] = useState({})
+
+  const toggleSection = (conceptIndex, sectionIndex) => {
+    const key = `${conceptIndex}-${sectionIndex}`
+    setExpandedSections(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }))
+  }
+
+  const parseCodeSections = (codeString) => {
+    const sections = codeString.split('\n\n')
+    return sections.map((section, index) => ({
+      id: index,
+      code: section.trim()
+    }))
+  }
+
   return (
     <div style={{
       padding: '2rem',

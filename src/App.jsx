@@ -32,6 +32,7 @@ import Testing from './pages/projects/Testing.jsx'
 import MyProjects from './pages/projects/MyProjects.jsx'
 import VirtualNumbers from './pages/projects/VirtualNumbers.jsx'
 import AIInterviewTips from './pages/projects/AIInterviewTips.jsx'
+import AIInterview from './pages/AIInterview.jsx'
 
 // Messaging pages
 import ApacheKafka from './pages/messaging/ApacheKafka.jsx'
@@ -255,6 +256,9 @@ import GoogleAnalytics from './components/GoogleAnalytics.jsx'
 import { initializeUser, getProgressStats, getCategoryStats, getCategoryGroupings, getAllPracticeProblems, getCompletedProblems, migrateCompletionData } from './services/progressService'
 import { onAuthStateChange, getCurrentUser } from './services/authService'
 import { GamificationHeader, XPGainNotification } from './components/gamification'
+import { AchievementNotification } from './components/achievements'
+import DailyChallenge from './components/DailyChallenge'
+import { ActivityHeatmap, WeeklyProgressChart } from './components/charts'
 import { checkStreakStatus } from './services/gamificationService'
 
 // Category organization metadata (for visual grouping)
@@ -278,6 +282,10 @@ const categoryOrganization = {
   'Operations': {
     label: '🛠️ DevOps & Security',
     categories: ['DevOps']
+  },
+  'AI Interview': {
+    label: '🤖 AI Interview Prep',
+    categories: ['AI Interview']
   }
 }
 
@@ -345,6 +353,13 @@ const categoryGroups = {
     groupSection: 'Operations',
     description: 'CI/CD, Docker, Kubernetes, Messaging, Security',
     items: ['Deployment', 'Docker', 'Kubernetes', 'Testing', 'CI/CD', 'Agile Scrum', 'Production Support', 'TeamCity', 'Jenkins', 'Prometheus', 'Grafana', 'Security OWASP', 'JWT', 'OAuth', 'OAuth2', 'Kafka', 'Apache Flink', 'RabbitMQ', 'Solace', 'MuleSoft']
+  },
+  'AI Interview': {
+    icon: '🤖',
+    color: '#8b5cf6',
+    groupSection: 'AI Interview',
+    description: 'AI-enabled interview preparation and mock interviews',
+    items: []
   },
   'Practice': {
     icon: '💪',
@@ -645,7 +660,8 @@ const ROUTE_TO_PAGE = {
   '/security': 'Security',
   '/messaging': 'Messaging',
   '/projects': 'Projects',
-  '/progress': 'Progress'
+  '/progress': 'Progress',
+  '/ai-interview': 'AI Interview'
 }
 
 const PAGE_TO_ROUTE = Object.fromEntries(
@@ -849,7 +865,7 @@ function App() {
   // Keep ref in sync with state and update URL
   useEffect(() => {
     selectedOptionRef.current = selectedOption
-    
+
     // Update URL parameter when page changes
     const params = new URLSearchParams(window.location.search)
     if (selectedOption) {
@@ -859,7 +875,7 @@ function App() {
     }
     const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname
     window.history.replaceState({}, '', newUrl)
-    
+
     // Update document title for better sharing and browser tabs
     if (selectedOption) {
       document.title = `${selectedOption} | Java Learning Platform`
@@ -871,7 +887,7 @@ function App() {
   // Update focused category index based on selected/expanded category
   useEffect(() => {
     const categoryNames = Object.keys(categoryGroups);
-    
+
     // Function to find which category contains a given item
     const findCategoryForItem = (itemName) => {
       for (const [categoryName, categoryData] of Object.entries(categoryGroups)) {
@@ -890,10 +906,10 @@ function App() {
       }
       return null;
     };
-    
+
     // Priority: expandedGroup > selectedOption
     let targetCategory = null;
-    
+
     if (expandedGroup) {
       // A category is expanded, highlight it
       targetCategory = expandedGroup;
@@ -906,7 +922,7 @@ function App() {
         targetCategory = findCategoryForItem(selectedOption);
       }
     }
-    
+
     // Update the focused index if we found a target category (REMOVED focusedCategoryIndex from deps to prevent loop)
     if (targetCategory) {
       const newIndex = categoryNames.indexOf(targetCategory);
@@ -2524,7 +2540,7 @@ function App() {
       if (inMenuBar && e.key !== 'Escape') {
         return
       }
-      
+
       console.log('Keyboard event:', e.key, 'selectedOption:', selectedOption, 'expandedGroup:', expandedGroup);
 
       // Global shortcuts that work everywhere
@@ -3129,6 +3145,11 @@ function App() {
       return <ProgressDashboard
         onBack={() => setSelectedOptionAndRef('')}
         onNavigate={(item) => setSelectedOptionAndRef(item)}
+      />
+    }
+    if (selectedOption === 'AI Interview') {
+      return <AIInterview
+        onBack={() => setSelectedOptionAndRef('')}
       />
     }
     if (selectedOption === 'My Projects') {
@@ -3871,7 +3892,7 @@ function App() {
         onBack={() => setSelectedOptionAndRef('')}
         onSelectItem={(item) => {
           // Open the appropriate modal based on the item name
-          switch(item) {
+          switch (item) {
             case 'Arrays': setShowArraysModal(true); break;
             case 'Hash Tables': setShowHashTablesModal(true); break;
             case 'Stacks': setShowStacksModal(true); break;
@@ -3928,7 +3949,7 @@ function App() {
         onSelectItem={(item) => {
           // Open the appropriate modal based on the item name
           console.log('Questions item clicked:', item);
-          switch(item) {
+          switch (item) {
             case 'Java Questions': setShowJavaQuestionsModal(true); break;
             case 'Core Java Questions': setShowCoreJavaQuestionsModal(true); break;
             case 'Java 8 Questions': setShowJava8QuestionsModal(true); break;
@@ -4448,9 +4469,9 @@ function App() {
             style={modalContentStyle}
           >
             <Deployment onBack={() => setShowDeploymentModal(false)} {...createDevOpsNavigationCallbacks('Deployment')} breadcrumb={{
-                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowDeploymentModal(false); setSelectedOptionAndRef('DevOps') } },
-                  topic: 'Deployment'
-                }} />
+              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowDeploymentModal(false); setSelectedOptionAndRef('DevOps') } },
+              topic: 'Deployment'
+            }} />
           </div>
         </div>
       )}
@@ -4466,9 +4487,9 @@ function App() {
             style={modalContentStyle}
           >
             <Docker onBack={() => setShowDockerModal(false)} {...createDevOpsNavigationCallbacks('Docker')} breadcrumb={{
-                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowDockerModal(false); setSelectedOptionAndRef('DevOps') } },
-                  topic: 'Docker'
-                }} />
+              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowDockerModal(false); setSelectedOptionAndRef('DevOps') } },
+              topic: 'Docker'
+            }} />
           </div>
         </div>
       )}
@@ -4484,9 +4505,9 @@ function App() {
             style={modalContentStyle}
           >
             <Kubernetes onBack={() => setShowKubernetesModal(false)} {...createDevOpsNavigationCallbacks('Kubernetes')} breadcrumb={{
-                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowKubernetesModal(false); setSelectedOptionAndRef('DevOps') } },
-                  topic: 'Kubernetes'
-                }} />
+              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowKubernetesModal(false); setSelectedOptionAndRef('DevOps') } },
+              topic: 'Kubernetes'
+            }} />
           </div>
         </div>
       )}
@@ -4502,9 +4523,9 @@ function App() {
             style={modalContentStyle}
           >
             <Testing onBack={() => setShowTestingModal(false)} {...createDevOpsNavigationCallbacks('Testing')} breadcrumb={{
-                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowTestingModal(false); setSelectedOptionAndRef('DevOps') } },
-                  topic: 'Testing'
-                }} />
+              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowTestingModal(false); setSelectedOptionAndRef('DevOps') } },
+              topic: 'Testing'
+            }} />
           </div>
         </div>
       )}
@@ -4520,9 +4541,9 @@ function App() {
             style={modalContentStyle}
           >
             <CICD onBack={() => setShowCICDModal(false)} {...createDevOpsNavigationCallbacks('CICD')} breadcrumb={{
-                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowCICDModal(false); setSelectedOptionAndRef('DevOps') } },
-                  topic: 'CI/CD'
-                }} />
+              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowCICDModal(false); setSelectedOptionAndRef('DevOps') } },
+              topic: 'CI/CD'
+            }} />
           </div>
         </div>
       )}
@@ -4538,9 +4559,9 @@ function App() {
             style={modalContentStyle}
           >
             <AgileScrum onBack={() => setShowAgileScrumModal(false)} {...createDevOpsNavigationCallbacks('AgileScrum')} breadcrumb={{
-                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowAgileScrumModal(false); setSelectedOptionAndRef('DevOps') } },
-                  topic: 'Agile & Scrum'
-                }} />
+              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowAgileScrumModal(false); setSelectedOptionAndRef('DevOps') } },
+              topic: 'Agile & Scrum'
+            }} />
           </div>
         </div>
       )}
@@ -4556,9 +4577,9 @@ function App() {
             style={modalContentStyle}
           >
             <ProductionSupport onBack={() => setShowProductionSupportModal(false)} {...createDevOpsNavigationCallbacks('ProductionSupport')} breadcrumb={{
-                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowProductionSupportModal(false); setSelectedOptionAndRef('DevOps') } },
-                  topic: 'Production Support'
-                }} />
+              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowProductionSupportModal(false); setSelectedOptionAndRef('DevOps') } },
+              topic: 'Production Support'
+            }} />
           </div>
         </div>
       )}
@@ -4574,9 +4595,9 @@ function App() {
             style={modalContentStyle}
           >
             <TeamCity onBack={() => setShowTeamCityModal(false)} {...createDevOpsNavigationCallbacks('TeamCity')} breadcrumb={{
-                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowTeamCityModal(false); setSelectedOptionAndRef('DevOps') } },
-                  topic: 'TeamCity'
-                }} />
+              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowTeamCityModal(false); setSelectedOptionAndRef('DevOps') } },
+              topic: 'TeamCity'
+            }} />
           </div>
         </div>
       )}
@@ -4592,9 +4613,9 @@ function App() {
             style={modalContentStyle}
           >
             <Jenkins onBack={() => setShowJenkinsModal(false)} {...createDevOpsNavigationCallbacks('Jenkins')} breadcrumb={{
-                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowJenkinsModal(false); setSelectedOptionAndRef('DevOps') } },
-                  topic: 'Jenkins'
-                }} />
+              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowJenkinsModal(false); setSelectedOptionAndRef('DevOps') } },
+              topic: 'Jenkins'
+            }} />
           </div>
         </div>
       )}
@@ -4610,9 +4631,9 @@ function App() {
             style={modalContentStyle}
           >
             <Prometheus onBack={() => setShowPrometheusModal(false)} {...createDevOpsNavigationCallbacks('Prometheus')} breadcrumb={{
-                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowPrometheusModal(false); setSelectedOptionAndRef('DevOps') } },
-                  topic: 'Prometheus'
-                }} />
+              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowPrometheusModal(false); setSelectedOptionAndRef('DevOps') } },
+              topic: 'Prometheus'
+            }} />
           </div>
         </div>
       )}
@@ -4628,9 +4649,9 @@ function App() {
             style={modalContentStyle}
           >
             <Grafana onBack={() => setShowGrafanaModal(false)} {...createDevOpsNavigationCallbacks('Grafana')} breadcrumb={{
-                  section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowGrafanaModal(false); setSelectedOptionAndRef('DevOps') } },
-                  topic: 'Grafana'
-                }} />
+              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowGrafanaModal(false); setSelectedOptionAndRef('DevOps') } },
+              topic: 'Grafana'
+            }} />
           </div>
         </div>
       )}
@@ -4646,9 +4667,9 @@ function App() {
             style={modalContentStyle}
           >
             <SecurityOWASP onBack={() => setShowSecurityOWASPModal(false)} {...createDevOpsNavigationCallbacks('SecurityOWASP')} breadcrumb={{
-                  section: { name: 'Security', icon: '🔒', onClick: () => { setShowSecurityOWASPModal(false); setSelectedOptionAndRef('Security') } },
-                  topic: 'Security & OWASP'
-                }} />
+              section: { name: 'Security', icon: '🔒', onClick: () => { setShowSecurityOWASPModal(false); setSelectedOptionAndRef('Security') } },
+              topic: 'Security & OWASP'
+            }} />
           </div>
         </div>
       )}
@@ -4664,9 +4685,9 @@ function App() {
             style={modalContentStyle}
           >
             <ApacheKafka onBack={() => setShowKafkaModal(false)} {...createDevOpsNavigationCallbacks('Kafka')} breadcrumb={{
-                  section: { name: 'Messaging', icon: '📨', onClick: () => { setShowKafkaModal(false); setSelectedOptionAndRef('Messaging') } },
-                  topic: 'Apache Kafka'
-                }} />
+              section: { name: 'Messaging', icon: '📨', onClick: () => { setShowKafkaModal(false); setSelectedOptionAndRef('Messaging') } },
+              topic: 'Apache Kafka'
+            }} />
           </div>
         </div>
       )}
@@ -4682,9 +4703,9 @@ function App() {
             style={modalContentStyle}
           >
             <ApacheFlink onBack={() => setShowApacheFlinkModal(false)} {...createDevOpsNavigationCallbacks('ApacheFlink')} breadcrumb={{
-                  section: { name: 'Messaging', icon: '📨', onClick: () => { setShowApacheFlinkModal(false); setSelectedOptionAndRef('Messaging') } },
-                  topic: 'Apache Flink'
-                }} />
+              section: { name: 'Messaging', icon: '📨', onClick: () => { setShowApacheFlinkModal(false); setSelectedOptionAndRef('Messaging') } },
+              topic: 'Apache Flink'
+            }} />
           </div>
         </div>
       )}
@@ -4711,7 +4732,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -4722,9 +4743,9 @@ function App() {
             }}
           >
             <Solace onBack={() => setShowSolaceModal(false)} {...createDevOpsNavigationCallbacks('Solace')} breadcrumb={{
-                  section: { name: 'Messaging', icon: '📨', onClick: () => { setShowSolaceModal(false); setSelectedOptionAndRef('Messaging') } },
-                  topic: 'Solace PubSub+'
-                }} />
+              section: { name: 'Messaging', icon: '📨', onClick: () => { setShowSolaceModal(false); setSelectedOptionAndRef('Messaging') } },
+              topic: 'Solace PubSub+'
+            }} />
           </div>
         </div>
       )}
@@ -4751,7 +4772,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -4762,9 +4783,9 @@ function App() {
             }}
           >
             <RabbitMQ onBack={() => setShowRabbitMQModal(false)} {...createDevOpsNavigationCallbacks('RabbitMQ')} breadcrumb={{
-                  section: { name: 'Messaging', icon: '📨', onClick: () => { setShowRabbitMQModal(false); setSelectedOptionAndRef('Messaging') } },
-                  topic: 'RabbitMQ'
-                }} />
+              section: { name: 'Messaging', icon: '📨', onClick: () => { setShowRabbitMQModal(false); setSelectedOptionAndRef('Messaging') } },
+              topic: 'RabbitMQ'
+            }} />
           </div>
         </div>
       )}
@@ -4791,7 +4812,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -4827,7 +4848,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -4838,9 +4859,9 @@ function App() {
             }}
           >
             <AWS onBack={() => setShowAWSModal(false)} {...createCloudNavigationCallbacks('AWS')} breadcrumb={{
-                  section: { name: 'Cloud', icon: '☁️', onClick: () => { setShowAWSModal(false); setSelectedOptionAndRef('Cloud') } },
-                  topic: 'Amazon Web Services'
-                }} />
+              section: { name: 'Cloud', icon: '☁️', onClick: () => { setShowAWSModal(false); setSelectedOptionAndRef('Cloud') } },
+              topic: 'Amazon Web Services'
+            }} />
           </div>
         </div>
       )}
@@ -4866,7 +4887,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -4877,9 +4898,9 @@ function App() {
             }}
           >
             <GCP onBack={() => setShowGCPModal(false)} {...createCloudNavigationCallbacks('GCP')} breadcrumb={{
-                  section: { name: 'Cloud', icon: '☁️', onClick: () => { setShowGCPModal(false); setSelectedOptionAndRef('Cloud') } },
-                  topic: 'Google Cloud Platform'
-                }} />
+              section: { name: 'Cloud', icon: '☁️', onClick: () => { setShowGCPModal(false); setSelectedOptionAndRef('Cloud') } },
+              topic: 'Google Cloud Platform'
+            }} />
           </div>
         </div>
       )}
@@ -4905,7 +4926,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -4916,9 +4937,9 @@ function App() {
             }}
           >
             <Azure onBack={() => setShowAzureModal(false)} {...createCloudNavigationCallbacks('Azure')} breadcrumb={{
-                  section: { name: 'Cloud', icon: '☁️', onClick: () => { setShowAzureModal(false); setSelectedOptionAndRef('Cloud') } },
-                  topic: 'Microsoft Azure'
-                }} />
+              section: { name: 'Cloud', icon: '☁️', onClick: () => { setShowAzureModal(false); setSelectedOptionAndRef('Cloud') } },
+              topic: 'Microsoft Azure'
+            }} />
           </div>
         </div>
       )}
@@ -5058,7 +5079,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5118,7 +5139,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5159,7 +5180,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5200,7 +5221,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5241,7 +5262,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5282,7 +5303,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5323,7 +5344,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5364,7 +5385,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5405,7 +5426,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5446,7 +5467,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5487,7 +5508,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5528,7 +5549,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5569,7 +5590,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5610,7 +5631,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5651,7 +5672,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5692,7 +5713,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5733,7 +5754,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5774,7 +5795,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5817,7 +5838,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5859,7 +5880,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5902,7 +5923,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5944,7 +5965,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -5987,7 +6008,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6030,7 +6051,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6073,7 +6094,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6116,7 +6137,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6159,7 +6180,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6202,7 +6223,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6245,7 +6266,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6284,7 +6305,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6327,7 +6348,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6368,7 +6389,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6409,7 +6430,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6452,7 +6473,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6493,7 +6514,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6534,7 +6555,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6575,7 +6596,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6617,7 +6638,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6659,7 +6680,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6701,7 +6722,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6743,7 +6764,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6785,7 +6806,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6827,7 +6848,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6869,7 +6890,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6911,7 +6932,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6953,7 +6974,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -6995,7 +7016,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -7037,7 +7058,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -7079,7 +7100,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -7121,7 +7142,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -7163,7 +7184,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -7205,7 +7226,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -7247,7 +7268,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -7289,7 +7310,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -7331,7 +7352,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -7373,7 +7394,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -7394,7 +7415,7 @@ function App() {
         </div>
       )}
 
-{showActuatorQuestionsModal && (
+      {showActuatorQuestionsModal && (
         <>
           {console.log('Rendering Actuator Questions modal')}
           <div
@@ -7417,7 +7438,7 @@ function App() {
             <div
               onClick={(e) => e.stopPropagation()}
               style={{
-                backgroundColor: 'white',
+                backgroundColor: colors.bgSecondary,
                 borderRadius: '16px',
                 maxWidth: '95vw',
                 width: '1400px',
@@ -7428,12 +7449,12 @@ function App() {
               }}
             >
               <ActuatorQuestions
-              onBack={() => setShowActuatorQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowActuatorQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
-                topic: 'Spring Actuator'
-              }}
-            />
+                onBack={() => setShowActuatorQuestionsModal(false)}
+                breadcrumb={{
+                  section: { name: 'Questions', icon: '?', onClick: () => { setShowActuatorQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                  topic: 'Spring Actuator'
+                }}
+              />
             </div>
           </div>
         </>
@@ -7460,7 +7481,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -7502,7 +7523,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -7544,7 +7565,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -7586,7 +7607,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -7628,7 +7649,7 @@ function App() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.bgSecondary,
               borderRadius: '16px',
               maxWidth: '95vw',
               width: '1400px',
@@ -7653,20 +7674,20 @@ function App() {
         role="navigation"
         aria-label="Main navigation"
         style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: 'white',
-        padding: '0.5rem 1rem',
-        borderBottom: '3px solid rgba(59, 130, 246, 0.4)',
-        boxShadow: '0 4px 20px -5px rgba(0, 0, 0, 0.15)',
-        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.03) 0%, rgba(147, 197, 253, 0.08) 100%)',
-        backdropFilter: 'blur(15px)',
-        zIndex: 100001,
-        transform: isHeaderVisible ? 'translateY(0)' : 'translateY(-100%)',
-        transition: 'transform 0.3s ease-in-out'
-      }}>
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: colors.bgSecondary,
+          padding: '0.5rem 1rem',
+          borderBottom: '3px solid rgba(59, 130, 246, 0.4)',
+          boxShadow: '0 4px 20px -5px rgba(0, 0, 0, 0.15)',
+          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.03) 0%, rgba(147, 197, 253, 0.08) 100%)',
+          backdropFilter: 'blur(15px)',
+          zIndex: 100001,
+          transform: isHeaderVisible ? 'translateY(0)' : 'translateY(-100%)',
+          transition: 'transform 0.3s ease-in-out'
+        }}>
         {isKeyboardUser && (
           <div style={{
             display: 'flex',
@@ -7679,7 +7700,7 @@ function App() {
               style={{
                 margin: 0,
                 fontSize: '0.75rem',
-                color: '#6b7280',
+                color: colors.textSecondary,
                 fontWeight: '500',
                 textAlign: 'center'
               }}
@@ -7772,12 +7793,13 @@ function App() {
                 fontSize: '0.7rem',
                 fontWeight: '700',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                height: '32px',
                 backgroundColor: expandedGroup === groupName
                   ? group.color
-                  : (focusedCategoryIndex === index && !expandedGroup ? `${group.color}22` : 'white'),
+                  : (focusedCategoryIndex === index && !expandedGroup ? `${group.color}22` : colors.bgSecondary),
                 color: expandedGroup === groupName
                   ? 'white'
-                  : (focusedCategoryIndex === index && !expandedGroup ? group.color : '#374151'),
+                  : (focusedCategoryIndex === index && !expandedGroup ? group.color : colors.textPrimary),
                 border: `2px solid ${group.color}`,
                 borderRadius: '10px',
                 cursor: 'pointer',
@@ -7785,8 +7807,8 @@ function App() {
                 boxShadow: expandedGroup === groupName
                   ? `0 6px 12px -3px ${group.color}66`
                   : focusedCategoryIndex === index && !expandedGroup
-                  ? `0 0 0 4px ${group.color}44, 0 6px 12px -3px ${group.color}33`
-                  : '0 3px 6px -1px rgba(0, 0, 0, 0.1)',
+                    ? `0 0 0 4px ${group.color}44, 0 6px 12px -3px ${group.color}33`
+                    : '0 3px 6px -1px rgba(0, 0, 0, 0.1)',
                 outline: 'none',
                 display: 'flex',
                 alignItems: 'center',
@@ -7808,28 +7830,91 @@ function App() {
           <div style={{
             width: '2px',
             height: '26px',
-            backgroundColor: '#e5e7eb',
+            backgroundColor: colors.border,
             margin: '0 0.15rem',
             alignSelf: 'center'
           }}></div>
 
           {/* Search Button - Circular */}
           <button
-              onClick={() => setShowGlobalSearch(true)}
+            onClick={() => setShowGlobalSearch(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                setShowGlobalSearch(true)
+              }
+            }}
+            tabIndex={0}
+            aria-label="Open global search (Ctrl+K)"
+            className={focusedUtilityButton === 'search' ? 'btn-focus-green' : ''}
+            style={{
+              width: '32px',
+              height: '32px',
+              fontSize: '1rem',
+              backgroundColor: showGlobalSearch ? '#059669' : '#10b981',
+              color: 'white',
+              border: 'none',
+              borderRadius: '50%',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 12px -2px rgba(16, 185, 129, 0.4)',
+              transition: 'all 0.2s ease',
+              outline: 'none'
+            }}
+            onMouseEnter={(e) => {
+              if (!showGlobalSearch && focusedUtilityButton !== 'search') {
+                e.currentTarget.style.backgroundColor = '#059669'
+                e.currentTarget.style.transform = 'scale(1.1)'
+                e.currentTarget.style.boxShadow = '0 6px 16px -2px rgba(16, 185, 129, 0.5)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!showGlobalSearch && focusedUtilityButton !== 'search') {
+                e.currentTarget.style.backgroundColor = '#10b981'
+                e.currentTarget.style.transform = 'scale(1)'
+                e.currentTarget.style.boxShadow = '0 4px 12px -2px rgba(16, 185, 129, 0.4)'
+              }
+            }}
+            onFocus={() => setFocusedUtilityButton('search')}
+            onBlur={() => setFocusedUtilityButton(null)}
+          >
+            <span>🔍</span>
+          </button>
+
+          {/* Gamification Header - Only show when user is logged in */}
+          {currentUser && (
+            <GamificationHeader userId={currentUser.uid} size="small" />
+          )}
+
+          {/* Theme Toggle */}
+          <ThemeToggle size="small" />
+
+          {/* Account Button - Circular */}
+          <div style={{ position: 'relative' }}>
+            <button
+              ref={accountButtonRef}
+              onClick={() => setShowAccountDropdown(!showAccountDropdown)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault()
-                  setShowGlobalSearch(true)
+                  setShowAccountDropdown(!showAccountDropdown)
+                } else if (e.key === 'Escape' && showAccountDropdown) {
+                  e.preventDefault()
+                  setShowAccountDropdown(false)
                 }
               }}
               tabIndex={0}
-              aria-label="Open global search (Ctrl+K)"
-              className={focusedUtilityButton === 'search' ? 'btn-focus-green' : ''}
+              aria-label="Account menu"
+              aria-expanded={showAccountDropdown}
+              aria-haspopup="true"
+              className={focusedUtilityButton === 'account' ? 'btn-focus-blue' : ''}
               style={{
                 width: '32px',
                 height: '32px',
                 fontSize: '1rem',
-                backgroundColor: showGlobalSearch ? '#059669' : '#10b981',
+                backgroundColor: showAccountDropdown ? '#2563eb' : '#3b82f6',
                 color: 'white',
                 border: 'none',
                 borderRadius: '50%',
@@ -7837,145 +7922,82 @@ function App() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 4px 12px -2px rgba(16, 185, 129, 0.4)',
+                boxShadow: '0 4px 12px -2px rgba(59, 130, 246, 0.4)',
                 transition: 'all 0.2s ease',
                 outline: 'none'
               }}
               onMouseEnter={(e) => {
-                if (!showGlobalSearch && focusedUtilityButton !== 'search') {
-                  e.currentTarget.style.backgroundColor = '#059669'
+                if (!showAccountDropdown && focusedUtilityButton !== 'account') {
+                  e.currentTarget.style.backgroundColor = '#2563eb'
                   e.currentTarget.style.transform = 'scale(1.1)'
-                  e.currentTarget.style.boxShadow = '0 6px 16px -2px rgba(16, 185, 129, 0.5)'
+                  e.currentTarget.style.boxShadow = '0 6px 16px -2px rgba(59, 130, 246, 0.5)'
                 }
               }}
               onMouseLeave={(e) => {
-                if (!showGlobalSearch && focusedUtilityButton !== 'search') {
-                  e.currentTarget.style.backgroundColor = '#10b981'
+                if (!showAccountDropdown && focusedUtilityButton !== 'account') {
+                  e.currentTarget.style.backgroundColor = '#3b82f6'
                   e.currentTarget.style.transform = 'scale(1)'
-                  e.currentTarget.style.boxShadow = '0 4px 12px -2px rgba(16, 185, 129, 0.4)'
+                  e.currentTarget.style.boxShadow = '0 4px 12px -2px rgba(59, 130, 246, 0.4)'
                 }
               }}
-              onFocus={() => setFocusedUtilityButton('search')}
+              onFocus={() => setFocusedUtilityButton('account')}
               onBlur={() => setFocusedUtilityButton(null)}
             >
-              <span>🔍</span>
+              <span>👤</span>
             </button>
 
-            {/* Gamification Header - Only show when user is logged in */}
-            {currentUser && (
-              <GamificationHeader userId={currentUser.uid} size="small" />
-            )}
-
-            {/* Theme Toggle */}
-            <ThemeToggle size="small" />
-
-            {/* Account Button - Circular */}
-            <div style={{ position: 'relative' }}>
-              <button
-                ref={accountButtonRef}
-                onClick={() => setShowAccountDropdown(!showAccountDropdown)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    setShowAccountDropdown(!showAccountDropdown)
-                  } else if (e.key === 'Escape' && showAccountDropdown) {
-                    e.preventDefault()
-                    setShowAccountDropdown(false)
-                  }
-                }}
-                tabIndex={0}
-                aria-label="Account menu"
-                aria-expanded={showAccountDropdown}
-                aria-haspopup="true"
-                className={focusedUtilityButton === 'account' ? 'btn-focus-blue' : ''}
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  fontSize: '1rem',
-                  backgroundColor: showAccountDropdown ? '#2563eb' : '#3b82f6',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '50%',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 4px 12px -2px rgba(59, 130, 246, 0.4)',
-                  transition: 'all 0.2s ease',
-                  outline: 'none'
-                }}
-                onMouseEnter={(e) => {
-                  if (!showAccountDropdown && focusedUtilityButton !== 'account') {
-                    e.currentTarget.style.backgroundColor = '#2563eb'
-                    e.currentTarget.style.transform = 'scale(1.1)'
-                    e.currentTarget.style.boxShadow = '0 6px 16px -2px rgba(59, 130, 246, 0.5)'
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!showAccountDropdown && focusedUtilityButton !== 'account') {
-                    e.currentTarget.style.backgroundColor = '#3b82f6'
-                    e.currentTarget.style.transform = 'scale(1)'
-                    e.currentTarget.style.boxShadow = '0 4px 12px -2px rgba(59, 130, 246, 0.4)'
-                  }
-                }}
-                onFocus={() => setFocusedUtilityButton('account')}
-                onBlur={() => setFocusedUtilityButton(null)}
-              >
-                <span>👤</span>
-              </button>
-
-              <AccountDropdown
-                isOpen={showAccountDropdown}
-                onClose={() => setShowAccountDropdown(false)}
-                onOpenStudyGuide={() => setShowStudyGuideModal(true)}
-                onGoToHome={() => setSelectedOptionAndRef('')}
-                onGoToPractice={(category) => {
-                  // If category is 'Practice', navigate to Practice page, otherwise open specific modal
-                  if (category === 'Practice') {
-                    setSelectedOptionAndRef('Practice')
-                  } else {
-                    navigateToPracticeComponent(category)
-                  }
-                }}
-                triggerRef={accountButtonRef}
-              />
-            </div>
-
-            {/* Feedback Button - Circular */}
-            <button
-              onClick={() => setShowFeedbackModal(true)}
-              aria-label="Send feedback"
-              title="Send Feedback"
-              style={{
-                width: '40px',
-                height: '40px',
-                fontSize: '1.2rem',
-                backgroundColor: showFeedbackModal ? '#7c3aed' : '#8b5cf6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '50%',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 4px 12px -2px rgba(139, 92, 246, 0.4)',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#7c3aed'
-                e.currentTarget.style.transform = 'scale(1.1)'
-                e.currentTarget.style.boxShadow = '0 6px 16px -4px rgba(139, 92, 246, 0.6)'
-              }}
-              onMouseLeave={(e) => {
-                if (!showFeedbackModal) {
-                  e.currentTarget.style.backgroundColor = '#8b5cf6'
-                  e.currentTarget.style.transform = 'scale(1)'
-                  e.currentTarget.style.boxShadow = '0 4px 12px -2px rgba(139, 92, 246, 0.4)'
+            <AccountDropdown
+              isOpen={showAccountDropdown}
+              onClose={() => setShowAccountDropdown(false)}
+              onOpenStudyGuide={() => setShowStudyGuideModal(true)}
+              onGoToHome={() => setSelectedOptionAndRef('')}
+              onGoToPractice={(category) => {
+                // If category is 'Practice', navigate to Practice page, otherwise open specific modal
+                if (category === 'Practice') {
+                  setSelectedOptionAndRef('Practice')
+                } else {
+                  navigateToPracticeComponent(category)
                 }
               }}
-            >
-              <span>💬</span>
-            </button>
+              triggerRef={accountButtonRef}
+            />
+          </div>
+
+          {/* Feedback Button - Circular */}
+          <button
+            onClick={() => setShowFeedbackModal(true)}
+            aria-label="Send feedback"
+            title="Send Feedback"
+            style={{
+              width: '40px',
+              height: '40px',
+              fontSize: '1.2rem',
+              backgroundColor: showFeedbackModal ? '#7c3aed' : '#8b5cf6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '50%',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 12px -2px rgba(139, 92, 246, 0.4)',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#7c3aed'
+              e.currentTarget.style.transform = 'scale(1.1)'
+              e.currentTarget.style.boxShadow = '0 6px 16px -4px rgba(139, 92, 246, 0.6)'
+            }}
+            onMouseLeave={(e) => {
+              if (!showFeedbackModal) {
+                e.currentTarget.style.backgroundColor = '#8b5cf6'
+                e.currentTarget.style.transform = 'scale(1)'
+                e.currentTarget.style.boxShadow = '0 4px 12px -2px rgba(139, 92, 246, 0.4)'
+              }
+            }}
+          >
+            <span>💬</span>
+          </button>
         </div>
 
         {/* Expanded Group Items (flattened; no subcategory links) */}
@@ -7984,16 +8006,16 @@ function App() {
             role="menu"
             aria-label={`${expandedGroup} items`}
             style={{
-            display: 'flex',
-            gap: '0.5rem',
-            justifyContent: 'center',
-            flexWrap: 'wrap',
-            padding: '0.75rem',
-            backgroundColor: 'rgba(0, 0, 0, 0.02)',
-            borderRadius: '10px',
-            maxWidth: '1400px',
-            margin: '0 auto'
-          }}>
+              display: 'flex',
+              gap: '0.5rem',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              padding: '0.75rem',
+              backgroundColor: 'rgba(0, 0, 0, 0.02)',
+              borderRadius: '10px',
+              maxWidth: '1400px',
+              margin: '0 auto'
+            }}>
             {/* Always show items list (flattened from subcategories if present) */}
             <>
               {(() => {
@@ -8003,7 +8025,7 @@ function App() {
                   : group.items || []
                 return items
               })().map((itemValue, itemIndex) => {
-                  const option = options.find(opt => opt.value === itemValue)
+                const option = options.find(opt => opt.value === itemValue)
 
                 if (expandedSubcategory === 'Algorithms') {
                   console.log(`Looking for "${itemValue}":`, option ? 'FOUND' : 'NOT FOUND')
@@ -8020,72 +8042,72 @@ function App() {
                     onMouseEnter={() => setHoveredOption(option)}
                     onMouseLeave={() => setHoveredOption(null)}
                   >
-                  <button
-                    role="menuitem"
-                    aria-label={`${option.label} - ${option.complexity}`}
-                    data-item-button
-                    data-item-index={itemIndex}
-                    tabIndex={0}
-                    ref={(el) => {
-                      if (el) {
-                        itemButtonRefs.current[`${expandedGroup}-${itemIndex}`] = el;
-                      }
-                    }}
-                    onClick={(e) => {
-                      console.log('Clicking item:', option.value, 'in group:', expandedGroup)
-                      // For Practice items, use navigateToPracticeComponent to open modals directly
-                      if (expandedGroup === 'Practice') {
-                        navigateToPracticeComponent(option.value)
-                      } else {
-                        setSelectedOptionAndRef(option.value, e.currentTarget)
-                      }
-                    }}
-                    onMouseDown={(e) => {
-                      // Prevent default to keep focus behavior consistent
-                      e.preventDefault()
-                    }}
-                    onFocus={() => setFocusedItemIndex(itemIndex)}
-                    style={{
-                      padding: '0.5rem 0.75rem',
-                      fontSize: '0.85rem',
-                      fontWeight: '700',
-                      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                      backgroundColor: selectedOption === option.value
-                        ? '#3b82f6'
-                        : (isFocused ? 'rgba(59, 130, 246, 0.15)' : 'white'),
-                      color: selectedOption === option.value
-                        ? 'white'
-                        : (isFocused ? '#1e40af' : '#374151'),
-                      border: '2px solid #e5e7eb',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      boxShadow: selectedOption === option.value
-                        ? '0 6px 12px -3px rgba(59, 130, 246, 0.4)'
-                        : isFocused
-                        ? '0 0 0 4px rgba(59, 130, 246, 0.3), 0 6px 12px -3px rgba(59, 130, 246, 0.2)'
-                        : '0 3px 6px -1px rgba(0, 0, 0, 0.1)',
-                      minWidth: '160px',
-                      textAlign: 'center',
-                      outline: 'none',
-                      transform: hoveredOption?.value === option.value || isFocused ? 'translateY(-2px) scale(1.05)' : 'translateY(0)',
-                      borderColor: selectedOption === option.value
-                        ? '#3b82f6'
-                        : (hoveredOption?.value === option.value || isFocused ? '#3b82f6' : '#e5e7eb'),
-                      borderWidth: isFocused ? '3px' : '2px'
-                    }}
-                  >
-                    <div style={{
-                      fontSize: '0.95rem',
-                      fontWeight: '700'
-                    }}>
-                      {itemValue}
-                    </div>
-                  </button>
-                </div>
-              )
-            })}
-              </>
+                    <button
+                      role="menuitem"
+                      aria-label={`${option.label} - ${option.complexity}`}
+                      data-item-button
+                      data-item-index={itemIndex}
+                      tabIndex={0}
+                      ref={(el) => {
+                        if (el) {
+                          itemButtonRefs.current[`${expandedGroup}-${itemIndex}`] = el;
+                        }
+                      }}
+                      onClick={(e) => {
+                        console.log('Clicking item:', option.value, 'in group:', expandedGroup)
+                        // For Practice items, use navigateToPracticeComponent to open modals directly
+                        if (expandedGroup === 'Practice') {
+                          navigateToPracticeComponent(option.value)
+                        } else {
+                          setSelectedOptionAndRef(option.value, e.currentTarget)
+                        }
+                      }}
+                      onMouseDown={(e) => {
+                        // Prevent default to keep focus behavior consistent
+                        e.preventDefault()
+                      }}
+                      onFocus={() => setFocusedItemIndex(itemIndex)}
+                      style={{
+                        padding: '0.5rem 0.75rem',
+                        fontSize: '0.85rem',
+                        fontWeight: '700',
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                        backgroundColor: selectedOption === option.value
+                          ? '#3b82f6'
+                          : (isFocused ? 'rgba(59, 130, 246, 0.15)' : colors.bgSecondary),
+                        color: selectedOption === option.value
+                          ? 'white'
+                          : (isFocused ? '#1e40af' : colors.textPrimary),
+                        border: `2px solid ${colors.border}`,
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        boxShadow: selectedOption === option.value
+                          ? '0 6px 12px -3px rgba(59, 130, 246, 0.4)'
+                          : isFocused
+                            ? '0 0 0 4px rgba(59, 130, 246, 0.3), 0 6px 12px -3px rgba(59, 130, 246, 0.2)'
+                            : '0 3px 6px -1px rgba(0, 0, 0, 0.1)',
+                        minWidth: '160px',
+                        textAlign: 'center',
+                        outline: 'none',
+                        transform: hoveredOption?.value === option.value || isFocused ? 'translateY(-2px) scale(1.05)' : 'translateY(0)',
+                        borderColor: selectedOption === option.value
+                          ? '#3b82f6'
+                          : (hoveredOption?.value === option.value || isFocused ? '#3b82f6' : colors.border),
+                        borderWidth: isFocused ? '3px' : '2px'
+                      }}
+                    >
+                      <div style={{
+                        fontSize: '0.95rem',
+                        fontWeight: '700'
+                      }}>
+                        {itemValue}
+                      </div>
+                    </button>
+                  </div>
+                )
+              })}
+            </>
           </div>
         )}
 
@@ -8107,7 +8129,7 @@ function App() {
               <h3 style={{
                 fontSize: '1rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: colors.textPrimary,
                 marginBottom: '0.5rem',
                 textAlign: 'center',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
@@ -8134,9 +8156,9 @@ function App() {
                         fontSize: '0.85rem',
                         fontWeight: '700',
                         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                        backgroundColor: selectedOption === option.value ? '#3b82f6' : 'white',
-                        color: selectedOption === option.value ? 'white' : '#374151',
-                        border: '2px solid #e5e7eb',
+                        backgroundColor: selectedOption === option.value ? '#3b82f6' : colors.bgSecondary,
+                        color: selectedOption === option.value ? 'white' : colors.textPrimary,
+                        border: `2px solid ${colors.border}`,
                         borderRadius: '8px',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
@@ -8148,7 +8170,7 @@ function App() {
                         textAlign: 'center',
                         outline: 'none',
                         transform: hoveredOption?.value === option.value ? 'translateY(-2px)' : 'translateY(0)',
-                        borderColor: selectedOption === option.value ? '#3b82f6' : (hoveredOption?.value === option.value ? '#60a5fa' : '#e5e7eb')
+                        borderColor: selectedOption === option.value ? '#3b82f6' : (hoveredOption?.value === option.value ? '#60a5fa' : colors.border)
                       }}
                     >
                       <div style={{
@@ -8262,7 +8284,7 @@ function App() {
               <h3 style={{
                 fontSize: '1rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: colors.textPrimary,
                 marginBottom: '0.5rem',
                 textAlign: 'center',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
@@ -8289,9 +8311,9 @@ function App() {
                         fontSize: '0.85rem',
                         fontWeight: '700',
                         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                        backgroundColor: selectedOption === option.value ? '#3b82f6' : 'white',
-                        color: selectedOption === option.value ? 'white' : '#374151',
-                        border: '2px solid #e5e7eb',
+                        backgroundColor: selectedOption === option.value ? '#3b82f6' : colors.bgSecondary,
+                        color: selectedOption === option.value ? 'white' : colors.textPrimary,
+                        border: `2px solid ${colors.border}`,
                         borderRadius: '8px',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
@@ -8303,7 +8325,7 @@ function App() {
                         textAlign: 'center',
                         outline: 'none',
                         transform: hoveredOption?.value === option.value ? 'translateY(-2px)' : 'translateY(0)',
-                        borderColor: selectedOption === option.value ? '#3b82f6' : (hoveredOption?.value === option.value ? '#60a5fa' : '#e5e7eb')
+                        borderColor: selectedOption === option.value ? '#3b82f6' : (hoveredOption?.value === option.value ? '#60a5fa' : colors.border)
                       }}
                     >
                       <div style={{
@@ -8424,7 +8446,7 @@ function App() {
               <h3 style={{
                 fontSize: '1rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: colors.textPrimary,
                 marginBottom: '0.5rem',
                 textAlign: 'center',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
@@ -8451,9 +8473,9 @@ function App() {
                         fontSize: '0.85rem',
                         fontWeight: '700',
                         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                        backgroundColor: selectedOption === option.value ? '#3b82f6' : 'white',
-                        color: selectedOption === option.value ? 'white' : '#374151',
-                        border: '2px solid #e5e7eb',
+                        backgroundColor: selectedOption === option.value ? '#3b82f6' : colors.bgSecondary,
+                        color: selectedOption === option.value ? 'white' : colors.textPrimary,
+                        border: `2px solid ${colors.border}`,
                         borderRadius: '8px',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
@@ -8465,7 +8487,7 @@ function App() {
                         textAlign: 'center',
                         outline: 'none',
                         transform: hoveredOption?.value === option.value ? 'translateY(-2px)' : 'translateY(0)',
-                        borderColor: selectedOption === option.value ? '#3b82f6' : (hoveredOption?.value === option.value ? '#60a5fa' : '#e5e7eb')
+                        borderColor: selectedOption === option.value ? '#3b82f6' : (hoveredOption?.value === option.value ? '#60a5fa' : colors.border)
                       }}
                     >
                       <div style={{
@@ -8579,7 +8601,7 @@ function App() {
               <h3 style={{
                 fontSize: '1rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: colors.textPrimary,
                 marginBottom: '0.5rem',
                 textAlign: 'center',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
@@ -8606,9 +8628,9 @@ function App() {
                         fontSize: '0.85rem',
                         fontWeight: '700',
                         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                        backgroundColor: selectedOption === option.value ? '#3b82f6' : 'white',
-                        color: selectedOption === option.value ? 'white' : '#374151',
-                        border: '2px solid #e5e7eb',
+                        backgroundColor: selectedOption === option.value ? '#3b82f6' : colors.bgSecondary,
+                        color: selectedOption === option.value ? 'white' : colors.textPrimary,
+                        border: `2px solid ${colors.border}`,
                         borderRadius: '8px',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
@@ -8620,7 +8642,7 @@ function App() {
                         textAlign: 'center',
                         outline: 'none',
                         transform: hoveredOption?.value === option.value ? 'translateY(-2px)' : 'translateY(0)',
-                        borderColor: selectedOption === option.value ? '#3b82f6' : (hoveredOption?.value === option.value ? '#60a5fa' : '#e5e7eb')
+                        borderColor: selectedOption === option.value ? '#3b82f6' : (hoveredOption?.value === option.value ? '#60a5fa' : colors.border)
                       }}
                     >
                       <div style={{
@@ -8740,7 +8762,7 @@ function App() {
           right: 0,
           bottom: 0,
           overflow: 'auto',
-          backgroundColor: '#ffffff',
+          backgroundColor: colors.bgPrimary,
           zIndex: 100000,
           transition: 'top 0.3s ease-in-out',
           pointerEvents: 'auto'
@@ -8781,6 +8803,15 @@ function App() {
               Track your completion across all practice topics
             </p>
 
+            {/* Daily Challenge */}
+            <DailyChallenge
+              userId={currentUser?.uid}
+              onNavigate={(page) => {
+                // Navigate to the practice page for the daily challenge
+                setSelectedOptionAndRef(page, null);
+              }}
+            />
+
             {(() => {
               const stats = getProgressStats();
               const percentage = stats.progressPercent;
@@ -8794,7 +8825,7 @@ function App() {
                       justifyContent: 'space-between',
                       marginBottom: '0.5rem'
                     }}>
-                      <span style={{ fontSize: '1rem', fontWeight: '600', color: '#1f2937' }}>
+                      <span style={{ fontSize: '1rem', fontWeight: '600', color: colors.textPrimary }}>
                         Overall Progress
                       </span>
                       <span style={{ fontSize: '1rem', fontWeight: '700', color: '#3b82f6' }}>
@@ -8804,7 +8835,7 @@ function App() {
                     <div style={{
                       width: '100%',
                       height: '32px',
-                      backgroundColor: '#e5e7eb',
+                      backgroundColor: colors.border,
                       borderRadius: '16px',
                       overflow: 'hidden',
                       position: 'relative'
@@ -8844,7 +8875,7 @@ function App() {
                       <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#3b82f6' }}>
                         {stats.total}
                       </div>
-                      <div style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '600', marginTop: '0.5rem' }}>
+                      <div style={{ fontSize: '0.875rem', color: colors.textSecondary, fontWeight: '600', marginTop: '0.5rem' }}>
                         Total Problems
                       </div>
                     </div>
@@ -8858,7 +8889,7 @@ function App() {
                       <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#10b981' }}>
                         {stats.completed}
                       </div>
-                      <div style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '600', marginTop: '0.5rem' }}>
+                      <div style={{ fontSize: '0.875rem', color: colors.textSecondary, fontWeight: '600', marginTop: '0.5rem' }}>
                         Completed
                       </div>
                     </div>
@@ -8872,7 +8903,7 @@ function App() {
                       <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#f59e0b' }}>
                         {stats.remaining}
                       </div>
-                      <div style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: '600', marginTop: '0.5rem' }}>
+                      <div style={{ fontSize: '0.875rem', color: colors.textSecondary, fontWeight: '600', marginTop: '0.5rem' }}>
                         Remaining
                       </div>
                     </div>
@@ -8882,12 +8913,12 @@ function App() {
                   <div style={{
                     marginTop: '2rem',
                     padding: '1.5rem',
-                    backgroundColor: '#f9fafb',
+                    backgroundColor: colors.bgTertiary,
                     borderRadius: '12px',
-                    border: '1px solid #e5e7eb',
+                    border: `1px solid ${colors.border}`,
                     textAlign: 'center'
                   }}>
-                    <p style={{ fontSize: '1rem', color: '#4b5563', margin: 0 }}>
+                    <p style={{ fontSize: '1rem', color: colors.textSecondary, margin: 0 }}>
                       {percentage === 0 && '🚀 Start your learning journey by selecting a topic above!'}
                       {percentage > 0 && percentage < 25 && '💪 Great start! Keep up the momentum!'}
                       {percentage >= 25 && percentage < 50 && '🔥 You\'re on fire! Keep going!'}
@@ -8897,12 +8928,23 @@ function App() {
                     </p>
                   </div>
 
+                  {/* Activity Charts */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                    gap: '1.5rem',
+                    marginTop: '2rem'
+                  }}>
+                    <WeeklyProgressChart userId={currentUser?.uid} />
+                    <ActivityHeatmap userId={currentUser?.uid} weeks={12} />
+                  </div>
+
                   {/* Category Progress Dropdown */}
                   <div style={{ marginTop: '2rem' }}>
                     <h3 style={{
                       fontSize: '1.5rem',
                       fontWeight: '700',
-                      color: '#1f2937',
+                      color: colors.textPrimary,
                       marginBottom: '1rem'
                     }}>
                       📚 Progress by Category
@@ -8971,12 +9013,12 @@ function App() {
                               bg: '#f9fafb',
                               border: '#6b7280',
                               hover: '#f3f4f6',
-                              text: '#374151'
+                              text: colors.textPrimary
                             };
 
                             return (
                               <div key={categoryName} style={{
-                                backgroundColor: 'white',
+                                backgroundColor: colors.bgSecondary,
                                 border: `2px solid ${colors.border}`,
                                 borderRadius: '8px',
                                 overflow: 'hidden',
@@ -9031,7 +9073,7 @@ function App() {
                                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: '1.25rem' }}>
                                     <span style={{
                                       fontSize: '0.75rem',
-                                      color: '#6b7280',
+                                      color: colors.textSecondary,
                                       fontWeight: '500'
                                     }}>
                                       {stats.completed}/{stats.total}
@@ -9096,8 +9138,8 @@ function App() {
                                             }}
                                             style={{
                                               padding: '0.75rem',
-                                              backgroundColor: topicPercent === 100 ? '#dcfce7' : 'white',
-                                              border: `2px solid ${topicPercent === 100 ? '#10b981' : '#e5e7eb'}`,
+                                              backgroundColor: topicPercent === 100 ? '#dcfce7' : colors.bgSecondary,
+                                              border: `2px solid ${topicPercent === 100 ? '#10b981' : colors.border}`,
                                               borderRadius: '8px',
                                               cursor: 'pointer',
                                               textAlign: 'left',
@@ -9112,7 +9154,7 @@ function App() {
                                               e.currentTarget.style.boxShadow = `0 4px 12px ${colors.border}40`;
                                             }}
                                             onMouseLeave={(e) => {
-                                              e.currentTarget.style.borderColor = topicPercent === 100 ? '#10b981' : '#e5e7eb';
+                                              e.currentTarget.style.borderColor = topicPercent === 100 ? '#10b981' : colors.border;
                                               e.currentTarget.style.transform = 'translateY(0)';
                                               e.currentTarget.style.boxShadow = 'none';
                                             }}
@@ -9120,7 +9162,7 @@ function App() {
                                             <div style={{
                                               fontSize: '0.875rem',
                                               fontWeight: '600',
-                                              color: '#1f2937'
+                                              color: colors.textPrimary
                                             }}>
                                               {topic}
                                             </div>
@@ -9166,6 +9208,9 @@ function App() {
 
       {/* XP Gain Notifications */}
       <XPGainNotification />
+
+      {/* Achievement Notifications */}
+      <AchievementNotification />
     </div>
   )
 }
