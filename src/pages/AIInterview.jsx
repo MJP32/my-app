@@ -1,2182 +1,911 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useTheme } from '../contexts/ThemeContext';
 
-const API_BASE = 'http://localhost:3001';
+// Problem definitions
+const PROBLEMS = [
+  {
+    id: "lru_cache",
+    title: "LRU Cache with TTL",
+    difficulty: "Medium",
+    company: "Meta",
+    description: `## Problem Description
 
-const INTERVIEW_DATA = {
-  overview: {
-    title: "Meta AI-Enabled Coding Interview",
-    duration: "60 minutes",
-    format: "CoderPad + AI Chat Panel",
-    languages: ["Java", "C++", "C#", "Python", "TypeScript"],
-    models: [
-      { name: "Claude Sonnet 4", speed: "Medium", capability: "High", note: "Recommended" },
-      { name: "Claude Haiku 3.5", speed: "Fast", capability: "Medium", note: "" },
-      { name: "GPT-4o", speed: "Medium", capability: "High", note: "" },
-      { name: "GPT-4o mini", speed: "Fast", capability: "Medium", note: "" },
-      { name: "Gemini 2.0 Pro", speed: "Medium", capability: "High", note: "" },
+You're given a partially implemented LRU (Least Recently Used) Cache with some bugs. Your task is to fix the bugs and extend the functionality.
+
+## Current Implementation
+
+The cache should support:
+- \`get(key)\` - Return the value if key exists, otherwise return -1
+- \`put(key, value)\` - Insert or update the value. Evict LRU item if at capacity.
+
+## Your Tasks
+
+**Part 1:** Fix the bug in the \`get\` method (not updating access order correctly)
+
+**Part 2:** Fix the \`put\` method (not handling capacity eviction properly)
+
+**Part 3:** Add TTL (Time To Live) support - entries expire after a configurable duration
+
+**Part 4:** Add a \`get_stats()\` method that returns hit/miss ratio
+
+## Constraints
+
+- 1 ≤ capacity ≤ 3000
+- 0 ≤ key ≤ 10^4
+- 0 ≤ value ≤ 10^5
+- TTL is in seconds (0 means no expiration)
+
+## Example
+
+\`\`\`
+cache = LRUCache(2)
+cache.put(1, 1)
+cache.put(2, 2)
+cache.get(1)      # returns 1
+cache.put(3, 3)   # evicts key 2 (LRU)
+cache.get(2)      # returns -1 (not found)
+cache.get(3)      # returns 3
+\`\`\``,
+    files: {
+      "lru_cache.py": `from collections import OrderedDict
+import time
+
+class LRUCache:
+    def __init__(self, capacity: int, ttl: int = 0):
+        self.capacity = capacity
+        self.ttl = ttl  # Time to live in seconds (0 = no expiration)
+        self.cache = OrderedDict()
+        self.timestamps = {}  # For TTL tracking
+        self.hits = 0
+        self.misses = 0
+
+    def get(self, key: int) -> int:
+        """
+        Get value by key. Returns -1 if not found.
+        BUG: Not updating the access order correctly!
+        """
+        if key not in self.cache:
+            self.misses += 1
+            return -1
+
+        # BUG: Should move to end to mark as recently used
+        # Currently not updating order at all!
+        self.hits += 1
+        return self.cache[key]
+
+    def put(self, key: int, value: int) -> None:
+        """
+        Insert or update key-value pair.
+        BUG: Not handling eviction correctly!
+        """
+        if key in self.cache:
+            # Update existing key
+            self.cache[key] = value
+            # BUG: Should move to end after update
+            return
+
+        # BUG: Should check capacity BEFORE adding new item
+        self.cache[key] = value
+
+        if len(self.cache) > self.capacity:
+            # Evict least recently used (first item)
+            # BUG: Using wrong method to remove first item
+            del self.cache[key]  # Wrong! This deletes the new item!
+
+    def _is_expired(self, key: int) -> bool:
+        """Check if a key has expired based on TTL"""
+        # TODO: Implement TTL expiration check
+        pass
+
+    def get_stats(self) -> dict:
+        """
+        Return cache statistics including hit/miss ratio.
+        TODO: Implement this method
+        """
+        pass
+`,
+      "test_lru.py": `import unittest
+import time
+from lru_cache import LRUCache
+
+class TestLRUCache(unittest.TestCase):
+
+    def test_basic_operations(self):
+        """Test basic get and put operations"""
+        cache = LRUCache(2)
+        cache.put(1, 1)
+        cache.put(2, 2)
+
+        self.assertEqual(cache.get(1), 1)
+
+    def test_lru_eviction(self):
+        """Test that LRU item is evicted when at capacity"""
+        cache = LRUCache(2)
+        cache.put(1, 1)
+        cache.put(2, 2)
+        cache.get(1)      # Access key 1, making key 2 the LRU
+        cache.put(3, 3)   # Should evict key 2
+
+        self.assertEqual(cache.get(2), -1)  # Key 2 should be evicted
+        self.assertEqual(cache.get(1), 1)   # Key 1 should still exist
+        self.assertEqual(cache.get(3), 3)   # Key 3 should exist
+
+    def test_update_existing(self):
+        """Test updating an existing key"""
+        cache = LRUCache(2)
+        cache.put(1, 1)
+        cache.put(2, 2)
+        cache.put(1, 10)  # Update key 1
+
+        self.assertEqual(cache.get(1), 10)
+
+        cache.put(3, 3)   # Should evict key 2, not key 1
+        self.assertEqual(cache.get(2), -1)
+        self.assertEqual(cache.get(1), 10)
+
+    def test_capacity_one(self):
+        """Test cache with capacity of 1"""
+        cache = LRUCache(1)
+        cache.put(1, 1)
+        cache.put(2, 2)
+
+        self.assertEqual(cache.get(1), -1)
+        self.assertEqual(cache.get(2), 2)
+
+if __name__ == '__main__':
+    unittest.main()
+`,
+      "main.py": `from lru_cache import LRUCache
+
+def main():
+    print("=== LRU Cache Test ===\\n")
+
+    # Basic test
+    cache = LRUCache(2)
+
+    print("Creating cache with capacity 2")
+    print("put(1, 1)")
+    cache.put(1, 1)
+
+    print("put(2, 2)")
+    cache.put(2, 2)
+
+    print(f"get(1) = {cache.get(1)}")  # Should return 1
+
+    print("put(3, 3)  # Should evict key 2")
+    cache.put(3, 3)
+
+    print(f"get(2) = {cache.get(2)}")  # Should return -1
+    print(f"get(3) = {cache.get(3)}")  # Should return 3
+
+    print("\\n--- Current cache state ---")
+    print(f"Cache contents: {dict(cache.cache)}")
+
+if __name__ == "__main__":
+    main()
+`
+    },
+    testOutput: `=== Running Tests ===
+
+test_basic_operations ... PASSED
+
+test_lru_eviction ... FAILED
+  AssertionError: -1 != 1
+  Key 1 was incorrectly evicted instead of key 2
+
+test_update_existing ... FAILED
+  AssertionError: -1 != 10
+  Updated key was evicted due to incorrect order tracking
+
+test_capacity_one ... FAILED
+  KeyError: 2
+  Eviction logic error when cache is full
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.003s
+
+FAILED (failures=3)`,
+    hints: [
+      "In get(): Use cache.move_to_end(key) to mark the key as recently used",
+      "In put(): When updating, also call move_to_end() to update access order",
+      "In put(): Check capacity and evict BEFORE adding new item, use cache.popitem(last=False)",
+      "For TTL: Store timestamps in a separate dict, check expiration in get()",
     ],
   },
-  timeline: [
-    { phase: "Setup & Environment", time: "~5 min", tasks: ["Get familiar with CoderPad", "Test AI chat panel", "Confirm rules with interviewer"] },
-    { phase: "Problem Explanation", time: "~5-10 min", tasks: ["Listen to problem statement", "Ask clarifying questions", "Understand requirements & constraints"] },
-    { phase: "Codebase Exploration", time: "~5-10 min", tasks: ["Review existing code structure", "Examine test files", "Run initial tests to see failures"] },
-    { phase: "Debugging Phase", time: "~5-10 min", tasks: ["Fix bugs in helper functions", "Use AI to help diagnose", "Get helper tests passing"] },
-    { phase: "Implementation Discussion", time: "~5 min", tasks: ["Consider algorithmic approaches", "Defend your choices", "Discuss trade-offs"] },
-    { phase: "Main Implementation", time: "~15-20 min", tasks: ["Implement core solution", "Test incrementally", "Debug and iterate"] },
-    { phase: "Complexity Analysis", time: "~5 min", tasks: ["Explain time complexity", "Explain space complexity", "Discuss optimizations"] },
-  ],
-  evaluation: [
-    {
-      criterion: "Problem Solving",
-      weight: "25%",
-      description: "Break down complex problems, use logical reasoning",
-      tips: ["Ask clarifying questions upfront", "Think aloud about your approach", "Consider multiple solutions before coding"]
+  {
+    id: "rate_limiter",
+    title: "API Rate Limiter",
+    difficulty: "Medium",
+    company: "Meta",
+    description: `## Problem Description
+
+You're implementing a rate limiter for an API gateway. The current implementation uses a sliding window algorithm but has several bugs.
+
+## Requirements
+
+- Limit requests per user per time window
+- Support multiple rate limit tiers (free, premium, enterprise)
+- Track and return remaining quota
+- Handle concurrent requests safely
+
+## Your Tasks
+
+**Part 1:** Fix the sliding window calculation (currently allows too many requests)
+
+**Part 2:** Fix the \`is_allowed\` return value (should return remaining quota info)
+
+**Part 3:** Implement \`get_wait_time()\` - how long until user can make another request
+
+**Part 4:** Add support for burst allowance (allow short bursts above limit)
+
+## Constraints
+
+- Window size: 1 second to 1 hour
+- Max requests per window: 1 to 10,000
+- User IDs are strings up to 64 characters
+
+## Example
+
+\`\`\`python
+limiter = RateLimiter(max_requests=100, window_seconds=60)
+
+result = limiter.is_allowed("user123")
+# Returns: {"allowed": True, "remaining": 99, "reset_at": 1705312345}
+
+# After 100 requests...
+result = limiter.is_allowed("user123")
+# Returns: {"allowed": False, "remaining": 0, "retry_after": 45}
+\`\`\``,
+    files: {
+      "rate_limiter.py": `import time
+from collections import defaultdict
+from typing import Dict, List
+from dataclasses import dataclass
+
+@dataclass
+class RateLimitConfig:
+    max_requests: int
+    window_seconds: int
+    burst_allowance: int = 0
+
+
+class RateLimiter:
+    def __init__(self, max_requests: int = 100, window_seconds: int = 60):
+        self.config = RateLimitConfig(max_requests, window_seconds)
+        self.requests: Dict[str, List[float]] = defaultdict(list)
+
+    def _get_current_time(self) -> float:
+        return time.time()
+
+    def _clean_old_requests(self, user_id: str) -> None:
+        current_time = self._get_current_time()
+        window_start = current_time - self.config.window_seconds
+
+        # BUG: Wrong comparison - keeps old instead of recent!
+        self.requests[user_id] = [
+            ts for ts in self.requests[user_id]
+            if ts < window_start  # Should be >= to keep recent
+        ]
+
+    def is_allowed(self, user_id: str) -> bool:
+        # BUG: Not cleaning old requests before checking!
+        current_requests = len(self.requests[user_id])
+
+        if current_requests >= self.config.max_requests:
+            return False
+
+        self.requests[user_id].append(self._get_current_time())
+        return True
+
+    def get_remaining(self, user_id: str) -> int:
+        self._clean_old_requests(user_id)
+        current = len(self.requests[user_id])
+        return max(0, self.config.max_requests - current)
+
+    def get_wait_time(self, user_id: str) -> float:
+        # TODO: Implement this
+        pass
+`,
+      "test_rate_limiter.py": `import unittest
+from rate_limiter import RateLimiter
+
+class TestRateLimiter(unittest.TestCase):
+
+    def test_allows_under_limit(self):
+        limiter = RateLimiter(max_requests=5, window_seconds=60)
+        for i in range(5):
+            self.assertTrue(limiter.is_allowed("user1"))
+
+    def test_blocks_over_limit(self):
+        limiter = RateLimiter(max_requests=3, window_seconds=60)
+        for i in range(3):
+            limiter.is_allowed("user1")
+        self.assertFalse(limiter.is_allowed("user1"))
+
+if __name__ == '__main__':
+    unittest.main()
+`,
+      "main.py": `from rate_limiter import RateLimiter
+
+def main():
+    print("=== Rate Limiter Test ===\\n")
+    limiter = RateLimiter(max_requests=5, window_seconds=60)
+
+    for i in range(7):
+        result = limiter.is_allowed("user123")
+        remaining = limiter.get_remaining("user123")
+        print(f"Request {i+1}: {'ALLOWED' if result else 'BLOCKED'} (remaining: {remaining})")
+
+if __name__ == "__main__":
+    main()
+`
     },
-    {
-      criterion: "Code Quality",
-      weight: "25%",
-      description: "Clean, maintainable, efficient code following best practices",
-      tips: ["Use meaningful variable names", "Write modular functions", "Handle edge cases explicitly"]
-    },
-    {
-      criterion: "Verification",
-      weight: "25%",
-      description: "Write comprehensive tests, ensure reliability",
-      tips: ["Run tests frequently", "Add edge case tests", "Verify AI-generated code thoroughly"]
-    },
-    {
-      criterion: "Communication",
-      weight: "25%",
-      description: "Articulate thought process, collaborate effectively",
-      tips: ["Narrate while AI generates code", "Explain design decisions", "Summarize progress periodically"]
-    },
-  ],
-  practiceProblems: [
-    {
-      id: 1,
-      title: "LRU Cache",
-      difficulty: "Medium",
-      type: "Design",
-      description: "Design a data structure that follows LRU eviction policy",
-      skills: ["Hash Map", "Doubly Linked List", "OOP Design"],
-      leetcode: "https://leetcode.com/problems/lru-cache/",
-      aiPractice: "Implement the basic structure yourself, then use AI to help with edge cases"
-    },
-    {
-      id: 2,
-      title: "Design Twitter",
-      difficulty: "Medium",
-      type: "Design",
-      description: "Design a simplified Twitter with post, follow, and feed features",
-      skills: ["System Design", "Data Structures", "API Design"],
-      leetcode: "https://leetcode.com/problems/design-twitter/",
-      aiPractice: "Build the core data model first, use AI for helper method scaffolding"
-    },
-    {
-      id: 3,
-      title: "Min Stack",
-      difficulty: "Medium",
-      type: "Design",
-      description: "Design a stack that supports push, pop, and getMin in O(1)",
-      skills: ["Stack", "Space-Time Tradeoffs"],
-      leetcode: "https://leetcode.com/problems/min-stack/",
-      aiPractice: "Great warmup - implement fully yourself, then review with AI"
-    },
-    {
-      id: 4,
-      title: "Design Browser History",
-      difficulty: "Medium",
-      type: "Design",
-      description: "Implement browser back/forward navigation",
-      skills: ["Stack/List", "State Management"],
-      leetcode: "https://leetcode.com/problems/design-browser-history/",
-      aiPractice: "Focus on edge cases for back/forward limits"
-    },
-    {
-      id: 5,
-      title: "Time Based Key-Value Store",
-      difficulty: "Medium",
-      type: "Design",
-      description: "Key-value store with timestamp-based retrieval",
-      skills: ["Binary Search", "Hash Map", "Design"],
-      leetcode: "https://leetcode.com/problems/time-based-key-value-store/",
-      aiPractice: "Implement binary search yourself, use AI for data structure setup"
-    },
-    {
-      id: 6,
-      title: "Maze Solver (Meta Confirmed)",
-      difficulty: "Medium",
-      type: "Graph",
-      description: "BFS/DFS maze traversal with state tracking",
-      skills: ["BFS", "DFS", "Path Reconstruction"],
-      leetcode: "Custom - practice with any maze problem",
-      aiPractice: "Focus on debugging existing BFS/DFS code and adding features"
-    },
-  ],
-  tips: {
-    do: [
-      "Ask for the practice environment link from your recruiter",
-      "Practice with CoderPad's specific quirks beforehand",
-      "Think aloud while AI generates code",
-      "Review every line of AI-generated code",
-      "Write code yourself when it's faster than prompting",
-      "Test incrementally as you build",
-      "Manually clear the output panel between runs",
-    ],
-    dont: [
-      "Blindly accept AI suggestions without review",
-      "Use AI as a crutch - you can be marked down for this",
-      "Forget to handle edge cases (bar is higher with AI help)",
-      "Spend excessive time debugging AI output",
-      "Let the output panel fool you - it doesn't auto-scroll",
-      "Panic if 3/4 parts done - many pass with incomplete solutions",
+    testOutput: `=== Running Tests ===
+
+test_allows_under_limit ... PASSED
+
+test_blocks_over_limit ... FAILED
+  AssertionError: True is not False
+  Request was allowed when it should have been blocked
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.002s
+
+FAILED (failures=1)`,
+    hints: [
+      "In _clean_old_requests: Change 'ts < window_start' to 'ts >= window_start'",
+      "In is_allowed: Call _clean_old_requests(user_id) before checking count",
+      "For get_wait_time: Find oldest request, calculate when it expires",
     ],
   },
-};
+  {
+    id: "maze",
+    title: "Maze Solver with Keys",
+    difficulty: "Medium",
+    company: "Meta",
+    description: `## Problem Description
 
-// AI Chat Component
-function AIChat({ colors, mode = 'general', context = '', onClose }) {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [aiStatus, setAiStatus] = useState({ configured: false, checked: false });
-  const messagesEndRef = useRef(null);
+You're given a maze solver with bugs. Fix the BFS algorithm and add key collection.
 
+## Your Tasks
+
+**Part 1:** Fix visited tracking (duplicates being added to queue)
+
+**Part 2:** Add key collection to BFS
+
+**Part 3:** Handle locked doors (need matching key)
+
+## Example
+
+\`\`\`
+S . . # .
+# # . # .
+. a . . .
+. # # # A
+. . . . E
+\`\`\``,
+    files: {
+      "maze_solver.py": `from collections import deque
+
+class MazeSolver:
+    def __init__(self, maze):
+        self.maze = maze
+        self.rows = len(maze)
+        self.cols = len(maze[0]) if maze else 0
+        self.start = self._find_char('S')
+        self.end = self._find_char('E')
+
+    def _find_char(self, char):
+        for r in range(self.rows):
+            for c in range(self.cols):
+                if self.maze[r][c] == char:
+                    return (r, c)
+        return None
+
+    def solve_bfs(self):
+        if not self.start or not self.end:
+            return None
+
+        queue = deque([(self.start, [self.start])])
+        visited = set()
+
+        while queue:
+            (r, c), path = queue.popleft()
+
+            if (r, c) == self.end:
+                return path
+
+            for dr, dc in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+                nr, nc = r + dr, c + dc
+
+                if 0 <= nr < self.rows and 0 <= nc < self.cols:
+                    if self.maze[nr][nc] != '#':
+                        # BUG: Adding to visited AFTER adding to queue
+                        # causes duplicates!
+                        visited.add((nr, nc))
+                        queue.append(((nr, nc), path + [(nr, nc)]))
+
+        return None
+`,
+      "main.py": `from maze_solver import MazeSolver
+
+maze = [
+    ['S', '.', '.', '#', '.'],
+    ['#', '#', '.', '#', '.'],
+    ['.', '.', '.', '.', '.'],
+    ['.', '#', '#', '#', '.'],
+    ['.', '.', '.', '.', 'E']
+]
+
+solver = MazeSolver(maze)
+path = solver.solve_bfs()
+print(f"Path length: {len(path) if path else 'No path'}")
+`
+    },
+    testOutput: `=== Running Tests ===
+
+test_simple_maze ... FAILED
+  Path contains duplicate nodes
+
+test_visited_tracking ... FAILED
+  Path length 12 > expected max 5
+
+----------------------------------------------------------------------
+FAILED (failures=2)`,
+    hints: [
+      "Check visited BEFORE adding to queue, not after",
+      "Add starting position to visited initially",
+      "For keys, track state as (position, collected_keys)",
+    ],
+  },
+];
+
+// Timer Component
+function Timer({ isRunning, seconds, setSeconds }) {
   useEffect(() => {
-    checkAIStatus();
-  }, []);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  const checkAIStatus = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/api/ai/status`);
-      const data = await res.json();
-      setAiStatus({ ...data, checked: true });
-    } catch {
-      setAiStatus({ configured: false, checked: true, error: 'Server not available' });
-    }
-  };
-
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
-
-    const userMessage = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
-
-    try {
-      const res = await fetch(`${API_BASE}/api/ai/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [...messages, userMessage],
-          mode,
-          context
-        })
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        setMessages(prev => [...prev, { role: 'assistant', content: data.message }]);
-      } else {
-        setMessages(prev => [...prev, {
-          role: 'assistant',
-          content: `Error: ${data.error}`,
-          isError: true
-        }]);
-      }
-    } catch (error) {
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'Failed to connect to AI service. Make sure the server is running.',
-        isError: true
-      }]);
-    }
-
-    setIsLoading(false);
-  };
-
-  const getModeTitle = () => {
-    switch (mode) {
-      case 'interviewer': return 'AI Interviewer';
-      case 'code-review': return 'Code Review';
-      case 'hint': return 'Get Hints';
-      default: return 'AI Assistant';
-    }
-  };
-
-  const getPlaceholder = () => {
-    switch (mode) {
-      case 'interviewer': return 'Ask a question or describe your approach...';
-      case 'code-review': return 'Paste your code for review...';
-      case 'hint': return 'Describe where you\'re stuck...';
-      default: return 'Type your message...';
-    }
-  };
-
-  return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      backgroundColor: colors.bgSecondary,
-      borderRadius: '12px',
-      border: `1px solid ${colors.border}`,
-      overflow: 'hidden'
-    }}>
-      {/* Header */}
-      <div style={{
-        padding: '1rem',
-        borderBottom: `1px solid ${colors.border}`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        backgroundColor: colors.bgTertiary || colors.bgPrimary
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{ fontSize: '1.25rem' }}>🤖</span>
-          <span style={{ fontWeight: '600', color: colors.textPrimary }}>{getModeTitle()}</span>
-          <span style={{
-            fontSize: '0.7rem',
-            padding: '0.125rem 0.5rem',
-            borderRadius: '9999px',
-            backgroundColor: aiStatus.configured ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-            color: aiStatus.configured ? '#4ade80' : '#f87171'
-          }}>
-            {aiStatus.configured ? 'Connected' : 'Not Configured'}
-          </span>
-        </div>
-        {onClose && (
-          <button
-            onClick={onClose}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: colors.textMuted,
-              cursor: 'pointer',
-              fontSize: '1.25rem'
-            }}
-          >
-            ×
-          </button>
-        )}
-      </div>
-
-      {/* Messages */}
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: '1rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem'
-      }}>
-        {!aiStatus.configured && aiStatus.checked && (
-          <div style={{
-            padding: '1rem',
-            backgroundColor: 'rgba(245, 158, 11, 0.1)',
-            border: '1px solid rgba(245, 158, 11, 0.3)',
-            borderRadius: '8px',
-            fontSize: '0.875rem',
-            color: '#fbbf24'
-          }}>
-            <strong>AI Not Configured</strong>
-            <p style={{ margin: '0.5rem 0 0 0', color: 'rgba(253, 230, 138, 0.8)' }}>
-              To enable AI features, set the <code style={{ backgroundColor: 'rgba(0,0,0,0.3)', padding: '0.125rem 0.25rem', borderRadius: '4px' }}>ANTHROPIC_API_KEY</code> environment variable and restart the server.
-            </p>
-          </div>
-        )}
-
-        {messages.length === 0 && aiStatus.configured && (
-          <div style={{
-            textAlign: 'center',
-            color: colors.textMuted,
-            padding: '2rem',
-            fontSize: '0.875rem'
-          }}>
-            {mode === 'interviewer' && "Start your mock interview! I'll present problems and evaluate your approach."}
-            {mode === 'code-review' && "Paste your code and I'll provide detailed feedback on correctness, efficiency, and style."}
-            {mode === 'hint' && "Describe the problem you're working on and where you're stuck. I'll guide you without giving away the answer."}
-            {mode === 'general' && "Ask me anything about coding interviews, algorithms, or data structures!"}
-          </div>
-        )}
-
-        {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            style={{
-              alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-              maxWidth: '85%',
-              padding: '0.75rem 1rem',
-              borderRadius: '12px',
-              backgroundColor: msg.role === 'user'
-                ? '#10b981'
-                : msg.isError
-                  ? 'rgba(239, 68, 68, 0.2)'
-                  : colors.bgTertiary || colors.bgPrimary,
-              color: msg.role === 'user' ? 'white' : msg.isError ? '#f87171' : colors.textPrimary,
-              fontSize: '0.875rem',
-              lineHeight: '1.5',
-              whiteSpace: 'pre-wrap'
-            }}
-          >
-            {msg.content}
-          </div>
-        ))}
-
-        {isLoading && (
-          <div style={{
-            alignSelf: 'flex-start',
-            padding: '0.75rem 1rem',
-            borderRadius: '12px',
-            backgroundColor: colors.bgTertiary || colors.bgPrimary,
-            color: colors.textMuted,
-            fontSize: '0.875rem'
-          }}>
-            <span style={{ animation: 'pulse 1.5s infinite' }}>Thinking...</span>
-          </div>
-        )}
-
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input */}
-      <div style={{
-        padding: '1rem',
-        borderTop: `1px solid ${colors.border}`,
-        display: 'flex',
-        gap: '0.5rem'
-      }}>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              sendMessage();
-            }
-          }}
-          placeholder={getPlaceholder()}
-          disabled={!aiStatus.configured || isLoading}
-          style={{
-            flex: 1,
-            padding: '0.75rem',
-            borderRadius: '8px',
-            border: `1px solid ${colors.border}`,
-            backgroundColor: colors.bgPrimary,
-            color: colors.textPrimary,
-            fontSize: '0.875rem',
-            resize: 'none',
-            minHeight: '44px',
-            maxHeight: '120px',
-            fontFamily: 'inherit'
-          }}
-          rows={1}
-        />
-        <button
-          onClick={sendMessage}
-          disabled={!input.trim() || isLoading || !aiStatus.configured}
-          style={{
-            padding: '0.75rem 1.25rem',
-            borderRadius: '8px',
-            border: 'none',
-            backgroundColor: !input.trim() || isLoading || !aiStatus.configured ? colors.border : '#10b981',
-            color: 'white',
-            fontWeight: '600',
-            cursor: !input.trim() || isLoading || !aiStatus.configured ? 'not-allowed' : 'pointer',
-            transition: 'background-color 0.2s'
-          }}
-        >
-          Send
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// Code Analyzer Component
-function CodeAnalyzer({ colors }) {
-  const [code, setCode] = useState('');
-  const [language, setLanguage] = useState('python');
-  const [problemDescription, setProblemDescription] = useState('');
-  const [analysis, setAnalysis] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const analyzeCode = async () => {
-    if (!code.trim()) return;
-
-    setIsLoading(true);
-    setError(null);
-    setAnalysis(null);
-
-    try {
-      const res = await fetch(`${API_BASE}/api/ai/analyze-code`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, language, problemDescription })
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        setAnalysis(data.analysis);
-      } else {
-        setError(data.error);
-      }
-    } catch (err) {
-      setError('Failed to connect to server');
-    }
-
-    setIsLoading(false);
-  };
-
-  const getScoreColor = (score) => {
-    if (score >= 8) return '#4ade80';
-    if (score >= 6) return '#facc15';
-    if (score >= 4) return '#fb923c';
-    return '#f87171';
-  };
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <div style={{
-        backgroundColor: colors.bgSecondary,
-        borderRadius: '12px',
-        padding: '1.5rem',
-        border: `1px solid ${colors.border}`
-      }}>
-        <h3 style={{ color: colors.textPrimary, marginBottom: '1rem', fontSize: '1.1rem', fontWeight: '600' }}>
-          AI Code Analyzer
-        </h3>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', color: colors.textSecondary, fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-            Problem Description (optional)
-          </label>
-          <input
-            type="text"
-            value={problemDescription}
-            onChange={(e) => setProblemDescription(e.target.value)}
-            placeholder="e.g., Two Sum - Find two numbers that add up to target"
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              borderRadius: '8px',
-              border: `1px solid ${colors.border}`,
-              backgroundColor: colors.bgPrimary,
-              color: colors.textPrimary,
-              fontSize: '0.875rem'
-            }}
-          />
-        </div>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', color: colors.textSecondary, fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-            Language
-          </label>
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            style={{
-              padding: '0.75rem',
-              borderRadius: '8px',
-              border: `1px solid ${colors.border}`,
-              backgroundColor: colors.bgPrimary,
-              color: colors.textPrimary,
-              fontSize: '0.875rem'
-            }}
-          >
-            <option value="python">Python</option>
-            <option value="java">Java</option>
-            <option value="javascript">JavaScript</option>
-            <option value="typescript">TypeScript</option>
-            <option value="cpp">C++</option>
-          </select>
-        </div>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', color: colors.textSecondary, fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-            Your Code
-          </label>
-          <textarea
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            placeholder="Paste your code here..."
-            style={{
-              width: '100%',
-              minHeight: '200px',
-              padding: '1rem',
-              borderRadius: '8px',
-              border: `1px solid ${colors.border}`,
-              backgroundColor: colors.bgTertiary || '#0f172a',
-              color: colors.textPrimary,
-              fontFamily: 'monospace',
-              fontSize: '0.875rem',
-              resize: 'vertical'
-            }}
-          />
-        </div>
-
-        <button
-          onClick={analyzeCode}
-          disabled={!code.trim() || isLoading}
-          style={{
-            width: '100%',
-            padding: '0.75rem',
-            borderRadius: '8px',
-            border: 'none',
-            backgroundColor: !code.trim() || isLoading ? colors.border : '#10b981',
-            color: 'white',
-            fontWeight: '600',
-            cursor: !code.trim() || isLoading ? 'not-allowed' : 'pointer',
-            fontSize: '0.875rem'
-          }}
-        >
-          {isLoading ? 'Analyzing...' : 'Analyze Code'}
-        </button>
-      </div>
-
-      {error && (
-        <div style={{
-          padding: '1rem',
-          backgroundColor: 'rgba(239, 68, 68, 0.1)',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          borderRadius: '8px',
-          color: '#f87171',
-          fontSize: '0.875rem'
-        }}>
-          {error}
-        </div>
-      )}
-
-      {analysis && !analysis.parseError && (
-        <div style={{
-          backgroundColor: colors.bgSecondary,
-          borderRadius: '12px',
-          padding: '1.5rem',
-          border: `1px solid ${colors.border}`
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-            <h3 style={{ color: colors.textPrimary, fontSize: '1.1rem', fontWeight: '600', margin: 0 }}>
-              Analysis Results
-            </h3>
-            <div style={{
-              fontSize: '2rem',
-              fontWeight: '700',
-              color: getScoreColor(analysis.overallScore)
-            }}>
-              {analysis.overallScore}/10
-            </div>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
-            {analysis.correctness && (
-              <div style={{ padding: '1rem', backgroundColor: colors.bgTertiary || colors.bgPrimary, borderRadius: '8px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <span style={{ color: colors.textSecondary, fontSize: '0.875rem' }}>Correctness</span>
-                  <span style={{ color: getScoreColor(analysis.correctness.score), fontWeight: '600' }}>{analysis.correctness.score}/10</span>
-                </div>
-                <p style={{ color: colors.textMuted, fontSize: '0.75rem', margin: 0 }}>{analysis.correctness.feedback}</p>
-              </div>
-            )}
-
-            {analysis.codeQuality && (
-              <div style={{ padding: '1rem', backgroundColor: colors.bgTertiary || colors.bgPrimary, borderRadius: '8px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <span style={{ color: colors.textSecondary, fontSize: '0.875rem' }}>Code Quality</span>
-                  <span style={{ color: getScoreColor(analysis.codeQuality.score), fontWeight: '600' }}>{analysis.codeQuality.score}/10</span>
-                </div>
-                <p style={{ color: colors.textMuted, fontSize: '0.75rem', margin: 0 }}>{analysis.codeQuality.feedback}</p>
-              </div>
-            )}
-          </div>
-
-          {analysis.efficiency && (
-            <div style={{ padding: '1rem', backgroundColor: colors.bgTertiary || colors.bgPrimary, borderRadius: '8px', marginBottom: '1rem' }}>
-              <h4 style={{ color: colors.textPrimary, fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.75rem' }}>Complexity Analysis</h4>
-              <div style={{ display: 'flex', gap: '2rem', marginBottom: '0.5rem' }}>
-                <div>
-                  <span style={{ color: colors.textMuted, fontSize: '0.75rem' }}>Time: </span>
-                  <span style={{ color: '#60a5fa', fontWeight: '600' }}>{analysis.efficiency.timeComplexity}</span>
-                </div>
-                <div>
-                  <span style={{ color: colors.textMuted, fontSize: '0.75rem' }}>Space: </span>
-                  <span style={{ color: '#a78bfa', fontWeight: '600' }}>{analysis.efficiency.spaceComplexity}</span>
-                </div>
-              </div>
-              <p style={{ color: colors.textMuted, fontSize: '0.75rem', margin: 0 }}>{analysis.efficiency.feedback}</p>
-            </div>
-          )}
-
-          {analysis.edgeCases && (
-            <div style={{ padding: '1rem', backgroundColor: colors.bgTertiary || colors.bgPrimary, borderRadius: '8px', marginBottom: '1rem' }}>
-              <h4 style={{ color: colors.textPrimary, fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.75rem' }}>Edge Cases</h4>
-              {analysis.edgeCases.handled?.length > 0 && (
-                <div style={{ marginBottom: '0.5rem' }}>
-                  <span style={{ color: '#4ade80', fontSize: '0.75rem' }}>✓ Handled: </span>
-                  <span style={{ color: colors.textMuted, fontSize: '0.75rem' }}>{analysis.edgeCases.handled.join(', ')}</span>
-                </div>
-              )}
-              {analysis.edgeCases.missing?.length > 0 && (
-                <div>
-                  <span style={{ color: '#f87171', fontSize: '0.75rem' }}>✗ Missing: </span>
-                  <span style={{ color: colors.textMuted, fontSize: '0.75rem' }}>{analysis.edgeCases.missing.join(', ')}</span>
-                </div>
-              )}
-            </div>
-          )}
-
-          {analysis.suggestions?.length > 0 && (
-            <div style={{ padding: '1rem', backgroundColor: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px' }}>
-              <h4 style={{ color: '#34d399', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.75rem' }}>Suggestions</h4>
-              <ul style={{ margin: 0, paddingLeft: '1.25rem', color: 'rgba(167, 243, 208, 0.8)', fontSize: '0.75rem' }}>
-                {analysis.suggestions.map((s, i) => <li key={i} style={{ marginBottom: '0.25rem' }}>{s}</li>)}
-              </ul>
-            </div>
-          )}
-
-          {analysis.summary && (
-            <p style={{ color: colors.textSecondary, fontSize: '0.875rem', marginTop: '1rem', lineHeight: '1.6' }}>
-              {analysis.summary}
-            </p>
-          )}
-        </div>
-      )}
-
-      {analysis?.parseError && (
-        <div style={{
-          backgroundColor: colors.bgSecondary,
-          borderRadius: '12px',
-          padding: '1.5rem',
-          border: `1px solid ${colors.border}`
-        }}>
-          <h3 style={{ color: colors.textPrimary, fontSize: '1.1rem', fontWeight: '600', marginBottom: '1rem' }}>
-            Analysis
-          </h3>
-          <p style={{ color: colors.textSecondary, fontSize: '0.875rem', whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
-            {analysis.summary}
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Question Generator Component
-function QuestionGenerator({ colors }) {
-  const [difficulty, setDifficulty] = useState('medium');
-  const [topic, setTopic] = useState('');
-  const [question, setQuestion] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [previousQuestions, setPreviousQuestions] = useState([]);
-
-  const generateQuestion = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const res = await fetch(`${API_BASE}/api/ai/generate-question`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ difficulty, topic, previousQuestions })
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        setQuestion(data.question);
-        if (data.question.title) {
-          setPreviousQuestions(prev => [...prev, data.question.title]);
-        }
-      } else {
-        setError(data.error);
-      }
-    } catch (err) {
-      setError('Failed to connect to server');
-    }
-
-    setIsLoading(false);
-  };
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <div style={{
-        backgroundColor: colors.bgSecondary,
-        borderRadius: '12px',
-        padding: '1.5rem',
-        border: `1px solid ${colors.border}`
-      }}>
-        <h3 style={{ color: colors.textPrimary, marginBottom: '1rem', fontSize: '1.1rem', fontWeight: '600' }}>
-          AI Question Generator
-        </h3>
-
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-          <div>
-            <label style={{ display: 'block', color: colors.textSecondary, fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-              Difficulty
-            </label>
-            <select
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value)}
-              style={{
-                padding: '0.75rem',
-                borderRadius: '8px',
-                border: `1px solid ${colors.border}`,
-                backgroundColor: colors.bgPrimary,
-                color: colors.textPrimary,
-                fontSize: '0.875rem'
-              }}
-            >
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-            </select>
-          </div>
-
-          <div style={{ flex: 1, minWidth: '200px' }}>
-            <label style={{ display: 'block', color: colors.textSecondary, fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-              Topic (optional)
-            </label>
-            <input
-              type="text"
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              placeholder="e.g., Arrays, Trees, Dynamic Programming"
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '8px',
-                border: `1px solid ${colors.border}`,
-                backgroundColor: colors.bgPrimary,
-                color: colors.textPrimary,
-                fontSize: '0.875rem'
-              }}
-            />
-          </div>
-        </div>
-
-        <button
-          onClick={generateQuestion}
-          disabled={isLoading}
-          style={{
-            width: '100%',
-            padding: '0.75rem',
-            borderRadius: '8px',
-            border: 'none',
-            backgroundColor: isLoading ? colors.border : '#8b5cf6',
-            color: 'white',
-            fontWeight: '600',
-            cursor: isLoading ? 'not-allowed' : 'pointer',
-            fontSize: '0.875rem'
-          }}
-        >
-          {isLoading ? 'Generating...' : 'Generate New Question'}
-        </button>
-      </div>
-
-      {error && (
-        <div style={{
-          padding: '1rem',
-          backgroundColor: 'rgba(239, 68, 68, 0.1)',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          borderRadius: '8px',
-          color: '#f87171',
-          fontSize: '0.875rem'
-        }}>
-          {error}
-        </div>
-      )}
-
-      {question && (
-        <div style={{
-          backgroundColor: colors.bgSecondary,
-          borderRadius: '12px',
-          padding: '1.5rem',
-          border: `1px solid ${colors.border}`
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-            <h3 style={{ color: colors.textPrimary, fontSize: '1.25rem', fontWeight: '600', margin: 0 }}>
-              {question.title || 'Generated Question'}
-            </h3>
-            {question.difficulty && (
-              <span style={{
-                padding: '0.25rem 0.75rem',
-                borderRadius: '9999px',
-                fontSize: '0.75rem',
-                fontWeight: '600',
-                backgroundColor: question.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' :
-                  question.difficulty === 'Medium' ? 'rgba(234, 179, 8, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                color: question.difficulty === 'Easy' ? '#4ade80' :
-                  question.difficulty === 'Medium' ? '#facc15' : '#f87171'
-              }}>
-                {question.difficulty}
-              </span>
-            )}
-          </div>
-
-          {question.topics?.length > 0 && (
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-              {question.topics.map((t, i) => (
-                <span key={i} style={{
-                  padding: '0.25rem 0.5rem',
-                  borderRadius: '4px',
-                  fontSize: '0.75rem',
-                  backgroundColor: colors.bgTertiary || colors.bgPrimary,
-                  color: colors.textSecondary
-                }}>
-                  {t}
-                </span>
-              ))}
-            </div>
-          )}
-
-          <div style={{
-            padding: '1rem',
-            backgroundColor: colors.bgTertiary || colors.bgPrimary,
-            borderRadius: '8px',
-            marginBottom: '1rem'
-          }}>
-            <p style={{ color: colors.textPrimary, fontSize: '0.875rem', lineHeight: '1.6', margin: 0, whiteSpace: 'pre-wrap' }}>
-              {question.description}
-            </p>
-          </div>
-
-          {question.examples?.length > 0 && (
-            <div style={{ marginBottom: '1rem' }}>
-              <h4 style={{ color: colors.textPrimary, fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.75rem' }}>Examples</h4>
-              {question.examples.map((ex, i) => (
-                <div key={i} style={{
-                  padding: '0.75rem',
-                  backgroundColor: colors.bgTertiary || colors.bgPrimary,
-                  borderRadius: '8px',
-                  marginBottom: '0.5rem',
-                  fontFamily: 'monospace',
-                  fontSize: '0.8rem'
-                }}>
-                  <div style={{ color: colors.textSecondary }}>Input: <span style={{ color: '#60a5fa' }}>{ex.input}</span></div>
-                  <div style={{ color: colors.textSecondary }}>Output: <span style={{ color: '#4ade80' }}>{ex.output}</span></div>
-                  {ex.explanation && (
-                    <div style={{ color: colors.textMuted, marginTop: '0.5rem', fontFamily: 'inherit' }}>
-                      {ex.explanation}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {question.constraints?.length > 0 && (
-            <div style={{ marginBottom: '1rem' }}>
-              <h4 style={{ color: colors.textPrimary, fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem' }}>Constraints</h4>
-              <ul style={{ margin: 0, paddingLeft: '1.25rem', color: colors.textSecondary, fontSize: '0.8rem' }}>
-                {question.constraints.map((c, i) => <li key={i}>{c}</li>)}
-              </ul>
-            </div>
-          )}
-
-          {question.hints?.length > 0 && (
-            <details style={{ marginTop: '1rem' }}>
-              <summary style={{ color: '#fbbf24', cursor: 'pointer', fontSize: '0.875rem', fontWeight: '600' }}>
-                Show Hints
-              </summary>
-              <ol style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.25rem', color: 'rgba(253, 230, 138, 0.8)', fontSize: '0.8rem' }}>
-                {question.hints.map((h, i) => <li key={i} style={{ marginBottom: '0.25rem' }}>{h}</li>)}
-              </ol>
-            </details>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Timer component
-function Timer({ isRunning, onTimeUpdate, colors }) {
-  const [seconds, setSeconds] = useState(3600);
-  const intervalRef = useRef(null);
-
-  useEffect(() => {
+    let interval;
     if (isRunning && seconds > 0) {
-      intervalRef.current = setInterval(() => {
-        setSeconds(s => {
-          const newTime = s - 1;
-          onTimeUpdate?.(newTime);
-          return newTime;
-        });
-      }, 1000);
+      interval = setInterval(() => setSeconds(s => s - 1), 1000);
     }
-    return () => clearInterval(intervalRef.current);
-  }, [isRunning, seconds, onTimeUpdate]);
+    return () => clearInterval(interval);
+  }, [isRunning, seconds, setSeconds]);
 
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   const isLow = seconds < 600;
+  const isCritical = seconds < 300;
 
   return (
     <div style={{
       fontFamily: 'monospace',
-      fontSize: '1.5rem',
-      letterSpacing: '0.05em',
-      color: isLow ? '#f87171' : '#34d399',
-      animation: isLow ? 'pulse 2s infinite' : 'none'
+      fontSize: '1.125rem',
+      padding: '0.25rem 0.75rem',
+      borderRadius: '0.5rem',
+      backgroundColor: isCritical ? 'rgba(239, 68, 68, 0.2)' : isLow ? 'rgba(245, 158, 11, 0.2)' : 'rgba(51, 65, 85, 0.5)',
+      color: isCritical ? '#f87171' : isLow ? '#fbbf24' : '#34d399'
     }}>
       {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
     </div>
   );
 }
 
-// Tab navigation
-function TabNav({ tabs, activeTab, onTabChange, colors }) {
-  return (
-    <div style={{
-      display: 'flex',
-      gap: '4px',
-      padding: '4px',
-      backgroundColor: colors.bgSecondary,
-      borderRadius: '12px',
-      flexWrap: 'wrap',
-      justifyContent: 'center'
-    }}>
-      {tabs.map(tab => (
-        <button
-          key={tab.id}
-          onClick={() => onTabChange(tab.id)}
-          style={{
-            padding: '0.5rem 1rem',
-            borderRadius: '8px',
-            fontSize: '0.875rem',
-            fontWeight: '500',
-            transition: 'all 0.2s',
-            border: 'none',
-            cursor: 'pointer',
-            backgroundColor: activeTab === tab.id ? '#10b981' : 'transparent',
-            color: activeTab === tab.id ? 'white' : colors.textSecondary,
-            boxShadow: activeTab === tab.id ? '0 4px 6px rgba(16, 185, 129, 0.2)' : 'none'
-          }}
-        >
-          {tab.icon && <span style={{ marginRight: '0.5rem' }}>{tab.icon}</span>}
-          {tab.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-// Mock Interview Problems
-const MOCK_PROBLEMS = [
-  {
-    id: 'lru-cache',
-    title: 'LRU Cache',
-    difficulty: 'Medium',
-    timeLimit: 45,
-    description: `Design a data structure that follows the constraints of a Least Recently Used (LRU) cache.
-
-Implement the LRUCache class:
-- LRUCache(int capacity) Initialize the LRU cache with positive size capacity.
-- int get(int key) Return the value of the key if it exists, otherwise return -1.
-- void put(int key, int value) Update the value of the key if it exists. Otherwise, add the key-value pair. If the number of keys exceeds the capacity, evict the least recently used key.
-
-The functions get and put must each run in O(1) average time complexity.`,
-    starterCode: `class LRUCache:
-    def __init__(self, capacity: int):
-        # TODO: Initialize your data structures
-        pass
-
-    def get(self, key: int) -> int:
-        # TODO: Return value if exists, else -1
-        # Remember to update "recently used"
-        pass
-
-    def put(self, key: int, value: int) -> None:
-        # TODO: Add or update key-value
-        # Evict LRU if over capacity
-        pass
-
-# Test your implementation
-cache = LRUCache(2)
-cache.put(1, 1)
-cache.put(2, 2)
-print(cache.get(1))    # returns 1
-cache.put(3, 3)        # evicts key 2
-print(cache.get(2))    # returns -1
-cache.put(4, 4)        # evicts key 1
-print(cache.get(1))    # returns -1
-print(cache.get(3))    # returns 3
-print(cache.get(4))    # returns 4`,
-    hints: [
-      'Think about what data structures give O(1) access - HashMap comes to mind',
-      'For tracking "recently used" order, consider a doubly linked list',
-      'The key insight: combine HashMap (O(1) lookup) with Doubly Linked List (O(1) removal/insertion)',
-      'Move accessed items to the front of the list, remove from the back when evicting'
-    ],
-    testCases: [
-      { input: 'LRUCache(2), put(1,1), put(2,2), get(1)', expected: '1' },
-      { input: 'put(3,3), get(2)', expected: '-1 (evicted)' },
-      { input: 'get(3), get(4)', expected: '3, 4' }
-    ]
-  },
-  {
-    id: 'maze-solver',
-    title: 'Maze Solver with Keys',
-    difficulty: 'Medium',
-    timeLimit: 45,
-    description: `You are given a maze represented as a 2D grid. Find the shortest path from Start to End.
-
-The maze contains:
-- 'S' = Start position
-- 'E' = End position
-- '.' = Empty cell (can walk through)
-- '#' = Wall (cannot pass)
-- 'a'-'f' = Keys (collect them)
-- 'A'-'F' = Locked doors (need corresponding lowercase key)
-
-Return the minimum number of steps to reach the End, or -1 if impossible.
-
-Note: You can walk over keys without picking them up, but you need a key to pass through its corresponding door.`,
-    starterCode: `from collections import deque
-
-def shortest_path(maze):
-    """
-    Find shortest path from 'S' to 'E' in the maze.
-    Returns minimum steps or -1 if impossible.
-    """
-    if not maze or not maze[0]:
-        return -1
-
-    rows, cols = len(maze), len(maze[0])
-
-    # Find start position
-    start = None
-    for r in range(rows):
-        for c in range(cols):
-            if maze[r][c] == 'S':
-                start = (r, c)
-                break
-
-    if not start:
-        return -1
-
-    # BFS - TODO: Implement with key tracking
-    # State: (row, col, keys_collected)
-    # keys_collected can be a frozenset for hashing
-
-    queue = deque()
-    visited = set()
-
-    # TODO: Complete the BFS implementation
-
-    return -1
-
-# Test maze
-maze = [
-    ['S', '.', '.', '#', 'a'],
-    ['#', '#', '.', '#', '.'],
-    ['.', 'A', '.', '.', '.'],
-    ['.', '#', '#', '#', '.'],
-    ['.', '.', '.', '.', 'E']
-]
-
-print(shortest_path(maze))`,
-    hints: [
-      'Standard BFS, but state includes which keys you have collected',
-      'State = (row, col, frozenset(keys)) - frozenset makes it hashable',
-      'When you step on a key, add it to your key set',
-      'When you hit a door, check if you have the matching lowercase key',
-      'Use visited set with full state to avoid revisiting same position with same keys'
-    ],
-    testCases: [
-      { input: 'Simple maze without keys', expected: 'Standard BFS path length' },
-      { input: 'Maze with key and door', expected: 'Path through key first, then door' },
-      { input: 'Impossible maze', expected: '-1' }
-    ]
-  },
-  {
-    id: 'rate-limiter',
-    title: 'Design Rate Limiter',
-    difficulty: 'Medium',
-    timeLimit: 40,
-    description: `Design a rate limiter that limits the number of requests a user can make in a given time window.
-
-Implement the RateLimiter class:
-- RateLimiter(int maxRequests, int windowSizeInSeconds) Initialize with max requests allowed per window
-- bool allowRequest(string userId) Returns true if the request is allowed, false if rate limited
-
-Requirements:
-- Use sliding window algorithm for accurate limiting
-- Handle multiple users independently
-- Efficient memory usage`,
-    starterCode: `import time
-from collections import defaultdict, deque
-
-class RateLimiter:
-    def __init__(self, max_requests: int, window_seconds: int):
-        """
-        Initialize rate limiter.
-        max_requests: Maximum requests allowed in the window
-        window_seconds: Size of the sliding window in seconds
-        """
-        self.max_requests = max_requests
-        self.window_seconds = window_seconds
-        # TODO: Initialize data structures for tracking requests
-
-    def allow_request(self, user_id: str) -> bool:
-        """
-        Check if a request from user_id should be allowed.
-        Returns True if allowed, False if rate limited.
-        """
-        current_time = time.time()
-
-        # TODO: Implement sliding window rate limiting
-        # 1. Remove expired timestamps from the window
-        # 2. Check if under the limit
-        # 3. If allowed, record this request
-
-        return True  # Placeholder
-
-# Test the rate limiter
-limiter = RateLimiter(max_requests=3, window_seconds=10)
-
-print(limiter.allow_request("user1"))  # True
-print(limiter.allow_request("user1"))  # True
-print(limiter.allow_request("user1"))  # True
-print(limiter.allow_request("user1"))  # False - rate limited
-print(limiter.allow_request("user2"))  # True - different user`,
-    hints: [
-      'Use a deque (double-ended queue) to store timestamps for each user',
-      'For sliding window: remove timestamps older than (current_time - window_seconds)',
-      'After cleanup, check if len(timestamps) < max_requests',
-      'Use defaultdict(deque) to handle multiple users efficiently',
-      'Consider memory: periodically clean up users with no recent requests'
-    ],
-    testCases: [
-      { input: '3 requests within limit', expected: 'All True' },
-      { input: '4th request immediately after', expected: 'False' },
-      { input: 'Request after window expires', expected: 'True again' }
-    ]
-  },
-  {
-    id: 'two-sum',
-    title: 'Two Sum (Warm-up)',
-    difficulty: 'Easy',
-    timeLimit: 15,
-    description: `Given an array of integers nums and an integer target, return indices of the two numbers that add up to target.
-
-You may assume that each input has exactly one solution, and you may not use the same element twice.
-
-Return the answer in any order.
-
-Example:
-Input: nums = [2,7,11,15], target = 9
-Output: [0,1] (because nums[0] + nums[1] = 2 + 7 = 9)`,
-    starterCode: `def two_sum(nums, target):
-    """
-    Find two indices where nums[i] + nums[j] == target
-    Return [i, j] or [] if not found
-    """
-    # TODO: Implement O(n) solution using a hash map
-
-    return []
-
-# Test cases
-print(two_sum([2, 7, 11, 15], 9))   # [0, 1]
-print(two_sum([3, 2, 4], 6))        # [1, 2]
-print(two_sum([3, 3], 6))           # [0, 1]`,
-    hints: [
-      'Brute force is O(n²) - can you do better?',
-      'What if you stored numbers you\'ve seen in a hash map?',
-      'For each number, check if (target - number) exists in your map',
-      'Store value -> index mapping as you iterate'
-    ],
-    testCases: [
-      { input: '[2,7,11,15], target=9', expected: '[0, 1]' },
-      { input: '[3,2,4], target=6', expected: '[1, 2]' },
-      { input: '[3,3], target=6', expected: '[0, 1]' }
-    ]
-  }
-];
-
-// Checklist component
-function InterviewChecklist({ items, title, colors, onCheckChange }) {
-  const [checked, setChecked] = useState({});
-
-  const handleCheck = (index) => {
-    const newChecked = { ...checked, [index]: !checked[index] };
-    setChecked(newChecked);
-    onCheckChange?.(Object.values(newChecked).filter(Boolean).length, items.length);
-  };
-
+// File Explorer Component
+function FileExplorer({ files, activeFile, onFileSelect, colors }) {
   return (
     <div style={{
       backgroundColor: colors.bgSecondary,
-      borderRadius: '12px',
-      padding: '1rem',
-      border: `1px solid ${colors.border}`
+      borderRight: `1px solid ${colors.border}`,
+      width: '12rem',
+      flexShrink: 0,
+      overflowY: 'auto'
     }}>
-      <h4 style={{ fontSize: '0.9rem', fontWeight: '600', color: colors.textPrimary, marginBottom: '0.75rem' }}>{title}</h4>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-        {items.map((item, i) => (
-          <label key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={checked[i] || false}
-              onChange={() => handleCheck(i)}
-              style={{ marginTop: '0.2rem', width: '14px', height: '14px', accentColor: '#10b981' }}
-            />
-            <span style={{
-              fontSize: '0.8rem',
-              color: checked[i] ? colors.textMuted : colors.textSecondary,
-              textDecoration: checked[i] ? 'line-through' : 'none',
-              lineHeight: '1.4'
-            }}>
-              {item}
-            </span>
-          </label>
+      <div style={{
+        padding: '0.5rem',
+        fontSize: '0.75rem',
+        fontWeight: '500',
+        color: colors.textMuted,
+        textTransform: 'uppercase',
+        borderBottom: `1px solid ${colors.border}`
+      }}>
+        Explorer
+      </div>
+      <div style={{ padding: '0.25rem' }}>
+        {Object.keys(files).map(filename => (
+          <button
+            key={filename}
+            onClick={() => onFileSelect(filename)}
+            style={{
+              width: '100%',
+              textAlign: 'left',
+              padding: '0.375rem 0.5rem',
+              borderRadius: '0.25rem',
+              fontSize: '0.875rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              backgroundColor: activeFile === filename ? colors.bgTertiary : 'transparent',
+              color: activeFile === filename ? colors.textPrimary : colors.textSecondary,
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            <span style={{ color: '#facc15' }}>📄</span>
+            {filename}
+          </button>
         ))}
       </div>
     </div>
   );
 }
 
-// Mock Interview Tab with full AI integration
-function MockInterviewTab({ colors }) {
-  const [selectedProblem, setSelectedProblem] = useState(null);
-  const [timerRunning, setTimerRunning] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(0);
-  const [code, setCode] = useState('');
-  const [showHints, setShowHints] = useState(false);
-  const [currentHint, setCurrentHint] = useState(0);
-  const [codeAnalysis, setCodeAnalysis] = useState(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [chatMessages, setChatMessages] = useState([]);
-  const [chatInput, setChatInput] = useState('');
-  const [isChatLoading, setIsChatLoading] = useState(false);
-  const [checklistProgress, setChecklistProgress] = useState({ completed: 0, total: 0 });
-  // New state for enhanced AI features
-  const [isRunning, setIsRunning] = useState(false);
-  const [executionOutput, setExecutionOutput] = useState(null);
-  const [executionEvaluation, setExecutionEvaluation] = useState(null);
-  const [followUpQuestions, setFollowUpQuestions] = useState(null);
-  const [isLoadingFollowUp, setIsLoadingFollowUp] = useState(false);
-  const [optimization, setOptimization] = useState(null);
-  const [isLoadingOptimization, setIsLoadingOptimization] = useState(false);
-  const [showResults, setShowResults] = useState(false);
-  const timerRef = useRef(null);
-  const chatEndRef = useRef(null);
+// Code Editor Component
+function CodeEditor({ code, onChange, filename, colors }) {
+  const lineNumbers = code.split('\n').map((_, i) => i + 1);
 
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatMessages]);
-
-  useEffect(() => {
-    if (timerRunning && timeRemaining > 0) {
-      timerRef.current = setInterval(() => {
-        setTimeRemaining(t => t - 1);
-      }, 1000);
-    } else if (timeRemaining === 0 && timerRunning) {
-      setTimerRunning(false);
-    }
-    return () => clearInterval(timerRef.current);
-  }, [timerRunning, timeRemaining]);
-
-  const startInterview = (problem) => {
-    setSelectedProblem(problem);
-    setCode(problem.starterCode);
-    setTimeRemaining(problem.timeLimit * 60);
-    setShowHints(false);
-    setCurrentHint(0);
-    setCodeAnalysis(null);
-    setChatMessages([{
-      role: 'assistant',
-      content: `Welcome to your mock interview! Today's problem is "${problem.title}" (${problem.difficulty}).\n\nYou have ${problem.timeLimit} minutes to solve this problem. I'll act as your interviewer - feel free to:\n- Ask clarifying questions\n- Discuss your approach before coding\n- Request hints if you're stuck\n- Ask me to review your code\n\nWhen you're ready, click "Start Timer" and begin. Good luck!`
-    }]);
-  };
-
-  const resetInterview = () => {
-    setSelectedProblem(null);
-    setTimerRunning(false);
-    setTimeRemaining(0);
-    setCode('');
-    setCodeAnalysis(null);
-    setChatMessages([]);
-    setChecklistProgress({ completed: 0, total: 0 });
-  };
-
-  const requestAIHint = async () => {
-    if (!selectedProblem) return;
-
-    setIsChatLoading(true);
-    const hintRequest = `I'm working on the "${selectedProblem.title}" problem. Can you give me a hint without revealing the full solution? Here's my current progress:\n\n${code}`;
-
-    setChatMessages(prev => [...prev, { role: 'user', content: 'Can I get a hint?' }]);
-
-    try {
-      const res = await fetch(`${API_BASE}/api/ai/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [{ role: 'user', content: hintRequest }],
-          mode: 'hint',
-          context: `Problem: ${selectedProblem.title}\nDescription: ${selectedProblem.description}`
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setChatMessages(prev => [...prev, { role: 'assistant', content: data.message }]);
-      }
-    } catch (err) {
-      setChatMessages(prev => [...prev, {
-        role: 'assistant',
-        content: selectedProblem.hints[Math.min(currentHint, selectedProblem.hints.length - 1)],
-        isOffline: true
-      }]);
-      setCurrentHint(h => Math.min(h + 1, selectedProblem.hints.length - 1));
-    }
-    setIsChatLoading(false);
-  };
-
-  const requestCodeReview = async () => {
-    if (!code.trim()) return;
-
-    setIsAnalyzing(true);
-    setChatMessages(prev => [...prev, { role: 'user', content: 'Can you review my code?' }]);
-
-    try {
-      const res = await fetch(`${API_BASE}/api/ai/analyze-code`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          code,
-          language: 'python',
-          problemDescription: `${selectedProblem.title}: ${selectedProblem.description}`
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setCodeAnalysis(data.analysis);
-        const reviewMessage = data.analysis.parseError
-          ? data.analysis.summary
-          : `**Code Review Results**\n\nOverall Score: ${data.analysis.overallScore}/10\n\n` +
-            `Correctness: ${data.analysis.correctness?.score}/10\n` +
-            `Code Quality: ${data.analysis.codeQuality?.score}/10\n\n` +
-            `Time Complexity: ${data.analysis.efficiency?.timeComplexity}\n` +
-            `Space Complexity: ${data.analysis.efficiency?.spaceComplexity}\n\n` +
-            `${data.analysis.summary}`;
-        setChatMessages(prev => [...prev, { role: 'assistant', content: reviewMessage }]);
-      }
-    } catch (err) {
-      setChatMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'Unable to analyze code - server not available. Review your code manually for correctness, edge cases, and complexity.',
-        isError: true
-      }]);
-    }
-    setIsAnalyzing(false);
-  };
-
-  const sendChatMessage = async () => {
-    if (!chatInput.trim() || isChatLoading) return;
-
-    const userMessage = chatInput;
-    setChatInput('');
-    setChatMessages(prev => [...prev, { role: 'user', content: userMessage }]);
-    setIsChatLoading(true);
-
-    try {
-      const res = await fetch(`${API_BASE}/api/ai/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: chatMessages.concat({ role: 'user', content: userMessage }),
-          mode: 'interviewer',
-          context: `Problem: ${selectedProblem?.title}\nDescription: ${selectedProblem?.description}\n\nCandidate's current code:\n${code}`
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setChatMessages(prev => [...prev, { role: 'assistant', content: data.message }]);
-      }
-    } catch (err) {
-      setChatMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'AI interviewer is offline. Continue working on your solution!',
-        isError: true
-      }]);
-    }
-    setIsChatLoading(false);
-  };
-
-  // Run code and get AI evaluation of the output
-  const runCodeWithEvaluation = async () => {
-    if (!code.trim() || isRunning) return;
-
-    setIsRunning(true);
-    setExecutionOutput(null);
-    setExecutionEvaluation(null);
-    setChatMessages(prev => [...prev, { role: 'user', content: '▶️ Running code...' }]);
-
-    try {
-      // First, execute the code
-      const execRes = await fetch(`${API_BASE}/api/execute-python`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code })
-      });
-      const execData = await execRes.json();
-
-      const output = execData.success ? execData.output : execData.error;
-      setExecutionOutput({
-        success: execData.success,
-        output: output,
-        error: execData.error
-      });
-
-      // Add output to chat
-      setChatMessages(prev => [...prev, {
-        role: 'assistant',
-        content: `**Code Execution ${execData.success ? 'Complete' : 'Error'}:**\n\`\`\`\n${output}\n\`\`\``,
-        isOutput: true
-      }]);
-
-      // Now evaluate with AI
-      if (execData.success) {
-        const evalRes = await fetch(`${API_BASE}/api/ai/evaluate-output`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            code,
-            output,
-            problemDescription: `${selectedProblem.title}: ${selectedProblem.description}`,
-            testCases: selectedProblem.testCases
-          })
-        });
-        const evalData = await evalRes.json();
-
-        if (evalData.success) {
-          setExecutionEvaluation(evalData.evaluation);
-          const passedIcon = evalData.evaluation.passed ? '✅' : '❌';
-          const evalMessage = evalData.evaluation.parseError
-            ? evalData.evaluation.feedback
-            : `${passedIcon} **AI Evaluation:** Score: ${evalData.evaluation.score}/100\n\n${evalData.evaluation.feedback}${evalData.evaluation.issues?.length > 0 ? `\n\n**Issues:**\n${evalData.evaluation.issues.map(i => `• ${i}`).join('\n')}` : ''}${evalData.evaluation.suggestions?.length > 0 ? `\n\n**Suggestions:**\n${evalData.evaluation.suggestions.map(s => `• ${s}`).join('\n')}` : ''}`;
-          setChatMessages(prev => [...prev, { role: 'assistant', content: evalMessage }]);
-        }
-      }
-    } catch (err) {
-      setChatMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'Failed to run code. Make sure the server is running.',
-        isError: true
-      }]);
-    }
-
-    setIsRunning(false);
-    setShowResults(true);
-  };
-
-  // Get AI-generated follow-up questions
-  const getFollowUpQuestions = async () => {
-    if (!code.trim() || isLoadingFollowUp) return;
-
-    setIsLoadingFollowUp(true);
-    setFollowUpQuestions(null);
-    setChatMessages(prev => [...prev, { role: 'user', content: 'Can you give me some follow-up questions?' }]);
-
-    try {
-      const res = await fetch(`${API_BASE}/api/ai/follow-up-questions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          problemTitle: selectedProblem.title,
-          problemDescription: selectedProblem.description,
-          code,
-          complexity: codeAnalysis?.efficiency ? {
-            time: codeAnalysis.efficiency.timeComplexity,
-            space: codeAnalysis.efficiency.spaceComplexity
-          } : null
-        })
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        setFollowUpQuestions(data.followUp);
-        const questions = data.followUp.questions || [];
-        const questionsMessage = `**Follow-up Questions for Your Interview:**\n\n${questions.map((q, i) =>
-          `${i + 1}. **[${q.category || 'general'}]** ${q.question}`
-        ).join('\n\n')}${data.followUp.overallAssessment ? `\n\n**Overall Assessment:** ${data.followUp.overallAssessment}` : ''}`;
-        setChatMessages(prev => [...prev, { role: 'assistant', content: questionsMessage }]);
-      }
-    } catch (err) {
-      setChatMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'Unable to generate follow-up questions. Try discussing with the interviewer instead!',
-        isError: true
-      }]);
-    }
-
-    setIsLoadingFollowUp(false);
-  };
-
-  // Get optimization suggestions
-  const getOptimizationSuggestions = async () => {
-    if (!code.trim() || isLoadingOptimization) return;
-
-    setIsLoadingOptimization(true);
-    setOptimization(null);
-    setChatMessages(prev => [...prev, { role: 'user', content: 'How can I optimize my solution?' }]);
-
-    try {
-      const res = await fetch(`${API_BASE}/api/ai/optimize`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          code,
-          language: 'python',
-          problemDescription: `${selectedProblem.title}: ${selectedProblem.description}`,
-          currentComplexity: codeAnalysis?.efficiency ? {
-            time: codeAnalysis.efficiency.timeComplexity,
-            space: codeAnalysis.efficiency.spaceComplexity
-          } : null
-        })
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        setOptimization(data.optimization);
-        const opt = data.optimization;
-        let optMessage = `**Optimization Analysis:**\n\n`;
-
-        if (opt.currentAnalysis) {
-          optMessage += `**Current Complexity:**\n• Time: ${opt.currentAnalysis.timeComplexity}\n• Space: ${opt.currentAnalysis.spaceComplexity}\n`;
-          if (opt.currentAnalysis.bottlenecks?.length > 0) {
-            optMessage += `• Bottlenecks: ${opt.currentAnalysis.bottlenecks.join(', ')}\n`;
-          }
-        }
-
-        if (opt.optimizations?.length > 0) {
-          optMessage += `\n**Suggested Optimizations:**\n`;
-          opt.optimizations.forEach((o, i) => {
-            optMessage += `\n${i + 1}. **${o.title}**\n`;
-            optMessage += `   ${o.description}\n`;
-            if (o.impact) optMessage += `   Impact: ${o.impact}\n`;
-            if (o.codeHint) optMessage += `   Hint: \`${o.codeHint}\`\n`;
-          });
-        }
-
-        if (opt.optimalApproach) {
-          optMessage += `\n**Optimal Approach:**\n`;
-          optMessage += `• Time: ${opt.optimalApproach.timeComplexity}, Space: ${opt.optimalApproach.spaceComplexity}\n`;
-          optMessage += `• ${opt.optimalApproach.description}\n`;
-        }
-
-        if (opt.alternativeApproaches?.length > 0) {
-          optMessage += `\n**Alternative Approaches:**\n`;
-          opt.alternativeApproaches.forEach(a => {
-            optMessage += `• **${a.name}** (${a.complexity}): ${a.description}\n`;
-          });
-        }
-
-        setChatMessages(prev => [...prev, { role: 'assistant', content: optMessage }]);
-      }
-    } catch (err) {
-      setChatMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'Unable to analyze optimizations. Consider asking the interviewer about possible improvements.',
-        isError: true
-      }]);
-    }
-
-    setIsLoadingOptimization(false);
-  };
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  };
-
-  // Problem selection view
-  if (!selectedProblem) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        <div style={{
-          backgroundColor: 'rgba(139, 92, 246, 0.1)',
-          border: '1px solid rgba(139, 92, 246, 0.3)',
-          borderRadius: '12px',
-          padding: '1.25rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-            <span style={{ fontSize: '1.5rem' }}>🎯</span>
-            <h3 style={{ color: '#a78bfa', fontSize: '1.1rem', fontWeight: '600', margin: 0 }}>AI Mock Interview</h3>
-          </div>
-          <p style={{ color: 'rgba(196, 181, 253, 0.8)', fontSize: '0.875rem', margin: 0, lineHeight: '1.6' }}>
-            Simulate a real AI-enabled coding interview. Select a problem below to start your timed mock interview
-            with an AI interviewer who will guide you, provide hints, and review your code.
-          </p>
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: colors.bgPrimary, overflow: 'hidden' }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        padding: '0.5rem 1rem',
+        backgroundColor: colors.bgSecondary,
+        borderBottom: `1px solid ${colors.border}`
+      }}>
+        <div style={{ display: 'flex', gap: '0.375rem' }}>
+          <div style={{ width: '0.75rem', height: '0.75rem', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>
+          <div style={{ width: '0.75rem', height: '0.75rem', borderRadius: '50%', backgroundColor: '#facc15' }}></div>
+          <div style={{ width: '0.75rem', height: '0.75rem', borderRadius: '50%', backgroundColor: '#22c55e' }}></div>
         </div>
-
-        <div style={{ display: 'grid', gap: '1rem' }}>
-          {MOCK_PROBLEMS.map(problem => (
-            <button
-              key={problem.id}
-              onClick={() => startInterview(problem)}
-              style={{
-                textAlign: 'left',
-                padding: '1.25rem',
-                backgroundColor: colors.bgSecondary,
-                borderRadius: '12px',
-                border: `1px solid ${colors.border}`,
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <h4 style={{ color: colors.textPrimary, fontSize: '1rem', fontWeight: '600', margin: 0 }}>
-                    {problem.title}
-                  </h4>
-                  <span style={{
-                    fontSize: '0.7rem',
-                    padding: '0.2rem 0.5rem',
-                    borderRadius: '4px',
-                    backgroundColor: problem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' :
-                      problem.difficulty === 'Medium' ? 'rgba(234, 179, 8, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                    color: problem.difficulty === 'Easy' ? '#4ade80' :
-                      problem.difficulty === 'Medium' ? '#facc15' : '#f87171'
-                  }}>
-                    {problem.difficulty}
-                  </span>
-                </div>
-                <span style={{ color: colors.textMuted, fontSize: '0.8rem' }}>
-                  {problem.timeLimit} min
-                </span>
-              </div>
-              <p style={{ color: colors.textSecondary, fontSize: '0.8rem', margin: 0, lineHeight: '1.5' }}>
-                {problem.description.split('\n')[0]}
-              </p>
-            </button>
+        <span style={{ fontSize: '0.875rem', color: colors.textMuted, fontFamily: 'monospace', marginLeft: '0.5rem' }}>{filename}</span>
+      </div>
+      <div style={{ flex: 1, overflow: 'auto', display: 'flex' }}>
+        <div style={{
+          padding: '1rem 0.5rem',
+          textAlign: 'right',
+          userSelect: 'none',
+          backgroundColor: 'rgba(15, 23, 42, 0.5)',
+          borderRight: `1px solid ${colors.border}`
+        }}>
+          {lineNumbers.map(n => (
+            <div key={n} style={{ color: colors.textMuted, fontSize: '0.75rem', fontFamily: 'monospace', lineHeight: '1.5rem', paddingRight: '0.5rem' }}>{n}</div>
           ))}
         </div>
+        <textarea
+          value={code}
+          onChange={(e) => onChange(e.target.value)}
+          spellCheck={false}
+          style={{
+            flex: 1,
+            backgroundColor: 'transparent',
+            color: colors.textPrimary,
+            fontFamily: 'monospace',
+            fontSize: '0.875rem',
+            padding: '1rem',
+            outline: 'none',
+            resize: 'none',
+            lineHeight: '1.5rem',
+            border: 'none',
+            tabSize: 4
+          }}
+        />
       </div>
-    );
-  }
+    </div>
+  );
+}
 
-  // Active interview view
+// Terminal Component
+function Terminal({ output, onRun, onTest, isRunning, colors }) {
+  const terminalRef = useRef(null);
+
+  useEffect(() => {
+    if (terminalRef.current) {
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+    }
+  }, [output]);
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      {/* Header with timer */}
+    <div style={{
+      height: '12rem',
+      backgroundColor: colors.bgPrimary,
+      borderTop: `1px solid ${colors.border}`,
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
       <div style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '1rem',
+        padding: '0.375rem 0.75rem',
         backgroundColor: colors.bgSecondary,
-        borderRadius: '12px',
-        border: `1px solid ${colors.border}`
+        borderBottom: `1px solid ${colors.border}`
       }}>
-        <button
-          onClick={resetInterview}
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: 'transparent',
-            border: `1px solid ${colors.border}`,
-            borderRadius: '8px',
-            color: colors.textSecondary,
-            cursor: 'pointer',
-            fontSize: '0.875rem'
-          }}
-        >
-          ← Exit Interview
-        </button>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{
-            fontFamily: 'monospace',
-            fontSize: '1.5rem',
-            fontWeight: '700',
-            color: timeRemaining < 300 ? '#f87171' : timeRemaining < 600 ? '#facc15' : '#34d399'
-          }}>
-            {formatTime(timeRemaining)}
-          </div>
+        <span style={{ fontSize: '0.75rem', fontWeight: '500', color: colors.textMuted }}>Terminal</span>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button
-            onClick={() => setTimerRunning(!timerRunning)}
+            onClick={onRun}
+            disabled={isRunning}
             style={{
-              padding: '0.5rem 1rem',
-              borderRadius: '8px',
-              border: 'none',
-              backgroundColor: timerRunning ? '#ef4444' : '#10b981',
+              padding: '0.25rem 0.75rem',
+              backgroundColor: isRunning ? colors.bgTertiary : '#10b981',
               color: 'white',
-              fontWeight: '600',
-              cursor: 'pointer',
-              fontSize: '0.875rem'
+              fontSize: '0.75rem',
+              borderRadius: '0.25rem',
+              border: 'none',
+              cursor: isRunning ? 'not-allowed' : 'pointer'
             }}
           >
-            {timerRunning ? 'Pause' : 'Start Timer'}
+            ▶ Run
+          </button>
+          <button
+            onClick={onTest}
+            disabled={isRunning}
+            style={{
+              padding: '0.25rem 0.75rem',
+              backgroundColor: isRunning ? colors.bgTertiary : '#3b82f6',
+              color: 'white',
+              fontSize: '0.75rem',
+              borderRadius: '0.25rem',
+              border: 'none',
+              cursor: isRunning ? 'not-allowed' : 'pointer'
+            }}
+          >
+            ✓ Run Tests
           </button>
         </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{
-            fontSize: '0.75rem',
-            padding: '0.25rem 0.5rem',
-            borderRadius: '4px',
-            backgroundColor: selectedProblem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' :
-              selectedProblem.difficulty === 'Medium' ? 'rgba(234, 179, 8, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-            color: selectedProblem.difficulty === 'Easy' ? '#4ade80' :
-              selectedProblem.difficulty === 'Medium' ? '#facc15' : '#f87171'
-          }}>
-            {selectedProblem.difficulty}
-          </span>
-          <span style={{ color: colors.textPrimary, fontWeight: '600' }}>{selectedProblem.title}</span>
-        </div>
       </div>
-
-      {/* Main content - split view */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', minHeight: '600px' }}>
-        {/* Left: Problem + Code Editor */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {/* Problem description */}
-          <div style={{
-            backgroundColor: colors.bgSecondary,
-            borderRadius: '12px',
-            padding: '1rem',
-            border: `1px solid ${colors.border}`,
-            maxHeight: '200px',
-            overflowY: 'auto'
-          }}>
-            <h4 style={{ color: colors.textPrimary, fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem' }}>Problem</h4>
-            <pre style={{
-              color: colors.textSecondary,
-              fontSize: '0.8rem',
-              whiteSpace: 'pre-wrap',
-              margin: 0,
-              fontFamily: 'inherit',
-              lineHeight: '1.5'
-            }}>
-              {selectedProblem.description}
-            </pre>
-          </div>
-
-          {/* Code editor */}
-          <div style={{
-            flex: 1,
-            backgroundColor: colors.bgTertiary || '#0f172a',
-            borderRadius: '12px',
-            border: `1px solid ${colors.border}`,
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
-            <div style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: colors.bgSecondary,
-              borderBottom: `1px solid ${colors.border}`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}>
-              <span style={{ color: colors.textMuted, fontSize: '0.75rem', fontFamily: 'monospace' }}>Python</span>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button
-                  onClick={requestAIHint}
-                  disabled={isChatLoading}
-                  style={{
-                    padding: '0.25rem 0.75rem',
-                    fontSize: '0.75rem',
-                    backgroundColor: 'rgba(234, 179, 8, 0.2)',
-                    color: '#facc15',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: isChatLoading ? 'not-allowed' : 'pointer'
-                  }}
-                >
-                  💡 Get Hint
-                </button>
-                <button
-                  onClick={requestCodeReview}
-                  disabled={isAnalyzing || !code.trim()}
-                  style={{
-                    padding: '0.25rem 0.75rem',
-                    fontSize: '0.75rem',
-                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                    color: '#34d399',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: isAnalyzing || !code.trim() ? 'not-allowed' : 'pointer'
-                  }}
-                >
-                  {isAnalyzing ? '...' : '🔍 Review Code'}
-                </button>
-              </div>
-            </div>
-            <textarea
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              style={{
-                flex: 1,
-                padding: '1rem',
-                backgroundColor: 'transparent',
-                color: colors.textPrimary,
-                border: 'none',
-                resize: 'none',
-                fontFamily: 'monospace',
-                fontSize: '0.85rem',
-                lineHeight: '1.5',
-                outline: 'none'
-              }}
-              spellCheck={false}
-            />
-          </div>
-
-          {/* Test cases */}
-          <div style={{
-            backgroundColor: colors.bgSecondary,
-            borderRadius: '12px',
-            padding: '1rem',
-            border: `1px solid ${colors.border}`
-          }}>
-            <h4 style={{ color: colors.textPrimary, fontSize: '0.9rem', fontWeight: '600', marginBottom: '0.5rem' }}>Test Cases</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {selectedProblem.testCases.map((tc, i) => (
-                <div key={i} style={{ fontSize: '0.75rem', color: colors.textSecondary }}>
-                  <span style={{ color: colors.textMuted }}>Input: </span>{tc.input}
-                  <span style={{ color: colors.textMuted, marginLeft: '0.5rem' }}>→ </span>
-                  <span style={{ color: '#4ade80' }}>{tc.expected}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Right: AI Chat + Checklist */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {/* AI Chat */}
-          <div style={{
-            flex: 1,
-            backgroundColor: colors.bgSecondary,
-            borderRadius: '12px',
-            border: `1px solid ${colors.border}`,
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden'
-          }}>
-            <div style={{
-              padding: '0.75rem 1rem',
-              backgroundColor: colors.bgTertiary || colors.bgPrimary,
-              borderBottom: `1px solid ${colors.border}`,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}>
-              <span>🤖</span>
-              <span style={{ fontWeight: '600', color: colors.textPrimary, fontSize: '0.9rem' }}>AI Interviewer</span>
-            </div>
-
-            <div style={{
-              flex: 1,
-              overflowY: 'auto',
-              padding: '1rem',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.75rem'
-            }}>
-              {chatMessages.map((msg, i) => (
-                <div
-                  key={i}
-                  style={{
-                    alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                    maxWidth: '85%',
-                    padding: '0.6rem 0.9rem',
-                    borderRadius: '10px',
-                    backgroundColor: msg.role === 'user' ? '#10b981' :
-                      msg.isError ? 'rgba(239, 68, 68, 0.2)' :
-                      msg.isOffline ? 'rgba(234, 179, 8, 0.2)' :
-                      colors.bgTertiary || colors.bgPrimary,
-                    color: msg.role === 'user' ? 'white' :
-                      msg.isError ? '#f87171' :
-                      msg.isOffline ? '#facc15' :
-                      colors.textPrimary,
-                    fontSize: '0.8rem',
-                    lineHeight: '1.5',
-                    whiteSpace: 'pre-wrap'
-                  }}
-                >
-                  {msg.content}
-                </div>
-              ))}
-              {isChatLoading && (
-                <div style={{
-                  alignSelf: 'flex-start',
-                  padding: '0.6rem 0.9rem',
-                  borderRadius: '10px',
-                  backgroundColor: colors.bgTertiary || colors.bgPrimary,
-                  color: colors.textMuted,
-                  fontSize: '0.8rem'
-                }}>
-                  Thinking...
-                </div>
-              )}
-              <div ref={chatEndRef} />
-            </div>
-
-            <div style={{
-              padding: '0.75rem',
-              borderTop: `1px solid ${colors.border}`,
-              display: 'flex',
-              gap: '0.5rem'
-            }}>
-              <input
-                type="text"
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
-                placeholder="Ask the interviewer..."
-                style={{
-                  flex: 1,
-                  padding: '0.5rem 0.75rem',
-                  borderRadius: '8px',
-                  border: `1px solid ${colors.border}`,
-                  backgroundColor: colors.bgPrimary,
-                  color: colors.textPrimary,
-                  fontSize: '0.8rem'
-                }}
-              />
-              <button
-                onClick={sendChatMessage}
-                disabled={!chatInput.trim() || isChatLoading}
-                style={{
-                  padding: '0.5rem 1rem',
-                  borderRadius: '8px',
-                  border: 'none',
-                  backgroundColor: !chatInput.trim() || isChatLoading ? colors.border : '#10b981',
-                  color: 'white',
-                  fontWeight: '600',
-                  cursor: !chatInput.trim() || isChatLoading ? 'not-allowed' : 'pointer',
-                  fontSize: '0.8rem'
-                }}
-              >
-                Send
-              </button>
-            </div>
-          </div>
-
-          {/* Interview Checklist */}
-          <InterviewChecklist
-            title={`Interview Checklist (${checklistProgress.completed}/${checklistProgress.total || 8})`}
-            colors={colors}
-            onCheckChange={(completed, total) => setChecklistProgress({ completed, total })}
-            items={[
-              'Asked clarifying questions about requirements',
-              'Discussed approach before coding',
-              'Identified edge cases',
-              'Wrote working solution',
-              'Tested with examples',
-              'Reviewed code with AI',
-              'Analyzed time complexity',
-              'Analyzed space complexity'
-            ]}
-          />
-        </div>
+      <div ref={terminalRef} style={{ flex: 1, overflow: 'auto', padding: '0.75rem', fontFamily: 'monospace', fontSize: '0.75rem' }}>
+        <pre style={{ color: colors.textSecondary, whiteSpace: 'pre-wrap', margin: 0 }}>{output || '$ Ready to run code...'}</pre>
       </div>
     </div>
   );
 }
 
-// AI Interview Simulator Tab (chat only)
-function AIInterviewTab({ colors }) {
-  const [chatMode, setChatMode] = useState('interviewer');
+// Problem Panel Component
+function ProblemPanel({ problem, colors }) {
+  const [activeTab, setActiveTab] = useState('description');
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <div style={{
-        backgroundColor: 'rgba(139, 92, 246, 0.1)',
-        border: '1px solid rgba(139, 92, 246, 0.3)',
-        borderRadius: '12px',
-        padding: '1.25rem'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-          <span style={{ fontSize: '1.5rem' }}>💬</span>
-          <h3 style={{ color: '#a78bfa', fontSize: '1.1rem', fontWeight: '600', margin: 0 }}>AI Chat Assistant</h3>
-        </div>
-        <p style={{ color: 'rgba(196, 181, 253, 0.8)', fontSize: '0.875rem', margin: 0, lineHeight: '1.6' }}>
-          Chat with AI in different modes - get interview practice, code reviews, hints, or general help.
-        </p>
-      </div>
-
-      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-        {[
-          { id: 'interviewer', label: 'Interviewer', icon: '👔' },
-          { id: 'hint', label: 'Get Hints', icon: '💡' },
-          { id: 'code-review', label: 'Code Review', icon: '🔍' },
-          { id: 'general', label: 'General Help', icon: '💬' }
-        ].map(mode => (
+    <div style={{
+      width: '24rem',
+      backgroundColor: colors.bgSecondary,
+      borderRight: `1px solid ${colors.border}`,
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden'
+    }}>
+      <div style={{ display: 'flex', borderBottom: `1px solid ${colors.border}` }}>
+        {['description', 'hints'].map(tab => (
           <button
-            key={mode.id}
-            onClick={() => setChatMode(mode.id)}
+            key={tab}
+            onClick={() => setActiveTab(tab)}
             style={{
-              padding: '0.5rem 1rem',
-              borderRadius: '8px',
-              border: chatMode === mode.id ? '2px solid #8b5cf6' : `1px solid ${colors.border}`,
-              backgroundColor: chatMode === mode.id ? 'rgba(139, 92, 246, 0.2)' : colors.bgSecondary,
-              color: chatMode === mode.id ? '#a78bfa' : colors.textSecondary,
+              flex: 1,
+              padding: '0.625rem 1rem',
               fontSize: '0.875rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
+              fontWeight: '500',
+              backgroundColor: activeTab === tab ? 'rgba(51, 65, 85, 0.5)' : 'transparent',
+              color: activeTab === tab ? colors.textPrimary : colors.textMuted,
+              borderBottom: activeTab === tab ? '2px solid #10b981' : '2px solid transparent',
+              border: 'none',
+              cursor: 'pointer'
             }}
           >
-            {mode.icon} {mode.label}
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
           </button>
         ))}
       </div>
 
-      <div style={{ height: '500px' }}>
-        <AIChat colors={colors} mode={chatMode} />
-      </div>
-    </div>
-  );
-}
-
-// Overview section
-function OverviewSection({ colors }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.05))',
-          borderRadius: '12px',
-          padding: '1.25rem',
-          border: '1px solid rgba(16, 185, 129, 0.2)'
-        }}>
-          <div style={{ fontSize: '2rem', fontWeight: '700', color: '#34d399' }}>{INTERVIEW_DATA.overview.duration}</div>
-          <div style={{ color: colors.textSecondary, marginTop: '0.25rem' }}>Total Duration</div>
-        </div>
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.05))',
-          borderRadius: '12px',
-          padding: '1.25rem',
-          border: '1px solid rgba(59, 130, 246, 0.2)'
-        }}>
-          <div style={{ fontSize: '2rem', fontWeight: '700', color: '#60a5fa' }}>1</div>
-          <div style={{ color: colors.textSecondary, marginTop: '0.25rem' }}>Extended Problem</div>
-        </div>
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.05))',
-          borderRadius: '12px',
-          padding: '1.25rem',
-          border: '1px solid rgba(139, 92, 246, 0.2)'
-        }}>
-          <div style={{ fontSize: '2rem', fontWeight: '700', color: '#a78bfa' }}>4</div>
-          <div style={{ color: colors.textSecondary, marginTop: '0.25rem' }}>Parts to Complete</div>
-        </div>
-      </div>
-
-      <div style={{
-        backgroundColor: colors.bgSecondary,
-        borderRadius: '12px',
-        padding: '1.5rem',
-        border: `1px solid ${colors.border}`
-      }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: colors.textPrimary, marginBottom: '1rem' }}>Available AI Models</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0.75rem' }}>
-          {INTERVIEW_DATA.overview.models.map(model => (
-            <div key={model.name} style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '0.75rem',
-              backgroundColor: colors.bgTertiary || colors.bgPrimary,
-              borderRadius: '8px'
-            }}>
-              <span style={{ color: colors.textSecondary }}>{model.name}</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{
-                  fontSize: '0.75rem',
-                  padding: '0.125rem 0.5rem',
-                  borderRadius: '4px',
-                  backgroundColor: model.speed === 'Fast' ? 'rgba(34, 197, 94, 0.2)' :
-                    model.speed === 'Medium' ? 'rgba(234, 179, 8, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                  color: model.speed === 'Fast' ? '#4ade80' :
-                    model.speed === 'Medium' ? '#facc15' : '#f87171'
-                }}>{model.speed}</span>
-                {model.note && (
-                  <span style={{ fontSize: '0.75rem', color: '#34d399' }}>{model.note}</span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div style={{
-        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-        border: '1px solid rgba(245, 158, 11, 0.3)',
-        borderRadius: '12px',
-        padding: '1.25rem'
-      }}>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <div style={{ fontSize: '1.5rem' }}>⚠️</div>
+      <div style={{ flex: 1, overflow: 'auto', padding: '1rem' }}>
+        {activeTab === 'description' && (
           <div>
-            <div style={{ fontWeight: '600', color: '#fbbf24' }}>Critical Warning</div>
-            <p style={{ color: 'rgba(253, 230, 138, 0.8)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-              You can be marked down if you use AI as a crutch. Companies want to see you catch AI mistakes
-              and make informed decisions. If you're fast at coding, just code directly—multiple candidates
-              report their best rounds came from minimal AI use.
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+              <span style={{
+                padding: '0.125rem 0.5rem',
+                borderRadius: '0.25rem',
+                fontSize: '0.75rem',
+                backgroundColor: 'rgba(234, 179, 8, 0.2)',
+                color: '#facc15'
+              }}>{problem.difficulty}</span>
+              <span style={{
+                padding: '0.125rem 0.5rem',
+                borderRadius: '0.25rem',
+                fontSize: '0.75rem',
+                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                color: '#60a5fa'
+              }}>{problem.company}</span>
+            </div>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: colors.textPrimary, marginBottom: '1rem' }}>{problem.title}</h2>
+            <div
+              style={{ color: colors.textSecondary, fontSize: '0.875rem', lineHeight: '1.6' }}
+              dangerouslySetInnerHTML={{
+                __html: problem.description
+                  .replace(/\n/g, '<br/>')
+                  .replace(/`([^`]+)`/g, '<code style="background-color: rgba(51, 65, 85, 0.5); padding: 0.125rem 0.25rem; border-radius: 0.25rem; color: #34d399;">$1</code>')
+                  .replace(/##\s+(.+)/g, '<h3 style="font-size: 1rem; font-weight: 600; color: #f1f5f9; margin-top: 1.5rem; margin-bottom: 0.5rem;">$1</h3>')
+                  .replace(/\*\*(.+?)\*\*/g, '<strong style="color: #f1f5f9;">$1</strong>')
+              }}
+            />
           </div>
-        </div>
+        )}
+
+        {activeTab === 'hints' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <p style={{ color: colors.textMuted, fontSize: '0.875rem', marginBottom: '0.5rem' }}>Click to reveal hints:</p>
+            {problem.hints.map((hint, i) => (
+              <HintCard key={i} number={i + 1} hint={hint} colors={colors} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-// Tips section
-function TipsSection({ colors }) {
+// Hint Card Component
+function HintCard({ number, hint, colors }) {
+  const [revealed, setRevealed] = useState(false);
+
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+    <div
+      onClick={() => setRevealed(true)}
+      style={{
+        padding: '0.75rem',
+        borderRadius: '0.5rem',
+        cursor: 'pointer',
+        backgroundColor: revealed ? 'rgba(245, 158, 11, 0.1)' : colors.bgTertiary,
+        border: `1px solid ${revealed ? 'rgba(245, 158, 11, 0.3)' : colors.border}`
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+        <span style={{ fontSize: '0.75rem', fontWeight: '500', color: '#fbbf24' }}>Hint {number}</span>
+        {!revealed && <span style={{ fontSize: '0.75rem', color: colors.textMuted }}>Click to reveal</span>}
+      </div>
+      {revealed ? (
+        <p style={{ fontSize: '0.875rem', color: 'rgba(253, 230, 138, 0.8)', margin: 0 }}>{hint}</p>
+      ) : (
+        <div style={{ height: '1rem', backgroundColor: colors.bgTertiary, borderRadius: '0.25rem' }}></div>
+      )}
+    </div>
+  );
+}
+
+// AI Chat Panel Component
+function AIChatPanel({ problem, code, colors }) {
+  const [messages, setMessages] = useState([
+    { role: 'assistant', content: "I'm your AI assistant for this interview. I can help debug, explain concepts, or suggest approaches. What do you need?" }
+  ]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const sendMessage = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userMessage = input.trim();
+    setInput('');
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setIsLoading(true);
+
+    setTimeout(() => {
+      const responses = [
+        "Looking at your code, the bug is in the comparison operator. You're using `<` when you should use `>=`. This keeps old requests instead of recent ones.",
+        "To fix this, change `if ts < window_start` to `if ts >= window_start`. This will keep timestamps within the current window.",
+        "For visited tracking, add nodes to visited BEFORE adding to the queue. This prevents duplicates.",
+        "The time complexity is O(n). Space complexity is O(n) for storing the cache entries.",
+      ];
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: responses[Math.floor(Math.random() * responses.length)]
+      }]);
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  const quickPrompts = ["What's the bug?", "How to fix it?", "Time complexity?", "Show solution"];
+
+  return (
+    <div style={{
+      width: '20rem',
+      backgroundColor: colors.bgSecondary,
+      borderLeft: `1px solid ${colors.border}`,
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
       <div style={{
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-        border: '1px solid rgba(16, 185, 129, 0.3)',
-        borderRadius: '12px',
-        padding: '1.25rem'
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        padding: '0.5rem 0.75rem',
+        borderBottom: `1px solid ${colors.border}`,
+        backgroundColor: 'rgba(51, 65, 85, 0.5)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-          <div style={{ fontSize: '1.5rem' }}>✓</div>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#34d399' }}>Do This</h3>
-        </div>
-        <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {INTERVIEW_DATA.tips.do.map((tip, i) => (
-            <li key={i} style={{ color: 'rgba(167, 243, 208, 0.8)', fontSize: '0.875rem', display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
-              <span style={{ color: '#10b981', marginTop: '0.125rem' }}>→</span>
-              {tip}
-            </li>
-          ))}
-        </ul>
+        <div style={{ width: '0.5rem', height: '0.5rem', backgroundColor: '#34d399', borderRadius: '50%' }}></div>
+        <span style={{ fontSize: '0.875rem', fontWeight: '500', color: colors.textPrimary }}>AI Assistant</span>
       </div>
 
-      <div style={{
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-        border: '1px solid rgba(239, 68, 68, 0.3)',
-        borderRadius: '12px',
-        padding: '1.25rem'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-          <div style={{ fontSize: '1.5rem' }}>✗</div>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#f87171' }}>Avoid This</h3>
-        </div>
-        <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {INTERVIEW_DATA.tips.dont.map((tip, i) => (
-            <li key={i} style={{ color: 'rgba(254, 202, 202, 0.8)', fontSize: '0.875rem', display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
-              <span style={{ color: '#ef4444', marginTop: '0.125rem' }}>→</span>
-              {tip}
-            </li>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        {messages.map((msg, i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
+            <div style={{
+              maxWidth: '90%',
+              borderRadius: '0.5rem',
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.875rem',
+              backgroundColor: msg.role === 'user' ? '#10b981' : colors.bgTertiary,
+              color: msg.role === 'user' ? 'white' : colors.textPrimary,
+              border: msg.role === 'user' ? 'none' : `1px solid ${colors.border}`
+            }}>
+              {msg.content}
+            </div>
+          </div>
+        ))}
+        {isLoading && (
+          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+            <div style={{ backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, borderRadius: '0.5rem', padding: '0.5rem 0.75rem', color: colors.textMuted }}>
+              Thinking...
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      <div style={{ padding: '0.5rem', borderTop: `1px solid ${colors.border}` }}>
+        <div style={{ display: 'flex', gap: '0.375rem', marginBottom: '0.5rem', overflowX: 'auto' }}>
+          {quickPrompts.map((prompt, i) => (
+            <button
+              key={i}
+              onClick={() => setInput(prompt)}
+              style={{
+                flexShrink: 0,
+                fontSize: '0.75rem',
+                padding: '0.25rem 0.5rem',
+                backgroundColor: 'rgba(51, 65, 85, 0.5)',
+                color: colors.textMuted,
+                borderRadius: '0.25rem',
+                border: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              {prompt}
+            </button>
           ))}
-        </ul>
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+            placeholder="Ask for help..."
+            style={{
+              flex: 1,
+              backgroundColor: colors.bgTertiary,
+              border: `1px solid ${colors.border}`,
+              borderRadius: '0.5rem',
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.875rem',
+              color: colors.textPrimary,
+              outline: 'none'
+            }}
+          />
+          <button
+            onClick={sendMessage}
+            disabled={isLoading || !input.trim()}
+            style={{
+              padding: '0.5rem 0.75rem',
+              backgroundColor: isLoading || !input.trim() ? colors.bgTertiary : '#10b981',
+              color: 'white',
+              borderRadius: '0.5rem',
+              border: 'none',
+              cursor: isLoading || !input.trim() ? 'not-allowed' : 'pointer'
+            }}
+          >
+            ➤
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -2184,109 +913,236 @@ function TipsSection({ colors }) {
 
 // Main Component
 export default function AIInterview({ onBack }) {
-  const { colors } = useTheme();
-  const [activeTab, setActiveTab] = useState('mock-interview');
+  const [selectedProblem, setSelectedProblem] = useState(null);
+  const [files, setFiles] = useState({});
+  const [activeFile, setActiveFile] = useState('');
+  const [terminalOutput, setTerminalOutput] = useState('');
+  const [timerRunning, setTimerRunning] = useState(false);
+  const [seconds, setSeconds] = useState(3600);
+  const [isRunning, setIsRunning] = useState(false);
 
-  const tabs = [
-    { id: 'mock-interview', label: 'Mock Interview', icon: '🎯' },
-    { id: 'ai-chat', label: 'AI Chat', icon: '💬' },
-    { id: 'code-analyzer', label: 'Code Analyzer', icon: '🔬' },
-    { id: 'question-gen', label: 'Question Gen', icon: '✨' },
-    { id: 'overview', label: 'Overview', icon: '📋' },
-    { id: 'tips', label: 'Tips', icon: '💡' },
-  ];
+  const colors = {
+    bgPrimary: '#0f172a',
+    bgSecondary: '#1e293b',
+    bgTertiary: '#334155',
+    textPrimary: '#f1f5f9',
+    textSecondary: '#cbd5e1',
+    textMuted: '#64748b',
+    border: '#334155'
+  };
 
-  return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: colors.bgPrimary,
-      color: colors.textPrimary
-    }}>
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '2rem 1.5rem'
-      }}>
-        {/* Back Button */}
-        <button
-          onClick={onBack}
-          style={{
-            marginBottom: '1.5rem',
-            padding: '0.5rem 1rem',
-            backgroundColor: colors.bgSecondary,
-            color: colors.textSecondary,
-            border: `1px solid ${colors.border}`,
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontSize: '0.875rem',
-            fontWeight: '500',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem'
-          }}
-        >
-          ← Back to Menu
-        </button>
+  const problem = PROBLEMS.find(p => p.id === selectedProblem);
 
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.25rem 0.75rem',
-            backgroundColor: 'rgba(139, 92, 246, 0.1)',
-            border: '1px solid rgba(139, 92, 246, 0.3)',
-            borderRadius: '9999px',
-            color: '#a78bfa',
-            fontSize: '0.875rem',
-            marginBottom: '1rem'
-          }}>
-            <span style={{ width: '8px', height: '8px', backgroundColor: '#a78bfa', borderRadius: '50%', animation: 'pulse 2s infinite' }}></span>
-            AI-Powered Features
+  const startProblem = (problemId) => {
+    const p = PROBLEMS.find(prob => prob.id === problemId);
+    setSelectedProblem(problemId);
+    setFiles({ ...p.files });
+    setActiveFile(Object.keys(p.files)[0]);
+    setTerminalOutput('');
+    setSeconds(3600);
+    setTimerRunning(false);
+  };
+
+  const updateFile = (content) => {
+    setFiles(prev => ({ ...prev, [activeFile]: content }));
+  };
+
+  const runCode = () => {
+    setIsRunning(true);
+    setTerminalOutput('$ python main.py\n\nRunning...\n');
+    setTimeout(() => {
+      setTerminalOutput(prev => prev + '\n=== Output ===\nSimulated output. Run tests for actual results.\n');
+      setIsRunning(false);
+    }, 800);
+  };
+
+  const runTests = () => {
+    setIsRunning(true);
+    setTerminalOutput('$ python -m pytest test_*.py -v\n\nCollecting tests...\n');
+    setTimeout(() => {
+      setTerminalOutput(prev => prev + (problem?.testOutput || 'Tests complete.'));
+      setIsRunning(false);
+    }, 1200);
+  };
+
+  // Problem Selection Screen
+  if (!selectedProblem) {
+    return (
+      <div style={{ minHeight: '100vh', backgroundColor: colors.bgPrimary, color: colors.textPrimary }}>
+        <div style={{ maxWidth: '48rem', margin: '0 auto', padding: '2rem' }}>
+          <button
+            onClick={onBack}
+            style={{
+              marginBottom: '2rem',
+              padding: '0.5rem 1rem',
+              backgroundColor: colors.bgSecondary,
+              color: colors.textSecondary,
+              border: `1px solid ${colors.border}`,
+              borderRadius: '0.5rem',
+              cursor: 'pointer',
+              fontSize: '0.875rem'
+            }}
+          >
+            ← Back to Menu
+          </button>
+
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.25rem 0.75rem',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              border: '1px solid rgba(59, 130, 246, 0.3)',
+              borderRadius: '9999px',
+              color: '#60a5fa',
+              fontSize: '0.875rem',
+              marginBottom: '1.5rem'
+            }}>
+              Meta AI-Enabled Interview Simulator
+            </div>
+            <h1 style={{
+              fontSize: '2.5rem',
+              fontWeight: '700',
+              marginBottom: '1rem',
+              background: 'linear-gradient(90deg, #e2e8f0, #c4b5fd, #a78bfa)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
+              Practice Like the Real Interview
+            </h1>
+            <p style={{ color: colors.textMuted, maxWidth: '36rem', margin: '0 auto' }}>
+              Full CoderPad-style environment with file explorer, code editor, terminal, and AI assistant.
+            </p>
           </div>
-          <h1 style={{
-            fontSize: '2.5rem',
-            fontWeight: '700',
-            background: 'linear-gradient(90deg, #e2e8f0, #c4b5fd, #a78bfa)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            marginBottom: '1rem'
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {PROBLEMS.map(p => (
+              <button
+                key={p.id}
+                onClick={() => startProblem(p.id)}
+                style={{
+                  width: '100%',
+                  textAlign: 'left',
+                  backgroundColor: 'rgba(51, 65, 85, 0.5)',
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: '0.75rem',
+                  padding: '1.5rem',
+                  cursor: 'pointer'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <span style={{
+                    padding: '0.125rem 0.5rem',
+                    borderRadius: '0.25rem',
+                    fontSize: '0.75rem',
+                    backgroundColor: 'rgba(234, 179, 8, 0.2)',
+                    color: '#facc15'
+                  }}>{p.difficulty}</span>
+                  <span style={{
+                    padding: '0.125rem 0.5rem',
+                    borderRadius: '0.25rem',
+                    fontSize: '0.75rem',
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    color: '#60a5fa'
+                  }}>{p.company}</span>
+                </div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: colors.textPrimary, marginBottom: '0.5rem' }}>
+                  {p.title}
+                </h3>
+                <p style={{ color: colors.textMuted, fontSize: '0.875rem' }}>
+                  {Object.keys(p.files).length} files • 60 minutes
+                </p>
+              </button>
+            ))}
+          </div>
+
+          <div style={{
+            marginTop: '2rem',
+            padding: '1rem',
+            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+            border: '1px solid rgba(245, 158, 11, 0.3)',
+            borderRadius: '0.75rem'
           }}>
-            AI Interview Prep
-          </h1>
-          <p style={{ color: colors.textSecondary, maxWidth: '600px', margin: '0 auto' }}>
-            Practice with real AI assistance. Get code reviews, generate questions, and simulate the interview experience.
-          </p>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <span style={{ fontSize: '1.25rem' }}>💡</span>
+              <div>
+                <div style={{ fontWeight: '500', color: '#fbbf24' }}>Interview Tips</div>
+                <p style={{ color: 'rgba(253, 230, 138, 0.7)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                  Use AI strategically—don't rely on it as a crutch. Review all AI-generated code carefully.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Interview Simulator Screen
+  return (
+    <div style={{ height: '100vh', backgroundColor: colors.bgPrimary, color: colors.textPrimary, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      {/* Top Bar */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0.5rem 1rem',
+        backgroundColor: colors.bgSecondary,
+        borderBottom: `1px solid ${colors.border}`
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button
+            onClick={() => setSelectedProblem(null)}
+            style={{
+              color: colors.textMuted,
+              fontSize: '0.875rem',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            ← Exit
+          </button>
+          <span style={{ fontSize: '0.875rem', color: colors.textSecondary, fontWeight: '500' }}>{problem.title}</span>
+          <span style={{
+            padding: '0.125rem 0.5rem',
+            borderRadius: '0.25rem',
+            fontSize: '0.75rem',
+            backgroundColor: 'rgba(234, 179, 8, 0.2)',
+            color: '#facc15'
+          }}>{problem.difficulty}</span>
         </div>
 
-        {/* Navigation */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
-          <TabNav tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} colors={colors} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <Timer isRunning={timerRunning} seconds={seconds} setSeconds={setSeconds} />
+          <button
+            onClick={() => setTimerRunning(!timerRunning)}
+            style={{
+              padding: '0.375rem 0.75rem',
+              borderRadius: '0.25rem',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              border: 'none',
+              cursor: 'pointer',
+              backgroundColor: timerRunning ? '#dc2626' : '#10b981',
+              color: 'white'
+            }}
+          >
+            {timerRunning ? 'Pause' : 'Start'}
+          </button>
         </div>
+      </div>
 
-        {/* Content */}
-        <div style={{ minHeight: '500px' }}>
-          {activeTab === 'mock-interview' && <MockInterviewTab colors={colors} />}
-          {activeTab === 'ai-chat' && <AIInterviewTab colors={colors} />}
-          {activeTab === 'code-analyzer' && <CodeAnalyzer colors={colors} />}
-          {activeTab === 'question-gen' && <QuestionGenerator colors={colors} />}
-          {activeTab === 'overview' && <OverviewSection colors={colors} />}
-          {activeTab === 'tips' && <TipsSection colors={colors} />}
+      {/* Main Content */}
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+        <ProblemPanel problem={problem} colors={colors} />
+        <FileExplorer files={files} activeFile={activeFile} onFileSelect={setActiveFile} colors={colors} />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <CodeEditor code={files[activeFile] || ''} onChange={updateFile} filename={activeFile} colors={colors} />
+          <Terminal output={terminalOutput} onRun={runCode} onTest={runTests} isRunning={isRunning} colors={colors} />
         </div>
-
-        {/* Footer */}
-        <div style={{
-          marginTop: '4rem',
-          paddingTop: '2rem',
-          borderTop: `1px solid ${colors.border}`,
-          textAlign: 'center'
-        }}>
-          <p style={{ color: colors.textMuted, fontSize: '0.875rem' }}>
-            AI features require the server to be running with ANTHROPIC_API_KEY configured.
-          </p>
-        </div>
+        <AIChatPanel problem={problem} code={files[activeFile] || ''} colors={colors} />
       </div>
     </div>
   );
