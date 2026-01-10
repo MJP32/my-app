@@ -4,6 +4,8 @@ import LanguageToggle from '../../components/LanguageToggle.jsx'
 import DrawingCanvas from '../../components/DrawingCanvas.jsx'
 import Breadcrumb from '../../components/Breadcrumb'
 import BookmarkButton from '../../components/BookmarkButton.jsx'
+import AIProblemAssistant from '../../components/ai/AIProblemAssistant.jsx'
+import AIToggleButton from '../../components/ai/AIToggleButton.jsx'
 import { isProblemCompleted } from '../../services/progressService'
 import { getPreferredLanguage } from '../../services/languageService'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
@@ -24,6 +26,7 @@ function Arrays({ onBack, onPrevious, onNext, previousName, nextName, currentSub
     Medium: true,
     Hard: true
   })
+  const [showAIAssistant, setShowAIAssistant] = useState(false)
 
   useEffect(() => {
     const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
@@ -2747,6 +2750,23 @@ def twoSum(self, numbers: List[int], target: int) -> List[int]:
           problemId={`Arrays-${selectedQuestion.id}`}
           existingDrawing={currentDrawing}
         />
+
+        {/* AI Assistant */}
+        <AIToggleButton
+          isOpen={showAIAssistant}
+          onClick={() => setShowAIAssistant(!showAIAssistant)}
+        />
+        {showAIAssistant && (
+          <AIProblemAssistant
+            problemId={`Arrays-${selectedQuestion.id}`}
+            problemTitle={selectedQuestion.title}
+            problemDescription={selectedQuestion.description}
+            difficulty={selectedQuestion.difficulty}
+            userCode={userCode}
+            language={language}
+            onClose={() => setShowAIAssistant(false)}
+          />
+        )}
       </div>
     )
   }
