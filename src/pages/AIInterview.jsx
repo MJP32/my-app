@@ -457,6 +457,446 @@ FAILED (failures=2)`,
       "For keys, track state as (position, collected_keys)",
     ],
   },
+  {
+    id: "text_parser",
+    title: "Log Parser & Analyzer",
+    difficulty: "Medium",
+    company: "Meta",
+    description: `## Problem Description
+
+You're given a log file parser that processes server logs. The current implementation has bugs and missing features.
+
+## Log Format
+
+Each log entry follows this format:
+\`\`\`
+[TIMESTAMP] [LEVEL] [SERVICE] MESSAGE
+\`\`\`
+
+Example:
+\`\`\`
+[2024-01-15 10:30:45] [ERROR] [auth-service] Failed login attempt for user123
+[2024-01-15 10:30:46] [INFO] [api-gateway] Request processed in 45ms
+\`\`\`
+
+## Your Tasks
+
+**Part 1:** Fix the regex pattern that parses log entries (currently missing some valid logs)
+
+**Part 2:** Fix the \`filter_by_level\` method (case sensitivity issue)
+
+**Part 3:** Implement \`get_error_summary()\` - group errors by service with count
+
+**Part 4:** Add \`find_slow_requests(threshold_ms)\` - find requests exceeding threshold
+
+## Constraints
+
+- Log files can be up to 100MB
+- Timestamps are in ISO format
+- Log levels: DEBUG, INFO, WARN, ERROR, FATAL
+- Service names are alphanumeric with hyphens
+
+## Example
+
+\`\`\`python
+parser = LogParser()
+parser.parse_file("server.log")
+parser.get_error_summary()
+# Returns: {'auth-service': 5, 'api-gateway': 2}
+\`\`\``,
+    files: {
+      "log_parser.py": `import re
+from datetime import datetime
+from collections import defaultdict
+from typing import List, Dict, Optional
+
+class LogEntry:
+    def __init__(self, timestamp: str, level: str, service: str, message: str):
+        self.timestamp = datetime.fromisoformat(timestamp)
+        self.level = level.upper()
+        self.service = service
+        self.message = message
+
+    def __repr__(self):
+        return f"LogEntry({self.level}, {self.service}, {self.message[:30]}...)"
+
+
+class LogParser:
+    # BUG: Regex pattern is too strict - missing some valid formats
+    LOG_PATTERN = re.compile(
+        r'\\[(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})\\] '
+        r'\\[(\\w+)\\] '  # BUG: Doesn't match service names with hyphens!
+        r'\\[(\\w+)\\] '
+        r'(.+)'
+    )
+
+    def __init__(self):
+        self.entries: List[LogEntry] = []
+        self.parse_errors: List[str] = []
+
+    def parse_line(self, line: str) -> Optional[LogEntry]:
+        """Parse a single log line into a LogEntry object."""
+        line = line.strip()
+        if not line:
+            return None
+
+        match = self.LOG_PATTERN.match(line)
+        if not match:
+            self.parse_errors.append(line)
+            return None
+
+        timestamp, level, service, message = match.groups()
+        return LogEntry(timestamp, level, service, message)
+
+    def parse_file(self, filepath: str) -> int:
+        """Parse a log file and return number of entries parsed."""
+        count = 0
+        with open(filepath, 'r') as f:
+            for line in f:
+                entry = self.parse_line(line)
+                if entry:
+                    self.entries.append(entry)
+                    count += 1
+        return count
+
+    def parse_lines(self, lines: List[str]) -> int:
+        """Parse a list of log lines."""
+        count = 0
+        for line in lines:
+            entry = self.parse_line(line)
+            if entry:
+                self.entries.append(entry)
+                count += 1
+        return count
+
+    def filter_by_level(self, level: str) -> List[LogEntry]:
+        """
+        Filter entries by log level.
+        BUG: Case sensitivity issue - 'error' doesn't match 'ERROR'
+        """
+        # BUG: Not handling case properly
+        return [e for e in self.entries if e.level == level]
+
+    def filter_by_service(self, service: str) -> List[LogEntry]:
+        """Filter entries by service name."""
+        return [e for e in self.entries if e.service == service]
+
+    def filter_by_time_range(self, start: datetime, end: datetime) -> List[LogEntry]:
+        """Filter entries within a time range."""
+        return [e for e in self.entries if start <= e.timestamp <= end]
+
+    def get_error_summary(self) -> Dict[str, int]:
+        """
+        Get count of ERROR and FATAL entries grouped by service.
+        TODO: Implement this method
+        """
+        pass
+
+    def find_slow_requests(self, threshold_ms: int) -> List[LogEntry]:
+        """
+        Find log entries mentioning response times above threshold.
+        Look for patterns like "processed in Xms" or "took Xms"
+        TODO: Implement this method
+        """
+        pass
+
+    def get_stats(self) -> Dict:
+        """Get parsing statistics."""
+        level_counts = defaultdict(int)
+        for entry in self.entries:
+            level_counts[entry.level] += 1
+
+        return {
+            'total_entries': len(self.entries),
+            'parse_errors': len(self.parse_errors),
+            'by_level': dict(level_counts)
+        }
+`,
+      "test_parser.py": `import unittest
+from log_parser import LogParser, LogEntry
+
+class TestLogParser(unittest.TestCase):
+
+    def setUp(self):
+        self.parser = LogParser()
+        self.sample_logs = [
+            "[2024-01-15 10:30:45] [ERROR] [auth-service] Failed login attempt",
+            "[2024-01-15 10:30:46] [INFO] [api-gateway] Request processed in 45ms",
+            "[2024-01-15 10:30:47] [WARN] [user-service] High memory usage detected",
+            "[2024-01-15 10:30:48] [ERROR] [auth-service] Connection timeout",
+            "[2024-01-15 10:30:49] [INFO] [api-gateway] Request processed in 250ms",
+            "[2024-01-15 10:30:50] [FATAL] [db-connector] Database connection lost",
+        ]
+
+    def test_parse_basic_log(self):
+        """Test parsing a basic log entry"""
+        line = "[2024-01-15 10:30:45] [INFO] [api] Request processed"
+        entry = self.parser.parse_line(line)
+
+        self.assertIsNotNone(entry)
+        self.assertEqual(entry.level, "INFO")
+
+    def test_parse_hyphenated_service(self):
+        """Test parsing log with hyphenated service name"""
+        line = "[2024-01-15 10:30:45] [ERROR] [auth-service] Failed login"
+        entry = self.parser.parse_line(line)
+
+        self.assertIsNotNone(entry)
+        self.assertEqual(entry.service, "auth-service")
+
+    def test_filter_by_level_case_insensitive(self):
+        """Test that level filtering is case-insensitive"""
+        self.parser.parse_lines(self.sample_logs)
+
+        errors_upper = self.parser.filter_by_level("ERROR")
+        errors_lower = self.parser.filter_by_level("error")
+
+        self.assertEqual(len(errors_upper), len(errors_lower))
+        self.assertEqual(len(errors_upper), 2)
+
+    def test_error_summary(self):
+        """Test error summary by service"""
+        self.parser.parse_lines(self.sample_logs)
+        summary = self.parser.get_error_summary()
+
+        self.assertIsNotNone(summary)
+        self.assertEqual(summary.get('auth-service'), 2)
+        self.assertEqual(summary.get('db-connector'), 1)
+
+if __name__ == '__main__':
+    unittest.main()
+`,
+      "main.py": `from log_parser import LogParser
+
+def main():
+    print("=== Log Parser Test ===\\n")
+
+    sample_logs = [
+        "[2024-01-15 10:30:45] [ERROR] [auth-service] Failed login attempt for user123",
+        "[2024-01-15 10:30:46] [INFO] [api-gateway] Request processed in 45ms",
+        "[2024-01-15 10:30:47] [WARN] [user-service] High memory usage detected",
+        "[2024-01-15 10:30:48] [ERROR] [auth-service] Connection timeout after 30s",
+        "[2024-01-15 10:30:49] [INFO] [api-gateway] Request processed in 250ms",
+        "[2024-01-15 10:30:50] [FATAL] [db-connector] Database connection lost",
+        "[2024-01-15 10:30:51] [DEBUG] [cache-layer] Cache miss for key: user_123",
+    ]
+
+    parser = LogParser()
+    count = parser.parse_lines(sample_logs)
+
+    print(f"Parsed {count} log entries")
+    print(f"Parse errors: {len(parser.parse_errors)}")
+
+    if parser.parse_errors:
+        print("\\nFailed to parse:")
+        for err in parser.parse_errors:
+            print(f"  - {err[:50]}...")
+
+    print("\\n--- Statistics ---")
+    stats = parser.get_stats()
+    print(f"Total entries: {stats['total_entries']}")
+    print(f"By level: {stats['by_level']}")
+
+    print("\\n--- Filter by ERROR level ---")
+    errors = parser.filter_by_level("ERROR")
+    for e in errors:
+        print(f"  {e}")
+
+if __name__ == "__main__":
+    main()
+`,
+      "sample.log": `[2024-01-15 10:30:45] [ERROR] [auth-service] Failed login attempt for user123
+[2024-01-15 10:30:46] [INFO] [api-gateway] Request processed in 45ms
+[2024-01-15 10:30:47] [WARN] [user-service] High memory usage detected
+[2024-01-15 10:30:48] [ERROR] [auth-service] Connection timeout after 30s
+[2024-01-15 10:30:49] [INFO] [api-gateway] Request processed in 250ms
+[2024-01-15 10:30:50] [FATAL] [db-connector] Database connection lost
+[2024-01-15 10:30:51] [DEBUG] [cache-layer] Cache miss for key: user_123
+`
+    },
+    testOutput: `=== Running Tests ===
+
+test_parse_basic_log ... PASSED
+
+test_parse_hyphenated_service ... FAILED
+  AssertionError: None is not None
+  Regex failed to match service name with hyphen
+
+test_filter_by_level_case_insensitive ... FAILED
+  AssertionError: 2 != 0
+  filter_by_level("error") returned empty list
+
+test_error_summary ... FAILED
+  TypeError: 'NoneType' object is not subscriptable
+  get_error_summary() not implemented
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.002s
+
+FAILED (failures=3)`,
+    hints: [
+      "Fix regex: Change \\w+ to [\\w-]+ to match hyphens in service names",
+      "Fix filter_by_level: Compare level.upper() with e.level (or normalize both)",
+      "For get_error_summary: Use defaultdict(int), filter for ERROR/FATAL levels",
+      "For find_slow_requests: Use regex to find 'in (\\d+)ms' or 'took (\\d+)ms' patterns",
+    ],
+  },
+  {
+    id: "cards",
+    title: "Card Game: Three Sum to 15",
+    difficulty: "Medium",
+    company: "Meta",
+    description: `## Problem Description
+
+You have a deck of cards numbered 1-9. Find all unique combinations of 3 cards that sum to a target value (default: 15).
+
+## Your Tasks
+
+**Part 1:** Debug the combination generator (currently missing some combinations)
+
+**Part 2:** Optimize to avoid duplicate combinations
+
+**Part 3:** Add support for custom target sums
+
+**Part 4:** Handle edge cases (empty deck, insufficient cards, duplicates in deck)
+
+## Constraints
+
+- Card values: 1 ≤ card ≤ 9
+- Each card can only be used once per combination
+- Return all unique combinations
+
+## Example
+
+\`\`\`
+Input: cards = [1,2,3,4,5,6,7,8,9], target = 15
+
+Output:
+  [1, 5, 9] = 15
+  [1, 6, 8] = 15
+  [2, 4, 9] = 15
+  [2, 5, 8] = 15
+  [2, 6, 7] = 15
+  [3, 4, 8] = 15
+  [3, 5, 7] = 15
+  [4, 5, 6] = 15
+
+Total: 8 combinations
+\`\`\``,
+    files: {
+      "card_game.py": `def find_three_sum(cards, target=15):
+    """
+    Find all unique combinations of 3 cards that sum to target.
+    Each card can only be used once.
+
+    BUG: Currently missing some valid combinations
+    """
+    result = []
+    cards = sorted(cards)
+    n = len(cards)
+
+    for i in range(n):
+        for j in range(i + 1, n):
+            for k in range(j, n):  # BUG: Should start from j + 1
+                if cards[i] + cards[j] + cards[k] == target:
+                    result.append([cards[i], cards[j], cards[k]])
+
+    return result
+
+
+def find_three_sum_optimized(cards, target=15):
+    """
+    Optimized version using two-pointer technique.
+    Time: O(n^2), Space: O(1) excluding output
+
+    TODO: Implement this
+    """
+    pass
+
+
+def validate_input(cards):
+    """
+    Validate input cards.
+    TODO: Implement edge case handling
+    """
+    pass
+`,
+      "test_cards.py": `import unittest
+from card_game import find_three_sum, find_three_sum_optimized
+
+class TestCardGame(unittest.TestCase):
+
+    def test_standard_deck(self):
+        """Test with standard 1-9 deck"""
+        deck = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        result = find_three_sum(deck, 15)
+
+        expected = [
+            [1, 5, 9], [1, 6, 8], [2, 4, 9], [2, 5, 8],
+            [2, 6, 7], [3, 4, 8], [3, 5, 7], [4, 5, 6]
+        ]
+        self.assertEqual(len(result), 8)
+
+    def test_no_duplicates(self):
+        """Ensure no duplicate combinations"""
+        deck = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        result = find_three_sum(deck, 15)
+
+        unique = set(tuple(c) for c in result)
+        self.assertEqual(len(unique), len(result))
+
+    def test_custom_target(self):
+        """Test with custom target sum"""
+        deck = [1, 2, 3, 4, 5]
+        result = find_three_sum(deck, 6)
+
+        self.assertEqual(result, [[1, 2, 3]])
+
+if __name__ == '__main__':
+    unittest.main()
+`,
+      "main.py": `from card_game import find_three_sum
+
+def main():
+    deck = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+    print("=== Card Game: Find Three Cards Summing to 15 ===")
+    print(f"Deck: {deck}")
+    print()
+
+    combos = find_three_sum(deck)
+
+    print("Combinations found:")
+    for combo in combos:
+        print(f"  {combo} = {sum(combo)}")
+
+    print(f"\\nTotal combinations: {len(combos)}")
+
+if __name__ == "__main__":
+    main()
+`
+    },
+    testOutput: `=== Running Tests ===
+
+test_standard_deck ... FAILED
+  AssertionError: 12 != 8 (found duplicates due to k starting at j)
+
+test_no_duplicates ... FAILED
+  AssertionError: 8 != 12
+
+test_custom_target ... PASSED
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+FAILED (failures=2)`,
+    hints: [
+      "The bug is in the inner loop starting index - k should start from j + 1, not j",
+      "This causes cards[j] to potentially be used twice when k == j",
+      "For optimization, fix first element and use two pointers on remainder",
+      "Skip duplicates by checking if current == previous",
+    ],
+  },
 ];
 
 // Timer Component
