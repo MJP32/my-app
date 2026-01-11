@@ -23,8 +23,11 @@ function Zoom({ onBack, breadcrumb }) {
             color: '#93c5fd',
             border: '1px solid #1d4ed8',
             borderRadius: '8px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
           }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#374151'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#1f2937'}
         >
           ← Back to Projects
         </button>

@@ -23,8 +23,11 @@ function Amazon({ onBack, breadcrumb }) {
             color: '#fdba74',
             border: '1px solid #c2410c',
             borderRadius: '8px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
           }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#374151'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#1f2937'}
         >
           ← Back to Projects
         </button>

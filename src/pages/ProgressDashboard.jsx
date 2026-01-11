@@ -85,8 +85,11 @@ function ProgressDashboard({ onBack, onNavigate }) {
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
-              marginBottom: '1rem'
+              marginBottom: '1rem',
+              transition: 'all 0.2s ease'
             }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#374151'}
           >
             ← Back
           </button>

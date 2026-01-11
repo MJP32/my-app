@@ -23,8 +23,11 @@ function NotificationSystem({ onBack, breadcrumb }) {
             color: 'white',
             border: 'none',
             borderRadius: '8px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
           }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
         >
           ← Back to Projects
         </button>
