@@ -7360,8 +7360,11 @@ def detectArbitrage(rates):
               cursor: 'pointer',
               marginBottom: '1.5rem',
               fontSize: '0.9rem',
-              fontWeight: '500'
+              fontWeight: '500',
+              transition: 'all 0.2s ease'
             }}
+            onMouseEnter={(e) => e.target.style.background = '#4b5563'}
+            onMouseLeave={(e) => e.target.style.background = '#374151'}
           >
             ← Back to Categories
           </button>
