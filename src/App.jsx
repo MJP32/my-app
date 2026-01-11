@@ -804,6 +804,8 @@ function App() {
   const [showSearchingModal, setShowSearchingModal] = useState(false)
   const [showGreedyAlgorithmsModal, setShowGreedyAlgorithmsModal] = useState(false)
   const [showFamousAlgorithmsModal, setShowFamousAlgorithmsModal] = useState(false)
+  const [showTwoPointersModal, setShowTwoPointersModal] = useState(false)
+  const [showBitManipulationModal, setShowBitManipulationModal] = useState(false)
   const [showAccountDropdown, setShowAccountDropdown] = useState(false)
   const [showKeyboardGuide, setShowKeyboardGuide] = useState(false)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
