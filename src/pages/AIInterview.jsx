@@ -1410,25 +1410,27 @@ export default function AIInterview({ onBack }) {
     return (
       <div style={{ minHeight: '100vh', backgroundColor: colors.bgPrimary, color: colors.textPrimary, overflowX: 'hidden', width: '100%', boxSizing: 'border-box' }}>
         <div style={{ maxWidth: '48rem', margin: '0 auto', padding: '2rem', boxSizing: 'border-box' }}>
-          <button
-            onClick={onBack}
-            style={{
-              marginBottom: '2rem',
-              padding: '0.6rem 1.25rem',
-              fontSize: '0.95rem',
-              fontWeight: '600',
-              backgroundColor: '#2563eb',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
-          >
-            ← Back to Menu
-          </button>
+          <div style={{ textAlign: 'left' }}>
+            <button
+              onClick={onBack}
+              style={{
+                marginBottom: '2rem',
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: '#2563eb',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
+            >
+              ← Back to Menu
+            </button>
+          </div>
 
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <div style={{
