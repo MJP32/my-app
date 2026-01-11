@@ -16,20 +16,20 @@ function Zoom({ onBack, breadcrumb }) {
         <button
           onClick={onBack}
           style={{
-            padding: '0.6rem 1.25rem',
-            fontSize: '0.95rem',
+            padding: '0.75rem 1.5rem',
+            fontSize: '1rem',
             fontWeight: '600',
-            backgroundColor: '#1f2937',
-            color: '#93c5fd',
-            border: '1px solid #1d4ed8',
+            backgroundColor: '#2563eb',
+            color: 'white',
+            border: 'none',
             borderRadius: '8px',
             cursor: 'pointer',
             transition: 'all 0.2s ease'
           }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#374151'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#1f2937'}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
         >
-          ← Back to Projects
+          ← Back
         </button>
         <h1 style={{
           fontSize: '2rem',
@@ -46,37 +46,35 @@ function Zoom({ onBack, breadcrumb }) {
       <div style={{
         display: 'flex',
         gap: '0.5rem',
-        marginBottom: '1.5rem',
-        flexWrap: 'wrap',
-        backgroundColor: '#1f2937',
-        padding: '0.75rem',
-        borderRadius: '10px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+        marginBottom: '2rem',
+        borderBottom: '1px solid #374151',
+        paddingBottom: '0.5rem',
+        flexWrap: 'wrap'
       }}>
         {[
-          { id: 'overview', label: 'Overview', icon: '' },
-          { id: 'architecture', label: 'Architecture', icon: '' },
-          { id: 'webrtc', label: 'WebRTC & Media', icon: '' },
-          { id: 'features', label: 'Features', icon: '' },
-          { id: 'scalability', label: 'Scalability', icon: '' },
-          { id: 'api', label: 'API Endpoints', icon: '' }
+          { id: 'overview', label: 'Overview' },
+          { id: 'architecture', label: 'Architecture' },
+          { id: 'webrtc', label: 'WebRTC & Media' },
+          { id: 'features', label: 'Features' },
+          { id: 'scalability', label: 'Scalability' },
+          { id: 'api', label: 'API Endpoints' }
         ].map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             style={{
-              padding: '0.6rem 1.25rem',
-              fontSize: '0.9rem',
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
               fontWeight: '600',
-              backgroundColor: activeTab === tab.id ? '#2d8cff' : '#374151',
-              color: activeTab === tab.id ? 'white' : '#d1d5db',
+              backgroundColor: activeTab === tab.id ? '#374151' : 'transparent',
+              color: activeTab === tab.id ? '#60a5fa' : '#9ca3af',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '8px 8px 0 0',
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s'
             }}
           >
-            {tab.icon} {tab.label}
+            {tab.label}
           </button>
         ))}
       </div>

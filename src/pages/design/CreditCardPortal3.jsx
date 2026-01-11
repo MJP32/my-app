@@ -928,9 +928,22 @@ export default function CreditCardPortal3({ onBack, breadcrumb }) {
         {onBack && (
           <button
             onClick={onBack}
-            className="mb-8 px-5 py-2.5 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900 font-medium rounded-xl transition-all flex items-center gap-2 shadow-sm hover:shadow-md"
+            style={{
+              marginBottom: '2rem',
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              backgroundColor: '#2563eb',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
           >
-            ← Back to Projects
+            ← Back
           </button>
         )}
 
@@ -954,27 +967,43 @@ export default function CreditCardPortal3({ onBack, breadcrumb }) {
         <Breadcrumb breadcrumb={breadcrumb} />
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 border-b-2 border-gray-100 overflow-x-auto pb-0">
-          {['main', 'diagram', 'detailed', 'flows', 'cqrs', 'databases', 'patterns', 'techstack', 'dataflow', 'api'].map(tab => (
+        <div style={{
+          display: 'flex',
+          gap: '0.5rem',
+          marginBottom: '2rem',
+          borderBottom: '1px solid #e5e7eb',
+          paddingBottom: '0.5rem',
+          overflowX: 'auto'
+        }}>
+          {[
+            { id: 'main', label: 'Architecture' },
+            { id: 'diagram', label: 'Component Diagram' },
+            { id: 'detailed', label: 'Detailed Design' },
+            { id: 'flows', label: 'Feature Flows' },
+            { id: 'cqrs', label: 'CQRS Pattern' },
+            { id: 'databases', label: 'Database Architecture' },
+            { id: 'patterns', label: 'Architectural Patterns' },
+            { id: 'techstack', label: 'Tech Stack' },
+            { id: 'dataflow', label: 'Data Flow' },
+            { id: 'api', label: 'API Endpoints' }
+          ].map(tab => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-3 font-semibold transition-all whitespace-nowrap rounded-t-lg ${
-                activeTab === tab
-                  ? 'text-blue-600 bg-blue-50 border-b-2 border-blue-600 -mb-0.5'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-              }`}
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: activeTab === tab.id ? '#eff6ff' : 'transparent',
+                color: activeTab === tab.id ? '#2563eb' : '#6b7280',
+                border: 'none',
+                borderRadius: '8px 8px 0 0',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.2s'
+              }}
             >
-              {tab === 'main' && 'Architecture'}
-              {tab === 'diagram' && 'Component Diagram'}
-              {tab === 'detailed' && 'Detailed Design'}
-              {tab === 'flows' && 'Feature Flows'}
-              {tab === 'cqrs' && 'CQRS Pattern'}
-              {tab === 'databases' && 'Database Architecture'}
-              {tab === 'patterns' && 'Architectural Patterns'}
-              {tab === 'techstack' && 'Tech Stack'}
-              {tab === 'dataflow' && 'Data Flow'}
-              {tab === 'api' && 'API Endpoints'}
+              {tab.label}
             </button>
           ))}
         </div>

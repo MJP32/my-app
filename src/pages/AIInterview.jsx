@@ -1113,7 +1113,7 @@ function ProblemPanel({ problem, colors }) {
       flexDirection: 'column',
       overflow: 'hidden'
     }}>
-      <div style={{ display: 'flex', borderBottom: `1px solid ${colors.border}` }}>
+      <div style={{ display: 'flex', gap: '0.25rem', borderBottom: `1px solid ${colors.border}`, paddingBottom: '0.25rem' }}>
         {['description', 'hints'].map(tab => (
           <button
             key={tab}
@@ -1122,12 +1122,13 @@ function ProblemPanel({ problem, colors }) {
               flex: 1,
               padding: '0.625rem 1rem',
               fontSize: '0.875rem',
-              fontWeight: '500',
-              backgroundColor: activeTab === tab ? 'rgba(51, 65, 85, 0.5)' : 'transparent',
-              color: activeTab === tab ? colors.textPrimary : colors.textMuted,
-              borderBottom: activeTab === tab ? '2px solid #10b981' : '2px solid transparent',
+              fontWeight: '600',
+              backgroundColor: activeTab === tab ? '#374151' : 'transparent',
+              color: activeTab === tab ? '#f59e0b' : colors.textMuted,
               border: 'none',
-              cursor: 'pointer'
+              borderRadius: '6px 6px 0 0',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
             }}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}

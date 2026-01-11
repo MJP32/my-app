@@ -20,10 +20,21 @@ export default function MobileWeatherApp({ onBack, breadcrumb }) {
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={onBack}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-gray-300 font-medium"
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: '#2563eb',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
             >
-              <span>←</span>
-              <span>Back</span>
+              ← Back
             </button>
             <h1 className="text-4xl md:text-5xl font-bold text-white flex items-center gap-3">
               <span className="text-5xl">🌤️</span>
@@ -39,16 +50,30 @@ export default function MobileWeatherApp({ onBack, breadcrumb }) {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 border-b-2 border-gray-700 overflow-x-auto pb-0">
+        <div style={{
+          display: 'flex',
+          gap: '0.5rem',
+          marginBottom: '2rem',
+          borderBottom: '1px solid #374151',
+          paddingBottom: '0.5rem',
+          overflowX: 'auto'
+        }}>
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-6 py-3 font-semibold transition-all whitespace-nowrap rounded-t-lg ${
-                activeTab === tab.id
-                  ? 'text-cyan-400 bg-cyan-900/30 border-b-4 border-cyan-500 -mb-0.5'
-                  : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800'
-              }`}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: activeTab === tab.id ? '#374151' : 'transparent',
+                color: activeTab === tab.id ? '#22d3ee' : '#9ca3af',
+                border: 'none',
+                borderRadius: '8px 8px 0 0',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.2s'
+              }}
             >
               {tab.label}
             </button>

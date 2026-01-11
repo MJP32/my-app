@@ -48,12 +48,10 @@ function RateLimiterDesign({ onBack, breadcrumb }) {
       <div style={{
         display: 'flex',
         gap: '0.5rem',
-        marginBottom: '1.5rem',
-        flexWrap: 'wrap',
-        backgroundColor: '#1f2937',
-        padding: '0.75rem',
-        borderRadius: '10px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+        marginBottom: '2rem',
+        borderBottom: '1px solid #374151',
+        paddingBottom: '0.5rem',
+        flexWrap: 'wrap'
       }}>
         {[
           { id: 'overview', label: 'Overview', icon: '📋' },
@@ -67,15 +65,15 @@ function RateLimiterDesign({ onBack, breadcrumb }) {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             style={{
-              padding: '0.6rem 1.25rem',
-              fontSize: '0.9rem',
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
               fontWeight: '600',
-              backgroundColor: activeTab === tab.id ? '#8b5cf6' : '#374151',
-              color: activeTab === tab.id ? 'white' : '#d1d5db',
+              backgroundColor: activeTab === tab.id ? '#374151' : 'transparent',
+              color: activeTab === tab.id ? '#a78bfa' : '#9ca3af',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '8px 8px 0 0',
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s'
             }}
           >
             {tab.icon} {tab.label}

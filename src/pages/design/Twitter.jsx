@@ -10,9 +10,22 @@ export default function Twitter({ onBack, breadcrumb }) {
         {onBack && (
           <button
             onClick={onBack}
-            className="mb-8 px-5 py-2.5 bg-gray-800 border-2 border-gray-700 hover:border-gray-600 text-gray-300 hover:text-white font-medium rounded-xl transition-all flex items-center gap-2 shadow-sm hover:shadow-md"
+            style={{
+              marginBottom: '2rem',
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              backgroundColor: '#2563eb',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
           >
-            ← Back to Projects
+            ← Back
           </button>
         )}
 
@@ -38,23 +51,39 @@ export default function Twitter({ onBack, breadcrumb }) {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 border-b-2 border-gray-700 overflow-x-auto pb-0">
-          {['overview', 'architecture', 'timeline', 'features', 'scalability', 'api'].map(tab => (
+        <div style={{
+          display: 'flex',
+          gap: '0.5rem',
+          marginBottom: '2rem',
+          borderBottom: '1px solid #374151',
+          paddingBottom: '0.5rem',
+          overflowX: 'auto'
+        }}>
+          {[
+            { id: 'overview', label: 'Overview' },
+            { id: 'architecture', label: 'Architecture' },
+            { id: 'timeline', label: 'Timeline Generation' },
+            { id: 'features', label: 'Key Features' },
+            { id: 'scalability', label: 'Scalability' },
+            { id: 'api', label: 'API Endpoints' }
+          ].map(tab => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-3 font-semibold transition-all whitespace-nowrap rounded-t-lg ${
-                activeTab === tab
-                  ? 'text-blue-400 bg-blue-900/30 border-b-2 border-blue-400 -mb-0.5'
-                  : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800'
-              }`}
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: activeTab === tab.id ? '#374151' : 'transparent',
+                color: activeTab === tab.id ? '#60a5fa' : '#9ca3af',
+                border: 'none',
+                borderRadius: '8px 8px 0 0',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.2s'
+              }}
             >
-              {tab === 'overview' && 'Overview'}
-              {tab === 'architecture' && 'Architecture'}
-              {tab === 'timeline' && 'Timeline Generation'}
-              {tab === 'features' && 'Key Features'}
-              {tab === 'scalability' && 'Scalability'}
-              {tab === 'api' && 'API Endpoints'}
+              {tab.label}
             </button>
           ))}
         </div>

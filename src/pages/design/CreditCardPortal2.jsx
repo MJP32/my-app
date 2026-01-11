@@ -457,9 +457,22 @@ export default function CreditCardPortal2({ onBack, breadcrumb }) {
         {onBack && (
           <button
             onClick={onBack}
-            className="mb-6 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold rounded-lg transition-all flex items-center gap-2 shadow-lg"
+            style={{
+              marginBottom: '1.5rem',
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              backgroundColor: '#2563eb',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
           >
-            ← Back to Projects
+            ← Back
           </button>
         )}
 
@@ -480,23 +493,39 @@ export default function CreditCardPortal2({ onBack, breadcrumb }) {
 
         <Breadcrumb breadcrumb={breadcrumb} />
 
-        <div className="flex gap-4 mb-8 border-b border-gray-700 overflow-x-auto">
-          {['portal', 'system-design', 'main', 'detailed', 'flows', 'cqrs'].map(tab => (
+        <div style={{
+          display: 'flex',
+          gap: '0.5rem',
+          marginBottom: '2rem',
+          borderBottom: '1px solid #374151',
+          paddingBottom: '0.5rem',
+          overflowX: 'auto'
+        }}>
+          {[
+            { id: 'portal', label: '💎 Premium Portal' },
+            { id: 'system-design', label: '🎯 System Design' },
+            { id: 'main', label: '🏗️ Architecture' },
+            { id: 'detailed', label: '📊 Advanced Features' },
+            { id: 'flows', label: '🔄 Feature Flows' },
+            { id: 'cqrs', label: '⚡ CQRS Pattern' }
+          ].map(tab => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-3 font-semibold transition-all whitespace-nowrap ${
-                activeTab === tab
-                  ? 'text-purple-400 border-b-2 border-purple-400'
-                  : 'text-gray-400 hover:text-gray-300'
-              }`}
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: activeTab === tab.id ? '#374151' : 'transparent',
+                color: activeTab === tab.id ? '#c084fc' : '#9ca3af',
+                border: 'none',
+                borderRadius: '8px 8px 0 0',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.2s'
+              }}
             >
-              {tab === 'portal' && '💎 Premium Portal'}
-              {tab === 'system-design' && '🎯 System Design'}
-              {tab === 'main' && '🏗️ Architecture'}
-              {tab === 'detailed' && '📊 Advanced Features'}
-              {tab === 'flows' && '🔄 Feature Flows'}
-              {tab === 'cqrs' && '⚡ CQRS Pattern'}
+              {tab.label}
             </button>
           ))}
         </div>

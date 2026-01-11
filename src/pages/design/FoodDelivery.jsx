@@ -48,38 +48,36 @@ function FoodDelivery({ onBack, breadcrumb }) {
       <div style={{
         display: 'flex',
         gap: '0.5rem',
-        marginBottom: '1.5rem',
-        flexWrap: 'wrap',
-        backgroundColor: '#1f2937',
-        padding: '0.75rem',
-        borderRadius: '10px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+        marginBottom: '2rem',
+        borderBottom: '1px solid #374151',
+        paddingBottom: '0.5rem',
+        flexWrap: 'wrap'
       }}>
         {[
-          { id: 'overview', label: 'Overview', icon: '' },
-          { id: 'architecture', label: 'Architecture', icon: '' },
-          { id: 'matching', label: 'Order Matching', icon: '' },
-          { id: 'routing', label: 'Driver Routing', icon: '' },
-          { id: 'features', label: 'Features', icon: '' },
-          { id: 'scalability', label: 'Scalability', icon: '' },
-          { id: 'api', label: 'API Endpoints', icon: '' }
+          { id: 'overview', label: 'Overview' },
+          { id: 'architecture', label: 'Architecture' },
+          { id: 'matching', label: 'Order Matching' },
+          { id: 'routing', label: 'Driver Routing' },
+          { id: 'features', label: 'Features' },
+          { id: 'scalability', label: 'Scalability' },
+          { id: 'api', label: 'API Endpoints' }
         ].map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             style={{
-              padding: '0.6rem 1.25rem',
-              fontSize: '0.9rem',
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
               fontWeight: '600',
-              backgroundColor: activeTab === tab.id ? '#ff6347' : '#374151',
-              color: activeTab === tab.id ? 'white' : '#d1d5db',
+              backgroundColor: activeTab === tab.id ? '#374151' : 'transparent',
+              color: activeTab === tab.id ? '#fb923c' : '#9ca3af',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '8px 8px 0 0',
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s'
             }}
           >
-            {tab.icon} {tab.label}
+            {tab.label}
           </button>
         ))}
       </div>
