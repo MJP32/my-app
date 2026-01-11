@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
+import { useTheme } from '../../contexts/ThemeContext'
 
 // Simple syntax highlighter for Java code
 const SyntaxHighlighter = ({ code }) => {
@@ -58,6 +59,7 @@ const SyntaxHighlighter = ({ code }) => {
 }
 
 function MediHealth({ onBack, breadcrumb }) {
+  const { colors } = useTheme()
   const [selectedTopic, setSelectedTopic] = useState(null)
   const [expandedSections, setExpandedSections] = useState({})
 
@@ -3638,7 +3640,7 @@ public class ClaimService {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: '#f8fafc',
+      backgroundColor: colors.bgPrimary,
       padding: '2rem'
     }}>
       {/* Header */}
@@ -3657,8 +3659,11 @@ public class ClaimService {
             border: 'none',
             borderRadius: '8px',
             cursor: 'pointer',
-            marginBottom: '1rem'
+            marginBottom: '1rem',
+            transition: 'all 0.2s ease'
           }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
         >
           ← Back to Menu
         </button>
@@ -3666,14 +3671,14 @@ public class ClaimService {
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '800',
-          color: '#1f2937',
+          color: colors.textPrimary,
           marginBottom: '0.5rem'
         }}>
           🏥 Medi/Health System
         </h1>
         <p style={{
           fontSize: '1.1rem',
-          color: '#6b7280',
+          color: colors.textSecondary,
           maxWidth: '800px'
         }}>
           Healthcare management system with patient records, appointment scheduling, e-prescribing, clinical documentation, HIPAA compliance, HL7/FHIR integration, and medical billing

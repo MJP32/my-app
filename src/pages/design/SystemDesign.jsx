@@ -3295,13 +3295,13 @@ Throughput:
   return (
     <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#faf5ff', minHeight: '100vh' }}>
       <div style={{ marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <button onClick={onBack} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#9333ea', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease', marginBottom: '1rem' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#7c3aed'} onMouseLeave={(e) => e.target.style.backgroundColor = '#9333ea'}>
+          ← Back
+        </button>
+        <div style={{ marginBottom: '1rem' }}>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#7e22ce', margin: 0 }}>
             System Design
           </h1>
-          <button onClick={onBack} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#9333ea', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
-            ← Back
-          </button>
         </div>
 
         <Breadcrumb breadcrumb={breadcrumb} />

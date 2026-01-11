@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
+import { useTheme } from '../../contexts/ThemeContext'
 
 function Dropbox({ onBack, breadcrumb }) {
+  const { colors } = useTheme()
   const [activeTab, setActiveTab] = useState('overview')
 
   return (
-    <div style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#e6f7ff', minHeight: '100vh' }}>
+    <div style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: colors.bgPrimary, minHeight: '100vh' }}>
       {/* Header */}
       <div style={{
         display: 'flex',
@@ -23,15 +25,18 @@ function Dropbox({ onBack, breadcrumb }) {
             color: 'white',
             border: 'none',
             borderRadius: '8px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
           }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
         >
           ← Back to Projects
         </button>
         <h1 style={{
           fontSize: '2rem',
           fontWeight: '800',
-          color: '#1f2937',
+          color: colors.textPrimary,
           margin: 0
         }}>
           📁 Dropbox File Storage & Sync System Design
@@ -47,7 +52,7 @@ function Dropbox({ onBack, breadcrumb }) {
         gap: '0.5rem',
         marginBottom: '1.5rem',
         flexWrap: 'wrap',
-        backgroundColor: 'white',
+        backgroundColor: colors.bgSecondary,
         padding: '0.75rem',
         borderRadius: '10px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
@@ -83,11 +88,12 @@ function Dropbox({ onBack, breadcrumb }) {
 
       {/* Content */}
       <div style={{
-        backgroundColor: 'white',
+        backgroundColor: colors.bgSecondary,
         padding: '2rem',
         borderRadius: '10px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        minHeight: '500px'
+        minHeight: '500px',
+        color: colors.textPrimary
       }}>
         {/* Overview Tab */}
         {activeTab === 'overview' && (

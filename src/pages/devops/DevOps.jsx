@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
+import { useTheme } from '../../contexts/ThemeContext'
 
 const ModernDiagram = ({ components, onComponentClick, title, width = 1400, height = 800, containerWidth = 1800, focusedIndex }) => {
   const [hoveredComponent, setHoveredComponent] = useState(null)
@@ -211,6 +212,7 @@ const ModernDiagram = ({ components, onComponentClick, title, width = 1400, heig
 }
 
 function DevOps({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
+  const { colors } = useTheme()
   const [selectedComponent, setSelectedComponent] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [focusedComponentIndex, setFocusedComponentIndex] = useState(0)

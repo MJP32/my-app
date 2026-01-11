@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import Breadcrumb from '../../components/Breadcrumb';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function MonolithToMicroservice({ onBack, breadcrumb }) {
+  const { colors } = useTheme();
   const [activeTab, setActiveTab] = useState('overview');
 
   const tabs = [
@@ -12,19 +14,31 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50 p-4 md:p-8">
+    <div style={{ minHeight: '100vh', backgroundColor: colors.bgPrimary, padding: '1rem' }} className="md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8 bg-white rounded-2xl shadow-lg p-6 border-l-8 border-purple-600">
+        <div style={{ backgroundColor: colors.bgSecondary, borderLeft: '8px solid #9333ea' }} className="mb-8 rounded-2xl shadow-lg p-6">
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={onBack}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-gray-700 font-medium"
+              style={{
+                backgroundColor: colors.bgPrimary,
+                color: colors.textPrimary,
+                padding: '0.5rem 1rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: '500',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                transition: 'all 0.2s'
+              }}
             >
               <span>←</span>
               <span>Back</span>
             </button>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 flex items-center gap-3">
+            <h1 style={{ color: colors.textPrimary }} className="text-4xl md:text-5xl font-bold flex items-center gap-3">
               <span className="text-5xl">🔄</span>
               <span className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">
                 Monolith to Microservices
@@ -32,7 +46,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
             </h1>
             <div className="w-24"></div>
           </div>
-          <p className="text-gray-600 text-lg text-center">
+          <p style={{ color: colors.textSecondary }} className="text-lg text-center">
             Decomposed a monolithic VaR/CVaR system into microservices using the Strangler Fig Pattern, eliminating vendor dependencies and achieving 40% performance improvement
           </p>
         </div>
@@ -60,7 +74,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
         {activeTab === 'overview' && (
           <div className="space-y-8">
             {/* Project Overview */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-purple-500">
+            <div style={{ backgroundColor: colors.bgSecondary }} className="rounded-xl shadow-lg p-8 border-t-4 border-purple-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-purple-600">📝</span>
                 Project Context
@@ -122,7 +136,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
             </div>
 
             {/* Architecture Diagram */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
+            <div style={{ backgroundColor: colors.bgSecondary }} className="rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-indigo-600">🏗️</span>
                 Migration Architecture
@@ -276,7 +290,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
             </div>
 
             {/* Domain Decomposition */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-emerald-500">
+            <div style={{ backgroundColor: colors.bgSecondary }} className="rounded-xl shadow-lg p-8 border-t-4 border-emerald-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-emerald-600">🧩</span>
                 Domain Decomposition
@@ -372,7 +386,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
         {activeTab === 'strategy' && (
           <div className="space-y-8">
             {/* Strangler Fig Pattern */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-amber-500">
+            <div style={{ backgroundColor: colors.bgSecondary }} className="rounded-xl shadow-lg p-8 border-t-4 border-amber-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-amber-600">🎯</span>
                 Strangler Fig Pattern
@@ -380,11 +394,11 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
 
               <div className="bg-amber-50 p-6 rounded-xl border-l-4 border-amber-500 mb-6">
                 <h3 className="font-bold text-amber-900 mb-3 text-lg">Pattern Overview</h3>
-                <p className="text-gray-700 mb-4">
+                <p style={{ color: colors.textSecondary }} className=" mb-4">
                   The Strangler Fig pattern is named after the strangler fig tree, which grows around an existing tree, eventually replacing it entirely. In software migration, we gradually replace functionality from the legacy monolith by routing requests through a facade (API Gateway) that directs traffic to either the old or new system based on what's been migrated.
                 </p>
                 <div className="grid md:grid-cols-2 gap-4 mt-4">
-                  <div className="bg-white p-4 rounded-lg">
+                  <div style={{ backgroundColor: colors.bgPrimary }} className="p-4 rounded-lg">
                     <div className="font-semibold text-green-700 mb-2">✅ Advantages</div>
                     <ul className="text-sm text-gray-700 space-y-1 ml-4">
                       <li>• Zero downtime migration</li>
@@ -394,7 +408,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
                       <li>• Business continuity maintained</li>
                     </ul>
                   </div>
-                  <div className="bg-white p-4 rounded-lg">
+                  <div style={{ backgroundColor: colors.bgPrimary }} className="p-4 rounded-lg">
                     <div className="font-semibold text-orange-700 mb-2">⚠️ Challenges</div>
                     <ul className="text-sm text-gray-700 space-y-1 ml-4">
                       <li>• Managing dual systems complexity</li>
@@ -455,7 +469,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
             </div>
 
             {/* Migration Phases */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
+            <div style={{ backgroundColor: colors.bgSecondary }} className="rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-indigo-600">📅</span>
                 Migration Phases (18 Months)
@@ -544,7 +558,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
             </div>
 
             {/* Risk Mitigation */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-rose-500">
+            <div style={{ backgroundColor: colors.bgSecondary }} className="rounded-xl shadow-lg p-8 border-t-4 border-rose-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-rose-600">🛡️</span>
                 Risk Mitigation Strategies
@@ -620,7 +634,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
         {activeTab === 'implementation' && (
           <div className="space-y-8">
             {/* Technology Stack */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-cyan-500">
+            <div style={{ backgroundColor: colors.bgSecondary }} className="rounded-xl shadow-lg p-8 border-t-4 border-cyan-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-cyan-600">🛠️</span>
                 Technology Stack
@@ -632,19 +646,19 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
                   <div className="space-y-3 text-sm">
                     <div>
                       <div className="font-semibold text-gray-900">Spring Boot 2.7</div>
-                      <div className="text-gray-700">Java microservices (Risk, CVaR, Scenario)</div>
+                      <div style={{ color: colors.textSecondary }} className="">Java microservices (Risk, CVaR, Scenario)</div>
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">Go 1.19</div>
-                      <div className="text-gray-700">High-performance Portfolio Service</div>
+                      <div style={{ color: colors.textSecondary }} className="">High-performance Portfolio Service</div>
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">Python 3.10</div>
-                      <div className="text-gray-700">Data Aggregation &amp; ML pipelines</div>
+                      <div style={{ color: colors.textSecondary }} className="">Data Aggregation &amp; ML pipelines</div>
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">Node.js 18</div>
-                      <div className="text-gray-700">Reporting Service with PDF generation</div>
+                      <div style={{ color: colors.textSecondary }} className="">Reporting Service with PDF generation</div>
                     </div>
                   </div>
                 </div>
@@ -654,19 +668,19 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
                   <div className="space-y-3 text-sm">
                     <div>
                       <div className="font-semibold text-gray-900">Kubernetes 1.25</div>
-                      <div className="text-gray-700">Container orchestration, auto-scaling</div>
+                      <div style={{ color: colors.textSecondary }} className="">Container orchestration, auto-scaling</div>
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">Docker</div>
-                      <div className="text-gray-700">Containerization for all services</div>
+                      <div style={{ color: colors.textSecondary }} className="">Containerization for all services</div>
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">Jenkins</div>
-                      <div className="text-gray-700">CI/CD pipelines, automated testing</div>
+                      <div style={{ color: colors.textSecondary }} className="">CI/CD pipelines, automated testing</div>
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">Helm Charts</div>
-                      <div className="text-gray-700">Kubernetes deployment management</div>
+                      <div style={{ color: colors.textSecondary }} className="">Kubernetes deployment management</div>
                     </div>
                   </div>
                 </div>
@@ -676,15 +690,15 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
                   <div className="space-y-3 text-sm">
                     <div>
                       <div className="font-semibold text-gray-900">Kong Gateway</div>
-                      <div className="text-gray-700">API routing, rate limiting, auth</div>
+                      <div style={{ color: colors.textSecondary }} className="">API routing, rate limiting, auth</div>
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">Istio Service Mesh</div>
-                      <div className="text-gray-700">Traffic management, observability</div>
+                      <div style={{ color: colors.textSecondary }} className="">Traffic management, observability</div>
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">Envoy Proxy</div>
-                      <div className="text-gray-700">Sidecar proxies for services</div>
+                      <div style={{ color: colors.textSecondary }} className="">Sidecar proxies for services</div>
                     </div>
                   </div>
                 </div>
@@ -694,19 +708,19 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
                   <div className="space-y-3 text-sm">
                     <div>
                       <div className="font-semibold text-gray-900">Apache Kafka</div>
-                      <div className="text-gray-700">Event streaming, async messaging</div>
+                      <div style={{ color: colors.textSecondary }} className="">Event streaming, async messaging</div>
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">PostgreSQL 14</div>
-                      <div className="text-gray-700">Primary database per service</div>
+                      <div style={{ color: colors.textSecondary }} className="">Primary database per service</div>
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">Redis 7</div>
-                      <div className="text-gray-700">Distributed caching, session store</div>
+                      <div style={{ color: colors.textSecondary }} className="">Distributed caching, session store</div>
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">MongoDB</div>
-                      <div className="text-gray-700">Document storage for reporting</div>
+                      <div style={{ color: colors.textSecondary }} className="">Document storage for reporting</div>
                     </div>
                   </div>
                 </div>
@@ -716,19 +730,19 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
                   <div className="space-y-3 text-sm">
                     <div>
                       <div className="font-semibold text-gray-900">Prometheus</div>
-                      <div className="text-gray-700">Metrics collection &amp; alerting</div>
+                      <div style={{ color: colors.textSecondary }} className="">Metrics collection &amp; alerting</div>
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">Grafana</div>
-                      <div className="text-gray-700">Dashboards &amp; visualization</div>
+                      <div style={{ color: colors.textSecondary }} className="">Dashboards &amp; visualization</div>
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">Jaeger</div>
-                      <div className="text-gray-700">Distributed tracing</div>
+                      <div style={{ color: colors.textSecondary }} className="">Distributed tracing</div>
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">ELK Stack</div>
-                      <div className="text-gray-700">Centralized logging</div>
+                      <div style={{ color: colors.textSecondary }} className="">Centralized logging</div>
                     </div>
                   </div>
                 </div>
@@ -738,15 +752,15 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
                   <div className="space-y-3 text-sm">
                     <div>
                       <div className="font-semibold text-gray-900">Consul</div>
-                      <div className="text-gray-700">Service registry &amp; discovery</div>
+                      <div style={{ color: colors.textSecondary }} className="">Service registry &amp; discovery</div>
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">Spring Cloud Config</div>
-                      <div className="text-gray-700">Centralized configuration</div>
+                      <div style={{ color: colors.textSecondary }} className="">Centralized configuration</div>
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900">Vault</div>
-                      <div className="text-gray-700">Secrets management</div>
+                      <div style={{ color: colors.textSecondary }} className="">Secrets management</div>
                     </div>
                   </div>
                 </div>
@@ -754,7 +768,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
             </div>
 
             {/* Architecture Patterns */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-violet-500">
+            <div style={{ backgroundColor: colors.bgSecondary }} className="rounded-xl shadow-lg p-8 border-t-4 border-violet-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-violet-600">🏛️</span>
                 Architecture Patterns Implemented
@@ -803,7 +817,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
                     <div className="flex items-start justify-between mb-2">
                       <h3 className={`font-bold text-${item.color}-900 text-lg`}>{item.pattern}</h3>
                     </div>
-                    <p className="text-gray-700 mb-3">{item.description}</p>
+                    <p style={{ color: colors.textSecondary }} className=" mb-3">{item.description}</p>
                     <div className="flex flex-wrap gap-2">
                       {item.benefits.map((benefit, idx) => (
                         <span key={idx} className={`px-3 py-1 bg-${item.color}-100 text-${item.color}-800 rounded-full text-xs font-medium`}>
@@ -817,7 +831,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
             </div>
 
             {/* Data Migration Strategy */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-teal-500">
+            <div style={{ backgroundColor: colors.bgSecondary }} className="rounded-xl shadow-lg p-8 border-t-4 border-teal-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-teal-600">💾</span>
                 Data Migration Strategy
@@ -912,7 +926,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
             </div>
 
             {/* Testing Strategy */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-emerald-500">
+            <div style={{ backgroundColor: colors.bgSecondary }} className="rounded-xl shadow-lg p-8 border-t-4 border-emerald-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-emerald-600">🧪</span>
                 Testing Strategy
@@ -956,7 +970,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
         {activeTab === 'results' && (
           <div className="space-y-8">
             {/* Key Metrics */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-green-500">
+            <div style={{ backgroundColor: colors.bgSecondary }} className="rounded-xl shadow-lg p-8 border-t-4 border-green-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-green-600">📊</span>
                 Key Results & Metrics
@@ -1137,7 +1151,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
             </div>
 
             {/* Challenges Overcome */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
+            <div style={{ backgroundColor: colors.bgSecondary }} className="rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-orange-600">🏔️</span>
                 Challenges Overcome
@@ -1200,7 +1214,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
             </div>
 
             {/* Lessons Learned */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
+            <div style={{ backgroundColor: colors.bgSecondary }} className="rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-indigo-600">💡</span>
                 Lessons Learned
@@ -1268,7 +1282,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
             </div>
 
             {/* Future Roadmap */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-cyan-500">
+            <div style={{ backgroundColor: colors.bgSecondary }} className="rounded-xl shadow-lg p-8 border-t-4 border-cyan-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-cyan-600">🔮</span>
                 Future Roadmap

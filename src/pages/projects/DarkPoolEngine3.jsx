@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
+import { useTheme } from '../../contexts/ThemeContext'
 
 // Simple syntax highlighter for Java code
 const SyntaxHighlighter = ({ code }) => {
@@ -50,6 +51,7 @@ const SyntaxHighlighter = ({ code }) => {
 }
 
 export default function DarkPoolEngine3({ onBack, breadcrumb }) {
+  const { colors } = useTheme()
   const [activeTab, setActiveTab] = useState('architecture')
   const [expandedSections, setExpandedSections] = useState({})
 
@@ -178,12 +180,12 @@ export default function DarkPoolEngine3({ onBack, breadcrumb }) {
       </div>
 
       {/* Overview */}
-      <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-blue-600">
-        <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+      <div style={{ backgroundColor: colors.bgSecondary, borderRadius: '0.75rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', padding: '2rem', borderLeft: '4px solid' }} className="border-l-4 border-blue-600">
+        <h3 style={{ color: colors.textPrimary }} className="text-2xl font-bold mb-4 flex items-center gap-3">
           <span className="text-3xl">🏗️</span>
           Technical Architecture
         </h3>
-        <p className="text-lg text-gray-700 leading-relaxed mb-6">
+        <p style={{ color: colors.textSecondary }} className="text-lg leading-relaxed mb-6">
           Advanced dark pool trading system with sophisticated order matching algorithms, smart order routing,
           liquidity optimization, and minimal market impact execution. Features real-time order book management,
           IOI processing, and regulatory compliance.
@@ -204,7 +206,7 @@ export default function DarkPoolEngine3({ onBack, breadcrumb }) {
           ].map((feature, idx) => (
             <div key={idx} className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
               <span className="text-blue-600 font-bold text-sm mt-0.5">{idx + 1}</span>
-              <span className="text-gray-800 text-sm font-medium">{feature}</span>
+              <span style={{ color: colors.textPrimary }} className="text-sm font-medium">{feature}</span>
             </div>
           ))}
         </div>
@@ -296,12 +298,12 @@ public class DarkPoolMatchingEngine {
 
   const renderMatching = () => (
     <div className="space-y-8">
-      <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-green-600">
-        <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+      <div style={{ backgroundColor: colors.bgSecondary, borderRadius: '0.75rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', padding: '2rem', borderLeft: '4px solid' }} className="border-l-4 border-green-600">
+        <h3 style={{ color: colors.textPrimary }} className="text-2xl font-bold mb-4 flex items-center gap-3">
           <span className="text-3xl">⚡</span>
           Order Types & Matching Algorithms
         </h3>
-        <p className="text-lg text-gray-700 leading-relaxed mb-6">
+        <p style={{ color: colors.textSecondary }} className="text-lg leading-relaxed mb-6">
           Comprehensive order type support with sophisticated matching algorithms for optimal execution.
         </p>
 
@@ -318,7 +320,7 @@ public class DarkPoolMatchingEngine {
           ].map((feature, idx) => (
             <div key={idx} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
               <span className="text-green-600 font-bold text-sm mt-0.5">{idx + 1}</span>
-              <span className="text-gray-800 text-sm font-medium">{feature}</span>
+              <span style={{ color: colors.textPrimary }} className="text-sm font-medium">{feature}</span>
             </div>
           ))}
         </div>
@@ -414,12 +416,12 @@ public class OrderMatchingService {
 
   const renderFIX = () => (
     <div className="space-y-8">
-      <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-purple-600">
-        <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+      <div style={{ backgroundColor: colors.bgSecondary, borderRadius: '0.75rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', padding: '2rem', borderLeft: '4px solid' }} className="border-l-4 border-purple-600">
+        <h3 style={{ color: colors.textPrimary }} className="text-2xl font-bold mb-4 flex items-center gap-3">
           <span className="text-3xl">🔐</span>
           FIX Protocol Gateway
         </h3>
-        <p className="text-lg text-gray-700 leading-relaxed mb-6">
+        <p style={{ color: colors.textSecondary }} className="text-lg leading-relaxed mb-6">
           High-performance FIX protocol gateway for institutional order flow with support for FIX 4.2, 4.4, and 5.0.
         </p>
 
@@ -436,7 +438,7 @@ public class OrderMatchingService {
           ].map((feature, idx) => (
             <div key={idx} className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg">
               <span className="text-purple-600 font-bold text-sm mt-0.5">{idx + 1}</span>
-              <span className="text-gray-800 text-sm font-medium">{feature}</span>
+              <span style={{ color: colors.textPrimary }} className="text-sm font-medium">{feature}</span>
             </div>
           ))}
         </div>
@@ -521,12 +523,12 @@ public class FIXGateway extends MessageCracker implements Application {
 
   const renderLiquidity = () => (
     <div className="space-y-8">
-      <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-amber-600">
-        <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+      <div style={{ backgroundColor: colors.bgSecondary, borderRadius: '0.75rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', padding: '2rem', borderLeft: '4px solid' }} className="border-l-4 border-amber-600">
+        <h3 style={{ color: colors.textPrimary }} className="text-2xl font-bold mb-4 flex items-center gap-3">
           <span className="text-3xl">📊</span>
           Liquidity Analysis Engine
         </h3>
-        <p className="text-lg text-gray-700 leading-relaxed mb-6">
+        <p style={{ color: colors.textSecondary }} className="text-lg leading-relaxed mb-6">
           Advanced liquidity analysis engine for monitoring market depth, detecting liquidity patterns,
           and optimizing order placement.
         </p>
@@ -544,7 +546,7 @@ public class FIXGateway extends MessageCracker implements Application {
           ].map((feature, idx) => (
             <div key={idx} className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg">
               <span className="text-amber-600 font-bold text-sm mt-0.5">{idx + 1}</span>
-              <span className="text-gray-800 text-sm font-medium">{feature}</span>
+              <span style={{ color: colors.textPrimary }} className="text-sm font-medium">{feature}</span>
             </div>
           ))}
         </div>
@@ -607,12 +609,12 @@ public class LiquidityAnalysisEngine {
 
   const renderRisk = () => (
     <div className="space-y-8">
-      <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-red-600">
-        <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+      <div style={{ backgroundColor: colors.bgSecondary, borderRadius: '0.75rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', padding: '2rem', borderLeft: '4px solid' }} className="border-l-4 border-red-600">
+        <h3 style={{ color: colors.textPrimary }} className="text-2xl font-bold mb-4 flex items-center gap-3">
           <span className="text-3xl">🎯</span>
           Pre-Trade Risk Controls
         </h3>
-        <p className="text-lg text-gray-700 leading-relaxed mb-6">
+        <p style={{ color: colors.textSecondary }} className="text-lg leading-relaxed mb-6">
           Real-time pre-trade risk controls to prevent erroneous orders and ensure compliance with risk limits.
         </p>
 
@@ -629,7 +631,7 @@ public class LiquidityAnalysisEngine {
           ].map((feature, idx) => (
             <div key={idx} className="flex items-start gap-3 p-3 bg-red-50 rounded-lg">
               <span className="text-red-600 font-bold text-sm mt-0.5">{idx + 1}</span>
-              <span className="text-gray-800 text-sm font-medium">{feature}</span>
+              <span style={{ color: colors.textPrimary }} className="text-sm font-medium">{feature}</span>
             </div>
           ))}
         </div>
@@ -699,12 +701,12 @@ public class PreTradeRiskService {
 
   const renderPerformance = () => (
     <div className="space-y-8">
-      <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-cyan-600">
-        <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+      <div style={{ backgroundColor: colors.bgSecondary, borderRadius: '0.75rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', padding: '2rem', borderLeft: '4px solid' }} className="border-l-4 border-cyan-600">
+        <h3 style={{ color: colors.textPrimary }} className="text-2xl font-bold mb-4 flex items-center gap-3">
           <span className="text-3xl">📈</span>
           Performance Monitoring
         </h3>
-        <p className="text-lg text-gray-700 leading-relaxed mb-6">
+        <p style={{ color: colors.textSecondary }} className="text-lg leading-relaxed mb-6">
           Comprehensive performance monitoring and analytics for tracking system health and trading metrics.
         </p>
 
@@ -721,7 +723,7 @@ public class PreTradeRiskService {
           ].map((feature, idx) => (
             <div key={idx} className="flex items-start gap-3 p-3 bg-cyan-50 rounded-lg">
               <span className="text-cyan-600 font-bold text-sm mt-0.5">{idx + 1}</span>
-              <span className="text-gray-800 text-sm font-medium">{feature}</span>
+              <span style={{ color: colors.textPrimary }} className="text-sm font-medium">{feature}</span>
             </div>
           ))}
         </div>
@@ -789,12 +791,12 @@ public class PerformanceMonitoringService {
 
   const renderStreaming = () => (
     <div className="space-y-8">
-      <div className="bg-white rounded-xl shadow-md p-8 border-l-4 border-pink-600">
-        <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+      <div style={{ backgroundColor: colors.bgSecondary, borderRadius: '0.75rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', padding: '2rem', borderLeft: '4px solid' }} className="border-l-4 border-pink-600">
+        <h3 style={{ color: colors.textPrimary }} className="text-2xl font-bold mb-4 flex items-center gap-3">
           <span className="text-3xl">🔄</span>
           Event Streaming Architecture
         </h3>
-        <p className="text-lg text-gray-700 leading-relaxed mb-6">
+        <p style={{ color: colors.textSecondary }} className="text-lg leading-relaxed mb-6">
           High-throughput event streaming for order flow, executions, and market data distribution.
         </p>
 
@@ -811,7 +813,7 @@ public class PerformanceMonitoringService {
           ].map((feature, idx) => (
             <div key={idx} className="flex items-start gap-3 p-3 bg-pink-50 rounded-lg">
               <span className="text-pink-600 font-bold text-sm mt-0.5">{idx + 1}</span>
-              <span className="text-gray-800 text-sm font-medium">{feature}</span>
+              <span style={{ color: colors.textPrimary }} className="text-sm font-medium">{feature}</span>
             </div>
           ))}
         </div>
@@ -892,24 +894,25 @@ public class ExecutionReportConsumer {
 
     return (
       <div className="space-y-4">
-        <h4 className="text-xl font-bold text-gray-900 mb-4">Implementation Details</h4>
+        <h4 style={{ color: colors.textPrimary }} className="text-xl font-bold mb-4">Implementation Details</h4>
         {sections.map((section, index) => {
           const sectionId = `${activeTab}-section-${index}`
           const isExpanded = expandedSections[sectionId]
 
           return (
-            <div key={index} className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+            <div key={index} style={{ backgroundColor: colors.bgSecondary, border: `1px solid ${colors.border}` }} className="rounded-lg shadow-md overflow-hidden">
               <button
                 onClick={() => toggleSection(sectionId)}
-                className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                style={{ backgroundColor: colors.bgSecondary, color: colors.textPrimary }}
+                className="w-full px-6 py-4 flex items-center justify-between transition-colors"
               >
                 <div className="flex items-center gap-4">
                   <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-700 font-bold text-sm">
                     {index + 1}
                   </span>
-                  <span className="text-lg font-semibold text-gray-900">{section.title}</span>
+                  <span style={{ color: colors.textPrimary }} className="text-lg font-semibold">{section.title}</span>
                 </div>
-                <span className="text-2xl text-gray-400">{isExpanded ? '−' : '+'}</span>
+                <span style={{ color: colors.textSecondary }} className="text-2xl">{isExpanded ? '−' : '+'}</span>
               </button>
 
               {isExpanded && (
@@ -925,13 +928,29 @@ public class ExecutionReportConsumer {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div style={{ minHeight: '100vh', backgroundColor: colors.bgPrimary }}>
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <button
             onClick={onBack}
-            className="mb-6 px-6 py-3 bg-white text-gray-700 rounded-lg shadow-md hover:shadow-lg hover:bg-gray-50 transition-all duration-200 font-semibold flex items-center gap-2"
+            style={{
+              marginBottom: '1.5rem',
+              padding: '0.75rem 1.5rem',
+              backgroundColor: colors.bgSecondary,
+              color: colors.textPrimary,
+              borderRadius: '0.5rem',
+              border: 'none',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'}
+            onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'}
           >
             <span>←</span>
             <span>Back to Projects</span>
@@ -946,7 +965,7 @@ public class ExecutionReportConsumer {
         <Breadcrumb breadcrumb={breadcrumb} />
 
         {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-md p-2 mb-8">
+        <div style={{ backgroundColor: colors.bgSecondary, borderRadius: '0.75rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', padding: '0.5rem', marginBottom: '2rem' }}>
           <div className="flex flex-wrap gap-2">
             {tabs.map((tab) => (
               <button

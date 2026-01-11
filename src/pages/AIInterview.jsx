@@ -968,20 +968,24 @@ export default function AIInterview({ onBack }) {
   // Problem Selection Screen
   if (!selectedProblem) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: colors.bgPrimary, color: colors.textPrimary }}>
-        <div style={{ maxWidth: '48rem', margin: '0 auto', padding: '2rem' }}>
+      <div style={{ minHeight: '100vh', backgroundColor: colors.bgPrimary, color: colors.textPrimary, overflowX: 'hidden', width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ maxWidth: '48rem', margin: '0 auto', padding: '2rem', boxSizing: 'border-box' }}>
           <button
             onClick={onBack}
             style={{
               marginBottom: '2rem',
-              padding: '0.5rem 1rem',
-              backgroundColor: colors.bgSecondary,
-              color: colors.textSecondary,
-              border: `1px solid ${colors.border}`,
-              borderRadius: '0.5rem',
+              padding: '0.6rem 1.25rem',
+              fontSize: '0.95rem',
+              fontWeight: '600',
+              backgroundColor: '#6b7280',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
               cursor: 'pointer',
-              fontSize: '0.875rem'
+              transition: 'all 0.2s ease'
             }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
           >
             ← Back to Menu
           </button>
@@ -1081,7 +1085,7 @@ export default function AIInterview({ onBack }) {
 
   // Interview Simulator Screen
   return (
-    <div style={{ height: '100vh', backgroundColor: colors.bgPrimary, color: colors.textPrimary, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div style={{ height: '100vh', width: '100vw', maxWidth: '100%', backgroundColor: colors.bgPrimary, color: colors.textPrimary, display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box' }}>
       {/* Top Bar */}
       <div style={{
         display: 'flex',
@@ -1089,32 +1093,43 @@ export default function AIInterview({ onBack }) {
         justifyContent: 'space-between',
         padding: '0.5rem 1rem',
         backgroundColor: colors.bgSecondary,
-        borderBottom: `1px solid ${colors.border}`
+        borderBottom: `1px solid ${colors.border}`,
+        width: '100%',
+        boxSizing: 'border-box',
+        flexShrink: 0
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', minWidth: 0, flex: 1 }}>
           <button
             onClick={() => setSelectedProblem(null)}
             style={{
-              color: colors.textMuted,
-              fontSize: '0.875rem',
-              background: 'none',
+              padding: '0.4rem 0.875rem',
+              fontSize: '0.8rem',
+              fontWeight: '600',
+              backgroundColor: '#6b7280',
+              color: 'white',
               border: 'none',
-              cursor: 'pointer'
+              borderRadius: '6px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              flexShrink: 0
             }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
           >
             ← Exit
           </button>
-          <span style={{ fontSize: '0.875rem', color: colors.textSecondary, fontWeight: '500' }}>{problem.title}</span>
+          <span style={{ fontSize: '0.875rem', color: colors.textSecondary, fontWeight: '500', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{problem.title}</span>
           <span style={{
             padding: '0.125rem 0.5rem',
             borderRadius: '0.25rem',
             fontSize: '0.75rem',
             backgroundColor: 'rgba(234, 179, 8, 0.2)',
-            color: '#facc15'
+            color: '#facc15',
+            flexShrink: 0
           }}>{problem.difficulty}</span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0 }}>
           <Timer isRunning={timerRunning} seconds={seconds} setSeconds={setSeconds} />
           <button
             onClick={() => setTimerRunning(!timerRunning)}
@@ -1135,10 +1150,10 @@ export default function AIInterview({ onBack }) {
       </div>
 
       {/* Main Content */}
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', width: '100%', minWidth: 0 }}>
         <ProblemPanel problem={problem} colors={colors} />
         <FileExplorer files={files} activeFile={activeFile} onFileSelect={setActiveFile} colors={colors} />
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
           <CodeEditor code={files[activeFile] || ''} onChange={updateFile} filename={activeFile} colors={colors} />
           <Terminal output={terminalOutput} onRun={runCode} onTest={runTests} isRunning={isRunning} colors={colors} />
         </div>
