@@ -7352,7 +7352,7 @@ def detectArbitrage(rates):
           <button
             onClick={() => setSelectedCategory(null)}
             style={{
-              background: '#374151',
+              background: '#2563eb',
               color: 'white',
               padding: '0.5rem 1rem',
               borderRadius: '0.5rem',
@@ -7363,8 +7363,8 @@ def detectArbitrage(rates):
               fontWeight: '500',
               transition: 'all 0.2s ease'
             }}
-            onMouseEnter={(e) => e.target.style.background = '#4b5563'}
-            onMouseLeave={(e) => e.target.style.background = '#374151'}
+            onMouseEnter={(e) => e.target.style.background = '#1d4ed8'}
+            onMouseLeave={(e) => e.target.style.background = '#2563eb'}
           >
             ← Back to Categories
           </button>

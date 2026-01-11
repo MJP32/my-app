@@ -280,7 +280,7 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
             >
               ← {previousName}
@@ -304,7 +304,7 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
             >
               {nextName} →

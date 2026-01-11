@@ -286,7 +286,7 @@ Technologies: Apache Kafka, RabbitMQ, AWS SNS/SQS, Azure Service Bus, Google Pub
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
             >
               ← {previousName}
@@ -310,7 +310,7 @@ Technologies: Apache Kafka, RabbitMQ, AWS SNS/SQS, Azure Service Bus, Google Pub
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
             >
               {nextName} →

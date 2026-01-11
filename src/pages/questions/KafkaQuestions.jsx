@@ -816,15 +816,15 @@ max.partition.fetch.bytes=1048576
             padding: '0.75rem 1.5rem',
             fontSize: '1rem',
             fontWeight: '600',
-            backgroundColor: '#6b7280',
+            backgroundColor: '#2563eb',
             color: 'white',
             border: 'none',
             borderRadius: '8px',
             cursor: 'pointer',
             transition: 'all 0.2s ease'
           }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
         >
           ← Back to Questions
         </button>

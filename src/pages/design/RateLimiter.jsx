@@ -2344,7 +2344,7 @@ Example: 10 requests/minute limit
           marginBottom: '1rem',
           padding: '0.5rem 1rem',
           fontSize: '1rem',
-          backgroundColor: '#6b7280',
+          backgroundColor: '#2563eb',
           color: 'white',
           border: 'none',
           borderRadius: '8px',
@@ -2477,7 +2477,7 @@ Example: 10 requests/minute limit
           style={{
             padding: '0.75rem 1.5rem',
             fontSize: '1rem',
-            backgroundColor: '#6b7280',
+            backgroundColor: '#2563eb',
             color: 'white',
             border: 'none',
             borderRadius: '8px',

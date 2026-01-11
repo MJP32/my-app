@@ -1675,7 +1675,7 @@ docker push my-app:latest
                     padding: '0.75rem 1.5rem',
                     fontSize: '0.95rem',
                     fontWeight: '600',
-                    backgroundColor: '#6b7280',
+                    backgroundColor: '#2563eb',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',

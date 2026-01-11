@@ -266,7 +266,7 @@ function Design({ onBack, onSelectItem, initialCategory, breadcrumb }) {
             <button
               onClick={onBack}
               style={{
-                background: '#9333ea',
+                background: '#2563eb',
                 color: 'white',
                 padding: '0.75rem 1.5rem',
                 borderRadius: '0.5rem',
@@ -281,11 +281,11 @@ function Design({ onBack, onSelectItem, initialCategory, breadcrumb }) {
                 transition: 'all 0.2s'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#7e22ce'
+                e.currentTarget.style.background = '#1d4ed8'
                 e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#9333ea'
+                e.currentTarget.style.background = '#2563eb'
                 e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
               }}
             >
@@ -325,7 +325,7 @@ function Design({ onBack, onSelectItem, initialCategory, breadcrumb }) {
           <button
             onClick={() => setSelectedCategory(null)}
             style={{
-              background: '#374151',
+              background: '#2563eb',
               color: 'white',
               padding: '0.5rem 1rem',
               borderRadius: '0.5rem',

@@ -3982,7 +3982,7 @@ saveManager.restore(game, 0);
               padding: '0.75rem 1.5rem',
               fontSize: '1rem',
               fontWeight: '600',
-              backgroundColor: '#9333ea',
+              backgroundColor: '#2563eb',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
@@ -3991,7 +3991,7 @@ saveManager.restore(game, 0);
               boxShadow: '0 2px 8px rgba(147, 51, 234, 0.3)'
             }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7e22ce'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#9333ea'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
           >
             ← Back to Menu
           </button>
@@ -4040,7 +4040,7 @@ saveManager.restore(game, 0);
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
             >
               ← {previousName}
@@ -4064,7 +4064,7 @@ saveManager.restore(game, 0);
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
             >
               {nextName} →

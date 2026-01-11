@@ -949,8 +949,8 @@ Bad: "query"
             cursor: 'pointer',
             transition: 'all 0.2s ease'
           }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#6b7280'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#4b5563'}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#2563eb'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#1d4ed8'}
         >
           ← Back to Questions
         </button>

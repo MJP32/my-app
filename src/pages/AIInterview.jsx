@@ -1417,15 +1417,15 @@ export default function AIInterview({ onBack }) {
               padding: '0.6rem 1.25rem',
               fontSize: '0.95rem',
               fontWeight: '600',
-              backgroundColor: '#6b7280',
+              backgroundColor: '#2563eb',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
               transition: 'all 0.2s ease'
             }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
           >
             ← Back to Menu
           </button>
@@ -1545,7 +1545,7 @@ export default function AIInterview({ onBack }) {
               padding: '0.4rem 0.875rem',
               fontSize: '0.8rem',
               fontWeight: '600',
-              backgroundColor: '#6b7280',
+              backgroundColor: '#2563eb',
               color: 'white',
               border: 'none',
               borderRadius: '6px',
@@ -1553,8 +1553,8 @@ export default function AIInterview({ onBack }) {
               transition: 'all 0.2s ease',
               flexShrink: 0
             }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#6b7280'}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
           >
             ← Exit
           </button>

@@ -303,7 +303,7 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
             >
               ← {previousName}
@@ -327,7 +327,7 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
             >
               {nextName} →
@@ -417,7 +417,7 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
                   marginBottom: '0.5rem'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#4b5563'
+                  e.currentTarget.style.backgroundColor = '#1d4ed8'
                   e.currentTarget.style.borderColor = '#6b7280'
                 }}
                 onMouseLeave={(e) => {

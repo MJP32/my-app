@@ -3096,7 +3096,7 @@ public class SequencedUseCasesDemo {
                 padding: '0.75rem 1.25rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                background: '#374151',
+                background: '#2563eb',
                 color: 'white',
                 border: '1px solid #f59e0b',
                 borderRadius: '8px',
@@ -3107,8 +3107,8 @@ public class SequencedUseCasesDemo {
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#4b5563'}
-              onMouseLeave={(e) => e.currentTarget.style.background = '#374151'}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#1d4ed8'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#2563eb'}
             >
               ← {previousName}
             </button>
@@ -3120,7 +3120,7 @@ public class SequencedUseCasesDemo {
                 padding: '0.75rem 1.25rem',
                 fontSize: '1rem',
                 fontWeight: '600',
-                background: '#374151',
+                background: '#2563eb',
                 color: 'white',
                 border: '1px solid #f59e0b',
                 borderRadius: '8px',
@@ -3131,8 +3131,8 @@ public class SequencedUseCasesDemo {
                 alignItems: 'center',
                 gap: '0.5rem'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#4b5563'}
-              onMouseLeave={(e) => e.currentTarget.style.background = '#374151'}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#1d4ed8'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#2563eb'}
             >
               {nextName} →
             </button>
@@ -3317,7 +3317,7 @@ public class SequencedUseCasesDemo {
                       }}
                       onMouseEnter={(e) => {
                         if (!isActive) {
-                          e.currentTarget.style.background = '#374151'
+                          e.currentTarget.style.background = '#2563eb'
                           e.currentTarget.style.borderColor = '#f59e0b'
                         }
                       }}

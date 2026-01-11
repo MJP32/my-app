@@ -2156,7 +2156,7 @@ public class UserService {
             cursor: 'pointer',
             transition: 'all 0.2s ease'
           }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#9333ea'}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#2563eb'}
           onMouseLeave={(e) => e.target.style.backgroundColor = categoryColor}
         >
           ← Back to Questions

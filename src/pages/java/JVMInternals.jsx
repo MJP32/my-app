@@ -236,7 +236,7 @@ function JVMInternals({ onBack, breadcrumb }) {
             transition: 'background-color 0.2s'
           }}
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#6d28d9'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
         >
           ← Back to Menu
         </button>
@@ -393,7 +393,7 @@ function JVMInternals({ onBack, breadcrumb }) {
           if (!isChecking) e.currentTarget.style.backgroundColor = '#6d28d9'
         }}
         onMouseLeave={(e) => {
-          if (!isChecking) e.currentTarget.style.backgroundColor = '#7c3aed'
+          if (!isChecking) e.currentTarget.style.backgroundColor = '#1d4ed8'
         }}
       >
         {isChecking ? '⏳ Running...' : '▶️ Run Code'}

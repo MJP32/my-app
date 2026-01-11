@@ -1982,7 +1982,7 @@ System.out.println(str.length());
               <button
                 onClick={onPrevious}
                 style={{
-                  background: '#374151',
+                  background: '#2563eb',
                   color: 'white',
                   padding: '0.75rem 1.25rem',
                   borderRadius: '0.5rem',
@@ -1992,8 +1992,8 @@ System.out.println(str.length());
                   fontSize: '1rem',
                   transition: 'all 0.2s'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#4b5563'}
-                onMouseLeave={(e) => e.currentTarget.style.background = '#374151'}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#1d4ed8'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#2563eb'}
               >
                 ← {previousName}
               </button>
@@ -2002,7 +2002,7 @@ System.out.println(str.length());
               <button
                 onClick={onNext}
                 style={{
-                  background: '#374151',
+                  background: '#2563eb',
                   color: 'white',
                   padding: '0.75rem 1.25rem',
                   borderRadius: '0.5rem',
@@ -2012,8 +2012,8 @@ System.out.println(str.length());
                   fontSize: '1rem',
                   transition: 'all 0.2s'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#4b5563'}
-                onMouseLeave={(e) => e.currentTarget.style.background = '#374151'}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#1d4ed8'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#2563eb'}
               >
                 {nextName} →
               </button>

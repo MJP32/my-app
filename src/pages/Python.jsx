@@ -401,7 +401,7 @@ function Python({ onBack, onSelectItem, initialCategory }) {
           <button
             onClick={() => setSelectedCategory(null)}
             style={{
-              background: '#374151',
+              background: '#2563eb',
               color: 'white',
               padding: '0.5rem 1rem',
               borderRadius: '0.5rem',

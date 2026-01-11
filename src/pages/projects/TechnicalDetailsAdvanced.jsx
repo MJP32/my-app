@@ -503,7 +503,7 @@ const ModernDiagram = ({ diagramType, title, onComponentClick }) => {
             onClick={() => setSelectedComponent(null)}
             style={{
               padding: '0.5rem 1rem',
-              backgroundColor: '#6b7280',
+              backgroundColor: '#2563eb',
               color: 'white',
               border: 'none',
               borderRadius: '6px',
@@ -511,8 +511,8 @@ const ModernDiagram = ({ diagramType, title, onComponentClick }) => {
               cursor: 'pointer',
               transition: 'all 0.2s ease'
             }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#4b5563'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#6b7280'}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#1d4ed8'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#2563eb'}
           >
             Reset
           </button>
@@ -4218,7 +4218,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                   onClick={closeComponentModal}
                   style={{
                     padding: '0.75rem 1.5rem',
-                    backgroundColor: '#6b7280',
+                    backgroundColor: '#2563eb',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',
@@ -4227,8 +4227,8 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
-                  onMouseOver={(e) => e.target.style.backgroundColor = '#4b5563'}
-                  onMouseOut={(e) => e.target.style.backgroundColor = '#6b7280'}
+                  onMouseOver={(e) => e.target.style.backgroundColor = '#1d4ed8'}
+                  onMouseOut={(e) => e.target.style.backgroundColor = '#2563eb'}
                 >
                   Close
                 </button>

@@ -730,7 +730,7 @@ print(extract_person_info("Bob (invalid)"))  # None
                 <button
                   onClick={onPreviousSubcategory}
                   style={{
-                    background: '#374151',
+                    background: '#2563eb',
                     color: 'white',
                     padding: '0.5rem 1rem',
                     borderRadius: '0.5rem',
@@ -739,8 +739,8 @@ print(extract_person_info("Bob (invalid)"))  # None
                     fontSize: '0.875rem',
                     transition: 'all 0.2s'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#4b5563'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = '#374151'}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#1d4ed8'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = '#2563eb'}
                 >
                   ← {previousSubcategory}
                 </button>
@@ -749,7 +749,7 @@ print(extract_person_info("Bob (invalid)"))  # None
                 <button
                   onClick={onNextSubcategory}
                   style={{
-                    background: '#374151',
+                    background: '#2563eb',
                     color: 'white',
                     padding: '0.5rem 1rem',
                     borderRadius: '0.5rem',
@@ -758,8 +758,8 @@ print(extract_person_info("Bob (invalid)"))  # None
                     fontSize: '0.875rem',
                     transition: 'all 0.2s'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#4b5563'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = '#374151'}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#1d4ed8'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = '#2563eb'}
                 >
                   {nextSubcategory} →
                 </button>
@@ -1160,7 +1160,7 @@ print(extract_person_info("Bob (invalid)"))  # None
                               cursor: 'pointer',
                               transition: 'all 0.2s'
                             }}
-                            onMouseEnter={(e) => e.currentTarget.style.background = '#374151'}
+                            onMouseEnter={(e) => e.currentTarget.style.background = '#2563eb'}
                             onMouseLeave={(e) => e.currentTarget.style.background = '#1f2937'}
                             title="Open drawing canvas"
                           >
