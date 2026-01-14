@@ -18,19 +18,19 @@ function DarkPoolMatchingEngineBasic({ onBack, breadcrumb }) {
       <div style={{
         marginTop: '1.5rem',
         marginBottom: '1.5rem',
-        backgroundColor: '#f8fafc',
+        backgroundColor: 'rgba(55, 65, 81, 0.5)',
         padding: '1.5rem',
         borderRadius: '12px',
-        border: '2px solid #e2e8f0'
+        border: '2px solid #374151'
       }}>
         <h4 style={{
           fontSize: '1.1rem',
           fontWeight: '700',
-          color: '#1f2937',
+          color: 'white',
           margin: '0 0 1rem 0',
           textAlign: 'center'
         }}>
-          📊 {diagram.title}
+          {diagram.title}
         </h4>
         <svg width="100%" height="300" viewBox="0 0 750 300" style={{ overflow: 'visible' }}>
           {/* Draw connections first (so they appear behind boxes) */}
@@ -502,10 +502,10 @@ function DarkPoolMatchingEngineBasic({ onBack, breadcrumb }) {
       padding: '2rem',
       maxWidth: '95%',
       margin: '120px auto 0',
-      backgroundColor: 'white',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       borderRadius: '16px',
       boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-      border: '3px solid rgba(16, 185, 129, 0.4)'
+      border: '3px solid #374151'
     }}>
       <div style={{
         display: 'flex',
@@ -532,11 +532,11 @@ function DarkPoolMatchingEngineBasic({ onBack, breadcrumb }) {
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '800',
-          color: '#1f2937',
+          color: 'white',
           margin: 0,
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
         }}>
-          🌊 Dark Pool Matching Engine - Basic
+          Dark Pool Matching Engine - Basic
         </h1>
         <div style={{ width: '120px' }}></div>
       </div>
@@ -544,15 +544,15 @@ function DarkPoolMatchingEngineBasic({ onBack, breadcrumb }) {
       <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
-        backgroundColor: 'rgba(16, 185, 129, 0.05)',
+        backgroundColor: '#1f2937',
         padding: '2.5rem 10rem',
         borderRadius: '16px',
-        border: '3px solid rgba(16, 185, 129, 0.3)',
+        border: '3px solid #374151',
         marginBottom: '2rem'
       }}>
         <p style={{
           fontSize: '1.3rem',
-          color: '#374151',
+          color: '#9ca3af',
           fontWeight: '500',
           margin: 0,
           lineHeight: '1.8',
@@ -572,9 +572,9 @@ function DarkPoolMatchingEngineBasic({ onBack, breadcrumb }) {
           <div
             key={achievement.id}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: '#1f2937',
               borderRadius: '12px',
-              border: '2px solid rgba(16, 185, 129, 0.3)',
+              border: '2px solid #374151',
               overflow: 'hidden',
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
               transition: 'all 0.3s ease'
@@ -586,8 +586,8 @@ function DarkPoolMatchingEngineBasic({ onBack, breadcrumb }) {
               style={{
                 padding: '1.5rem',
                 backgroundColor: expandedSections[achievement.id]
-                  ? 'rgba(16, 185, 129, 0.1)'
-                  : 'rgba(16, 185, 129, 0.05)',
+                  ? 'rgba(55, 65, 81, 0.8)'
+                  : 'rgba(55, 65, 81, 0.4)',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 display: 'flex',
@@ -595,19 +595,19 @@ function DarkPoolMatchingEngineBasic({ onBack, breadcrumb }) {
                 alignItems: 'center'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.15)'
+                e.currentTarget.style.backgroundColor = 'rgba(55, 65, 81, 1)'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = expandedSections[achievement.id]
-                  ? 'rgba(16, 185, 129, 0.1)'
-                  : 'rgba(16, 185, 129, 0.05)'
+                  ? 'rgba(55, 65, 81, 0.8)'
+                  : 'rgba(55, 65, 81, 0.4)'
               }}
             >
               <div style={{ flex: 1 }}>
                 <h3 style={{
                   fontSize: '1.5rem',
                   fontWeight: '700',
-                  color: '#059669',
+                  color: 'white',
                   margin: '0 0 0.5rem 0',
                   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
                 }}>
@@ -615,7 +615,7 @@ function DarkPoolMatchingEngineBasic({ onBack, breadcrumb }) {
                 </h3>
                 <p style={{
                   fontSize: '1rem',
-                  color: '#6b7280',
+                  color: '#9ca3af',
                   margin: 0,
                   fontWeight: '500'
                 }}>
@@ -624,22 +624,22 @@ function DarkPoolMatchingEngineBasic({ onBack, breadcrumb }) {
                 <div style={{
                   marginTop: '0.75rem',
                   padding: '0.5rem 1rem',
-                  backgroundColor: 'rgba(34, 197, 94, 0.15)',
+                  backgroundColor: 'rgba(16, 185, 129, 0.2)',
                   borderRadius: '8px',
                   display: 'inline-block'
                 }}>
                   <span style={{
                     fontSize: '0.9rem',
                     fontWeight: '700',
-                    color: '#047857'
+                    color: '#10b981'
                   }}>
-                    💪 Impact: {achievement.impact}
+                    Impact: {achievement.impact}
                   </span>
                 </div>
               </div>
               <div style={{
                 fontSize: '1.5rem',
-                color: '#059669',
+                color: '#9ca3af',
                 marginLeft: '1rem',
                 transition: 'transform 0.3s ease',
                 transform: expandedSections[achievement.id] ? 'rotate(180deg)' : 'rotate(0deg)'
@@ -652,17 +652,17 @@ function DarkPoolMatchingEngineBasic({ onBack, breadcrumb }) {
             {expandedSections[achievement.id] && (
               <div style={{
                 padding: '1.5rem',
-                backgroundColor: 'white',
-                borderTop: '2px solid rgba(16, 185, 129, 0.2)',
+                backgroundColor: '#1f2937',
+                borderTop: '2px solid #374151',
                 animation: 'slideDown 0.3s ease-out'
               }}>
                 <h4 style={{
                   fontSize: '1.1rem',
                   fontWeight: '700',
-                  color: '#1f2937',
+                  color: 'white',
                   margin: '0 0 1rem 0'
                 }}>
-                  📋 Detailed Achievements
+                  Detailed Achievements
                 </h4>
                 <ul style={{
                   margin: '0 0 1.5rem 0',
@@ -674,7 +674,7 @@ function DarkPoolMatchingEngineBasic({ onBack, breadcrumb }) {
                       key={idx}
                       style={{
                         fontSize: '1rem',
-                        color: '#374151',
+                        color: '#9ca3af',
                         marginBottom: '0.75rem',
                         lineHeight: '1.6',
                         paddingLeft: '1.5rem',
@@ -688,7 +688,7 @@ function DarkPoolMatchingEngineBasic({ onBack, breadcrumb }) {
                         color: '#10b981',
                         fontWeight: '700'
                       }}>
-                        ✓
+                        -
                       </span>
                       {detail}
                     </li>
@@ -701,10 +701,10 @@ function DarkPoolMatchingEngineBasic({ onBack, breadcrumb }) {
                 <h4 style={{
                   fontSize: '1.1rem',
                   fontWeight: '700',
-                  color: '#1f2937',
+                  color: 'white',
                   margin: '0 0 1rem 0'
                 }}>
-                  🛠️ Technologies & Skills
+                  Technologies & Skills
                 </h4>
                 <div style={{
                   display: 'flex',
@@ -716,12 +716,12 @@ function DarkPoolMatchingEngineBasic({ onBack, breadcrumb }) {
                       key={idx}
                       style={{
                         padding: '0.5rem 1rem',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        color: '#1e40af',
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        color: '#60a5fa',
                         borderRadius: '8px',
                         fontSize: '0.85rem',
                         fontWeight: '600',
-                        border: '1px solid rgba(59, 130, 246, 0.3)'
+                        border: '1px solid #374151'
                       }}
                     >
                       {tech}

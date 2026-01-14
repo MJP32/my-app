@@ -449,7 +449,7 @@ function ORM({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
                 onMouseEnter={(e) => e.target.style.backgroundColor = '#d97706'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = '#f59e0b'}
               >
-                ← Back to All Concepts
+                ← Back to Categories
               </button>
               {concepts.map((concept) => (
                 <div

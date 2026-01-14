@@ -223,7 +223,7 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
 
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #111827, #78350f, #111827)', color: 'white', padding: '1.5rem' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', color: 'white', padding: '1.5rem' }}>
     <div ref={modalRef} style={{ padding: '2rem', maxWidth: '1600px', margin: '0 auto' }}>
       <div style={{
         display: 'flex',
@@ -252,7 +252,7 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7e22ce'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
           >
-            ← Back to Menu
+            ← Back to Java
           </button>
           <div>
             <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '800', background: 'linear-gradient(to right, #fbbf24, #f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
@@ -415,7 +415,7 @@ function FunctionalProgramming({ onBack, onPrevious, onNext, previousName, nextN
                   e.currentTarget.style.borderColor = '#374151'
                 }}
               >
-                ← Back to All
+                ← Back to Categories
               </button>
 
               {concepts.map((concept) => (

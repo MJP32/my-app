@@ -13,10 +13,10 @@ export default function TypeAhead({ onBack, breadcrumb }) {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-violet-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-950 to-gray-900 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8 bg-white rounded-2xl shadow-lg p-6 border-l-8 border-purple-500">
+        <div className="mb-8 bg-gray-800 rounded-2xl shadow-lg p-6 border-l-8 border-purple-500">
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={onBack}
@@ -86,7 +86,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
         {activeTab === 'overview' && (
           <div className="space-y-8">
             {/* Requirements */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-purple-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-purple-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-purple-600">📝</span>
                 System Requirements
@@ -152,7 +152,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
             </div>
 
             {/* Architecture Diagram */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-violet-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-violet-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-violet-600">🏗️</span>
                 High-Level Architecture
@@ -270,7 +270,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
             </div>
 
             {/* Scale Estimates */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-emerald-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-emerald-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-emerald-600">📊</span>
                 Scale & Capacity Estimates
@@ -330,7 +330,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
             </div>
 
             {/* Key Design Considerations */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-indigo-600">💡</span>
                 Key Design Considerations
@@ -391,7 +391,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
           <div className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               {/* Query Service */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-shadow">
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-shadow">
                 <h3 className="text-2xl font-bold text-green-700 mb-4 flex items-center gap-2">
                   <span>🔍</span>
                   Query Service
@@ -422,7 +422,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
               </div>
 
               {/* Ranking Service */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-xl transition-shadow">
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-xl transition-shadow">
                 <h3 className="text-2xl font-bold text-orange-700 mb-4 flex items-center gap-2">
                   <span>⭐</span>
                   Ranking Service
@@ -430,7 +430,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
                 <div className="space-y-3 text-gray-700">
                   <div className="bg-orange-50 p-3 rounded-lg">
                     <div className="font-semibold text-orange-900 mb-1">Scoring Formula</div>
-                    <div className="text-sm font-mono bg-white p-2 rounded mt-2">
+                    <div className="text-sm font-mono bg-gray-800 p-2 rounded mt-2">
                       score = w1×popularity + w2×recency + w3×personalization + w4×context
                     </div>
                     <div className="text-sm mt-2">Where w1, w2, w3, w4 are learned weights from ML model</div>
@@ -452,7 +452,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
               </div>
 
               {/* Aggregator Service */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl transition-shadow">
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl transition-shadow">
                 <h3 className="text-2xl font-bold text-blue-700 mb-4 flex items-center gap-2">
                   <span>📦</span>
                   Aggregator Service
@@ -483,7 +483,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
               </div>
 
               {/* Cache Layer */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-cyan-500 hover:shadow-xl transition-shadow">
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-cyan-500 hover:shadow-xl transition-shadow">
                 <h3 className="text-2xl font-bold text-cyan-700 mb-4 flex items-center gap-2">
                   <span>⚡</span>
                   Cache Layer
@@ -498,8 +498,8 @@ export default function TypeAhead({ onBack, breadcrumb }) {
                   </div>
                   <div className="bg-teal-50 p-3 rounded-lg">
                     <div className="font-semibold text-teal-900 mb-1">Cache Key Strategy</div>
-                    <div className="text-sm">• Key format: <code className="bg-white px-2 py-1 rounded">prefix:lang:locale</code></div>
-                    <div className="text-sm">• Example: <code className="bg-white px-2 py-1 rounded">car:en:US</code></div>
+                    <div className="text-sm">• Key format: <code className="bg-gray-800 px-2 py-1 rounded">prefix:lang:locale</code></div>
+                    <div className="text-sm">• Example: <code className="bg-gray-800 px-2 py-1 rounded">car:en:US</code></div>
                     <div className="text-sm">• Store top 10 suggestions per key</div>
                     <div className="text-sm">• Compressed using Snappy (reduce bandwidth)</div>
                   </div>
@@ -513,7 +513,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
               </div>
 
               {/* Analytics Service */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-pink-500 hover:shadow-xl transition-shadow">
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-pink-500 hover:shadow-xl transition-shadow">
                 <h3 className="text-2xl font-bold text-pink-700 mb-4 flex items-center gap-2">
                   <span>📊</span>
                   Analytics Service
@@ -544,7 +544,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
               </div>
 
               {/* Personalization Service */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500 hover:shadow-xl transition-shadow">
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-purple-500 hover:shadow-xl transition-shadow">
                 <h3 className="text-2xl font-bold text-purple-700 mb-4 flex items-center gap-2">
                   <span>👤</span>
                   Personalization Service
@@ -581,7 +581,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
         {activeTab === 'dataflow' && (
           <div className="space-y-8">
             {/* Query Processing Flow */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-green-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-green-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-green-600">🔍</span>
                 Query Processing Flow
@@ -614,7 +614,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
             </div>
 
             {/* Trie Update Flow */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-orange-600">📦</span>
                 Trie Update Flow
@@ -647,7 +647,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
             </div>
 
             {/* Example Trie Structure */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-blue-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-blue-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-blue-600">🌳</span>
                 Trie Structure Example
@@ -656,7 +656,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="bg-blue-50 p-6 rounded-xl border-2 border-blue-200">
                   <h3 className="font-bold text-blue-900 mb-3 text-lg">Trie for Prefix "car"</h3>
-                  <div className="bg-white p-4 rounded-lg font-mono text-sm space-y-1">
+                  <div className="bg-gray-800 p-4 rounded-lg font-mono text-sm space-y-1">
                     <div>root</div>
                     <div>&nbsp;└─ c</div>
                     <div>&nbsp;&nbsp;&nbsp;&nbsp;└─ a</div>
@@ -677,7 +677,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
 
                 <div className="bg-green-50 p-6 rounded-xl border-2 border-green-200">
                   <h3 className="font-bold text-green-900 mb-3 text-lg">Node Structure</h3>
-                  <div className="bg-white p-4 rounded-lg font-mono text-sm space-y-2">
+                  <div className="bg-gray-800 p-4 rounded-lg font-mono text-sm space-y-2">
                     <div className="text-gray-600">// TrieNode structure</div>
                     <div>class TrieNode {'{'}</div>
                     <div>&nbsp;&nbsp;char character;</div>
@@ -702,7 +702,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
         {activeTab === 'scalability' && (
           <div className="space-y-8">
             {/* Trie Sharding */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-purple-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-purple-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-purple-600">🗄️</span>
                 Trie Sharding Strategy
@@ -756,7 +756,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
             </div>
 
             {/* Caching at Scale */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-cyan-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-cyan-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-cyan-600">⚡</span>
                 Caching at Scale
@@ -778,7 +778,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
                 <div className="bg-blue-50 p-6 rounded-xl border-l-4 border-blue-500">
                   <div className="font-bold text-blue-900 mb-3 text-lg">Cache Key Design</div>
                   <div className="space-y-2 text-sm text-gray-700">
-                    <div>• <strong>Key format:</strong> <code className="bg-white px-2 py-1 rounded">autocomplete:{prefix}:{lang}:{locale}</code></div>
+                    <div>• <strong>Key format:</strong> <code className="bg-gray-800 px-2 py-1 rounded">autocomplete:{prefix}:{lang}:{locale}</code></div>
                     <div>• <strong>Value:</strong> JSON array of top 10 suggestions</div>
                     <div>• <strong>TTL:</strong> 1 hour (longer for stable queries)</div>
                     <div>• <strong>Compression:</strong> Snappy compression (70% size reduction)</div>
@@ -799,7 +799,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
             </div>
 
             {/* Load Balancing */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-orange-600">⚖️</span>
                 Load Balancing & Auto-Scaling
@@ -839,7 +839,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
             </div>
 
             {/* Performance Optimizations */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-green-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-green-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-green-600">🚀</span>
                 Performance Optimizations
@@ -897,7 +897,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
         {activeTab === 'tradeoffs' && (
           <div className="space-y-8">
             {/* Technology Stack */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-indigo-600">🛠️</span>
                 Technology Stack
@@ -947,7 +947,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
             </div>
 
             {/* Key Design Trade-offs */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-orange-600">⚖️</span>
                 Key Design Trade-offs
@@ -959,7 +959,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
                   <h3 className="text-xl font-bold text-orange-900 mb-4">1. Trie vs Database Index for Prefix Matching</h3>
 
                   <div className="grid md:grid-cols-2 gap-4 mb-4">
-                    <div className="bg-white p-4 rounded-lg border-2 border-green-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-green-200">
                       <div className="font-bold text-green-700 mb-2">Trie (Prefix Tree)</div>
                       <div className="text-sm space-y-1 text-gray-700">
                         <div><strong>Pros:</strong></div>
@@ -973,7 +973,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
                       </div>
                     </div>
 
-                    <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-blue-200">
                       <div className="font-bold text-blue-700 mb-2">Database (LIKE query)</div>
                       <div className="text-sm space-y-1 text-gray-700">
                         <div><strong>Pros:</strong></div>
@@ -1001,7 +1001,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
                   <h3 className="text-xl font-bold text-blue-900 mb-4">2. Pre-compute Suggestions vs On-the-fly Ranking</h3>
 
                   <div className="grid md:grid-cols-2 gap-4 mb-4">
-                    <div className="bg-white p-4 rounded-lg border-2 border-green-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-green-200">
                       <div className="font-bold text-green-700 mb-2">Pre-compute (Store at Nodes)</div>
                       <div className="text-sm space-y-1 text-gray-700">
                         <div><strong>Pros:</strong></div>
@@ -1015,7 +1015,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
                       </div>
                     </div>
 
-                    <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-orange-200">
                       <div className="font-bold text-orange-700 mb-2">On-the-fly Ranking</div>
                       <div className="text-sm space-y-1 text-gray-700">
                         <div><strong>Pros:</strong></div>
@@ -1043,7 +1043,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
                   <h3 className="text-xl font-bold text-green-900 mb-4">3. Short TTL vs Long TTL for Cache</h3>
 
                   <div className="grid md:grid-cols-2 gap-4 mb-4">
-                    <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-blue-200">
                       <div className="font-bold text-blue-700 mb-2">Short TTL (5 minutes)</div>
                       <div className="text-sm space-y-1 text-gray-700">
                         <div><strong>Pros:</strong></div>
@@ -1056,7 +1056,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
                       </div>
                     </div>
 
-                    <div className="bg-white p-4 rounded-lg border-2 border-purple-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-purple-200">
                       <div className="font-bold text-purple-700 mb-2">Long TTL (1 hour)</div>
                       <div className="text-sm space-y-1 text-gray-700">
                         <div><strong>Pros:</strong></div>
@@ -1083,7 +1083,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
                   <h3 className="text-xl font-bold text-purple-900 mb-4">4. Global Suggestions vs Personalized Suggestions</h3>
 
                   <div className="grid md:grid-cols-2 gap-4 mb-4">
-                    <div className="bg-white p-4 rounded-lg border-2 border-green-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-green-200">
                       <div className="font-bold text-green-700 mb-2">Global (Same for Everyone)</div>
                       <div className="text-sm space-y-1 text-gray-700">
                         <div><strong>Pros:</strong></div>
@@ -1096,7 +1096,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
                       </div>
                     </div>
 
-                    <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-orange-200">
                       <div className="font-bold text-orange-700 mb-2">Personalized (Per User)</div>
                       <div className="text-sm space-y-1 text-gray-700">
                         <div><strong>Pros:</strong></div>
@@ -1122,7 +1122,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
             </div>
 
             {/* Additional Considerations */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-pink-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-pink-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-pink-600">💡</span>
                 Additional Considerations

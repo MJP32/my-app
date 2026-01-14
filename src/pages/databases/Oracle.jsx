@@ -445,7 +445,7 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
                 onMouseEnter={(e) => e.target.style.backgroundColor = '#dc2626'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = '#ef4444'}
               >
-                ← Back to All Concepts
+                ← Back to Categories
               </button>
               {concepts.map((concept) => (
                 <div

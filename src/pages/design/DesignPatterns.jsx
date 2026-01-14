@@ -3961,7 +3961,9 @@ saveManager.restore(game, 0);
         padding: '2rem',
         maxWidth: '1600px',
         margin: '0 auto',
-        backgroundColor: 'white',
+        minHeight: '100vh',
+        background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
+        color: 'white',
         borderRadius: '16px',
         boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
         border: '3px solid rgba(147, 51, 234, 0.4)'
@@ -3993,13 +3995,13 @@ saveManager.restore(game, 0);
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7e22ce'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
           >
-            ← Back to Menu
+            ← Back to Design
           </button>
           <div>
             <h1 style={{
               fontSize: '2.5rem',
               fontWeight: '800',
-              color: '#1f2937',
+              color: 'white',
               margin: 0,
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
             }}>
@@ -4084,7 +4086,7 @@ saveManager.restore(game, 0);
       }}>
         <p style={{
           fontSize: '1.3rem',
-          color: '#374151',
+          color: '#9ca3af',
           fontWeight: '500',
           margin: 0,
           lineHeight: '1.8',
@@ -4100,15 +4102,15 @@ saveManager.restore(game, 0);
           maxWidth: '1400px',
           margin: '0 auto 3rem',
           padding: '2rem',
-          backgroundColor: 'white',
+          backgroundColor: '#1f2937',
           borderRadius: '16px',
-          border: '3px solid rgba(99, 102, 241, 0.3)',
+          border: '3px solid #374151',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)'
         }}>
           <h3 style={{
             fontSize: '1.5rem',
             fontWeight: '700',
-            color: '#6366f1',
+            color: 'white',
             marginBottom: '2rem',
             textAlign: 'center'
           }}>
@@ -4258,14 +4260,14 @@ saveManager.restore(game, 0);
                 <h3 style={{
                   fontSize: '1.3rem',
                   fontWeight: '700',
-                  color: '#6366f1',
+                  color: 'white',
                   margin: '0 0 0.5rem 0'
                 }}>
                   {pattern.name}
                 </h3>
                 <p style={{
                   fontSize: '0.9rem',
-                  color: '#6b7280',
+                  color: '#9ca3af',
                   margin: 0,
                   lineHeight: '1.5'
                 }}>
@@ -4288,7 +4290,7 @@ saveManager.restore(game, 0);
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: 'white',
                 marginBottom: '1.5rem'
               }}>
                 Design Patterns
@@ -4332,7 +4334,7 @@ saveManager.restore(game, 0);
                       <div style={{
                         fontSize: '1rem',
                         fontWeight: '700',
-                        color: selectedConcept?.name === pattern.name ? '#6366f1' : '#1f2937'
+                        color: selectedConcept?.name === pattern.name ? '#6366f1' : '#9ca3af'
                       }}>
                         {pattern.name}
                       </div>
@@ -4358,10 +4360,10 @@ saveManager.restore(game, 0);
 
               {selectedConcept.diagram && (
                 <div style={{
-                  backgroundColor: 'white',
+                  backgroundColor: '#1f2937',
                   padding: '2rem',
                   borderRadius: '12px',
-                  border: '2px solid rgba(99, 102, 241, 0.2)',
+                  border: '2px solid #374151',
                   marginBottom: '1.5rem'
                 }}>
                   {selectedConcept.diagram()}
@@ -4372,12 +4374,12 @@ saveManager.restore(game, 0);
                 backgroundColor: 'rgba(99, 102, 241, 0.08)',
                 padding: '1.5rem',
                 borderRadius: '12px',
-                border: '2px solid rgba(99, 102, 241, 0.3)',
+                border: '2px solid #374151',
                 marginBottom: '1.5rem'
               }}>
                 <p style={{
                   fontSize: '1rem',
-                  color: '#374151',
+                  color: '#9ca3af',
                   fontWeight: '500',
                   margin: 0,
                   lineHeight: '1.7',
@@ -4419,9 +4421,9 @@ saveManager.restore(game, 0);
                           <div
                             key={index}
                             style={{
-                              backgroundColor: 'white',
+                              backgroundColor: '#1f2937',
                               borderRadius: '12px',
-                              border: '2px solid rgba(99, 102, 241, 0.3)',
+                              border: '2px solid #374151',
                               overflow: 'hidden'
                             }}
                           >
@@ -4430,9 +4432,9 @@ saveManager.restore(game, 0);
                               style={{
                                 width: '100%',
                                 padding: '1.25rem',
-                                backgroundColor: isExpanded ? 'rgba(99, 102, 241, 0.15)' : 'white',
+                                backgroundColor: isExpanded ? 'rgba(99, 102, 241, 0.15)' : '#1f2937',
                                 border: 'none',
-                                borderBottom: isExpanded ? '2px solid rgba(99, 102, 241, 0.3)' : 'none',
+                                borderBottom: isExpanded ? '2px solid #374151' : 'none',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 justifyContent: 'space-between',
@@ -4445,7 +4447,7 @@ saveManager.restore(game, 0);
                               }}
                               onMouseLeave={(e) => {
                                 if (!isExpanded) {
-                                  e.currentTarget.style.backgroundColor = 'white'
+                                  e.currentTarget.style.backgroundColor = '#1f2937'
                                 }
                               }}
                             >
@@ -4516,7 +4518,7 @@ saveManager.restore(game, 0);
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: '#1f2937',
               borderRadius: '16px',
               maxWidth: '1400px',
               width: '90%',
@@ -4581,14 +4583,14 @@ saveManager.restore(game, 0);
               {/* Sidebar */}
               <div style={{
                 width: '300px',
-                backgroundColor: '#f9fafb',
-                borderRight: '2px solid #e5e7eb',
+                backgroundColor: '#111827',
+                borderRight: '2px solid #374151',
                 padding: '1.5rem',
                 overflowY: 'auto'
               }}>
                 <p style={{
                   fontSize: '0.9rem',
-                  color: '#6b7280',
+                  color: '#9ca3af',
                   marginBottom: '1.5rem',
                   lineHeight: '1.6'
                 }}>
@@ -4606,10 +4608,10 @@ saveManager.restore(game, 0);
                       style={{
                         backgroundColor: currentPattern?.name === pattern.name
                           ? category.color
-                          : 'white',
+                          : '#374151',
                         color: currentPattern?.name === pattern.name
                           ? 'white'
-                          : '#374151',
+                          : '#9ca3af',
                         border: `2px solid ${category.color}`,
                         padding: '1rem',
                         borderRadius: '8px',
@@ -4626,7 +4628,7 @@ saveManager.restore(game, 0);
                       }}
                       onMouseLeave={(e) => {
                         if (currentPattern?.name !== pattern.name) {
-                          e.currentTarget.style.backgroundColor = 'white'
+                          e.currentTarget.style.backgroundColor = '#374151'
                         }
                       }}
                     >
@@ -4666,7 +4668,7 @@ saveManager.restore(game, 0);
 
                     <p style={{
                       fontSize: '1.1rem',
-                      color: '#6b7280',
+                      color: '#9ca3af',
                       lineHeight: '1.8',
                       marginBottom: '2rem'
                     }}>
@@ -4699,7 +4701,7 @@ saveManager.restore(game, 0);
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
                                     padding: '1rem 1.5rem',
-                                    backgroundColor: isExpanded ? `${category.color}15` : 'white',
+                                    backgroundColor: isExpanded ? `${category.color}15` : '#374151',
                                     border: `2px solid ${category.color}`,
                                     borderRadius: '8px',
                                     cursor: 'pointer',
@@ -4711,7 +4713,7 @@ saveManager.restore(game, 0);
                                   }}
                                   onMouseLeave={(e) => {
                                     if (!isExpanded) {
-                                      e.currentTarget.style.backgroundColor = 'white'
+                                      e.currentTarget.style.backgroundColor = '#374151'
                                     }
                                   }}
                                 >
@@ -4734,9 +4736,9 @@ saveManager.restore(game, 0);
                                 {isExpanded && (
                                   <div style={{
                                     marginTop: '1rem',
-                                    backgroundColor: '#f9fafb',
+                                    backgroundColor: '#1f2937',
                                     borderRadius: '8px',
-                                    border: '1px solid #e5e7eb'
+                                    border: '1px solid #374151'
                                   }}>
                                     <SyntaxHighlighter code={section.code} />
                                   </div>

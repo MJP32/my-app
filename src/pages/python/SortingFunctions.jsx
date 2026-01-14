@@ -5,15 +5,6 @@ import Breadcrumb from '../../components/Breadcrumb'
 
 function SortingFunctions({ onBack, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
-
-  const toggleSection = (conceptIndex, sectionIndex) => {
-    const key = `${conceptIndex}-${sectionIndex}`
-    setExpandedSections(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }))
-  }
 
   const parseCodeSections = (codeString) => {
     const sections = codeString.split('\n\n')
@@ -513,45 +504,33 @@ sorted(data, key=lambda x: (x is None, x or 0))  # OK`
               <div style={{ padding: '1rem' }}>
                 {parseCodeSections(concept.codeExample).map((section, idx) => (
                   <div key={section.id} style={{ marginBottom: '1rem' }}>
-                    <button
-                      onClick={() => toggleSection(concepts.findIndex(c => c.id === selectedConcept), idx)}
+                    <div
                       style={{
                         width: '100%',
                         background: '#2563eb',
                         color: 'white',
                         padding: '0.5rem 1rem',
                         borderRadius: '0.5rem',
-                        border: 'none',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
                         marginBottom: '0.5rem',
                         textAlign: 'left',
                         fontWeight: '500',
                         fontSize: '1rem'
                       }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = '#1d4ed8'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = '#2563eb'
+                    >
+                      Code Block {idx + 1}
+                    </div>
+                    <SyntaxHighlighter
+                      language="python"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        padding: '1.5rem',
+                        borderRadius: '0.5rem',
+                        fontSize: '0.9rem',
+                        border: '1px solid #3b82f6'
                       }}
                     >
-                      {expandedSections[`${concepts.findIndex(c => c.id === selectedConcept)}-${idx}`] ? '▼' : '▶'} Code Block {idx + 1}
-                    </button>
-                    {expandedSections[`${concepts.findIndex(c => c.id === selectedConcept)}-${idx}`] && (
-                      <SyntaxHighlighter
-                        language="python"
-                        style={vscDarkPlus}
-                        customStyle={{
-                          padding: '1.5rem',
-                          borderRadius: '0.5rem',
-                          fontSize: '0.9rem',
-                          border: '1px solid #3b82f6'
-                        }}
-                      >
-                        {section.code}
-                      </SyntaxHighlighter>
-                    )}
+                      {section.code}
+                    </SyntaxHighlighter>
                   </div>
                 ))}
               </div>
@@ -610,7 +589,7 @@ sorted(data, key=lambda x: (x is None, x or 0))  # OK`
                 e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
               }}
             >
-              ← Back to Python Topics
+              ← Back to Python
             </button>
             <h1 style={{
               fontSize: '2.25rem',

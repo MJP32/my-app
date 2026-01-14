@@ -6,15 +6,6 @@ import Breadcrumb from '../../components/Breadcrumb'
 
 function PythonDictOperations({ onBack, breadcrumb }) {
   const [selectedProblem, setSelectedProblem] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
-
-  const toggleSection = (conceptIndex, sectionIndex) => {
-    const key = `${conceptIndex}-${sectionIndex}`
-    setExpandedSections(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }))
-  }
 
   const parseCodeSections = (codeString) => {
     const sections = codeString.split('\n\n')
@@ -783,7 +774,7 @@ def reorganizeString_alt(s: str) -> str:
               e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
             }}
           >
-            ← Back to Problems
+            ← Back to Python
           </button>
 
           <div style={{
@@ -848,57 +839,33 @@ def reorganizeString_alt(s: str) -> str:
               {parseCodeSections(selectedProblem.code.python.starterCode).map(
                 (section, idx) => (
                   <div key={section.id} style={{ marginBottom: '1rem' }}>
-                    <button
-                      onClick={() =>
-                        toggleSection(
-                          `starter-${problems.indexOf(selectedProblem)}`,
-                          idx
-                        )
-                      }
+                    <div
                       style={{
                         width: '100%',
                         background: '#2563eb',
                         color: 'white',
                         padding: '0.5rem 1rem',
                         borderRadius: '0.5rem',
-                        border: 'none',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
                         marginBottom: '0.5rem',
                         textAlign: 'left',
                         fontWeight: '500',
                         fontSize: '1rem'
                       }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = '#1d4ed8'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = '#2563eb'
+                    >
+                      Code Block {idx + 1}
+                    </div>
+                    <SyntaxHighlighter
+                      language="python"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        padding: '1.5rem',
+                        borderRadius: '0.5rem',
+                        fontSize: '0.9rem',
+                        border: '1px solid #3b82f6'
                       }}
                     >
-                      {expandedSections[
-                        `starter-${problems.indexOf(selectedProblem)}-${idx}`
-                      ]
-                        ? '▼'
-                        : '▶'}{' '}
-                      Code Block {idx + 1}
-                    </button>
-                    {expandedSections[
-                      `starter-${problems.indexOf(selectedProblem)}-${idx}`
-                    ] && (
-                      <SyntaxHighlighter
-                        language="python"
-                        style={vscDarkPlus}
-                        customStyle={{
-                          padding: '1.5rem',
-                          borderRadius: '0.5rem',
-                          fontSize: '0.9rem',
-                          border: '1px solid #3b82f6'
-                        }}
-                      >
-                        {section.code}
-                      </SyntaxHighlighter>
-                    )}
+                      {section.code}
+                    </SyntaxHighlighter>
                   </div>
                 )
               )}
@@ -946,57 +913,33 @@ def reorganizeString_alt(s: str) -> str:
                 {parseCodeSections(selectedProblem.code.python.solution).map(
                   (section, idx) => (
                     <div key={section.id} style={{ marginBottom: '1rem' }}>
-                      <button
-                        onClick={() =>
-                          toggleSection(
-                            `solution-${problems.indexOf(selectedProblem)}`,
-                            idx
-                          )
-                        }
+                      <div
                         style={{
                           width: '100%',
                           background: '#2563eb',
                           color: 'white',
                           padding: '0.5rem 1rem',
                           borderRadius: '0.5rem',
-                          border: 'none',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
                           marginBottom: '0.5rem',
                           textAlign: 'left',
                           fontWeight: '500',
                           fontSize: '1rem'
                         }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = '#1d4ed8'
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = '#2563eb'
+                      >
+                        Code Block {idx + 1}
+                      </div>
+                      <SyntaxHighlighter
+                        language="python"
+                        style={vscDarkPlus}
+                        customStyle={{
+                          padding: '1.5rem',
+                          borderRadius: '0.5rem',
+                          fontSize: '0.9rem',
+                          border: '1px solid #3b82f6'
                         }}
                       >
-                        {expandedSections[
-                          `solution-${problems.indexOf(selectedProblem)}-${idx}`
-                        ]
-                          ? '▼'
-                          : '▶'}{' '}
-                        Code Block {idx + 1}
-                      </button>
-                      {expandedSections[
-                        `solution-${problems.indexOf(selectedProblem)}-${idx}`
-                      ] && (
-                        <SyntaxHighlighter
-                          language="python"
-                          style={vscDarkPlus}
-                          customStyle={{
-                            padding: '1.5rem',
-                            borderRadius: '0.5rem',
-                            fontSize: '0.9rem',
-                            border: '1px solid #3b82f6'
-                          }}
-                        >
-                          {section.code}
-                        </SyntaxHighlighter>
-                      )}
+                        {section.code}
+                      </SyntaxHighlighter>
                     </div>
                   )
                 )}
@@ -1039,7 +982,7 @@ def reorganizeString_alt(s: str) -> str:
             e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
           }}
         >
-          ← Back to Python Topics
+          ← Back to Python
         </button>
 
         <div style={{ marginBottom: '2rem' }}>

@@ -49,17 +49,9 @@ function BinaryTrees({ onBack, onPrevious, onNext, previousName, nextName, curre
       difficulty: 'Medium',
       leetcodeUrl: 'https://leetcode.com/problems/binary-tree-inorder-traversal/',
       description: 'Implement all three depth-first traversals (in-order, pre-order, post-order) and breadth-first (level-order) traversal for a binary tree.',
-      example: `Input: root = [1,null,2,3]
-    1
-     \\
-      2
-     /
-    3
-Output:
-  Inorder: [1,3,2]
-  Preorder: [1,2,3]
-  Postorder: [3,2,1]
-  Level-order: [1,2,3]`,
+      examples: [
+        { input: 'root = [1,null,2,3]', output: 'Inorder: [1,3,2], Preorder: [1,2,3], Postorder: [3,2,1], Level-order: [1,2,3]' }
+      ],
       code: {
         java: {
           starterCode: `class TreeNode {
@@ -313,16 +305,9 @@ class Solution:
       difficulty: 'Medium',
       leetcodeUrl: 'https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/',
       description: 'Find the lowest common ancestor (LCA) of two nodes in a binary tree. The LCA is the lowest node that has both nodes as descendants.',
-      example: `Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
-        3
-       / \\
-      5   1
-     / \\ / \\
-    6  2 0  8
-      / \\
-     7   4
-Output: 3
-Explanation: LCA of 5 and 1 is 3`,
+      examples: [
+        { input: 'root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1', output: '3 (LCA of 5 and 1 is 3)' }
+      ],
       code: {
         java: {
           starterCode: `public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
@@ -505,15 +490,9 @@ class SolutionWithPath:
       difficulty: 'Medium',
       leetcodeUrl: 'https://leetcode.com/problems/maximum-depth-of-binary-tree/',
       description: 'Find the maximum depth and diameter of a binary tree. Depth is the number of nodes along the longest path from root to leaf. Diameter is the length of the longest path between any two nodes.',
-      example: `Input: root = [1,2,3,4,5]
-    1
-   / \\
-  2   3
- / \\
-4   5
-Output:
-  Max Depth: 3
-  Diameter: 3 (path: 4 -> 2 -> 1 -> 3)`,
+      examples: [
+        { input: 'root = [1,2,3,4,5]', output: 'Max Depth: 3, Diameter: 3 (path: 4 -> 2 -> 1 -> 3)' }
+      ],
       code: {
         java: {
           starterCode: `public int maxDepth(TreeNode root) {
@@ -719,17 +698,10 @@ class SolutionMinDepth:
       difficulty: 'Easy',
       leetcodeUrl: 'https://leetcode.com/problems/same-tree/',
       description: 'Given the roots of two binary trees p and q, check if they are structurally identical and the nodes have the same values.',
-      example: `Input: p = [1,2,3], q = [1,2,3]
-    1         1
-   / \\       / \\
-  2   3     2   3
-Output: true
-
-Input: p = [1,2], q = [1,null,2]
-    1         1
-   /           \\
-  2             2
-Output: false`,
+      examples: [
+        { input: 'p = [1,2,3], q = [1,2,3]', output: 'true' },
+        { input: 'p = [1,2], q = [1,null,2]', output: 'false' }
+      ],
       code: {
         java: {
           starterCode: `public boolean isSameTree(TreeNode p, TreeNode q) {
@@ -839,14 +811,9 @@ Output: false`,
       difficulty: 'Easy',
       leetcodeUrl: 'https://leetcode.com/problems/invert-binary-tree/',
       description: 'Given the root of a binary tree, invert the tree by swapping the left and right children of every node, and return its root.',
-      example: `Input: root = [4,2,7,1,3,6,9]
-     4                4
-   /   \\            /   \\
-  2     7    →     7     2
- / \\   / \\       / \\   / \\
-1   3 6   9     9   6 3   1
-
-Output: [4,7,2,9,6,3,1]`,
+      examples: [
+        { input: 'root = [4,2,7,1,3,6,9]', output: '[4,7,2,9,6,3,1]' }
+      ],
       code: {
         java: {
           starterCode: `public TreeNode invertTree(TreeNode root) {
@@ -1025,21 +992,10 @@ Output: [4,7,2,9,6,3,1]`,
       difficulty: 'Easy',
       leetcodeUrl: 'https://leetcode.com/problems/symmetric-tree/',
       description: 'Given the root of a binary tree, check whether it is a mirror of itself (i.e., symmetric around its center).',
-      example: `Input: root = [1,2,2,3,4,4,3]
-      1
-     / \\
-    2   2
-   / \\ / \\
-  3  4 4  3
-Output: true
-
-Input: root = [1,2,2,null,3,null,3]
-    1
-   / \\
-  2   2
-   \\   \\
-    3   3
-Output: false`,
+      examples: [
+        { input: 'root = [1,2,2,3,4,4,3]', output: 'true' },
+        { input: 'root = [1,2,2,null,3,null,3]', output: 'false' }
+      ],
       code: {
         java: {
           starterCode: `public boolean isSymmetric(TreeNode root) {
@@ -1178,16 +1134,10 @@ Output: false`,
       difficulty: 'Medium',
       leetcodeUrl: 'https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/',
       description: 'Given two integer arrays preorder and inorder where preorder is the preorder traversal of a binary tree and inorder is the inorder traversal of the same tree, construct and return the binary tree.',
-      example: `Input: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
-    3
-   / \\
-  9  20
-    /  \\
-   15   7
-Output: [3,9,20,null,null,15,7]
-
-Input: preorder = [-1], inorder = [-1]
-Output: [-1]`,
+      examples: [
+        { input: 'preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]', output: '[3,9,20,null,null,15,7]' },
+        { input: 'preorder = [-1], inorder = [-1]', output: '[-1]' }
+      ],
       code: {
         java: {
           starterCode: `public TreeNode buildTree(int[] preorder, int[] inorder) {
@@ -1344,16 +1294,10 @@ Output: [-1]`,
       difficulty: 'Medium',
       leetcodeUrl: 'https://leetcode.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/',
       description: 'Given two integer arrays inorder and postorder where inorder is the inorder traversal of a binary tree and postorder is the postorder traversal of the same tree, construct and return the binary tree.',
-      example: `Input: inorder = [9,3,15,20,7], postorder = [9,15,7,20,3]
-    3
-   / \\
-  9  20
-    /  \\
-   15   7
-Output: [3,9,20,null,null,15,7]
-
-Input: inorder = [-1], postorder = [-1]
-Output: [-1]`,
+      examples: [
+        { input: 'inorder = [9,3,15,20,7], postorder = [9,15,7,20,3]', output: '[3,9,20,null,null,15,7]' },
+        { input: 'inorder = [-1], postorder = [-1]', output: '[-1]' }
+      ],
       code: {
         java: {
           starterCode: `public TreeNode buildTree(int[] inorder, int[] postorder) {
@@ -1524,16 +1468,10 @@ Output: [-1]`,
       difficulty: 'Medium',
       leetcodeUrl: 'https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii/',
       description: 'Populate each next pointer to point to its next right node. If there is no next right node, the next pointer should be set to NULL. Initially, all next pointers are set to NULL. This is the general version for any binary tree (not just perfect binary trees).',
-      example: `Input: root = [1,2,3,4,5,null,7]
-     1 → NULL
-   /   \\
-  2  →  3 → NULL
- / \\     \\
-4→ 5  →  7 → NULL
-
-Output: [1,#,2,3,#,4,5,7,#]
-
-Input: root = [], Output: []`,
+      examples: [
+        { input: 'root = [1,2,3,4,5,null,7]', output: '[1,#,2,3,#,4,5,7,#]' },
+        { input: 'root = []', output: '[]' }
+      ],
       code: {
         java: {
           starterCode: `// Definition for a Node.
@@ -1782,23 +1720,11 @@ def connect(self, root: 'Node') -> 'Node':
       difficulty: 'Medium',
       leetcodeUrl: 'https://leetcode.com/problems/flatten-binary-tree-to-linked-list/',
       description: 'Given the root of a binary tree, flatten the tree into a "linked list" where the right child pointer points to the next node in the list and all left child pointers are null. The order should be the same as a pre-order traversal of the binary tree.',
-      example: `Input: root = [1,2,5,3,4,null,6]
-    1                1
-   / \\                \\
-  2   5     →          2
- / \\   \\               \\
-3   4   6               3
-                         \\
-                          4
-                           \\
-                            5
-                             \\
-                              6
-
-Output: [1,null,2,null,3,null,4,null,5,null,6]
-
-Input: root = [], Output: []
-Input: root = [0], Output: [0]`,
+      examples: [
+        { input: 'root = [1,2,5,3,4,null,6]', output: '[1,null,2,null,3,null,4,null,5,null,6]' },
+        { input: 'root = []', output: '[]' },
+        { input: 'root = [0]', output: '[0]' }
+      ],
       code: {
         java: {
           starterCode: `public void flatten(TreeNode root) {
@@ -2054,28 +1980,10 @@ Input: root = [0], Output: [0]`,
       difficulty: 'Medium',
       leetcodeUrl: 'https://leetcode.com/problems/sum-root-to-leaf-numbers/',
       description: 'You are given the root of a binary tree containing digits from 0 to 9 only. Each root-to-leaf path represents a number. Return the total sum of all root-to-leaf numbers. A leaf is a node with no children.',
-      example: `Input: root = [1,2,3]
-Output: 25
-Explanation:
-     1
-    / \\
-   2   3
-The root-to-leaf path 1→2 represents the number 12.
-The root-to-leaf path 1→3 represents the number 13.
-Therefore, sum = 12 + 13 = 25.
-
-Input: root = [4,9,0,5,1]
-Output: 1026
-Explanation:
-       4
-      / \\
-     9   0
-    / \\
-   5   1
-The root-to-leaf path 4→9→5 represents 495.
-The root-to-leaf path 4→9→1 represents 491.
-The root-to-leaf path 4→0 represents 40.
-Therefore, sum = 495 + 491 + 40 = 1026.`,
+      examples: [
+        { input: 'root = [1,2,3]', output: '25' },
+        { input: 'root = [4,9,0,5,1]', output: '1026' }
+      ],
       code: {
         java: {
           starterCode: `public int sumNumbers(TreeNode root) {
@@ -2306,7 +2214,9 @@ def sumNumbersGlobal(self, root: Optional[TreeNode]) -> int:
         difficulty: 'Easy',
         leetcodeUrl: 'https://leetcode.com/problems/path-sum/',
         description: 'Given root and targetSum, return true if tree has root-to-leaf path that sums to targetSum.',
-        example: `Input: root = [5,4,8,11,null,13,4,7,2,null,null,null,1], targetSum = 22, Output: true`,
+        examples: [
+          { input: 'root = [5,4,8,11,null,13,4,7,2,null,null,null,1], targetSum = 22', output: 'true' }
+        ],
         code: {
         java: {
           starterCode: `public int maxPathSum(TreeNode root) {
@@ -2479,20 +2389,11 @@ def maxPathSumList(self, root: Optional[TreeNode]) -> int:
       difficulty: 'Easy',
       leetcodeUrl: 'https://leetcode.com/problems/count-complete-tree-nodes/',
       description: 'Given the root of a complete binary tree, return the number of nodes in the tree. A complete binary tree is a binary tree in which every level, except possibly the last, is completely filled, and all nodes are as far left as possible.',
-      example: `Input: root = [1,2,3,4,5,6]
-Output: 6
-
-      1
-     / \\
-    2   3
-   / \\ /
-  4  5 6
-
-Input: root = []
-Output: 0
-
-Input: root = [1]
-Output: 1`,
+      examples: [
+        { input: 'root = [1,2,3,4,5,6]', output: '6' },
+        { input: 'root = []', output: '0' },
+        { input: 'root = [1]', output: '1' }
+      ],
       code: {
         java: {
           starterCode: `public int countNodes(TreeNode root) {
@@ -2685,20 +2586,11 @@ def countNodesBFS(self, root: Optional[TreeNode]) -> int:
       difficulty: 'Medium',
       leetcodeUrl: 'https://leetcode.com/problems/binary-tree-right-side-view/',
       description: 'Given the root of a binary tree, imagine yourself standing on the right side of it. Return the values of the nodes you can see ordered from top to bottom.',
-      example: `Input: root = [1,2,3,null,5,null,4]
-Output: [1,3,4]
-Explanation:
-      1         <--- 1 is visible
-     / \\
-    2   3       <--- 3 is visible (rightmost)
-     \\   \\
-      5   4     <--- 4 is visible (rightmost)
-
-Input: root = [1,null,3]
-Output: [1,3]
-
-Input: root = []
-Output: []`,
+      examples: [
+        { input: 'root = [1,2,3,null,5,null,4]', output: '[1,3,4]' },
+        { input: 'root = [1,null,3]', output: '[1,3]' },
+        { input: 'root = []', output: '[]' }
+      ],
       code: {
         java: {
           starterCode: `public List<Integer> rightSideView(TreeNode root) {
@@ -2866,17 +2758,10 @@ def rightSideViewClean(self, root: Optional[TreeNode]) -> List[int]:
       difficulty: 'Easy',
       leetcodeUrl: 'https://leetcode.com/problems/average-of-levels-in-binary-tree/',
       description: 'Given the root of a binary tree, return the average value of the nodes on each level in the form of an array.',
-      example: `Input: root = [3,9,20,null,null,15,7]
-Output: [3.00000,14.50000,11.00000]
-Explanation:
-      3         Level 0: avg = 3/1 = 3.0
-     / \\
-    9  20       Level 1: avg = (9+20)/2 = 14.5
-      /  \\
-     15   7     Level 2: avg = (15+7)/2 = 11.0
-
-Input: root = [3,9,20,15,7]
-Output: [3.00000,14.50000,11.00000]`,
+      examples: [
+        { input: 'root = [3,9,20,null,null,15,7]', output: '[3.0,14.5,11.0]' },
+        { input: 'root = [3,9,20,15,7]', output: '[3.0,14.5,11.0]' }
+      ],
       code: {
         java: {
           starterCode: `public List<Double> averageOfLevels(TreeNode root) {
@@ -3015,20 +2900,11 @@ def averageOfLevelsDFS(self, root: Optional[TreeNode]) -> List[float]:
       difficulty: 'Medium',
       leetcodeUrl: 'https://leetcode.com/problems/binary-tree-level-order-traversal/',
       description: 'Given the root of a binary tree, return the level order traversal of its nodes values (i.e., from left to right, level by level).',
-      example: `Input: root = [3,9,20,null,null,15,7]
-Output: [[3],[9,20],[15,7]]
-Explanation:
-      3         Level 0: [3]
-     / \\
-    9  20       Level 1: [9, 20]
-      /  \\
-     15   7     Level 2: [15, 7]
-
-Input: root = [1]
-Output: [[1]]
-
-Input: root = []
-Output: []`,
+      examples: [
+        { input: 'root = [3,9,20,null,null,15,7]', output: '[[3],[9,20],[15,7]]' },
+        { input: 'root = [1]', output: '[[1]]' },
+        { input: 'root = []', output: '[]' }
+      ],
       code: {
         java: {
           starterCode: `public List<List<Integer>> levelOrder(TreeNode root) {
@@ -3212,20 +3088,11 @@ def levelOrderSentinel(self, root: Optional[TreeNode]) -> List[List[int]]:
       difficulty: 'Medium',
       leetcodeUrl: 'https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/',
       description: 'Given the root of a binary tree, return the zigzag level order traversal of its node values (i.e., from left to right, then right to left for the next level and alternate between).',
-      example: `Input: root = [3,9,20,null,null,15,7]
-Output: [[3],[20,9],[15,7]]
-Explanation:
-      3         Level 0: [3]       (left to right)
-     / \\
-    9  20       Level 1: [20,9]    (right to left)
-      /  \\
-     15   7     Level 2: [15,7]    (left to right)
-
-Input: root = [1]
-Output: [[1]]
-
-Input: root = []
-Output: []`,
+      examples: [
+        { input: 'root = [3,9,20,null,null,15,7]', output: '[[3],[20,9],[15,7]]' },
+        { input: 'root = [1]', output: '[[1]]' },
+        { input: 'root = []', output: '[]' }
+      ],
       code: {
         java: {
           starterCode: `public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
@@ -3446,6 +3313,21 @@ def zigzagLevelOrderDFS(self, root: Optional[TreeNode]) -> List[List[int]]:
     Hard: questions.filter(q => q.difficulty === 'Hard')
   }
 
+  const visibleQuestions = Object.entries(groupedQuestions)
+    .filter(([difficulty]) => expandedSections[difficulty])
+    .flatMap(([, qs]) => qs)
+
+  const { focusedIndex, setFocusedIndex, itemRefs } = useKeyboardNavigation({
+    items: visibleQuestions,
+    onSelect: (question) => selectQuestion(question),
+    onEscape: onBack,
+    enabled: !selectedQuestion && visibleQuestions.length > 0,
+    gridColumns: 2,
+    loop: true
+  })
+
+  const getVisibleIndex = (question) => visibleQuestions.findIndex(q => q.id === question.id)
+
   const selectQuestion = (question) => {
     setSelectedQuestion(question)
     setShowSolution(false)
@@ -3473,19 +3355,19 @@ def zigzagLevelOrderDFS(self, root: Optional[TreeNode]) -> List[List[int]]:
 
   if (selectedQuestion) {
     return (
-      <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto', backgroundColor: '#f0f9ff', minHeight: '100vh' }}>
+      <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <button onClick={() => setSelectedQuestion(null)} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
-            ← Back to Problems
+            ← Back to Practice
           </button>
           <LanguageToggle />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
           {/* Problem Description */}
-          <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '12px', border: '2px solid #e5e7eb', maxHeight: '85vh', overflowY: 'auto' }}>
+          <div style={{ backgroundColor: '#1f2937', padding: '2rem', borderRadius: '12px', border: '2px solid #374151', maxHeight: '85vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.75rem', color: '#1f2937', margin: 0 }}>{selectedQuestion.title}</h2>
+              <h2 style={{ fontSize: '1.75rem', color: 'white', margin: 0 }}>{selectedQuestion.title}</h2>
               <span style={{ padding: '0.5rem 1rem', borderRadius: '12px', fontSize: '0.875rem', fontWeight: '600', backgroundColor: getDifficultyColor(selectedQuestion.difficulty) + '20', color: getDifficultyColor(selectedQuestion.difficulty) }}>
                 {selectedQuestion.difficulty}
               </span>
@@ -3503,20 +3385,20 @@ def zigzagLevelOrderDFS(self, root: Optional[TreeNode]) -> List[List[int]]:
             )}
 
             <div style={{ marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.1rem', color: '#374151', marginBottom: '0.75rem' }}>Description</h3>
-              <p style={{ fontSize: '1rem', color: '#6b7280', lineHeight: '1.6' }}>{selectedQuestion.description}</p>
+              <h3 style={{ fontSize: '1.1rem', color: 'white', marginBottom: '0.75rem' }}>Description</h3>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.6' }}>{selectedQuestion.description}</p>
             </div>
 
             {selectedQuestion.examples && selectedQuestion.examples.length > 0 && (
               <div style={{ marginBottom: '1.5rem' }}>
-                <h3 style={{ fontSize: '1.1rem', color: '#374151', marginBottom: '0.75rem' }}>Examples</h3>
+                <h3 style={{ fontSize: '1.1rem', color: 'white', marginBottom: '0.75rem' }}>Examples</h3>
                 {selectedQuestion.examples.map((example, idx) => (
-                  <div key={idx} style={{ backgroundColor: '#f9fafb', padding: '1rem', borderRadius: '8px', marginBottom: '0.75rem', border: '1px solid #e5e7eb', color: '#1f2937' }}>
+                  <div key={idx} style={{ backgroundColor: '#111827', padding: '1rem', borderRadius: '8px', marginBottom: '0.75rem', border: '1px solid #374151', color: '#9ca3af' }}>
                     <div style={{ marginBottom: '0.5rem' }}>
-                      <strong style={{ color: '#1f2937' }}>Input:</strong> <code style={{ color: '#1f2937' }}>{example.input}</code>
+                      <strong style={{ color: 'white' }}>Input:</strong> <code style={{ color: '#9ca3af' }}>{example.input}</code>
                     </div>
                     <div>
-                      <strong style={{ color: '#1f2937' }}>Output:</strong> <code style={{ color: '#1f2937' }}>{example.output}</code>
+                      <strong style={{ color: 'white' }}>Output:</strong> <code style={{ color: '#9ca3af' }}>{example.output}</code>
                     </div>
                   </div>
                 ))}
@@ -3525,22 +3407,22 @@ def zigzagLevelOrderDFS(self, root: Optional[TreeNode]) -> List[List[int]]:
 
             {selectedQuestion.explanation && (
               <div style={{ marginTop: '1.5rem' }}>
-                <h3 style={{ fontSize: '1.1rem', color: '#374151', marginBottom: '0.75rem' }}>💡 Explanation</h3>
-                <p style={{ fontSize: '0.95rem', color: '#6b7280', lineHeight: '1.6' }}>{selectedQuestion.explanation}</p>
+                <h3 style={{ fontSize: '1.1rem', color: 'white', marginBottom: '0.75rem' }}>Explanation</h3>
+                <p style={{ fontSize: '0.95rem', color: '#9ca3af', lineHeight: '1.6' }}>{selectedQuestion.explanation}</p>
               </div>
             )}
 
             {(selectedQuestion.timeComplexity || selectedQuestion.spaceComplexity) && (
-              <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#eff6ff', borderRadius: '8px', border: '1px solid #dbeafe' }}>
-                <h3 style={{ fontSize: '1rem', color: '#1e40af', marginBottom: '0.5rem' }}>Complexity</h3>
-                {selectedQuestion.timeComplexity && <div style={{ fontSize: '0.9rem', color: '#1e40af' }}>⏱️ Time: {selectedQuestion.timeComplexity}</div>}
-                {selectedQuestion.spaceComplexity && <div style={{ fontSize: '0.9rem', color: '#1e40af' }}>💾 Space: {selectedQuestion.spaceComplexity}</div>}
+              <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#1f2937', borderRadius: '8px', border: '1px solid #374151' }}>
+                <h3 style={{ fontSize: '1rem', color: 'white', marginBottom: '0.5rem' }}>Complexity</h3>
+                {selectedQuestion.timeComplexity && <div style={{ fontSize: '0.9rem', color: '#9ca3af' }}>Time: {selectedQuestion.timeComplexity}</div>}
+                {selectedQuestion.spaceComplexity && <div style={{ fontSize: '0.9rem', color: '#9ca3af' }}>Space: {selectedQuestion.spaceComplexity}</div>}
               </div>
             )}
           </div>
 
           {/* Code Editor */}
-          <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '12px', border: '2px solid #e5e7eb', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ backgroundColor: '#1f2937', padding: '2rem', borderRadius: '12px', border: '2px solid #374151', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' , flexWrap: 'wrap' }}>
               <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedQuestion.code[language].solution) }} style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
                 {showSolution ? 'Hide' : 'Show'} Solution
@@ -3553,12 +3435,12 @@ def zigzagLevelOrderDFS(self, root: Optional[TreeNode]) -> List[List[int]]:
               </button>
             </div>
 
-            <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'monospace', fontSize: '0.9rem', border: '2px solid #e5e7eb', borderRadius: '8px', resize: 'none', lineHeight: '1.5' }} spellCheck={false} />
+            <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'monospace', fontSize: '0.9rem', border: '2px solid #374151', borderRadius: '8px', resize: 'none', lineHeight: '1.5', backgroundColor: '#111827', color: '#d1d5db' }} spellCheck={false} />
 
             {output && (
               <div style={{ marginTop: '1rem' }}>
-                <h3 style={{ fontSize: '1rem', color: '#374151', marginBottom: '0.5rem' }}>Output</h3>
-                <pre style={{ backgroundColor: '#f9fafb', padding: '1rem', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'auto', fontSize: '0.875rem', maxHeight: '150px' }}>{output}</pre>
+                <h3 style={{ fontSize: '1rem', color: 'white', marginBottom: '0.5rem' }}>Output</h3>
+                <pre style={{ backgroundColor: '#111827', padding: '1rem', borderRadius: '8px', border: '1px solid #374151', overflow: 'auto', fontSize: '0.875rem', maxHeight: '150px', color: '#9ca3af' }}>{output}</pre>
               </div>
             )}
           </div>
@@ -3580,7 +3462,7 @@ def zigzagLevelOrderDFS(self, root: Optional[TreeNode]) -> List[List[int]]:
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#f0f9ff', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
       <div style={{ marginBottom: '2rem' }}>
         <button onClick={onBack} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'} onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}>
           ← Back
@@ -3590,17 +3472,17 @@ def zigzagLevelOrderDFS(self, root: Optional[TreeNode]) -> List[List[int]]:
       <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#1f2937', marginBottom: '0.5rem' }}>🌲 Binary Trees</h1>
-        <p style={{ fontSize: '1.2rem', color: '#6b7280' }}>Master binary trees problems</p>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: 'white', marginBottom: '0.5rem' }}>Binary Trees</h1>
+        <p style={{ fontSize: '1.2rem', color: '#9ca3af' }}>Master binary trees problems</p>
 
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1.5rem' }}>
-          <div style={{ padding: '1rem 2rem', backgroundColor: 'white', borderRadius: '12px', border: '2px solid #e5e7eb' }}>
-            <div style={{ fontSize: '2rem', fontWeight: '700', color: '#3b82f6' }}>{stats.completed}/{stats.total}</div>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>Completed</div>
+          <div style={{ padding: '1rem 2rem', backgroundColor: '#1f2937', borderRadius: '12px', border: '2px solid #374151' }}>
+            <div style={{ fontSize: '2rem', fontWeight: '700', color: 'white' }}>{stats.completed}/{stats.total}</div>
+            <div style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.25rem' }}>Completed</div>
           </div>
-          <div style={{ padding: '1rem 2rem', backgroundColor: 'white', borderRadius: '12px', border: '2px solid #e5e7eb' }}>
-            <div style={{ fontSize: '2rem', fontWeight: '700', color: '#10b981' }}>{stats.percentage}%</div>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>Progress</div>
+          <div style={{ padding: '1rem 2rem', backgroundColor: '#1f2937', borderRadius: '12px', border: '2px solid #374151' }}>
+            <div style={{ fontSize: '2rem', fontWeight: '700', color: 'white' }}>{stats.percentage}%</div>
+            <div style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.25rem' }}>Progress</div>
           </div>
         </div>
       </div>
@@ -3608,43 +3490,72 @@ def zigzagLevelOrderDFS(self, root: Optional[TreeNode]) -> List[List[int]]:
       {Object.entries(groupedQuestions).map(([difficulty, difficultyQuestions]) => (
         difficultyQuestions.length > 0 && (
           <div key={difficulty} style={{ marginBottom: '2rem' }}>
-            <button onClick={() => toggleSection(difficulty)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', backgroundColor: 'white', border: '2px solid #e5e7eb', borderRadius: '12px', cursor: 'pointer', marginBottom: '1rem' }}>
+            <button onClick={() => toggleSection(difficulty)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', backgroundColor: '#1f2937', border: '2px solid #374151', borderRadius: '12px', cursor: 'pointer', marginBottom: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <span style={{ fontSize: '1.5rem', fontWeight: '700', color: getDifficultyColor(difficulty) }}>{difficulty}</span>
-                <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>({difficultyQuestions.length} problems)</span>
+                <span style={{ fontSize: '1.5rem', fontWeight: '700', color: 'white' }}>{difficulty}</span>
+                <span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>({difficultyQuestions.length} problems)</span>
               </div>
-              <span style={{ fontSize: '1.25rem', color: '#6b7280' }}>{expandedSections[difficulty] ? '▼' : '▶'}</span>
+              <span style={{ fontSize: '1.25rem', color: '#9ca3af' }}>{expandedSections[difficulty] ? '▼' : '▶'}</span>
             </button>
 
             {expandedSections[difficulty] && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '1rem' }}>
-                {difficultyQuestions.map((question) => (
-                  <div key={question.id} onClick={() => selectQuestion(question)} style={{ backgroundColor: 'white', padding: '1.5rem', borderRadius: '12px', border: '2px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)' }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937', margin: 0, flex: 1 }}>{question.id}. {question.title}</h3>
-                    </div>
-                    <p style={{ fontSize: '0.875rem', color: '#6b7280', lineHeight: '1.5', marginBottom: '1rem' }}>{question.description.substring(0, 100)}...</p>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '600', backgroundColor: getDifficultyColor(question.difficulty) + '20', color: getDifficultyColor(question.difficulty) }}>{question.difficulty}</span>
-                      <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ transform: 'scale(0.85)' }}>
-                          <CompletionCheckbox problemId={`Binary Trees-${question.id}`} />
+              <div role="list" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '1rem' }}>
+                {difficultyQuestions.map((question) => {
+                  const visibleIndex = getVisibleIndex(question)
+                  const isFocused = focusedIndex === visibleIndex
+                  return (
+                    <div
+                      key={question.id}
+                      ref={el => itemRefs.current[visibleIndex] = el}
+                      tabIndex={isFocused ? 0 : -1}
+                      role="listitem"
+                      aria-label={`${question.title}, ${question.difficulty}`}
+                      onClick={() => selectQuestion(question)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          selectQuestion(question)
+                        }
+                      }}
+                      onFocus={() => setFocusedIndex(visibleIndex)}
+                      style={{
+                        backgroundColor: '#1f2937',
+                        padding: '1.5rem',
+                        borderRadius: '12px',
+                        border: isFocused ? '2px solid #3b82f6' : '2px solid #374151',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        outline: 'none'
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.3)' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.border = isFocused ? '2px solid #3b82f6' : '2px solid #374151' }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'white', margin: 0, flex: 1 }}>{question.id}. {question.title}</h3>
+                      </div>
+                      <p style={{ fontSize: '0.875rem', color: '#9ca3af', lineHeight: '1.5', marginBottom: '1rem' }}>{question.description.substring(0, 100)}...</p>
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '600', backgroundColor: getDifficultyColor(question.difficulty) + '20', color: getDifficultyColor(question.difficulty) }}>{question.difficulty}</span>
+                        <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <div style={{ transform: 'scale(0.85)' }}>
+                            <CompletionCheckbox problemId={`Binary Trees-${question.id}`} />
+                          </div>
+                          <BookmarkButton size="small" problemId={`BinaryTrees-${question.id}`} problemData={{ title: question.title, difficulty: question.difficulty, category: 'BinaryTrees' }} />
+                          {question.leetcodeUrl && (
+                            <a
+                              href={question.leetcodeUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ padding: '0.25rem 0.75rem', backgroundColor: '#FFA116', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: '0.75rem', fontWeight: '600', display: 'inline-block' }}
+                            >
+                              LeetCode ↗
+                            </a>
+                          )}
                         </div>
-                        <BookmarkButton size="small" problemId={`BinaryTrees-${question.id}`} problemData={{ title: question.title, difficulty: question.difficulty, category: 'BinaryTrees' }} />
-                        {question.leetcodeUrl && (
-                          <a
-                            href={question.leetcodeUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ padding: '0.25rem 0.75rem', backgroundColor: '#FFA116', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: '0.75rem', fontWeight: '600', display: 'inline-block' }}
-                          >
-                            LeetCode ↗
-                          </a>
-                        )}
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>

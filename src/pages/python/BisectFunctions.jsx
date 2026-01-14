@@ -5,14 +5,6 @@ import Breadcrumb from '../../components/Breadcrumb'
 
 function BisectFunctions({ onBack, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
-
-  const toggleSection = (sectionKey) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [sectionKey]: !prev[sectionKey]
-    }))
-  }
 
   const parseCodeSections = (code) => {
     const sections = []
@@ -1214,49 +1206,38 @@ for score in [85, 92, 78, 88, 95, 72, 90]:
                   {codeSections.length > 0 ? (
                     codeSections.map((section, idx) => (
                       <div key={idx} style={{ marginBottom: '1.5rem' }}>
-                        <button
-                          onClick={() => toggleSection(`${selectedConcept}-${idx}`)}
+                        <div
                           style={{
                             width: '100%',
                             padding: '1rem',
                             background: '#2563eb',
                             color: 'white',
-                            border: 'none',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
+                            borderRadius: '8px 8px 0 0',
                             fontSize: '1rem',
                             fontWeight: '600',
-                            textAlign: 'left',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            transition: 'all 0.2s ease'
+                            textAlign: 'left'
                           }}
-                          onMouseEnter={(e) => e.target.style.background = '#1d4ed8'}
-                          onMouseLeave={(e) => e.target.style.background = '#2563eb'}
                         >
-                          <span>{section.title}</span>
-                          <span>{expandedSections[`${selectedConcept}-${idx}`] ? '▼' : '▶'}</span>
-                        </button>
-                        {expandedSections[`${selectedConcept}-${idx}`] && (
-                          <div style={{
-                            backgroundColor: '#1e293b',
-                            borderRadius: '0 0 8px 8px',
-                            overflow: 'hidden'
-                          }}>
-                            <SyntaxHighlighter
-                              language="python"
-                              style={vscDarkPlus}
-                              customStyle={{
-                                borderRadius: '8px',
-                                padding: '1rem',
-                                fontSize: '0.9rem'
-                              }}
-                            >
-                              {section.code}
-                            </SyntaxHighlighter>
-                          </div>
-                        )}
+                          {section.title}
+                        </div>
+                        <div style={{
+                          backgroundColor: '#1e293b',
+                          borderRadius: '0 0 8px 8px',
+                          overflow: 'hidden'
+                        }}>
+                          <SyntaxHighlighter
+                            language="python"
+                            style={vscDarkPlus}
+                            customStyle={{
+                              borderRadius: '0 0 8px 8px',
+                              padding: '1rem',
+                              fontSize: '0.9rem',
+                              margin: 0
+                            }}
+                          >
+                            {section.code}
+                          </SyntaxHighlighter>
+                        </div>
                       </div>
                     ))
                   ) : (

@@ -96,7 +96,6 @@ const SyntaxHighlighter = ({ code }) => {
 function Java8({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedConcept, setSelectedConcept] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
   const [focusedCategoryIndex, setFocusedCategoryIndex] = useState(0)
   const [focusedConceptIndex, setFocusedConceptIndex] = useState(0)
   const [isKeyboardUser, setIsKeyboardUser] = useState(false)
@@ -105,13 +104,6 @@ function Java8({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
   const backButtonRef = useRef(null)
   const categoryRefs = useRef([])
   const conceptRefs = useRef([])
-
-  const toggleSection = (sectionKey) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [sectionKey]: !prev[sectionKey]
-    }))
-  }
 
   const parseCodeSections = (code) => {
     const sections = []
@@ -382,10 +374,10 @@ function Java8({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
 
 // Before Java 8 - Anonymous class
 Runnable r1 = new Runnable() {
-@Override
-public void run() {
-System.out.println("Hello World");
-}
+    @Override
+    public void run() {
+        System.out.println("Hello World");
+    }
 };
 
 // Java 8 - Lambda expression
@@ -396,8 +388,8 @@ Comparator<String> comp = (s1, s2) -> s1.compareTo(s2);
 
 // Lambda with multiple statements
 BiFunction<Integer, Integer, Integer> add = (a, b) -> {
-int sum = a + b;
-return sum;
+    int sum = a + b;
+    return sum;
 };
 
 // Output:
@@ -460,7 +452,7 @@ double value = random.get();
 // Custom functional interface
 @FunctionalInterface
 interface Calculator {
-int calculate(int a, int b);
+    int calculate(int a, int b);
 }
 Calculator add = (a, b) -> a + b;
 // Result: add.calculate(5, 3) returns 8`
@@ -586,11 +578,11 @@ int result = divide.apply(10);
 
 // Capturing instance variables (allowed)
 class Calculator {
-private int base = 100;
+    private int base = 100;
 
-public Function<Integer, Integer> getAdder() {
-return x -> x + base; // captures 'base'
-}
+    public Function<Integer, Integer> getAdder() {
+        return x -> x + base; // captures 'base'
+    }
 }
 Calculator calc = new Calculator();
 Function<Integer, Integer> adder = calc.getAdder();
@@ -642,21 +634,21 @@ people.sort((p1, p2) -> p1.getAge() - p2.getAge());
 // Filtering collections
 List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
 numbers.stream()
-.filter(n -> n % 2 == 0)
-.forEach(System.out::println);
+    .filter(n -> n % 2 == 0)
+    .forEach(System.out::println);
 // Output:
 // 2
 // 4
 
 // Asynchronous callback
 CompletableFuture.supplyAsync(() -> fetchData())
-.thenApply(data -> process(data))
-.thenAccept(result -> System.out.println(result));
+    .thenApply(data -> process(data))
+    .thenAccept(result -> System.out.println(result));
 // Output: result of processed data (async)
 
 // Thread creation
 new Thread(() -> {
-System.out.println("Running in thread");
+    System.out.println("Running in thread");
 }).start();
 // Output: "Running in thread" (in separate thread)`
     },
@@ -700,37 +692,37 @@ System.out.println("Running in thread");
 // Basic map - transform strings to uppercase
 List<String> names = Arrays.asList("alice", "bob", "charlie");
 List<String> upper = names.stream()
-.map(String::toUpperCase)
-.collect(Collectors.toList());
+    .map(String::toUpperCase)
+    .collect(Collectors.toList());
 // Result: [ALICE, BOB, CHARLIE]
 
 // Map to different type - String to Integer
 List<String> words = Arrays.asList("Java", "Python", "JavaScript");
 List<Integer> lengths = words.stream()
-.map(String::length)
-.collect(Collectors.toList());
+    .map(String::length)
+    .collect(Collectors.toList());
 // Result: [4, 6, 10]
 
 // Chaining multiple maps
 List<String> result = Arrays.asList("1", "2", "3").stream()
-.map(Integer::parseInt)      // String -> Integer
-.map(n -> n * 2)              // Integer -> Integer
-.map(n -> "Number: " + n)     // Integer -> String
-.collect(Collectors.toList());
+    .map(Integer::parseInt)      // String -> Integer
+    .map(n -> n * 2)              // Integer -> Integer
+    .map(n -> "Number: " + n)     // Integer -> String
+    .collect(Collectors.toList());
 // Result: [Number: 2, Number: 4, Number: 6]
 
 // Map with complex objects
 List<Person> people = getPeople();
 List<String> emails = people.stream()
-.map(Person::getEmail)
-.collect(Collectors.toList());
+    .map(Person::getEmail)
+    .collect(Collectors.toList());
 // Result: list of email addresses
 
 // Map with method reference
 List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
 List<String> strings = numbers.stream()
-.map(Object::toString)
-.collect(Collectors.toList());
+    .map(Object::toString)
+    .collect(Collectors.toList());
 // Result: ["1", "2", "3", "4", "5"]`
     },
     {
@@ -773,49 +765,49 @@ List<String> strings = numbers.stream()
 
 // Flatten nested lists
 List<List<Integer>> nested = Arrays.asList(
-Arrays.asList(1, 2, 3),
-Arrays.asList(4, 5),
-Arrays.asList(6, 7, 8)
+    Arrays.asList(1, 2, 3),
+    Arrays.asList(4, 5),
+    Arrays.asList(6, 7, 8)
 );
 List<Integer> flat = nested.stream()
-.flatMap(List::stream)
-.collect(Collectors.toList());
+    .flatMap(List::stream)
+    .collect(Collectors.toList());
 // Result: [1, 2, 3, 4, 5, 6, 7, 8]
 
 // Split strings into characters
 List<String> words = Arrays.asList("Hello", "World");
 List<String> chars = words.stream()
-.flatMap(word -> Arrays.stream(word.split("")))
-.collect(Collectors.toList());
+    .flatMap(word -> Arrays.stream(word.split("")))
+    .collect(Collectors.toList());
 // Result: [H, e, l, l, o, W, o, r, l, d]
 
 // Flatten Optional values
 List<Optional<String>> optionals = Arrays.asList(
-Optional.of("Alice"),
-Optional.empty(),
-Optional.of("Bob"),
-Optional.empty(),
-Optional.of("Charlie")
+    Optional.of("Alice"),
+    Optional.empty(),
+    Optional.of("Bob"),
+    Optional.empty(),
+    Optional.of("Charlie")
 );
 List<String> present = optionals.stream()
-.flatMap(Optional::stream)  // Java 9+
-.collect(Collectors.toList());
+    .flatMap(Optional::stream)  // Java 9+
+    .collect(Collectors.toList());
 // Result: [Alice, Bob, Charlie]
 
 // Get all books from all authors
 List<Author> authors = getAuthors();
 List<Book> allBooks = authors.stream()
-.flatMap(author -> author.getBooks().stream())
-.collect(Collectors.toList());
+    .flatMap(author -> author.getBooks().stream())
+    .collect(Collectors.toList());
 // Result: flattened list of all books
 
 // Cartesian product with flatMap
 List<String> colors = Arrays.asList("Red", "Blue");
 List<String> sizes = Arrays.asList("S", "M", "L");
 List<String> combinations = colors.stream()
-.flatMap(color -> sizes.stream()
-.map(size -> color + "-" + size))
-.collect(Collectors.toList());
+    .flatMap(color -> sizes.stream()
+        .map(size -> color + "-" + size))
+    .collect(Collectors.toList());
 // Result: [Red-S, Red-M, Red-L, Blue-S, Blue-M, Blue-L]`
     },
     {
@@ -864,25 +856,25 @@ List<String> combinations = colors.stream()
 List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
 String result = numbers.stream()
-.collect(Collectors.teeing(
-Collectors.summingInt(Integer::intValue),    // First collector
-Collectors.counting(),                        // Second collector
-(sum, count) -> "Sum: " + sum + ", Count: " + count
-));
+    .collect(Collectors.teeing(
+        Collectors.summingInt(Integer::intValue),    // First collector
+        Collectors.counting(),                        // Second collector
+        (sum, count) -> "Sum: " + sum + ", Count: " + count
+    ));
 // Result: "Sum: 55, Count: 10"
 
 // Find min and max in single pass
 record MinMax(Integer min, Integer max) {}
 
 MinMax minMax = numbers.stream()
-.collect(Collectors.teeing(
-Collectors.minBy(Integer::compareTo),
-Collectors.maxBy(Integer::compareTo),
-(min, max) -> new MinMax(
-min.orElse(null),
-max.orElse(null)
-)
-));
+    .collect(Collectors.teeing(
+        Collectors.minBy(Integer::compareTo),
+        Collectors.maxBy(Integer::compareTo),
+        (min, max) -> new MinMax(
+            min.orElse(null),
+            max.orElse(null)
+        )
+    ));
 // Result: MinMax[min=1, max=10]
 
 // Group by condition and calculate statistics
@@ -891,23 +883,23 @@ List<Person> people = getPeople();
 record Stats(long adults, double avgAge) {}
 
 Stats stats = people.stream()
-.collect(Collectors.teeing(
-Collectors.filtering(
-p -> p.getAge() >= 18,
-Collectors.counting()
-),
-Collectors.averagingInt(Person::getAge),
-Stats::new
-));
+    .collect(Collectors.teeing(
+        Collectors.filtering(
+            p -> p.getAge() >= 18,
+            Collectors.counting()
+        ),
+        Collectors.averagingInt(Person::getAge),
+        Stats::new
+    ));
 // Result: Stats[adults=15, avgAge=32.5]
 
 // Partition and count both groups
 Map.Entry<Long, Long> evenOddCount = numbers.stream()
-.collect(Collectors.teeing(
-Collectors.filtering(n -> n % 2 == 0, Collectors.counting()),
-Collectors.filtering(n -> n % 2 != 0, Collectors.counting()),
-Map::entry
-));
+    .collect(Collectors.teeing(
+        Collectors.filtering(n -> n % 2 == 0, Collectors.counting()),
+        Collectors.filtering(n -> n % 2 != 0, Collectors.counting()),
+        Map::entry
+    ));
 // Result: Entry[5, 5] (5 even, 5 odd)
 
 // Calculate sum of positive and negative numbers
@@ -915,11 +907,11 @@ record SumStats(int positive, int negative) {}
 
 List<Integer> mixed = Arrays.asList(-5, 3, -2, 8, -1, 4);
 SumStats sums = mixed.stream()
-.collect(Collectors.teeing(
-Collectors.filtering(n -> n > 0, Collectors.summingInt(Integer::intValue)),
-Collectors.filtering(n -> n < 0, Collectors.summingInt(Integer::intValue)),
-SumStats::new
-));
+    .collect(Collectors.teeing(
+        Collectors.filtering(n -> n > 0, Collectors.summingInt(Integer::intValue)),
+        Collectors.filtering(n -> n < 0, Collectors.summingInt(Integer::intValue)),
+        SumStats::new
+    ));
 // Result: SumStats[positive=15, negative=-8]`
     },
     {
@@ -969,29 +961,29 @@ List<String> names = Arrays.asList("Alice", "Bob", "Charlie", "David", "Eve");
 
 // Filter and map - intermediate operations
 List<String> result = names.stream()
-.filter(name -> name.length() > 3)  // Keep names longer than 3 chars
-.map(String::toUpperCase)            // Convert to uppercase
-.sorted()                            // Sort alphabetically
-.collect(Collectors.toList());       // Terminal operation
+    .filter(name -> name.length() > 3)  // Keep names longer than 3 chars
+    .map(String::toUpperCase)            // Convert to uppercase
+    .sorted()                            // Sort alphabetically
+    .collect(Collectors.toList());       // Terminal operation
 // Result: [ALICE, CHARLIE, DAVID]
 
 // FlatMap - flatten nested structures
 List<List<Integer>> nested = Arrays.asList(
-Arrays.asList(1, 2, 3),
-Arrays.asList(4, 5),
-Arrays.asList(6, 7, 8)
+    Arrays.asList(1, 2, 3),
+    Arrays.asList(4, 5),
+    Arrays.asList(6, 7, 8)
 );
 List<Integer> flat = nested.stream()
-.flatMap(List::stream)
-.collect(Collectors.toList());
+    .flatMap(List::stream)
+    .collect(Collectors.toList());
 // Result: [1, 2, 3, 4, 5, 6, 7, 8]
 
 // Distinct and limit
 List<Integer> unique = Arrays.asList(1, 2, 2, 3, 3, 3, 4, 5)
-.stream()
-.distinct()    // Remove duplicates
-.limit(3)      // Take first 3
-.collect(Collectors.toList());
+    .stream()
+    .distinct()    // Remove duplicates
+    .limit(3)      // Take first 3
+    .collect(Collectors.toList());
 // Result: [1, 2, 3]`
     },
     {
@@ -3462,7 +3454,7 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
       padding: '1.5rem',
       maxWidth: '80rem',
       margin: '0 auto',
-      background: 'linear-gradient(to bottom right, #111827, #78350f, #111827)',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       color: 'white',
       minHeight: '100vh',
       borderRadius: '16px',
@@ -3495,7 +3487,7 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
             onMouseEnter={(e) => e.currentTarget.style.background = '#d97706'}
             onMouseLeave={(e) => e.currentTarget.style.background = '#f59e0b'}
           >
-            ← Back to Java Topics
+            ← Back to Java
           </button>
           <h1 style={{
             fontSize: '2rem',
@@ -3985,48 +3977,28 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
                   const sections = parseCodeSections(selectedConcept.codeExample)
                   return sections.length > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                      {sections.map((section, idx) => {
-                        const sectionKey = `${selectedConcept.name}-${idx}`
-                        const isExpanded = expandedSections[sectionKey]
-
-                        return (
-                          <div key={idx} style={{
-                            backgroundColor: '#1e293b',
-                            borderRadius: '12px',
-                            overflow: 'hidden',
-                            border: '2px solid #334155'
+                      {sections.map((section, idx) => (
+                        <div key={idx} style={{
+                          backgroundColor: '#1e293b',
+                          borderRadius: '12px',
+                          overflow: 'hidden',
+                          border: '2px solid #334155'
+                        }}>
+                          <div style={{
+                            padding: '1rem 1.5rem',
+                            backgroundColor: '#334155',
+                            color: '#60a5fa',
+                            fontSize: '1rem',
+                            fontWeight: '600',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem'
                           }}>
-                            <button
-                              onClick={() => toggleSection(sectionKey)}
-                              style={{
-                                width: '100%',
-                                padding: '1rem 1.5rem',
-                                backgroundColor: '#334155',
-                                border: 'none',
-                                color: '#60a5fa',
-                                fontSize: '1rem',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                transition: 'all 0.2s ease'
-                              }}
-                            >
-                              <span>💻 {section.title}</span>
-                              <span style={{ fontSize: '1.2rem' }}>
-                                {isExpanded ? '▼' : '▶'}
-                              </span>
-                            </button>
-
-                            {isExpanded && (
-                              <div>
-                                <SyntaxHighlighter code={section.code} />
-                              </div>
-                            )}
+                            <span>💻 {section.title}</span>
                           </div>
-                        )
-                      })}
+                          <SyntaxHighlighter code={section.code} />
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     <div style={{

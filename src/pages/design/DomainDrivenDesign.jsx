@@ -233,7 +233,7 @@ Technologies: Spring Boot microservices, API Gateway, GraphQL Federation, Event-
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0d9488'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#14b8a6'}
           >
-            ← Back to Menu
+            ← Back to Design
           </button>
           <div>
             <h1 style={{

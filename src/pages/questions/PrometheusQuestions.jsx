@@ -1014,7 +1014,7 @@ rate(http_server_requests_seconds_count{application="my-app",status=~"5.."}[5m])
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', backgroundColor: '#fee2e2', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -1043,7 +1043,7 @@ rate(http_server_requests_seconds_count{application="my-app",status=~"5.."}[5m])
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '800',
-          color: '#1f2937',
+          color: '#93c5fd',
           margin: 0
         }}>
           Prometheus Interview Questions
@@ -1055,7 +1055,7 @@ rate(http_server_requests_seconds_count{application="my-app",status=~"5.."}[5m])
 
       <p style={{
         fontSize: '1.1rem',
-        color: '#4b5563',
+        color: '#d1d5db',
         textAlign: 'center',
         marginBottom: '2rem',
         lineHeight: '1.6'
@@ -1068,14 +1068,14 @@ rate(http_server_requests_seconds_count{application="my-app",status=~"5.."}[5m])
           <div
             key={q.id}
             style={{
-              backgroundColor: 'white',
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
               borderRadius: '12px',
-              border: `3px solid ${expandedQuestion === q.id ? getCategoryColor(q.category) : '#e5e7eb'}`,
+              border: `3px solid ${expandedQuestion === q.id ? getCategoryColor(q.category) : '#374151'}`,
               overflow: 'hidden',
               transition: 'all 0.3s ease',
               boxShadow: expandedQuestion === q.id
-                ? '0 8px 16px rgba(0,0,0,0.1)'
-                : '0 2px 8px rgba(0,0,0,0.05)'
+                ? '0 8px 16px rgba(0,0,0,0.3)'
+                : '0 2px 8px rgba(0,0,0,0.2)'
             }}
           >
             <button
@@ -1085,7 +1085,7 @@ rate(http_server_requests_seconds_count{application="my-app",status=~"5.."}[5m])
                 padding: '1.5rem',
                 backgroundColor: expandedQuestion === q.id
                   ? `${getCategoryColor(q.category)}15`
-                  : 'white',
+                  : 'transparent',
                 border: 'none',
                 cursor: 'pointer',
                 textAlign: 'left',
@@ -1096,12 +1096,12 @@ rate(http_server_requests_seconds_count{application="my-app",status=~"5.."}[5m])
               }}
               onMouseEnter={(e) => {
                 if (expandedQuestion !== q.id) {
-                  e.currentTarget.style.backgroundColor = '#f9fafb'
+                  e.currentTarget.style.backgroundColor = '#374151'
                 }
               }}
               onMouseLeave={(e) => {
                 if (expandedQuestion !== q.id) {
-                  e.currentTarget.style.backgroundColor = 'white'
+                  e.currentTarget.style.backgroundColor = 'transparent'
                 }
               }}
             >
@@ -1133,7 +1133,7 @@ rate(http_server_requests_seconds_count{application="my-app",status=~"5.."}[5m])
                 <h3 style={{
                   fontSize: '1.15rem',
                   fontWeight: '700',
-                  color: '#1f2937',
+                  color: '#e2e8f0',
                   margin: 0
                 }}>
                   Q{q.id}. {q.question}
@@ -1154,16 +1154,16 @@ rate(http_server_requests_seconds_count{application="my-app",status=~"5.."}[5m])
             {expandedQuestion === q.id && (
               <div style={{
                 padding: '1.5rem',
-                backgroundColor: '#fafafa',
+                backgroundColor: '#1e293b',
                 borderTop: `2px solid ${getCategoryColor(q.category)}40`
               }}>
                 <div style={{
                   fontSize: '1rem',
           textAlign: 'left',
                   lineHeight: '1.8',
-                  color: '#374151',
+                  color: '#d1d5db',
                   fontFamily: 'system-ui, -apple-system, sans-serif',
-                  
+
                 }}>
                   {renderFormattedAnswer(q.answer)}
                 </div>
@@ -1176,14 +1176,14 @@ rate(http_server_requests_seconds_count{application="my-app",status=~"5.."}[5m])
       <div style={{
         marginTop: '2rem',
         padding: '1.5rem',
-        backgroundColor: '#fef3c7',
+        backgroundColor: 'rgba(99, 102, 241, 0.15)',
         borderRadius: '12px',
-        border: '2px solid #f59e0b'
+        border: '2px solid #6366f1'
       }}>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: '#92400e', marginBottom: '0.5rem', textAlign: 'left' }}>
-          💡 Prometheus Monitoring Best Practices
+        <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: '#a5b4fc', marginBottom: '0.5rem', textAlign: 'left' }}>
+          Prometheus Monitoring Best Practices
         </h3>
-        <ul style={{ color: '#78350f', lineHeight: '1.8', margin: '0.5rem 0' }}>
+        <ul style={{ color: '#d1d5db', lineHeight: '1.8', margin: '0.5rem 0' }}>
           <li>Use labels wisely - avoid high cardinality</li>
           <li>Instrument application code with meaningful metrics</li>
           <li>Set up comprehensive alerting rules with proper thresholds</li>

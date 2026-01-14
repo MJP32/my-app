@@ -76,14 +76,6 @@ const SyntaxHighlighter = ({ code }) => {
 function Java11({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedConcept, setSelectedConcept] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
-
-  const toggleSection = (sectionKey) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [sectionKey]: !prev[sectionKey]
-    }))
-  }
 
   const parseCodeSections = (code) => {
     const sections = []
@@ -279,15 +271,15 @@ var map = new HashMap<String, List<Integer>>();
 // For-loop usage
 var numbers = List.of(1, 2, 3, 4, 5);
 for (var num : numbers) {
-  System.out.println(num);
+    System.out.println(num);
 }
 
 // Try-with-resources
 try (var reader = new BufferedReader(new FileReader("file.txt"))) {
-  var line = reader.readLine();
-  System.out.println(line);
+    var line = reader.readLine();
+    System.out.println(line);
 } catch (IOException e) {
-  e.printStackTrace();
+    e.printStackTrace();
 }
 
 // Diamond operator works well with var
@@ -508,34 +500,44 @@ System.out.println("Best practices demonstrated");
 // ═══════════════════════════════════════════════════════════════════════════
 
 // VALID: Local variable with initialization
-public void method() {
-  var name = "John";  // OK
+public class VarDemo {
+    public void method() {
+        var name = "John";  // OK
+    }
 }
 
 // INVALID: Cannot use for fields
 public class Example {
-  // var count = 0;  // Compile error!
-  private int count = 0;  // Must specify type
+    // var count = 0;  // Compile error!
+    private int count = 0;  // Must specify type
 }
 
 // INVALID: Cannot use for method parameters
 // public void process(var data) { }  // Compile error!
-public void process(String data) { }  // Must specify type
+public class ParamDemo {
+    public void process(String data) { }  // Must specify type
+}
 
 // INVALID: Cannot use for return types
 // public var getData() { }  // Compile error!
-public String getData() { return "data"; }
+public class ReturnDemo {
+    public String getData() { return "data"; }
+}
 
 // INVALID: Must initialize
-public void test() {
-  // var x;  // Compile error!
-  var x = 10;  // OK
+public class InitDemo {
+    public void test() {
+        // var x;  // Compile error!
+        var x = 10;  // OK
+    }
 }
 
 // INVALID: Cannot initialize to null
-public void nullTest() {
-  // var value = null;  // Compile error!
-  String value = null;  // OK with explicit type
+public class NullDemo {
+    public void nullTest() {
+        // var value = null;  // Compile error!
+        String value = null;  // OK with explicit type
+    }
 }
 
 // INVALID: Array initializer needs explicit type
@@ -3581,7 +3583,7 @@ public class GCInterfaceDemo {
       padding: '1.5rem',
       maxWidth: '80rem',
       margin: '0 auto',
-      background: 'linear-gradient(to bottom right, #111827, #78350f, #111827)',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       color: 'white',
       minHeight: '100vh',
       borderRadius: '16px',
@@ -3614,7 +3616,7 @@ public class GCInterfaceDemo {
             onMouseEnter={(e) => e.currentTarget.style.background = '#d97706'}
             onMouseLeave={(e) => e.currentTarget.style.background = '#f59e0b'}
           >
-            ← Back to Java Topics
+            ← Back to Java
           </button>
           <h1 style={{
             fontSize: '2rem',
@@ -4071,52 +4073,28 @@ public class GCInterfaceDemo {
                   const sections = parseCodeSections(selectedConcept.codeExample)
                   return sections.length > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                      {sections.map((section, idx) => {
-                        const sectionKey = `${selectedConcept.name}-${idx}`
-                        const isExpanded = expandedSections[sectionKey]
-                        return (
-                          <div key={idx} style={{
-                            backgroundColor: '#1e293b',
-                            borderRadius: '12px',
-                            overflow: 'hidden',
-                            border: '2px solid #334155'
+                      {sections.map((section, idx) => (
+                        <div key={idx} style={{
+                          backgroundColor: '#1e293b',
+                          borderRadius: '12px',
+                          overflow: 'hidden',
+                          border: '2px solid #334155'
+                        }}>
+                          <div style={{
+                            padding: '1rem 1.5rem',
+                            backgroundColor: '#334155',
+                            color: '#60a5fa',
+                            fontSize: '1rem',
+                            fontWeight: '600',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem'
                           }}>
-                            <button
-                              onClick={() => toggleSection(sectionKey)}
-                              style={{
-                                width: '100%',
-                                padding: '1rem 1.5rem',
-                                backgroundColor: '#334155',
-                                border: 'none',
-                                color: '#60a5fa',
-                                fontSize: '1rem',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                transition: 'all 0.2s ease'
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = '#475569'
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor = '#334155'
-                              }}
-                            >
-                              <span>💻 {section.title}</span>
-                              <span style={{ fontSize: '1.2rem' }}>
-                                {isExpanded ? '▼' : '▶'}
-                              </span>
-                            </button>
-                            {isExpanded && (
-                              <div style={{ padding: 0 }}>
-                                <SyntaxHighlighter code={normalizeIndentation(section.code)} />
-                              </div>
-                            )}
+                            <span>💻 {section.title}</span>
                           </div>
-                        )
-                      })}
+                          <SyntaxHighlighter code={normalizeIndentation(section.code)} />
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     <div style={{

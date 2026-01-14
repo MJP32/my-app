@@ -2299,7 +2299,9 @@ spec:
         padding: '2rem',
         maxWidth: '1600px',
         margin: '0 auto',
-        backgroundColor: 'white',
+        minHeight: '100vh',
+        background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
+        color: 'white',
         borderRadius: '16px',
         boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
         border: '3px solid rgba(147, 51, 234, 0.4)'
@@ -2331,13 +2333,13 @@ spec:
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7e22ce'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
           >
-            ← Back to Menu
+            ← Back to Design
           </button>
           <div>
             <h1 style={{
               fontSize: '2.5rem',
               fontWeight: '800',
-              color: '#1f2937',
+              color: 'white',
               margin: 0,
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
             }}>
@@ -2348,8 +2350,8 @@ spec:
                 padding: '0.25rem 0.75rem',
                 fontSize: '0.85rem',
                 fontWeight: '600',
-                backgroundColor: '#f3e8ff',
-                color: '#7e22ce',
+                backgroundColor: '#374151',
+                color: '#9ca3af',
                 borderRadius: '6px',
                 marginTop: '0.25rem',
                 display: 'inline-block'
@@ -2414,15 +2416,15 @@ spec:
       <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
-        backgroundColor: 'rgba(99, 102, 241, 0.05)',
+        backgroundColor: '#1f2937',
         padding: '2.5rem 10rem',
         borderRadius: '16px',
-        border: '3px solid rgba(99, 102, 241, 0.3)',
+        border: '3px solid #374151',
         marginBottom: '2rem'
       }}>
         <p style={{
           fontSize: '1.3rem',
-          color: '#374151',
+          color: '#9ca3af',
           fontWeight: '500',
           margin: 0,
           lineHeight: '1.8',
@@ -2445,10 +2447,10 @@ spec:
               key={idx}
               onClick={() => handleConceptClick(pattern)}
               style={{
-                backgroundColor: 'rgba(99, 102, 241, 0.05)',
+                backgroundColor: '#1f2937',
                 padding: '2rem',
                 borderRadius: '12px',
-                border: '2px solid rgba(99, 102, 241, 0.2)',
+                border: '2px solid #374151',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 height: '200px',
@@ -2457,14 +2459,14 @@ spec:
                 justifyContent: 'space-between'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.1)'
+                e.currentTarget.style.backgroundColor = '#374151'
                 e.currentTarget.style.borderColor = '#6366f1'
                 e.currentTarget.style.transform = 'translateY(-4px)'
                 e.currentTarget.style.boxShadow = '0 8px 16px rgba(99, 102, 241, 0.2)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.05)'
-                e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)'
+                e.currentTarget.style.backgroundColor = '#1f2937'
+                e.currentTarget.style.borderColor = '#374151'
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = 'none'
               }}
@@ -2474,14 +2476,14 @@ spec:
                 <h3 style={{
                   fontSize: '1.3rem',
                   fontWeight: '700',
-                  color: '#6366f1',
+                  color: 'white',
                   margin: '0 0 0.5rem 0'
                 }}>
                   {pattern.name}
                 </h3>
                 <p style={{
                   fontSize: '0.9rem',
-                  color: '#6b7280',
+                  color: '#9ca3af',
                   margin: 0,
                   lineHeight: '1.5'
                 }}>
@@ -2504,7 +2506,7 @@ spec:
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: 'white',
                 marginBottom: '1.5rem'
               }}>
                 Microservice Patterns
@@ -2516,26 +2518,26 @@ spec:
                     onClick={() => handleConceptClick(pattern)}
                     style={{
                       backgroundColor: selectedConcept?.name === pattern.name
-                        ? 'rgba(99, 102, 241, 0.15)'
-                        : 'rgba(99, 102, 241, 0.05)',
+                        ? '#374151'
+                        : '#1f2937',
                       padding: '1rem',
                       borderRadius: '8px',
                       border: selectedConcept?.name === pattern.name
                         ? '3px solid #6366f1'
-                        : '2px solid rgba(99, 102, 241, 0.2)',
+                        : '2px solid #374151',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
                       if (selectedConcept?.name !== pattern.name) {
-                        e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.1)'
-                        e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.4)'
+                        e.currentTarget.style.backgroundColor = '#374151'
+                        e.currentTarget.style.borderColor = '#6366f1'
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (selectedConcept?.name !== pattern.name) {
-                        e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.05)'
-                        e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)'
+                        e.currentTarget.style.backgroundColor = '#1f2937'
+                        e.currentTarget.style.borderColor = '#374151'
                       }
                     }}
                   >
@@ -2548,7 +2550,7 @@ spec:
                       <div style={{
                         fontSize: '1rem',
                         fontWeight: '700',
-                        color: selectedConcept?.name === pattern.name ? '#6366f1' : '#1f2937'
+                        color: selectedConcept?.name === pattern.name ? '#6366f1' : 'white'
                       }}>
                         {pattern.name}
                       </div>
@@ -2574,10 +2576,10 @@ spec:
 
               {selectedConcept.diagram && (
                 <div style={{
-                  backgroundColor: 'white',
+                  backgroundColor: '#1f2937',
                   padding: '2rem',
                   borderRadius: '12px',
-                  border: '2px solid rgba(99, 102, 241, 0.2)',
+                  border: '2px solid #374151',
                   marginBottom: '1.5rem'
                 }}>
                   {selectedConcept.diagram()}
@@ -2585,15 +2587,15 @@ spec:
               )}
 
               <div style={{
-                backgroundColor: 'rgba(99, 102, 241, 0.08)',
+                backgroundColor: '#1f2937',
                 padding: '1.5rem',
                 borderRadius: '12px',
-                border: '2px solid rgba(99, 102, 241, 0.3)',
+                border: '2px solid #374151',
                 marginBottom: '1.5rem'
               }}>
                 <p style={{
                   fontSize: '1rem',
-                  color: '#374151',
+                  color: '#9ca3af',
                   fontWeight: '500',
                   margin: 0,
                   lineHeight: '1.7',
@@ -2608,7 +2610,7 @@ spec:
                 <h4 style={{
                   fontSize: '1.1rem',
                   fontWeight: '700',
-                  color: '#6366f1',
+                  color: 'white',
                   margin: '0 0 1rem 0'
                 }}>
                   💻 Code Examples
@@ -2636,9 +2638,9 @@ spec:
                           <div
                             key={index}
                             style={{
-                              backgroundColor: 'white',
+                              backgroundColor: '#1f2937',
                               borderRadius: '12px',
-                              border: '2px solid rgba(99, 102, 241, 0.3)',
+                              border: '2px solid #374151',
                               overflow: 'hidden'
                             }}
                           >
@@ -2647,9 +2649,9 @@ spec:
                               style={{
                                 width: '100%',
                                 padding: '1.25rem',
-                                backgroundColor: isExpanded ? 'rgba(99, 102, 241, 0.15)' : 'white',
+                                backgroundColor: isExpanded ? '#374151' : '#1f2937',
                                 border: 'none',
-                                borderBottom: isExpanded ? '2px solid rgba(99, 102, 241, 0.3)' : 'none',
+                                borderBottom: isExpanded ? '2px solid #374151' : 'none',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 justifyContent: 'space-between',
@@ -2658,18 +2660,18 @@ spec:
                                 textAlign: 'left'
                               }}
                               onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.15)'
+                                e.currentTarget.style.backgroundColor = '#374151'
                               }}
                               onMouseLeave={(e) => {
                                 if (!isExpanded) {
-                                  e.currentTarget.style.backgroundColor = 'white'
+                                  e.currentTarget.style.backgroundColor = '#1f2937'
                                 }
                               }}
                             >
                               <span style={{
                                 fontSize: '1.05rem',
                                 fontWeight: '700',
-                                color: '#6366f1'
+                                color: 'white'
                               }}>
                                 {section.title}
                               </span>

@@ -615,7 +615,7 @@ function SearchInput() {
             onMouseEnter={(e) => e.target.style.backgroundColor = '#059669'}
             onMouseLeave={(e) => e.target.style.backgroundColor = '#10b981'}
           >
-            ← Back to Topics
+            ← Back to Categories
           </button>
 
           <div style={{

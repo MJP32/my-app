@@ -190,7 +190,7 @@ function Module({ onBack, onPrevious, onNext, previousName, nextName, currentSub
   }, [])
 
   return (
-    <div ref={modalRef} style={{ padding: '2rem', maxWidth: '1600px', margin: '0 auto' }}>
+    <div ref={modalRef} style={{ padding: '2rem', maxWidth: '1600px', margin: '0 auto', minHeight: '100vh', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', color: 'white' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -218,7 +218,7 @@ function Module({ onBack, onPrevious, onNext, previousName, nextName, currentSub
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7e22ce'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
           >
-            ← Back to Menu
+            ← Back to Java
           </button>
           <div>
             <h1 style={{
@@ -447,7 +447,7 @@ function Module({ onBack, onPrevious, onNext, previousName, nextName, currentSub
                   transition: 'all 0.2s ease'
                 }}
               >
-                ← Back to All Patterns
+                ← Back to Categories
               </button>
 
               <div style={{

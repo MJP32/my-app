@@ -73,14 +73,6 @@ const SyntaxHighlighter = ({ code }) => {
 function Java24({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedConcept, setSelectedConcept] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
-
-  const toggleSection = (sectionKey) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [sectionKey]: !prev[sectionKey]
-    }))
-  }
 
   const parseCodeSections = (code) => {
     const sections = []
@@ -2558,7 +2550,7 @@ class KotlinCompiler {
       padding: '1.5rem',
       maxWidth: '80rem',
       margin: '0 auto',
-      background: 'linear-gradient(to bottom right, #111827, #78350f, #111827)',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       color: 'white',
       minHeight: '100vh',
       borderRadius: '16px',
@@ -2591,7 +2583,7 @@ class KotlinCompiler {
             onMouseEnter={(e) => e.currentTarget.style.background = '#d97706'}
             onMouseLeave={(e) => e.currentTarget.style.background = '#f59e0b'}
           >
-            ← Back to Java Topics
+            ← Back to Java
           </button>
           <h1 style={{
             fontSize: '2rem',
@@ -3017,45 +3009,28 @@ class KotlinCompiler {
                   const sections = parseCodeSections(selectedConcept.codeExample)
                   return sections.length > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                      {sections.map((section, idx) => {
-                        const sectionKey = `${selectedConcept.name}-${idx}`
-                        const isExpanded = expandedSections[sectionKey]
-                        return (
-                          <div key={idx} style={{
-                            backgroundColor: '#1e293b',
-                            borderRadius: '12px',
-                            overflow: 'hidden',
-                            border: '2px solid #f59e0b'
+                      {sections.map((section, idx) => (
+                        <div key={idx} style={{
+                          backgroundColor: '#1e293b',
+                          borderRadius: '12px',
+                          overflow: 'hidden',
+                          border: '2px solid #334155'
+                        }}>
+                          <div style={{
+                            padding: '1rem 1.5rem',
+                            backgroundColor: '#334155',
+                            color: '#60a5fa',
+                            fontSize: '1rem',
+                            fontWeight: '600',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem'
                           }}>
-                            <button
-                              onClick={() => toggleSection(sectionKey)}
-                              style={{
-                                width: '100%',
-                                padding: '1rem 1.5rem',
-                                backgroundColor: '#1f2937',
-                                border: 'none',
-                                borderBottom: '1px solid #f59e0b',
-                                color: '#fbbf24',
-                                fontSize: '1rem',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                transition: 'all 0.2s ease'
-                              }}
-                            >
-                              <span>{section.title}</span>
-                              <span style={{ fontSize: '1.2rem' }}>{isExpanded ? '▼' : '▶'}</span>
-                            </button>
-                            {isExpanded && (
-                              <div style={{ padding: '1.5rem' }}>
-                                <SyntaxHighlighter code={section.code} />
-                              </div>
-                            )}
+                            <span>{section.title}</span>
                           </div>
-                        )
-                      })}
+                          <SyntaxHighlighter code={section.code} />
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     <div style={{

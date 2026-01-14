@@ -200,7 +200,7 @@ function Azure({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #0c4a6e, #111827)',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       color: 'white',
       padding: '1.5rem'
     }}>
@@ -326,7 +326,7 @@ function Azure({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
 
       <p style={{
         fontSize: '1.2rem',
-        color: '#4b5563',
+        color: '#9ca3af',
         textAlign: 'center',
         marginBottom: '2rem',
         lineHeight: '1.8'
@@ -349,14 +349,14 @@ function Azure({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
             onClick={() => setSelectedService(selectedService === service.name ? null : service.name)}
             style={{
               padding: '1.5rem',
-              backgroundColor: selectedService === service.name ? '#F0F6FF' : 'white',
-              border: `2px solid ${selectedService === service.name ? '#0078D4' : '#e5e7eb'}`,
+              backgroundColor: selectedService === service.name ? '#1e3a5f' : '#1f2937',
+              border: `2px solid ${selectedService === service.name ? '#0078D4' : '#374151'}`,
               borderRadius: '12px',
               cursor: 'pointer',
               transition: 'all 0.2s',
               boxShadow: selectedService === service.name
                 ? '0 8px 16px rgba(0, 120, 212, 0.2)'
-                : '0 2px 4px rgba(0,0,0,0.05)',
+                : '0 2px 4px rgba(0,0,0,0.2)',
               transform: selectedService === service.name ? 'translateY(-4px)' : 'translateY(0)'
             }}
           >
@@ -367,7 +367,7 @@ function Azure({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
                   margin: 0,
                   fontSize: '1.25rem',
                   fontWeight: '700',
-                  color: '#0078D4'
+                  color: 'white'
                 }}>
                   {service.name}
                 </h3>
@@ -385,7 +385,7 @@ function Azure({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
 
             <p style={{
               margin: '0.75rem 0',
-              color: '#666',
+              color: '#9ca3af',
               fontSize: '0.9rem',
               lineHeight: '1.5'
             }}>
@@ -400,7 +400,7 @@ function Azure({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
               }}>
                 <p style={{
                   margin: '0 0 1rem 0',
-                  color: '#444',
+                  color: '#9ca3af',
                   fontSize: '0.9rem',
                   lineHeight: '1.6'
                 }}>
@@ -411,7 +411,7 @@ function Azure({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
                   margin: '0 0 0.5rem 0',
                   fontSize: '0.85rem',
                   fontWeight: '600',
-                  color: '#0078D4',
+                  color: '#38bdf8',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em'
                 }}>
@@ -420,7 +420,7 @@ function Azure({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
                 <ul style={{
                   margin: '0 0 1rem 0',
                   paddingLeft: '1.25rem',
-                  color: '#666',
+                  color: '#9ca3af',
                   fontSize: '0.85rem',
                   lineHeight: '1.8'
                 }}>
@@ -433,7 +433,7 @@ function Azure({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
                   margin: '0 0 0.5rem 0',
                   fontSize: '0.85rem',
                   fontWeight: '600',
-                  color: '#0078D4',
+                  color: '#38bdf8',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em'
                 }}>
@@ -464,7 +464,7 @@ function Azure({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
                   margin: '0 0 0.5rem 0',
                   fontSize: '0.85rem',
                   fontWeight: '600',
-                  color: '#0078D4',
+                  color: '#38bdf8',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em'
                 }}>
@@ -489,7 +489,7 @@ function Azure({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       <div style={{
         marginTop: '3rem',
         padding: '1.5rem',
-        backgroundColor: '#F5F5F5',
+        backgroundColor: '#1f2937',
         borderRadius: '12px',
         borderLeft: '4px solid #0078D4'
       }}>
@@ -497,13 +497,13 @@ function Azure({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
           margin: '0 0 0.75rem 0',
           fontSize: '1.1rem',
           fontWeight: '700',
-          color: '#0078D4'
+          color: 'white'
         }}>
           About Microsoft Azure
         </h3>
         <p style={{
           margin: 0,
-          color: '#666',
+          color: '#9ca3af',
           fontSize: '0.95rem',
           lineHeight: '1.6'
         }}>

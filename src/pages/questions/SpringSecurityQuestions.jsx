@@ -707,7 +707,7 @@ public class UserController {
 
       if (part.startsWith('**') && part.endsWith('**')) {
         return (
-          <strong key={index} style={{ color: '#1f2937', fontSize: '1.05rem' }}>
+          <strong key={index} style={{ color: '#e2e8f0', fontSize: '1.05rem' }}>
             {part.slice(2, -2)}
           </strong>
         )
@@ -716,13 +716,13 @@ public class UserController {
       if (part.startsWith('`') && part.endsWith('`')) {
         return (
           <code key={index} style={{
-            backgroundColor: '#f1f5f9',
-            color: '#e11d48',
+            backgroundColor: '#374151',
+            color: '#f472b6',
             padding: '0.2rem 0.4rem',
             borderRadius: '4px',
             fontSize: '0.9rem',
             fontFamily: 'monospace',
-            border: '1px solid #e2e8f0'
+            border: '1px solid #4b5563'
           }}>
             {part.slice(1, -1)}
           </code>
@@ -743,7 +743,7 @@ public class UserController {
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#faf5ff', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -772,7 +772,7 @@ public class UserController {
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '800',
-          color: '#1f2937',
+          color: '#93c5fd',
           margin: 0
         }}>
           Spring Security Questions
@@ -791,14 +791,14 @@ public class UserController {
           <div
             key={q.id}
             style={{
-              backgroundColor: 'white',
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
               borderRadius: '12px',
-              border: `3px solid ${categoryColor}40`,
+              border: `3px solid #374151`,
               overflow: 'hidden',
               transition: 'all 0.3s ease',
               boxShadow: expandedQuestionId === q.id
-                ? `0 0 0 4px ${categoryColor}20, 0 8px 16px rgba(0,0,0,0.1)`
-                : '0 2px 8px rgba(0,0,0,0.05)'
+                ? `0 0 0 4px ${categoryColor}20, 0 8px 16px rgba(0,0,0,0.3)`
+                : '0 2px 8px rgba(0,0,0,0.2)'
             }}
           >
             <div
@@ -806,7 +806,7 @@ public class UserController {
               style={{
                 padding: '1.5rem',
                 cursor: 'pointer',
-                backgroundColor: expandedQuestionId === q.id ? `${categoryColor}10` : 'white',
+                backgroundColor: expandedQuestionId === q.id ? '#374151' : 'transparent',
                 transition: 'background-color 0.2s ease'
               }}
             >
@@ -857,7 +857,7 @@ public class UserController {
               <h3 style={{
                 fontSize: '1.25rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: '#e2e8f0',
                 margin: 0
               }}>
                 {q.question}
@@ -867,7 +867,7 @@ public class UserController {
             {expandedQuestionId === q.id && (
               <div style={{
                 padding: '1.5rem',
-                backgroundColor: '#f9fafb',
+                backgroundColor: '#1e293b',
                 borderTop: `2px solid ${categoryColor}20`,
                 animation: 'fadeIn 0.3s ease'
               }}>
@@ -875,7 +875,7 @@ public class UserController {
                   fontSize: '1rem',
           textAlign: 'left',
                   lineHeight: '1.8',
-                  color: '#374151',
+                  color: '#d1d5db',
                   whiteSpace: 'pre-wrap'
                 }}>
                   {renderFormattedAnswer(q.answer)}
@@ -889,23 +889,23 @@ public class UserController {
       <div style={{
         marginTop: '3rem',
         padding: '2rem',
-        backgroundColor: 'white',
+        background: 'rgba(99, 102, 241, 0.15)',
         borderRadius: '12px',
-        border: `3px solid ${categoryColor}40`
+        border: `3px solid #374151`
       }}>
         <h3 style={{
           fontSize: '1.5rem',
           fontWeight: '700',
-          color: '#1f2937',
+          color: '#93c5fd',
           marginBottom: '1rem'
         }}>
-          💡 Security Best Practices
+          Security Best Practices
         </h3>
         <ul style={{
           fontSize: '1rem',
           textAlign: 'left',
           lineHeight: '2',
-          color: '#4b5563',
+          color: '#d1d5db',
           paddingLeft: '1.5rem'
         }}>
           <li><strong>Always use HTTPS</strong> in production for encrypted communication</li>

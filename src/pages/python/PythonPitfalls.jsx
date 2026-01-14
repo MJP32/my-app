@@ -6,15 +6,6 @@ import Breadcrumb from '../../components/Breadcrumb'
 function PythonPitfalls({ onBack, breadcrumb }) {
   const [selectedPitfall, setSelectedPitfall] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [expandedSections, setExpandedSections] = useState({})
-
-  const toggleSection = (conceptIndex, sectionIndex) => {
-    const key = `${conceptIndex}-${sectionIndex}`
-    setExpandedSections(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }))
-  }
 
   const parseCodeSections = (codeString) => {
     const sections = codeString.split('\n\n')
@@ -616,57 +607,33 @@ Note: get(key, []) creates a new list each call, but it's not added to dict. Use
               {parseCodeSections(selectedPitfall.wrongCode).map(
                 (section, idx) => (
                   <div key={section.id} style={{ marginBottom: '1rem' }}>
-                    <button
-                      onClick={() =>
-                        toggleSection(
-                          `wrong-${pitfalls.indexOf(selectedPitfall)}`,
-                          idx
-                        )
-                      }
+                    <div
                       style={{
                         width: '100%',
                         background: '#dc2626',
                         color: 'white',
                         padding: '0.5rem 1rem',
                         borderRadius: '0.5rem',
-                        border: 'none',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
                         marginBottom: '0.5rem',
                         textAlign: 'left',
                         fontWeight: '500',
                         fontSize: '1rem'
                       }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = '#b91c1c'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = '#dc2626'
+                    >
+                      Code Block {idx + 1}
+                    </div>
+                    <SyntaxHighlighter
+                      language="python"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        padding: '1.5rem',
+                        borderRadius: '0.5rem',
+                        fontSize: '0.9rem',
+                        border: '2px solid #dc2626'
                       }}
                     >
-                      {expandedSections[
-                        `wrong-${pitfalls.indexOf(selectedPitfall)}-${idx}`
-                      ]
-                        ? '▼'
-                        : '▶'}{' '}
-                      Code Block {idx + 1}
-                    </button>
-                    {expandedSections[
-                      `wrong-${pitfalls.indexOf(selectedPitfall)}-${idx}`
-                    ] && (
-                      <SyntaxHighlighter
-                        language="python"
-                        style={vscDarkPlus}
-                        customStyle={{
-                          padding: '1.5rem',
-                          borderRadius: '0.5rem',
-                          fontSize: '0.9rem',
-                          border: '2px solid #dc2626'
-                        }}
-                      >
-                        {section.code}
-                      </SyntaxHighlighter>
-                    )}
+                      {section.code}
+                    </SyntaxHighlighter>
                   </div>
                 )
               )}
@@ -680,57 +647,33 @@ Note: get(key, []) creates a new list each call, but it's not added to dict. Use
               {parseCodeSections(selectedPitfall.correctCode).map(
                 (section, idx) => (
                   <div key={section.id} style={{ marginBottom: '1rem' }}>
-                    <button
-                      onClick={() =>
-                        toggleSection(
-                          `correct-${pitfalls.indexOf(selectedPitfall)}`,
-                          idx
-                        )
-                      }
+                    <div
                       style={{
                         width: '100%',
                         background: '#16a34a',
                         color: 'white',
                         padding: '0.5rem 1rem',
                         borderRadius: '0.5rem',
-                        border: 'none',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
                         marginBottom: '0.5rem',
                         textAlign: 'left',
                         fontWeight: '500',
                         fontSize: '1rem'
                       }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = '#15803d'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = '#16a34a'
+                    >
+                      Code Block {idx + 1}
+                    </div>
+                    <SyntaxHighlighter
+                      language="python"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        padding: '1.5rem',
+                        borderRadius: '0.5rem',
+                        fontSize: '0.9rem',
+                        border: '2px solid #16a34a'
                       }}
                     >
-                      {expandedSections[
-                        `correct-${pitfalls.indexOf(selectedPitfall)}-${idx}`
-                      ]
-                        ? '▼'
-                        : '▶'}{' '}
-                      Code Block {idx + 1}
-                    </button>
-                    {expandedSections[
-                      `correct-${pitfalls.indexOf(selectedPitfall)}-${idx}`
-                    ] && (
-                      <SyntaxHighlighter
-                        language="python"
-                        style={vscDarkPlus}
-                        customStyle={{
-                          padding: '1.5rem',
-                          borderRadius: '0.5rem',
-                          fontSize: '0.9rem',
-                          border: '2px solid #16a34a'
-                        }}
-                      >
-                        {section.code}
-                      </SyntaxHighlighter>
-                    )}
+                      {section.code}
+                    </SyntaxHighlighter>
                   </div>
                 )
               )}
@@ -807,7 +750,7 @@ Note: get(key, []) creates a new list each call, but it's not added to dict. Use
             e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
           }}
         >
-          ← Back to Python Topics
+          ← Back to Python
         </button>
 
         <div style={{ marginBottom: '2rem' }}>

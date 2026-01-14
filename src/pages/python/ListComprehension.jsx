@@ -5,14 +5,6 @@ import Breadcrumb from '../../components/Breadcrumb'
 
 function ListComprehension({ onBack, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
-
-  const toggleSection = (sectionKey) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [sectionKey]: !prev[sectionKey]
-    }))
-  }
 
   const parseCodeSections = (code) => {
     const sections = []
@@ -564,7 +556,7 @@ print(positive_flat)
                 e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
               }}
             >
-              ← Back to Python Topics
+              ← Back to Python
             </button>
             <h1 style={{
               fontSize: '2.25rem',
@@ -790,53 +782,36 @@ print(positive_flat)
                     </h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                       {sections.map((section, idx) => {
-                        const sectionKey = `${selectedConcept.name}-${idx}`
-                        const isExpanded = expandedSections[sectionKey]
-
                         return (
                           <div key={idx} style={{ backgroundColor: '#1e293b', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid #3b82f6' }}>
-                            <button
-                              onClick={() => toggleSection(sectionKey)}
+                            <div
                               style={{
                                 width: '100%',
                                 padding: '1rem 1.5rem',
                                 background: '#2563eb',
-                                border: 'none',
                                 color: 'white',
                                 fontSize: '1rem',
                                 fontWeight: '600',
-                                cursor: 'pointer',
                                 display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                transition: 'all 0.2s'
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.background = '#1d4ed8'
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.background = '#2563eb'
+                                alignItems: 'center'
                               }}
                             >
                               <span>💻 {section.title}</span>
-                              <span style={{ fontSize: '1.2rem' }}>{isExpanded ? '▼' : '▶'}</span>
-                            </button>
+                            </div>
 
-                            {isExpanded && (
-                              <div style={{ padding: 0 }}>
-                                <SyntaxHighlighter
-                                  language="python"
-                                  style={vscDarkPlus}
-                                  customStyle={{
-                                    borderRadius: '8px',
-                                    padding: '1rem',
-                                    fontSize: '0.9rem'
-                                  }}
-                                >
-                                  {section.code}
-                                </SyntaxHighlighter>
-                              </div>
-                            )}
+                            <div style={{ padding: 0 }}>
+                              <SyntaxHighlighter
+                                language="python"
+                                style={vscDarkPlus}
+                                customStyle={{
+                                  borderRadius: '8px',
+                                  padding: '1rem',
+                                  fontSize: '0.9rem'
+                                }}
+                              >
+                                {section.code}
+                              </SyntaxHighlighter>
+                            </div>
                           </div>
                         )
                       })}

@@ -107,14 +107,6 @@ const SyntaxHighlighter = ({ code }) => {
 
 function CoreJava({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
-
-  const toggleSection = (sectionKey) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [sectionKey]: !prev[sectionKey]
-    }))
-  }
 
   const parseCodeSections = (code) => {
     const sections = []
@@ -824,52 +816,42 @@ System.out.println("Synchronized collections created for thread-safe operations"
 • Provide public getter/setter methods for controlled access
 • Add validation logic in setters to maintain data consistency`,
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ BankAccount
-// ═══════════════════════════════════════════════════════════════════════════
-// Encapsulation - hiding internal state
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Controlled access through public methods
+// ✦ Encapsulation - hiding internal state
 // ═══════════════════════════════════════════════════════════════════════════
 public class BankAccount {
-private double balance;  // private field
-private String accountNumber;
+    private double balance;  // private field
+    private String accountNumber;
 
-public BankAccount(String accountNumber) {
-this.accountNumber = accountNumber;
-this.balance = 0.0;
+    public BankAccount(String accountNumber) {
+        this.accountNumber = accountNumber;
+        this.balance = 0.0;
+    }
+
+    // Controlled access through public methods
+    public void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+        }
+    }
+
+    public boolean withdraw(double amount) {
+        if (amount > 0 && balance >= amount) {
+            balance -= amount;
+            return true;
+        }
+        return false;
+    }
+
+    // Getter with validation
+    public double getBalance() {
+        return balance;
+    }
 }
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ Getter with validation
+// ✦ Usage example
 // ═══════════════════════════════════════════════════════════════════════════
-// Controlled access through public methods
-public void deposit(double amount) {
-if (amount > 0) {
-balance += amount;
-}
-}
-
-public boolean withdraw(double amount) {
-if (amount > 0 && balance >= amount) {
-balance -= amount;
-return true;
-}
-return false;
-}
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Implementation
-// ═══════════════════════════════════════════════════════════════════════════
-// Getter with validation
-public double getBalance() {
-return balance;
-}
-}
-
-// Usage
 BankAccount account = new BankAccount("123456");
 account.deposit(1000.0);
 account.withdraw(250.0);
@@ -907,42 +889,31 @@ System.out.println(account.getBalance());
 • Prevent race conditions with proper synchronization
 • Use thread pools instead of creating individual threads for better performance`,
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ MyThread
+// ✦ Method 1: Extend Thread class
 // ═══════════════════════════════════════════════════════════════════════════
-// Method 1: Extend Thread class
+class MyThread extends Thread {
+    public void run() {
+        for (int i = 0; i < 3; i++) {
+            System.out.println(Thread.currentThread().getName() + ": " + i);
+            try { Thread.sleep(100); } catch (InterruptedException e) {}
+        }
+    }
+}
+
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ✦ Method 2: Implement Runnable
 // ═══════════════════════════════════════════════════════════════════════════
-class MyThread extends Thread {
-public void run() {
-for (int i = 0; i < 3; i++) {
-System.out.println(Thread.currentThread().getName() + ": " + i);
-try { Thread.sleep(100); } catch (InterruptedException e) {}
-}
-}
+class MyRunnable implements Runnable {
+    public void run() {
+        System.out.println(Thread.currentThread().getName() + " executing");
+    }
 }
 
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ MyRunnable
-// ═══════════════════════════════════════════════════════════════════════════
-// Method 2: Implement Runnable
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ✦ Creating and starting threads
 // ═══════════════════════════════════════════════════════════════════════════
-class MyRunnable implements Runnable {
-public void run() {
-System.out.println(Thread.currentThread().getName() + " executing");
-}
-}
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Lambda with Runnable
-// ═══════════════════════════════════════════════════════════════════════════
-// Creating and starting threads
 MyThread thread1 = new MyThread();
 thread1.setName("Worker-1");
 thread1.start();
@@ -956,34 +927,31 @@ thread2.start();
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ Daemon thread - runs in background
+// ✦ Method 3: Lambda with Runnable
 // ═══════════════════════════════════════════════════════════════════════════
-// Lambda with Runnable
 Thread thread3 = new Thread(() -> {
-System.out.println("Lambda thread: " + Thread.currentThread().getId());
+    System.out.println("Lambda thread: " + Thread.currentThread().getId());
 });
 thread3.start();
 // Output: Lambda thread: 15
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ Thread priorities
+// ✦ Daemon thread - runs in background
 // ═══════════════════════════════════════════════════════════════════════════
-// Daemon thread - runs in background
 Thread daemon = new Thread(() -> {
-while (true) {
-System.out.println("Daemon running...");
-try { Thread.sleep(500); } catch (InterruptedException e) {}
-}
+    while (true) {
+        System.out.println("Daemon running...");
+        try { Thread.sleep(500); } catch (InterruptedException e) {}
+    }
 });
 daemon.setDaemon(true);
 daemon.start();
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ Implementation
+// ✦ Thread priorities
 // ═══════════════════════════════════════════════════════════════════════════
-// Thread priorities
 thread1.setPriority(Thread.MAX_PRIORITY);  // 10
 thread2.setPriority(Thread.MIN_PRIORITY);  // 1
 System.out.println("Thread 1 priority: " + thread1.getPriority());
@@ -1026,47 +994,38 @@ System.out.println("Thread 1 priority: " + thread1.getPriority());
 • Deadlocks - Improper lock ordering can cause threads to wait indefinitely
 • Liveness - Balance between safety and performance`,
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Synchronized method
+// ✦ Synchronized method and block
 // ═══════════════════════════════════════════════════════════════════════════
 class Counter {
-private int count = 0;
+    private int count = 0;
 
+    // Synchronized method - locks entire method
+    public synchronized void increment() {
+        count++;
+    }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Synchronized block
-// ═══════════════════════════════════════════════════════════════════════════
-// Synchronized method
-public synchronized void increment() {
-count++;
-}
+    public synchronized int getCount() {
+        return count;
+    }
 
-public synchronized int getCount() {
-return count;
+    // Synchronized block - more fine-grained control
+    public void incrementBlock() {
+        synchronized(this) {
+            count++;
+        }
+    }
 }
 
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ✦ Usage - thread-safe counter
 // ═══════════════════════════════════════════════════════════════════════════
-// Synchronized block
-public void incrementBlock() {
-synchronized(this) {
-count++;
-}
-}
-}
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Wait/Notify pattern - Producer/Consumer
-// ═══════════════════════════════════════════════════════════════════════════
-// Usage - thread-safe counter
 Counter counter = new Counter();
 Thread t1 = new Thread(() -> {
-for (int i = 0; i < 1000; i++) counter.increment();
+    for (int i = 0; i < 1000; i++) counter.increment();
 });
 Thread t2 = new Thread(() -> {
-for (int i = 0; i < 1000; i++) counter.increment();
+    for (int i = 0; i < 1000; i++) counter.increment();
 });
 t1.start();
 t2.start();
@@ -1077,59 +1036,49 @@ System.out.println("Final count: " + counter.getCount());
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ SharedResource
+// ✦ Wait/Notify pattern - Producer/Consumer
 // ═══════════════════════════════════════════════════════════════════════════
-// Wait/Notify pattern - Producer/Consumer
+class SharedResource {
+    private int data;
+    private boolean hasData = false;
+
+    public synchronized void produce(int value) throws InterruptedException {
+        while (hasData) {
+            wait();  // Wait until consumed
+        }
+        data = value;
+        hasData = true;
+        System.out.println("Produced: " + value);
+        notify();  // Notify consumer
+    }
+
+    public synchronized int consume() throws InterruptedException {
+        while (!hasData) {
+            wait();  // Wait until produced
+        }
+        hasData = false;
+        System.out.println("Consumed: " + data);
+        notify();  // Notify producer
+        return data;
+    }
+}
+
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ✦ Volatile keyword - memory visibility
 // ═══════════════════════════════════════════════════════════════════════════
-class SharedResource {
-private int data;
-private boolean hasData = false;
-
-public synchronized void produce(int value) throws InterruptedException {
-while (hasData) {
-wait();  // Wait until consumed
-}
-data = value;
-hasData = true;
-System.out.println("Produced: " + value);
-notify();  // Notify consumer
-}
-
-public synchronized int consume() throws InterruptedException {
-while (!hasData) {
-wait();  // Wait until produced
-}
-hasData = false;
-System.out.println("Consumed: " + data);
-notify();  // Notify producer
-return data;
-}
-}
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ VolatileExample
-// ═══════════════════════════════════════════════════════════════════════════
-// Volatile keyword - memory visibility
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Implementation
-// ═══════════════════════════════════════════════════════════════════════════
 class VolatileExample {
-private volatile boolean flag = false;
+    private volatile boolean flag = false;
 
-public void writer() {
-flag = true;  // Visible to all threads immediately
-}
+    public void writer() {
+        flag = true;  // Visible to all threads immediately
+    }
 
-public void reader() {
-if (flag) {
-System.out.println("Flag is true!");
-}
-}
+    public void reader() {
+        if (flag) {
+            System.out.println("Flag is true!");
+        }
+    }
 }`
     },
     {
@@ -1176,111 +1125,95 @@ System.out.println("Flag is true!");
 • Multiple condition variables
 • Try-lock without blocking`,
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ ReentrantLock - more flexible than synch
+// ✦ ReentrantLock - more flexible than synchronized
 // ═══════════════════════════════════════════════════════════════════════════
 import java.util.concurrent.locks.*;
 import java.util.concurrent.*;
 
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ BankAccount
-// ═══════════════════════════════════════════════════════════════════════════
-// ReentrantLock - more flexible than synchronized
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ ReadWriteLock - multiple readers, single
-// ═══════════════════════════════════════════════════════════════════════════
 class BankAccount {
-private double balance = 0;
-private ReentrantLock lock = new ReentrantLock();
+    private double balance = 0;
+    private ReentrantLock lock = new ReentrantLock();
 
-public void deposit(double amount) {
-lock.lock();
-try {
-balance += amount;
-System.out.println("Deposited: " + amount + ", Balance: " + balance);
-} finally {
-lock.unlock();  // Always unlock in finally
-}
-}
+    public void deposit(double amount) {
+        lock.lock();
+        try {
+            balance += amount;
+            System.out.println("Deposited: " + amount + ", Balance: " + balance);
+        } finally {
+            lock.unlock();  // Always unlock in finally
+        }
+    }
 
-public boolean tryDeposit(double amount) {
-if (lock.tryLock()) {  // Non-blocking attempt
-try {
-balance += amount;
-return true;
-} finally {
-lock.unlock();
-}
-}
-return false;
-}
+    public boolean tryDeposit(double amount) {
+        if (lock.tryLock()) {  // Non-blocking attempt
+            try {
+                balance += amount;
+                return true;
+            } finally {
+                lock.unlock();
+            }
+        }
+        return false;
+    }
 }
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ Cache
+// ✦ ReadWriteLock - multiple readers, single writer
 // ═══════════════════════════════════════════════════════════════════════════
-// ReadWriteLock - multiple readers, single writer
+class Cache {
+    private Map<String, String> data = new HashMap<>();
+    private ReadWriteLock rwLock = new ReentrantReadWriteLock();
+
+    public String read(String key) {
+        rwLock.readLock().lock();
+        try {
+            return data.get(key);
+        } finally {
+            rwLock.readLock().unlock();
+        }
+    }
+
+    public void write(String key, String value) {
+        rwLock.writeLock().lock();
+        try {
+            data.put(key, value);
+            System.out.println("Written: " + key + " = " + value);
+        } finally {
+            rwLock.writeLock().unlock();
+        }
+    }
+}
+
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ✦ Semaphore - limit concurrent access
 // ═══════════════════════════════════════════════════════════════════════════
-class Cache {
-private Map<String, String> data = new HashMap<>();
-private ReadWriteLock rwLock = new ReentrantReadWriteLock();
-
-public String read(String key) {
-rwLock.readLock().lock();
-try {
-return data.get(key);
-} finally {
-rwLock.readLock().unlock();
-}
-}
-
-public void write(String key, String value) {
-rwLock.writeLock().lock();
-try {
-data.put(key, value);
-System.out.println("Written: " + key + " = " + value);
-} finally {
-rwLock.writeLock().unlock();
-}
-}
-}
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ CountDownLatch - wait for multiple threa
-// ═══════════════════════════════════════════════════════════════════════════
-// Semaphore - limit concurrent access
 Semaphore semaphore = new Semaphore(3);  // Allow 3 concurrent threads
 for (int i = 0; i < 5; i++) {
-int id = i;
-new Thread(() -> {
-try {
-semaphore.acquire();
-System.out.println("Thread " + id + " acquired permit");
-Thread.sleep(1000);
-semaphore.release();
-System.out.println("Thread " + id + " released permit");
-} catch (InterruptedException e) {}
-}).start();
+    int id = i;
+    new Thread(() -> {
+        try {
+            semaphore.acquire();
+            System.out.println("Thread " + id + " acquired permit");
+            Thread.sleep(1000);
+            semaphore.release();
+            System.out.println("Thread " + id + " released permit");
+        } catch (InterruptedException e) {}
+    }).start();
 }
 // Output: Only 3 threads execute concurrently
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ Implementation
+// ✦ CountDownLatch - wait for multiple threads
 // ═══════════════════════════════════════════════════════════════════════════
-// CountDownLatch - wait for multiple threads
 CountDownLatch latch = new CountDownLatch(3);
 for (int i = 0; i < 3; i++) {
-new Thread(() -> {
-System.out.println("Task completed");
-latch.countDown();
-}).start();
+    new Thread(() -> {
+        System.out.println("Task completed");
+        latch.countDown();
+    }).start();
 }
 latch.await();  // Wait for all 3 threads
 System.out.println("All tasks completed!");
@@ -1338,38 +1271,28 @@ System.out.println("All tasks completed!");
 // ═══════════════════════════════════════════════════════════════════════════
 import java.util.concurrent.*;
 
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ (pool reuses threads for remaining tasks
-// ═══════════════════════════════════════════════════════════════════════════
-// Fixed thread pool
 ExecutorService executor = Executors.newFixedThreadPool(3);
 for (int i = 0; i < 5; i++) {
-int taskId = i;
-executor.submit(() -> {
-System.out.println("Task " + taskId + " by " + Thread.currentThread().getName());
-return taskId * taskId;
-});
+    int taskId = i;
+    executor.submit(() -> {
+        System.out.println("Task " + taskId + " by " + Thread.currentThread().getName());
+        return taskId * taskId;
+    });
 }
 executor.shutdown();
 // Output: Task 0 by pool-1-thread-1
 // Output: Task 1 by pool-1-thread-2
 // Output: Task 2 by pool-1-thread-3
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Callable with Future - returns result
-// ═══════════════════════════════════════════════════════════════════════════
 // (pool reuses threads for remaining tasks)
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ ScheduledExecutorService - delayed/perio
+// ✦ Callable with Future - returns result
 // ═══════════════════════════════════════════════════════════════════════════
-// Callable with Future - returns result
 ExecutorService exec = Executors.newSingleThreadExecutor();
 Future<Integer> future = exec.submit(() -> {
-Thread.sleep(1000);
-return 42;
+    Thread.sleep(1000);
+    return 42;
 });
 System.out.println("Waiting for result...");
 Integer result = future.get();  // Blocks until complete
@@ -1380,39 +1303,32 @@ exec.shutdown();
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ (repeats every second)
+// ✦ ScheduledExecutorService - delayed/periodic tasks
 // ═══════════════════════════════════════════════════════════════════════════
-// ScheduledExecutorService - delayed/periodic tasks
 ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 scheduler.schedule(() -> {
-System.out.println("Executed after 2 seconds");
+    System.out.println("Executed after 2 seconds");
 }, 2, TimeUnit.SECONDS);
 
 scheduler.scheduleAtFixedRate(() -> {
-System.out.println("Periodic task: " + System.currentTimeMillis());
+    System.out.println("Periodic task: " + System.currentTimeMillis());
 }, 0, 1, TimeUnit.SECONDS);
 // Output: Periodic task: 1234567890
-// Output: Periodic task: 1234567891
+// Output: Periodic task: 1234567891 (repeats every second)
+
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ✦ invokeAll - execute multiple tasks
 // ═══════════════════════════════════════════════════════════════════════════
-// (repeats every second)
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Implementation
-// ═══════════════════════════════════════════════════════════════════════════
-// invokeAll - execute multiple tasks
 List<Callable<String>> tasks = Arrays.asList(
-() -> "Task 1",
-() -> "Task 2",
-() -> "Task 3"
+    () -> "Task 1",
+    () -> "Task 2",
+    () -> "Task 3"
 );
 ExecutorService pool = Executors.newFixedThreadPool(3);
 List<Future<String>> results = pool.invokeAll(tasks);
 for (Future<String> f : results) {
-System.out.println(f.get());
+    System.out.println(f.get());
 }
 // Output: Task 1
 // Output: Task 2
@@ -1473,14 +1389,9 @@ pool.shutdown();`
 // ═══════════════════════════════════════════════════════════════════════════
 import java.util.concurrent.*;
 
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Chaining operations
-// ═══════════════════════════════════════════════════════════════════════════
-// Simple async execution
 CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
-try { Thread.sleep(1000); } catch (InterruptedException e) {}
-return "Hello";
+    try { Thread.sleep(1000); } catch (InterruptedException e) {}
+    return "Hello";
 });
 System.out.println("Doing other work...");
 System.out.println("Result: " + future.get());
@@ -1489,20 +1400,18 @@ System.out.println("Result: " + future.get());
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ Combining multiple futures
+// ✦ Chaining operations
 // ═══════════════════════════════════════════════════════════════════════════
-// Chaining operations
 CompletableFuture.supplyAsync(() -> "Hello")
-.thenApply(s -> s + " World")
-.thenApply(String::toUpperCase)
-.thenAccept(System.out::println);
+    .thenApply(s -> s + " World")
+    .thenApply(String::toUpperCase)
+    .thenAccept(System.out::println);
 // Output: HELLO WORLD
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ Exception handling
+// ✦ Combining multiple futures
 // ═══════════════════════════════════════════════════════════════════════════
-// Combining multiple futures
 CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> 10);
 CompletableFuture<Integer> future2 = CompletableFuture.supplyAsync(() -> 20);
 CompletableFuture<Integer> combined = future1.thenCombine(future2, (a, b) -> a + b);
@@ -1511,12 +1420,11 @@ System.out.println("Combined result: " + combined.get());
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ allOf - wait for multiple futures
+// ✦ Exception handling
 // ═══════════════════════════════════════════════════════════════════════════
-// Exception handling
 CompletableFuture.supplyAsync(() -> {
-if (Math.random() > 0.5) throw new RuntimeException("Error!");
-return "Success";
+    if (Math.random() > 0.5) throw new RuntimeException("Error!");
+    return "Success";
 })
 .exceptionally(ex -> "Recovered from: " + ex.getMessage())
 .thenAccept(System.out::println);
@@ -1524,9 +1432,8 @@ return "Success";
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ anyOf - complete when any future complet
+// ✦ allOf - wait for multiple futures
 // ═══════════════════════════════════════════════════════════════════════════
-// allOf - wait for multiple futures
 CompletableFuture<String> f1 = CompletableFuture.supplyAsync(() -> "Task1");
 CompletableFuture<String> f2 = CompletableFuture.supplyAsync(() -> "Task2");
 CompletableFuture<String> f3 = CompletableFuture.supplyAsync(() -> "Task3");
@@ -1537,9 +1444,8 @@ System.out.println("All completed: " + f1.get() + ", " + f2.get() + ", " + f3.ge
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ Implementation
+// ✦ anyOf - complete when any future completes
 // ═══════════════════════════════════════════════════════════════════════════
-// anyOf - complete when any future completes
 CompletableFuture<Object> any = CompletableFuture.anyOf(f1, f2, f3);
 System.out.println("First completed: " + any.get());
 // Output: First completed: Task1 (or Task2 or Task3)`
@@ -1595,41 +1501,34 @@ System.out.println("First completed: " + any.get());
 • defineClass(byte[]) - Converts bytecode to Class object
 • getParent() - Returns parent classloader`,
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ CustomClassLoader
+// ✦ Custom class loader
 // ═══════════════════════════════════════════════════════════════════════════
-// Custom class loader
+class CustomClassLoader extends ClassLoader {
+    @Override
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
+        System.out.println("Loading class: " + name);
+        return super.loadClass(name);
+    }
+}
+
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ✦ Using custom class loader
 // ═══════════════════════════════════════════════════════════════════════════
-class CustomClassLoader extends ClassLoader {
-@Override
-public Class<?> loadClass(String name) throws ClassNotFoundException {
-System.out.println("Loading class: " + name);
-return super.loadClass(name);
-}
-}
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Class loader hierarchy
-// ═══════════════════════════════════════════════════════════════════════════
-// Using custom class loader
 CustomClassLoader loader = new CustomClassLoader();
 try {
-Class<?> clazz = loader.loadClass("java.lang.String");
-System.out.println("Loaded: " + clazz.getName());
+    Class<?> clazz = loader.loadClass("java.lang.String");
+    System.out.println("Loaded: " + clazz.getName());
 } catch (ClassNotFoundException e) {
-System.out.println("Error: " + e.getMessage());
+    System.out.println("Error: " + e.getMessage());
 }
 // Output: Loading class: java.lang.String
 // Output: Loaded: java.lang.String
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ Loading class from different loader
+// ✦ Class loader hierarchy
 // ═══════════════════════════════════════════════════════════════════════════
-// Class loader hierarchy
 ClassLoader appLoader = ClassLoader.getSystemClassLoader();
 ClassLoader extLoader = appLoader.getParent();
 ClassLoader bootLoader = extLoader.getParent();
@@ -1643,9 +1542,8 @@ System.out.println("Bootstrap ClassLoader: " + bootLoader);  // null (native)
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ Class initialization
+// ✦ Loading class from different loader
 // ═══════════════════════════════════════════════════════════════════════════
-// Loading class from different loader
 Class<?> stringClass = String.class;
 ClassLoader stringLoader = stringClass.getClassLoader();
 System.out.println("String class loader: " + stringLoader);  // null (bootstrap)
@@ -1657,23 +1555,18 @@ System.out.println("Custom class loader: " + myClass.getClassLoader());
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ InitDemo
-// ═══════════════════════════════════════════════════════════════════════════
-// Class initialization
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Class.forName() with initialization
+// ✦ Class initialization
 // ═══════════════════════════════════════════════════════════════════════════
 class InitDemo {
-static {
-System.out.println("Static block executed");
-}
-static int value = initialize();
+    static {
+        System.out.println("Static block executed");
+    }
+    static int value = initialize();
 
-static int initialize() {
-System.out.println("Static initializer called");
-return 42;
-}
+    static int initialize() {
+        System.out.println("Static initializer called");
+        return 42;
+    }
 }
 
 System.out.println("Before class usage");
@@ -1686,14 +1579,13 @@ System.out.println("Value: " + val);
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ Implementation
+// ✦ Class.forName() with initialization
 // ═══════════════════════════════════════════════════════════════════════════
-// Class.forName() with initialization
 try {
-Class.forName("InitDemo");  // Initializes class
-System.out.println("Class loaded and initialized");
+    Class.forName("InitDemo");  // Initializes class
+    System.out.println("Class loaded and initialized");
 } catch (ClassNotFoundException e) {
-System.out.println("Error: " + e.getMessage());
+    System.out.println("Error: " + e.getMessage());
 }`
     },
     {
@@ -1761,54 +1653,44 @@ System.out.println("Error: " + e.getMessage());
       codeExample: `// ═══════════════════════════════════════════════════════════════════════════
 // ✦ Simple method to demonstrate bytecode
 // ═══════════════════════════════════════════════════════════════════════════
-import java.io.*;
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ BytecodeDemo
-// ═══════════════════════════════════════════════════════════════════════════
-// Simple method to demonstrate bytecode
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Bytecode for add method (javap -c Byteco
-// ═══════════════════════════════════════════════════════════════════════════
 public class BytecodeDemo {
-public int add(int a, int b) {
-return a + b;
+    public int add(int a, int b) {
+        return a + b;
+    }
+
+    public int calculate(int x) {
+        int y = 10;
+        int z = x + y;
+        return z * 2;
+    }
 }
-}
+
+// Bytecode for add method (javap -c BytecodeDemo):
+/*
+public int add(int, int);
+  Code:
+    0: iload_1        // Load first parameter onto stack
+    1: iload_2        // Load second parameter onto stack
+    2: iadd           // Add top two stack values
+    3: ireturn        // Return integer result
+*/
 
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ✦ Analyzing bytecode at runtime
 // ═══════════════════════════════════════════════════════════════════════════
-// Bytecode for add method (javap -c BytecodeDemo):
-/*
-public int add(int, int);
-Code:
-0: iload_1        // Load first parameter onto stack
-1: iload_2        // Load second parameter onto stack
-2: iadd           // Add top two stack values
-3: ireturn        // Return integer result
-*/
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Common bytecode instructions:
-// ═══════════════════════════════════════════════════════════════════════════
-// Analyzing bytecode at runtime
 try {
-Class<?> clazz = BytecodeDemo.class;
-System.out.println("Class: " + clazz.getName());
+    Class<?> clazz = BytecodeDemo.class;
+    System.out.println("Class: " + clazz.getName());
 
-// Get methods
-for (java.lang.reflect.Method method : clazz.getDeclaredMethods()) {
-System.out.println("Method: " + method.getName());
-System.out.println("Parameters: " + method.getParameterCount());
-System.out.println("Return type: " + method.getReturnType().getName());
-}
+    // Get methods
+    for (java.lang.reflect.Method method : clazz.getDeclaredMethods()) {
+        System.out.println("Method: " + method.getName());
+        System.out.println("Parameters: " + method.getParameterCount());
+        System.out.println("Return type: " + method.getReturnType().getName());
+    }
 } catch (Exception e) {
-System.out.println("Error: " + e.getMessage());
+    System.out.println("Error: " + e.getMessage());
 }
 // Output: Class: BytecodeDemo
 // Output: Method: add
@@ -1817,67 +1699,31 @@ System.out.println("Error: " + e.getMessage());
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ Load instructions: iload, aload, lload, 
+// ✦ Common bytecode instructions
 // ═══════════════════════════════════════════════════════════════════════════
-// Common bytecode instructions:
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Store instructions: istore, astore, lsto
-// ═══════════════════════════════════════════════════════════════════════════
-// Load instructions: iload, aload, lload, fload, dload
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Arithmetic: iadd, isub, imul, idiv
-// ═══════════════════════════════════════════════════════════════════════════
+// Load instructions:  iload, aload, lload, fload, dload
 // Store instructions: istore, astore, lstore, fstore, dstore
+// Arithmetic:         iadd, isub, imul, idiv
+// Control flow:       if_icmpeq, goto, ifeq, ifne
+// Method invocation:  invokevirtual, invokespecial, invokestatic
+// Object operations:  new, newarray, getfield, putfield
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Control flow: if_icmpeq, goto, ifeq, ifn
-// ═══════════════════════════════════════════════════════════════════════════
-// Arithmetic: iadd, isub, imul, idiv
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Method invocation: invokevirtual, invoke
-// ═══════════════════════════════════════════════════════════════════════════
-// Control flow: if_icmpeq, goto, ifeq, ifne
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Object operations: new, newarray, getfie
-// ═══════════════════════════════════════════════════════════════════════════
-// Method invocation: invokevirtual, invokespecial, invokestatic
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ✦ Stack-based execution example
 // ═══════════════════════════════════════════════════════════════════════════
-// Object operations: new, newarray, getfield, putfield
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Bytecode (conceptual):
-// ═══════════════════════════════════════════════════════════════════════════
-// Stack-based execution example
-public int calculate(int x) {
-int y = 10;
-int z = x + y;
-return z * 2;
-}
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Bytecode verification
-// ═══════════════════════════════════════════════════════════════════════════
-// Bytecode (conceptual):
+// Bytecode for calculate method (conceptual):
 /*
-0: bipush 10      // Push 10 onto stack
-2: istore_2       // Store in local variable y
-3: iload_1        // Load x onto stack
-4: iload_2        // Load y onto stack
-5: iadd           // Add: stack now has x+y
-6: istore_3       // Store in z
-7: iload_3        // Load z
-8: iconst_2       // Push 2
-9: imul           // Multiply: z*2
-10: ireturn       // Return result
+  0: bipush 10      // Push 10 onto stack
+  2: istore_2       // Store in local variable y
+  3: iload_1        // Load x onto stack
+  4: iload_2        // Load y onto stack
+  5: iadd           // Add: stack now has x+y
+  6: istore_3       // Store in z
+  7: iload_3        // Load z
+  8: iconst_2       // Push 2
+  9: imul           // Multiply: z*2
+  10: ireturn       // Return result
 */
 
 System.out.println("Result: " + new BytecodeDemo().calculate(5));
@@ -1885,35 +1731,18 @@ System.out.println("Result: " + new BytecodeDemo().calculate(5));
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✦ JVM verifies: correct types, no stack ov
-// ═══════════════════════════════════════════════════════════════════════════
-// Bytecode verification
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ valid method calls, proper exception han
+// ✦ Bytecode verification
 // ═══════════════════════════════════════════════════════════════════════════
 // JVM verifies: correct types, no stack overflow/underflow,
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ VerificationDemo
-// ═══════════════════════════════════════════════════════════════════════════
 // valid method calls, proper exception handling
 
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Bytecode verifier ensures null check bef
-// ═══════════════════════════════════════════════════════════════════════════
 class VerificationDemo {
-public void safeMethod(String str) {
-if (str != null) {
-System.out.println(str.length());
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Implementation
-// ═══════════════════════════════════════════════════════════════════════════
-// Bytecode verifier ensures null check before dereference
-}
+    public void safeMethod(String str) {
+        if (str != null) {
+            System.out.println(str.length());
+        }
+        // Bytecode verifier ensures null check before dereference
+    }
 }`
     }
   ]
@@ -1921,7 +1750,7 @@ System.out.println(str.length());
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #78350f, #111827)',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       color: 'white',
       padding: '1.5rem'
     }}>
@@ -1964,7 +1793,7 @@ System.out.println(str.length());
                 e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
               }}
             >
-              ← Back to Java Topics
+              ← Back to Java
             </button>
             <h1 style={{
               fontSize: '2.25rem',
@@ -2295,48 +2124,28 @@ System.out.println(str.length());
                 const sections = parseCodeSections(selectedConcept.codeExample)
                 return sections.length > 0 ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {sections.map((section, idx) => {
-                      const sectionKey = `${selectedConcept.name}-${idx}`
-                      const isExpanded = expandedSections[sectionKey]
-
-                      return (
-                        <div key={idx} style={{
-                          backgroundColor: '#1e293b',
-                          borderRadius: '12px',
-                          overflow: 'hidden',
-                          border: '2px solid #334155'
+                    {sections.map((section, idx) => (
+                      <div key={idx} style={{
+                        backgroundColor: '#1e293b',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        border: '2px solid #334155'
+                      }}>
+                        <div style={{
+                          padding: '1rem 1.5rem',
+                          backgroundColor: '#334155',
+                          color: '#60a5fa',
+                          fontSize: '1rem',
+                          fontWeight: '600',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem'
                         }}>
-                          <button
-                            onClick={() => toggleSection(sectionKey)}
-                            style={{
-                              width: '100%',
-                              padding: '1rem 1.5rem',
-                              backgroundColor: '#334155',
-                              border: 'none',
-                              color: '#60a5fa',
-                              fontSize: '1rem',
-                              fontWeight: '600',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              transition: 'all 0.2s ease'
-                            }}
-                          >
-                            <span>💻 {section.title}</span>
-                            <span style={{ fontSize: '1.2rem' }}>
-                              {isExpanded ? '▼' : '▶'}
-                            </span>
-                          </button>
-
-                          {isExpanded && (
-                            <div style={{ padding: 0 }}>
-                              <SyntaxHighlighter code={section.code} />
-                            </div>
-                          )}
+                          <span>💻 {section.title}</span>
                         </div>
-                      )
-                    })}
+                        <SyntaxHighlighter code={section.code} />
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <div style={{

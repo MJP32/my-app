@@ -803,7 +803,7 @@ max.partition.fetch.bytes=1048576
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', backgroundColor: '#fef2f2', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -831,7 +831,7 @@ max.partition.fetch.bytes=1048576
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '800',
-          color: '#1f2937',
+          color: '#93c5fd',
           margin: 0
         }}>
           Kafka Interview Questions
@@ -843,7 +843,7 @@ max.partition.fetch.bytes=1048576
 
       <p style={{
         fontSize: '1.1rem',
-        color: '#4b5563',
+        color: '#d1d5db',
         textAlign: 'center',
         marginBottom: '2rem',
         lineHeight: '1.6'
@@ -856,14 +856,14 @@ max.partition.fetch.bytes=1048576
           <div
             key={q.id}
             style={{
-              backgroundColor: 'white',
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
               borderRadius: '12px',
-              border: `3px solid ${expandedQuestion === q.id ? getCategoryColor(q.category) : '#e5e7eb'}`,
+              border: `3px solid ${expandedQuestion === q.id ? getCategoryColor(q.category) : '#374151'}`,
               overflow: 'hidden',
               transition: 'all 0.3s ease',
               boxShadow: expandedQuestion === q.id
-                ? '0 8px 16px rgba(0,0,0,0.1)'
-                : '0 2px 8px rgba(0,0,0,0.05)'
+                ? '0 8px 16px rgba(0,0,0,0.3)'
+                : '0 2px 8px rgba(0,0,0,0.2)'
             }}
           >
             <button
@@ -873,7 +873,7 @@ max.partition.fetch.bytes=1048576
                 padding: '1.5rem',
                 backgroundColor: expandedQuestion === q.id
                   ? `${getCategoryColor(q.category)}15`
-                  : 'white',
+                  : 'transparent',
                 border: 'none',
                 cursor: 'pointer',
                 textAlign: 'left',
@@ -884,12 +884,12 @@ max.partition.fetch.bytes=1048576
               }}
               onMouseEnter={(e) => {
                 if (expandedQuestion !== q.id) {
-                  e.currentTarget.style.backgroundColor = '#f9fafb'
+                  e.currentTarget.style.backgroundColor = '#374151'
                 }
               }}
               onMouseLeave={(e) => {
                 if (expandedQuestion !== q.id) {
-                  e.currentTarget.style.backgroundColor = 'white'
+                  e.currentTarget.style.backgroundColor = 'transparent'
                 }
               }}
             >
@@ -909,7 +909,7 @@ max.partition.fetch.bytes=1048576
                 <h3 style={{
                   fontSize: '1.15rem',
                   fontWeight: '700',
-                  color: '#1f2937',
+                  color: '#e2e8f0',
                   margin: 0
                 }}>
                   Q{q.id}. {q.question}
@@ -930,13 +930,13 @@ max.partition.fetch.bytes=1048576
             {expandedQuestion === q.id && (
               <div style={{
                 padding: '1.5rem',
-                backgroundColor: '#fafafa',
+                backgroundColor: '#1e293b',
                 borderTop: `2px solid ${getCategoryColor(q.category)}40`
               }}>
                 <div style={{
                   fontSize: '1rem',
                   lineHeight: '1.8',
-                  color: '#374151',
+                  color: '#d1d5db',
                   whiteSpace: 'pre-wrap',
                   fontFamily: 'system-ui, -apple-system, sans-serif',
                   textAlign: 'left'
@@ -952,14 +952,14 @@ max.partition.fetch.bytes=1048576
       <div style={{
         marginTop: '2rem',
         padding: '1.5rem',
-        backgroundColor: '#dbeafe',
+        backgroundColor: 'rgba(99, 102, 241, 0.15)',
         borderRadius: '12px',
-        border: '2px solid #3b82f6'
+        border: '2px solid #6366f1'
       }}>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: '#1e40af', marginBottom: '0.5rem' }}>
-          💡 Kafka Interview Tips
+        <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: '#a5b4fc', marginBottom: '0.5rem' }}>
+          Kafka Interview Tips
         </h3>
-        <ul style={{ color: '#1e3a8a', lineHeight: '1.8', margin: '0.5rem 0' }}>
+        <ul style={{ color: '#d1d5db', lineHeight: '1.8', margin: '0.5rem 0' }}>
           <li>Understand partitions and how they enable scalability</li>
           <li>Know the difference between acks=0, acks=1, and acks=all</li>
           <li>Explain consumer groups and rebalancing</li>

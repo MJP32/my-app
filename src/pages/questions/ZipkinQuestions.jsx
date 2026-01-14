@@ -928,7 +928,7 @@ Bad: "query"
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', backgroundColor: '#111827', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -957,7 +957,7 @@ Bad: "query"
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '800',
-          color: '#f9fafb',
+          color: '#93c5fd',
           margin: 0
         }}>
           Zipkin Interview Questions
@@ -982,7 +982,7 @@ Bad: "query"
           <div
             key={q.id}
             style={{
-              backgroundColor: '#1f2937',
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
               borderRadius: '12px',
               border: `3px solid ${expandedQuestion === q.id ? getCategoryColor(q.category) : '#374151'}`,
               overflow: 'hidden',
@@ -1068,7 +1068,7 @@ Bad: "query"
             {expandedQuestion === q.id && (
               <div style={{
                 padding: '1.5rem',
-                backgroundColor: '#111827',
+                backgroundColor: '#1e293b',
                 borderTop: `2px solid ${getCategoryColor(q.category)}40`
               }}>
                 <div style={{
@@ -1090,7 +1090,7 @@ Bad: "query"
       <div style={{
         marginTop: '2rem',
         padding: '1.5rem',
-        backgroundColor: '#1e3a5f',
+        backgroundColor: 'rgba(59, 130, 246, 0.15)',
         borderRadius: '12px',
         border: '2px solid #3b82f6'
       }}>

@@ -9,18 +9,18 @@ const ModernDiagram = ({ components, onComponentClick, title, width = 1400, heig
       width: '100%',
       maxWidth: `${containerWidth}px`,
       margin: '0 auto',
-      backgroundColor: '#f8fafc',
+      backgroundColor: '#1f2937',
       borderRadius: '16px',
       padding: '2rem',
-      boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.1)',
-      border: '2px solid #e2e8f0'
+      boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.3)',
+      border: '2px solid #374151'
     }}>
       <h3 style={{
         textAlign: 'center',
         marginBottom: '2rem',
         fontSize: '1.75rem',
         fontWeight: '800',
-        color: '#1e293b',
+        color: 'white',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
         {title}
@@ -55,60 +55,60 @@ const ModernDiagram = ({ components, onComponentClick, title, width = 1400, heig
 
           {/* Arrow markers */}
           <marker id="arrowSolid" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-            <path d="M0,0 L0,6 L9,3 z" fill="#1e293b" />
+            <path d="M0,0 L0,6 L9,3 z" fill="#9ca3af" />
           </marker>
           <marker id="arrowDashed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-            <path d="M0,0 L0,6 L9,3 z" fill="#64748b" />
+            <path d="M0,0 L0,6 L9,3 z" fill="#9ca3af" />
           </marker>
         </defs>
 
         {/* Architectural layer backgrounds */}
         <g opacity="0.1">
           <rect x="50" y="180" width="420" height="200" rx="16" fill="#3b82f6" />
-          <text x="260" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="#1e40af" opacity="0.6">
+          <text x="260" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="#9ca3af" opacity="0.8">
             Layer 1
           </text>
 
           <rect x="550" y="80" width="420" height="560" rx="16" fill="#10b981" />
-          <text x="760" y="110" textAnchor="middle" fontSize="14" fontWeight="700" fill="#059669" opacity="0.6">
+          <text x="760" y="110" textAnchor="middle" fontSize="14" fontWeight="700" fill="#9ca3af" opacity="0.8">
             Layer 2
           </text>
 
           <rect x="1050" y="180" width="420" height="520" rx="16" fill="#8b5cf6" />
-          <text x="1260" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="#7c3aed" opacity="0.6">
+          <text x="1260" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="#9ca3af" opacity="0.8">
             Layer 3
           </text>
         </g>
 
         {/* Connecting lines with arrows and labels */}
         <g fill="none">
-          <line x1="430" y1="300" x2="580" y2="200" stroke="#1e293b" strokeWidth="3" strokeOpacity="0.8" markerEnd="url(#arrowSolid)"/>
-          <text x="505" y="240" fontSize="11" fontWeight="600" fill="#1e293b" textAnchor="middle">
+          <line x1="430" y1="300" x2="580" y2="200" stroke="#9ca3af" strokeWidth="3" strokeOpacity="0.8" markerEnd="url(#arrowSolid)"/>
+          <text x="505" y="240" fontSize="11" fontWeight="600" fill="#9ca3af" textAnchor="middle">
             interacts
           </text>
 
-          <line x1="430" y1="300" x2="580" y2="400" stroke="#1e293b" strokeWidth="3" strokeOpacity="0.8" markerEnd="url(#arrowSolid)"/>
-          <text x="505" y="360" fontSize="11" fontWeight="600" fill="#1e293b" textAnchor="middle">
+          <line x1="430" y1="300" x2="580" y2="400" stroke="#9ca3af" strokeWidth="3" strokeOpacity="0.8" markerEnd="url(#arrowSolid)"/>
+          <text x="505" y="360" fontSize="11" fontWeight="600" fill="#9ca3af" textAnchor="middle">
             uses
           </text>
 
-          <line x1="930" y1="200" x2="1080" y2="300" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="1005" y="240" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
+          <line x1="930" y1="200" x2="1080" y2="300" stroke="#9ca3af" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
+          <text x="1005" y="240" fontSize="11" fontWeight="600" fill="#9ca3af" textAnchor="middle">
             depends
           </text>
 
-          <line x1="930" y1="400" x2="1080" y2="500" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="1005" y="460" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
+          <line x1="930" y1="400" x2="1080" y2="500" stroke="#9ca3af" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
+          <text x="1005" y="460" fontSize="11" fontWeight="600" fill="#9ca3af" textAnchor="middle">
             provides
           </text>
 
-          <line x1="430" y1="500" x2="580" y2="600" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="505" y="560" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
+          <line x1="430" y1="500" x2="580" y2="600" stroke="#9ca3af" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
+          <text x="505" y="560" fontSize="11" fontWeight="600" fill="#9ca3af" textAnchor="middle">
             extends
           </text>
 
-          <line x1="930" y1="500" x2="760" y2="600" stroke="#64748b" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
-          <text x="845" y="560" fontSize="11" fontWeight="600" fill="#64748b" textAnchor="middle">
+          <line x1="930" y1="500" x2="760" y2="600" stroke="#9ca3af" strokeWidth="3" strokeDasharray="8,4" strokeOpacity="0.7" markerEnd="url(#arrowDashed)"/>
+          <text x="845" y="560" fontSize="11" fontWeight="600" fill="#9ca3af" textAnchor="middle">
             integrates
           </text>
         </g>
@@ -372,10 +372,10 @@ function DarkPoolMatchingEngine({ onBack, breadcrumb }) {
       padding: '2rem',
       maxWidth: '2000px',
       margin: '120px auto 0',
-      backgroundColor: 'white',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       borderRadius: '16px',
-      boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-      border: '3px solid rgba(59, 130, 246, 0.4)'
+      boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.3)',
+      border: '3px solid #374151'
     }}>
       <div style={{
         display: 'flex',
@@ -402,11 +402,11 @@ function DarkPoolMatchingEngine({ onBack, breadcrumb }) {
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '800',
-          color: '#1f2937',
+          color: 'white',
           margin: 0,
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
         }}>
-          🌊 Dark Pool Matching Engine
+          Dark Pool Matching Engine
         </h1>
         <div style={{ width: '120px' }}></div>
       </div>
@@ -414,15 +414,15 @@ function DarkPoolMatchingEngine({ onBack, breadcrumb }) {
       <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
-        backgroundColor: 'rgba(59, 130, 246, 0.05)',
+        backgroundColor: '#1f2937',
         padding: '1.5rem',
         borderRadius: '12px',
-        border: '2px solid rgba(59, 130, 246, 0.2)',
+        border: '2px solid #374151',
         marginBottom: '2rem'
       }}>
         <p style={{
           fontSize: '1.1rem',
-          color: '#374151',
+          color: '#9ca3af',
           fontWeight: '500',
           margin: 0,
           lineHeight: '1.6',
@@ -452,60 +452,62 @@ function DarkPoolMatchingEngine({ onBack, breadcrumb }) {
         gap: '1.5rem'
       }}>
         <div style={{
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          backgroundColor: '#1f2937',
           padding: '1.5rem',
           borderRadius: '12px',
-          border: '2px solid rgba(59, 130, 246, 0.3)'
+          border: '2px solid #374151'
         }}>
           <h3 style={{
-            color: '#1e40af',
+            color: 'white',
             fontSize: '1.25rem',
             fontWeight: '700',
             marginBottom: '1rem'
           }}>
-            🏛️ Regulatory Compliance
+            Regulatory Compliance
           </h3>
           <div style={{
             display: 'grid',
             gridTemplateColumns: '1fr',
             gap: '0.5rem',
-            fontSize: '0.9rem'
+            fontSize: '0.9rem',
+            color: '#9ca3af'
           }}>
-            <div>• MiFID II Best Execution</div>
-            <div>• Reg NMS Compliance</div>
-            <div>• ESMA Dark Pool Rules</div>
-            <div>• SEC Alternative Trading System</div>
-            <div>• Real-time Trade Reporting</div>
-            <div>• Audit Trail Maintenance</div>
+            <div>MiFID II Best Execution</div>
+            <div>Reg NMS Compliance</div>
+            <div>ESMA Dark Pool Rules</div>
+            <div>SEC Alternative Trading System</div>
+            <div>Real-time Trade Reporting</div>
+            <div>Audit Trail Maintenance</div>
           </div>
         </div>
 
         <div style={{
-          backgroundColor: 'rgba(139, 92, 246, 0.1)',
+          backgroundColor: '#1f2937',
           padding: '1.5rem',
           borderRadius: '12px',
-          border: '2px solid rgba(139, 92, 246, 0.3)'
+          border: '2px solid #374151'
         }}>
           <h3 style={{
-            color: '#7c3aed',
+            color: 'white',
             fontSize: '1.25rem',
             fontWeight: '700',
             marginBottom: '1rem'
           }}>
-            🔧 Advanced Features
+            Advanced Features
           </h3>
           <div style={{
             display: 'grid',
             gridTemplateColumns: '1fr',
             gap: '0.5rem',
-            fontSize: '0.9rem'
+            fontSize: '0.9rem',
+            color: '#9ca3af'
           }}>
-            <div>• Iceberg & Hidden Orders</div>
-            <div>• TWAP/VWAP Algorithms</div>
-            <div>• Cross-venue Liquidity</div>
-            <div>• Anti-gaming Protection</div>
-            <div>• Size Discovery Protocol</div>
-            <div>• Price Improvement Engine</div>
+            <div>Iceberg & Hidden Orders</div>
+            <div>TWAP/VWAP Algorithms</div>
+            <div>Cross-venue Liquidity</div>
+            <div>Anti-gaming Protection</div>
+            <div>Size Discovery Protocol</div>
+            <div>Price Improvement Engine</div>
           </div>
         </div>
       </div>
@@ -525,7 +527,7 @@ function DarkPoolMatchingEngine({ onBack, breadcrumb }) {
           zIndex: 99999
         }}>
           <div style={{
-            backgroundColor: 'white',
+            backgroundColor: '#1f2937',
             padding: '2.5rem',
             borderRadius: '16px',
             maxWidth: selectedConcept ? '1400px' : '1000px',
@@ -533,7 +535,7 @@ function DarkPoolMatchingEngine({ onBack, breadcrumb }) {
             maxHeight: '80vh',
             overflowY: 'auto',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-            border: '3px solid rgba(59, 130, 246, 0.4)',
+            border: '3px solid #374151',
             transition: 'all 0.3s ease'
           }}>
             <div style={{
@@ -545,7 +547,7 @@ function DarkPoolMatchingEngine({ onBack, breadcrumb }) {
               <h2 style={{
                 fontSize: '2rem',
                 fontWeight: '800',
-                color: '#1f2937',
+                color: 'white',
                 margin: 0,
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
               }}>
@@ -570,15 +572,15 @@ function DarkPoolMatchingEngine({ onBack, breadcrumb }) {
             </div>
 
             <div style={{
-              backgroundColor: 'rgba(59, 130, 246, 0.05)',
+              backgroundColor: '#111827',
               padding: '1.5rem',
               borderRadius: '12px',
-              border: '2px solid rgba(59, 130, 246, 0.2)',
+              border: '2px solid #374151',
               marginBottom: '2rem'
             }}>
               <p style={{
                 fontSize: '1.1rem',
-                color: '#374151',
+                color: '#9ca3af',
                 fontWeight: '500',
                 margin: 0,
                 lineHeight: '1.6'
@@ -596,7 +598,7 @@ function DarkPoolMatchingEngine({ onBack, breadcrumb }) {
                 <h3 style={{
                   fontSize: '1.25rem',
                   fontWeight: '700',
-                  color: '#1f2937',
+                  color: 'white',
                   marginBottom: '1rem'
                 }}>
                   Key Features
@@ -607,31 +609,31 @@ function DarkPoolMatchingEngine({ onBack, breadcrumb }) {
                 }}>
                   {selectedComponent.details.map((detail, idx) => (
                     <div key={idx} style={{
-                      backgroundColor: selectedConcept?.name === detail ? 'rgba(34, 197, 94, 0.25)' : 'rgba(34, 197, 94, 0.1)',
+                      backgroundColor: selectedConcept?.name === detail ? '#374151' : '#111827',
                       padding: '0.75rem',
                       borderRadius: '8px',
-                      border: selectedConcept?.name === detail ? '2px solid rgba(34, 197, 94, 0.5)' : '2px solid rgba(34, 197, 94, 0.2)',
+                      border: selectedConcept?.name === detail ? '2px solid #4b5563' : '2px solid #374151',
                       fontSize: '0.95rem',
                       fontWeight: '500',
-                      color: '#166534',
+                      color: '#9ca3af',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
                       if (selectedConcept?.name !== detail) {
-                        e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.2)'
+                        e.currentTarget.style.backgroundColor = '#374151'
                       }
                       e.currentTarget.style.transform = 'translateX(4px)'
                     }}
                     onMouseLeave={(e) => {
                       if (selectedConcept?.name !== detail) {
-                        e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.1)'
+                        e.currentTarget.style.backgroundColor = '#111827'
                       }
                       e.currentTarget.style.transform = 'translateX(0)'
                     }}
                     onClick={() => setSelectedConcept({ name: detail })}
                     >
-                      • {detail}
+                      {detail}
                     </div>
                   ))}
                 </div>
@@ -639,10 +641,10 @@ function DarkPoolMatchingEngine({ onBack, breadcrumb }) {
 
               {selectedConcept && (
                 <div style={{
-                  backgroundColor: '#f8fafc',
+                  backgroundColor: '#111827',
                   padding: '1.5rem',
                   borderRadius: '12px',
-                  border: '2px solid #e2e8f0'
+                  border: '2px solid #374151'
                 }}>
                   <div style={{
                     display: 'flex',
@@ -653,7 +655,7 @@ function DarkPoolMatchingEngine({ onBack, breadcrumb }) {
                     <h4 style={{
                       fontSize: '1.1rem',
                       fontWeight: '700',
-                      color: '#1e293b',
+                      color: 'white',
                       margin: 0
                     }}>
                       {selectedConcept.name}
@@ -678,7 +680,7 @@ function DarkPoolMatchingEngine({ onBack, breadcrumb }) {
 
                   <p style={{
                     fontSize: '0.95rem',
-                    color: '#475569',
+                    color: '#9ca3af',
                     lineHeight: '1.6',
                     margin: 0
                   }}>

@@ -49,19 +49,10 @@ function BinarySearchTrees({ onBack, onPrevious, onNext, previousName, nextName,
       difficulty: 'Medium',
       leetcodeUrl: 'https://leetcode.com/problems/validate-binary-search-tree/',
       description: 'Determine if a binary tree is a valid Binary Search Tree. In a BST, the left subtree contains only nodes with values less than the parent, and the right subtree only nodes with values greater.',
-      example: `Input: root = [2,1,3]
-    2
-   / \\
-  1   3
-Output: true
-
-Input: root = [5,1,4,null,null,3,6]
-    5
-   / \\
-  1   4
-     / \\
-    3   6
-Output: false (4's subtree contains 3 which is < 5)`,
+      examples: [
+        { input: 'root = [2,1,3]', output: 'true' },
+        { input: 'root = [5,1,4,null,null,3,6]', output: 'false' }
+      ],
       code: {
         java: {
           starterCode: `public boolean isValidBST(TreeNode root) {
@@ -324,22 +315,10 @@ Result: false`
       difficulty: 'Easy',
       leetcodeUrl: 'https://leetcode.com/problems/minimum-absolute-difference-in-bst/',
       description: 'Given the root of a Binary Search Tree (BST), return the minimum absolute difference between the values of any two different nodes in the tree.',
-      example: `Input: root = [4,2,6,1,3]
-    4
-   / \\
-  2   6
- / \\
-1   3
-Output: 1
-Explanation: Minimum difference is between 2 and 1, or 2 and 3
-
-Input: root = [1,0,48,null,null,12,49]
-      1
-     / \\
-    0   48
-       / \\
-      12  49
-Output: 1`,
+      examples: [
+        { input: 'root = [4,2,6,1,3]', output: '1' },
+        { input: 'root = [1,0,48,null,null,12,49]', output: '1' }
+      ],
       code: {
         java: {
           starterCode: `public int getMinimumDifference(TreeNode root) {
@@ -599,24 +578,10 @@ return minDiff`
       difficulty: 'Medium',
       leetcodeUrl: 'https://leetcode.com/problems/kth-smallest-element-in-a-bst/',
       description: 'Given the root of a binary search tree, and an integer k, return the kth smallest value (1-indexed) of all the values of the nodes in the tree.',
-      example: `Input: root = [3,1,4,null,2], k = 1
-   3
-  / \\
- 1   4
-  \\
-   2
-Output: 1
-
-Input: root = [5,3,6,2,4,null,null,1], k = 3
-       5
-      / \\
-     3   6
-    / \\
-   2   4
-  /
- 1
-Output: 3
-Explanation: Inorder: [1,2,3,4,5,6], 3rd smallest is 3`,
+      examples: [
+        { input: 'root = [3,1,4,null,2], k = 1', output: '1' },
+        { input: 'root = [5,3,6,2,4,null,null,1], k = 3', output: '3' }
+      ],
       code: {
         java: {
           starterCode: `public int kthSmallest(TreeNode root, int k) {
@@ -947,6 +912,26 @@ Time: O(h) per query!`
     Hard: questions.filter(q => q.difficulty === 'Hard')
   }
 
+  // Flatten visible questions for keyboard navigation
+  const visibleQuestions = Object.entries(groupedQuestions)
+    .filter(([difficulty]) => expandedSections[difficulty])
+    .flatMap(([, qs]) => qs)
+
+  // Keyboard navigation for problem list
+  const { focusedIndex, setFocusedIndex, itemRefs } = useKeyboardNavigation({
+    items: visibleQuestions,
+    onSelect: (question) => selectQuestion(question),
+    onEscape: onBack,
+    enabled: !selectedQuestion && visibleQuestions.length > 0,
+    gridColumns: 2,
+    loop: true
+  })
+
+  // Get the index of a question in the visible list
+  const getVisibleIndex = (question) => {
+    return visibleQuestions.findIndex(q => q.id === question.id)
+  }
+
   const selectQuestion = (question) => {
     setSelectedQuestion(question)
     setShowSolution(false)
@@ -974,19 +959,19 @@ Time: O(h) per query!`
 
   if (selectedQuestion) {
     return (
-      <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto', backgroundColor: '#111827', minHeight: '100vh' }}>
+      <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <button onClick={() => setSelectedQuestion(null)} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
-            ← Back to Problems
+            ← Back to Practice
           </button>
           <LanguageToggle />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
           {/* Problem Description */}
-          <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '12px', border: '2px solid #e5e7eb', maxHeight: '85vh', overflowY: 'auto' }}>
+          <div style={{ background: 'linear-gradient(to bottom right, #1f2937, #111827)', padding: '2rem', borderRadius: '12px', border: '2px solid #3b82f6', maxHeight: '85vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.75rem', color: '#1f2937', margin: 0 }}>{selectedQuestion.title}</h2>
+              <h2 style={{ fontSize: '1.75rem', color: '#93c5fd', margin: 0 }}>{selectedQuestion.title}</h2>
               <span style={{ padding: '0.5rem 1rem', borderRadius: '12px', fontSize: '0.875rem', fontWeight: '600', backgroundColor: getDifficultyColor(selectedQuestion.difficulty) + '20', color: getDifficultyColor(selectedQuestion.difficulty) }}>
                 {selectedQuestion.difficulty}
               </span>
@@ -1004,20 +989,20 @@ Time: O(h) per query!`
             )}
 
             <div style={{ marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.1rem', color: '#374151', marginBottom: '0.75rem' }}>Description</h3>
-              <p style={{ fontSize: '1rem', color: '#6b7280', lineHeight: '1.6' }}>{selectedQuestion.description}</p>
+              <h3 style={{ fontSize: '1.1rem', color: '#93c5fd', marginBottom: '0.75rem' }}>Description</h3>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.6' }}>{selectedQuestion.description}</p>
             </div>
 
             {selectedQuestion.examples && selectedQuestion.examples.length > 0 && (
               <div style={{ marginBottom: '1.5rem' }}>
-                <h3 style={{ fontSize: '1.1rem', color: '#374151', marginBottom: '0.75rem' }}>Examples</h3>
+                <h3 style={{ fontSize: '1.1rem', color: '#93c5fd', marginBottom: '0.75rem' }}>Examples</h3>
                 {selectedQuestion.examples.map((example, idx) => (
-                  <div key={idx} style={{ backgroundColor: '#f9fafb', padding: '1rem', borderRadius: '8px', marginBottom: '0.75rem', border: '1px solid #e5e7eb', color: '#1f2937' }}>
+                  <div key={idx} style={{ backgroundColor: '#111827', padding: '1rem', borderRadius: '8px', marginBottom: '0.75rem', border: '1px solid #374151', color: '#9ca3af' }}>
                     <div style={{ marginBottom: '0.5rem' }}>
-                      <strong style={{ color: '#1f2937' }}>Input:</strong> <code style={{ color: '#1f2937' }}>{example.input}</code>
+                      <strong style={{ color: '#93c5fd' }}>Input:</strong> <code style={{ color: '#9ca3af' }}>{example.input}</code>
                     </div>
                     <div>
-                      <strong style={{ color: '#1f2937' }}>Output:</strong> <code style={{ color: '#1f2937' }}>{example.output}</code>
+                      <strong style={{ color: '#93c5fd' }}>Output:</strong> <code style={{ color: '#9ca3af' }}>{example.output}</code>
                     </div>
                   </div>
                 ))}
@@ -1026,22 +1011,22 @@ Time: O(h) per query!`
 
             {selectedQuestion.explanation && (
               <div style={{ marginTop: '1.5rem' }}>
-                <h3 style={{ fontSize: '1.1rem', color: '#374151', marginBottom: '0.75rem' }}>💡 Explanation</h3>
-                <p style={{ fontSize: '0.95rem', color: '#6b7280', lineHeight: '1.6' }}>{selectedQuestion.explanation}</p>
+                <h3 style={{ fontSize: '1.1rem', color: '#93c5fd', marginBottom: '0.75rem' }}>💡 Explanation</h3>
+                <p style={{ fontSize: '0.95rem', color: '#9ca3af', lineHeight: '1.6' }}>{selectedQuestion.explanation}</p>
               </div>
             )}
 
             {(selectedQuestion.timeComplexity || selectedQuestion.spaceComplexity) && (
-              <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#eff6ff', borderRadius: '8px', border: '1px solid #dbeafe' }}>
-                <h3 style={{ fontSize: '1rem', color: '#1e40af', marginBottom: '0.5rem' }}>Complexity</h3>
-                {selectedQuestion.timeComplexity && <div style={{ fontSize: '0.9rem', color: '#1e40af' }}>⏱️ Time: {selectedQuestion.timeComplexity}</div>}
-                {selectedQuestion.spaceComplexity && <div style={{ fontSize: '0.9rem', color: '#1e40af' }}>💾 Space: {selectedQuestion.spaceComplexity}</div>}
+              <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#111827', borderRadius: '8px', border: '1px solid #3b82f6' }}>
+                <h3 style={{ fontSize: '1rem', color: '#93c5fd', marginBottom: '0.5rem' }}>Complexity</h3>
+                {selectedQuestion.timeComplexity && <div style={{ fontSize: '0.9rem', color: '#60a5fa' }}>⏱️ Time: {selectedQuestion.timeComplexity}</div>}
+                {selectedQuestion.spaceComplexity && <div style={{ fontSize: '0.9rem', color: '#60a5fa' }}>💾 Space: {selectedQuestion.spaceComplexity}</div>}
               </div>
             )}
           </div>
 
           {/* Code Editor */}
-          <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '12px', border: '2px solid #e5e7eb', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ background: 'linear-gradient(to bottom right, #1f2937, #111827)', padding: '2rem', borderRadius: '12px', border: '2px solid #3b82f6', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' , flexWrap: 'wrap' }}>
               <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedQuestion.code[language].solution) }} style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
                 {showSolution ? 'Hide' : 'Show'} Solution
@@ -1054,12 +1039,12 @@ Time: O(h) per query!`
               </button>
             </div>
 
-            <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'monospace', fontSize: '0.9rem', border: '2px solid #e5e7eb', borderRadius: '8px', resize: 'none', lineHeight: '1.5' }} spellCheck={false} />
+            <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'monospace', fontSize: '0.9rem', border: '2px solid #374151', borderRadius: '8px', resize: 'none', lineHeight: '1.5', backgroundColor: '#111827', color: '#9ca3af' }} spellCheck={false} />
 
             {output && (
               <div style={{ marginTop: '1rem' }}>
-                <h3 style={{ fontSize: '1rem', color: '#374151', marginBottom: '0.5rem' }}>Output</h3>
-                <pre style={{ backgroundColor: '#f9fafb', padding: '1rem', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'auto', fontSize: '0.875rem', maxHeight: '150px' }}>{output}</pre>
+                <h3 style={{ fontSize: '1rem', color: '#93c5fd', marginBottom: '0.5rem' }}>Output</h3>
+                <pre style={{ backgroundColor: '#111827', padding: '1rem', borderRadius: '8px', border: '1px solid #374151', overflow: 'auto', fontSize: '0.875rem', maxHeight: '150px', color: '#9ca3af' }}>{output}</pre>
               </div>
             )}
           </div>
@@ -1081,7 +1066,7 @@ Time: O(h) per query!`
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#111827', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
       <div style={{ marginBottom: '2rem' }}>
         <button onClick={onBack} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'} onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}>
           ← Back
@@ -1091,17 +1076,17 @@ Time: O(h) per query!`
       <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#1f2937', marginBottom: '0.5rem' }}>🌳 Binary Search Trees</h1>
-        <p style={{ fontSize: '1.2rem', color: '#6b7280' }}>Master binary search trees problems</p>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: '800', background: 'linear-gradient(to right, #93c5fd, #60a5fa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginBottom: '0.5rem' }}>🌳 Binary Search Trees</h1>
+        <p style={{ fontSize: '1.2rem', color: '#9ca3af' }}>Master binary search trees problems</p>
 
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1.5rem' }}>
-          <div style={{ padding: '1rem 2rem', backgroundColor: 'white', borderRadius: '12px', border: '2px solid #e5e7eb' }}>
+          <div style={{ padding: '1rem 2rem', background: 'linear-gradient(to bottom right, #1f2937, #111827)', borderRadius: '12px', border: '2px solid #3b82f6' }}>
             <div style={{ fontSize: '2rem', fontWeight: '700', color: '#3b82f6' }}>{stats.completed}/{stats.total}</div>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>Completed</div>
+            <div style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.25rem' }}>Completed</div>
           </div>
-          <div style={{ padding: '1rem 2rem', backgroundColor: 'white', borderRadius: '12px', border: '2px solid #e5e7eb' }}>
+          <div style={{ padding: '1rem 2rem', background: 'linear-gradient(to bottom right, #1f2937, #111827)', borderRadius: '12px', border: '2px solid #10b981' }}>
             <div style={{ fontSize: '2rem', fontWeight: '700', color: '#10b981' }}>{stats.percentage}%</div>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>Progress</div>
+            <div style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.25rem' }}>Progress</div>
           </div>
         </div>
       </div>
@@ -1109,22 +1094,50 @@ Time: O(h) per query!`
       {Object.entries(groupedQuestions).map(([difficulty, difficultyQuestions]) => (
         difficultyQuestions.length > 0 && (
           <div key={difficulty} style={{ marginBottom: '2rem' }}>
-            <button onClick={() => toggleSection(difficulty)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', backgroundColor: 'white', border: '2px solid #e5e7eb', borderRadius: '12px', cursor: 'pointer', marginBottom: '1rem' }}>
+            <button onClick={() => toggleSection(difficulty)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', background: 'linear-gradient(to bottom right, #1f2937, #111827)', border: '2px solid #374151', borderRadius: '12px', cursor: 'pointer', marginBottom: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <span style={{ fontSize: '1.5rem', fontWeight: '700', color: getDifficultyColor(difficulty) }}>{difficulty}</span>
-                <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>({difficultyQuestions.length} problems)</span>
+                <span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>({difficultyQuestions.length} problems)</span>
               </div>
-              <span style={{ fontSize: '1.25rem', color: '#6b7280' }}>{expandedSections[difficulty] ? '▼' : '▶'}</span>
+              <span style={{ fontSize: '1.25rem', color: '#9ca3af' }}>{expandedSections[difficulty] ? '▼' : '▶'}</span>
             </button>
 
             {expandedSections[difficulty] && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '1rem' }}>
-                {difficultyQuestions.map((question) => (
-                  <div key={question.id} onClick={() => selectQuestion(question)} style={{ backgroundColor: 'white', padding: '1.5rem', borderRadius: '12px', border: '2px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)' }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '1rem' }} role="list" aria-label={`${difficulty} problems`}>
+                {difficultyQuestions.map((question) => {
+                  const visibleIndex = getVisibleIndex(question)
+                  const isFocused = focusedIndex === visibleIndex
+                  return (
+                  <div
+                    key={question.id}
+                    ref={(el) => { if (el) itemRefs.current[visibleIndex] = el }}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`${question.title}, ${question.difficulty} difficulty`}
+                    className={isFocused ? 'problem-card-focused' : ''}
+                    onClick={() => selectQuestion(question)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        selectQuestion(question)
+                      }
+                    }}
+                    onFocus={() => setFocusedIndex(visibleIndex)}
+                    style={{
+                      background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                      padding: '1.5rem',
+                      borderRadius: '12px',
+                      border: isFocused ? '2px solid #60a5fa' : '2px solid #374151',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.3)'; e.currentTarget.style.borderColor = '#3b82f6' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = isFocused ? '#60a5fa' : '#374151' }}
+                  >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937', margin: 0, flex: 1 }}>{question.id}. {question.title}</h3>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#93c5fd', margin: 0, flex: 1 }}>{question.id}. {question.title}</h3>
                     </div>
-                    <p style={{ fontSize: '0.875rem', color: '#6b7280', lineHeight: '1.5', marginBottom: '1rem' }}>{question.description.substring(0, 100)}...</p>
+                    <p style={{ fontSize: '0.875rem', color: '#9ca3af', lineHeight: '1.5', marginBottom: '1rem' }}>{question.description.substring(0, 100)}...</p>
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
                       <span style={{ padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '600', backgroundColor: getDifficultyColor(question.difficulty) + '20', color: getDifficultyColor(question.difficulty) }}>{question.difficulty}</span>
                       <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -1145,7 +1158,8 @@ Time: O(h) per query!`
                       </div>
                     </div>
                   </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>

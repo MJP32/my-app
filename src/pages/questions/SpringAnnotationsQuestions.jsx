@@ -2100,7 +2100,7 @@ public class UserService {
 
       if (part.startsWith('**') && part.endsWith('**')) {
         return (
-          <strong key={index} style={{ color: '#1f2937', fontSize: '1.05rem' }}>
+          <strong key={index} style={{ color: '#93c5fd', fontSize: '1.05rem' }}>
             {part.slice(2, -2)}
           </strong>
         )
@@ -2136,7 +2136,7 @@ public class UserService {
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#faf5ff', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -2164,7 +2164,7 @@ public class UserService {
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '800',
-          color: '#1f2937',
+          color: '#93c5fd',
           margin: 0
         }}>
           Spring Annotations Questions
@@ -2183,14 +2183,14 @@ public class UserService {
           <div
             key={q.id}
             style={{
-              backgroundColor: 'white',
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
               borderRadius: '12px',
-              border: `3px solid ${categoryColor}40`,
+              border: `3px solid #374151`,
               overflow: 'hidden',
               transition: 'all 0.3s ease',
               boxShadow: expandedQuestionId === q.id
-                ? `0 0 0 4px ${categoryColor}20, 0 8px 16px rgba(0,0,0,0.1)`
-                : '0 2px 8px rgba(0,0,0,0.05)'
+                ? `0 0 0 4px ${categoryColor}20, 0 8px 16px rgba(0,0,0,0.3)`
+                : '0 2px 8px rgba(0,0,0,0.2)'
             }}
           >
             <div
@@ -2198,7 +2198,7 @@ public class UserService {
               style={{
                 padding: '1.5rem',
                 cursor: 'pointer',
-                backgroundColor: expandedQuestionId === q.id ? `${categoryColor}10` : 'white',
+                backgroundColor: expandedQuestionId === q.id ? '#374151' : 'transparent',
                 transition: 'background-color 0.2s ease'
               }}
             >
@@ -2249,7 +2249,7 @@ public class UserService {
               <h3 style={{
                 fontSize: '1.25rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: '#e2e8f0',
                 margin: 0
               }}>
                 {q.question}
@@ -2259,7 +2259,7 @@ public class UserService {
             {expandedQuestionId === q.id && (
               <div style={{
                 padding: '1.5rem',
-                backgroundColor: '#f9fafb',
+                backgroundColor: '#1e293b',
                 borderTop: `2px solid ${categoryColor}20`,
                 animation: 'fadeIn 0.3s ease'
               }}>
@@ -2267,7 +2267,7 @@ public class UserService {
                   fontSize: '1rem',
                   textAlign: 'left',
                   lineHeight: '1.8',
-                  color: '#374151',
+                  color: '#d1d5db',
                   whiteSpace: 'pre-wrap'
                 }}>
                   {renderFormattedAnswer(q.answer)}
@@ -2281,23 +2281,23 @@ public class UserService {
       <div style={{
         marginTop: '3rem',
         padding: '2rem',
-        backgroundColor: 'white',
+        backgroundColor: 'rgba(99, 102, 241, 0.15)',
         borderRadius: '12px',
-        border: `3px solid ${categoryColor}40`
+        border: `3px solid #374151`
       }}>
         <h3 style={{
           fontSize: '1.5rem',
           fontWeight: '700',
-          color: '#1f2937',
+          color: '#93c5fd',
           marginBottom: '1rem'
         }}>
-          💡 Annotation Best Practices
+          Annotation Best Practices
         </h3>
         <ul style={{
           fontSize: '1rem',
           textAlign: 'left',
           lineHeight: '2',
-          color: '#4b5563',
+          color: '#d1d5db',
           paddingLeft: '1.5rem'
         }}>
           <li><strong>Use stereotype annotations</strong> appropriately - @Service for business logic, @Repository for data access</li>

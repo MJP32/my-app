@@ -499,7 +499,7 @@ function SQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
                   e.currentTarget.style.borderColor = '#374151'
                 }}
               >
-                ← Back to All
+                ← Back to Categories
               </button>
 
               {concepts.map((concept) => (

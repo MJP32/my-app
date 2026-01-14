@@ -5,15 +5,6 @@ import Breadcrumb from '../../components/Breadcrumb'
 
 const PythonOOP = ({ onBack, breadcrumb }) => {
   const [selectedConcept, setSelectedConcept] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
-
-  const toggleSection = (conceptIndex, sectionIndex) => {
-    const key = `${conceptIndex}-${sectionIndex}`
-    setExpandedSections(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }))
-  }
 
   const parseCodeSections = (codeString) => {
     const sections = codeString.split('\n\n')
@@ -1790,7 +1781,7 @@ if __name__ == "__main__":
                 e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
               }}
             >
-              ← Back to Python Topics
+              ← Back to Python
             </button>
             <h1 style={{
               fontSize: '2.25rem',
@@ -1984,57 +1975,36 @@ if __name__ == "__main__":
                   {parseCodeSections(selectedConcept.codeExample).map(
                     (section, idx) => (
                       <div key={section.id} style={{ marginBottom: '1rem' }}>
-                        <button
-                          onClick={() =>
-                            toggleSection(
-                              concepts.indexOf(selectedConcept),
-                              idx
-                            )
-                          }
+                        <div
                           style={{
                             width: '100%',
                             background: '#2563eb',
                             color: 'white',
                             padding: '0.5rem 1rem',
                             borderRadius: '0.5rem',
-                            border: 'none',
-                            cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '0.5rem',
                             fontSize: '0.9rem',
                             fontWeight: '500',
-                            marginBottom: expandedSections[
-                              `${concepts.indexOf(selectedConcept)}-${idx}`
-                            ]
-                              ? '0.5rem'
-                              : '0'
+                            marginBottom: '0.5rem'
                           }}
                         >
-                          {expandedSections[
-                            `${concepts.indexOf(selectedConcept)}-${idx}`
-                          ]
-                            ? '▼'
-                            : '▶'}{' '}
                           Code Block {idx + 1}
-                        </button>
-                        {expandedSections[
-                          `${concepts.indexOf(selectedConcept)}-${idx}`
-                        ] && (
-                          <SyntaxHighlighter
-                            language="python"
-                            style={vscDarkPlus}
-                            customStyle={{
-                              padding: '1.5rem',
-                              borderRadius: '0.5rem',
-                              fontSize: '0.9rem',
-                              border: '1px solid #3b82f6',
-                              margin: 0
-                            }}
-                          >
-                            {section.code}
-                          </SyntaxHighlighter>
-                        )}
+                        </div>
+                        <SyntaxHighlighter
+                          language="python"
+                          style={vscDarkPlus}
+                          customStyle={{
+                            padding: '1.5rem',
+                            borderRadius: '0.5rem',
+                            fontSize: '0.9rem',
+                            border: '1px solid #3b82f6',
+                            margin: 0
+                          }}
+                        >
+                          {section.code}
+                        </SyntaxHighlighter>
                       </div>
                     )
                   )}

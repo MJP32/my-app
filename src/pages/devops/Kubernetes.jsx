@@ -2915,9 +2915,9 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
       padding: '2rem',
       maxWidth: '95%',
       margin: '120px auto 0',
-      backgroundColor: 'white',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       borderRadius: '16px',
-      boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
+      boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.5)',
       border: '3px solid rgba(59, 130, 246, 0.4)'
     }}>
       <div style={{
@@ -2946,13 +2946,13 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
           >
-            ← Back to Menu
+            ← Back to DevOps
           </button>
           <div>
             <h1 style={{
               fontSize: '2.5rem',
               fontWeight: '800',
-              color: '#1f2937',
+              color: 'white',
               margin: 0,
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
             }}>
@@ -2963,8 +2963,8 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
                 padding: '0.25rem 0.75rem',
                 fontSize: '0.85rem',
                 fontWeight: '600',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
+                backgroundColor: '#374151',
+                color: '#93c5fd',
                 borderRadius: '6px',
                 marginTop: '0.25rem',
                 display: 'inline-block'
@@ -3029,15 +3029,15 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
       <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
-        backgroundColor: 'rgba(59, 130, 246, 0.05)',
+        backgroundColor: '#1f2937',
         padding: '2.5rem 10rem',
         borderRadius: '16px',
-        border: '3px solid rgba(59, 130, 246, 0.3)',
+        border: '3px solid #374151',
         marginBottom: '2rem'
       }}>
         <p style={{
           fontSize: '1.3rem',
-          color: '#374151',
+          color: '#9ca3af',
           fontWeight: '500',
           margin: 0,
           lineHeight: '1.8',
@@ -3060,10 +3060,10 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
               key={topic.id}
               onClick={() => setSelectedTopic(topic)}
               style={{
-                backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                backgroundColor: '#1f2937',
                 padding: '2rem',
                 borderRadius: '12px',
-                border: '2px solid rgba(59, 130, 246, 0.2)',
+                border: '2px solid #374151',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 height: '200px',
@@ -3072,14 +3072,14 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
                 justifyContent: 'space-between'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.1)'
+                e.currentTarget.style.backgroundColor = '#374151'
                 e.currentTarget.style.borderColor = topic.color
                 e.currentTarget.style.transform = 'translateY(-4px)'
                 e.currentTarget.style.boxShadow = `0 8px 16px ${topic.color}33`
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.05)'
-                e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.2)'
+                e.currentTarget.style.backgroundColor = '#1f2937'
+                e.currentTarget.style.borderColor = '#374151'
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = 'none'
               }}
@@ -3101,7 +3101,7 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
                 </h3>
                 <p style={{
                   fontSize: '0.9rem',
-                  color: '#6b7280',
+                  color: '#9ca3af',
                   margin: 0,
                   lineHeight: '1.5'
                 }}>
@@ -3125,7 +3125,7 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: 'white',
                 marginBottom: '1.5rem'
               }}>
                 Kubernetes Topics
@@ -3140,26 +3140,26 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
                     onClick={() => setSelectedTopic(topic)}
                     style={{
                       backgroundColor: selectedTopic?.id === topic.id
-                        ? `${topic.color}15`
-                        : 'rgba(59, 130, 246, 0.05)',
+                        ? `${topic.color}20`
+                        : '#1f2937',
                       padding: '1rem',
                       borderRadius: '8px',
                       border: selectedTopic?.id === topic.id
                         ? `3px solid ${topic.color}`
-                        : '2px solid rgba(59, 130, 246, 0.2)',
+                        : '2px solid #374151',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
                       if (selectedTopic?.id !== topic.id) {
-                        e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.1)'
-                        e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)'
+                        e.currentTarget.style.backgroundColor = '#374151'
+                        e.currentTarget.style.borderColor = '#4b5563'
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (selectedTopic?.id !== topic.id) {
-                        e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.05)'
-                        e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.2)'
+                        e.currentTarget.style.backgroundColor = '#1f2937'
+                        e.currentTarget.style.borderColor = '#374151'
                       }
                     }}
                   >
@@ -3172,7 +3172,7 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
                       <div style={{
                         fontSize: '1rem',
                         fontWeight: '700',
-                        color: selectedTopic?.id === topic.id ? topic.color : '#1f2937'
+                        color: selectedTopic?.id === topic.id ? topic.color : 'white'
                       }}>
                         {topic.name}
                       </div>
@@ -3199,15 +3199,15 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
 
               {/* Explanation */}
               <div style={{
-                backgroundColor: `${selectedTopic.color}08`,
+                backgroundColor: '#1f2937',
                 padding: '1.5rem',
                 borderRadius: '12px',
-                border: `2px solid ${selectedTopic.color}33`,
+                border: `2px solid ${selectedTopic.color}50`,
                 marginBottom: '1.5rem'
               }}>
                 <p style={{
                   fontSize: '1rem',
-                  color: '#374151',
+                  color: '#d1d5db',
                   fontWeight: '500',
                   margin: 0,
                   lineHeight: '1.7',
@@ -3219,10 +3219,10 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
 
               {/* Key Points */}
               <div style={{
-                backgroundColor: 'white',
+                backgroundColor: '#1f2937',
                 padding: '1.5rem',
                 borderRadius: '12px',
-                border: `2px solid ${selectedTopic.color}33`,
+                border: `2px solid ${selectedTopic.color}50`,
                 marginBottom: '1.5rem'
               }}>
                 <h4 style={{
@@ -3245,10 +3245,10 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
                         alignItems: 'flex-start',
                         gap: '0.5rem',
                         padding: '0.75rem',
-                        backgroundColor: `${selectedTopic.color}08`,
+                        backgroundColor: '#374151',
                         borderRadius: '6px',
                         fontSize: '0.9rem',
-                        color: '#374151',
+                        color: '#d1d5db',
                         lineHeight: '1.6'
                       }}
                     >
@@ -3293,8 +3293,8 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
                   <div
                     key={index}
                     style={{
-                      backgroundColor: 'white',
-                      border: '1px solid #e5e7eb',
+                      backgroundColor: '#1f2937',
+                      border: '1px solid #374151',
                       borderRadius: '12px',
                       marginBottom: '1rem',
                       overflow: 'hidden'
@@ -3306,9 +3306,9 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
                       style={{
                         width: '100%',
                         padding: '1rem 1.5rem',
-                        backgroundColor: isExpanded ? `${selectedTopic.color}10` : 'white',
+                        backgroundColor: isExpanded ? `${selectedTopic.color}20` : '#1f2937',
                         border: 'none',
-                        borderBottom: isExpanded ? '1px solid #e5e7eb' : 'none',
+                        borderBottom: isExpanded ? '1px solid #374151' : 'none',
                         cursor: 'pointer',
                         display: 'flex',
                         justifyContent: 'space-between',
@@ -3316,10 +3316,10 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
                         transition: 'all 0.2s ease'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = `${selectedTopic.color}15`
+                        e.currentTarget.style.backgroundColor = `${selectedTopic.color}30`
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = isExpanded ? `${selectedTopic.color}10` : 'white'
+                        e.currentTarget.style.backgroundColor = isExpanded ? `${selectedTopic.color}20` : '#1f2937'
                       }}
                     >
                       <span style={{

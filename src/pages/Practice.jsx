@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation'
 import { isProblemCompleted } from '../services/progressService'
-import { useTheme } from '../contexts/ThemeContext'
 
 function Practice({ onBack, onSelectItem }) {
-  const { colors } = useTheme()
   const [selectedSubcategory, setSelectedSubcategory] = useState(null)
   const [itemProgress, setItemProgress] = useState({})
   const [refreshKey, setRefreshKey] = useState(0)
@@ -202,6 +200,21 @@ function Practice({ onBack, onSelectItem }) {
           items: ['Design Patterns Practice', 'LRU Cache', 'Rate Limiter', 'Design Problems']
         }
       ]
+    },
+    {
+      title: 'Interview Prep',
+      icon: '🤖',
+      color: '#8b5cf6',
+      categories: [
+        {
+          id: 'AI Interview',
+          name: 'AI Interview',
+          icon: '🤖',
+          color: '#8b5cf6',
+          count: 0,
+          items: ['AI Interview']
+        }
+      ]
     }
   ]
 
@@ -230,363 +243,484 @@ function Practice({ onBack, onSelectItem }) {
   })
 
   return (
-    <div style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: colors.bgPrimary, minHeight: '100vh' }}>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '1.5rem'
-      }}>
-        <button
-          onClick={selectedSubcategory ? () => setSelectedSubcategory(null) : onBack}
-          style={{
-            padding: '0.6rem 1.25rem',
-            fontSize: '0.95rem',
-            fontWeight: '600',
-            backgroundColor: selectedSubcategory ? '#10b981' : '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = selectedSubcategory ? '#059669' : '#4b5563'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = selectedSubcategory ? '#10b981' : '#6b7280'}
-        >
-          {selectedSubcategory ? '← Back to Categories' : '← Back to Menu'}
-        </button>
-        <h1 style={{
-          fontSize: '2rem',
-          fontWeight: '800',
-          color: colors.textPrimary,
-          margin: 0
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
+      <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '2rem'
         }}>
-          {selectedSubcategory ? `${selectedSubcategory.icon} ${selectedSubcategory.name}` : '💪 Practice'}
-        </h1>
-        <div style={{ width: '120px' }}></div>
-      </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <button
+              onClick={selectedSubcategory ? () => setSelectedSubcategory(null) : onBack}
+              style={{
+                background: '#2563eb',
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontWeight: '500',
+                fontSize: '1rem',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#1d4ed8'
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#2563eb'
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              ← {selectedSubcategory ? 'Back to Categories' : 'Back to Menu'}
+            </button>
+            <h1 style={{
+              fontSize: '2.25rem',
+              fontWeight: 'bold',
+              background: 'linear-gradient(to right, #93c5fd, #60a5fa)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              {selectedSubcategory ? `${selectedSubcategory.icon} ${selectedSubcategory.name}` : '💪 Practice'}
+            </h1>
+          </div>
+        </div>
 
-      {!selectedSubcategory ? (
-        <>
-          <p style={{
-            fontSize: '1rem',
-            color: colors.textSecondary,
-            textAlign: 'center',
-            marginBottom: '1.5rem',
-            lineHeight: '1.6'
-          }}>
-            Master coding concepts through hands-on practice problems. Choose a category to start solving problems
-            and build your programming skills with real-world challenges.
-          </p>
+        {/* Dark themed Breadcrumb */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          padding: '0.75rem 1rem',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          borderRadius: '8px',
+          marginBottom: '1.5rem',
+          flexWrap: 'wrap',
+          border: '1px solid rgba(59, 130, 246, 0.3)'
+        }}>
+          <button
+            onClick={() => {
+              setSelectedSubcategory(null)
+              if (!selectedSubcategory) onBack()
+            }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#93c5fd',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              fontWeight: '500',
+              padding: '0.25rem 0.5rem',
+              borderRadius: '4px',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.2)'
+              e.currentTarget.style.color = '#bfdbfe'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color = '#93c5fd'
+            }}
+          >
+            <span>💪</span> Practice
+          </button>
+          {selectedSubcategory && (
+            <>
+              <span style={{ color: '#3b82f6', fontSize: '0.9rem' }}>→</span>
+              <span style={{
+                color: '#e2e8f0',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                padding: '0.25rem 0.75rem',
+                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                borderRadius: '4px'
+              }}>
+                {selectedSubcategory.name}
+              </span>
+            </>
+          )}
+          {!selectedSubcategory && (
+            <>
+              <span style={{ color: '#3b82f6', fontSize: '0.9rem' }}>→</span>
+              <span style={{
+                color: '#e2e8f0',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                padding: '0.25rem 0.75rem',
+                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                borderRadius: '4px'
+              }}>
+                Categories
+              </span>
+            </>
+          )}
+        </div>
 
-          {categoryGroups.map((group, groupIndex) => {
-            const groupStartIndex = categoryGroups
-              .slice(0, groupIndex)
-              .reduce((sum, g) => sum + g.categories.length, 0)
+        {!selectedSubcategory ? (
+          <>
+            <p style={{
+              fontSize: '1.2rem',
+              color: '#d1d5db',
+              textAlign: 'center',
+              marginBottom: '2rem',
+              lineHeight: '1.8'
+            }}>
+              Master coding concepts through hands-on practice problems. Choose a category to start solving problems
+              and build your programming skills with real-world challenges.
+            </p>
 
-            return (
-              <div key={group.title} style={{ marginBottom: '2rem' }}>
-                {/* Group Header */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  marginBottom: '1rem',
-                  padding: '0.75rem 1rem',
-                  backgroundColor: colors.bgSecondary,
-                  borderRadius: '10px',
-                  borderLeft: `5px solid ${group.color}`,
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
-                }}>
-                  <span style={{ fontSize: '1.5rem' }}>{group.icon}</span>
-                  <h2 style={{
-                    fontSize: '1.4rem',
-                    fontWeight: '700',
-                    color: colors.textPrimary,
-                    margin: 0
-                  }}>
-                    {group.title}
-                  </h2>
-                </div>
+            {categoryGroups.map((group, groupIndex) => {
+              const groupStartIndex = categoryGroups
+                .slice(0, groupIndex)
+                .reduce((sum, g) => sum + g.categories.length, 0)
 
-                {/* Category Cards */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                  gap: '1rem'
-                }}>
-                  {group.categories.map((subcategory, catIndex) => {
-                    const index = groupStartIndex + catIndex
-                    return (
-                      <button
-                        key={subcategory.id}
-                        ref={(el) => subcategoryRefs.current[index] = el}
-                        onClick={() => setSelectedSubcategory(subcategory)}
-                        tabIndex={focusedSubcategoryIndex === index ? 0 : -1}
-                        role="link"
-                        aria-label={`${subcategory.name} category. ${subcategory.count} practice problems.`}
-                        style={{
-                          backgroundColor: subcategory.color + '10',
-                          padding: '1.25rem',
-                          borderRadius: '10px',
-                          border: `2px solid ${subcategory.color}40`,
-                          cursor: 'pointer',
-                          transition: 'all 0.3s ease',
-                          transform: focusedSubcategoryIndex === index ? 'translateY(-4px)' : 'translateY(0)',
-                          boxShadow: focusedSubcategoryIndex === index
-                            ? `0 0 0 3px ${subcategory.color}40, 0 8px 16px rgba(0,0,0,0.12)`
-                            : 'none',
-                          textAlign: 'left',
-                          width: '100%'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.transform = 'translateY(-4px)'
-                          e.currentTarget.style.boxShadow = `0 0 0 3px ${subcategory.color}40, 0 8px 16px rgba(0,0,0,0.12)`
-                        }}
-                        onMouseLeave={(e) => {
-                          if (focusedSubcategoryIndex !== index) {
-                            e.currentTarget.style.transform = 'translateY(0)'
-                            e.currentTarget.style.boxShadow = 'none'
-                          }
-                        }}
-                      >
-                        <div style={{
-                          fontSize: '2.5rem',
-                          marginBottom: '0.75rem',
-                          textAlign: 'center'
-                        }}>
-                          {subcategory.icon}
-                        </div>
-                        <h3 style={{
-                          fontSize: '1.15rem',
-                          fontWeight: '700',
-                          color: colors.textPrimary,
-                          marginBottom: '0.5rem',
-                          textAlign: 'center'
-                        }}>
-                          {subcategory.name}
-                        </h3>
-
-                        {/* Category progress */}
-                        {Object.keys(itemProgress).length > 0 && subcategory.count > 0 && (() => {
-                          const progress = getCategoryProgress(subcategory)
-                          return (
-                            <div style={{ margin: '0.75rem 0' }}>
-                              <div style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                gap: '0.4rem',
-                                marginBottom: '0.5rem'
-                              }}>
-                                <span style={{
-                                  fontSize: '0.95rem',
-                                  fontWeight: '700',
-                                  color: subcategory.color
-                                }}>
-                                  {progress.completed}/{progress.total} Complete
-                                </span>
-                                <span style={{
-                                  fontSize: '0.8rem',
-                                  color: colors.textSecondary,
-                                  fontWeight: '600'
-                                }}>
-                                  ({progress.percentage}%)
-                                </span>
-                              </div>
-                              <div style={{
-                                width: '100%',
-                                height: '8px',
-                                backgroundColor: colors.border,
-                                borderRadius: '4px',
-                                overflow: 'hidden'
-                              }}>
-                                <div style={{
-                                  width: `${progress.percentage}%`,
-                                  height: '100%',
-                                  backgroundColor: subcategory.color,
-                                  borderRadius: '4px',
-                                  transition: 'width 0.3s ease'
-                                }}></div>
-                              </div>
-                            </div>
-                          )
-                        })()}
-
-                        <p style={{
-                          fontSize: '0.9rem',
-                          fontWeight: '600',
-                          color: colors.textSecondary,
-                          textAlign: 'center',
-                          margin: '0.5rem 0'
-                        }}>
-                          {subcategory.count} Total Problems
-                        </p>
-                        <div style={{
-                          fontSize: '0.8rem',
-                          color: colors.textSecondary,
-                          lineHeight: '1.5',
-                          marginTop: '0.75rem'
-                        }}>
-                          {subcategory.items.slice(0, 3).map((item, idx) => (
-                            <div key={idx} style={{ marginBottom: '0.2rem' }}>
-                              • {item}
-                            </div>
-                          ))}
-                          {subcategory.items.length > 3 && (
-                            <div style={{ fontStyle: 'italic', color: colors.textMuted }}>
-                              + {subcategory.items.length - 3} more
-                            </div>
-                          )}
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )
-          })}
-        </>
-      ) : (
-        <>
-          <p style={{
-            fontSize: '1rem',
-            color: colors.textSecondary,
-            textAlign: 'center',
-            marginBottom: '1.5rem',
-            lineHeight: '1.6'
-          }}>
-            Select a practice problem to start coding. Track your progress and improve your skills!
-          </p>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-            gap: '1rem'
-          }}>
-            {selectedSubcategory.items.map((item, index) => (
-              <button
-                key={item}
-                ref={(el) => itemRefs.current[index] = el}
-                onClick={() => onSelectItem(item)}
-                tabIndex={focusedItemIndex === index ? 0 : -1}
-                role="link"
-                aria-label={`${item} practice problem`}
-                style={{
-                  backgroundColor: colors.bgSecondary,
-                  padding: '1rem',
-                  borderRadius: '10px',
-                  border: focusedItemIndex === index
-                    ? `2px solid ${selectedSubcategory.color}`
-                    : `2px solid ${selectedSubcategory.color}40`,
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  transform: focusedItemIndex === index ? 'translateY(-3px)' : 'translateY(0)',
-                  boxShadow: focusedItemIndex === index
-                    ? `0 0 0 3px ${selectedSubcategory.color}40, 0 6px 12px rgba(0,0,0,0.12)`
-                    : '0 2px 6px rgba(0,0,0,0.08)',
-                  textAlign: 'left',
-                  width: '100%'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-3px)'
-                  e.currentTarget.style.boxShadow = `0 0 0 3px ${selectedSubcategory.color}40, 0 6px 12px rgba(0,0,0,0.12)`
-                  e.currentTarget.style.borderColor = selectedSubcategory.color
-                }}
-                onMouseLeave={(e) => {
-                  if (focusedItemIndex !== index) {
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.08)'
-                    e.currentTarget.style.borderColor = selectedSubcategory.color + '40'
-                  }
-                }}
-              >
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  marginBottom: '0.5rem'
-                }}>
+              return (
+                <div key={group.title} style={{ marginBottom: '2rem' }}>
+                  {/* Group Header */}
                   <div style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '6px',
-                    backgroundColor: selectedSubcategory.color,
-                    color: 'white',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1rem',
-                    fontWeight: '700',
-                    flexShrink: 0
+                    gap: '0.75rem',
+                    marginBottom: '1rem',
+                    padding: '0.75rem 1rem',
+                    backgroundColor: 'rgba(31, 41, 55, 0.8)',
+                    borderRadius: '10px',
+                    borderLeft: `5px solid ${group.color}`,
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
                   }}>
-                    {index + 1}
+                    <span style={{ fontSize: '1.5rem' }}>{group.icon}</span>
+                    <h2 style={{
+                      fontSize: '1.4rem',
+                      fontWeight: '700',
+                      color: '#e2e8f0',
+                      margin: 0
+                    }}>
+                      {group.title}
+                    </h2>
                   </div>
-                  <h3 style={{
-                    fontSize: '0.95rem',
-                    fontWeight: '700',
-                    color: colors.textPrimary,
-                    margin: 0
-                  }}>
-                    {item}
-                  </h3>
-                </div>
 
-                {/* Progress indicator */}
-                {itemProgress[item] && (
-                  <div style={{ marginTop: '0.5rem' }}>
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      marginBottom: '0.4rem'
-                    }}>
-                      <span style={{
-                        fontSize: '0.75rem',
-                        color: colors.textSecondary,
-                        fontWeight: '600'
-                      }}>
-                        Progress
-                      </span>
-                      <span style={{
-                        fontSize: '0.75rem',
-                        color: selectedSubcategory.color,
-                        fontWeight: '700'
-                      }}>
-                        {itemProgress[item].completed}/{itemProgress[item].total}
-                      </span>
-                    </div>
-                    <div style={{
-                      width: '100%',
-                      height: '6px',
-                      backgroundColor: colors.border,
-                      borderRadius: '3px',
-                      overflow: 'hidden'
-                    }}>
-                      <div style={{
-                        width: `${itemProgress[item].percentage}%`,
-                        height: '100%',
-                        backgroundColor: selectedSubcategory.color,
-                        borderRadius: '3px',
-                        transition: 'width 0.3s ease'
-                      }}></div>
-                    </div>
-                    <div style={{
-                      marginTop: '0.4rem',
-                      fontSize: '0.7rem',
-                      color: itemProgress[item].percentage === 100 ? '#10b981' : colors.textSecondary,
-                      fontWeight: '600',
-                      textAlign: 'center'
-                    }}>
-                      {itemProgress[item].percentage === 100 ? '✓ Complete!' : `${itemProgress[item].percentage}% Complete`}
-                    </div>
+                  {/* Category Cards */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+                    gap: '1.5rem'
+                  }}>
+                    {group.categories.map((subcategory, catIndex) => {
+                      const index = groupStartIndex + catIndex
+                      return (
+                        <button
+                          key={subcategory.id}
+                          ref={(el) => subcategoryRefs.current[index] = el}
+                          onClick={() => setSelectedSubcategory(subcategory)}
+                          tabIndex={focusedSubcategoryIndex === index ? 0 : -1}
+                          role="link"
+                          aria-label={`${subcategory.name} category. ${subcategory.count} practice problems.`}
+                          style={{
+                            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                            padding: '1.5rem',
+                            borderRadius: '0.75rem',
+                            border: `2px solid ${subcategory.color}`,
+                            cursor: 'pointer',
+                            transition: 'all 0.3s',
+                            transform: focusedSubcategoryIndex === index ? 'translateY(-0.5rem)' : 'translateY(0)',
+                            boxShadow: focusedSubcategoryIndex === index
+                              ? `0 25px 50px -12px ${subcategory.color}50`
+                              : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                            textAlign: 'left',
+                            width: '100%'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                            e.currentTarget.style.boxShadow = `0 25px 50px -12px ${subcategory.color}50`
+                          }}
+                          onMouseLeave={(e) => {
+                            if (focusedSubcategoryIndex !== index) {
+                              e.currentTarget.style.transform = 'translateY(0)'
+                              e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                            }
+                          }}
+                        >
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.75rem',
+                            marginBottom: '1rem'
+                          }}>
+                            <span style={{ fontSize: '2.5rem' }}>{subcategory.icon}</span>
+                            <h3 style={{
+                              fontSize: '1.25rem',
+                              fontWeight: 'bold',
+                              color: '#93c5fd',
+                              marginBottom: '0.25rem'
+                            }}>
+                              {subcategory.name}
+                            </h3>
+                          </div>
+
+                          {/* Category progress */}
+                          {Object.keys(itemProgress).length > 0 && subcategory.count > 0 && (() => {
+                            const progress = getCategoryProgress(subcategory)
+                            return (
+                              <div style={{ margin: '0.75rem 0' }}>
+                                <div style={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                  marginBottom: '0.5rem'
+                                }}>
+                                  <span style={{
+                                    fontSize: '0.9rem',
+                                    fontWeight: '700',
+                                    color: subcategory.color
+                                  }}>
+                                    {progress.completed}/{progress.total} Complete
+                                  </span>
+                                  <span style={{
+                                    fontSize: '0.8rem',
+                                    color: '#9ca3af',
+                                    fontWeight: '600'
+                                  }}>
+                                    ({progress.percentage}%)
+                                  </span>
+                                </div>
+                                <div style={{
+                                  width: '100%',
+                                  height: '8px',
+                                  backgroundColor: '#374151',
+                                  borderRadius: '4px',
+                                  overflow: 'hidden'
+                                }}>
+                                  <div style={{
+                                    width: `${progress.percentage}%`,
+                                    height: '100%',
+                                    backgroundColor: subcategory.color,
+                                    borderRadius: '4px',
+                                    transition: 'width 0.3s ease'
+                                  }}></div>
+                                </div>
+                              </div>
+                            )
+                          })()}
+
+                          <p style={{
+                            fontSize: '0.9rem',
+                            fontWeight: '600',
+                            color: '#d1d5db',
+                            margin: '0.5rem 0'
+                          }}>
+                            {subcategory.count} Total Problems
+                          </p>
+
+                          <div style={{
+                            fontSize: '0.85rem',
+                            color: '#9ca3af',
+                            lineHeight: '1.5',
+                            marginTop: '0.75rem'
+                          }}>
+                            {subcategory.items.slice(0, 3).map((item, idx) => (
+                              <div key={idx} style={{ marginBottom: '0.2rem' }}>
+                                • {item}
+                              </div>
+                            ))}
+                            {subcategory.items.length > 3 && (
+                              <div style={{ fontStyle: 'italic', color: '#6b7280' }}>
+                                + {subcategory.items.length - 3} more
+                              </div>
+                            )}
+                          </div>
+
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'flex-end',
+                            gap: '0.5rem',
+                            fontSize: '0.9rem',
+                            color: subcategory.color,
+                            fontWeight: '600',
+                            paddingTop: '0.75rem',
+                            marginTop: '0.75rem',
+                            borderTop: '1px solid #374151'
+                          }}>
+                            <span>Explore Topic</span>
+                            <span>→</span>
+                          </div>
+                        </button>
+                      )
+                    })}
                   </div>
-                )}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
+                </div>
+              )
+            })}
+          </>
+        ) : (
+          <>
+            <p style={{
+              fontSize: '1.2rem',
+              color: '#d1d5db',
+              textAlign: 'center',
+              marginBottom: '2rem',
+              lineHeight: '1.8'
+            }}>
+              Select a practice problem to start coding. Track your progress and improve your skills!
+            </p>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+              gap: '1.5rem'
+            }}>
+              {selectedSubcategory.items.map((item, index) => (
+                <button
+                  key={item}
+                  ref={(el) => itemRefs.current[index] = el}
+                  onClick={() => onSelectItem(item)}
+                  tabIndex={focusedItemIndex === index ? 0 : -1}
+                  role="link"
+                  aria-label={`${item} practice problem`}
+                  style={{
+                    background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                    padding: '1.5rem',
+                    borderRadius: '0.75rem',
+                    border: `2px solid ${selectedSubcategory.color}`,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s',
+                    transform: focusedItemIndex === index ? 'translateY(-0.5rem)' : 'translateY(0)',
+                    boxShadow: focusedItemIndex === index
+                      ? `0 25px 50px -12px ${selectedSubcategory.color}50`
+                      : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                    textAlign: 'left',
+                    width: '100%'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                    e.currentTarget.style.boxShadow = `0 25px 50px -12px ${selectedSubcategory.color}50`
+                  }}
+                  onMouseLeave={(e) => {
+                    if (focusedItemIndex !== index) {
+                      e.currentTarget.style.transform = 'translateY(0)'
+                      e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    }
+                  }}
+                >
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    marginBottom: '0.75rem'
+                  }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '8px',
+                      backgroundColor: selectedSubcategory.color,
+                      color: 'white',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '1.1rem',
+                      fontWeight: '700',
+                      flexShrink: 0
+                    }}>
+                      {index + 1}
+                    </div>
+                    <h3 style={{
+                      fontSize: '1.1rem',
+                      fontWeight: '700',
+                      color: '#93c5fd',
+                      margin: 0
+                    }}>
+                      {item}
+                    </h3>
+                  </div>
+
+                  {/* Progress indicator */}
+                  {itemProgress[item] && (
+                    <div style={{ marginTop: '0.75rem' }}>
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '0.5rem'
+                      }}>
+                        <span style={{
+                          fontSize: '0.8rem',
+                          color: '#9ca3af',
+                          fontWeight: '600'
+                        }}>
+                          Progress
+                        </span>
+                        <span style={{
+                          fontSize: '0.8rem',
+                          color: selectedSubcategory.color,
+                          fontWeight: '700'
+                        }}>
+                          {itemProgress[item].completed}/{itemProgress[item].total}
+                        </span>
+                      </div>
+                      <div style={{
+                        width: '100%',
+                        height: '8px',
+                        backgroundColor: '#374151',
+                        borderRadius: '4px',
+                        overflow: 'hidden'
+                      }}>
+                        <div style={{
+                          width: `${itemProgress[item].percentage}%`,
+                          height: '100%',
+                          backgroundColor: selectedSubcategory.color,
+                          borderRadius: '4px',
+                          transition: 'width 0.3s ease'
+                        }}></div>
+                      </div>
+                      <div style={{
+                        marginTop: '0.5rem',
+                        fontSize: '0.8rem',
+                        color: itemProgress[item].percentage === 100 ? '#10b981' : '#9ca3af',
+                        fontWeight: '600',
+                        textAlign: 'center'
+                      }}>
+                        {itemProgress[item].percentage === 100 ? '✓ Complete!' : `${itemProgress[item].percentage}% Complete`}
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                    gap: '0.5rem',
+                    fontSize: '0.9rem',
+                    color: selectedSubcategory.color,
+                    fontWeight: '600',
+                    paddingTop: '0.75rem',
+                    marginTop: '0.75rem',
+                    borderTop: '1px solid #374151'
+                  }}>
+                    <span>Start Practice</span>
+                    <span>→</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   )
 }

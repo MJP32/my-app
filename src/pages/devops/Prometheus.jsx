@@ -796,7 +796,7 @@ management:
               transition: 'all 0.2s ease'
             }}
           >
-            ← Back to Topics
+            ← Back to Categories
           </button>
 
           <div style={{

@@ -5,15 +5,6 @@ import Breadcrumb from '../../components/Breadcrumb'
 
 const CorePython = ({ onBack, breadcrumb }) => {
   const [selectedConcept, setSelectedConcept] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
-
-  const toggleSection = (conceptIndex, sectionIndex) => {
-    const key = `${conceptIndex}-${sectionIndex}`
-    setExpandedSections(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }))
-  }
 
   const parseCodeSections = (codeString) => {
     const sections = codeString.split('\n\n')
@@ -951,7 +942,7 @@ with open('people.csv', 'r') as f:
                 e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
               }}
             >
-              ← Back to Python Topics
+              ← Back to Python
             </button>
             <h1 style={{
               fontSize: '2.25rem',
@@ -1144,58 +1135,37 @@ with open('people.csv', 'r') as f:
                   </h3>
                   {parseCodeSections(selectedConcept.codeExample).map(
                     (section, idx) => (
-                      <div key={section.id} style={{ marginBottom: '1rem' }}>
-                        <button
-                          onClick={() =>
-                            toggleSection(
-                              concepts.indexOf(selectedConcept),
-                              idx
-                            )
-                          }
-                          style={{
-                            width: '100%',
-                            background: '#2563eb',
-                            color: 'white',
-                            padding: '0.5rem 1rem',
-                            borderRadius: '0.5rem',
-                            border: 'none',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                            marginBottom: '0.5rem',
-                            textAlign: 'left',
-                            fontWeight: '500',
-                            fontSize: '1rem'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#1d4ed8'
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#2563eb'
+                      <div key={section.id} style={{
+                        backgroundColor: '#1e293b',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        border: '2px solid #334155',
+                        marginBottom: '1rem'
+                      }}>
+                        <div style={{
+                          padding: '1rem 1.5rem',
+                          backgroundColor: '#334155',
+                          color: '#60a5fa',
+                          fontSize: '1rem',
+                          fontWeight: '600',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem'
+                        }}>
+                          <span>💻 Code Block {idx + 1}</span>
+                        </div>
+                        <SyntaxHighlighter
+                          language="python"
+                          style={vscDarkPlus}
+                          customStyle={{
+                            padding: '1.5rem',
+                            margin: 0,
+                            borderRadius: '0',
+                            fontSize: '0.9rem'
                           }}
                         >
-                          {expandedSections[
-                            `${concepts.indexOf(selectedConcept)}-${idx}`
-                          ]
-                            ? '▼'
-                            : '▶'}{' '}
-                          Code Block {idx + 1}
-                        </button>
-                        {expandedSections[
-                          `${concepts.indexOf(selectedConcept)}-${idx}`
-                        ] && (
-                          <SyntaxHighlighter
-                            language="python"
-                            style={vscDarkPlus}
-                            customStyle={{
-                              padding: '1.5rem',
-                              borderRadius: '0.5rem',
-                              fontSize: '0.9rem',
-                              border: '1px solid #3b82f6'
-                            }}
-                          >
-                            {section.code}
-                          </SyntaxHighlighter>
-                        )}
+                          {section.code}
+                        </SyntaxHighlighter>
                       </div>
                     )
                   )}

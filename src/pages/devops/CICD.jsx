@@ -599,7 +599,7 @@ spec:
   ]
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -626,25 +626,25 @@ spec:
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
           >
-            ← Back to Menu
+            ← Back to DevOps
           </button>
           <div>
             <h1 style={{
               fontSize: '2.5rem',
               fontWeight: '800',
-              color: '#1f2937',
+              color: 'white',
               margin: 0,
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
             }}>
-              🔄 CI/CD Pipelines
+              CI/CD Pipelines
             </h1>
             {currentSubcategory && (
               <span style={{
                 padding: '0.25rem 0.75rem',
                 fontSize: '0.85rem',
                 fontWeight: '600',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
+                backgroundColor: '#374151',
+                color: '#9ca3af',
                 borderRadius: '6px',
                 marginTop: '0.25rem',
                 display: 'inline-block'
@@ -709,13 +709,13 @@ spec:
       <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
-        backgroundColor: '#f0f9ff',
+        backgroundColor: '#1f2937',
         padding: '1.5rem',
         borderRadius: '0.75rem',
         marginBottom: '2rem',
         borderLeft: '4px solid #0ea5e9'
       }}>
-        <p style={{ color: '#075985', lineHeight: '1.6' }}>
+        <p style={{ color: '#9ca3af', lineHeight: '1.6' }}>
           Comprehensive CI/CD pipeline implementations covering Jenkins, GitLab CI/CD, GitHub Actions, and ArgoCD GitOps.
           Includes automated testing, code quality checks, security scanning, and deployment automation to multiple environments.
         </p>
@@ -723,10 +723,10 @@ spec:
 
       {/* CI/CD Diagram */}
       <div style={{ marginBottom: '3rem' }}>
-        <h2 style={{ fontSize: '1.75rem', fontWeight: 'bold', marginBottom: '1rem', color: '#1f2937' }}>
+        <h2 style={{ fontSize: '1.75rem', fontWeight: 'bold', marginBottom: '1rem', color: 'white' }}>
           CI/CD Pipeline Architecture
         </h2>
-        <svg viewBox="0 0 1000 500" style={{ width: '100%', maxWidth: '1000px', height: 'auto', margin: '1rem auto', display: 'block', border: '1px solid #e5e7eb', borderRadius: '0.5rem', backgroundColor: 'white' }}>
+        <svg viewBox="0 0 1000 500" style={{ width: '100%', maxWidth: '1000px', height: 'auto', margin: '1rem auto', display: 'block', border: '1px solid #374151', borderRadius: '0.5rem', backgroundColor: '#1f2937' }}>
           <defs>
             <linearGradient id="cicdGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
@@ -787,11 +787,11 @@ spec:
           <path d="M 510 390 L 560 390" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowCICD)" />
 
           {/* Labels */}
-          <text x="50" y="50" fontSize="18" fontWeight="bold" fill="#1f2937">Continuous Integration</text>
-          <text x="50" y="75" fontSize="14" fill="#6b7280">Automated build, test, and quality checks</text>
+          <text x="50" y="50" fontSize="18" fontWeight="bold" fill="white">Continuous Integration</text>
+          <text x="50" y="75" fontSize="14" fill="#9ca3af">Automated build, test, and quality checks</text>
 
-          <text x="390" y="470" fontSize="18" fontWeight="bold" fill="#1f2937">Continuous Deployment</text>
-          <text x="390" y="490" fontSize="14" fill="#6b7280">Automated deployment to environments</text>
+          <text x="390" y="470" fontSize="18" fontWeight="bold" fill="white">Continuous Deployment</text>
+          <text x="390" y="490" fontSize="14" fill="#9ca3af">Automated deployment to environments</text>
 
           {/* Monitoring feedback loop */}
           <path d="M 680 390 Q 900 300 850 150 Q 800 50 200 100" stroke="#8b5cf6" strokeWidth="2" strokeDasharray="5,5" fill="none" />
@@ -801,7 +801,7 @@ spec:
 
       {/* Pipeline Cards */}
       <div style={{ marginBottom: '3rem' }}>
-        <h2 style={{ fontSize: '1.75rem', fontWeight: 'bold', marginBottom: '1rem', color: '#1f2937' }}>
+        <h2 style={{ fontSize: '1.75rem', fontWeight: 'bold', marginBottom: '1rem', color: 'white' }}>
           Pipeline Examples
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
@@ -811,7 +811,7 @@ spec:
               onClick={() => setSelectedPipeline(selectedPipeline?.name === pipeline.name ? null : pipeline)}
               style={{
                 padding: '1.5rem',
-                backgroundColor: selectedPipeline?.name === pipeline.name ? pipeline.color : 'white',
+                backgroundColor: selectedPipeline?.name === pipeline.name ? pipeline.color : '#1f2937',
                 border: `2px solid ${pipeline.color}`,
                 borderRadius: '0.75rem',
                 cursor: 'pointer',
@@ -820,12 +820,12 @@ spec:
               }}
               onMouseOver={(e) => {
                 if (selectedPipeline?.name !== pipeline.name) {
-                  e.currentTarget.style.backgroundColor = `${pipeline.color}15`
+                  e.currentTarget.style.backgroundColor = '#374151'
                 }
               }}
               onMouseOut={(e) => {
                 if (selectedPipeline?.name !== pipeline.name) {
-                  e.currentTarget.style.backgroundColor = 'white'
+                  e.currentTarget.style.backgroundColor = '#1f2937'
                 }
               }}
             >
@@ -833,14 +833,14 @@ spec:
               <div style={{
                 fontSize: '1.1rem',
                 fontWeight: 'bold',
-                color: selectedPipeline?.name === pipeline.name ? 'white' : '#1f2937',
+                color: selectedPipeline?.name === pipeline.name ? 'white' : 'white',
                 marginBottom: '0.5rem'
               }}>
                 {pipeline.name}
               </div>
               <div style={{
                 fontSize: '0.875rem',
-                color: selectedPipeline?.name === pipeline.name ? 'white' : '#6b7280',
+                color: selectedPipeline?.name === pipeline.name ? 'white' : '#9ca3af',
                 lineHeight: '1.4'
               }}>
                 {pipeline.description}
@@ -896,21 +896,21 @@ spec:
 
       {/* Best Practices */}
       <div style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.75rem', fontWeight: 'bold', marginBottom: '1rem', color: '#1f2937' }}>
+        <h2 style={{ fontSize: '1.75rem', fontWeight: 'bold', marginBottom: '1rem', color: 'white' }}>
           CI/CD Best Practices
         </h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
           <div style={{
-            backgroundColor: '#dbeafe',
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
             padding: '1.5rem',
             borderRadius: '0.75rem',
             borderLeft: '4px solid #3b82f6'
           }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.75rem', color: '#1e3a8a' }}>
-              🔒 Security
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.75rem', color: '#60a5fa' }}>
+              Security
             </h3>
-            <ul style={{ color: '#1e40af', lineHeight: '1.8', marginLeft: '1.5rem' }}>
+            <ul style={{ color: '#9ca3af', lineHeight: '1.8', marginLeft: '1.5rem' }}>
               <li>Scan dependencies for vulnerabilities</li>
               <li>Implement secrets management (Vault, AWS Secrets)</li>
               <li>Use signed commits and verified images</li>
@@ -920,15 +920,15 @@ spec:
           </div>
 
           <div style={{
-            backgroundColor: '#dcfce7',
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
             padding: '1.5rem',
             borderRadius: '0.75rem',
             borderLeft: '4px solid #10b981'
           }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.75rem', color: '#065f46' }}>
-              ⚡ Performance
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.75rem', color: '#34d399' }}>
+              Performance
             </h3>
-            <ul style={{ color: '#047857', lineHeight: '1.8', marginLeft: '1.5rem' }}>
+            <ul style={{ color: '#9ca3af', lineHeight: '1.8', marginLeft: '1.5rem' }}>
               <li>Parallel job execution</li>
               <li>Cache dependencies and build artifacts</li>
               <li>Incremental builds when possible</li>
@@ -938,15 +938,15 @@ spec:
           </div>
 
           <div style={{
-            backgroundColor: '#fef3c7',
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
             padding: '1.5rem',
             borderRadius: '0.75rem',
             borderLeft: '4px solid #f59e0b'
           }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.75rem', color: '#92400e' }}>
-              📊 Quality
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.75rem', color: '#fbbf24' }}>
+              Quality
             </h3>
-            <ul style={{ color: '#78350f', lineHeight: '1.8', marginLeft: '1.5rem' }}>
+            <ul style={{ color: '#9ca3af', lineHeight: '1.8', marginLeft: '1.5rem' }}>
               <li>Enforce code coverage thresholds</li>
               <li>Automated code quality gates</li>
               <li>Linting and formatting checks</li>
@@ -956,15 +956,15 @@ spec:
           </div>
 
           <div style={{
-            backgroundColor: '#f3e8ff',
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
             padding: '1.5rem',
             borderRadius: '0.75rem',
             borderLeft: '4px solid #a855f7'
           }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.75rem', color: '#6b21a8' }}>
-              🚀 Deployment
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.75rem', color: '#c084fc' }}>
+              Deployment
             </h3>
-            <ul style={{ color: '#7e22ce', lineHeight: '1.8', marginLeft: '1.5rem' }}>
+            <ul style={{ color: '#9ca3af', lineHeight: '1.8', marginLeft: '1.5rem' }}>
               <li>Blue-green deployments</li>
               <li>Canary releases with monitoring</li>
               <li>Automated rollback on failures</li>
@@ -977,7 +977,7 @@ spec:
 
       {/* Tools & Technologies */}
       <div>
-        <h2 style={{ fontSize: '1.75rem', fontWeight: 'bold', marginBottom: '1rem', color: '#1f2937' }}>
+        <h2 style={{ fontSize: '1.75rem', fontWeight: 'bold', marginBottom: '1rem', color: 'white' }}>
           Tools & Technologies
         </h2>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
@@ -991,12 +991,12 @@ spec:
               key={index}
               style={{
                 padding: '0.5rem 1rem',
-                backgroundColor: '#f3f4f6',
-                border: '1px solid #d1d5db',
+                backgroundColor: '#1f2937',
+                border: '1px solid #374151',
                 borderRadius: '0.5rem',
                 fontSize: '0.875rem',
                 fontWeight: '500',
-                color: '#374151'
+                color: '#9ca3af'
               }}
             >
               {tool}

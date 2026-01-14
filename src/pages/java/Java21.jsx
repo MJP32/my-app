@@ -74,14 +74,6 @@ const SyntaxHighlighter = ({ code }) => {
 function Java21({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedConcept, setSelectedConcept] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
-
-  const toggleSection = (sectionKey) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [sectionKey]: !prev[sectionKey]
-    }))
-  }
 
   const parseCodeSections = (code) => {
     const sections = []
@@ -197,55 +189,55 @@ import java.time.Duration;
 
 // Creating millions of virtual threads - Java 21
 public class VirtualThreadsDemo {
-  public static void main(String[] args) throws InterruptedException {
-    // Old way - platform threads (limited scalability)
-    // Thread platformThread = new Thread(() -> {
-    //   System.out.println("Platform thread: " + Thread.currentThread());
-    // });
-    // platformThread.start();
+    public static void main(String[] args) throws InterruptedException {
+        // Old way - platform threads (limited scalability)
+        // Thread platformThread = new Thread(() -> {
+        //     System.out.println("Platform thread: " + Thread.currentThread());
+        // });
+        // platformThread.start();
 
-    // NEW in Java 21 - Virtual threads (unlimited scalability)
-    Thread virtualThread = Thread.startVirtualThread(() -> {
-      System.out.println("Virtual thread: " + Thread.currentThread());
-      System.out.println("Is virtual: " + Thread.currentThread().isVirtual());
-    });
+        // NEW in Java 21 - Virtual threads (unlimited scalability)
+        Thread virtualThread = Thread.startVirtualThread(() -> {
+            System.out.println("Virtual thread: " + Thread.currentThread());
+            System.out.println("Is virtual: " + Thread.currentThread().isVirtual());
+        });
 
-    virtualThread.join();
+        virtualThread.join();
 
-    // Creating 1 MILLION virtual threads - impossible with platform threads!
-    long start = System.currentTimeMillis();
-    Thread[] threads = new Thread[1_000_000];
+        // Creating 1 MILLION virtual threads - impossible with platform threads!
+        long start = System.currentTimeMillis();
+        Thread[] threads = new Thread[1_000_000];
 
-    for (int i = 0; i < 1_000_000; i++) {
-      final int taskId = i;
-      threads[i] = Thread.startVirtualThread(() -> {
-        try {
-          Thread.sleep(Duration.ofMillis(100));
-          if (taskId % 100000 == 0) {
-            System.out.println("Task " + taskId + " completed");
-          }
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
+        for (int i = 0; i < 1_000_000; i++) {
+            final int taskId = i;
+            threads[i] = Thread.startVirtualThread(() -> {
+                try {
+                    Thread.sleep(Duration.ofMillis(100));
+                    if (taskId % 100000 == 0) {
+                        System.out.println("Task " + taskId + " completed");
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            });
         }
-      });
+
+        // Wait for all threads to complete
+        for (Thread t : threads) {
+            t.join();
+        }
+
+        long duration = System.currentTimeMillis() - start;
+        System.out.println("Completed 1M tasks in " + duration + "ms");
+
+        // Output:
+        // Virtual thread: VirtualThread[#21]/runnable@ForkJoinPool-1-worker-1
+        // Is virtual: true
+        // Task 0 completed
+        // Task 100000 completed
+        // ...
+        // Completed 1M tasks in ~150ms (uses only ~10 platform threads!)
     }
-
-    // Wait for all threads to complete
-    for (Thread t : threads) {
-      t.join();
-    }
-
-    long duration = System.currentTimeMillis() - start;
-    System.out.println("Completed 1M tasks in " + duration + "ms");
-
-    // Output:
-    // Virtual thread: VirtualThread[#21]/runnable@ForkJoinPool-1-worker-1
-    // Is virtual: true
-    // Task 0 completed
-    // Task 100000 completed
-    // ...
-    // Completed 1M tasks in ~150ms (uses only ~10 platform threads!)
-  }
 }`
     },
     {
@@ -284,60 +276,60 @@ import java.util.concurrent.Executors;
 
 // Thread-per-request pattern with Virtual Threads - Java 21
 public class ThreadPerRequestDemo {
-  public static void main(String[] args) throws InterruptedException {
-    HttpClient client = HttpClient.newHttpClient();
+    public static void main(String[] args) throws InterruptedException {
+        HttpClient client = HttpClient.newHttpClient();
 
-    // Create virtual thread executor - NEW in Java 21
-    // Perfect for handling thousands of concurrent requests
-    try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+        // Create virtual thread executor - NEW in Java 21
+        // Perfect for handling thousands of concurrent requests
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
 
-      // Simulate 10,000 concurrent HTTP requests
-      for (int i = 0; i < 10_000; i++) {
-        final int requestId = i;
+            // Simulate 10,000 concurrent HTTP requests
+            for (int i = 0; i < 10_000; i++) {
+                final int requestId = i;
 
-        executor.submit(() -> {
-          try {
-            // Simple blocking code - no callbacks, no reactive complexity!
-            HttpRequest request = HttpRequest.newBuilder()
-              .uri(URI.create("https://api.example.com/data/" + requestId))
-              .build();
+                executor.submit(() -> {
+                    try {
+                        // Simple blocking code - no callbacks, no reactive complexity!
+                        HttpRequest request = HttpRequest.newBuilder()
+                            .uri(URI.create("https://api.example.com/data/" + requestId))
+                            .build();
 
-            // This blocks the virtual thread, NOT the platform thread
-            HttpResponse<String> response = client.send(
-              request,
-              HttpResponse.BodyHandlers.ofString()
-            );
+                        // This blocks the virtual thread, NOT the platform thread
+                        HttpResponse<String> response = client.send(
+                            request,
+                            HttpResponse.BodyHandlers.ofString()
+                        );
 
-            // More blocking operations - still efficient!
-            Thread.sleep(100); // Simulate processing
+                        // More blocking operations - still efficient!
+                        Thread.sleep(100); // Simulate processing
 
-            if (requestId % 1000 == 0) {
-              System.out.println("Request " + requestId +
-                " completed: " + response.statusCode());
+                        if (requestId % 1000 == 0) {
+                            System.out.println("Request " + requestId +
+                                " completed: " + response.statusCode());
+                        }
+
+                    } catch (Exception e) {
+                        System.err.println("Request " + requestId + " failed: " + e);
+                    }
+                });
             }
 
-          } catch (Exception e) {
-            System.err.println("Request " + requestId + " failed: " + e);
-          }
-        });
-      }
+            // Executor closes automatically, waits for all tasks
+            System.out.println("All 10,000 requests submitted");
+        }
 
-      // Executor closes automatically, waits for all tasks
-      System.out.println("All 10,000 requests submitted");
+        System.out.println("All requests completed!");
+
+        // Output:
+        // All 10,000 requests submitted
+        // Request 0 completed: 200
+        // Request 1000 completed: 200
+        // ...
+        // All requests completed!
+        //
+        // Benefits: Simple code, no callbacks, handles 10K concurrent requests
+        // with only ~10 platform threads instead of 10,000!
     }
-
-    System.out.println("All requests completed!");
-
-    // Output:
-    // All 10,000 requests submitted
-    // Request 0 completed: 200
-    // Request 1000 completed: 200
-    // ...
-    // All requests completed!
-    //
-    // Benefits: Simple code, no callbacks, handles 10K concurrent requests
-    // with only ~10 platform threads instead of 10,000!
-  }
 }`
     },
     {
@@ -364,64 +356,64 @@ import java.util.concurrent.*;
 
 // Different ways to create Virtual Threads - Java 21
 public class VirtualThreadCreation {
-  public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-    // Method 1: Thread.startVirtualThread() - simple and direct
-    Thread vThread1 = Thread.startVirtualThread(() -> {
-      System.out.println("Method 1: " + Thread.currentThread());
-    });
-    vThread1.join();
+        // Method 1: Thread.startVirtualThread() - simple and direct
+        Thread vThread1 = Thread.startVirtualThread(() -> {
+            System.out.println("Method 1: " + Thread.currentThread());
+        });
+        vThread1.join();
 
-    // Method 2: Thread.ofVirtual() - more control
-    Thread vThread2 = Thread.ofVirtual()
-      .name("my-virtual-thread")
-      .unstarted(() -> {
-        System.out.println("Method 2: " + Thread.currentThread().getName());
-      });
-    vThread2.start();
-    vThread2.join();
+        // Method 2: Thread.ofVirtual() - more control
+        Thread vThread2 = Thread.ofVirtual()
+            .name("my-virtual-thread")
+            .unstarted(() -> {
+                System.out.println("Method 2: " + Thread.currentThread().getName());
+            });
+        vThread2.start();
+        vThread2.join();
 
-    // Method 3: Virtual thread executor - best for many tasks
-    try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
-      Future<String> future = executor.submit(() -> {
-        System.out.println("Method 3: Running in " + Thread.currentThread());
-        return "Result from virtual thread";
-      });
+        // Method 3: Virtual thread executor - best for many tasks
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            Future<String> future = executor.submit(() -> {
+                System.out.println("Method 3: Running in " + Thread.currentThread());
+                return "Result from virtual thread";
+            });
 
-      System.out.println("Got result: " + future.get());
+            System.out.println("Got result: " + future.get());
+        }
+
+        // Method 4: Thread.Builder for custom configuration
+        ThreadFactory factory = Thread.ofVirtual()
+            .name("worker-", 0)
+            .factory();
+
+        Thread vThread4 = factory.newThread(() -> {
+            System.out.println("Method 4: " + Thread.currentThread().getName());
+        });
+        vThread4.start();
+        vThread4.join();
+
+        // Method 5: Converting existing platform thread code
+        // OLD: new Thread(() -> doWork()).start();
+        // NEW: Thread.startVirtualThread(() -> doWork());
+
+        Thread.startVirtualThread(() -> doWork());
+
+        Thread.sleep(100); // Wait for completion
+
+        // Output:
+        // Method 1: VirtualThread[#21]/runnable@ForkJoinPool-1-worker-1
+        // Method 2: my-virtual-thread
+        // Method 3: Running in VirtualThread[#23]/runnable@ForkJoinPool-1-worker-2
+        // Got result: Result from virtual thread
+        // Method 4: worker-0
+        // Doing work in: VirtualThread[#25]/runnable@ForkJoinPool-1-worker-1
     }
 
-    // Method 4: Thread.Builder for custom configuration
-    ThreadFactory factory = Thread.ofVirtual()
-      .name("worker-", 0)
-      .factory();
-
-    Thread vThread4 = factory.newThread(() -> {
-      System.out.println("Method 4: " + Thread.currentThread().getName());
-    });
-    vThread4.start();
-    vThread4.join();
-
-    // Method 5: Converting existing platform thread code
-    // OLD: new Thread(() -> doWork()).start();
-    // NEW: Thread.startVirtualThread(() -> doWork());
-
-    Thread.startVirtualThread(() -> doWork());
-
-    Thread.sleep(100); // Wait for completion
-
-    // Output:
-    // Method 1: VirtualThread[#21]/runnable@ForkJoinPool-1-worker-1
-    // Method 2: my-virtual-thread
-    // Method 3: Running in VirtualThread[#23]/runnable@ForkJoinPool-1-worker-2
-    // Got result: Result from virtual thread
-    // Method 4: worker-0
-    // Doing work in: VirtualThread[#25]/runnable@ForkJoinPool-1-worker-1
-  }
-
-  static void doWork() {
-    System.out.println("Doing work in: " + Thread.currentThread());
-  }
+    static void doWork() {
+        System.out.println("Doing work in: " + Thread.currentThread());
+    }
 }`
     },
     {
@@ -3027,7 +3019,7 @@ public class SequencedUseCasesDemo {
       padding: '1.5rem',
       maxWidth: '80rem',
       margin: '0 auto',
-      background: 'linear-gradient(to bottom right, #111827, #78350f, #111827)',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       color: 'white',
       minHeight: '100vh',
       borderRadius: '16px',
@@ -3060,7 +3052,7 @@ public class SequencedUseCasesDemo {
             onMouseEnter={(e) => e.currentTarget.style.background = '#d97706'}
             onMouseLeave={(e) => e.currentTarget.style.background = '#f59e0b'}
           >
-            ← Back to Java Topics
+            ← Back to Java
           </button>
           <h1 style={{
             fontSize: '2rem',
@@ -3488,44 +3480,28 @@ public class SequencedUseCasesDemo {
                   const sections = parseCodeSections(selectedConcept.codeExample)
                   return sections.length > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                      {sections.map((section, idx) => {
-                        const sectionKey = `${selectedConcept.name}-${idx}`
-                        const isExpanded = expandedSections[sectionKey]
-                        return (
-                          <div key={idx} style={{
-                            backgroundColor: '#1e293b',
-                            borderRadius: '12px',
-                            overflow: 'hidden',
-                            border: '2px solid #334155'
+                      {sections.map((section, idx) => (
+                        <div key={idx} style={{
+                          backgroundColor: '#1e293b',
+                          borderRadius: '12px',
+                          overflow: 'hidden',
+                          border: '2px solid #334155'
+                        }}>
+                          <div style={{
+                            padding: '1rem 1.5rem',
+                            backgroundColor: '#334155',
+                            color: '#60a5fa',
+                            fontSize: '1rem',
+                            fontWeight: '600',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem'
                           }}>
-                            <button
-                              onClick={() => toggleSection(sectionKey)}
-                              style={{
-                                width: '100%',
-                                padding: '1rem 1.5rem',
-                                backgroundColor: '#334155',
-                                border: 'none',
-                                color: '#60a5fa',
-                                fontSize: '1rem',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                transition: 'all 0.2s ease'
-                              }}
-                            >
-                              <span>💻 {section.title}</span>
-                              <span style={{ fontSize: '1.2rem' }}>{isExpanded ? '▼' : '▶'}</span>
-                            </button>
-                            {isExpanded && (
-                              <div style={{ padding: '1.5rem' }}>
-                                <SyntaxHighlighter code={section.code} />
-                              </div>
-                            )}
+                            <span>💻 {section.title}</span>
                           </div>
-                        )
-                      })}
+                          <SyntaxHighlighter code={section.code} />
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     <div style={{

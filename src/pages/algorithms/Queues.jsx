@@ -237,14 +237,9 @@ Step 3: pop()
   Return 1 (FIFO order!) ✓
   input: []         output: [3 2]
                             ↑ top`,
-      example: `Operations:
-push(1) → queue: [1]
-push(2) → queue: [1,2]
-peek() → returns 1
-pop() → returns 1, queue: [2]
-empty() → returns false
-pop() → returns 2, queue: []
-empty() → returns true`,
+      examples: [
+        { input: 'push(1), push(2), peek(), pop(), empty(), pop(), empty()', output: 'null, null, 1, 1, false, 2, true' }
+      ],
       starterCode: `class MyQueue {
     private Stack<Integer> input;
     private Stack<Integer> output;
@@ -636,13 +631,9 @@ isEmpty():
 
 isFull():
     return (rear + 1) % capacity == front`,
-      example: `Operations with size 3:
-enQueue(1) → [1,_,_], front=0, rear=0
-enQueue(2) → [1,2,_], front=0, rear=1
-enQueue(3) → [1,2,3], front=0, rear=2
-isFull() → true
-deQueue() → [_,2,3], front=1, rear=2
-enQueue(4) → [4,2,3], front=1, rear=0 (wrapped)`,
+      examples: [
+        { input: 'MyCircularQueue(3), enQueue(1), enQueue(2), enQueue(3), isFull(), deQueue(), enQueue(4)', output: 'null, true, true, true, true, true, true' }
+      ],
       starterCode: `class MyCircularQueue {
     private int[] queue;
     private int front;
@@ -1043,15 +1034,9 @@ Window [-1,-3,5]:
   5 arrives → removes all smaller (-1, -3)
   Deque: [5]
   Max = 5 (front)`,
-      example: `Input: nums = [1,3,-1,-3,5,3,6,7], k = 3
-Output: [3,3,5,5,6,7]
-Explanation:
-Window [1,3,-1] → max = 3
-Window [3,-1,-3] → max = 3
-Window [-1,-3,5] → max = 5
-Window [-3,5,3] → max = 5
-Window [5,3,6] → max = 6
-Window [3,6,7] → max = 7`,
+      examples: [
+        { input: 'nums = [1,3,-1,-3,5,3,6,7], k = 3', output: '[3,3,5,5,6,7]' }
+      ],
       starterCode: `class Solution {
     public int[] maxSlidingWindow(int[] nums, int k) {
         // TODO: Use deque to track window maximums
@@ -1382,14 +1367,9 @@ Complexity Comparison:
 hit():        O(1)       O(1)
 getHits():    O(n)       O(300) = O(1)
 Space:        O(n)       O(300) = O(1)`,
-      example: `Operations:
-hit(1) → Record hit at t=1
-hit(2) → Record hit at t=2
-hit(3) → Record hit at t=3
-getHits(4) → Returns 3 (hits at 1,2,3 within [1,4])
-hit(300) → Record hit at t=300
-getHits(300) → Returns 4 (hits at 1,2,3,300 within [1,300])
-getHits(301) → Returns 3 (hit at 1 expired, within [2,301])`,
+      examples: [
+        { input: 'hit(1), hit(2), hit(3), getHits(4), hit(300), getHits(300), getHits(301)', output: 'null, null, null, 3, null, 4, 3' }
+      ],
       starterCode: `class HitCounter {
     public HitCounter() {
         // TODO: Initialize data structures
@@ -1579,6 +1559,23 @@ class HitCounterWithCount {
     Hard: questions.filter(q => q.difficulty === 'Hard')
   }
 
+  const visibleQuestions = Object.entries(groupedQuestions)
+    .filter(([difficulty]) => expandedSections[difficulty])
+    .flatMap(([, qs]) => qs)
+
+  const { focusedIndex, setFocusedIndex, itemRefs } = useKeyboardNavigation({
+    items: visibleQuestions,
+    onSelect: (question) => selectQuestion(question),
+    onEscape: onBack,
+    enabled: !selectedQuestion && visibleQuestions.length > 0,
+    gridColumns: 2,
+    loop: true
+  })
+
+  const getVisibleIndex = (question) => {
+    return visibleQuestions.findIndex(q => q.id === question.id)
+  }
+
   const selectQuestion = (question) => {
     setSelectedQuestion(question)
     setShowSolution(false)
@@ -1606,19 +1603,19 @@ class HitCounterWithCount {
 
   if (selectedQuestion) {
     return (
-      <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto', backgroundColor: '#111827', minHeight: '100vh' }}>
+      <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <button onClick={() => setSelectedQuestion(null)} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
-            ← Back to Problems
+            ← Back to Practice
           </button>
           <LanguageToggle />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
           {/* Problem Description */}
-          <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '12px', border: '2px solid #e5e7eb', maxHeight: '85vh', overflowY: 'auto' }}>
+          <div style={{ backgroundColor: '#1f2937', padding: '2rem', borderRadius: '12px', border: '2px solid #3b82f6', maxHeight: '85vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.75rem', color: '#1f2937', margin: 0 }}>{selectedQuestion.title}</h2>
+              <h2 style={{ fontSize: '1.75rem', color: '#93c5fd', margin: 0 }}>{selectedQuestion.title}</h2>
               <span style={{ padding: '0.5rem 1rem', borderRadius: '12px', fontSize: '0.875rem', fontWeight: '600', backgroundColor: getDifficultyColor(selectedQuestion.difficulty) + '20', color: getDifficultyColor(selectedQuestion.difficulty) }}>
                 {selectedQuestion.difficulty}
               </span>
@@ -1636,20 +1633,20 @@ class HitCounterWithCount {
             )}
 
             <div style={{ marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.1rem', color: '#374151', marginBottom: '0.75rem' }}>Description</h3>
-              <p style={{ fontSize: '1rem', color: '#6b7280', lineHeight: '1.6' }}>{selectedQuestion.description}</p>
+              <h3 style={{ fontSize: '1.1rem', color: '#93c5fd', marginBottom: '0.75rem' }}>Description</h3>
+              <p style={{ fontSize: '1rem', color: '#d1d5db', lineHeight: '1.6' }}>{selectedQuestion.description}</p>
             </div>
 
             {selectedQuestion.examples && selectedQuestion.examples.length > 0 && (
               <div style={{ marginBottom: '1.5rem' }}>
-                <h3 style={{ fontSize: '1.1rem', color: '#374151', marginBottom: '0.75rem' }}>Examples</h3>
+                <h3 style={{ fontSize: '1.1rem', color: '#93c5fd', marginBottom: '0.75rem' }}>Examples</h3>
                 {selectedQuestion.examples.map((example, idx) => (
-                  <div key={idx} style={{ backgroundColor: '#f9fafb', padding: '1rem', borderRadius: '8px', marginBottom: '0.75rem', border: '1px solid #e5e7eb', color: '#1f2937' }}>
+                  <div key={idx} style={{ backgroundColor: '#374151', padding: '1rem', borderRadius: '8px', marginBottom: '0.75rem', border: '1px solid #4b5563', color: '#e2e8f0' }}>
                     <div style={{ marginBottom: '0.5rem' }}>
-                      <strong style={{ color: '#1f2937' }}>Input:</strong> <code style={{ color: '#1f2937' }}>{example.input}</code>
+                      <strong style={{ color: '#e2e8f0' }}>Input:</strong> <code style={{ color: '#e2e8f0' }}>{example.input}</code>
                     </div>
                     <div>
-                      <strong style={{ color: '#1f2937' }}>Output:</strong> <code style={{ color: '#1f2937' }}>{example.output}</code>
+                      <strong style={{ color: '#e2e8f0' }}>Output:</strong> <code style={{ color: '#e2e8f0' }}>{example.output}</code>
                     </div>
                   </div>
                 ))}
@@ -1658,22 +1655,22 @@ class HitCounterWithCount {
 
             {selectedQuestion.explanation && (
               <div style={{ marginTop: '1.5rem' }}>
-                <h3 style={{ fontSize: '1.1rem', color: '#374151', marginBottom: '0.75rem' }}>💡 Explanation</h3>
-                <p style={{ fontSize: '0.95rem', color: '#6b7280', lineHeight: '1.6' }}>{selectedQuestion.explanation}</p>
+                <h3 style={{ fontSize: '1.1rem', color: '#93c5fd', marginBottom: '0.75rem' }}>Explanation</h3>
+                <p style={{ fontSize: '0.95rem', color: '#d1d5db', lineHeight: '1.6' }}>{selectedQuestion.explanation}</p>
               </div>
             )}
 
             {(selectedQuestion.timeComplexity || selectedQuestion.spaceComplexity) && (
-              <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#eff6ff', borderRadius: '8px', border: '1px solid #dbeafe' }}>
-                <h3 style={{ fontSize: '1rem', color: '#1e40af', marginBottom: '0.5rem' }}>Complexity</h3>
-                {selectedQuestion.timeComplexity && <div style={{ fontSize: '0.9rem', color: '#1e40af' }}>⏱️ Time: {selectedQuestion.timeComplexity}</div>}
-                {selectedQuestion.spaceComplexity && <div style={{ fontSize: '0.9rem', color: '#1e40af' }}>💾 Space: {selectedQuestion.spaceComplexity}</div>}
+              <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#374151', borderRadius: '8px', border: '1px solid #4b5563' }}>
+                <h3 style={{ fontSize: '1rem', color: '#93c5fd', marginBottom: '0.5rem' }}>Complexity</h3>
+                {selectedQuestion.timeComplexity && <div style={{ fontSize: '0.9rem', color: '#d1d5db' }}>Time: {selectedQuestion.timeComplexity}</div>}
+                {selectedQuestion.spaceComplexity && <div style={{ fontSize: '0.9rem', color: '#d1d5db' }}>Space: {selectedQuestion.spaceComplexity}</div>}
               </div>
             )}
           </div>
 
           {/* Code Editor */}
-          <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '12px', border: '2px solid #e5e7eb', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ backgroundColor: '#1f2937', padding: '2rem', borderRadius: '12px', border: '2px solid #374151', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' , flexWrap: 'wrap' }}>
               <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedQuestion.code[language].solution) }} style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
                 {showSolution ? 'Hide' : 'Show'} Solution
@@ -1682,16 +1679,16 @@ class HitCounterWithCount {
                 Reset Code
               </button>
               <button onClick={() => setShowDrawing(true)} style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600', backgroundColor: currentDrawing ? '#8b5cf6' : '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                🎨 {currentDrawing ? 'View' : 'Draw'} Sketch
+                {currentDrawing ? 'View' : 'Draw'} Sketch
               </button>
             </div>
 
-            <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'monospace', fontSize: '0.9rem', border: '2px solid #e5e7eb', borderRadius: '8px', resize: 'none', lineHeight: '1.5' }} spellCheck={false} />
+            <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'monospace', fontSize: '0.9rem', border: '2px solid #374151', borderRadius: '8px', resize: 'none', lineHeight: '1.5', backgroundColor: '#1e293b', color: '#e2e8f0' }} spellCheck={false} />
 
             {output && (
               <div style={{ marginTop: '1rem' }}>
-                <h3 style={{ fontSize: '1rem', color: '#374151', marginBottom: '0.5rem' }}>Output</h3>
-                <pre style={{ backgroundColor: '#f9fafb', padding: '1rem', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'auto', fontSize: '0.875rem', maxHeight: '150px' }}>{output}</pre>
+                <h3 style={{ fontSize: '1rem', color: '#93c5fd', marginBottom: '0.5rem' }}>Output</h3>
+                <pre style={{ backgroundColor: '#374151', padding: '1rem', borderRadius: '8px', border: '1px solid #4b5563', overflow: 'auto', fontSize: '0.875rem', maxHeight: '150px', color: '#e2e8f0' }}>{output}</pre>
               </div>
             )}
           </div>
@@ -1713,7 +1710,7 @@ class HitCounterWithCount {
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#111827', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
       <div style={{ marginBottom: '2rem' }}>
         <button onClick={onBack} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'} onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}>
           ← Back
@@ -1723,17 +1720,17 @@ class HitCounterWithCount {
       <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#1f2937', marginBottom: '0.5rem' }}>📋 Queues</h1>
-        <p style={{ fontSize: '1.2rem', color: '#6b7280' }}>Master queues problems</p>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: '800', background: 'linear-gradient(to right, #93c5fd, #60a5fa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginBottom: '0.5rem' }}>Queues</h1>
+        <p style={{ fontSize: '1.2rem', color: '#d1d5db' }}>Master queues problems</p>
 
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1.5rem' }}>
-          <div style={{ padding: '1rem 2rem', backgroundColor: 'white', borderRadius: '12px', border: '2px solid #e5e7eb' }}>
+          <div style={{ padding: '1rem 2rem', backgroundColor: '#1f2937', borderRadius: '12px', border: '2px solid #3b82f6' }}>
             <div style={{ fontSize: '2rem', fontWeight: '700', color: '#3b82f6' }}>{stats.completed}/{stats.total}</div>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>Completed</div>
+            <div style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.25rem' }}>Completed</div>
           </div>
-          <div style={{ padding: '1rem 2rem', backgroundColor: 'white', borderRadius: '12px', border: '2px solid #e5e7eb' }}>
+          <div style={{ padding: '1rem 2rem', backgroundColor: '#1f2937', borderRadius: '12px', border: '2px solid #10b981' }}>
             <div style={{ fontSize: '2rem', fontWeight: '700', color: '#10b981' }}>{stats.percentage}%</div>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>Progress</div>
+            <div style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.25rem' }}>Progress</div>
           </div>
         </div>
       </div>
@@ -1741,43 +1738,72 @@ class HitCounterWithCount {
       {Object.entries(groupedQuestions).map(([difficulty, difficultyQuestions]) => (
         difficultyQuestions.length > 0 && (
           <div key={difficulty} style={{ marginBottom: '2rem' }}>
-            <button onClick={() => toggleSection(difficulty)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', backgroundColor: 'white', border: '2px solid #e5e7eb', borderRadius: '12px', cursor: 'pointer', marginBottom: '1rem' }}>
+            <button onClick={() => toggleSection(difficulty)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', backgroundColor: '#1f2937', border: '2px solid #374151', borderRadius: '12px', cursor: 'pointer', marginBottom: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <span style={{ fontSize: '1.5rem', fontWeight: '700', color: getDifficultyColor(difficulty) }}>{difficulty}</span>
-                <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>({difficultyQuestions.length} problems)</span>
+                <span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>({difficultyQuestions.length} problems)</span>
               </div>
-              <span style={{ fontSize: '1.25rem', color: '#6b7280' }}>{expandedSections[difficulty] ? '▼' : '▶'}</span>
+              <span style={{ fontSize: '1.25rem', color: '#9ca3af' }}>{expandedSections[difficulty] ? '▼' : '▶'}</span>
             </button>
 
             {expandedSections[difficulty] && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '1rem' }}>
-                {difficultyQuestions.map((question) => (
-                  <div key={question.id} onClick={() => selectQuestion(question)} style={{ backgroundColor: 'white', padding: '1.5rem', borderRadius: '12px', border: '2px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)' }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937', margin: 0, flex: 1 }}>{question.id}. {question.title}</h3>
-                    </div>
-                    <p style={{ fontSize: '0.875rem', color: '#6b7280', lineHeight: '1.5', marginBottom: '1rem' }}>{question.description.substring(0, 100)}...</p>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '600', backgroundColor: getDifficultyColor(question.difficulty) + '20', color: getDifficultyColor(question.difficulty) }}>{question.difficulty}</span>
-                      <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ transform: 'scale(0.85)' }}>
-                          <CompletionCheckbox problemId={`Queues-${question.id}`} />
+              <div role="list" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '1rem' }}>
+                {difficultyQuestions.map((question) => {
+                  const visibleIndex = getVisibleIndex(question)
+                  const isFocused = focusedIndex === visibleIndex
+                  return (
+                    <div
+                      key={question.id}
+                      ref={el => itemRefs.current[visibleIndex] = el}
+                      tabIndex={0}
+                      role="listitem"
+                      aria-label={`${question.title}, ${question.difficulty}`}
+                      onClick={() => selectQuestion(question)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          selectQuestion(question)
+                        }
+                      }}
+                      onFocus={() => setFocusedIndex(visibleIndex)}
+                      style={{
+                        backgroundColor: '#1f2937',
+                        padding: '1.5rem',
+                        borderRadius: '12px',
+                        border: isFocused ? '2px solid #3b82f6' : '2px solid #374151',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        outline: 'none'
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.3)' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; if (!isFocused) e.currentTarget.style.border = '2px solid #374151' }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#93c5fd', margin: 0, flex: 1 }}>{question.id}. {question.title}</h3>
+                      </div>
+                      <p style={{ fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.5', marginBottom: '1rem' }}>{question.description.substring(0, 100)}...</p>
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '600', backgroundColor: getDifficultyColor(question.difficulty) + '20', color: getDifficultyColor(question.difficulty) }}>{question.difficulty}</span>
+                        <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <div style={{ transform: 'scale(0.85)' }}>
+                            <CompletionCheckbox problemId={`Queues-${question.id}`} />
+                          </div>
+                          <BookmarkButton size="small" problemId={`Queues-${question.id}`} problemData={{ title: question.title, difficulty: question.difficulty, category: 'Queues' }} />
+                          {question.leetcodeUrl && (
+                            <a
+                              href={question.leetcodeUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ padding: '0.25rem 0.75rem', backgroundColor: '#FFA116', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: '0.75rem', fontWeight: '600', display: 'inline-block' }}
+                            >
+                              LeetCode ↗
+                            </a>
+                          )}
                         </div>
-                        <BookmarkButton size="small" problemId={`Queues-${question.id}`} problemData={{ title: question.title, difficulty: question.difficulty, category: 'Queues' }} />
-                        {question.leetcodeUrl && (
-                          <a
-                            href={question.leetcodeUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ padding: '0.25rem 0.75rem', backgroundColor: '#FFA116', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: '0.75rem', fontWeight: '600', display: 'inline-block' }}
-                          >
-                            LeetCode ↗
-                          </a>
-                        )}
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>

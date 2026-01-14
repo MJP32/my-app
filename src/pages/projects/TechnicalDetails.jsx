@@ -1182,7 +1182,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
         maxWidth: '1400px',
         margin: '0 auto',
         padding: '2rem',
-        backgroundColor: colors.bgPrimary,
+        background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
         minHeight: '100vh',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
@@ -1285,10 +1285,10 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {technicalPoints.map((point, index) => (
           <div key={index} style={{
-            backgroundColor: colors.bgSecondary,
+            backgroundColor: '#1f2937',
             borderRadius: '12px',
             boxShadow: `0 4px 6px -1px ${point.colorTheme.primary}20, 0 2px 4px -1px ${point.colorTheme.primary}10`,
-            border: `2px solid ${point.colorTheme.primary}30`,
+            border: '2px solid #374151',
             overflow: 'hidden',
             transition: 'all 0.3s ease'
           }}>
@@ -1306,23 +1306,23 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                backgroundColor: expandedItems[index] ? `${point.colorTheme.secondary}` : colors.bgSecondary,
+                backgroundColor: expandedItems[index] ? '#374151' : '#1f2937',
                 border: focusedItemIndex === index && focusedSubItemIndex === -1 && isKeyboardUser ? `3px solid ${point.colorTheme.primary}` : 'none',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                borderBottom: expandedItems[index] ? `2px solid ${point.colorTheme.primary}40` : 'none',
+                borderBottom: expandedItems[index] ? '2px solid #374151' : 'none',
                 outline: focusedItemIndex === index && focusedSubItemIndex === -1 && isKeyboardUser ? `2px solid ${point.colorTheme.primary}` : 'none',
                 outlineOffset: '2px',
                 transform: focusedItemIndex === index && isKeyboardUser ? 'scale(1.02)' : 'scale(1)'
               }}
               onMouseEnter={(e) => {
                 if (!expandedItems[index]) {
-                  e.target.style.backgroundColor = `${point.colorTheme.secondary}50`;
+                  e.target.style.backgroundColor = '#374151';
                 }
               }}
               onMouseLeave={(e) => {
                 if (!expandedItems[index]) {
-                  e.target.style.backgroundColor = 'white';
+                  e.target.style.backgroundColor = '#1f2937';
                 }
               }}
             >
@@ -1341,23 +1341,23 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                 </div>
                 <span style={{
                   fontWeight: '600',
-                  color: colors.textPrimary,
+                  color: '#ffffff',
                   fontSize: '1.1rem',
                   lineHeight: '1.5'
                 }}>
                   {point.title}
                 </span>
               </div>
-              <div style={{ color: colors.textSecondary, marginLeft: '1rem' }}>
+              <div style={{ color: '#9ca3af', marginLeft: '1rem' }}>
                 {expandedItems[index] ? <ChevronDown className="w-6 h-6" /> : <ChevronRight className="w-6 h-6" />}
               </div>
             </button>
 
             {expandedItems[index] && (
-              <div style={{ borderTop: `1px solid ${colors.border}` }}>
+              <div style={{ borderTop: '1px solid #374151' }}>
                 {point.subSections.map((subSection, subIndex) => (
                   <div key={subIndex} style={{
-                    borderBottom: subIndex < point.subSections.length - 1 ? `1px solid ${colors.border}` : 'none'
+                    borderBottom: subIndex < point.subSections.length - 1 ? '1px solid #374151' : 'none'
                   }}>
                     <button
                       ref={el => subItemRefs.current[`${index}-${subIndex}`] = el}
@@ -1373,7 +1373,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        backgroundColor: expandedSubItems[`${index}-${subIndex}`] ? '#f8fafc' : 'white',
+                        backgroundColor: expandedSubItems[`${index}-${subIndex}`] ? '#374151' : '#1f2937',
                         border: focusedItemIndex === index && focusedSubItemIndex === subIndex && isKeyboardUser ? '3px solid #3b82f6' : 'none',
                         outline: focusedItemIndex === index && focusedSubItemIndex === subIndex && isKeyboardUser ? '2px solid #3b82f6' : 'none',
                         outlineOffset: '2px',
@@ -1382,12 +1382,12 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                       }}
                       onMouseEnter={(e) => {
                         if (!expandedSubItems[`${index}-${subIndex}`]) {
-                          e.target.style.backgroundColor = '#f9fafb';
+                          e.target.style.backgroundColor = '#374151';
                         }
                       }}
                       onMouseLeave={(e) => {
                         if (!expandedSubItems[`${index}-${subIndex}`]) {
-                          e.target.style.backgroundColor = 'white';
+                          e.target.style.backgroundColor = '#1f2937';
                         }
                       }}
                     >
@@ -1407,13 +1407,13 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                         </div>
                         <span style={{
                           fontWeight: '600',
-                          color: colors.textPrimary,
+                          color: '#ffffff',
                           fontSize: '1rem'
                         }}>
                           {subSection.title}
                         </span>
                       </div>
-                      <div style={{ color: colors.textSecondary }}>
+                      <div style={{ color: '#9ca3af' }}>
                         {expandedSubItems[`${index}-${subIndex}`] ?
                           <ChevronDown className="w-5 h-5" /> :
                           <ChevronRight className="w-5 h-5" />
@@ -1424,8 +1424,8 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                     {expandedSubItems[`${index}-${subIndex}`] && (
                       <div style={{
                         padding: '2rem',
-                        backgroundColor: colors.bgPrimary,
-                        borderTop: `1px solid ${colors.border}`
+                        backgroundColor: '#111827',
+                        borderTop: '1px solid #374151'
                       }}>
                         <ul style={{
                           display: 'flex',
@@ -1441,10 +1441,10 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                               alignItems: 'flex-start',
                               gap: '0.75rem',
                               padding: '1rem',
-                              backgroundColor: colors.bgSecondary,
+                              backgroundColor: '#1f2937',
                               borderRadius: '8px',
                               boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-                              border: `1px solid ${colors.border}`
+                              border: '1px solid #374151'
                             }}>
                               <span style={{
                                 color: '#3b82f6',
@@ -1456,7 +1456,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                                 •
                               </span>
                               <span style={{
-                                color: colors.textPrimary,
+                                color: '#9ca3af',
                                 lineHeight: '1.6',
                                 fontSize: '0.95rem'
                               }}>
@@ -1502,50 +1502,50 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
       {/* Design Patterns panel */}
       <div style={{ marginTop: '3rem' }}>
         <div style={{
-          backgroundColor: colors.bgSecondary,
+          backgroundColor: '#1f2937',
           borderRadius: '12px',
           padding: '1.5rem',
           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-          border: `1px solid ${colors.border}`
+          border: '1px solid #374151'
         }}>
-          <h3 style={{ margin: 0, marginBottom: '0.75rem', color: colors.textPrimary }}>Design Patterns</h3>
-          <p style={{ marginTop: 0, color: colors.textSecondary }}>Creational, Structural, Behavioral and Architectural patterns — click a pattern to view details.</p>
+          <h3 style={{ margin: 0, marginBottom: '0.75rem', color: '#ffffff' }}>Design Patterns</h3>
+          <p style={{ marginTop: 0, color: '#9ca3af' }}>Creational, Structural, Behavioral and Architectural patterns — click a pattern to view details.</p>
 
           {/* Patterns data (kept simple, driven by UI below) */}
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
             <div style={{ minWidth: 220 }}>
               <strong>Creational Patterns</strong>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
-                <button onClick={() => setSelectedPattern('singleton')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: `1px solid ${colors.border}`, background: colors.bgSecondary, color: colors.textPrimary }}>Singleton</button>
-                <button onClick={() => setSelectedPattern('factory')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: `1px solid ${colors.border}`, background: colors.bgSecondary, color: colors.textPrimary }}>Factory</button>
-                <button onClick={() => setSelectedPattern('builder')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: `1px solid ${colors.border}`, background: colors.bgSecondary, color: colors.textPrimary }}>Builder</button>
-                <button onClick={() => setSelectedPattern('prototype')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: `1px solid ${colors.border}`, background: colors.bgSecondary, color: colors.textPrimary }}>Prototype</button>
+                <button onClick={() => setSelectedPattern('singleton')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: '1px solid #374151', background: '#1f2937', color: '#ffffff' }}>Singleton</button>
+                <button onClick={() => setSelectedPattern('factory')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: '1px solid #374151', background: '#1f2937', color: '#ffffff' }}>Factory</button>
+                <button onClick={() => setSelectedPattern('builder')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: '1px solid #374151', background: '#1f2937', color: '#ffffff' }}>Builder</button>
+                <button onClick={() => setSelectedPattern('prototype')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: '1px solid #374151', background: '#1f2937', color: '#ffffff' }}>Prototype</button>
               </div>
             </div>
 
             <div style={{ minWidth: 220 }}>
               <strong>Structural Patterns</strong>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
-                <button onClick={() => setSelectedPattern('adapter')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: `1px solid ${colors.border}`, background: colors.bgSecondary, color: colors.textPrimary }}>Adapter</button>
-                <button onClick={() => setSelectedPattern('decorator')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: `1px solid ${colors.border}`, background: colors.bgSecondary, color: colors.textPrimary }}>Decorator</button>
-                <button onClick={() => setSelectedPattern('facade')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: `1px solid ${colors.border}`, background: colors.bgSecondary, color: colors.textPrimary }}>Facade</button>
+                <button onClick={() => setSelectedPattern('adapter')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: '1px solid #374151', background: '#1f2937', color: '#ffffff' }}>Adapter</button>
+                <button onClick={() => setSelectedPattern('decorator')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: '1px solid #374151', background: '#1f2937', color: '#ffffff' }}>Decorator</button>
+                <button onClick={() => setSelectedPattern('facade')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: '1px solid #374151', background: '#1f2937', color: '#ffffff' }}>Facade</button>
               </div>
             </div>
 
             <div style={{ minWidth: 220 }}>
               <strong>Behavioral Patterns</strong>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
-                <button onClick={() => setSelectedPattern('observer')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: `1px solid ${colors.border}`, background: colors.bgSecondary, color: colors.textPrimary }}>Observer</button>
-                <button onClick={() => setSelectedPattern('strategy')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: `1px solid ${colors.border}`, background: colors.bgSecondary, color: colors.textPrimary }}>Strategy</button>
-                <button onClick={() => setSelectedPattern('command')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: `1px solid ${colors.border}`, background: colors.bgSecondary, color: colors.textPrimary }}>Command</button>
-                <button onClick={() => setSelectedPattern('state')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: `1px solid ${colors.border}`, background: colors.bgSecondary, color: colors.textPrimary }}>State</button>
+                <button onClick={() => setSelectedPattern('observer')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: '1px solid #374151', background: '#1f2937', color: '#ffffff' }}>Observer</button>
+                <button onClick={() => setSelectedPattern('strategy')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: '1px solid #374151', background: '#1f2937', color: '#ffffff' }}>Strategy</button>
+                <button onClick={() => setSelectedPattern('command')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: '1px solid #374151', background: '#1f2937', color: '#ffffff' }}>Command</button>
+                <button onClick={() => setSelectedPattern('state')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: '1px solid #374151', background: '#1f2937', color: '#ffffff' }}>State</button>
               </div>
             </div>
 
             <div style={{ minWidth: 220 }}>
               <strong>Architectural Patterns</strong>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
-                <button onClick={() => setSelectedPattern('mvc')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: `1px solid ${colors.border}`, background: colors.bgSecondary, color: colors.textPrimary }}>MVC</button>
+                <button onClick={() => setSelectedPattern('mvc')} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, border: '1px solid #374151', background: '#1f2937', color: '#ffffff' }}>MVC</button>
               </div>
             </div>
           </div>
@@ -1553,7 +1553,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
           {/* Selected pattern details */}
           <div style={{ marginTop: '1rem' }}>
             {selectedPattern ? (
-              <div style={{ padding: '1rem', background: colors.bgPrimary, borderRadius: 8, border: `1px solid ${colors.border}`, color: colors.textPrimary }}>
+              <div style={{ padding: '1rem', background: '#111827', borderRadius: 8, border: '1px solid #374151', color: '#ffffff' }}>
                 {selectedPattern === 'singleton' && (
                   <div>
                     <h4>Singleton — creational</h4>
@@ -1659,11 +1659,11 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                 )}
 
                 <div style={{ marginTop: '0.75rem' }}>
-                  <button onClick={() => setSelectedPattern(null)} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, background: colors.bgSecondary, color: colors.textPrimary, border: `1px solid ${colors.border}` }}>Close</button>
+                  <button onClick={() => setSelectedPattern(null)} style={{ padding: '0.4rem 0.6rem', borderRadius: 6, background: '#1f2937', color: '#ffffff', border: '1px solid #374151' }}>Close</button>
                 </div>
               </div>
             ) : (
-              <div style={{ color: colors.textSecondary }}>Select a pattern to view details.</div>
+              <div style={{ color: '#9ca3af' }}>Select a pattern to view details.</div>
             )}
           </div>
         </div>

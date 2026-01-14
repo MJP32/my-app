@@ -3640,7 +3640,7 @@ public class ClaimService {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: colors.bgPrimary,
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       padding: '2rem'
     }}>
       {/* Header */}
@@ -3671,14 +3671,14 @@ public class ClaimService {
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '800',
-          color: colors.textPrimary,
+          color: 'white',
           marginBottom: '0.5rem'
         }}>
           🏥 Medi/Health System
         </h1>
         <p style={{
           fontSize: '1.1rem',
-          color: colors.textSecondary,
+          color: '#9ca3af',
           maxWidth: '800px'
         }}>
           Healthcare management system with patient records, appointment scheduling, e-prescribing, clinical documentation, HIPAA compliance, HL7/FHIR integration, and medical billing
@@ -3701,23 +3701,23 @@ public class ClaimService {
               key={topic.id}
               onClick={() => setSelectedTopic(topic)}
               style={{
-                backgroundColor: 'white',
+                backgroundColor: '#1f2937',
                 borderRadius: '12px',
                 padding: '1.5rem',
                 cursor: 'pointer',
-                border: '2px solid #e5e7eb',
+                border: '2px solid #374151',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-4px)'
-                e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)'
+                e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.3)'
                 e.currentTarget.style.borderColor = topic.color
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)'
-                e.currentTarget.style.borderColor = '#e5e7eb'
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)'
+                e.currentTarget.style.borderColor = '#374151'
               }}
             >
               <div style={{
@@ -3728,7 +3728,7 @@ public class ClaimService {
                 {topic.title}
               </div>
               <p style={{
-                color: '#6b7280',
+                color: '#9ca3af',
                 fontSize: '0.95rem',
                 lineHeight: '1.5'
               }}>
@@ -3756,7 +3756,7 @@ public class ClaimService {
               <h3 style={{
                 fontSize: '1.25rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: 'white',
                 marginBottom: '1rem'
               }}>
                 Healthcare Topics
@@ -3767,37 +3767,37 @@ public class ClaimService {
                     key={t.id}
                     onClick={() => setSelectedTopic(t)}
                     style={{
-                      backgroundColor: selectedTopic.id === t.id ? `${t.color}15` : 'white',
+                      backgroundColor: selectedTopic.id === t.id ? `${t.color}15` : '#1f2937',
                       padding: '1rem',
                       borderRadius: '8px',
-                      border: selectedTopic.id === t.id ? `3px solid ${t.color}` : '2px solid #e5e7eb',
+                      border: selectedTopic.id === t.id ? `3px solid ${t.color}` : '2px solid #374151',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseOver={(e) => {
                       if (selectedTopic.id !== t.id) {
-                        e.currentTarget.style.backgroundColor = '#f9fafb'
+                        e.currentTarget.style.backgroundColor = '#374151'
                         e.currentTarget.style.borderColor = t.color
                       }
                     }}
                     onMouseOut={(e) => {
                       if (selectedTopic.id !== t.id) {
-                        e.currentTarget.style.backgroundColor = 'white'
-                        e.currentTarget.style.borderColor = '#e5e7eb'
+                        e.currentTarget.style.backgroundColor = '#1f2937'
+                        e.currentTarget.style.borderColor = '#374151'
                       }
                     }}
                   >
                     <div style={{
                       fontSize: '1rem',
                       fontWeight: '600',
-                      color: selectedTopic.id === t.id ? t.color : '#374151',
+                      color: selectedTopic.id === t.id ? t.color : 'white',
                       marginBottom: '0.25rem'
                     }}>
                       {t.title}
                     </div>
                     <div style={{
                       fontSize: '0.8rem',
-                      color: '#6b7280',
+                      color: '#9ca3af',
                       lineHeight: '1.3'
                     }}>
                       {t.description.substring(0, 60)}...
@@ -3809,7 +3809,7 @@ public class ClaimService {
 
             {/* Right content area */}
             <div style={{
-              backgroundColor: 'white',
+              backgroundColor: '#1f2937',
               borderRadius: '12px',
               padding: '2rem',
               border: `3px solid ${selectedTopic.color}`,
@@ -3818,7 +3818,7 @@ public class ClaimService {
             <h2 style={{
               fontSize: '2rem',
               fontWeight: '700',
-              color: '#1f2937',
+              color: 'white',
               marginBottom: '1rem',
               display: 'flex',
               alignItems: 'center',
@@ -3831,7 +3831,7 @@ public class ClaimService {
             {selectedTopic.diagram && selectedTopic.diagram()}
 
             <div style={{
-              backgroundColor: '#f8fafc',
+              backgroundColor: '#374151',
               padding: '1.5rem',
               borderRadius: '8px',
               marginBottom: '2rem',
@@ -3839,7 +3839,7 @@ public class ClaimService {
             }}>
               <p style={{
                 fontSize: '1.05rem',
-                color: '#374151',
+                color: '#9ca3af',
                 lineHeight: '1.7',
                 margin: 0
               }}>
@@ -3851,7 +3851,7 @@ public class ClaimService {
               <h3 style={{
                 fontSize: '1.3rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: 'white',
                 marginBottom: '1rem'
               }}>
                 🔑 Key Features
@@ -3865,12 +3865,12 @@ public class ClaimService {
                   <div
                     key={idx}
                     style={{
-                      backgroundColor: '#f8fafc',
+                      backgroundColor: '#374151',
                       padding: '0.75rem 1rem',
                       borderRadius: '8px',
-                      border: '1px solid #e5e7eb',
+                      border: '1px solid #374151',
                       fontSize: '0.9rem',
-                      color: '#374151'
+                      color: '#9ca3af'
                     }}
                   >
                     • {point}
@@ -3883,7 +3883,7 @@ public class ClaimService {
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: 'white',
                 marginBottom: '1.5rem',
                 display: 'flex',
                 alignItems: 'center',
@@ -3906,12 +3906,12 @@ public class ClaimService {
                   <div
                     key={index}
                     style={{
-                      backgroundColor: 'white',
-                      border: '1px solid #e5e7eb',
+                      backgroundColor: '#374151',
+                      border: '1px solid #374151',
                       borderRadius: '12px',
                       marginBottom: '1rem',
                       overflow: 'hidden',
-                      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
                       transition: 'all 0.2s ease'
                     }}
                   >
@@ -3924,18 +3924,18 @@ public class ClaimService {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        backgroundColor: isExpanded ? `${selectedTopic.color}08` : 'white',
+                        backgroundColor: isExpanded ? `${selectedTopic.color}15` : '#374151',
                         transition: 'all 0.2s ease',
                         borderBottom: isExpanded ? `2px solid ${selectedTopic.color}20` : 'none'
                       }}
                       onMouseOver={(e) => {
                         if (!isExpanded) {
-                          e.currentTarget.style.backgroundColor = '#f9fafb'
+                          e.currentTarget.style.backgroundColor = '#4b5563'
                         }
                       }}
                       onMouseOut={(e) => {
                         if (!isExpanded) {
-                          e.currentTarget.style.backgroundColor = 'white'
+                          e.currentTarget.style.backgroundColor = '#374151'
                         }
                       }}
                     >
@@ -3962,7 +3962,7 @@ public class ClaimService {
                           margin: 0,
                           fontSize: '1.15rem',
                           fontWeight: '600',
-                          color: '#1f2937'
+                          color: 'white'
                         }}>
                           {section.title}
                         </h4>
@@ -3971,12 +3971,12 @@ public class ClaimService {
                         width: '32px',
                         height: '32px',
                         borderRadius: '8px',
-                        backgroundColor: isExpanded ? selectedTopic.color : '#f3f4f6',
+                        backgroundColor: isExpanded ? selectedTopic.color : '#4b5563',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         transition: 'all 0.2s ease',
-                        color: isExpanded ? 'white' : '#6b7280',
+                        color: isExpanded ? 'white' : '#9ca3af',
                         fontSize: '1.25rem',
                         fontWeight: '700'
                       }}>
@@ -4042,19 +4042,19 @@ public class ClaimService {
                     padding: '0.75rem 1.5rem',
                     fontSize: '0.95rem',
                     fontWeight: '600',
-                    backgroundColor: 'white',
-                    color: '#374151',
-                    border: '2px solid #e5e7eb',
+                    backgroundColor: '#374151',
+                    color: '#9ca3af',
+                    border: '2px solid #374151',
                     borderRadius: '10px',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
                   onMouseOver={(e) => {
-                    e.target.style.backgroundColor = '#f9fafb'
+                    e.target.style.backgroundColor = '#4b5563'
                     e.target.style.transform = 'translateY(-2px)'
                   }}
                   onMouseOut={(e) => {
-                    e.target.style.backgroundColor = 'white'
+                    e.target.style.backgroundColor = '#374151'
                     e.target.style.transform = 'translateY(0)'
                   }}
                 >

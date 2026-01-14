@@ -332,7 +332,7 @@ function RabbitMQ({ onBack, onPrevious, onNext, previousName, nextName, currentS
                 onMouseEnter={(e) => e.target.style.backgroundColor = '#059669'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = '#10b981'}
               >
-                ← Back to All Concepts
+                ← Back to Categories
               </button>
               {concepts.map((concept) => (
                 <div

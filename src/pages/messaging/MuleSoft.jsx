@@ -230,7 +230,7 @@ function MuleSoft({ onBack, onPrevious, onNext, previousName, nextName, currentS
               e.currentTarget.style.backgroundColor = '#f59e0b'
             }}
           >
-            ← Back to Concepts
+            ← Back to Categories
           </button>
 
           <div style={{

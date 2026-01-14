@@ -200,7 +200,7 @@ function AWS({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #0c4a6e, #111827)',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       color: 'white',
       padding: '1.5rem'
     }}>
@@ -259,8 +259,8 @@ function AWS({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
                 padding: '0.25rem 0.75rem',
                 fontSize: '0.85rem',
                 fontWeight: '600',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
+                backgroundColor: '#374151',
+                color: '#9ca3af',
                 borderRadius: '6px',
                 marginTop: '0.25rem',
                 display: 'inline-block'
@@ -270,7 +270,7 @@ function AWS({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
             )}
             <p style={{
               margin: '0.5rem 0 0 0',
-              color: '#666',
+              color: '#9ca3af',
               fontSize: '1.1rem'
             }}>
               Cloud computing platform with 200+ services
@@ -344,14 +344,14 @@ function AWS({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
             onClick={() => setSelectedService(selectedService === service.name ? null : service.name)}
             style={{
               padding: '1.5rem',
-              backgroundColor: selectedService === service.name ? '#FFF8F0' : 'white',
-              border: `2px solid ${selectedService === service.name ? '#FF9900' : '#e5e7eb'}`,
+              backgroundColor: selectedService === service.name ? '#2d3748' : '#1f2937',
+              border: `2px solid ${selectedService === service.name ? '#FF9900' : '#374151'}`,
               borderRadius: '12px',
               cursor: 'pointer',
               transition: 'all 0.2s',
               boxShadow: selectedService === service.name
                 ? '0 8px 16px rgba(255, 153, 0, 0.2)'
-                : '0 2px 4px rgba(0,0,0,0.05)',
+                : '0 2px 4px rgba(0,0,0,0.2)',
               transform: selectedService === service.name ? 'translateY(-4px)' : 'translateY(0)'
             }}
           >
@@ -362,7 +362,7 @@ function AWS({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
                   margin: 0,
                   fontSize: '1.25rem',
                   fontWeight: '700',
-                  color: '#232F3E'
+                  color: 'white'
                 }}>
                   {service.name}
                 </h3>
@@ -380,7 +380,7 @@ function AWS({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
 
             <p style={{
               margin: '0.75rem 0',
-              color: '#666',
+              color: '#9ca3af',
               fontSize: '0.9rem',
               lineHeight: '1.5'
             }}>
@@ -391,11 +391,11 @@ function AWS({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
               <div style={{
                 marginTop: '1rem',
                 paddingTop: '1rem',
-                borderTop: '2px solid #FF990033'
+                borderTop: '2px solid #374151'
               }}>
                 <p style={{
                   margin: '0 0 1rem 0',
-                  color: '#444',
+                  color: '#9ca3af',
                   fontSize: '0.9rem',
                   lineHeight: '1.6'
                 }}>
@@ -406,7 +406,7 @@ function AWS({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
                   margin: '0 0 0.5rem 0',
                   fontSize: '0.85rem',
                   fontWeight: '600',
-                  color: '#232F3E',
+                  color: 'white',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em'
                 }}>
@@ -415,7 +415,7 @@ function AWS({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
                 <ul style={{
                   margin: '0 0 1rem 0',
                   paddingLeft: '1.25rem',
-                  color: '#666',
+                  color: '#9ca3af',
                   fontSize: '0.85rem',
                   lineHeight: '1.8'
                 }}>
@@ -428,7 +428,7 @@ function AWS({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
                   margin: '0 0 0.5rem 0',
                   fontSize: '0.85rem',
                   fontWeight: '600',
-                  color: '#232F3E',
+                  color: 'white',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em'
                 }}>
@@ -443,12 +443,12 @@ function AWS({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
                   {service.useCases.map((useCase, idx) => (
                     <span key={idx} style={{
                       padding: '0.25rem 0.75rem',
-                      backgroundColor: '#FF990022',
+                      backgroundColor: '#FF990033',
                       color: '#FF9900',
                       fontSize: '0.75rem',
                       fontWeight: '600',
                       borderRadius: '12px',
-                      border: '1px solid #FF990044'
+                      border: '1px solid #FF990066'
                     }}>
                       {useCase}
                     </span>
@@ -459,7 +459,7 @@ function AWS({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
                   margin: '0 0 0.5rem 0',
                   fontSize: '0.85rem',
                   fontWeight: '600',
-                  color: '#232F3E',
+                  color: 'white',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em'
                 }}>
@@ -484,21 +484,22 @@ function AWS({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
       <div style={{
         marginTop: '3rem',
         padding: '1.5rem',
-        backgroundColor: '#F7F8FA',
+        backgroundColor: '#1f2937',
         borderRadius: '12px',
-        borderLeft: '4px solid #FF9900'
+        borderLeft: '4px solid #FF9900',
+        border: '1px solid #374151'
       }}>
         <h3 style={{
           margin: '0 0 0.75rem 0',
           fontSize: '1.1rem',
           fontWeight: '700',
-          color: '#232F3E'
+          color: 'white'
         }}>
           About AWS
         </h3>
         <p style={{
           margin: 0,
-          color: '#666',
+          color: '#9ca3af',
           fontSize: '0.95rem',
           lineHeight: '1.6'
         }}>

@@ -1106,7 +1106,7 @@ env.execute("Fraud Detection");`
                 onMouseEnter={(e) => e.target.style.backgroundColor = '#2563eb'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = '#3b82f6'}
               >
-                ← Back to All Concepts
+                ← Back to Categories
               </button>
               {concepts.map((concept) => (
                 <div

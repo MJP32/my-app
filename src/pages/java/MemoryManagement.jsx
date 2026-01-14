@@ -1630,10 +1630,10 @@ for (BufferPoolMXBean pool : pools) {
       <div
         onClick={() => handleQuestionSelect(question)}
         style={{
-          backgroundColor: 'white',
+          backgroundColor: '#1f2937',
           padding: '1.5rem',
           borderRadius: '12px',
-          border: '2px solid #e5e7eb',
+          border: '2px solid #374151',
           cursor: 'pointer',
           transition: 'all 0.2s'
         }}
@@ -1647,12 +1647,12 @@ for (BufferPoolMXBean pool : pools) {
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937', margin: 0, flex: 1 }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'white', margin: 0, flex: 1 }}>
             {question.id}. {question.title}
           </h3>
           {isCompleted && <span style={{ fontSize: '1.25rem' }}>✅</span>}
         </div>
-        <p style={{ fontSize: '0.875rem', color: '#6b7280', lineHeight: '1.5', marginBottom: '1rem' }}>
+        <p style={{ fontSize: '0.875rem', color: '#9ca3af', lineHeight: '1.5', marginBottom: '1rem' }}>
           {question.description.substring(0, 150)}...
         </p>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -1673,7 +1673,7 @@ for (BufferPoolMXBean pool : pools) {
 
   if (!selectedQuestion) {
     return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #111827, #78350f, #111827)', color: 'white', padding: '1.5rem' }}>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', color: 'white', padding: '1.5rem' }}>
       <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
         <div style={{ marginBottom: '2rem' }}>
           <button onClick={onBack} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
@@ -1726,7 +1726,7 @@ for (BufferPoolMXBean pool : pools) {
   }
 
   return (
-    <div style={{ padding: '20px', height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ padding: '20px', height: '100vh', display: 'flex', flexDirection: 'column', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)' }}>
       <button
         onClick={() => setSelectedQuestion(null)}
         style={{
@@ -1825,7 +1825,7 @@ for (BufferPoolMXBean pool : pools) {
             {showExplanation && (
               <div style={{ marginTop: '20px' }}>
                 <div style={{ backgroundColor: '#fef3c7', padding: '15px', borderRadius: '6px', border: '2px solid #fbbf24', marginBottom: '15px' }}>
-                  <h3 style={{ color: '#78350f', marginTop: 0 }}>📖 Explanation</h3>
+                  <h3 style={{ color: '#1e3a5f', marginTop: 0 }}>📖 Explanation</h3>
                   <div style={{ color: '#1f2937', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
                     {selectedQuestion.explanation}
                   </div>

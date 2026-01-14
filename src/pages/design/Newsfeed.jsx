@@ -13,10 +13,10 @@ export default function Newsfeed({ onBack, breadcrumb }) {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-950 to-gray-900 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8 bg-white rounded-2xl shadow-lg p-6 border-l-8 border-blue-500">
+        <div className="mb-8 bg-gray-800 rounded-2xl shadow-lg p-6 border-l-8 border-blue-500">
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={onBack}
@@ -86,7 +86,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
         {activeTab === 'overview' && (
           <div className="space-y-8">
             {/* Requirements */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-blue-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-blue-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-blue-600">📝</span>
                 System Requirements
@@ -160,7 +160,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
             </div>
 
             {/* Architecture Diagram */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-indigo-600">🏗️</span>
                 High-Level Architecture
@@ -299,7 +299,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
             </div>
 
             {/* Scale Estimates */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-emerald-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-emerald-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-emerald-600">📊</span>
                 Scale & Capacity Estimates
@@ -360,7 +360,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
           <div className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               {/* Post Service */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-shadow">
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-shadow">
                 <h3 className="text-2xl font-bold text-green-700 mb-4 flex items-center gap-2">
                   <span>📝</span>
                   Post Service
@@ -391,7 +391,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
               </div>
 
               {/* Feed Generation Service */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-xl transition-shadow">
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-xl transition-shadow">
                 <h3 className="text-2xl font-bold text-orange-700 mb-4 flex items-center gap-2">
                   <span>🔄</span>
                   Feed Generation Service
@@ -420,7 +420,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
               </div>
 
               {/* Ranking Engine */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl transition-shadow">
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl transition-shadow">
                 <h3 className="text-2xl font-bold text-blue-700 mb-4 flex items-center gap-2">
                   <span>⭐</span>
                   Ranking Engine
@@ -451,7 +451,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
               </div>
 
               {/* User/Graph Service */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-xl transition-shadow">
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-xl transition-shadow">
                 <h3 className="text-2xl font-bold text-red-700 mb-4 flex items-center gap-2">
                   <span>👥</span>
                   User & Graph Service
@@ -481,7 +481,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
               </div>
 
               {/* Notification Service */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-pink-500 hover:shadow-xl transition-shadow">
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-pink-500 hover:shadow-xl transition-shadow">
                 <h3 className="text-2xl font-bold text-pink-700 mb-4 flex items-center gap-2">
                   <span>🔔</span>
                   Notification Service
@@ -511,7 +511,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
               </div>
 
               {/* Cache & CDN */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-cyan-500 hover:shadow-xl transition-shadow">
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-cyan-500 hover:shadow-xl transition-shadow">
                 <h3 className="text-2xl font-bold text-cyan-700 mb-4 flex items-center gap-2">
                   <span>⚡</span>
                   Cache & CDN
@@ -546,7 +546,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
         {activeTab === 'dataflow' && (
           <div className="space-y-8">
             {/* Post Creation Flow */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-green-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-green-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-green-600">📤</span>
                 Post Creation & Fan-out Flow
@@ -579,7 +579,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
             </div>
 
             {/* Feed Retrieval Flow */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-blue-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-blue-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-blue-600">📥</span>
                 Feed Retrieval Flow
@@ -612,7 +612,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
             </div>
 
             {/* Real-time Updates */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-purple-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-purple-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-purple-600">🔴</span>
                 Real-time Feed Updates
@@ -670,7 +670,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
         {activeTab === 'scalability' && (
           <div className="space-y-8">
             {/* Database Sharding */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-purple-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-purple-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-purple-600">🗄️</span>
                 Database Sharding Strategy
@@ -727,7 +727,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
             </div>
 
             {/* Caching Strategy */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-cyan-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-cyan-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-cyan-600">⚡</span>
                 Multi-Layer Caching Strategy
@@ -779,7 +779,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
             </div>
 
             {/* Load Balancing */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-orange-600">⚖️</span>
                 Load Balancing & Auto-Scaling
@@ -849,7 +849,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
             </div>
 
             {/* Performance Optimizations */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-green-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-green-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-green-600">🚀</span>
                 Performance Optimizations
@@ -907,7 +907,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
         {activeTab === 'tradeoffs' && (
           <div className="space-y-8">
             {/* Technology Stack */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-indigo-600">🛠️</span>
                 Technology Stack Decisions
@@ -989,7 +989,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
             </div>
 
             {/* Design Trade-offs */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-orange-600">⚖️</span>
                 Key Design Trade-offs
@@ -1001,7 +1001,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
                   <h3 className="text-xl font-bold text-orange-900 mb-4">1. Fan-out on Write vs Fan-out on Read</h3>
 
                   <div className="grid md:grid-cols-2 gap-4 mb-4">
-                    <div className="bg-white p-4 rounded-lg border-2 border-green-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-green-200">
                       <div className="font-bold text-green-700 mb-2 flex items-center gap-2">
                         <span>✅</span>
                         <span>Fan-out on Write (Push Model)</span>
@@ -1018,7 +1018,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
                       </div>
                     </div>
 
-                    <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-blue-200">
                       <div className="font-bold text-blue-700 mb-2 flex items-center gap-2">
                         <span>✅</span>
                         <span>Fan-out on Read (Pull Model)</span>
@@ -1052,7 +1052,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
                   <h3 className="text-xl font-bold text-blue-900 mb-4">2. Strong Consistency vs Eventual Consistency</h3>
 
                   <div className="grid md:grid-cols-2 gap-4 mb-4">
-                    <div className="bg-white p-4 rounded-lg border-2 border-red-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-red-200">
                       <div className="font-bold text-red-700 mb-2">Strong Consistency</div>
                       <div className="text-sm space-y-1 text-gray-700">
                         <div><strong>Use Cases:</strong></div>
@@ -1063,7 +1063,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
                       </div>
                     </div>
 
-                    <div className="bg-white p-4 rounded-lg border-2 border-green-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-green-200">
                       <div className="font-bold text-green-700 mb-2">Eventual Consistency</div>
                       <div className="text-sm space-y-1 text-gray-700">
                         <div><strong>Use Cases:</strong></div>
@@ -1088,7 +1088,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
                   <h3 className="text-xl font-bold text-green-900 mb-4">3. SQL vs NoSQL for Post Storage</h3>
 
                   <div className="grid md:grid-cols-2 gap-4 mb-4">
-                    <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-blue-200">
                       <div className="font-bold text-blue-700 mb-2">SQL (PostgreSQL)</div>
                       <div className="text-sm space-y-1 text-gray-700">
                         <div>• <strong>Pros:</strong> ACID, joins, complex queries, mature</div>
@@ -1097,7 +1097,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
                       </div>
                     </div>
 
-                    <div className="bg-white p-4 rounded-lg border-2 border-green-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-green-200">
                       <div className="font-bold text-green-700 mb-2">NoSQL (Cassandra)</div>
                       <div className="text-sm space-y-1 text-gray-700">
                         <div>• <strong>Pros:</strong> Horizontal scaling, write-optimized, auto-sharding</div>
@@ -1120,7 +1120,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
                   <h3 className="text-xl font-bold text-purple-900 mb-4">4. WebSocket vs Long Polling vs SSE</h3>
 
                   <div className="grid md:grid-cols-3 gap-4 mb-4">
-                    <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-blue-200">
                       <div className="font-bold text-blue-700 mb-2 text-sm">WebSocket</div>
                       <div className="text-xs space-y-1 text-gray-700">
                         <div>• Bidirectional, low latency</div>
@@ -1129,7 +1129,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
                       </div>
                     </div>
 
-                    <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-orange-200">
                       <div className="font-bold text-orange-700 mb-2 text-sm">Long Polling</div>
                       <div className="text-xs space-y-1 text-gray-700">
                         <div>• HTTP-based, compatible with all browsers</div>
@@ -1138,7 +1138,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
                       </div>
                     </div>
 
-                    <div className="bg-white p-4 rounded-lg border-2 border-green-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-green-200">
                       <div className="font-bold text-green-700 mb-2 text-sm">Server-Sent Events</div>
                       <div className="text-xs space-y-1 text-gray-700">
                         <div>• One-way (server → client)</div>
@@ -1159,7 +1159,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
             </div>
 
             {/* Additional Considerations */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-pink-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-pink-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-pink-600">💡</span>
                 Additional Considerations

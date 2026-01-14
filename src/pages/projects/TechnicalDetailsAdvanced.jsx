@@ -455,7 +455,7 @@ const ModernDiagram = ({ diagramType, title, onComponentClick }) => {
           display: 'flex',
           alignItems: 'center',
           gap: '0.5rem',
-          color: '#374151',
+          color: 'white',
           fontSize: '1rem',
           fontWeight: '600'
         }}>
@@ -521,10 +521,10 @@ const ModernDiagram = ({ diagramType, title, onComponentClick }) => {
 
       <div style={{
         position: 'relative',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#1f2937',
         borderRadius: '12px',
         padding: '2rem',
-        border: '2px solid #e2e8f0',
+        border: '2px solid #374151',
         boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
         animation: 'slideIn 0.5s ease-out'
       }}>
@@ -536,13 +536,13 @@ const ModernDiagram = ({ diagramType, title, onComponentClick }) => {
             width: '100%',
             height: 'auto',
             maxHeight: '800px',
-            background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'
+            background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)'
           }}
         >
           {/* Background Grid */}
           <defs>
             <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f1f5f9" strokeWidth="1"/>
+              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#374151" strokeWidth="1"/>
             </pattern>
 
             {/* Arrow Marker */}
@@ -597,18 +597,18 @@ const ModernDiagram = ({ diagramType, title, onComponentClick }) => {
                   x={midX}
                   y={midY}
                   textAnchor="middle"
-                  fill="#374151"
+                  fill="#9ca3af"
                   fontSize="12"
                   fontWeight="500"
                   style={{
-                    backgroundColor: 'white',
+                    backgroundColor: '#1f2937',
                     padding: '2px 6px',
                     borderRadius: '4px'
                   }}
                 >
                   <tspan
                     style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                      backgroundColor: 'rgba(31, 41, 55, 0.9)',
                       padding: '2px 6px',
                       borderRadius: '4px'
                     }}
@@ -649,8 +649,8 @@ const ModernDiagram = ({ diagramType, title, onComponentClick }) => {
                   width={comp.width}
                   height={comp.height}
                   rx={isContainer ? "12" : "8"}
-                  fill={isContainer ? 'rgba(229, 231, 235, 0.3)' : (isSelected ? comp.color : isHovered ? '#f8fafc' : 'white')}
-                  stroke={isContainer ? '#9ca3af' : (isSelected ? comp.color : isHovered ? comp.color : '#e2e8f0')}
+                  fill={isContainer ? 'rgba(55, 65, 81, 0.3)' : (isSelected ? comp.color : isHovered ? '#374151' : '#1f2937')}
+                  stroke={isContainer ? '#6b7280' : (isSelected ? comp.color : isHovered ? comp.color : '#374151')}
                   strokeWidth={isContainer ? "2" : (isSelected ? "3" : isHovered ? "2" : "1")}
                   strokeDasharray={isContainer ? "5,5" : "none"}
                   style={{
@@ -701,7 +701,7 @@ const ModernDiagram = ({ diagramType, title, onComponentClick }) => {
                   x={comp.x + comp.width/2}
                   y={comp.y + (isContainer ? 80 : 105)}
                   textAnchor="middle"
-                  fill={isSelected && !isContainer ? 'white' : '#374151'}
+                  fill={isSelected && !isContainer ? 'white' : '#e5e7eb'}
                   fontSize={isContainer ? "16" : "20"}
                   fontWeight="700"
                   style={{
@@ -721,7 +721,7 @@ const ModernDiagram = ({ diagramType, title, onComponentClick }) => {
                         x={comp.x + comp.width/2}
                         y={comp.y + 130 + (idx * 18)}
                         textAnchor="middle"
-                        fill={isSelected ? 'rgba(255,255,255,0.95)' : '#6b7280'}
+                        fill={isSelected ? 'rgba(255,255,255,0.95)' : '#9ca3af'}
                         fontSize="12"
                         fontWeight="500"
                         style={{ userSelect: 'none' }}
@@ -837,16 +837,16 @@ const ModernDiagram = ({ diagramType, title, onComponentClick }) => {
           flexWrap: 'wrap',
           justifyContent: 'center',
           padding: '1rem',
-          backgroundColor: '#f8fafc',
+          backgroundColor: '#374151',
           borderRadius: '8px',
-          border: '1px solid #e2e8f0'
+          border: '1px solid #374151'
         }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem',
             fontSize: '0.875rem',
-            color: '#6b7280'
+            color: '#9ca3af'
           }}>
             <div style={{
               width: '16px',
@@ -861,7 +861,7 @@ const ModernDiagram = ({ diagramType, title, onComponentClick }) => {
             alignItems: 'center',
             gap: '0.5rem',
             fontSize: '0.875rem',
-            color: '#6b7280'
+            color: '#9ca3af'
           }}>
             <div style={{
               width: '20px',
@@ -876,7 +876,7 @@ const ModernDiagram = ({ diagramType, title, onComponentClick }) => {
             alignItems: 'center',
             gap: '0.5rem',
             fontSize: '0.875rem',
-            color: '#6b7280'
+            color: '#9ca3af'
           }}>
             <div style={{
               width: '16px',
@@ -3575,7 +3575,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
 
       <div
         ref={componentRef}
-        style={{ padding: '3rem 4rem', maxWidth: 1800, margin: '0 auto' }}>
+        style={{ padding: '3rem 4rem', maxWidth: 1800, margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
         {/* Back Button */}
         <button
           ref={backButtonRef}
@@ -3658,15 +3658,15 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
 
         {/* Tech Stack */}
         <div style={{
-          backgroundColor: '#f8fafc',
+          backgroundColor: '#1f2937',
           borderRadius: '12px',
           padding: '2rem',
           marginBottom: '3rem',
-          border: '1px solid #e2e8f0'
+          border: '1px solid #374151'
         }}>
           <h3 style={{
             margin: '0 0 1.5rem 0',
-            color: '#1e293b',
+            color: 'white',
             fontSize: '1.5rem',
             fontWeight: '600'
           }}>
@@ -3700,9 +3700,9 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
         <div style={{
           textAlign: 'center',
           padding: '4rem 2rem',
-          backgroundColor: '#f1f5f9',
+          backgroundColor: '#1f2937',
           borderRadius: '12px',
-          border: '2px dashed #cbd5e1'
+          border: '2px dashed #374151'
         }}>
           <div style={{
             fontSize: '4rem',
@@ -3711,7 +3711,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
             📝
           </div>
           <h3 style={{
-            color: '#475569',
+            color: 'white',
             fontSize: '1.5rem',
             fontWeight: '600',
             margin: '0 0 1rem 0'
@@ -3719,7 +3719,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
             Content Coming Soon
           </h3>
           <p style={{
-            color: '#64748b',
+            color: '#9ca3af',
             fontSize: '1.1rem',
             maxWidth: '500px',
             margin: '0 auto'
@@ -3736,10 +3736,10 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
 
             return (
               <div key={index} style={{
-                backgroundColor: 'white',
+                backgroundColor: '#1f2937',
                 borderRadius: '12px',
                 marginBottom: '2rem',
-                border: '1px solid #e5e7eb',
+                border: '1px solid #374151',
                 overflow: 'hidden',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
               }}>
@@ -3751,8 +3751,8 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                   style={{
                     padding: '2rem',
                     cursor: 'pointer',
-                    backgroundColor: colors.secondary,
-                    borderBottom: isExpanded ? '1px solid #e5e7eb' : 'none',
+                    backgroundColor: '#374151',
+                    borderBottom: isExpanded ? '1px solid #374151' : 'none',
                     transition: 'all 0.2s ease'
                   }}
                 >
@@ -3768,7 +3768,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                     }}>
                       <div style={{
                         color: colors.primary,
-                        backgroundColor: 'white',
+                        backgroundColor: '#1f2937',
                         padding: '0.75rem',
                         borderRadius: '8px',
                         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
@@ -3778,7 +3778,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                       <div>
                         <h3 style={{
                           margin: 0,
-                          color: colors.accent,
+                          color: 'white',
                           fontSize: '1.5rem',
                           fontWeight: '700'
                         }}>
@@ -3786,7 +3786,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                         </h3>
                         <p style={{
                           margin: '0.5rem 0 0 0',
-                          color: '#6b7280',
+                          color: '#9ca3af',
                           fontSize: '1rem'
                         }}>
                           {section.description}
@@ -3794,7 +3794,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                       </div>
                     </div>
                     <div style={{
-                      color: colors.primary,
+                      color: 'white',
                       transition: 'transform 0.2s ease',
                       transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
                     }}>
@@ -3804,7 +3804,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                 </div>
 
                 {isExpanded && (
-                  <div style={{ padding: '2rem', backgroundColor: 'white' }}>
+                  <div style={{ padding: '2rem', backgroundColor: '#1f2937' }}>
                     {/* Modern Interactive Diagram */}
                     {section.diagram && (
                       <div style={{ marginBottom: '2rem' }}>
@@ -3834,7 +3834,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                       return (
                         <div key={subIndex} style={{
                           marginBottom: subIndex < section.subsections.length - 1 ? '2rem' : 0,
-                          border: '1px solid #f3f4f6',
+                          border: '1px solid #374151',
                           borderRadius: '8px',
                           overflow: 'hidden'
                         }}>
@@ -3846,8 +3846,8 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                             style={{
                               padding: '1.5rem',
                               cursor: 'pointer',
-                              backgroundColor: '#fafafa',
-                              borderBottom: isSubExpanded ? '1px solid #e5e7eb' : 'none',
+                              backgroundColor: '#374151',
+                              borderBottom: isSubExpanded ? '1px solid #374151' : 'none',
                               transition: 'all 0.2s ease'
                             }}
                           >
@@ -3858,14 +3858,14 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                             }}>
                               <h4 style={{
                                 margin: 0,
-                                color: '#374151',
+                                color: 'white',
                                 fontSize: '1.25rem',
                                 fontWeight: '600'
                               }}>
                                 {subsection.subtitle}
                               </h4>
                               <div style={{
-                                color: colors.primary,
+                                color: 'white',
                                 transition: 'transform 0.2s ease',
                                 transform: isSubExpanded ? 'rotate(90deg)' : 'rotate(0deg)'
                               }}>
@@ -3875,7 +3875,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                           </div>
 
                           {isSubExpanded && (
-                            <div style={{ padding: '1.5rem', backgroundColor: 'white' }}>
+                            <div style={{ padding: '1.5rem', backgroundColor: '#1f2937' }}>
                               {subsection.details?.map((detail, detailIndex) => (
                                 <div key={detailIndex} style={{
                                   display: 'flex',
@@ -3895,11 +3895,11 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                                     <Tooltip content={detail.tooltip} position="right">
                                       <p style={{
                                         margin: 0,
-                                        color: '#4b5563',
+                                        color: '#9ca3af',
                                         fontSize: '0.95rem',
                                         lineHeight: '1.6',
                                         cursor: detail.tooltip ? 'help' : 'default',
-                                        borderBottom: detail.tooltip ? '1px dotted #9ca3af' : 'none'
+                                        borderBottom: detail.tooltip ? '1px dotted #6b7280' : 'none'
                                       }}>
                                         {detail.text}
                                       </p>
@@ -3911,7 +3911,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                               {subsection.codeExample && (
                                 <div style={{
                                   marginTop: '1rem',
-                                  border: '1px solid #e5e7eb',
+                                  border: '1px solid #374151',
                                   borderRadius: '8px',
                                   overflow: 'hidden'
                                 }}>
@@ -3962,15 +3962,15 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
 
         {/* Tech Stack - Second Instance */}
         <div style={{
-          backgroundColor: '#f8fafc',
+          backgroundColor: '#1f2937',
           borderRadius: '12px',
           padding: '2rem',
           marginTop: '3rem',
-          border: '1px solid #e2e8f0'
+          border: '1px solid #374151'
         }}>
           <h3 style={{
             margin: '0 0 1.5rem 0',
-            color: '#1e293b',
+            color: 'white',
             fontSize: '1.5rem',
             fontWeight: '600'
           }}>
@@ -4016,7 +4016,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
             animation: 'fadeIn 0.3s ease-in-out'
           }}>
             <div style={{
-              backgroundColor: 'white',
+              backgroundColor: '#1f2937',
               borderRadius: '16px',
               padding: '3rem',
               maxWidth: '1000px',
@@ -4025,7 +4025,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
               overflow: 'auto',
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3)',
               animation: 'slideIn 0.3s ease-out',
-              border: '2px solid #e5e7eb'
+              border: '2px solid #374151'
             }}>
               <div style={{
                 display: 'flex',
@@ -4035,7 +4035,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
               }}>
                 <h3 style={{
                   margin: 0,
-                  color: '#1f2937',
+                  color: 'white',
                   fontSize: '2rem',
                   fontWeight: '700',
                   display: 'flex',
@@ -4052,18 +4052,18 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                     border: 'none',
                     fontSize: '1.5rem',
                     cursor: 'pointer',
-                    color: '#6b7280',
+                    color: '#9ca3af',
                     padding: '0.5rem',
                     borderRadius: '6px',
                     transition: 'all 0.2s ease'
                   }}
                   onMouseOver={(e) => {
-                    e.target.style.backgroundColor = '#f3f4f6';
-                    e.target.style.color = '#374151';
+                    e.target.style.backgroundColor = '#374151';
+                    e.target.style.color = 'white';
                   }}
                   onMouseOut={(e) => {
                     e.target.style.backgroundColor = 'transparent';
-                    e.target.style.color = '#6b7280';
+                    e.target.style.color = '#9ca3af';
                   }}
                 >
                   ✕
@@ -4071,15 +4071,15 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
               </div>
 
               <div style={{
-                backgroundColor: '#f8fafc',
+                backgroundColor: '#374151',
                 borderRadius: '8px',
                 padding: '1.5rem',
                 marginBottom: '1.5rem',
-                border: '1px solid #e2e8f0'
+                border: '1px solid #374151'
               }}>
                 <h4 style={{
                   margin: '0 0 1.5rem 0',
-                  color: '#374151',
+                  color: 'white',
                   fontSize: '1.4rem',
                   fontWeight: '700'
                 }}>
@@ -4090,14 +4090,14 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                 {selectedComponent.description && (
                   <div style={{
                     padding: '1rem 1.5rem',
-                    backgroundColor: '#f0f9ff',
+                    backgroundColor: '#1f2937',
                     borderRadius: '10px',
-                    border: '2px solid #bfdbfe',
+                    border: '2px solid #3b82f6',
                     marginBottom: '1.5rem'
                   }}>
                     <p style={{
                       margin: 0,
-                      color: '#1e40af',
+                      color: '#93c5fd',
                       fontSize: '1rem',
                       fontWeight: '500',
                       lineHeight: '1.6'
@@ -4117,34 +4117,34 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                 }}>
                   <div style={{
                     padding: '1rem',
-                    backgroundColor: '#f8fafc',
+                    backgroundColor: '#1f2937',
                     borderRadius: '8px',
-                    border: '1px solid #e2e8f0'
+                    border: '1px solid #374151'
                   }}>
-                    <strong style={{ color: '#6b7280', fontSize: '0.9rem' }}>COMPONENT TYPE</strong>
-                    <div style={{ marginTop: '0.5rem', color: '#374151', fontWeight: '600', fontSize: '1.1rem' }}>
+                    <strong style={{ color: '#9ca3af', fontSize: '0.9rem' }}>COMPONENT TYPE</strong>
+                    <div style={{ marginTop: '0.5rem', color: 'white', fontWeight: '600', fontSize: '1.1rem' }}>
                       {selectedComponent.type || 'System Component'}
                     </div>
                   </div>
                   <div style={{
                     padding: '1rem',
-                    backgroundColor: '#f8fafc',
+                    backgroundColor: '#1f2937',
                     borderRadius: '8px',
-                    border: '1px solid #e2e8f0'
+                    border: '1px solid #374151'
                   }}>
-                    <strong style={{ color: '#6b7280', fontSize: '0.9rem' }}>COMPONENT ID</strong>
-                    <div style={{ marginTop: '0.5rem', color: '#374151', fontFamily: 'monospace', fontWeight: '600', fontSize: '1.1rem' }}>
+                    <strong style={{ color: '#9ca3af', fontSize: '0.9rem' }}>COMPONENT ID</strong>
+                    <div style={{ marginTop: '0.5rem', color: 'white', fontFamily: 'monospace', fontWeight: '600', fontSize: '1.1rem' }}>
                       {selectedComponent.id}
                     </div>
                   </div>
                   <div style={{
                     padding: '1rem',
-                    backgroundColor: '#f0fdf4',
+                    backgroundColor: '#064e3b',
                     borderRadius: '8px',
-                    border: '1px solid #bbf7d0'
+                    border: '1px solid #10b981'
                   }}>
-                    <strong style={{ color: '#16a34a', fontSize: '0.9rem' }}>STATUS</strong>
-                    <div style={{ marginTop: '0.5rem', color: '#15803d', fontWeight: '700', fontSize: '1.1rem' }}>
+                    <strong style={{ color: '#6ee7b7', fontSize: '0.9rem' }}>STATUS</strong>
+                    <div style={{ marginTop: '0.5rem', color: '#34d399', fontWeight: '700', fontSize: '1.1rem' }}>
                       ✅ Active & Healthy
                     </div>
                   </div>
@@ -4155,7 +4155,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                   <div style={{ marginBottom: '1rem' }}>
                     <h5 style={{
                       margin: '0 0 1rem 0',
-                      color: '#374151',
+                      color: 'white',
                       fontSize: '1.2rem',
                       fontWeight: '700',
                       display: 'flex',
@@ -4172,11 +4172,11 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
                       {selectedComponent.details.map((detail, idx) => (
                         <div key={idx} style={{
                           padding: '1rem 1.25rem',
-                          backgroundColor: 'white',
+                          backgroundColor: '#1f2937',
                           borderRadius: '8px',
-                          border: '2px solid #e5e7eb',
+                          border: '2px solid #374151',
                           fontSize: '1rem',
-                          color: '#374151',
+                          color: '#9ca3af',
                           fontWeight: '500',
                           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
                           transition: 'all 0.2s ease'
@@ -4193,14 +4193,14 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
 
               <div style={{
                 padding: '1rem',
-                backgroundColor: '#fef3c7',
+                backgroundColor: '#78350f',
                 borderRadius: '8px',
                 border: '1px solid #f59e0b',
                 marginBottom: '1.5rem'
               }}>
                 <p style={{
                   margin: 0,
-                  color: '#92400e',
+                  color: '#fcd34d',
                   fontSize: '0.9rem',
                   fontWeight: '500'
                 }}>

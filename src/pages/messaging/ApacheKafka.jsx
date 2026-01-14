@@ -702,7 +702,7 @@ Content-Type: application/json
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #7c2d12, #111827)',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       color: 'white',
       padding: '1.5rem'
     }}>
@@ -820,7 +820,7 @@ Content-Type: application/json
 
       <p style={{
         fontSize: '1.2rem',
-        color: '#4b5563',
+        color: '#9ca3af',
         textAlign: 'center',
         marginBottom: '3rem',
         lineHeight: '1.8'
@@ -858,7 +858,7 @@ Content-Type: application/json
                 onMouseEnter={(e) => e.target.style.backgroundColor = '#2563eb'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = '#3b82f6'}
               >
-                ← Back to All Concepts
+                ← Back to Categories
               </button>
               {concepts.map((concept) => (
                 <div
@@ -866,8 +866,8 @@ Content-Type: application/json
                   onClick={() => setSelectedConcept(concept)}
                   style={{
                     padding: '1rem',
-                    backgroundColor: selectedConcept.id === concept.id ? concept.color + '20' : '#f9fafb',
-                    border: `2px solid ${selectedConcept.id === concept.id ? concept.color : '#e5e7eb'}`,
+                    backgroundColor: selectedConcept.id === concept.id ? concept.color + '20' : '#1f2937',
+                    border: `2px solid ${selectedConcept.id === concept.id ? concept.color : '#374151'}`,
                     borderRadius: '8px',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
@@ -880,8 +880,8 @@ Content-Type: application/json
                   }}
                   onMouseLeave={(e) => {
                     if (selectedConcept.id !== concept.id) {
-                      e.currentTarget.style.backgroundColor = '#f9fafb'
-                      e.currentTarget.style.borderColor = '#e5e7eb'
+                      e.currentTarget.style.backgroundColor = '#1f2937'
+                      e.currentTarget.style.borderColor = '#374151'
                     }
                   }}
                 >
@@ -889,7 +889,7 @@ Content-Type: application/json
                   <div style={{
                     fontSize: '0.9rem',
                     fontWeight: '600',
-                    color: '#1f2937'
+                    color: 'white'
                   }}>
                     {concept.name}
                   </div>
@@ -900,7 +900,7 @@ Content-Type: application/json
             {/* Main content */}
             <div>
               <div style={{
-                backgroundColor: selectedConcept.color + '10',
+                backgroundColor: '#1f2937',
                 padding: '2rem',
                 borderRadius: '12px',
                 border: `3px solid ${selectedConcept.color}40`,
@@ -910,14 +910,14 @@ Content-Type: application/json
                 <h2 style={{
                   fontSize: '2rem',
                   fontWeight: '800',
-                  color: '#1f2937',
+                  color: 'white',
                   marginBottom: '1rem'
                 }}>
                   {selectedConcept.name}
                 </h2>
                 <p style={{
                   fontSize: '1.1rem',
-                  color: '#4b5563',
+                  color: '#9ca3af',
                   lineHeight: '1.8'
                 }}>
                   {selectedConcept.description}
@@ -932,10 +932,10 @@ Content-Type: application/json
                   <div
                     key={index}
                     style={{
-                      backgroundColor: 'white',
+                      backgroundColor: '#1f2937',
                       padding: '1.5rem',
                       borderRadius: '12px',
-                      border: `2px solid ${selectedConcept.color}30`,
+                      border: `2px solid #374151`,
                       boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                     }}
                   >
@@ -962,7 +962,7 @@ Content-Type: application/json
                       <h3 style={{
                         fontSize: '1.1rem',
                         fontWeight: '700',
-                        color: '#1f2937',
+                        color: 'white',
                         margin: 0
                       }}>
                         {detail.name}
@@ -970,7 +970,7 @@ Content-Type: application/json
                     </div>
                     <p style={{
                       fontSize: '1rem',
-                      color: '#4b5563',
+                      color: '#9ca3af',
                       lineHeight: '1.7',
                       margin: 0
                     }}>
@@ -1002,10 +1002,10 @@ Content-Type: application/json
               key={concept.id}
               onClick={() => setSelectedConcept(concept)}
               style={{
-                backgroundColor: concept.color + '10',
+                backgroundColor: '#1f2937',
                 padding: '2rem',
                 borderRadius: '12px',
-                border: `3px solid ${concept.color}40`,
+                border: `3px solid #374151`,
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
                 transform: 'translateY(0)'
@@ -1013,24 +1013,26 @@ Content-Type: application/json
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-8px)'
                 e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.15)'
+                e.currentTarget.style.borderColor = concept.color
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = 'none'
+                e.currentTarget.style.borderColor = '#374151'
               }}
             >
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{concept.icon}</div>
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: 'white',
                 marginBottom: '0.75rem'
               }}>
                 {concept.name}
               </h3>
               <p style={{
                 fontSize: '0.95rem',
-                color: '#4b5563',
+                color: '#9ca3af',
                 lineHeight: '1.6',
                 marginBottom: '1rem'
               }}>

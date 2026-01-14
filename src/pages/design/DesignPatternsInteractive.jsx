@@ -1593,7 +1593,7 @@ Complexity: O(1) time, O(1) space`
 
   if (!selectedQuestion) {
     return (
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', minHeight: '100vh', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', color: 'white' }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -1621,7 +1621,7 @@ Complexity: O(1) time, O(1) space`
               ← Back to Practice
             </button>
             <div>
-              <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem', color: '#1f2937' }}>
+              <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem', color: 'white' }}>
                 Design Patterns Practice
               </h1>
               {currentSubcategory && (
@@ -1692,7 +1692,7 @@ Complexity: O(1) time, O(1) space`
 
         <Breadcrumb breadcrumb={breadcrumb} />
 
-        <p style={{ fontSize: '1.1rem', color: '#6b7280', marginBottom: '2rem' }}>
+        <p style={{ fontSize: '1.1rem', color: '#9ca3af', marginBottom: '2rem' }}>
           Implement classic GoF design patterns with hands-on coding exercises
         </p>
 
@@ -1707,11 +1707,11 @@ Complexity: O(1) time, O(1) space`
                 onClick={() => handleQuestionSelect(q)}
                 style={{
                   padding: '1.5rem',
-                  border: isCompleted ? '3px solid #10b981' : '2px solid #e5e7eb',
+                  border: isCompleted ? '3px solid #10b981' : '2px solid #374151',
                   borderRadius: '12px',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
-                  backgroundColor: isCompleted ? '#f0fdf4' : 'white',
+                  backgroundColor: isCompleted ? 'rgba(16, 185, 129, 0.15)' : 'rgba(30, 41, 59, 0.8)',
                   boxShadow: isCompleted ? '0 2px 12px rgba(16, 185, 129, 0.2)' : 'none',
                   position: 'relative'
                 }}
@@ -1720,7 +1720,7 @@ Complexity: O(1) time, O(1) space`
                   e.currentTarget.style.boxShadow = isCompleted ? '0 4px 16px rgba(16, 185, 129, 0.3)' : '0 4px 12px rgba(59, 130, 246, 0.15)'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = isCompleted ? '#10b981' : '#e5e7eb'
+                  e.currentTarget.style.borderColor = isCompleted ? '#10b981' : '#374151'
                   e.currentTarget.style.boxShadow = isCompleted ? '0 2px 12px rgba(16, 185, 129, 0.2)' : 'none'
                 }}
               >
@@ -1747,7 +1747,7 @@ Complexity: O(1) time, O(1) space`
                   </div>
                 )}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
-                  <h3 style={{ fontSize: '1.25rem', color: '#1f2937', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <h3 style={{ fontSize: '1.25rem', color: 'white', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     {q.id}. {q.title}
                     {isCompleted && <span style={{ fontSize: '0.9rem', color: '#10b981' }}>✓</span>}
                   </h3>
@@ -1762,7 +1762,7 @@ Complexity: O(1) time, O(1) space`
                     {q.difficulty}
                   </span>
                 </div>
-                <p style={{ color: '#6b7280', margin: 0 }}>{q.description}</p>
+                <p style={{ color: '#9ca3af', margin: 0 }}>{q.description}</p>
               </div>
             )
           })}

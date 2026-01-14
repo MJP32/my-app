@@ -1192,10 +1192,10 @@ docker push my-app:latest
       padding: '2rem',
       maxWidth: '95%',
       margin: '120px auto 0',
-      backgroundColor: 'white',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       borderRadius: '16px',
       boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-      border: '3px solid rgba(14, 165, 233, 0.4)'
+      border: '3px solid #374151'
     }}>
       <div style={{
         display: 'flex',
@@ -1223,25 +1223,25 @@ docker push my-app:latest
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
           >
-            ← Back to Menu
+            ← Back to DevOps
           </button>
           <div>
             <h1 style={{
               fontSize: '2.5rem',
               fontWeight: '800',
-              color: '#1f2937',
+              color: 'white',
               margin: 0,
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
             }}>
-              🐳 Docker
+              Docker
             </h1>
             {currentSubcategory && (
               <span style={{
                 padding: '0.25rem 0.75rem',
                 fontSize: '0.85rem',
                 fontWeight: '600',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
+                backgroundColor: '#374151',
+                color: '#60a5fa',
                 borderRadius: '6px',
                 marginTop: '0.25rem',
                 display: 'inline-block'
@@ -1306,15 +1306,15 @@ docker push my-app:latest
       <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
-        backgroundColor: 'rgba(14, 165, 233, 0.05)',
+        background: 'linear-gradient(to bottom right, #1f2937, #111827)',
         padding: '2.5rem 10rem',
         borderRadius: '16px',
-        border: '3px solid rgba(14, 165, 233, 0.3)',
+        border: '3px solid #374151',
         marginBottom: '2rem'
       }}>
         <p style={{
           fontSize: '1.3rem',
-          color: '#374151',
+          color: '#9ca3af',
           fontWeight: '500',
           margin: 0,
           lineHeight: '1.8',
@@ -1337,10 +1337,10 @@ docker push my-app:latest
               key={topic.id}
               onClick={() => setSelectedTopic(topic)}
               style={{
-                backgroundColor: 'rgba(14, 165, 233, 0.05)',
+                backgroundColor: '#1f2937',
                 padding: '2rem',
                 borderRadius: '12px',
-                border: '2px solid rgba(14, 165, 233, 0.2)',
+                border: '2px solid #374151',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 height: '200px',
@@ -1349,14 +1349,14 @@ docker push my-app:latest
                 justifyContent: 'space-between'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(14, 165, 233, 0.1)'
+                e.currentTarget.style.backgroundColor = '#374151'
                 e.currentTarget.style.borderColor = topic.color
                 e.currentTarget.style.transform = 'translateY(-4px)'
                 e.currentTarget.style.boxShadow = `0 8px 16px ${topic.color}33`
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(14, 165, 233, 0.05)'
-                e.currentTarget.style.borderColor = 'rgba(14, 165, 233, 0.2)'
+                e.currentTarget.style.backgroundColor = '#1f2937'
+                e.currentTarget.style.borderColor = '#374151'
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = 'none'
               }}
@@ -1378,7 +1378,7 @@ docker push my-app:latest
                 </h3>
                 <p style={{
                   fontSize: '0.9rem',
-                  color: '#6b7280',
+                  color: '#9ca3af',
                   margin: 0,
                   lineHeight: '1.5'
                 }}>
@@ -1402,7 +1402,7 @@ docker push my-app:latest
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: 'white',
                 marginBottom: '1.5rem'
               }}>
                 Docker Topics
@@ -1418,25 +1418,25 @@ docker push my-app:latest
                     style={{
                       backgroundColor: selectedTopic?.id === topic.id
                         ? `${topic.color}15`
-                        : 'rgba(14, 165, 233, 0.05)',
+                        : '#1f2937',
                       padding: '1rem',
                       borderRadius: '8px',
                       border: selectedTopic?.id === topic.id
                         ? `3px solid ${topic.color}`
-                        : '2px solid rgba(14, 165, 233, 0.2)',
+                        : '2px solid #374151',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
                       if (selectedTopic?.id !== topic.id) {
-                        e.currentTarget.style.backgroundColor = 'rgba(14, 165, 233, 0.1)'
-                        e.currentTarget.style.borderColor = 'rgba(14, 165, 233, 0.4)'
+                        e.currentTarget.style.backgroundColor = '#374151'
+                        e.currentTarget.style.borderColor = '#4b5563'
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (selectedTopic?.id !== topic.id) {
-                        e.currentTarget.style.backgroundColor = 'rgba(14, 165, 233, 0.05)'
-                        e.currentTarget.style.borderColor = 'rgba(14, 165, 233, 0.2)'
+                        e.currentTarget.style.backgroundColor = '#1f2937'
+                        e.currentTarget.style.borderColor = '#374151'
                       }
                     }}
                   >
@@ -1449,7 +1449,7 @@ docker push my-app:latest
                       <div style={{
                         fontSize: '1rem',
                         fontWeight: '700',
-                        color: selectedTopic?.id === topic.id ? topic.color : '#1f2937'
+                        color: selectedTopic?.id === topic.id ? topic.color : 'white'
                       }}>
                         {topic.name}
                       </div>
@@ -1476,7 +1476,7 @@ docker push my-app:latest
 
               {/* Explanation */}
               <div style={{
-                backgroundColor: `${selectedTopic.color}08`,
+                backgroundColor: '#1f2937',
                 padding: '1.5rem',
                 borderRadius: '12px',
                 border: `2px solid ${selectedTopic.color}33`,
@@ -1484,7 +1484,7 @@ docker push my-app:latest
               }}>
                 <p style={{
                   fontSize: '1rem',
-                  color: '#374151',
+                  color: '#9ca3af',
                   fontWeight: '500',
                   margin: 0,
                   lineHeight: '1.7',
@@ -1496,7 +1496,7 @@ docker push my-app:latest
 
               {/* Key Points */}
               <div style={{
-                backgroundColor: 'white',
+                backgroundColor: '#1f2937',
                 padding: '1.5rem',
                 borderRadius: '12px',
                 border: `2px solid ${selectedTopic.color}33`,
@@ -1508,7 +1508,7 @@ docker push my-app:latest
                   color: selectedTopic.color,
                   margin: '0 0 1rem 0'
                 }}>
-                  📌 Key Points
+                  Key Points
                 </h4>
                 <div style={{
                   display: 'grid',
@@ -1522,10 +1522,10 @@ docker push my-app:latest
                         alignItems: 'flex-start',
                         gap: '0.5rem',
                         padding: '0.75rem',
-                        backgroundColor: `${selectedTopic.color}08`,
+                        backgroundColor: '#111827',
                         borderRadius: '6px',
                         fontSize: '0.9rem',
-                        color: '#374151',
+                        color: '#9ca3af',
                         lineHeight: '1.6'
                       }}
                     >
@@ -1570,8 +1570,8 @@ docker push my-app:latest
                   <div
                     key={index}
                     style={{
-                      backgroundColor: 'white',
-                      border: '1px solid #e5e7eb',
+                      backgroundColor: '#1f2937',
+                      border: '1px solid #374151',
                       borderRadius: '12px',
                       marginBottom: '1rem',
                       overflow: 'hidden'
@@ -1583,9 +1583,9 @@ docker push my-app:latest
                       style={{
                         width: '100%',
                         padding: '1rem 1.5rem',
-                        backgroundColor: isExpanded ? `${selectedTopic.color}10` : 'white',
+                        backgroundColor: isExpanded ? `${selectedTopic.color}15` : '#1f2937',
                         border: 'none',
-                        borderBottom: isExpanded ? '1px solid #e5e7eb' : 'none',
+                        borderBottom: isExpanded ? '1px solid #374151' : 'none',
                         cursor: 'pointer',
                         display: 'flex',
                         justifyContent: 'space-between',
@@ -1593,10 +1593,10 @@ docker push my-app:latest
                         transition: 'all 0.2s ease'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = `${selectedTopic.color}15`
+                        e.currentTarget.style.backgroundColor = `${selectedTopic.color}20`
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = isExpanded ? `${selectedTopic.color}10` : 'white'
+                        e.currentTarget.style.backgroundColor = isExpanded ? `${selectedTopic.color}15` : '#1f2937'
                       }}
                     >
                       <span style={{

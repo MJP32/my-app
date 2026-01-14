@@ -17,15 +17,6 @@ const customTheme = {
 
 function StringAlgorithms({ onBack, breadcrumb }) {
   const [expandedAlgorithm, setExpandedAlgorithm] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
-
-  const toggleSection = (conceptIndex, sectionIndex) => {
-    const key = `${conceptIndex}-${sectionIndex}`
-    setExpandedSections(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }))
-  }
 
   const parseCodeSections = (codeString) => {
     const sections = codeString.split('\n\n')
@@ -1020,7 +1011,7 @@ print(f"Autocomplete 'app': {trie.autocomplete('app')}")`
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       color: 'white',
       padding: '1.5rem'
     }}>
@@ -2057,57 +2048,33 @@ print(f"Autocomplete 'app': {trie.autocomplete('app')}")`
                   {parseCodeSections(algo.code).map(
                     (section, idx) => (
                       <div key={section.id} style={{ marginBottom: '1rem' }}>
-                        <button
-                          onClick={() =>
-                            toggleSection(
-                              algorithms.indexOf(algo),
-                              idx
-                            )
-                          }
+                        <div
                           style={{
                             width: '100%',
                             background: '#2563eb',
                             color: 'white',
                             padding: '0.5rem 1rem',
                             borderRadius: '0.5rem',
-                            border: 'none',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
                             marginBottom: '0.5rem',
                             textAlign: 'left',
                             fontWeight: '500',
                             fontSize: '1rem'
                           }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#1d4ed8'
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#2563eb'
+                        >
+                          Code Block {idx + 1}
+                        </div>
+                        <SyntaxHighlighter
+                          language="python"
+                          style={customTheme}
+                          customStyle={{
+                            padding: '1.5rem',
+                            borderRadius: '0.5rem',
+                            fontSize: '0.9rem',
+                            border: '1px solid #3b82f6'
                           }}
                         >
-                          {expandedSections[
-                            `${algorithms.indexOf(algo)}-${idx}`
-                          ]
-                            ? '▼'
-                            : '▶'}{' '}
-                          Code Block {idx + 1}
-                        </button>
-                        {expandedSections[
-                          `${algorithms.indexOf(algo)}-${idx}`
-                        ] && (
-                          <SyntaxHighlighter
-                            language="python"
-                            style={customTheme}
-                            customStyle={{
-                              padding: '1.5rem',
-                              borderRadius: '0.5rem',
-                              fontSize: '0.9rem',
-                              border: '1px solid #3b82f6'
-                            }}
-                          >
-                            {section.code}
-                          </SyntaxHighlighter>
-                        )}
+                          {section.code}
+                        </SyntaxHighlighter>
                       </div>
                     )
                   )}

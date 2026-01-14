@@ -3235,10 +3235,10 @@ public class ScalingAgile {
       padding: '2rem',
       maxWidth: '95%',
       margin: '120px auto 0',
-      backgroundColor: 'white',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       borderRadius: '16px',
       boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-      border: '3px solid rgba(14, 165, 233, 0.4)'
+      border: '3px solid #374151'
     }}>
       <div style={{
         display: 'flex',
@@ -3265,11 +3265,11 @@ public class ScalingAgile {
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '800',
-          color: '#1f2937',
+          color: 'white',
           margin: 0,
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
         }}>
-          🔄 Agile & Scrum
+          Agile & Scrum
         </h1>
         <div style={{ width: '120px' }}></div>
       </div>
@@ -3277,15 +3277,15 @@ public class ScalingAgile {
       <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
-        backgroundColor: 'rgba(14, 165, 233, 0.05)',
+        backgroundColor: '#1f2937',
         padding: '2.5rem 10rem',
         borderRadius: '16px',
-        border: '3px solid rgba(14, 165, 233, 0.3)',
+        border: '3px solid #374151',
         marginBottom: '2rem'
       }}>
         <p style={{
           fontSize: '1.3rem',
-          color: '#374151',
+          color: '#9ca3af',
           fontWeight: '500',
           margin: 0,
           lineHeight: '1.8',
@@ -3307,10 +3307,10 @@ public class ScalingAgile {
               key={topic.id}
               onClick={() => setSelectedTopic(topic)}
               style={{
-                backgroundColor: 'rgba(14, 165, 233, 0.05)',
+                backgroundColor: '#1f2937',
                 padding: '2rem',
                 borderRadius: '12px',
-                border: '2px solid rgba(14, 165, 233, 0.2)',
+                border: '2px solid #374151',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 height: '200px',
@@ -3319,14 +3319,14 @@ public class ScalingAgile {
                 justifyContent: 'space-between'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(14, 165, 233, 0.1)'
+                e.currentTarget.style.backgroundColor = '#374151'
                 e.currentTarget.style.borderColor = topic.color
                 e.currentTarget.style.transform = 'translateY(-4px)'
                 e.currentTarget.style.boxShadow = `0 8px 16px ${topic.color}33`
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(14, 165, 233, 0.05)'
-                e.currentTarget.style.borderColor = 'rgba(14, 165, 233, 0.2)'
+                e.currentTarget.style.backgroundColor = '#1f2937'
+                e.currentTarget.style.borderColor = '#374151'
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = 'none'
               }}
@@ -3343,7 +3343,7 @@ public class ScalingAgile {
                 </h3>
                 <p style={{
                   fontSize: '0.9rem',
-                  color: '#6b7280',
+                  color: '#9ca3af',
                   margin: 0,
                   lineHeight: '1.5'
                 }}>
@@ -3366,7 +3366,7 @@ public class ScalingAgile {
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
-                color: '#1f2937',
+                color: 'white',
                 marginBottom: '1.5rem'
               }}>
                 Agile & Scrum Topics
@@ -3379,25 +3379,25 @@ public class ScalingAgile {
                     style={{
                       backgroundColor: selectedTopic?.id === topic.id
                         ? `${topic.color}15`
-                        : 'rgba(14, 165, 233, 0.05)',
+                        : '#1f2937',
                       padding: '1rem',
                       borderRadius: '8px',
                       border: selectedTopic?.id === topic.id
                         ? `3px solid ${topic.color}`
-                        : '2px solid rgba(14, 165, 233, 0.2)',
+                        : '2px solid #374151',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
                       if (selectedTopic?.id !== topic.id) {
-                        e.currentTarget.style.backgroundColor = 'rgba(14, 165, 233, 0.1)'
-                        e.currentTarget.style.borderColor = 'rgba(14, 165, 233, 0.4)'
+                        e.currentTarget.style.backgroundColor = '#374151'
+                        e.currentTarget.style.borderColor = '#4b5563'
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (selectedTopic?.id !== topic.id) {
-                        e.currentTarget.style.backgroundColor = 'rgba(14, 165, 233, 0.05)'
-                        e.currentTarget.style.borderColor = 'rgba(14, 165, 233, 0.2)'
+                        e.currentTarget.style.backgroundColor = '#1f2937'
+                        e.currentTarget.style.borderColor = '#374151'
                       }
                     }}
                   >
@@ -3410,7 +3410,7 @@ public class ScalingAgile {
                       <div style={{
                         fontSize: '1rem',
                         fontWeight: '700',
-                        color: selectedTopic?.id === topic.id ? topic.color : '#1f2937'
+                        color: selectedTopic?.id === topic.id ? topic.color : 'white'
                       }}>
                         {topic.name}
                       </div>
@@ -3435,15 +3435,15 @@ public class ScalingAgile {
               </h3>
 
               <div style={{
-                backgroundColor: `${selectedTopic.color}08`,
+                backgroundColor: '#1f2937',
                 padding: '1.5rem',
                 borderRadius: '12px',
-                border: `2px solid ${selectedTopic.color}33`,
+                border: '2px solid #374151',
                 marginBottom: '1.5rem'
               }}>
                 <p style={{
                   fontSize: '1rem',
-                  color: '#374151',
+                  color: '#9ca3af',
                   fontWeight: '500',
                   margin: 0,
                   lineHeight: '1.7',
@@ -3454,10 +3454,10 @@ public class ScalingAgile {
               </div>
 
               <div style={{
-                backgroundColor: 'white',
+                backgroundColor: '#1f2937',
                 padding: '1.5rem',
                 borderRadius: '12px',
-                border: `2px solid ${selectedTopic.color}33`,
+                border: '2px solid #374151',
                 marginBottom: '1.5rem'
               }}>
                 <h4 style={{
@@ -3466,7 +3466,7 @@ public class ScalingAgile {
                   color: selectedTopic.color,
                   margin: '0 0 1rem 0'
                 }}>
-                  📌 Key Points
+                  Key Points
                 </h4>
                 <div style={{ display: 'grid', gap: '0.75rem' }}>
                   {selectedTopic.content.keyPoints.map((point, idx) => (
@@ -3477,10 +3477,10 @@ public class ScalingAgile {
                         alignItems: 'flex-start',
                         gap: '0.5rem',
                         padding: '0.75rem',
-                        backgroundColor: `${selectedTopic.color}08`,
+                        backgroundColor: '#374151',
                         borderRadius: '6px',
                         fontSize: '0.9rem',
-                        color: '#374151',
+                        color: '#9ca3af',
                         lineHeight: '1.6'
                       }}
                     >
@@ -3505,13 +3505,13 @@ public class ScalingAgile {
                   color: selectedTopic.color,
                   margin: '0 0 1rem 0'
                 }}>
-                  💻 Code Examples
+                  Code Examples
                 </h4>
                 <div style={{
                   backgroundColor: '#1e293b',
                   padding: '1.5rem',
                   borderRadius: '12px',
-                  border: '2px solid #334155'
+                  border: '2px solid #374151'
                 }}>
                   <SyntaxHighlighter code={selectedTopic.content.codeExample} />
                 </div>

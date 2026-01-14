@@ -7,15 +7,6 @@ import Breadcrumb from '../../components/Breadcrumb'
 function PythonStringMethods({ onBack, breadcrumb }) {
   const [selectedProblem, setSelectedProblem] = useState(null)
   const [showSolution, setShowSolution] = useState(false)
-  const [expandedSections, setExpandedSections] = useState({})
-
-  const toggleSection = (conceptIndex, sectionIndex) => {
-    const key = `${conceptIndex}-${sectionIndex}`
-    setExpandedSections(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }))
-  }
 
   const parseCodeSections = (codeString) => {
     const sections = codeString.split('\n\n')
@@ -1360,7 +1351,7 @@ def safe_encode(text, encoding='utf-8'):
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
           >
-            ← Back to Problems
+            ← Back to Python
           </button>
           <button
             onClick={onBack}
@@ -1377,7 +1368,7 @@ def safe_encode(text, encoding='utf-8'):
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
           >
-            ← Back to Python Topics
+            ← Back to Python
           </button>
         </div>
 
@@ -1430,45 +1421,33 @@ def safe_encode(text, encoding='utf-8'):
             </h3>
             {parseCodeSections(problem.example).map((section, idx) => (
               <div key={section.id} style={{ marginBottom: '1rem' }}>
-                <button
-                  onClick={() => toggleSection(`example-${problem.id}`, idx)}
+                <div
                   style={{
                     width: '100%',
                     background: '#2563eb',
                     color: 'white',
                     padding: '0.5rem 1rem',
                     borderRadius: '0.5rem',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
                     marginBottom: '0.5rem',
                     textAlign: 'left',
                     fontWeight: '500',
                     fontSize: '1rem'
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#1d4ed8'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = '#2563eb'
+                >
+                  Code Block {idx + 1}
+                </div>
+                <SyntaxHighlighter
+                  language="python"
+                  style={vscDarkPlus}
+                  customStyle={{
+                    padding: '1.5rem',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.9rem',
+                    border: '1px solid #3b82f6'
                   }}
                 >
-                  {expandedSections[`example-${problem.id}-${idx}`] ? '▼' : '▶'} Code Block {idx + 1}
-                </button>
-                {expandedSections[`example-${problem.id}-${idx}`] && (
-                  <SyntaxHighlighter
-                    language="python"
-                    style={vscDarkPlus}
-                    customStyle={{
-                      padding: '1.5rem',
-                      borderRadius: '0.5rem',
-                      fontSize: '0.9rem',
-                      border: '1px solid #3b82f6'
-                    }}
-                  >
-                    {section.code}
-                  </SyntaxHighlighter>
-                )}
+                  {section.code}
+                </SyntaxHighlighter>
               </div>
             ))}
           </div>
@@ -1534,45 +1513,33 @@ def safe_encode(text, encoding='utf-8'):
               </h3>
               {parseCodeSections(problem.solution).map((section, idx) => (
                 <div key={section.id} style={{ marginBottom: '1rem' }}>
-                  <button
-                    onClick={() => toggleSection(`solution-${problem.id}`, idx)}
+                  <div
                     style={{
                       width: '100%',
                       background: '#2563eb',
                       color: 'white',
                       padding: '0.5rem 1rem',
                       borderRadius: '0.5rem',
-                      border: 'none',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
                       marginBottom: '0.5rem',
                       textAlign: 'left',
                       fontWeight: '500',
                       fontSize: '1rem'
                     }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = '#1d4ed8'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = '#2563eb'
+                  >
+                    Code Block {idx + 1}
+                  </div>
+                  <SyntaxHighlighter
+                    language="python"
+                    style={vscDarkPlus}
+                    customStyle={{
+                      padding: '1.5rem',
+                      borderRadius: '0.5rem',
+                      fontSize: '0.9rem',
+                      border: '1px solid #3b82f6'
                     }}
                   >
-                    {expandedSections[`solution-${problem.id}-${idx}`] ? '▼' : '▶'} Code Block {idx + 1}
-                  </button>
-                  {expandedSections[`solution-${problem.id}-${idx}`] && (
-                    <SyntaxHighlighter
-                      language="python"
-                      style={vscDarkPlus}
-                      customStyle={{
-                        padding: '1.5rem',
-                        borderRadius: '0.5rem',
-                        fontSize: '0.9rem',
-                        border: '1px solid #3b82f6'
-                      }}
-                    >
-                      {section.code}
-                    </SyntaxHighlighter>
-                  )}
+                    {section.code}
+                  </SyntaxHighlighter>
                 </div>
               ))}
 
@@ -1627,7 +1594,7 @@ def safe_encode(text, encoding='utf-8'):
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
         >
-          ← Back to Python Topics
+          ← Back to Python
         </button>
         <h1 style={{
           fontSize: '2.5rem',

@@ -219,7 +219,7 @@ function JVMInternals({ onBack, breadcrumb }) {
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1600px', margin: '0 auto' }}>
+    <div style={{ padding: '2rem', maxWidth: '1600px', margin: '0 auto', minHeight: '100vh', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)' }}>
       {/* Header */}
       <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
         <button
@@ -238,9 +238,9 @@ function JVMInternals({ onBack, breadcrumb }) {
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#6d28d9'}
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
         >
-          ← Back to Menu
+          ← Back to Java
         </button>
-        <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '800', color: '#1f2937' }}>
+        <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '800', color: '#f3f4f6' }}>
           JVM Internals Practice
         </h1>
       </div>
@@ -288,25 +288,27 @@ function JVMInternals({ onBack, breadcrumb }) {
 
       {/* Problem Description */}
       <div style={{
-        backgroundColor: '#faf5ff',
+        backgroundColor: '#1f2937',
         padding: '1.5rem',
         borderRadius: '12px',
         borderLeft: '4px solid #7c3aed',
-        marginBottom: '1.5rem'
+        marginBottom: '1.5rem',
+        border: '1px solid #374151'
       }}>
-        <h2 style={{ margin: '0 0 1rem 0', fontSize: '1.5rem', fontWeight: '700', color: '#5b21b6' }}>
+        <h2 style={{ margin: '0 0 1rem 0', fontSize: '1.5rem', fontWeight: '700', color: 'white' }}>
           {exercises[selectedExercise].title}
         </h2>
-        <p style={{ fontSize: '1rem', lineHeight: '1.7', color: '#5b21b6', marginBottom: '1rem' }}>
+        <p style={{ fontSize: '1rem', lineHeight: '1.7', color: '#9ca3af', marginBottom: '1rem' }}>
           {exercises[selectedExercise].description}
         </p>
         <div style={{
-          backgroundColor: '#ede9fe',
+          backgroundColor: '#111827',
           padding: '1rem',
           borderRadius: '8px',
-          marginTop: '1rem'
+          marginTop: '1rem',
+          border: '1px solid #374151'
         }}>
-          <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.95rem', fontWeight: '600', color: '#5b21b6' }}>
+          <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.95rem', fontWeight: '600', color: 'white' }}>
             Expected Output:
           </p>
           <pre style={{
@@ -314,7 +316,7 @@ function JVMInternals({ onBack, breadcrumb }) {
             fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
             fontSize: '0.9rem',
             lineHeight: '1.6',
-            color: '#5b21b6',
+            color: '#9ca3af',
             whiteSpace: 'pre-wrap'
           }}>
             {exercises[selectedExercise].expectedOutput}
@@ -324,15 +326,16 @@ function JVMInternals({ onBack, breadcrumb }) {
 
       {/* Code Editor */}
       <div style={{
-        backgroundColor: '#1e293b',
+        backgroundColor: '#1f2937',
         borderRadius: '12px',
         overflow: 'hidden',
-        marginBottom: '1rem'
+        marginBottom: '1rem',
+        border: '1px solid #374151'
       }}>
         <div style={{
-          backgroundColor: '#0f172a',
+          backgroundColor: '#111827',
           padding: '0.75rem 1rem',
-          borderBottom: '1px solid #334155',
+          borderBottom: '1px solid #374151',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
@@ -364,7 +367,7 @@ function JVMInternals({ onBack, breadcrumb }) {
             fontSize: '0.9rem',
             lineHeight: '1.6',
             color: '#e2e8f0',
-            backgroundColor: '#1e293b',
+            backgroundColor: '#1f2937',
             border: 'none',
             outline: 'none',
             resize: 'vertical'
@@ -435,12 +438,13 @@ function JVMInternals({ onBack, breadcrumb }) {
       {/* Output Display */}
       {output && (
         <div style={{
-          backgroundColor: '#0f172a',
+          backgroundColor: '#1f2937',
           padding: '1rem',
           borderRadius: '8px',
-          marginBottom: '1rem'
+          marginBottom: '1rem',
+          border: '1px solid #374151'
         }}>
-          <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem', fontWeight: '700', color: '#60a5fa' }}>
+          <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem', fontWeight: '700', color: 'white' }}>
             Output:
           </h3>
           <pre style={{
@@ -448,7 +452,7 @@ function JVMInternals({ onBack, breadcrumb }) {
             fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
             fontSize: '0.85rem',
             lineHeight: '1.6',
-            color: '#e2e8f0',
+            color: '#9ca3af',
             whiteSpace: 'pre-wrap'
           }}>
             {output}
@@ -459,20 +463,20 @@ function JVMInternals({ onBack, breadcrumb }) {
       {/* Solution Display */}
       {showSolution && (
         <div style={{
-          backgroundColor: '#1e293b',
+          backgroundColor: '#1f2937',
           padding: '1.5rem',
           borderRadius: '8px',
-          border: '2px solid #10b981'
+          border: '1px solid #374151'
         }}>
-          <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: '700', color: '#10b981' }}>
-            💡 Solution:
+          <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: '700', color: 'white' }}>
+            Solution:
           </h3>
           <pre style={{
             margin: 0,
             fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
             fontSize: '0.85rem',
             lineHeight: '1.6',
-            color: '#e2e8f0',
+            color: '#9ca3af',
             whiteSpace: 'pre',
             overflowX: 'auto'
           }}>

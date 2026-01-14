@@ -3180,18 +3180,18 @@ Throughput:
 
   if (selectedQuestion) {
     return (
-      <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto', backgroundColor: '#faf5ff', minHeight: '100vh' }}>
+      <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', color: 'white', minHeight: '100vh' }}>
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <button onClick={() => setSelectedQuestion(null)} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
-            ← Back to Problems
+            ← Back to Practice
           </button>
           <LanguageToggle />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-          <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '12px', border: '2px solid #e5e7eb', maxHeight: '85vh', overflowY: 'auto' }}>
+          <div style={{ background: 'linear-gradient(to bottom right, #1f2937, #111827)', padding: '2rem', borderRadius: '12px', border: '2px solid #374151', maxHeight: '85vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.75rem', color: '#1f2937', margin: 0 }}>{selectedQuestion.title}</h2>
+              <h2 style={{ fontSize: '1.75rem', color: 'white', margin: 0 }}>{selectedQuestion.title}</h2>
               <span style={{ padding: '0.5rem 1rem', borderRadius: '12px', fontSize: '0.875rem', fontWeight: '600', backgroundColor: getDifficultyColor(selectedQuestion.difficulty) + '20', color: getDifficultyColor(selectedQuestion.difficulty) }}>
                 {selectedQuestion.difficulty}
               </span>
@@ -3202,18 +3202,18 @@ Throughput:
             </div>
 
             <div style={{ marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.1rem', color: '#374151', marginBottom: '0.75rem' }}>Description</h3>
-              <p style={{ fontSize: '1rem', color: '#6b7280', lineHeight: '1.6' }}>{selectedQuestion.description}</p>
+              <h3 style={{ fontSize: '1.1rem', color: '#d1d5db', marginBottom: '0.75rem' }}>Description</h3>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.6' }}>{selectedQuestion.description}</p>
             </div>
 
             <div style={{ marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.1rem', color: '#374151', marginBottom: '0.75rem' }}>Explanation</h3>
-              <p style={{ fontSize: '1rem', color: '#6b7280', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{selectedQuestion.explanation}</p>
+              <h3 style={{ fontSize: '1.1rem', color: '#d1d5db', marginBottom: '0.75rem' }}>Explanation</h3>
+              <p style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{selectedQuestion.explanation}</p>
             </div>
 
             <div style={{ marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.1rem', color: '#374151', marginBottom: '0.75rem' }}>Key Points</h3>
-              <ul style={{ fontSize: '1rem', color: '#6b7280', lineHeight: '1.8', paddingLeft: '1.5rem' }}>
+              <h3 style={{ fontSize: '1.1rem', color: '#d1d5db', marginBottom: '0.75rem' }}>Key Points</h3>
+              <ul style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: '1.8', paddingLeft: '1.5rem' }}>
                 {selectedQuestion.keyPoints.map((point, idx) => (
                   <li key={idx} style={{ marginBottom: '0.5rem' }}>{point}</li>
                 ))}
@@ -3236,15 +3236,15 @@ Throughput:
             )}
           </div>
 
-          <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '12px', border: '2px solid #e5e7eb', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ background: 'linear-gradient(to bottom right, #1f2937, #111827)', padding: '2rem', borderRadius: '12px', border: '2px solid #374151', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
             <div style={{ marginBottom: '1rem' }}>
-              <h3 style={{ fontSize: '1.25rem', color: '#1f2937', marginBottom: '1rem' }}>Implementation</h3>
+              <h3 style={{ fontSize: '1.25rem', color: 'white', marginBottom: '1rem' }}>Implementation</h3>
             </div>
 
             <textarea
               value={userCode}
               onChange={(e) => setUserCode(e.target.value)}
-              style={{ flex: 1, fontFamily: 'monospace', fontSize: '0.875rem', padding: '1rem', border: '1px solid #e5e7eb', borderRadius: '8px', resize: 'none', backgroundColor: '#1e1e1e', color: '#d4d4d4' }}
+              style={{ flex: 1, fontFamily: 'monospace', fontSize: '0.875rem', padding: '1rem', border: '1px solid #374151', borderRadius: '8px', resize: 'none', backgroundColor: '#1e1e1e', color: '#d4d4d4' }}
               spellCheck={false}
             />
 
@@ -3270,14 +3270,14 @@ Throughput:
             </div>
 
             {showExplanation && (
-              <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#f3f4f6', borderRadius: '8px', fontSize: '0.875rem', color: '#4b5563', lineHeight: '1.6' }}>
+              <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#374151', borderRadius: '8px', fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.6' }}>
                 {selectedQuestion.explanation}
               </div>
             )}
 
             {output && (
               <div style={{ marginTop: '1rem' }}>
-                <h4 style={{ fontSize: '1rem', color: '#374151', marginBottom: '0.5rem' }}>Output:</h4>
+                <h4 style={{ fontSize: '1rem', color: '#d1d5db', marginBottom: '0.5rem' }}>Output:</h4>
                 <pre style={{ backgroundColor: '#1e1e1e', color: '#d4d4d4', padding: '1rem', borderRadius: '8px', fontSize: '0.875rem', overflowX: 'auto' }}>
                   {output}
                 </pre>
@@ -3293,7 +3293,7 @@ Throughput:
   const grouped = groupedQuestions()
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#faf5ff', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', color: 'white', minHeight: '100vh' }}>
       <div style={{ marginBottom: '2rem' }}>
         <button onClick={onBack} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease', marginBottom: '1rem' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'} onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}>
           ← Back
@@ -3307,18 +3307,18 @@ Throughput:
         <Breadcrumb breadcrumb={breadcrumb} />
 
         <div style={{ display: 'flex', gap: '2rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
-          <div style={{ flex: '1', minWidth: '200px', backgroundColor: 'white', padding: '1.5rem', borderRadius: '12px', border: '2px solid #9333ea' }}>
+          <div style={{ flex: '1', minWidth: '200px', background: '#1f2937', padding: '1.5rem', borderRadius: '12px', border: '2px solid #9333ea' }}>
             <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#9333ea', marginBottom: '0.5rem' }}>
               {stats.completed}/{stats.total}
             </div>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>Problems Completed</div>
+            <div style={{ fontSize: '0.875rem', color: '#9ca3af' }}>Problems Completed</div>
           </div>
 
-          <div style={{ flex: '1', minWidth: '200px', backgroundColor: 'white', padding: '1.5rem', borderRadius: '12px', border: '2px solid #8b5cf6' }}>
+          <div style={{ flex: '1', minWidth: '200px', background: '#1f2937', padding: '1.5rem', borderRadius: '12px', border: '2px solid #8b5cf6' }}>
             <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#8b5cf6', marginBottom: '0.5rem' }}>
               {stats.percentage}%
             </div>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>Completion Rate</div>
+            <div style={{ fontSize: '0.875rem', color: '#9ca3af' }}>Completion Rate</div>
           </div>
         </div>
       </div>
@@ -3328,17 +3328,17 @@ Throughput:
           <div key={difficulty} style={{ marginBottom: '2rem' }}>
             <button
               onClick={() => toggleSection(difficulty)}
-              style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', backgroundColor: 'white', border: '2px solid #e5e7eb', borderRadius: '12px', cursor: 'pointer', marginBottom: '1rem' }}
+              style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', background: '#1f2937', border: '2px solid #374151', borderRadius: '12px', cursor: 'pointer', marginBottom: '1rem' }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: getDifficultyColor(difficulty) }}>
                   {difficulty}
                 </span>
-                <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                <span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>
                   {difficultyQuestions.length} problems
                 </span>
               </div>
-              <span style={{ fontSize: '1.5rem', color: '#6b7280' }}>
+              <span style={{ fontSize: '1.5rem', color: '#9ca3af' }}>
                 {expandedSections[difficulty] ? '▼' : '▶'}
               </span>
             </button>
@@ -3355,10 +3355,10 @@ Throughput:
                       onClick={() => selectQuestion(question)}
                       tabIndex={isFocused ? 0 : -1}
                       style={{
-                        backgroundColor: 'white',
+                        background: 'linear-gradient(to bottom right, #1f2937, #111827)',
                         padding: '1.5rem',
                         borderRadius: '12px',
-                        border: isFocused ? '2px solid #9333ea' : '2px solid #e5e7eb',
+                        border: isFocused ? '2px solid #9333ea' : '2px solid #374151',
                         cursor: 'pointer',
                         transition: 'all 0.2s',
                         textAlign: 'left',
@@ -3380,9 +3380,9 @@ Throughput:
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
-                        <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937', margin: 0, flex: 1 }}>{question.id}. {question.title}</h3>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'white', margin: 0, flex: 1 }}>{question.id}. {question.title}</h3>
                       </div>
-                      <p style={{ fontSize: '0.875rem', color: '#6b7280', lineHeight: '1.5', marginBottom: '1rem' }}>{question.description.substring(0, 100)}...</p>
+                      <p style={{ fontSize: '0.875rem', color: '#9ca3af', lineHeight: '1.5', marginBottom: '1rem' }}>{question.description.substring(0, 100)}...</p>
                       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
                         <span style={{ padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '600', backgroundColor: getDifficultyColor(question.difficulty) + '20', color: getDifficultyColor(question.difficulty) }}>{question.difficulty}</span>
                         <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

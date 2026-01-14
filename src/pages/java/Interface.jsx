@@ -222,7 +222,7 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #78350f, #111827)',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       color: 'white',
       padding: '1.5rem'
     }}>
@@ -254,7 +254,7 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d97706'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f59e0b'}
           >
-            ← Back to Menu
+            ← Back to Java
           </button>
           <div>
             <h1 style={{
@@ -273,7 +273,7 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
                 padding: '0.25rem 0.75rem',
                 fontSize: '0.85rem',
                 fontWeight: '600',
-                backgroundColor: '#78350f',
+                backgroundColor: '#1e3a5f',
                 color: '#fbbf24',
                 borderRadius: '6px',
                 marginTop: '0.25rem',
@@ -425,7 +425,7 @@ function Interface({ onBack, onPrevious, onNext, previousName, nextName, current
                   e.currentTarget.style.borderColor = '#4b5563'
                 }}
               >
-                ← Back to All
+                ← Back to Categories
               </button>
 
               {concepts.map((concept) => (

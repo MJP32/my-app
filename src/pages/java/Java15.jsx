@@ -74,14 +74,6 @@ const SyntaxHighlighter = ({ code }) => {
 function Java15({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedConcept, setSelectedConcept] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
-
-  const toggleSection = (sectionKey) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [sectionKey]: !prev[sectionKey]
-    }))
-  }
 
   const parseCodeSections = (code) => {
     const sections = []
@@ -225,74 +217,74 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 public class TextBlockUseCases {
-  public static void main(String[] args) {
-    // 1. SQL Queries
-    String insertQuery = """
-        INSERT INTO employees (first_name, last_name, email, salary)
-        VALUES (?, ?, ?, ?)
-        """;
+    public static void main(String[] args) {
+        // 1. SQL Queries
+        String insertQuery = """
+            INSERT INTO employees (first_name, last_name, email, salary)
+            VALUES (?, ?, ?, ?)
+            """;
 
-    // 2. HTML Templates
-    String emailTemplate = """
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>Welcome Email</title>
-        </head>
-        <body>
-          <h1>Welcome, %s!</h1>
-          <p>Thank you for joining our service.</p>
-          <a href="%s">Activate Account</a>
-        </body>
-        </html>
-        """;
+        // 2. HTML Templates
+        String emailTemplate = """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Welcome Email</title>
+            </head>
+            <body>
+                <h1>Welcome, %s!</h1>
+                <p>Thank you for joining our service.</p>
+                <a href="%s">Activate Account</a>
+            </body>
+            </html>
+            """;
 
-    // 3. JSON Configuration
-    String config = """
-        {
-          "server": {
-            "port": 8080,
-            "host": "localhost"
-          },
-          "database": {
-            "url": "jdbc:postgresql://localhost/mydb",
-            "pool_size": 10
-          }
-        }
-        """;
+        // 3. JSON Configuration
+        String config = """
+            {
+                "server": {
+                    "port": 8080,
+                    "host": "localhost"
+                },
+                "database": {
+                    "url": "jdbc:postgresql://localhost/mydb",
+                    "pool_size": 10
+                }
+            }
+            """;
 
-    // 4. Complex Regex Patterns
-    String regexPattern = """
-        ^                     # Start of line
-        [a-zA-Z0-9._%+-]+     # Local part
-        @                     # @ symbol
-        [a-zA-Z0-9.-]+        # Domain name
-        \\.[a-zA-Z]{2,}       # Top-level domain
-        $                     # End of line
-        """;
+        // 4. Complex Regex Patterns
+        String regexPattern = """
+            ^                     # Start of line
+            [a-zA-Z0-9._%+-]+     # Local part
+            @                     # @ symbol
+            [a-zA-Z0-9.-]+        # Domain name
+            \\.[a-zA-Z]{2,}       # Top-level domain
+            $                     # End of line
+            """;
 
-    // 5. Test Data
-    String testData = """
-        user1,john@example.com,active
-        user2,jane@example.com,inactive
-        user3,bob@example.com,active
-        """;
+        // 5. Test Data
+        String testData = """
+            user1,john@example.com,active
+            user2,jane@example.com,inactive
+            user3,bob@example.com,active
+            """;
 
-    // Using HTML template
-    String email = String.format(
-      emailTemplate,
-      "John Doe",
-      "https://example.com/activate"
-    );
+        // Using HTML template
+        String email = String.format(
+            emailTemplate,
+            "John Doe",
+            "https://example.com/activate"
+        );
 
-    System.out.println("SQL: " + insertQuery);
-    System.out.println("Email:\\n" + email);
+        System.out.println("SQL: " + insertQuery);
+        System.out.println("Email:\\n" + email);
 
-    // Output:
-    // SQL: INSERT INTO employees (first_name, last_name, email, salary)
-    //      VALUES (?, ?, ?, ?)
-    // Email: [formatted HTML with John Doe and activation link]
-  }
+        // Output:
+        // SQL: INSERT INTO employees (first_name, last_name, email, salary)
+        //      VALUES (?, ?, ?, ?)
+        // Email: [formatted HTML with John Doe and activation link]
+    }
 }`
     },
     {
@@ -317,33 +309,51 @@ public class TextBlockUseCases {
 
 // Sealed type hierarchy for JSON values
 public sealed interface JsonValue
-  permits JsonObject, JsonArray, JsonString, JsonNumber, JsonBoolean, JsonNull {
+    permits JsonObject, JsonArray, JsonString, JsonNumber, JsonBoolean, JsonNull {
 }
 
 public final class JsonObject implements JsonValue {
-  // Implementation
+    // Implementation
 }
 
 public final class JsonArray implements JsonValue {
-  // Implementation
+    // Implementation
 }
 
 public final class JsonString implements JsonValue {
-  private String value;
-  public JsonString(String value) { this.value = value; }
-  public String getValue() { return value; }
+    private String value;
+
+    public JsonString(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
 }
 
 public final class JsonNumber implements JsonValue {
-  private double value;
-  public JsonNumber(double value) { this.value = value; }
-  public double getValue() { return value; }
+    private double value;
+
+    public JsonNumber(double value) {
+        this.value = value;
+    }
+
+    public double getValue() {
+        return value;
+    }
 }
 
 public final class JsonBoolean implements JsonValue {
-  private boolean value;
-  public JsonBoolean(boolean value) { this.value = value; }
-  public boolean getValue() { return value; }
+    private boolean value;
+
+    public JsonBoolean(boolean value) {
+        this.value = value;
+    }
+
+    public boolean getValue() {
+        return value;
+    }
 }
 
 public final class JsonNull implements JsonValue {
@@ -352,29 +362,29 @@ public final class JsonNull implements JsonValue {
 // Exhaustive switch with pattern matching (future feature)
 // Compiler knows all possible types - no default needed!
 public static String formatJson(JsonValue json) {
-  return switch (json) {
-    case JsonString s -> "\\"" + s.getValue() + "\\"";
-    case JsonNumber n -> String.valueOf(n.getValue());
-    case JsonBoolean b -> String.valueOf(b.getValue());
-    case JsonNull n -> "null";
-    case JsonObject o -> "{...}";
-    case JsonArray a -> "[...]";
-    // No default case needed - compiler knows all cases covered!
-  };
+    return switch (json) {
+        case JsonString s -> "\\"" + s.getValue() + "\\"";
+        case JsonNumber n -> String.valueOf(n.getValue());
+        case JsonBoolean b -> String.valueOf(b.getValue());
+        case JsonNull n -> "null";
+        case JsonObject o -> "{...}";
+        case JsonArray a -> "[...]";
+        // No default case needed - compiler knows all cases covered!
+    };
 }
 
 // Traditional instanceof with sealed types
 public static void processValue(JsonValue json) {
-  if (json instanceof JsonString s) {
-    System.out.println("String: " + s.getValue());
-  } else if (json instanceof JsonNumber n) {
-    System.out.println("Number: " + n.getValue());
-  } else if (json instanceof JsonBoolean b) {
-    System.out.println("Boolean: " + b.getValue());
-  } else if (json instanceof JsonNull) {
-    System.out.println("Null value");
-  }
-  // Compiler helps ensure all cases handled
+    if (json instanceof JsonString s) {
+        System.out.println("String: " + s.getValue());
+    } else if (json instanceof JsonNumber n) {
+        System.out.println("Number: " + n.getValue());
+    } else if (json instanceof JsonBoolean b) {
+        System.out.println("Boolean: " + b.getValue());
+    } else if (json instanceof JsonNull) {
+        System.out.println("Null value");
+    }
+    // Compiler helps ensure all cases handled
 }
 
 // Usage
@@ -415,63 +425,63 @@ System.out.println(formatJson(num));
 
 // Domain modeling: Payment types
 public sealed interface Payment permits CreditCardPayment, PayPalPayment, CryptoPayment {
-  void process(double amount);
-  String getPaymentMethod();
+    void process(double amount);
+    String getPaymentMethod();
 }
 
 public final class CreditCardPayment implements Payment {
-  private String cardNumber;
-  private String cvv;
+    private String cardNumber;
+    private String cvv;
 
-  public CreditCardPayment(String cardNumber, String cvv) {
-    this.cardNumber = cardNumber;
-    this.cvv = cvv;
-  }
+    public CreditCardPayment(String cardNumber, String cvv) {
+        this.cardNumber = cardNumber;
+        this.cvv = cvv;
+    }
 
-  public void process(double amount) {
-    System.out.println("Processing $" + amount + " via Credit Card");
-    // Secure credit card processing logic
-  }
+    public void process(double amount) {
+        System.out.println("Processing $" + amount + " via Credit Card");
+        // Secure credit card processing logic
+    }
 
-  public String getPaymentMethod() {
-    return "Credit Card ending in " + cardNumber.substring(cardNumber.length() - 4);
-  }
+    public String getPaymentMethod() {
+        return "Credit Card ending in " + cardNumber.substring(cardNumber.length() - 4);
+    }
 }
 
 public final class PayPalPayment implements Payment {
-  private String email;
+    private String email;
 
-  public PayPalPayment(String email) {
-    this.email = email;
-  }
+    public PayPalPayment(String email) {
+        this.email = email;
+    }
 
-  public void process(double amount) {
-    System.out.println("Processing $" + amount + " via PayPal");
-    // PayPal API integration
-  }
+    public void process(double amount) {
+        System.out.println("Processing $" + amount + " via PayPal");
+        // PayPal API integration
+    }
 
-  public String getPaymentMethod() {
-    return "PayPal: " + email;
-  }
+    public String getPaymentMethod() {
+        return "PayPal: " + email;
+    }
 }
 
 public final class CryptoPayment implements Payment {
-  private String walletAddress;
-  private String currency;
+    private String walletAddress;
+    private String currency;
 
-  public CryptoPayment(String walletAddress, String currency) {
-    this.walletAddress = walletAddress;
-    this.currency = currency;
-  }
+    public CryptoPayment(String walletAddress, String currency) {
+        this.walletAddress = walletAddress;
+        this.currency = currency;
+    }
 
-  public void process(double amount) {
-    System.out.println("Processing $" + amount + " via " + currency);
-    // Blockchain transaction logic
-  }
+    public void process(double amount) {
+        System.out.println("Processing $" + amount + " via " + currency);
+        // Blockchain transaction logic
+    }
 
-  public String getPaymentMethod() {
-    return currency + " wallet: " + walletAddress.substring(0, 8) + "...";
-  }
+    public String getPaymentMethod() {
+        return currency + " wallet: " + walletAddress.substring(0, 8) + "...";
+    }
 }
 
 // Benefits:
@@ -481,28 +491,28 @@ public final class CryptoPayment implements Payment {
 // 4. Compiler enforces proper implementation
 
 public class PaymentProcessor {
-  public static void processPayment(Payment payment, double amount) {
-    // Exhaustive handling of all payment types
-    String method = switch (payment) {
-      case CreditCardPayment cc -> "Credit Card";
-      case PayPalPayment pp -> "PayPal";
-      case CryptoPayment cp -> "Cryptocurrency";
-      // No default needed!
-    };
+    public static void processPayment(Payment payment, double amount) {
+        // Exhaustive handling of all payment types
+        String method = switch (payment) {
+            case CreditCardPayment cc -> "Credit Card";
+            case PayPalPayment pp -> "PayPal";
+            case CryptoPayment cp -> "Cryptocurrency";
+            // No default needed!
+        };
 
-    System.out.println("Using payment method: " + method);
-    payment.process(amount);
-    System.out.println("Payment via " + payment.getPaymentMethod() + " completed");
-  }
+        System.out.println("Using payment method: " + method);
+        payment.process(amount);
+        System.out.println("Payment via " + payment.getPaymentMethod() + " completed");
+    }
 
-  public static void main(String[] args) {
-    Payment payment1 = new CreditCardPayment("1234-5678-9012-3456", "123");
-    Payment payment2 = new PayPalPayment("user@example.com");
+    public static void main(String[] args) {
+        Payment payment1 = new CreditCardPayment("1234-5678-9012-3456", "123");
+        Payment payment2 = new PayPalPayment("user@example.com");
 
-    processPayment(payment1, 99.99);
-    System.out.println();
-    processPayment(payment2, 149.99);
-  }
+        processPayment(payment1, 99.99);
+        System.out.println();
+        processPayment(payment2, 149.99);
+    }
 }
 
 // Output:
@@ -551,31 +561,31 @@ public class PaymentProcessor {
 
 // Preview phase allowed testing and feedback
 public sealed class Result permits Success, Failure {
-  private Result() {}
+    private Result() {}
 }
 
 public final class Success extends Result {
-  private Object value;
+    private Object value;
 
-  public Success(Object value) {
-    this.value = value;
-  }
+    public Success(Object value) {
+        this.value = value;
+    }
 
-  public Object getValue() {
-    return value;
-  }
+    public Object getValue() {
+        return value;
+    }
 }
 
 public final class Failure extends Result {
-  private String error;
+    private String error;
 
-  public Failure(String error) {
-    this.error = error;
-  }
+    public Failure(String error) {
+        this.error = error;
+    }
 
-  public String getError() {
-    return error;
-  }
+    public String getError() {
+        return error;
+    }
 }
 
 // Example showing iterative improvement
@@ -584,42 +594,42 @@ public final class Failure extends Result {
 // By Java 17, feature was production-ready
 
 public class DatabaseOperation {
-  public static Result executeQuery(String query) {
-    try {
-      // Simulate database operation
-      if (query.contains("SELECT")) {
-        return new Success("Query results: 42 rows");
-      } else {
-        return new Failure("Invalid query syntax");
-      }
-    } catch (Exception e) {
-      return new Failure(e.getMessage());
+    public static Result executeQuery(String query) {
+        try {
+            // Simulate database operation
+            if (query.contains("SELECT")) {
+                return new Success("Query results: 42 rows");
+            } else {
+                return new Failure("Invalid query syntax");
+            }
+        } catch (Exception e) {
+            return new Failure(e.getMessage());
+        }
     }
-  }
 
-  public static void handleResult(Result result) {
-    // Pattern matching with sealed types
-    if (result instanceof Success s) {
-      System.out.println("Success: " + s.getValue());
-    } else if (result instanceof Failure f) {
-      System.out.println("Error: " + f.getError());
+    public static void handleResult(Result result) {
+        // Pattern matching with sealed types
+        if (result instanceof Success s) {
+            System.out.println("Success: " + s.getValue());
+        } else if (result instanceof Failure f) {
+            System.out.println("Error: " + f.getError());
+        }
+        // Compiler knows these are the only options!
     }
-    // Compiler knows these are the only options!
-  }
 
-  public static void main(String[] args) {
-    Result r1 = executeQuery("SELECT * FROM users");
-    Result r2 = executeQuery("INVALID QUERY");
+    public static void main(String[] args) {
+        Result r1 = executeQuery("SELECT * FROM users");
+        Result r2 = executeQuery("INVALID QUERY");
 
-    handleResult(r1);
-    handleResult(r2);
+        handleResult(r1);
+        handleResult(r2);
 
-    // Key improvements during preview:
-    // 1. Local sealed classes support added
-    // 2. Better error messages
-    // 3. Interaction with pattern matching refined
-    // 4. Documentation and best practices established
-  }
+        // Key improvements during preview:
+        // 1. Local sealed classes support added
+        // 2. Better error messages
+        // 3. Interaction with pattern matching refined
+        // 4. Documentation and best practices established
+    }
 }
 
 // Output:
@@ -657,48 +667,48 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
 
 public class HiddenClassExample {
-  public static void main(String[] args) throws Throwable {
-    // Bytecode for a simple class
-    byte[] classBytes = generateSimpleClass();
+    public static void main(String[] args) throws Throwable {
+        // Bytecode for a simple class
+        byte[] classBytes = generateSimpleClass();
 
-    // Get lookup context
-    Lookup lookup = MethodHandles.lookup();
+        // Get lookup context
+        Lookup lookup = MethodHandles.lookup();
 
-    // Define a hidden class
-    Lookup hiddenLookup = lookup.defineHiddenClass(
-      classBytes,
-      true,  // initialize immediately
-      Lookup.ClassOption.NESTMATE
-    );
+        // Define a hidden class
+        Lookup hiddenLookup = lookup.defineHiddenClass(
+            classBytes,
+            true,  // initialize immediately
+            Lookup.ClassOption.NESTMATE
+        );
 
-    // Get the hidden class
-    Class<?> hiddenClass = hiddenLookup.lookupClass();
+        // Get the hidden class
+        Class<?> hiddenClass = hiddenLookup.lookupClass();
 
-    // Hidden class has dynamically generated name
-    System.out.println("Hidden class name: " + hiddenClass.getName());
-    // Output: HiddenClass/0x1a2b3c4d (or similar)
+        // Hidden class has dynamically generated name
+        System.out.println("Hidden class name: " + hiddenClass.getName());
+        // Output: HiddenClass/0x1a2b3c4d (or similar)
 
-    // Cannot be found by name
-    try {
-      Class.forName(hiddenClass.getName());
-    } catch (ClassNotFoundException e) {
-      System.out.println("Cannot find hidden class by name!");
+        // Cannot be found by name
+        try {
+            Class.forName(hiddenClass.getName());
+        } catch (ClassNotFoundException e) {
+            System.out.println("Cannot find hidden class by name!");
+        }
+
+        // Can instantiate using lookup
+        Object instance = hiddenLookup.findConstructor(
+            hiddenClass,
+            java.lang.invoke.MethodType.methodType(void.class)
+        ).invoke();
+
+        System.out.println("Instance created: " + instance);
     }
 
-    // Can instantiate using lookup
-    Object instance = hiddenLookup.findConstructor(
-      hiddenClass,
-      java.lang.invoke.MethodType.methodType(void.class)
-    ).invoke();
-
-    System.out.println("Instance created: " + instance);
-  }
-
-  private static byte[] generateSimpleClass() {
-    // In reality, use ASM or ByteBuddy to generate bytecode
-    // This is simplified for demonstration
-    return new byte[]{/* bytecode here */};
-  }
+    private static byte[] generateSimpleClass() {
+        // In reality, use ASM or ByteBuddy to generate bytecode
+        // This is simplified for demonstration
+        return new byte[]{/* bytecode here */};
+    }
 }
 
 // Output:
@@ -737,59 +747,59 @@ import java.lang.reflect.Method;
 
 // Hidden classes replace unsafe mechanisms in frameworks
 public class FrameworkUsage {
-  // Lambda expressions internally use hidden classes
-  public static void lambdaExample() {
-    Runnable lambda = () -> System.out.println("Lambda using hidden class");
-    lambda.run();
+    // Lambda expressions internally use hidden classes
+    public static void lambdaExample() {
+        Runnable lambda = () -> System.out.println("Lambda using hidden class");
+        lambda.run();
 
-    // The lambda is implemented as a hidden class
-    System.out.println("Lambda class: " + lambda.getClass().getName());
-    // Output includes $$Lambda$ indicating hidden class
-  }
+        // The lambda is implemented as a hidden class
+        System.out.println("Lambda class: " + lambda.getClass().getName());
+        // Output includes $$Lambda$ indicating hidden class
+    }
 
-  // Dynamic proxy replacement with hidden classes
-  public static void proxyExample() throws Throwable {
-    // Before: JDK Dynamic Proxy
-    // Now: Can use hidden classes for better performance
+    // Dynamic proxy replacement with hidden classes
+    public static void proxyExample() throws Throwable {
+        // Before: JDK Dynamic Proxy
+        // Now: Can use hidden classes for better performance
 
-    byte[] proxyBytes = generateProxyClass();
+        byte[] proxyBytes = generateProxyClass();
 
-    Lookup lookup = MethodHandles.lookup();
-    Lookup proxyLookup = lookup.defineHiddenClass(
-      proxyBytes,
-      true,
-      Lookup.ClassOption.STRONG
-    );
+        Lookup lookup = MethodHandles.lookup();
+        Lookup proxyLookup = lookup.defineHiddenClass(
+            proxyBytes,
+            true,
+            Lookup.ClassOption.STRONG
+        );
 
-    Class<?> proxyClass = proxyLookup.lookupClass();
-    System.out.println("Proxy class created: " + proxyClass.getSimpleName());
-  }
+        Class<?> proxyClass = proxyLookup.lookupClass();
+        System.out.println("Proxy class created: " + proxyClass.getSimpleName());
+    }
 
-  // Method handle usage with hidden classes
-  public static void methodHandleExample() throws Throwable {
-    // Hidden classes improve method handle performance
-    MethodHandles.Lookup lookup = MethodHandles.lookup();
+    // Method handle usage with hidden classes
+    public static void methodHandleExample() throws Throwable {
+        // Hidden classes improve method handle performance
+        MethodHandles.Lookup lookup = MethodHandles.lookup();
 
-    MethodHandle mh = lookup.findVirtual(
-      String.class,
-      "length",
-      MethodType.methodType(int.class)
-    );
+        MethodHandle mh = lookup.findVirtual(
+            String.class,
+            "length",
+            MethodType.methodType(int.class)
+        );
 
-    int length = (int) mh.invoke("Hello");
-    System.out.println("Length: " + length);
-  }
+        int length = (int) mh.invoke("Hello");
+        System.out.println("Length: " + length);
+    }
 
-  private static byte[] generateProxyClass() {
-    // Framework generates bytecode for proxy
-    return new byte[]{/* bytecode */};
-  }
+    private static byte[] generateProxyClass() {
+        // Framework generates bytecode for proxy
+        return new byte[]{/* bytecode */};
+    }
 
-  public static void main(String[] args) throws Throwable {
-    lambdaExample();
-    proxyExample();
-    methodHandleExample();
-  }
+    public static void main(String[] args) throws Throwable {
+        lambdaExample();
+        proxyExample();
+        methodHandleExample();
+    }
 }
 
 // Output:
@@ -830,59 +840,59 @@ import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.ref.WeakReference;
 
 public class HiddenClassUnloading {
-  public static void main(String[] args) throws Throwable {
-    // Demonstrate hidden class unloading
-    System.out.println("Creating hidden class...");
+    public static void main(String[] args) throws Throwable {
+        // Demonstrate hidden class unloading
+        System.out.println("Creating hidden class...");
 
-    byte[] classBytes = generateClass();
-    Lookup lookup = MethodHandles.lookup();
+        byte[] classBytes = generateClass();
+        Lookup lookup = MethodHandles.lookup();
 
-    // Define hidden class
-    Lookup hiddenLookup = lookup.defineHiddenClass(
-      classBytes,
-      true
-    );
+        // Define hidden class
+        Lookup hiddenLookup = lookup.defineHiddenClass(
+            classBytes,
+            true
+        );
 
-    Class<?> hiddenClass = hiddenLookup.lookupClass();
-    WeakReference<Class<?>> weakRef = new WeakReference<>(hiddenClass);
+        Class<?> hiddenClass = hiddenLookup.lookupClass();
+        WeakReference<Class<?>> weakRef = new WeakReference<>(hiddenClass);
 
-    System.out.println("Hidden class created: " + hiddenClass.getName());
+        System.out.println("Hidden class created: " + hiddenClass.getName());
 
-    // Create instance
-    Object instance = hiddenLookup.findConstructor(
-      hiddenClass,
-      java.lang.invoke.MethodType.methodType(void.class)
-    ).invoke();
+        // Create instance
+        Object instance = hiddenLookup.findConstructor(
+            hiddenClass,
+            java.lang.invoke.MethodType.methodType(void.class)
+        ).invoke();
 
-    System.out.println("Instance created");
+        System.out.println("Instance created");
 
-    // Clear references
-    hiddenClass = null;
-    hiddenLookup = null;
-    instance = null;
+        // Clear references
+        hiddenClass = null;
+        hiddenLookup = null;
+        instance = null;
 
-    // Request garbage collection
-    System.gc();
-    Thread.sleep(100);
+        // Request garbage collection
+        System.gc();
+        Thread.sleep(100);
 
-    // Check if class was unloaded
-    if (weakRef.get() == null) {
-      System.out.println("Hidden class has been unloaded!");
-    } else {
-      System.out.println("Hidden class still in memory");
+        // Check if class was unloaded
+        if (weakRef.get() == null) {
+            System.out.println("Hidden class has been unloaded!");
+        } else {
+            System.out.println("Hidden class still in memory");
+        }
+
+        // Benefits:
+        // 1. No metaspace leak with dynamic class generation
+        // 2. Framework-generated classes cleaned up automatically
+        // 3. Better memory management in long-running applications
+        // 4. Ideal for scripting engines and JVM languages
     }
 
-    // Benefits:
-    // 1. No metaspace leak with dynamic class generation
-    // 2. Framework-generated classes cleaned up automatically
-    // 3. Better memory management in long-running applications
-    // 4. Ideal for scripting engines and JVM languages
-  }
-
-  private static byte[] generateClass() {
-    // Generate bytecode
-    return new byte[]{/* bytecode */};
-  }
+    private static byte[] generateClass() {
+        // Generate bytecode
+        return new byte[]{/* bytecode */};
+    }
 }
 
 // Output:
@@ -1635,7 +1645,7 @@ public class PaymentProcessor {
       padding: '1.5rem',
       maxWidth: '80rem',
       margin: '0 auto',
-      background: 'linear-gradient(to bottom right, #111827, #78350f, #111827)',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       color: 'white',
       minHeight: '100vh'
     }}>
@@ -1665,7 +1675,7 @@ public class PaymentProcessor {
             onMouseEnter={(e) => e.currentTarget.style.background = '#d97706'}
             onMouseLeave={(e) => e.currentTarget.style.background = '#f59e0b'}
           >
-            ← Back to Java Topics
+            ← Back to Java
           </button>
           <h1 style={{
             fontSize: '2rem',
@@ -2095,44 +2105,28 @@ public class PaymentProcessor {
                   const sections = parseCodeSections(selectedConcept.codeExample)
                   return sections.length > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                      {sections.map((section, idx) => {
-                        const sectionKey = `${selectedConcept.name}-${idx}`
-                        const isExpanded = expandedSections[sectionKey]
-                        return (
-                          <div key={idx} style={{
-                            backgroundColor: '#1e293b',
-                            borderRadius: '12px',
-                            overflow: 'hidden',
-                            border: '2px solid #334155'
+                      {sections.map((section, idx) => (
+                        <div key={idx} style={{
+                          backgroundColor: '#1e293b',
+                          borderRadius: '12px',
+                          overflow: 'hidden',
+                          border: '2px solid #334155'
+                        }}>
+                          <div style={{
+                            padding: '1rem 1.5rem',
+                            backgroundColor: '#334155',
+                            color: '#60a5fa',
+                            fontSize: '1rem',
+                            fontWeight: '600',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem'
                           }}>
-                            <button
-                              onClick={() => toggleSection(sectionKey)}
-                              style={{
-                                width: '100%',
-                                padding: '1rem 1.5rem',
-                                backgroundColor: '#334155',
-                                border: 'none',
-                                color: '#60a5fa',
-                                fontSize: '1rem',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                transition: 'all 0.2s ease'
-                              }}
-                            >
-                              <span>💻 {section.title}</span>
-                              <span style={{ fontSize: '1.2rem' }}>{isExpanded ? '▼' : '▶'}</span>
-                            </button>
-                            {isExpanded && (
-                              <div style={{ padding: '1.5rem' }}>
-                                <SyntaxHighlighter code={section.code} />
-                              </div>
-                            )}
+                            <span>💻 {section.title}</span>
                           </div>
-                        )
-                      })}
+                          <SyntaxHighlighter code={section.code} />
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     <div style={{

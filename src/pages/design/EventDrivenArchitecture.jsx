@@ -239,7 +239,7 @@ Technologies: Apache Kafka, RabbitMQ, AWS SNS/SQS, Azure Service Bus, Google Pub
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#db2777'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ec4899'}
           >
-            ← Back to Menu
+            ← Back to Design
           </button>
           <div>
             <h1 style={{

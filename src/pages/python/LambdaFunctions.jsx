@@ -5,14 +5,6 @@ import Breadcrumb from '../../components/Breadcrumb'
 
 function LambdaFunctions({ onBack, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
-
-  const toggleSection = (sectionKey) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [sectionKey]: !prev[sectionKey]
-    }))
-  }
 
   const parseCodeSections = (code) => {
     const sections = []
@@ -698,7 +690,7 @@ print(fib(10))            # 55`
                 e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
               }}
             >
-              ← Back to Python Topics
+              ← Back to Python
             </button>
             <h1 style={{
               fontSize: '2.25rem',
@@ -922,50 +914,38 @@ print(fib(10))            # 55`
                         Code Examples
                       </h3>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        {sections.map((section, idx) => {
-                          const sectionKey = `${selectedConcept.name}-${idx}`
-                          const isExpanded = expandedSections[sectionKey]
+                        {sections.map((section, idx) => (
+                          <div key={idx} style={{ backgroundColor: '#1e293b', borderRadius: '12px', overflow: 'hidden', border: '2px solid #334155' }}>
+                            <div
+                              style={{
+                                width: '100%',
+                                padding: '1rem 1.5rem',
+                                backgroundColor: '#334155',
+                                color: '#60a5fa',
+                                fontSize: '1rem',
+                                fontWeight: '600',
+                                display: 'flex',
+                                alignItems: 'center'
+                              }}
+                            >
+                              <span>{section.title}</span>
+                            </div>
 
-                          return (
-                            <div key={idx} style={{ backgroundColor: '#1e293b', borderRadius: '12px', overflow: 'hidden', border: '2px solid #334155' }}>
-                              <button
-                                onClick={() => toggleSection(sectionKey)}
-                                style={{
-                                  width: '100%',
-                                  padding: '1rem 1.5rem',
-                                  backgroundColor: '#334155',
-                                  border: 'none',
-                                  color: '#60a5fa',
-                                  fontSize: '1rem',
-                                  fontWeight: '600',
-                                  cursor: 'pointer',
-                                  display: 'flex',
-                                  justifyContent: 'space-between',
-                                  alignItems: 'center'
+                            <div style={{ padding: 0 }}>
+                              <SyntaxHighlighter
+                                language="python"
+                                style={vscDarkPlus}
+                                customStyle={{
+                                  borderRadius: '8px',
+                                  padding: '1rem',
+                                  fontSize: '0.9rem'
                                 }}
                               >
-                                <span>💻 {section.title}</span>
-                                <span style={{ fontSize: '1.2rem' }}>{isExpanded ? '▼' : '▶'}</span>
-                              </button>
-
-                              {isExpanded && (
-                                <div style={{ padding: 0 }}>
-                                  <SyntaxHighlighter
-                                    language="python"
-                                    style={vscDarkPlus}
-                                    customStyle={{
-                                      borderRadius: '8px',
-                                      padding: '1rem',
-                                      fontSize: '0.9rem'
-                                    }}
-                                  >
-                                    {section.code}
-                                  </SyntaxHighlighter>
-                                </div>
-                              )}
+                                {section.code}
+                              </SyntaxHighlighter>
                             </div>
-                          )
-                        })}
+                          </div>
+                        ))}
                       </div>
                     </div>
                   ) : null

@@ -49,14 +49,11 @@ function Heaps({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       difficulty: 'Medium',
       leetcodeUrl: 'https://leetcode.com/problems/kth-largest-element-in-a-stream/',
       description: 'Implement a Min Heap data structure that supports insert, extractMin, peek, and heapify operations. A min heap is a complete binary tree where each parent node is smaller than its children.',
-      example: `Operations:
-insert(3) → heap: [3]
-insert(1) → heap: [1,3]
-insert(6) → heap: [1,3,6]
-insert(5) → heap: [1,3,6,5]
-insert(2) → heap: [1,2,6,5,3]
-extractMin() → returns 1, heap: [2,3,6,5]
-peek() → returns 2`,
+      examples: [
+        { input: 'insert(3), insert(1), insert(6), insert(5), insert(2)', output: 'heap: [1,2,6,5,3]' },
+        { input: 'extractMin()', output: 'returns 1, heap: [2,3,6,5]' },
+        { input: 'peek()', output: 'returns 2' }
+      ],
       code: {
         java: {
           starterCode: `class MinHeap {
@@ -602,12 +599,10 @@ Example: insert(3,1,6,5,2)
       difficulty: 'Medium',
       leetcodeUrl: 'https://leetcode.com/problems/kth-largest-element-in-an-array/',
       description: 'Find the kth largest element in an unsorted array. Use a min heap of size k to efficiently track the k largest elements.',
-      example: `Input: nums = [3,2,1,5,6,4], k = 2
-Output: 5
-Explanation: The 2nd largest element is 5
-
-Input: nums = [3,2,3,1,2,4,5,5,6], k = 4
-Output: 4`,
+      examples: [
+        { input: 'nums = [3,2,1,5,6,4], k = 2', output: '5' },
+        { input: 'nums = [3,2,3,1,2,4,5,5,6], k = 4', output: '4' }
+      ],
       code: {
         java: {
           starterCode: `class Solution {
@@ -871,13 +866,9 @@ function quickSelect(nums, left, right, k):
       difficulty: 'Medium',
       leetcodeUrl: 'https://leetcode.com/problems/merge-k-sorted-lists/',
       description: 'Merge k sorted linked lists into one sorted linked list. Use a min heap to efficiently find the next smallest element among all list heads.',
-      example: `Input: lists = [[1,4,5],[1,3,4],[2,6]]
-Output: [1,1,2,3,4,4,5,6]
-Explanation: Merging all lists:
-1→4→5
-1→3→4
-2→6
-Result: 1→1→2→3→4→4→5→6`,
+      examples: [
+        { input: 'lists = [[1,4,5],[1,3,4],[2,6]]', output: '[1,1,2,3,4,4,5,6]' }
+      ],
       code: {
         java: {
           starterCode: `class ListNode {
@@ -1201,12 +1192,13 @@ Example: lists = [[1,4,5],[1,3,4],[2,6]]
       difficulty: 'Medium',
       leetcodeUrl: 'https://leetcode.com/problems/find-median-from-data-stream/',
       description: 'Design a data structure that supports adding numbers and finding the median efficiently. Use two heaps (max heap for lower half, min heap for upper half) to maintain the median.',
-      example: `Operations:
-addNum(1) → data: [1], median = 1
-addNum(2) → data: [1,2], median = 1.5
-addNum(3) → data: [1,2,3], median = 2
-addNum(4) → data: [1,2,3,4], median = 2.5
-addNum(5) → data: [1,2,3,4,5], median = 3`,
+      examples: [
+        { input: 'addNum(1)', output: 'median = 1' },
+        { input: 'addNum(2)', output: 'median = 1.5' },
+        { input: 'addNum(3)', output: 'median = 2' },
+        { input: 'addNum(4)', output: 'median = 2.5' },
+        { input: 'addNum(5)', output: 'median = 3' }
+      ],
       code: {
         java: {
           starterCode: `class MedianFinder {
@@ -1519,9 +1511,9 @@ Invariant maintained: small.top ≤ large.top always!`
       difficulty: 'Hard',
       leetcodeUrl: 'https://leetcode.com/problems/ipo/',
       description: 'Maximize capital by selecting at most k distinct projects with given profits and capital requirements.',
-      example: `Input: k = 2, w = 0, profits = [1,2,3], capital = [0,1,1]
-Output: 4
-Explanation: Start with w=0. Pick project 0 (capital 0, profit 1). Now w=1. Pick project 2 (capital 1, profit 3). Final capital = 4.`,
+      examples: [
+        { input: 'k = 2, w = 0, profits = [1,2,3], capital = [0,1,1]', output: '4' }
+      ],
       code: {
         java: {
           starterCode: `public int findMaximizedCapital(int k, int w, int[] profits, int[] capital) {
@@ -1597,9 +1589,9 @@ Explanation: Start with w=0. Pick project 0 (capital 0, profit 1). Now w=1. Pick
       difficulty: 'Medium',
       leetcodeUrl: 'https://leetcode.com/problems/find-k-pairs-with-smallest-sums/',
       description: 'Find k pairs (u, v) from two sorted arrays with smallest sums.',
-      example: `Input: nums1 = [1,7,11], nums2 = [2,4,6], k = 3
-Output: [[1,2],[1,4],[1,6]]
-Explanation: The first 3 pairs: [1,2], [1,4], [1,6]`,
+      examples: [
+        { input: 'nums1 = [1,7,11], nums2 = [2,4,6], k = 3', output: '[[1,2],[1,4],[1,6]]' }
+      ],
       code: {
         java: {
           starterCode: `public List<List<Integer>> kSmallestPairs(int[] nums1, int[] nums2, int k) {
@@ -1689,6 +1681,23 @@ Explanation: The first 3 pairs: [1,2], [1,4], [1,6]`,
     Hard: questions.filter(q => q.difficulty === 'Hard')
   }
 
+  const visibleQuestions = Object.entries(groupedQuestions)
+    .filter(([difficulty]) => expandedSections[difficulty])
+    .flatMap(([, qs]) => qs)
+
+  const { focusedIndex, setFocusedIndex, itemRefs } = useKeyboardNavigation({
+    items: visibleQuestions,
+    onSelect: (question) => selectQuestion(question),
+    onEscape: onBack,
+    enabled: !selectedQuestion && visibleQuestions.length > 0,
+    gridColumns: 2,
+    loop: true
+  })
+
+  const getVisibleIndex = (question) => {
+    return visibleQuestions.findIndex(q => q.id === question.id)
+  }
+
   const selectQuestion = (question) => {
     setSelectedQuestion(question)
     setShowSolution(false)
@@ -1716,19 +1725,19 @@ Explanation: The first 3 pairs: [1,2], [1,4], [1,6]`,
 
   if (selectedQuestion) {
     return (
-      <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto', backgroundColor: '#111827', minHeight: '100vh' }}>
+      <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <button onClick={() => setSelectedQuestion(null)} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
-            ← Back to Problems
+            ← Back to Practice
           </button>
           <LanguageToggle />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
           {/* Problem Description */}
-          <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '12px', border: '2px solid #e5e7eb', maxHeight: '85vh', overflowY: 'auto' }}>
+          <div style={{ background: 'linear-gradient(to bottom right, #1f2937, #111827)', padding: '2rem', borderRadius: '12px', border: '2px solid #3b82f6', maxHeight: '85vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.75rem', color: '#1f2937', margin: 0 }}>{selectedQuestion.title}</h2>
+              <h2 style={{ fontSize: '1.75rem', color: 'white', margin: 0 }}>{selectedQuestion.title}</h2>
               <span style={{ padding: '0.5rem 1rem', borderRadius: '12px', fontSize: '0.875rem', fontWeight: '600', backgroundColor: getDifficultyColor(selectedQuestion.difficulty) + '20', color: getDifficultyColor(selectedQuestion.difficulty) }}>
                 {selectedQuestion.difficulty}
               </span>
@@ -1746,20 +1755,20 @@ Explanation: The first 3 pairs: [1,2], [1,4], [1,6]`,
             )}
 
             <div style={{ marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.1rem', color: '#374151', marginBottom: '0.75rem' }}>Description</h3>
-              <p style={{ fontSize: '1rem', color: '#6b7280', lineHeight: '1.6' }}>{selectedQuestion.description}</p>
+              <h3 style={{ fontSize: '1.1rem', color: 'white', marginBottom: '0.75rem' }}>Description</h3>
+              <p style={{ fontSize: '1rem', color: '#d1d5db', lineHeight: '1.6' }}>{selectedQuestion.description}</p>
             </div>
 
             {selectedQuestion.examples && selectedQuestion.examples.length > 0 && (
               <div style={{ marginBottom: '1.5rem' }}>
-                <h3 style={{ fontSize: '1.1rem', color: '#374151', marginBottom: '0.75rem' }}>Examples</h3>
+                <h3 style={{ fontSize: '1.1rem', color: 'white', marginBottom: '0.75rem' }}>Examples</h3>
                 {selectedQuestion.examples.map((example, idx) => (
-                  <div key={idx} style={{ backgroundColor: '#f9fafb', padding: '1rem', borderRadius: '8px', marginBottom: '0.75rem', border: '1px solid #e5e7eb', color: '#1f2937' }}>
+                  <div key={idx} style={{ backgroundColor: '#374151', padding: '1rem', borderRadius: '8px', marginBottom: '0.75rem', border: '1px solid #4b5563', color: '#d1d5db' }}>
                     <div style={{ marginBottom: '0.5rem' }}>
-                      <strong style={{ color: '#1f2937' }}>Input:</strong> <code style={{ color: '#1f2937' }}>{example.input}</code>
+                      <strong style={{ color: 'white' }}>Input:</strong> <code style={{ color: '#d1d5db' }}>{example.input}</code>
                     </div>
                     <div>
-                      <strong style={{ color: '#1f2937' }}>Output:</strong> <code style={{ color: '#1f2937' }}>{example.output}</code>
+                      <strong style={{ color: 'white' }}>Output:</strong> <code style={{ color: '#d1d5db' }}>{example.output}</code>
                     </div>
                   </div>
                 ))}
@@ -1768,22 +1777,22 @@ Explanation: The first 3 pairs: [1,2], [1,4], [1,6]`,
 
             {selectedQuestion.explanation && (
               <div style={{ marginTop: '1.5rem' }}>
-                <h3 style={{ fontSize: '1.1rem', color: '#374151', marginBottom: '0.75rem' }}>💡 Explanation</h3>
-                <p style={{ fontSize: '0.95rem', color: '#6b7280', lineHeight: '1.6' }}>{selectedQuestion.explanation}</p>
+                <h3 style={{ fontSize: '1.1rem', color: 'white', marginBottom: '0.75rem' }}>Explanation</h3>
+                <p style={{ fontSize: '0.95rem', color: '#d1d5db', lineHeight: '1.6' }}>{selectedQuestion.explanation}</p>
               </div>
             )}
 
             {(selectedQuestion.timeComplexity || selectedQuestion.spaceComplexity) && (
-              <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#eff6ff', borderRadius: '8px', border: '1px solid #dbeafe' }}>
-                <h3 style={{ fontSize: '1rem', color: '#1e40af', marginBottom: '0.5rem' }}>Complexity</h3>
-                {selectedQuestion.timeComplexity && <div style={{ fontSize: '0.9rem', color: '#1e40af' }}>⏱️ Time: {selectedQuestion.timeComplexity}</div>}
-                {selectedQuestion.spaceComplexity && <div style={{ fontSize: '0.9rem', color: '#1e40af' }}>💾 Space: {selectedQuestion.spaceComplexity}</div>}
+              <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#1e3a5a', borderRadius: '8px', border: '1px solid #3b82f6' }}>
+                <h3 style={{ fontSize: '1rem', color: 'white', marginBottom: '0.5rem' }}>Complexity</h3>
+                {selectedQuestion.timeComplexity && <div style={{ fontSize: '0.9rem', color: '#93c5fd' }}>Time: {selectedQuestion.timeComplexity}</div>}
+                {selectedQuestion.spaceComplexity && <div style={{ fontSize: '0.9rem', color: '#93c5fd' }}>Space: {selectedQuestion.spaceComplexity}</div>}
               </div>
             )}
           </div>
 
           {/* Code Editor */}
-          <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '12px', border: '2px solid #e5e7eb', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ background: 'linear-gradient(to bottom right, #1f2937, #111827)', padding: '2rem', borderRadius: '12px', border: '2px solid #3b82f6', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' , flexWrap: 'wrap' }}>
               <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedQuestion.code[language].solution) }} style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
                 {showSolution ? 'Hide' : 'Show'} Solution
@@ -1792,16 +1801,16 @@ Explanation: The first 3 pairs: [1,2], [1,4], [1,6]`,
                 Reset Code
               </button>
               <button onClick={() => setShowDrawing(true)} style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600', backgroundColor: currentDrawing ? '#8b5cf6' : '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                🎨 {currentDrawing ? 'View' : 'Draw'} Sketch
+                {currentDrawing ? 'View' : 'Draw'} Sketch
               </button>
             </div>
 
-            <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'monospace', fontSize: '0.9rem', border: '2px solid #e5e7eb', borderRadius: '8px', resize: 'none', lineHeight: '1.5' }} spellCheck={false} />
+            <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'monospace', fontSize: '0.9rem', border: '2px solid #374151', borderRadius: '8px', resize: 'none', lineHeight: '1.5', backgroundColor: '#1f2937', color: '#d1d5db' }} spellCheck={false} />
 
             {output && (
               <div style={{ marginTop: '1rem' }}>
-                <h3 style={{ fontSize: '1rem', color: '#374151', marginBottom: '0.5rem' }}>Output</h3>
-                <pre style={{ backgroundColor: '#f9fafb', padding: '1rem', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'auto', fontSize: '0.875rem', maxHeight: '150px' }}>{output}</pre>
+                <h3 style={{ fontSize: '1rem', color: 'white', marginBottom: '0.5rem' }}>Output</h3>
+                <pre style={{ backgroundColor: '#374151', padding: '1rem', borderRadius: '8px', border: '1px solid #4b5563', overflow: 'auto', fontSize: '0.875rem', maxHeight: '150px', color: '#d1d5db' }}>{output}</pre>
               </div>
             )}
           </div>
@@ -1823,7 +1832,7 @@ Explanation: The first 3 pairs: [1,2], [1,4], [1,6]`,
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#111827', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
       <div style={{ marginBottom: '2rem' }}>
         <button onClick={onBack} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'} onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}>
           ← Back
@@ -1833,17 +1842,17 @@ Explanation: The first 3 pairs: [1,2], [1,4], [1,6]`,
       <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#1f2937', marginBottom: '0.5rem' }}>⛰️ Heaps</h1>
-        <p style={{ fontSize: '1.2rem', color: '#6b7280' }}>Master heaps problems</p>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: 'white', marginBottom: '0.5rem' }}>Heaps</h1>
+        <p style={{ fontSize: '1.2rem', color: '#d1d5db' }}>Master heaps problems</p>
 
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1.5rem' }}>
-          <div style={{ padding: '1rem 2rem', backgroundColor: 'white', borderRadius: '12px', border: '2px solid #e5e7eb' }}>
+          <div style={{ padding: '1rem 2rem', background: 'linear-gradient(to bottom right, #1f2937, #111827)', borderRadius: '12px', border: '2px solid #3b82f6' }}>
             <div style={{ fontSize: '2rem', fontWeight: '700', color: '#3b82f6' }}>{stats.completed}/{stats.total}</div>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>Completed</div>
+            <div style={{ fontSize: '0.875rem', color: '#d1d5db', marginTop: '0.25rem' }}>Completed</div>
           </div>
-          <div style={{ padding: '1rem 2rem', backgroundColor: 'white', borderRadius: '12px', border: '2px solid #e5e7eb' }}>
+          <div style={{ padding: '1rem 2rem', background: 'linear-gradient(to bottom right, #1f2937, #111827)', borderRadius: '12px', border: '2px solid #10b981' }}>
             <div style={{ fontSize: '2rem', fontWeight: '700', color: '#10b981' }}>{stats.percentage}%</div>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>Progress</div>
+            <div style={{ fontSize: '0.875rem', color: '#d1d5db', marginTop: '0.25rem' }}>Progress</div>
           </div>
         </div>
       </div>
@@ -1851,43 +1860,72 @@ Explanation: The first 3 pairs: [1,2], [1,4], [1,6]`,
       {Object.entries(groupedQuestions).map(([difficulty, difficultyQuestions]) => (
         difficultyQuestions.length > 0 && (
           <div key={difficulty} style={{ marginBottom: '2rem' }}>
-            <button onClick={() => toggleSection(difficulty)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', backgroundColor: 'white', border: '2px solid #e5e7eb', borderRadius: '12px', cursor: 'pointer', marginBottom: '1rem' }}>
+            <button onClick={() => toggleSection(difficulty)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', background: 'linear-gradient(to bottom right, #1f2937, #111827)', border: '2px solid #374151', borderRadius: '12px', cursor: 'pointer', marginBottom: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <span style={{ fontSize: '1.5rem', fontWeight: '700', color: getDifficultyColor(difficulty) }}>{difficulty}</span>
-                <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>({difficultyQuestions.length} problems)</span>
+                <span style={{ fontSize: '0.875rem', color: '#d1d5db' }}>({difficultyQuestions.length} problems)</span>
               </div>
-              <span style={{ fontSize: '1.25rem', color: '#6b7280' }}>{expandedSections[difficulty] ? '▼' : '▶'}</span>
+              <span style={{ fontSize: '1.25rem', color: '#d1d5db' }}>{expandedSections[difficulty] ? '▼' : '▶'}</span>
             </button>
 
             {expandedSections[difficulty] && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '1rem' }}>
-                {difficultyQuestions.map((question) => (
-                  <div key={question.id} onClick={() => selectQuestion(question)} style={{ backgroundColor: 'white', padding: '1.5rem', borderRadius: '12px', border: '2px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)' }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1f2937', margin: 0, flex: 1 }}>{question.id}. {question.title}</h3>
-                    </div>
-                    <p style={{ fontSize: '0.875rem', color: '#6b7280', lineHeight: '1.5', marginBottom: '1rem' }}>{question.description.substring(0, 100)}...</p>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '600', backgroundColor: getDifficultyColor(question.difficulty) + '20', color: getDifficultyColor(question.difficulty) }}>{question.difficulty}</span>
-                      <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ transform: 'scale(0.85)' }}>
-                          <CompletionCheckbox problemId={`Heaps-${question.id}`} />
+              <div role="list" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '1rem' }}>
+                {difficultyQuestions.map((question) => {
+                  const visibleIndex = getVisibleIndex(question)
+                  const isFocused = focusedIndex === visibleIndex
+                  return (
+                    <div
+                      key={question.id}
+                      ref={el => itemRefs.current[visibleIndex] = el}
+                      tabIndex={0}
+                      role="listitem"
+                      aria-label={`${question.title}, ${question.difficulty}`}
+                      onClick={() => selectQuestion(question)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          selectQuestion(question)
+                        }
+                      }}
+                      onFocus={() => setFocusedIndex(visibleIndex)}
+                      style={{
+                        background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                        padding: '1.5rem',
+                        borderRadius: '12px',
+                        border: isFocused ? '2px solid #3b82f6' : '2px solid #374151',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        outline: 'none'
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.3)' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; if (!isFocused) e.currentTarget.style.border = '2px solid #374151' }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'white', margin: 0, flex: 1 }}>{question.id}. {question.title}</h3>
+                      </div>
+                      <p style={{ fontSize: '0.875rem', color: '#d1d5db', lineHeight: '1.5', marginBottom: '1rem' }}>{question.description.substring(0, 100)}...</p>
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '600', backgroundColor: getDifficultyColor(question.difficulty) + '20', color: getDifficultyColor(question.difficulty) }}>{question.difficulty}</span>
+                        <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <div style={{ transform: 'scale(0.85)' }}>
+                            <CompletionCheckbox problemId={`Heaps-${question.id}`} />
+                          </div>
+                          <BookmarkButton size="small" problemId={`Heaps-${question.id}`} problemData={{ title: question.title, difficulty: question.difficulty, category: 'Heaps' }} />
+                          {question.leetcodeUrl && (
+                            <a
+                              href={question.leetcodeUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ padding: '0.25rem 0.75rem', backgroundColor: '#FFA116', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: '0.75rem', fontWeight: '600', display: 'inline-block' }}
+                            >
+                              LeetCode ↗
+                            </a>
+                          )}
                         </div>
-                        <BookmarkButton size="small" problemId={`Heaps-${question.id}`} problemData={{ title: question.title, difficulty: question.difficulty, category: 'Heaps' }} />
-                        {question.leetcodeUrl && (
-                          <a
-                            href={question.leetcodeUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ padding: '0.25rem 0.75rem', backgroundColor: '#FFA116', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: '0.75rem', fontWeight: '600', display: 'inline-block' }}
-                          >
-                            LeetCode ↗
-                          </a>
-                        )}
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>

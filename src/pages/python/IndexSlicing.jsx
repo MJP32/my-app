@@ -1,18 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 
 function IndexSlicing({ onBack, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
-
-  const toggleSection = (sectionKey) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [sectionKey]: !prev[sectionKey]
-    }))
-  }
 
   const parseCodeSections = (code) => {
     const sections = []
@@ -582,7 +574,7 @@ print(f"Deep copy: {deep_copy}")            # [[99, 2], [3, 4]]`
                   e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
                 }}
               >
-                ← Back to Python Topics
+                ← Back to Python
               </button>
               <h1 style={{
                 fontSize: '2.25rem',
@@ -821,65 +813,44 @@ print(f"Deep copy: {deep_copy}")            # [[99, 2], [3, 4]]`
                   const sections = parseCodeSections(selectedConcept.codeExample)
                   return sections.length > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                      {sections.map((section, idx) => {
-                        const sectionKey = `${selectedConcept.name}-${idx}`
-                        const isExpanded = expandedSections[sectionKey]
+                      {sections.map((section, idx) => (
+                        <div key={idx} style={{
+                          backgroundColor: '#1e293b',
+                          borderRadius: '0.5rem',
+                          overflow: 'hidden',
+                          border: '1px solid #3b82f6'
+                        }}>
+                          <div
+                            style={{
+                              width: '100%',
+                              padding: '1rem 1.5rem',
+                              background: '#2563eb',
+                              color: 'white',
+                              fontSize: '1rem',
+                              fontWeight: '500',
+                              display: 'flex',
+                              alignItems: 'center',
+                              textAlign: 'left'
+                            }}
+                          >
+                            <span>💻 {section.title}</span>
+                          </div>
 
-                        return (
-                          <div key={idx} style={{
-                            backgroundColor: '#1e293b',
-                            borderRadius: '0.5rem',
-                            overflow: 'hidden',
-                            border: '1px solid #3b82f6'
-                          }}>
-                            <button
-                              onClick={() => toggleSection(sectionKey)}
-                              style={{
-                                width: '100%',
-                                padding: '1rem 1.5rem',
-                                background: '#2563eb',
-                                border: 'none',
-                                color: 'white',
-                                fontSize: '1rem',
-                                fontWeight: '500',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                textAlign: 'left',
-                                transition: 'all 0.2s'
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.background = '#1d4ed8'
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.background = '#2563eb'
+                          <div style={{ padding: 0 }}>
+                            <SyntaxHighlighter
+                              language="python"
+                              style={vscDarkPlus}
+                              customStyle={{
+                                borderRadius: '8px',
+                                padding: '1rem',
+                                fontSize: '0.9rem'
                               }}
                             >
-                              <span>💻 {section.title}</span>
-                              <span style={{ fontSize: '1.2rem' }}>
-                                {isExpanded ? '▼' : '▶'}
-                              </span>
-                            </button>
-
-                            {isExpanded && (
-                              <div style={{ padding: 0 }}>
-                                <SyntaxHighlighter
-                                  language="python"
-                                  style={vscDarkPlus}
-                                  customStyle={{
-                                    borderRadius: '8px',
-                                    padding: '1rem',
-                                    fontSize: '0.9rem'
-                                  }}
-                                >
-                                  {section.code}
-                                </SyntaxHighlighter>
-                              </div>
-                            )}
+                              {section.code}
+                            </SyntaxHighlighter>
                           </div>
-                        )
-                      })}
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     <div style={{

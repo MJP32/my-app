@@ -694,7 +694,7 @@ private List<Child> children;
 
       if (part.startsWith('**') && part.endsWith('**')) {
         return (
-          <strong key={index} style={{ color: '#1f2937', fontSize: '1.05rem' }}>
+          <strong key={index} style={{ color: '#93c5fd', fontSize: '1.05rem' }}>
             {part.slice(2, -2)}
           </strong>
         )
@@ -703,13 +703,13 @@ private List<Child> children;
       if (part.startsWith('`') && part.endsWith('`')) {
         return (
           <code key={index} style={{
-            backgroundColor: '#f1f5f9',
-            color: '#e11d48',
+            backgroundColor: '#374151',
+            color: '#f472b6',
             padding: '0.2rem 0.4rem',
             borderRadius: '4px',
             fontSize: '0.9rem',
             fontFamily: 'monospace',
-            border: '1px solid #e2e8f0'
+            border: '1px solid #4b5563'
           }}>
             {part.slice(1, -1)}
           </code>
@@ -730,7 +730,7 @@ private List<Child> children;
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: '#111827', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -778,7 +778,7 @@ private List<Child> children;
           <div
             key={q.id}
             style={{
-              backgroundColor: '#1f2937',
+              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
               borderRadius: '12px',
               border: `3px solid ${categoryColor}60`,
               overflow: 'hidden',
@@ -793,7 +793,7 @@ private List<Child> children;
               style={{
                 padding: '1.5rem',
                 cursor: 'pointer',
-                backgroundColor: expandedQuestionId === q.id ? `${categoryColor}25` : '#1f2937',
+                backgroundColor: expandedQuestionId === q.id ? `${categoryColor}25` : 'transparent',
                 transition: 'background-color 0.2s ease'
               }}
             >
@@ -854,7 +854,7 @@ private List<Child> children;
             {expandedQuestionId === q.id && (
               <div style={{
                 padding: '1.5rem',
-                backgroundColor: '#111827',
+                backgroundColor: '#1e293b',
                 borderTop: `2px solid ${categoryColor}40`,
                 animation: 'fadeIn 0.3s ease'
               }}>
@@ -876,7 +876,7 @@ private List<Child> children;
       <div style={{
         marginTop: '3rem',
         padding: '2rem',
-        backgroundColor: '#1f2937',
+        backgroundColor: 'rgba(99, 102, 241, 0.15)',
         borderRadius: '12px',
         border: `3px solid ${categoryColor}60`
       }}>

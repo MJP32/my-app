@@ -481,7 +481,7 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
                   e.currentTarget.style.borderColor = '#374151'
                 }}
               >
-                ← Back to All
+                ← Back to Categories
               </button>
 
               {concepts.map((concept) => (

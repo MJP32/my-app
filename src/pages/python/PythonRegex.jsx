@@ -18,11 +18,6 @@ function PythonRegex({ onBack, onPrevious, onNext, previousName, nextName, curre
   const [language, setLanguage] = useState(getPreferredLanguage())
   const [showDrawing, setShowDrawing] = useState(false)
   const [currentDrawing, setCurrentDrawing] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({
-    Easy: true,
-    Medium: true,
-    Hard: true
-  })
 
   useKeyboardNavigation({
     onBack,
@@ -645,13 +640,6 @@ print(extract_person_info("Bob (invalid)"))  # None
     Hard: questions.filter(q => q.difficulty === 'Hard')
   }
 
-  const toggleSection = (difficulty) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [difficulty]: !prev[difficulty]
-    }))
-  }
-
   const handleBack = () => {
     if (selectedQuestion) {
       setSelectedQuestion(null)
@@ -722,7 +710,7 @@ print(extract_person_info("Bob (invalid)"))  # None
                   e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
                 }}
               >
-                ← Back to Python Topics
+                ← Back to Python
               </button>
             </div>
             <div className="flex gap-2">
@@ -1076,8 +1064,7 @@ print(extract_person_info("Bob (invalid)"))  # None
           {Object.entries(groupedQuestions).map(([difficulty, questions]) => (
             questions.length > 0 && (
               <div key={difficulty} style={{ marginBottom: '1.5rem' }}>
-                <button
-                  onClick={() => toggleSection(difficulty)}
+                <div
                   style={{
                     width: '100%',
                     display: 'flex',
@@ -1087,12 +1074,8 @@ print(extract_person_info("Bob (invalid)"))  # None
                     background: 'linear-gradient(to bottom right, #1f2937, #111827)',
                     borderRadius: '0.75rem',
                     marginBottom: '0.75rem',
-                    border: '2px solid #3b82f6',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
+                    border: '2px solid #3b82f6'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.borderColor = '#60a5fa'}
-                  onMouseLeave={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
                 >
                   <h2 style={{
                     fontSize: '1.5rem',
@@ -1101,151 +1084,143 @@ print(extract_person_info("Bob (invalid)"))  # None
                   }}>
                     {difficulty} Problems ({questions.length})
                   </h2>
-                  <span style={{
-                    fontSize: '1.5rem',
-                    color: '#60a5fa'
-                  }}>
-                    {expandedSections[difficulty] ? '−' : '+'}
-                  </span>
-                </button>
+                </div>
 
-                {expandedSections[difficulty] && (
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                    gap: '1rem'
-                  }}>
-                    {questions.map((question) => (
-                      <div
-                        key={question.id}
-                        onClick={() => setSelectedQuestion(question)}
-                        style={{
-                          padding: '1.5rem',
-                          border: '2px solid #3b82f6',
-                          borderRadius: '0.75rem',
-                          cursor: 'pointer',
-                          transition: 'all 0.3s',
-                          background: 'linear-gradient(to bottom right, #1f2937, #111827)',
-                          position: 'relative',
-                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = '#60a5fa'
-                          e.currentTarget.style.transform = 'translateY(-0.5rem)'
-                          e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(59, 130, 246, 0.5)'
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = '#3b82f6'
-                          e.currentTarget.style.transform = 'translateY(0)'
-                          e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                        }}
-                      >
-                        <div style={{
-                          position: 'absolute',
-                          top: '0.75rem',
-                          right: '0.75rem',
-                          display: 'flex',
-                          gap: '0.5rem'
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                  gap: '1rem'
+                }}>
+                  {questions.map((question) => (
+                    <div
+                      key={question.id}
+                      onClick={() => setSelectedQuestion(question)}
+                      style={{
+                        padding: '1.5rem',
+                        border: '2px solid #3b82f6',
+                        borderRadius: '0.75rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s',
+                        background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                        position: 'relative',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = '#60a5fa'
+                        e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                        e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(59, 130, 246, 0.5)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = '#3b82f6'
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      }}
+                    >
+                      <div style={{
+                        position: 'absolute',
+                        top: '0.75rem',
+                        right: '0.75rem',
+                        display: 'flex',
+                        gap: '0.5rem'
+                      }}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleShowDrawing(question)
+                          }}
+                          style={{
+                            padding: '0.5rem',
+                            background: '#1f2937',
+                            border: '1px solid #60a5fa',
+                            borderRadius: '0.5rem',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = '#2563eb'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = '#1f2937'}
+                          title="Open drawing canvas"
+                        >
+                          <svg style={{ width: '1.25rem', height: '1.25rem', color: '#60a5fa' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          </svg>
+                        </button>
+                        <CompletionCheckbox
+                          problemId={`PythonRegex-${question.id}`}
+                          scale="0.85"
+                        />
+                      </div>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        justifyContent: 'space-between',
+                        marginBottom: '0.5rem'
+                      }}>
+                        <h3 style={{
+                          fontSize: '1.25rem',
+                          fontWeight: '600',
+                          color: '#93c5fd',
+                          paddingRight: '5rem'
                         }}>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleShowDrawing(question)
-                            }}
-                            style={{
-                              padding: '0.5rem',
-                              background: '#1f2937',
-                              border: '1px solid #60a5fa',
-                              borderRadius: '0.5rem',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.background = '#2563eb'}
-                            onMouseLeave={(e) => e.currentTarget.style.background = '#1f2937'}
-                            title="Open drawing canvas"
-                          >
-                            <svg style={{ width: '1.25rem', height: '1.25rem', color: '#60a5fa' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                            </svg>
-                          </button>
-                          <CompletionCheckbox
-                            problemId={`PythonRegex-${question.id}`}
-                            scale="0.85"
-                          />
-                        </div>
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          justifyContent: 'space-between',
-                          marginBottom: '0.5rem'
-                        }}>
-                          <h3 style={{
-                            fontSize: '1.25rem',
+                          {question.title}
+                        </h3>
+                      </div>
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: '9999px',
+                        fontSize: '0.875rem',
+                        fontWeight: '500',
+                        marginBottom: '0.75rem',
+                        background: difficulty === 'Easy' ? '#065f46' :
+                                   difficulty === 'Medium' ? '#92400e' : '#7f1d1d',
+                        color: difficulty === 'Easy' ? '#6ee7b7' :
+                               difficulty === 'Medium' ? '#fcd34d' : '#fca5a5'
+                      }}>
+                        {difficulty}
+                      </span>
+                      <p style={{
+                        color: '#d1d5db',
+                        marginBottom: '1rem'
+                      }}>
+                        {question.description}
+                      </p>
+                      {question.examples && (
+                        <div style={{ marginTop: '0.5rem' }}>
+                          <p style={{
                             fontWeight: '600',
                             color: '#93c5fd',
-                            paddingRight: '5rem'
+                            marginBottom: '0.5rem',
+                            fontSize: '0.875rem'
                           }}>
-                            {question.title}
-                          </h3>
-                        </div>
-                        <span style={{
-                          display: 'inline-block',
-                          padding: '0.25rem 0.75rem',
-                          borderRadius: '9999px',
-                          fontSize: '0.875rem',
-                          fontWeight: '500',
-                          marginBottom: '0.75rem',
-                          background: difficulty === 'Easy' ? '#065f46' :
-                                     difficulty === 'Medium' ? '#92400e' : '#7f1d1d',
-                          color: difficulty === 'Easy' ? '#6ee7b7' :
-                                 difficulty === 'Medium' ? '#fcd34d' : '#fca5a5'
-                        }}>
-                          {difficulty}
-                        </span>
-                        <p style={{
-                          color: '#d1d5db',
-                          marginBottom: '1rem'
-                        }}>
-                          {question.description}
-                        </p>
-                        {question.examples && (
-                          <div style={{ marginTop: '0.5rem' }}>
+                            Example:
+                          </p>
+                          <div style={{
+                            background: '#1f2937',
+                            border: '1px solid #3b82f6',
+                            padding: '0.75rem',
+                            borderRadius: '0.5rem'
+                          }}>
                             <p style={{
-                              fontWeight: '600',
-                              color: '#93c5fd',
-                              marginBottom: '0.5rem',
-                              fontSize: '0.875rem'
+                              fontFamily: 'monospace',
+                              fontSize: '0.875rem',
+                              color: '#d1d5db',
+                              marginBottom: '0.25rem'
                             }}>
-                              Example:
+                              <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>Input:</span> {question.examples[0].input}
                             </p>
-                            <div style={{
-                              background: '#1f2937',
-                              border: '1px solid #3b82f6',
-                              padding: '0.75rem',
-                              borderRadius: '0.5rem'
+                            <p style={{
+                              fontFamily: 'monospace',
+                              fontSize: '0.875rem',
+                              color: '#d1d5db'
                             }}>
-                              <p style={{
-                                fontFamily: 'monospace',
-                                fontSize: '0.875rem',
-                                color: '#d1d5db',
-                                marginBottom: '0.25rem'
-                              }}>
-                                <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>Input:</span> {question.examples[0].input}
-                              </p>
-                              <p style={{
-                                fontFamily: 'monospace',
-                                fontSize: '0.875rem',
-                                color: '#d1d5db'
-                              }}>
-                                <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>Output:</span> {question.examples[0].output}
-                              </p>
-                            </div>
+                              <span style={{ fontWeight: 'bold', color: '#60a5fa' }}>Output:</span> {question.examples[0].output}
+                            </p>
                           </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             )
           ))}
@@ -1282,7 +1257,7 @@ print(extract_person_info("Bob (invalid)"))  # None
             onMouseEnter={(e) => e.currentTarget.style.background = '#1d4ed8'}
             onMouseLeave={(e) => e.currentTarget.style.background = '#2563eb'}
           >
-            ← Back to Problems
+            ← Back to Python
           </button>
           <div className="flex items-center gap-4">
             <LanguageToggle />

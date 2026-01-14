@@ -1038,10 +1038,10 @@ curl -X DELETE https://gitlab.com/api/v4/projects/123/pipelines/456 \\
       padding: '2rem',
       maxWidth: '95%',
       margin: '120px auto 0',
-      backgroundColor: 'white',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       borderRadius: '16px',
       boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-      border: '3px solid rgba(14, 165, 233, 0.4)'
+      border: '3px solid #374151'
     }}>
       <div style={{
         display: 'flex',
@@ -1069,13 +1069,13 @@ curl -X DELETE https://gitlab.com/api/v4/projects/123/pipelines/456 \\
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
           >
-            ← Back to Menu
+            ← Back to DevOps
           </button>
           <div>
             <h1 style={{
               fontSize: '2.5rem',
               fontWeight: '800',
-              color: '#1f2937',
+              color: 'white',
               margin: 0,
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
             }}>
@@ -1086,8 +1086,8 @@ curl -X DELETE https://gitlab.com/api/v4/projects/123/pipelines/456 \\
                 padding: '0.25rem 0.75rem',
                 fontSize: '0.85rem',
                 fontWeight: '600',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
+                backgroundColor: '#1f2937',
+                color: '#60a5fa',
                 borderRadius: '6px',
                 marginTop: '0.25rem',
                 display: 'inline-block'
@@ -1152,15 +1152,15 @@ curl -X DELETE https://gitlab.com/api/v4/projects/123/pipelines/456 \\
       <Breadcrumb breadcrumb={breadcrumb} />
 
       <div style={{
-        backgroundColor: 'rgba(14, 165, 233, 0.05)',
+        background: 'linear-gradient(to bottom right, #1f2937, #111827)',
         padding: '2.5rem 10rem',
         borderRadius: '16px',
-        border: '3px solid rgba(14, 165, 233, 0.3)',
+        border: '3px solid #374151',
         marginBottom: '2rem'
       }}>
         <p style={{
           fontSize: '1.3rem',
-          color: '#374151',
+          color: '#9ca3af',
           fontWeight: '500',
           margin: 0,
           lineHeight: '1.8',
@@ -1181,7 +1181,7 @@ curl -X DELETE https://gitlab.com/api/v4/projects/123/pipelines/456 \\
           <h3 style={{
             fontSize: '1.5rem',
             fontWeight: '700',
-            color: '#1f2937',
+            color: 'white',
             marginBottom: '1.5rem'
           }}>
             Deployment Phases
@@ -1197,26 +1197,26 @@ curl -X DELETE https://gitlab.com/api/v4/projects/123/pipelines/456 \\
                 style={{
                   backgroundColor: selectedPhase?.id === phase.id
                     ? `${phase.color}15`
-                    : 'rgba(14, 165, 233, 0.05)',
+                    : '#1f2937',
                   padding: '1.25rem',
                   borderRadius: '12px',
                   border: selectedPhase?.id === phase.id
                     ? `3px solid ${phase.color}`
-                    : '2px solid rgba(14, 165, 233, 0.2)',
+                    : '2px solid #374151',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   transform: selectedPhase?.id === phase.id ? 'scale(1.02)' : 'scale(1)'
                 }}
                 onMouseEnter={(e) => {
                   if (selectedPhase?.id !== phase.id) {
-                    e.currentTarget.style.backgroundColor = 'rgba(14, 165, 233, 0.1)'
-                    e.currentTarget.style.borderColor = 'rgba(14, 165, 233, 0.4)'
+                    e.currentTarget.style.backgroundColor = '#374151'
+                    e.currentTarget.style.borderColor = '#4b5563'
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (selectedPhase?.id !== phase.id) {
-                    e.currentTarget.style.backgroundColor = 'rgba(14, 165, 233, 0.05)'
-                    e.currentTarget.style.borderColor = 'rgba(14, 165, 233, 0.2)'
+                    e.currentTarget.style.backgroundColor = '#1f2937'
+                    e.currentTarget.style.borderColor = '#374151'
                   }
                 }}
               >
@@ -1231,7 +1231,7 @@ curl -X DELETE https://gitlab.com/api/v4/projects/123/pipelines/456 \\
                     <div style={{
                       fontSize: '1.1rem',
                       fontWeight: '700',
-                      color: selectedPhase?.id === phase.id ? phase.color : '#1f2937'
+                      color: selectedPhase?.id === phase.id ? phase.color : 'white'
                     }}>
                       {phase.id}. {phase.name}
                     </div>
@@ -1239,7 +1239,7 @@ curl -X DELETE https://gitlab.com/api/v4/projects/123/pipelines/456 \\
                 </div>
                 <div style={{
                   fontSize: '0.9rem',
-                  color: '#6b7280',
+                  color: '#9ca3af',
                   lineHeight: '1.5'
                 }}>
                   {phase.description}
@@ -1283,9 +1283,9 @@ curl -X DELETE https://gitlab.com/api/v4/projects/123/pipelines/456 \\
                 <div
                   key={idx}
                   style={{
-                    backgroundColor: 'white',
+                    backgroundColor: '#1f2937',
                     borderRadius: '12px',
-                    border: `2px solid ${selectedPhase.color}33`,
+                    border: `2px solid #374151`,
                     overflow: 'hidden'
                   }}
                 >
@@ -1293,7 +1293,7 @@ curl -X DELETE https://gitlab.com/api/v4/projects/123/pipelines/456 \\
                     onClick={() => setExpandedStep(expandedStep === idx ? null : idx)}
                     style={{
                       padding: '1.25rem',
-                      backgroundColor: expandedStep === idx ? `${selectedPhase.color}08` : 'white',
+                      backgroundColor: expandedStep === idx ? `${selectedPhase.color}15` : '#1f2937',
                       cursor: 'pointer',
                       display: 'flex',
                       justifyContent: 'space-between',
@@ -1312,7 +1312,7 @@ curl -X DELETE https://gitlab.com/api/v4/projects/123/pipelines/456 \\
                       </h4>
                       <p style={{
                         fontSize: '0.9rem',
-                        color: '#6b7280',
+                        color: '#9ca3af',
                         margin: 0
                       }}>
                         {step.description}
@@ -1332,7 +1332,7 @@ curl -X DELETE https://gitlab.com/api/v4/projects/123/pipelines/456 \\
                   {expandedStep === idx && (
                     <div style={{
                       padding: '1.5rem',
-                      borderTop: `1px solid ${selectedPhase.color}33`
+                      borderTop: `1px solid #374151`
                     }}>
                       {/* Checklist */}
                       <div style={{
@@ -1341,7 +1341,7 @@ curl -X DELETE https://gitlab.com/api/v4/projects/123/pipelines/456 \\
                         <h5 style={{
                           fontSize: '1rem',
                           fontWeight: '700',
-                          color: '#1f2937',
+                          color: 'white',
                           marginBottom: '0.75rem'
                         }}>
                           ✓ Checklist
@@ -1358,10 +1358,10 @@ curl -X DELETE https://gitlab.com/api/v4/projects/123/pipelines/456 \\
                                 alignItems: 'flex-start',
                                 gap: '0.5rem',
                                 padding: '0.5rem',
-                                backgroundColor: `${selectedPhase.color}08`,
+                                backgroundColor: '#111827',
                                 borderRadius: '6px',
                                 fontSize: '0.9rem',
-                                color: '#374151'
+                                color: '#9ca3af'
                               }}
                             >
                               <span style={{ color: selectedPhase.color, fontWeight: '700' }}>□</span>
@@ -1376,7 +1376,7 @@ curl -X DELETE https://gitlab.com/api/v4/projects/123/pipelines/456 \\
                         <h5 style={{
                           fontSize: '1rem',
                           fontWeight: '700',
-                          color: '#1f2937',
+                          color: 'white',
                           marginBottom: '0.75rem'
                         }}>
                           💻 Commands & Examples

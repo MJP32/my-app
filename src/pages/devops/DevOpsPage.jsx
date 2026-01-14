@@ -233,195 +233,243 @@ function DevOpsPage({ onBack, onSelectItem, breadcrumb }) {
 
   return (
     <div style={{
-      padding: '2rem',
-      maxWidth: '1400px',
-      margin: '0 auto',
-      background: 'linear-gradient(135deg, #0c4a6e 0%, #075985 50%, #0369a1 100%)',
-      minHeight: '100vh'
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
+      color: 'white',
+      padding: '1.5rem'
     }}>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '2rem'
-      }}>
-        <button
-          onClick={handleBack}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            fontWeight: '600',
-            backgroundColor: 'rgba(255,255,255,0.15)',
-            color: 'white',
-            border: '1px solid rgba(255,255,255,0.3)',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            backdropFilter: 'blur(10px)'
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.25)'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.15)'}
-        >
-          ← {selectedCategory ? 'Back to Categories' : 'Back to Menu'}
-        </button>
-        <h1 style={{
-          fontSize: '2.5rem',
-          fontWeight: '800',
-          color: 'white',
-          margin: 0,
-          textShadow: '0 2px 4px rgba(0,0,0,0.2)'
-        }}>
-          {selectedCategory ? `${currentCategory?.icon} ${currentCategory?.name}` : '🛠️ DevOps'}
-        </h1>
-        <div style={{ width: '180px' }}></div>
-      </div>
-
-      <Breadcrumb breadcrumb={breadcrumb} />
-
-      <p style={{
-        fontSize: '1.2rem',
-        color: 'rgba(255,255,255,0.9)',
-        textAlign: 'center',
-        marginBottom: '3rem',
-        lineHeight: '1.8'
-      }}>
-        {selectedCategory
-          ? currentCategory?.description
-          : 'Master DevOps practices, tools, and methodologies for efficient software delivery and operations.'}
-      </p>
-
-      {!selectedCategory && (
+      <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
         <div style={{
           display: 'flex',
-          justifyContent: 'center',
-          gap: '0.5rem',
-          marginBottom: '2rem',
-          flexWrap: 'wrap'
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '2rem'
         }}>
-          {categories.map(cat => (
-            <span
-              key={cat.id}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <button
+              onClick={handleBack}
               style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: 'rgba(255,255,255,0.1)',
-                borderRadius: '20px',
-                fontSize: '0.9rem',
-                color: 'rgba(255,255,255,0.8)'
+                background: '#2563eb',
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontWeight: '500',
+                fontSize: '1rem',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#1d4ed8'
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#2563eb'
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
               }}
             >
-              {cat.items.length} topics
-            </span>
-          ))}
+              ← {selectedCategory ? 'Back to Categories' : 'Back to Menu'}
+            </button>
+            <h1 style={{
+              fontSize: '2.25rem',
+              fontWeight: 'bold',
+              background: 'linear-gradient(to right, #93c5fd, #60a5fa)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              {selectedCategory ? `${currentCategory?.icon} ${currentCategory?.name}` : '🛠️ DevOps'}
+            </h1>
+          </div>
         </div>
-      )}
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-        gap: '2rem'
-      }}>
-        {currentItems.map((item, index) => (
+        {/* Dark themed Breadcrumb */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          padding: '0.75rem 1rem',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          borderRadius: '8px',
+          marginBottom: '1.5rem',
+          flexWrap: 'wrap',
+          border: '1px solid rgba(59, 130, 246, 0.3)'
+        }}>
           <button
-            key={item.id}
-            ref={(el) => itemRefs.current[index] = el}
             onClick={() => {
-              if (selectedCategory) {
-                onSelectItem(item.id)
-              } else {
-                setSelectedCategory(item.id)
-              }
+              setSelectedCategory(null)
+              if (!selectedCategory) onBack()
             }}
-            tabIndex={focusedIndex === index ? 0 : -1}
-            role="link"
-            aria-label={`${item.name}. ${item.description}`}
             style={{
-              background: 'linear-gradient(145deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)',
-              padding: '2rem',
-              borderRadius: '16px',
-              border: `2px solid ${item.color}80`,
+              background: 'none',
+              border: 'none',
+              color: '#93c5fd',
               cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              transform: focusedIndex === index ? 'translateY(-8px)' : 'translateY(0)',
-              boxShadow: focusedIndex === index
-                ? `0 0 0 4px ${item.color}60, 0 20px 40px rgba(0,0,0,0.3)`
-                : '0 8px 32px rgba(0,0,0,0.2)',
-              textAlign: 'left',
-              width: '100%',
-              backdropFilter: 'blur(10px)'
+              fontSize: '0.9rem',
+              fontWeight: '500',
+              padding: '0.25rem 0.5rem',
+              borderRadius: '4px',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-8px)'
-              e.currentTarget.style.boxShadow = `0 0 0 4px ${item.color}60, 0 20px 40px rgba(0,0,0,0.3)`
-              e.currentTarget.style.borderColor = item.color
+              e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.2)'
+              e.currentTarget.style.color = '#bfdbfe'
             }}
             onMouseLeave={(e) => {
-              if (focusedIndex !== index) {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.2)'
-                e.currentTarget.style.borderColor = `${item.color}80`
-              }
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color = '#93c5fd'
             }}
           >
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem',
-              marginBottom: '1rem'
-            }}>
-              <div style={{
-                fontSize: '3rem',
-                lineHeight: 1,
-                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
-              }}>
-                {item.icon}
-              </div>
-              <div>
-                <h3 style={{
-                  fontSize: '1.4rem',
-                  fontWeight: '700',
-                  color: 'white',
-                  margin: 0,
-                  textShadow: '0 1px 2px rgba(0,0,0,0.2)'
-                }}>
-                  {item.name}
-                </h3>
-                {!selectedCategory && item.items && (
-                  <span style={{
-                    fontSize: '0.85rem',
-                    color: 'rgba(255,255,255,0.7)',
-                    marginTop: '0.25rem',
-                    display: 'block'
-                  }}>
-                    {item.items.length} topics
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <p style={{
-              fontSize: '0.95rem',
-              color: 'rgba(255,255,255,0.8)',
-              lineHeight: '1.6',
-              margin: '1rem 0'
-            }}>
-              {item.description}
-            </p>
-
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              gap: '0.5rem',
-              fontSize: '0.9rem',
-              color: item.color,
-              fontWeight: '600',
-              marginTop: '1.5rem'
-            }}>
-              <span>{selectedCategory ? 'Explore Topic' : 'View Topics'}</span>
-              <span>→</span>
-            </div>
+            <span>🛠️</span> DevOps
           </button>
-        ))}
+          {selectedCategory && (
+            <>
+              <span style={{ color: '#3b82f6', fontSize: '0.9rem' }}>→</span>
+              <span style={{
+                color: '#e2e8f0',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                padding: '0.25rem 0.75rem',
+                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                borderRadius: '4px'
+              }}>
+                {currentCategory?.name}
+              </span>
+            </>
+          )}
+          {!selectedCategory && (
+            <>
+              <span style={{ color: '#3b82f6', fontSize: '0.9rem' }}>→</span>
+              <span style={{
+                color: '#e2e8f0',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                padding: '0.25rem 0.75rem',
+                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                borderRadius: '4px'
+              }}>
+                Categories
+              </span>
+            </>
+          )}
+        </div>
+
+        <p style={{
+          fontSize: '1.2rem',
+          color: '#d1d5db',
+          textAlign: 'center',
+          marginBottom: '3rem',
+          lineHeight: '1.8'
+        }}>
+          {selectedCategory
+            ? currentCategory?.description
+            : 'Master DevOps practices, tools, and methodologies for efficient software delivery and operations.'}
+        </p>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+          gap: '1.5rem'
+        }}>
+          {currentItems.map((item, index) => (
+            <button
+              key={item.id}
+              ref={(el) => itemRefs.current[index] = el}
+              onClick={() => {
+                if (selectedCategory) {
+                  onSelectItem(item.id)
+                } else {
+                  setSelectedCategory(item.id)
+                }
+              }}
+              tabIndex={focusedIndex === index ? 0 : -1}
+              role="link"
+              aria-label={`${item.name}. ${item.description}`}
+              style={{
+                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                padding: '1.5rem',
+                borderRadius: '0.75rem',
+                border: `2px solid ${item.color}`,
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                transform: focusedIndex === index ? 'translateY(-0.5rem)' : 'translateY(0)',
+                boxShadow: focusedIndex === index
+                  ? `0 25px 50px -12px ${item.color}50`
+                  : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                textAlign: 'left',
+                width: '100%'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                e.currentTarget.style.boxShadow = `0 25px 50px -12px ${item.color}50`
+              }}
+              onMouseLeave={(e) => {
+                if (focusedIndex !== index) {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }
+              }}
+            >
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                marginBottom: '1rem'
+              }}>
+                <span style={{ fontSize: '2.5rem' }}>{item.icon}</span>
+                <div>
+                  <h3 style={{
+                    fontSize: '1.25rem',
+                    fontWeight: 'bold',
+                    color: '#93c5fd',
+                    marginBottom: '0.25rem'
+                  }}>
+                    {item.name}
+                  </h3>
+                  {!selectedCategory && item.items && (
+                    <span style={{
+                      fontSize: '0.85rem',
+                      color: '#9ca3af'
+                    }}>
+                      {item.items.length} topics
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <p style={{
+                fontSize: '0.9rem',
+                color: '#d1d5db',
+                lineHeight: '1.6',
+                marginBottom: '1rem'
+              }}>
+                {item.description}
+              </p>
+
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                gap: '0.5rem',
+                fontSize: '0.9rem',
+                color: item.color,
+                fontWeight: '600',
+                paddingTop: '0.75rem',
+                borderTop: '1px solid #374151'
+              }}>
+                <span>{selectedCategory ? 'Explore Topic' : 'View Topics'}</span>
+                <span>→</span>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   )

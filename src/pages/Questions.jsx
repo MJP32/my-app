@@ -1,418 +1,576 @@
-import { useState } from 'react'
-import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation'
-import { useTheme } from '../contexts/ThemeContext'
+import { useState, useEffect } from 'react'
 
-function Questions({ onBack, onSelectItem }) {
-  const { colors } = useTheme()
-  const [selectedSubcategory, setSelectedSubcategory] = useState(null)
+function Questions({ onBack, onSelectItem, initialCategory }) {
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory || null)
 
-  // Organized into logical groups
-  const categoryGroups = [
+  // Update selectedCategory when initialCategory prop changes
+  useEffect(() => {
+    if (initialCategory) {
+      setSelectedCategory(initialCategory)
+    }
+  }, [initialCategory])
+
+  const categories = [
     {
-      title: 'Backend Frameworks',
+      id: 'backend-frameworks',
+      name: 'Backend Frameworks',
       icon: '🏗️',
       color: '#10b981',
-      categories: [
+      description: 'Master Spring Framework, Hibernate, and other essential backend technologies for building robust enterprise applications.',
+      topics: [
         {
-          id: 'Spring Framework',
-          name: 'Spring Framework',
+          id: 'Spring Core Questions',
+          name: 'Spring Core',
           icon: '🌱',
           color: '#10b981',
-          count: 5,
-          items: ['Spring Core Questions', 'Spring Boot Questions', 'Spring Security Questions', 'Spring Data JPA Questions', 'Spring Annotations Questions']
+          complexity: 'Intermediate',
+          description: 'Deep dive into Spring Core concepts including IoC, dependency injection, bean lifecycle, and application context.'
         },
         {
-          id: 'Hibernate',
+          id: 'Spring Boot Questions',
+          name: 'Spring Boot',
+          icon: '🚀',
+          color: '#22c55e',
+          complexity: 'Intermediate',
+          description: 'Auto-configuration, starters, actuators, and building production-ready microservices with Spring Boot.'
+        },
+        {
+          id: 'Spring Security Questions',
+          name: 'Spring Security',
+          icon: '🔐',
+          color: '#14b8a6',
+          complexity: 'Advanced',
+          description: 'Authentication, authorization, OAuth2, JWT tokens, and securing Spring applications.'
+        },
+        {
+          id: 'Spring Data JPA Questions',
+          name: 'Spring Data JPA',
+          icon: '💾',
+          color: '#06b6d4',
+          complexity: 'Intermediate',
+          description: 'Repository patterns, query methods, transactions, and database integration with Spring Data JPA.'
+        },
+        {
+          id: 'Spring Annotations Questions',
+          name: 'Spring Annotations',
+          icon: '🏷️',
+          color: '#0891b2',
+          complexity: 'Intermediate',
+          description: 'Essential annotations for configuration, dependency injection, web MVC, and data access.'
+        },
+        {
+          id: 'Hibernate Questions',
           name: 'Hibernate',
           icon: '🔧',
           color: '#8b5cf6',
-          count: 1,
-          items: ['Hibernate Questions']
+          complexity: 'Advanced',
+          description: 'ORM fundamentals, entity mapping, caching, lazy loading, and performance optimization.'
         }
       ]
     },
     {
-      title: 'Programming Languages',
+      id: 'programming-languages',
+      name: 'Programming Languages',
       icon: '💻',
       color: '#f59e0b',
-      categories: [
+      description: 'Core language features, version-specific enhancements, and essential programming concepts for technical interviews.',
+      topics: [
         {
-          id: 'Java',
-          name: 'Java',
+          id: 'Core Java Questions',
+          name: 'Core Java',
           icon: '☕',
           color: '#f59e0b',
-          count: 6,
-          items: ['Core Java Questions', 'Java 8 Questions', 'Java 11 Questions', 'Java 15 Questions', 'Java 21 Questions', 'Java 24 Questions']
+          complexity: 'Beginner to Advanced',
+          description: 'OOP principles, collections, multithreading, exception handling, and JVM internals.'
         },
         {
-          id: 'SQL',
+          id: 'Java 8 Questions',
+          name: 'Java 8',
+          icon: '🎯',
+          color: '#3b82f6',
+          complexity: 'Intermediate',
+          description: 'Lambda expressions, Stream API, functional interfaces, Optional, and date/time API.'
+        },
+        {
+          id: 'Java 11 Questions',
+          name: 'Java 11',
+          icon: '🔧',
+          color: '#8b5cf6',
+          complexity: 'Intermediate',
+          description: 'HTTP Client, local-variable syntax, String methods, and collection factory methods.'
+        },
+        {
+          id: 'Java 15 Questions',
+          name: 'Java 15',
+          icon: '📝',
+          color: '#10b981',
+          complexity: 'Advanced',
+          description: 'Text blocks, sealed classes, records, pattern matching, and hidden classes.'
+        },
+        {
+          id: 'Java 21 Questions',
+          name: 'Java 21',
+          icon: '🚀',
+          color: '#ec4899',
+          complexity: 'Advanced',
+          description: 'Virtual threads, pattern matching, record patterns, and sequenced collections.'
+        },
+        {
+          id: 'Java 24 Questions',
+          name: 'Java 24',
+          icon: '🔮',
+          color: '#06b6d4',
+          complexity: 'Expert Level',
+          description: 'Preview features, advanced pattern matching, and next-generation JVM capabilities.'
+        }
+      ]
+    },
+    {
+      id: 'databases',
+      name: 'Databases',
+      icon: '🗄️',
+      color: '#0ea5e9',
+      description: 'Master database technologies from SQL to NoSQL, including query optimization, data modeling, and ORM frameworks.',
+      topics: [
+        {
+          id: 'SQL Questions',
           name: 'SQL',
           icon: '🗃️',
           color: '#3b82f6',
-          count: 1,
-          items: ['SQL Questions']
-        }
-      ]
-    },
-    {
-      title: 'Messaging & Streaming',
-      icon: '📨',
-      color: '#ef4444',
-      categories: [
-        {
-          id: 'Kafka',
-          name: 'Kafka & Streaming',
-          icon: '📨',
-          color: '#ef4444',
-          count: 2,
-          items: ['Kafka Questions', 'Apache Flink Questions']
+          complexity: 'Intermediate',
+          description: 'Query optimization, joins, subqueries, window functions, indexes, and database design principles.'
         },
         {
-          id: 'Messaging',
-          name: 'Messaging',
-          icon: '📡',
-          color: '#ec4899',
-          count: 2,
-          items: ['RabbitMQ Questions', 'Solace Questions']
+          id: 'NoSQL Questions',
+          name: 'NoSQL',
+          icon: '🍃',
+          color: '#10b981',
+          complexity: 'Intermediate to Advanced',
+          description: 'MongoDB, Redis, Cassandra, DynamoDB - document stores, key-value, column-family, and graph databases.'
+        },
+        {
+          id: 'ORM Questions',
+          name: 'ORM',
+          icon: '🔗',
+          color: '#8b5cf6',
+          complexity: 'Intermediate',
+          description: 'Object-Relational Mapping concepts, JPA, Hibernate mappings, lazy loading, caching, and N+1 problems.'
         }
       ]
     },
     {
-      title: 'APIs & Services',
+      id: 'messaging-streaming',
+      name: 'Messaging & Streaming',
+      icon: '📨',
+      color: '#ef4444',
+      description: 'Event-driven architectures, message brokers, and real-time data streaming technologies.',
+      topics: [
+        {
+          id: 'Kafka Questions',
+          name: 'Apache Kafka',
+          icon: '📨',
+          color: '#ef4444',
+          complexity: 'Advanced',
+          description: 'Topics, partitions, consumer groups, exactly-once semantics, and Kafka Streams.'
+        },
+        {
+          id: 'Apache Flink Questions',
+          name: 'Apache Flink',
+          icon: '⚡',
+          color: '#f97316',
+          complexity: 'Expert Level',
+          description: 'Stream processing, windowing, state management, and exactly-once processing.'
+        },
+        {
+          id: 'RabbitMQ Questions',
+          name: 'RabbitMQ',
+          icon: '🐰',
+          color: '#ec4899',
+          complexity: 'Intermediate',
+          description: 'Exchanges, queues, bindings, message acknowledgment, and clustering.'
+        },
+        {
+          id: 'Solace Questions',
+          name: 'Solace',
+          icon: '📡',
+          color: '#a855f7',
+          complexity: 'Advanced',
+          description: 'Event mesh, message routing, guaranteed messaging, and enterprise integration.'
+        }
+      ]
+    },
+    {
+      id: 'apis-services',
+      name: 'APIs & Services',
       icon: '🌐',
       color: '#6366f1',
-      categories: [
+      description: 'RESTful API design, best practices, and building scalable web services.',
+      topics: [
         {
-          id: 'REST API',
+          id: 'REST API Questions',
           name: 'REST API',
           icon: '🌐',
           color: '#6366f1',
-          count: 1,
-          items: ['REST API Questions']
+          complexity: 'Intermediate',
+          description: 'RESTful principles, HTTP methods, status codes, API versioning, and documentation.'
         }
       ]
     },
     {
-      title: 'DevOps & Monitoring',
+      id: 'devops-monitoring',
+      name: 'DevOps & Monitoring',
       icon: '🚀',
       color: '#14b8a6',
-      categories: [
+      description: 'CI/CD pipelines, observability, and monitoring tools for production systems.',
+      topics: [
         {
-          id: 'CI/CD',
-          name: 'CI/CD',
-          icon: '🚀',
+          id: 'Jenkins Questions',
+          name: 'Jenkins',
+          icon: '🔨',
           color: '#f59e0b',
-          count: 2,
-          items: ['Jenkins Questions', 'TeamCity Questions']
+          complexity: 'Intermediate',
+          description: 'Pipeline as code, build automation, plugins, and continuous integration practices.'
         },
         {
-          id: 'Monitoring',
-          name: 'Monitoring',
+          id: 'TeamCity Questions',
+          name: 'TeamCity',
+          icon: '🏢',
+          color: '#3b82f6',
+          complexity: 'Intermediate',
+          description: 'Build configurations, agents, build chains, and enterprise CI/CD workflows.'
+        },
+        {
+          id: 'Prometheus Questions',
+          name: 'Prometheus',
           icon: '📊',
           color: '#14b8a6',
-          count: 4,
-          items: ['Prometheus Questions', 'Grafana Questions', 'Zipkin Questions', 'Actuator Questions']
+          complexity: 'Advanced',
+          description: 'Metrics collection, PromQL queries, alerting rules, and service discovery.'
+        },
+        {
+          id: 'Grafana Questions',
+          name: 'Grafana',
+          icon: '📈',
+          color: '#f97316',
+          complexity: 'Intermediate',
+          description: 'Dashboard creation, data sources, alerting, and visualization best practices.'
+        },
+        {
+          id: 'Zipkin Questions',
+          name: 'Zipkin',
+          icon: '🔍',
+          color: '#8b5cf6',
+          complexity: 'Advanced',
+          description: 'Distributed tracing, span collection, trace analysis, and performance debugging.'
+        },
+        {
+          id: 'Actuator Questions',
+          name: 'Spring Actuator',
+          icon: '⚙️',
+          color: '#10b981',
+          complexity: 'Intermediate',
+          description: 'Health checks, metrics endpoints, custom endpoints, and production readiness.'
         }
       ]
     }
   ]
 
-  // Flatten for navigation
-  const subcategories = categoryGroups.flatMap(group => group.categories)
-
-  // Hook for subcategories view
-  const { focusedIndex: focusedSubcategoryIndex, itemRefs: subcategoryRefs } = useKeyboardNavigation({
-    items: subcategories,
-    onSelect: (subcategory) => setSelectedSubcategory(subcategory),
-    onBack,
-    enabled: !selectedSubcategory,
-    gridColumns: 2,
-    loop: true
-  })
-
-  // Hook for items view within a subcategory
-  const currentItems = selectedSubcategory ? selectedSubcategory.items.map(item => ({ id: item, name: item })) : []
-  const { focusedIndex: focusedItemIndex, itemRefs: itemRefs } = useKeyboardNavigation({
-    items: currentItems,
-    onSelect: (item) => onSelectItem(item.id),
-    onBack: () => setSelectedSubcategory(null),
-    enabled: !!selectedSubcategory,
-    gridColumns: 2,
-    loop: true
-  })
-
   return (
-    <div style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto', backgroundColor: colors.bgPrimary, minHeight: '100vh' }}>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #111827, #4c1d95, #111827)',
+      color: 'white',
+      padding: '1.5rem'
+    }}>
       <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '1.5rem'
+        maxWidth: '80rem',
+        margin: '0 auto'
       }}>
-        <button
-          onClick={selectedSubcategory ? () => setSelectedSubcategory(null) : onBack}
-          style={{
-            padding: '0.6rem 1.25rem',
-            fontSize: '0.95rem',
-            fontWeight: '600',
-            backgroundColor: selectedSubcategory ? '#8b5cf6' : '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = selectedSubcategory ? '#7c3aed' : '#4b5563'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = selectedSubcategory ? '#8b5cf6' : '#6b7280'}
-        >
-          {selectedSubcategory ? '← Back to Categories' : '← Back to Menu'}
-        </button>
-        <h1 style={{
-          fontSize: '2rem',
-          fontWeight: '800',
-          color: colors.textPrimary,
-          margin: 0
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '2rem'
         }}>
-          {selectedSubcategory ? `${selectedSubcategory.icon} ${selectedSubcategory.name}` : '❓ Questions'}
-        </h1>
-        <div style={{ width: '120px' }}></div>
-      </div>
-
-      {!selectedSubcategory ? (
-        <>
-          <p style={{
-            fontSize: '1rem',
-            color: colors.textSecondary,
-            textAlign: 'center',
-            marginBottom: '1.5rem',
-            lineHeight: '1.6'
-          }}>
-            Test your knowledge with interview questions and practice problems. Choose a category below to start
-            preparing for technical interviews and assessments.
-          </p>
-
-          {categoryGroups.map((group, groupIndex) => {
-            const groupStartIndex = categoryGroups
-              .slice(0, groupIndex)
-              .reduce((sum, g) => sum + g.categories.length, 0)
-
-            return (
-              <div key={group.title} style={{ marginBottom: '2rem' }}>
-                {/* Group Header */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  marginBottom: '1rem',
-                  padding: '0.75rem 1rem',
-                  backgroundColor: colors.bgSecondary,
-                  borderRadius: '10px',
-                  borderLeft: `5px solid ${group.color}`,
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
-                }}>
-                  <span style={{ fontSize: '1.5rem' }}>{group.icon}</span>
-                  <h2 style={{
-                    fontSize: '1.4rem',
-                    fontWeight: '700',
-                    color: colors.textPrimary,
-                    margin: 0
-                  }}>
-                    {group.title}
-                  </h2>
-                </div>
-
-                {/* Category Cards */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                  gap: '1rem'
-                }}>
-                  {group.categories.map((subcategory, catIndex) => {
-                    const index = groupStartIndex + catIndex
-                    return (
-                      <button
-                        key={subcategory.id}
-                        ref={(el) => subcategoryRefs.current[index] = el}
-                        onClick={() => setSelectedSubcategory(subcategory)}
-                        tabIndex={focusedSubcategoryIndex === index ? 0 : -1}
-                        role="link"
-                        aria-label={`${subcategory.name} category. ${subcategory.count} interview questions.`}
-                        style={{
-                          backgroundColor: subcategory.color + '10',
-                          padding: '1.25rem',
-                          borderRadius: '10px',
-                          border: `2px solid ${subcategory.color}40`,
-                          cursor: 'pointer',
-                          transition: 'all 0.3s ease',
-                          transform: focusedSubcategoryIndex === index ? 'translateY(-4px)' : 'translateY(0)',
-                          boxShadow: focusedSubcategoryIndex === index
-                            ? `0 0 0 3px ${subcategory.color}40, 0 8px 16px rgba(0,0,0,0.12)`
-                            : 'none',
-                          textAlign: 'left',
-                          width: '100%'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.transform = 'translateY(-4px)'
-                          e.currentTarget.style.boxShadow = `0 0 0 3px ${subcategory.color}40, 0 8px 16px rgba(0,0,0,0.12)`
-                        }}
-                        onMouseLeave={(e) => {
-                          if (focusedSubcategoryIndex !== index) {
-                            e.currentTarget.style.transform = 'translateY(0)'
-                            e.currentTarget.style.boxShadow = 'none'
-                          }
-                        }}
-                      >
-                        <div style={{
-                          fontSize: '2.5rem',
-                          marginBottom: '0.75rem',
-                          textAlign: 'center'
-                        }}>
-                          {subcategory.icon}
-                        </div>
-                        <h3 style={{
-                          fontSize: '1.15rem',
-                          fontWeight: '700',
-                          color: colors.textPrimary,
-                          marginBottom: '0.5rem',
-                          textAlign: 'center'
-                        }}>
-                          {subcategory.name}
-                        </h3>
-                        <p style={{
-                          fontSize: '1rem',
-                          fontWeight: '600',
-                          color: subcategory.color,
-                          textAlign: 'center',
-                          margin: '0.5rem 0'
-                        }}>
-                          ({subcategory.count})
-                        </p>
-                        <div style={{
-                          fontSize: '0.8rem',
-                          color: colors.textSecondary,
-                          lineHeight: '1.5',
-                          marginTop: '0.75rem'
-                        }}>
-                          {subcategory.items.slice(0, 3).map((item, idx) => (
-                            <div key={idx} style={{ marginBottom: '0.2rem' }}>
-                              • {item}
-                            </div>
-                          ))}
-                          {subcategory.items.length > 3 && (
-                            <div style={{ fontStyle: 'italic', color: colors.textMuted }}>
-                              + {subcategory.items.length - 3} more
-                            </div>
-                          )}
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )
-          })}
-        </>
-      ) : (
-        <>
-          <p style={{
-            fontSize: '1rem',
-            color: colors.textSecondary,
-            textAlign: 'center',
-            marginBottom: '1.5rem',
-            lineHeight: '1.6'
-          }}>
-            Select a topic to start practicing interview questions. Test your knowledge and prepare for success!
-          </p>
-
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            display: 'flex',
+            alignItems: 'center',
             gap: '1rem'
           }}>
-            {selectedSubcategory.items.map((item, index) => (
+            <button
+              onClick={onBack}
+              style={{
+                background: '#8b5cf6',
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontWeight: '500',
+                fontSize: '1rem',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#7c3aed'
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#8b5cf6'
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              ← Back to Menu
+            </button>
+            <h1 style={{
+              fontSize: '2.25rem',
+              fontWeight: 'bold',
+              background: 'linear-gradient(to right, #a78bfa, #c4b5fd)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              {selectedCategory
+                ? `${categories.find(c => c.id === selectedCategory)?.icon} ${categories.find(c => c.id === selectedCategory)?.name}`
+                : '❓ Interview Questions'}
+            </h1>
+          </div>
+        </div>
+
+        <p style={{
+          fontSize: '1.2rem',
+          color: '#d1d5db',
+          textAlign: 'center',
+          marginBottom: '3rem',
+          lineHeight: '1.8'
+        }}>
+          {selectedCategory
+            ? categories.find(c => c.id === selectedCategory)?.description
+            : 'Prepare for technical interviews with comprehensive question sets. Master frameworks, languages, and tools that employers are looking for.'}
+        </p>
+
+        {/* Back to categories button */}
+        {selectedCategory && (
+          <button
+            onClick={() => setSelectedCategory(null)}
+            style={{
+              background: '#6366f1',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.5rem',
+              border: 'none',
+              cursor: 'pointer',
+              marginBottom: '1.5rem',
+              fontSize: '0.9rem',
+              fontWeight: '500'
+            }}
+          >
+            ← Back to Categories
+          </button>
+        )}
+
+        {/* Categories View */}
+        {!selectedCategory && (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '1.5rem'
+          }}>
+            {categories.map(category => (
               <button
-                key={item}
-                ref={(el) => itemRefs.current[index] = el}
-                onClick={() => onSelectItem(item)}
-                tabIndex={focusedItemIndex === index ? 0 : -1}
-                role="link"
-                aria-label={`${item} interview questions`}
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
                 style={{
-                  backgroundColor: colors.bgSecondary,
-                  padding: '1rem',
-                  borderRadius: '10px',
-                  border: focusedItemIndex === index
-                    ? `2px solid ${selectedSubcategory.color}`
-                    : `2px solid ${selectedSubcategory.color}40`,
+                  background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                  padding: '2rem',
+                  borderRadius: '0.75rem',
+                  border: `2px solid ${category.color}`,
                   cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  transform: focusedItemIndex === index ? 'translateY(-3px)' : 'translateY(0)',
-                  boxShadow: focusedItemIndex === index
-                    ? `0 0 0 3px ${selectedSubcategory.color}40, 0 6px 12px rgba(0,0,0,0.12)`
-                    : '0 2px 6px rgba(0,0,0,0.08)',
+                  transition: 'all 0.3s',
                   textAlign: 'left',
-                  width: '100%'
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-3px)'
-                  e.currentTarget.style.boxShadow = `0 0 0 3px ${selectedSubcategory.color}40, 0 6px 12px rgba(0,0,0,0.12)`
-                  e.currentTarget.style.borderColor = selectedSubcategory.color
+                  e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                  e.currentTarget.style.boxShadow = `0 25px 50px -12px ${category.color}40`
                 }}
                 onMouseLeave={(e) => {
-                  if (focusedItemIndex !== index) {
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.08)'
-                    e.currentTarget.style.borderColor = selectedSubcategory.color + '40'
-                  }
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}
               >
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.75rem',
-                  marginBottom: '0.5rem'
+                  gap: '1rem',
+                  marginBottom: '1rem'
                 }}>
-                  <div style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '6px',
-                    backgroundColor: selectedSubcategory.color,
-                    color: 'white',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1rem',
-                    fontWeight: '700',
-                    flexShrink: 0
-                  }}>
-                    {index + 1}
+                  <span style={{ fontSize: '2.5rem' }}>{category.icon}</span>
+                  <div>
+                    <h3 style={{
+                      fontSize: '1.5rem',
+                      fontWeight: 'bold',
+                      color: category.color,
+                      marginBottom: '0.25rem'
+                    }}>
+                      {category.name}
+                    </h3>
+                    <span style={{
+                      fontSize: '0.875rem',
+                      color: '#9ca3af'
+                    }}>
+                      {category.topics.length} {category.topics.length === 1 ? 'topic' : 'topics'}
+                    </span>
                   </div>
-                  <h3 style={{
-                    fontSize: '0.95rem',
-                    fontWeight: '700',
-                    color: colors.textPrimary,
-                    margin: 0
-                  }}>
-                    {item}
-                  </h3>
+                </div>
+                <p style={{
+                  fontSize: '0.95rem',
+                  color: '#d1d5db',
+                  lineHeight: '1.6',
+                  marginBottom: '1rem'
+                }}>
+                  {category.description}
+                </p>
+                <div style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '0.5rem'
+                }}>
+                  {category.topics.slice(0, 3).map(topic => (
+                    <span
+                      key={topic.id}
+                      style={{
+                        padding: '0.25rem 0.5rem',
+                        backgroundColor: '#374151',
+                        borderRadius: '0.25rem',
+                        fontSize: '0.75rem',
+                        color: '#d1d5db'
+                      }}
+                    >
+                      {topic.name}
+                    </span>
+                  ))}
+                  {category.topics.length > 3 && (
+                    <span style={{
+                      padding: '0.25rem 0.5rem',
+                      backgroundColor: category.color,
+                      borderRadius: '0.25rem',
+                      fontSize: '0.75rem',
+                      color: 'white'
+                    }}>
+                      +{category.topics.length - 3} more
+                    </span>
+                  )}
                 </div>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'flex-end',
-                  gap: '0.4rem',
-                  fontSize: '0.8rem',
-                  color: selectedSubcategory.color,
-                  fontWeight: '600'
+                  gap: '0.5rem',
+                  fontSize: '0.9rem',
+                  color: category.color,
+                  fontWeight: '600',
+                  marginTop: '1rem'
                 }}>
-                  <span>Start Questions</span>
+                  <span>Explore</span>
                   <span>→</span>
                 </div>
               </button>
             ))}
           </div>
-        </>
-      )}
+        )}
+
+        {/* Topics within Category View */}
+        {selectedCategory && (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '1.5rem'
+          }}>
+            {categories
+              .find(c => c.id === selectedCategory)
+              ?.topics.map(topic => (
+                <button
+                  key={topic.id}
+                  onClick={() => onSelectItem(topic.id)}
+                  style={{
+                    background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                    padding: '1.5rem',
+                    borderRadius: '0.75rem',
+                    border: `2px solid ${topic.color}`,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s',
+                    textAlign: 'left',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-0.5rem)'
+                    e.currentTarget.style.boxShadow = `0 25px 50px -12px ${topic.color}50`
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                >
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    marginBottom: '1rem'
+                  }}>
+                    <span style={{ fontSize: '2.5rem' }}>{topic.icon}</span>
+                    <div>
+                      <h3 style={{
+                        fontSize: '1.25rem',
+                        fontWeight: 'bold',
+                        color: '#a78bfa',
+                        marginBottom: '0.25rem'
+                      }}>
+                        {topic.name}
+                      </h3>
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '0.2rem 0.6rem',
+                        backgroundColor: topic.color,
+                        color: 'white',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        borderRadius: '0.25rem'
+                      }}>
+                        {topic.complexity}
+                      </span>
+                    </div>
+                  </div>
+                  <p style={{
+                    fontSize: '0.9rem',
+                    color: '#d1d5db',
+                    lineHeight: '1.6',
+                    marginBottom: '1rem'
+                  }}>
+                    {topic.description}
+                  </p>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                    gap: '0.5rem',
+                    fontSize: '0.9rem',
+                    color: topic.color,
+                    fontWeight: '600',
+                    paddingTop: '0.75rem',
+                    borderTop: '1px solid #374151'
+                  }}>
+                    <span>Start Questions</span>
+                    <span>→</span>
+                  </div>
+                </button>
+              ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -13,10 +13,10 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8 bg-white rounded-2xl shadow-lg p-6 border-l-8 border-red-500">
+        <div className="mb-8 bg-gray-800 rounded-2xl shadow-lg p-6 border-l-8 border-red-500">
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={onBack}
@@ -86,7 +86,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
         {activeTab === 'overview' && (
           <div className="space-y-8">
             {/* Requirements */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-red-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-red-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-red-600">📝</span>
                 System Requirements
@@ -164,7 +164,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
             </div>
 
             {/* Architecture Diagram */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-orange-600">🏗️</span>
                 High-Level Architecture
@@ -325,7 +325,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
             </div>
 
             {/* Scale Estimates */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-emerald-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-emerald-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-emerald-600">📊</span>
                 Scale & Capacity Estimates
@@ -384,7 +384,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
           <div className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               {/* Alarm Service */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-shadow">
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-shadow">
                 <h3 className="text-2xl font-bold text-green-700 mb-4 flex items-center gap-2">
                   <span>🚨</span>
                   Alarm Service
@@ -414,7 +414,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
               </div>
 
               {/* Alert Service */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-cyan-500 hover:shadow-xl transition-shadow">
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-cyan-500 hover:shadow-xl transition-shadow">
                 <h3 className="text-2xl font-bold text-cyan-700 mb-4 flex items-center gap-2">
                   <span>🔔</span>
                   Alert Service
@@ -444,7 +444,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
               </div>
 
               {/* Video Service */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-xl transition-shadow">
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-xl transition-shadow">
                 <h3 className="text-2xl font-bold text-orange-700 mb-4 flex items-center gap-2">
                   <span>📹</span>
                   Video Service
@@ -474,7 +474,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
               </div>
 
               {/* Access Control Service */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500 hover:shadow-xl transition-shadow">
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-purple-500 hover:shadow-xl transition-shadow">
                 <h3 className="text-2xl font-bold text-purple-700 mb-4 flex items-center gap-2">
                   <span>🔑</span>
                   Access Control Service
@@ -509,7 +509,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
         {activeTab === 'dataflow' && (
           <div className="space-y-8">
             {/* Intrusion Detection Flow */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-red-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-red-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-red-600">🚨</span>
                 Intrusion Detection Flow
@@ -544,7 +544,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
             </div>
 
             {/* Fire Alarm Flow */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-orange-600">🔥</span>
                 Fire Alarm Flow
@@ -581,7 +581,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
         {activeTab === 'scalability' && (
           <div className="space-y-8">
             {/* IoT Communication */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-orange-600">📡</span>
                 IoT Communication Protocols
@@ -623,7 +623,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
             </div>
 
             {/* Redundancy & Reliability */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-green-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-green-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-green-600">🔄</span>
                 Redundancy & Reliability
@@ -663,7 +663,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
             </div>
 
             {/* Data Retention */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-indigo-600">💾</span>
                 Data Retention & Privacy
@@ -697,7 +697,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
         {activeTab === 'tradeoffs' && (
           <div className="space-y-8">
             {/* Technology Stack */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-indigo-600">🛠️</span>
                 Technology Stack
@@ -743,7 +743,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
             </div>
 
             {/* Key Design Trade-offs */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-orange-600">⚖️</span>
                 Key Design Trade-offs
@@ -755,7 +755,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
                   <h3 className="text-xl font-bold text-orange-900 mb-4">1. Cloud-Only vs Hybrid (Cloud + Edge)</h3>
 
                   <div className="grid md:grid-cols-2 gap-4 mb-4">
-                    <div className="bg-white p-4 rounded-lg border-2 border-red-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-red-200">
                       <div className="font-bold text-red-700 mb-2">Cloud-Only</div>
                       <div className="text-sm space-y-1 text-gray-700">
                         <div><strong>Pros:</strong></div>
@@ -768,7 +768,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
                       </div>
                     </div>
 
-                    <div className="bg-white p-4 rounded-lg border-2 border-green-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-green-200">
                       <div className="font-bold text-green-700 mb-2">Hybrid (Cloud + Edge)</div>
                       <div className="text-sm space-y-1 text-gray-700">
                         <div><strong>Pros:</strong></div>
@@ -795,7 +795,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
                   <h3 className="text-xl font-bold text-blue-900 mb-4">2. Wired vs Wireless Sensors</h3>
 
                   <div className="grid md:grid-cols-2 gap-4 mb-4">
-                    <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-orange-200">
                       <div className="font-bold text-orange-700 mb-2">Wired Sensors</div>
                       <div className="text-sm space-y-1 text-gray-700">
                         <div><strong>Pros:</strong></div>
@@ -808,7 +808,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
                       </div>
                     </div>
 
-                    <div className="bg-white p-4 rounded-lg border-2 border-green-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-green-200">
                       <div className="font-bold text-green-700 mb-2">Wireless Sensors</div>
                       <div className="text-sm space-y-1 text-gray-700">
                         <div><strong>Pros:</strong></div>
@@ -835,7 +835,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
                   <h3 className="text-xl font-bold text-green-900 mb-4">3. Self-Monitored vs Professional Monitoring</h3>
 
                   <div className="grid md:grid-cols-2 gap-4 mb-4">
-                    <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-blue-200">
                       <div className="font-bold text-blue-700 mb-2">Self-Monitored</div>
                       <div className="text-sm space-y-1 text-gray-700">
                         <div><strong>Pros:</strong></div>
@@ -848,7 +848,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
                       </div>
                     </div>
 
-                    <div className="bg-white p-4 rounded-lg border-2 border-purple-200">
+                    <div className="bg-gray-800 p-4 rounded-lg border-2 border-purple-200">
                       <div className="font-bold text-purple-700 mb-2">Professional Monitoring</div>
                       <div className="text-sm space-y-1 text-gray-700">
                         <div><strong>Pros:</strong></div>
@@ -872,7 +872,7 @@ export default function ApartmentAlarmSystem({ onBack, breadcrumb }) {
             </div>
 
             {/* Privacy & Security */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border-t-4 border-red-500">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-red-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-red-600">🔐</span>
                 Privacy & Security Considerations
