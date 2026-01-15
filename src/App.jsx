@@ -33,6 +33,7 @@ import MyProjects from './pages/projects/MyProjects.jsx'
 import VirtualNumbers from './pages/projects/VirtualNumbers.jsx'
 import AIInterviewTips from './pages/projects/AIInterviewTips.jsx'
 import AIInterview from './pages/AIInterview.jsx'
+import Settings from './pages/Settings.jsx'
 
 // Messaging pages
 import ApacheKafka from './pages/messaging/ApacheKafka.jsx'
@@ -3158,6 +3159,12 @@ function App() {
     if (selectedOption === 'AI Interview') {
       return <AIInterview
         onBack={() => setSelectedOptionAndRef('Practice')}
+        onSettings={() => setSelectedOptionAndRef('Settings')}
+      />
+    }
+    if (selectedOption === 'Settings') {
+      return <Settings
+        onBack={() => setSelectedOptionAndRef('')}
       />
     }
     if (selectedOption === 'My Projects') {
@@ -3951,6 +3958,11 @@ function App() {
             case 'LRU Cache': setShowLRUCacheModal(true); break;
             case 'Rate Limiter': setShowRateLimiterModal(true); break;
             case 'Design Problems': setShowDesignProblemsModal(true); break;
+            case 'AI Interview': setSelectedOptionAndRef('AI Interview'); break;
+            case 'Two Pointers': setShowTwoPointersModal(true); break;
+            case 'Bit Manipulation': setShowBitManipulationModal(true); break;
+            case 'Set Operations': setSelectedOptionAndRef('Set Operations'); break;
+            case 'Map Operations': setSelectedOptionAndRef('Map Operations'); break;
             default: break;
           }
         }}

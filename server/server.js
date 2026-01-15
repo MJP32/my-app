@@ -29,6 +29,9 @@ const JAVA_CMD = process.platform === 'linux' ?
   '/mnt/c/Program Files/Java/jdk-21/bin/java.exe' : 'java';
 const IS_WSL_USING_WINDOWS_JAVA = process.platform === 'linux';
 
+// Detect Python command (python on Windows, python3 on Linux/Mac)
+const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
+
 // Convert WSL path to Windows path for Windows executables
 function toWindowsPath(wslPath) {
   if (!IS_WSL_USING_WINDOWS_JAVA) return wslPath;
@@ -268,7 +271,7 @@ app.post('/api/execute-python', async (req, res) => {
     await fs.writeFile(pythonFilePath, code);
 
     const runResult = await new Promise((resolve) => {
-      const child = exec(`python3 "${pythonFilePath}"`, {
+      const child = exec(`${PYTHON_CMD} "${pythonFilePath}"`, {
         timeout: 10000
       }, (error, stdout, stderr) => {
         if (error && !stdout) {
@@ -306,6 +309,69 @@ app.post('/api/execute-python', async (req, res) => {
   }
 });
 
+// Python multi-file execution endpoint (for AI Interview)
+app.post('/api/execute-python-files', async (req, res) => {
+  const { files, entryPoint } = req.body;
+
+  if (!files || typeof files !== 'object') {
+    return res.status(400).json({ error: 'No files provided' });
+  }
+
+  if (!entryPoint || !files[entryPoint]) {
+    return res.status(400).json({ error: 'Invalid entry point' });
+  }
+
+  const timestamp = Date.now();
+  const execDir = path.join(TEMP_DIR, `exec_${timestamp}`);
+
+  try {
+    // Create execution directory
+    await fs.mkdir(execDir, { recursive: true });
+
+    // Write all files to the directory
+    for (const [filename, content] of Object.entries(files)) {
+      const filePath = path.join(execDir, filename);
+      await fs.writeFile(filePath, content);
+    }
+
+    // Run the entry point file
+    const entryFilePath = path.join(execDir, entryPoint);
+    const runResult = await new Promise((resolve) => {
+      exec(`${PYTHON_CMD} "${entryFilePath}"`, {
+        cwd: execDir,
+        timeout: 15000
+      }, (error, stdout, stderr) => {
+        if (error && !stdout) {
+          resolve({ success: false, output: '', error: stderr || error.message });
+        } else {
+          resolve({ success: true, output: stdout, stderr: stderr });
+        }
+      });
+    });
+
+    // Clean up
+    await fs.rm(execDir, { recursive: true, force: true });
+
+    res.json({
+      success: runResult.success,
+      output: runResult.output || '',
+      error: runResult.error || runResult.stderr || '',
+      stage: runResult.success ? 'complete' : 'execution'
+    });
+
+  } catch (error) {
+    try {
+      await fs.rm(execDir, { recursive: true, force: true });
+    } catch (e) { /* ignore */ }
+
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stage: 'system'
+    });
+  }
+});
+
 // Python code execution with test cases endpoint
 app.post('/api/execute-python-tests', async (req, res) => {
   const { code, testCases } = req.body;
@@ -331,7 +397,7 @@ app.post('/api/execute-python-tests', async (req, res) => {
       const expectedOutput = testCase.expectedOutput || '';
 
       const runResult = await new Promise((resolve) => {
-        const child = exec(`python3 "${pythonFilePath}"`, {
+        const child = exec(`${PYTHON_CMD} "${pythonFilePath}"`, {
           timeout: 5000
         }, (error, stdout, stderr) => {
           resolve({ stdout: stdout || '', stderr: stderr || '', error: error?.message });
@@ -383,32 +449,78 @@ app.post('/api/execute-python-tests', async (req, res) => {
   }
 });
 
-// Initialize Anthropic client (optional - only if API key is set)
-const anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic({
+// Initialize Anthropic client (optional - only if API key is set in env)
+const defaultAnthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
 }) : null;
 
-// AI Interview Chat endpoint
-app.post('/api/ai/chat', async (req, res) => {
-  if (!anthropic) {
-    return res.status(503).json({
-      error: 'AI service not configured. Please set ANTHROPIC_API_KEY environment variable.',
-      configured: false
-    });
+// Helper to create Anthropic client with provided key or use default
+const getAnthropicClient = (apiKey) => {
+  if (apiKey) {
+    return new Anthropic({ apiKey });
   }
+  return defaultAnthropic;
+};
 
-  const { messages, context, mode } = req.body;
+// Test API key endpoint
+app.post('/api/ai/test-key', async (req, res) => {
+  const { provider, apiKey } = req.body;
 
-  if (!messages || !Array.isArray(messages)) {
-    return res.status(400).json({ error: 'Messages array is required' });
+  if (!apiKey) {
+    return res.json({ success: false, error: 'No API key provided' });
   }
 
   try {
-    // Build system prompt based on mode
-    let systemPrompt = '';
+    if (provider === 'anthropic') {
+      const client = new Anthropic({ apiKey });
+      // Make a minimal API call to test the key
+      await client.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 10,
+        messages: [{ role: 'user', content: 'Hi' }]
+      });
+      return res.json({ success: true });
+    } else if (provider === 'gemini') {
+      // Test Gemini key with a simple request
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: 'Hi' }] }]
+          })
+        }
+      );
+      if (response.ok) {
+        return res.json({ success: true });
+      } else {
+        return res.json({ success: false, error: 'Invalid API key' });
+      }
+    } else if (provider === 'openai') {
+      // Test OpenAI key
+      const response = await fetch('https://api.openai.com/v1/models', {
+        headers: { 'Authorization': `Bearer ${apiKey}` }
+      });
+      if (response.ok) {
+        return res.json({ success: true });
+      } else {
+        return res.json({ success: false, error: 'Invalid API key' });
+      }
+    } else {
+      return res.json({ success: false, error: 'Unknown provider' });
+    }
+  } catch (error) {
+    return res.json({ success: false, error: error.message });
+  }
+});
 
-    if (mode === 'interviewer') {
-      systemPrompt = `You are an experienced technical interviewer at a top tech company conducting an AI-enabled coding interview. Your role is to:
+// Helper to build system prompt based on mode and context
+function buildSystemPrompt(mode, context) {
+  let systemPrompt = '';
+
+  if (mode === 'interviewer') {
+    systemPrompt = `You are an experienced technical interviewer at a top tech company conducting an AI-enabled coding interview. Your role is to:
 1. Present coding problems clearly and professionally
 2. Ask clarifying questions when the candidate's approach is unclear
 3. Provide hints when the candidate is stuck (but don't give away the solution)
@@ -419,8 +531,8 @@ app.post('/api/ai/chat', async (req, res) => {
 The candidate is using an AI assistant (you) during this interview, which is the new format at companies like Meta. Evaluate how well they leverage AI assistance - they should review AI suggestions critically, not blindly accept them.
 
 Keep responses concise and interview-appropriate. Ask one question at a time.`;
-    } else if (mode === 'code-review') {
-      systemPrompt = `You are an expert code reviewer providing feedback on interview code. Analyze the code for:
+  } else if (mode === 'code-review') {
+    systemPrompt = `You are an expert code reviewer providing feedback on interview code. Analyze the code for:
 1. Correctness - Does it solve the problem?
 2. Edge cases - Are all edge cases handled?
 3. Time complexity - What is the Big O?
@@ -429,8 +541,8 @@ Keep responses concise and interview-appropriate. Ask one question at a time.`;
 6. Best practices - Does it follow coding standards?
 
 Provide specific, actionable feedback. Be constructive and educational.`;
-    } else if (mode === 'hint') {
-      systemPrompt = `You are a helpful coding mentor. When asked for hints:
+  } else if (mode === 'hint') {
+    systemPrompt = `You are a helpful coding mentor. When asked for hints:
 1. Start with a small conceptual hint
 2. If they're still stuck, provide a more specific algorithmic hint
 3. Never give the complete solution directly
@@ -438,8 +550,8 @@ Provide specific, actionable feedback. Be constructive and educational.`;
 5. Ask leading questions that prompt thinking
 
 Be encouraging and patient. The goal is learning, not just getting the answer.`;
-    } else {
-      systemPrompt = `You are a helpful AI assistant for coding interview preparation. You can help with:
+  } else {
+    systemPrompt = `You are a helpful AI assistant for coding interview preparation. You can help with:
 - Explaining algorithms and data structures
 - Reviewing code and suggesting improvements
 - Providing hints without giving away solutions
@@ -447,25 +559,107 @@ Be encouraging and patient. The goal is learning, not just getting the answer.`;
 - Explaining best practices and patterns
 
 Be concise, helpful, and educational.`;
-    }
+  }
 
-    if (context) {
-      systemPrompt += `\n\nCurrent context:\n${context}`;
+  // Add context if provided
+  if (context) {
+    if (context.problemTitle) {
+      systemPrompt += `\n\nCurrent Problem: ${context.problemTitle}`;
     }
+    if (context.problemDescription) {
+      systemPrompt += `\n\nProblem Description:\n${context.problemDescription}`;
+    }
+    if (context.currentCode) {
+      systemPrompt += `\n\nCandidate's Current Code:\n\`\`\`\n${context.currentCode}\n\`\`\``;
+    }
+    if (context.hints && context.hints.length > 0) {
+      systemPrompt += `\n\nAvailable hints (use sparingly): ${context.hints.join('; ')}`;
+    }
+  }
+
+  return systemPrompt;
+}
+
+// AI Interview Chat endpoint
+app.post('/api/ai/chat', async (req, res) => {
+  const { message, messages, context, mode, apiKey, provider = 'anthropic' } = req.body;
+
+  // Try to get API key from request, then fall back to env
+  const effectiveApiKey = apiKey || process.env.ANTHROPIC_API_KEY;
+
+  // Handle Gemini provider
+  if (provider === 'gemini' && apiKey) {
+    try {
+      const systemPrompt = buildSystemPrompt(mode, context);
+      const userMessage = message || (messages && messages.length > 0 ? messages[messages.length - 1].content : '');
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [
+              { role: 'user', parts: [{ text: systemPrompt + '\n\nUser: ' + userMessage }] }
+            ],
+            generationConfig: {
+              maxOutputTokens: 1024,
+              temperature: 0.7
+            }
+          })
+        }
+      );
+
+      const data = await response.json();
+      if (data.candidates && data.candidates[0]) {
+        return res.json({
+          response: data.candidates[0].content.parts[0].text,
+          provider: 'gemini'
+        });
+      } else if (data.error) {
+        // Pass through Gemini error message
+        return res.status(response.status || 500).json({
+          error: data.error.message || 'Gemini API error',
+          code: data.error.code
+        });
+      } else {
+        return res.status(500).json({ error: 'Failed to get Gemini response' });
+      }
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
+  // Handle Anthropic (default)
+  const anthropic = getAnthropicClient(effectiveApiKey);
+
+  if (!anthropic) {
+    return res.status(503).json({
+      error: 'AI service not configured. Add your API key in Settings or set ANTHROPIC_API_KEY environment variable.',
+      configured: false
+    });
+  }
+
+  // Support both single message and messages array
+  const userMessage = message || (messages && messages.length > 0 ? messages[messages.length - 1].content : null);
+
+  if (!userMessage) {
+    return res.status(400).json({ error: 'Message is required' });
+  }
+
+  try {
+    const systemPrompt = buildSystemPrompt(mode, context);
 
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1024,
       system: systemPrompt,
-      messages: messages.map(m => ({
-        role: m.role,
-        content: m.content
-      }))
+      messages: [{ role: 'user', content: userMessage }]
     });
 
     res.json({
-      success: true,
-      message: response.content[0].text,
+      response: response.content[0].text,
+      provider: 'anthropic',
       usage: response.usage
     });
 

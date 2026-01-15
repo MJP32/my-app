@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { getApiKeys } from '../services/apiKeyService';
 
 // Problem definitions
 const PROBLEMS = [
@@ -897,6 +898,266 @@ FAILED (failures=2)`,
       "Skip duplicates by checking if current == previous",
     ],
   },
+  {
+    id: "maximize_unique_chars",
+    title: "Maximize Unique Characters",
+    difficulty: "Hard",
+    company: "Meta",
+    description: `## Problem Description
+
+You are given a list of strings. Your task is to select a subset of these strings that maximizes the total number of unique characters, with the constraint that no character may appear more than once across the entire selected subset.
+
+## Rules
+
+- You may select any subset of the given strings
+- No character may appear more than once across the entire selected subset
+- Any word that contains a duplicate character within itself is invalid and cannot be selected
+
+## Your Tasks
+
+**Part 1:** Implement the \`maximize_unique_characters\` function
+
+**Part 2:** Handle edge cases (empty input, empty strings, duplicates)
+
+**Part 3:** Raise TypeError if input contains non-string elements
+
+**Part 4:** Optimize for correctness - this is an NP-hard problem
+
+## Constraints
+
+- Input is a sequence of strings
+- Strings may contain letters, digits, or other characters
+- Words with internal duplicates (like "aa" or "1001") cannot be selected
+
+## Example
+
+\`\`\`python
+words = ["ab", "cd", "efg", "a", "cdef"]
+
+# "ab" + "cd" + "efg" = 7 unique chars (optimal)
+# "cdef" conflicts with both "cd" and "efg"
+# "a" conflicts with "ab"
+
+result = maximize_unique_characters(words)
+# Returns: {"ab", "cd", "efg"}
+\`\`\``,
+    files: {
+      "solution.py": `from __future__ import annotations
+
+from typing import Sequence, Set
+
+
+def maximize_unique_characters(words: Sequence[str]) -> Set[str]:
+    """Return a subset of \`words\` that maximizes unique characters with no repeats.
+
+    Rules:
+    - You may select a subset of the given strings.
+    - No character may appear more than once across the entire selected subset.
+    - Any word that contains a duplicate character within itself is invalid and cannot be selected.
+
+    Output:
+    - Return the selected subset as a \`Set[str]\`.
+
+    Errors:
+    - Raise TypeError if \`words\` is not a sequence of strings (i.e., any element is not \`str\`).
+
+    Notes:
+    - This is an NP-hard optimization problem in general.
+    - Your goal is to implement a correct solution that passes the tests.
+    """
+
+    # TODO: Implement.
+    raise NotImplementedError
+`,
+      "test_solution.py": `from __future__ import annotations
+
+from typing import Sequence, Set
+import unittest
+from solution import maximize_unique_characters
+
+
+class TestMaximizeUniqueCharacters(unittest.TestCase):
+    def _score(self, chosen: set[str]) -> int:
+        used: set[str] = set()
+        for w in chosen:
+            used |= set(w)
+        return len(used)
+
+    def _assert_valid(self, words: list[str], chosen: set[str]) -> None:
+        self.assertTrue(chosen.issubset(set(words)))
+
+        used: set[str] = set()
+        for w in chosen:
+            # word must have no internal duplicates
+            self.assertEqual(len(w), len(set(w)), msg=f"Word {w!r} has internal duplicates")
+            # global uniqueness across chosen words
+            for ch in w:
+                self.assertNotIn(ch, used, msg=f"Character {ch!r} is reused")
+                used.add(ch)
+
+    def test_unique_optimum_basic(self):
+        # Unique optimum is {"ab", "cd", "efg"} with 7 distinct chars.
+        words = ["ab", "cd", "efg", "a", "cdef"]
+
+        chosen = maximize_unique_characters(words)
+        self._assert_valid(words, chosen)
+        self.assertEqual({"ab", "cd", "efg"}, chosen)
+        self.assertEqual(7, self._score(chosen))
+
+    def test_reject_internal_duplicate_words(self):
+        # "aa" is invalid and cannot be selected.
+        # Unique optimum is {"bc", "def"} => 5 distinct chars.
+        words = ["aa", "bc", "def"]
+
+        chosen = maximize_unique_characters(words)
+        self._assert_valid(words, chosen)
+        self.assertEqual({"bc", "def"}, chosen)
+        self.assertEqual(5, self._score(chosen))
+
+    def test_digits_supported(self):
+        # Strings may be digits; "1001" is invalid due to repeated digits.
+        # Unique optimum is {"2357", "19", "04"} => 8 distinct chars.
+        words = ["2357", "19", "04", "1001"]
+
+        chosen = maximize_unique_characters(words)
+        self._assert_valid(words, chosen)
+        self.assertEqual({"2357", "19", "04"}, chosen)
+        self.assertEqual(8, self._score(chosen))
+
+    def test_empty_input(self):
+        words: list[str] = []
+
+        chosen = maximize_unique_characters(words)
+        self.assertEqual(set(), chosen)
+
+    def test_empty_string_word(self):
+        # The empty string is valid (uses 0 characters). It should not break anything.
+        # Unique optimum is {"ab", "cd"}; including "" is allowed but doesn't increase score.
+        words = ["", "ab", "cd", "a"]
+
+        chosen = maximize_unique_characters(words)
+        self._assert_valid(words, chosen)
+        # We assert the optimal set excludes "a" (conflicts with "ab"), and is uniquely optimal.
+        # Whether "" is included or not doesn't change score, so we avoid tie by not requiring it.
+        self.assertEqual({"ab", "cd"}, {w for w in chosen if w != ""})
+        self.assertEqual(4, self._score(chosen))
+
+    def test_all_conflict_best_single_word(self):
+        # "abc" is uniquely optimal; all other options conflict in a way that prevents ties.
+        words = ["abc", "ab", "bc", "ac"]
+
+        chosen = maximize_unique_characters(words)
+        self._assert_valid(words, chosen)
+        self.assertEqual({"abc"}, chosen)
+        self.assertEqual(3, self._score(chosen))
+
+    def test_duplicate_strings_in_input(self):
+        # Duplicates in input; output is a set anyway.
+        words = ["ab", "ab", "cd"]
+
+        chosen = maximize_unique_characters(words)
+        self._assert_valid(words, chosen)
+        self.assertEqual({"ab", "cd"}, chosen)
+        self.assertEqual(4, self._score(chosen))
+
+    def test_larger_unique_optimum(self):
+        # Unique optimum: {"ab","cd","ef","gh","ijkl"} => 12 distinct chars.
+        words = ["ab", "cd", "ef", "gh", "ijkl", "a", "c", "e", "g"]
+
+        chosen = maximize_unique_characters(words)
+        self._assert_valid(words, chosen)
+        self.assertEqual({"ab", "cd", "ef", "gh", "ijkl"}, chosen)
+        self.assertEqual(12, self._score(chosen))
+
+    def test_non_string_raises_type_error(self):
+        with self.assertRaises(TypeError):
+            maximize_unique_characters(["ab", 123])  # type: ignore[list-item]
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
+`,
+      "main.py": `from solution import maximize_unique_characters
+
+def main():
+    print("=== Maximize Unique Characters ===\\n")
+
+    # Test case 1
+    words1 = ["ab", "cd", "efg", "a", "cdef"]
+    print(f"Input: {words1}")
+    try:
+        result1 = maximize_unique_characters(words1)
+        print(f"Result: {result1}")
+        print(f"Unique chars: {len(set(''.join(result1)))}\\n")
+    except NotImplementedError:
+        print("Not implemented yet!\\n")
+
+    # Test case 2
+    words2 = ["aa", "bc", "def"]
+    print(f"Input: {words2}")
+    try:
+        result2 = maximize_unique_characters(words2)
+        print(f"Result: {result2}")
+        print(f"Note: 'aa' has internal duplicate, cannot be selected\\n")
+    except NotImplementedError:
+        print("Not implemented yet!\\n")
+
+    # Test case 3
+    words3 = ["2357", "19", "04", "1001"]
+    print(f"Input: {words3}")
+    try:
+        result3 = maximize_unique_characters(words3)
+        print(f"Result: {result3}")
+        print(f"Note: '1001' has repeated digits, cannot be selected\\n")
+    except NotImplementedError:
+        print("Not implemented yet!\\n")
+
+if __name__ == "__main__":
+    main()
+`
+    },
+    testOutput: `=== Running Tests ===
+
+test_unique_optimum_basic ... FAILED
+  NotImplementedError
+
+test_reject_internal_duplicate_words ... FAILED
+  NotImplementedError
+
+test_digits_supported ... FAILED
+  NotImplementedError
+
+test_empty_input ... FAILED
+  NotImplementedError
+
+test_empty_string_word ... FAILED
+  NotImplementedError
+
+test_all_conflict_best_single_word ... FAILED
+  NotImplementedError
+
+test_duplicate_strings_in_input ... FAILED
+  NotImplementedError
+
+test_larger_unique_optimum ... FAILED
+  NotImplementedError
+
+test_non_string_raises_type_error ... FAILED
+  NotImplementedError
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.002s
+
+FAILED (failures=9)`,
+    hints: [
+      "First, filter out words with internal duplicates (len(word) != len(set(word)))",
+      "Validate input types - raise TypeError for non-string elements",
+      "Use backtracking/recursion to try all combinations of valid words",
+      "Track used characters globally and skip words that conflict",
+      "Keep track of the best solution found so far and update when you find a better one",
+      "For optimization: sort words by length descending to find good solutions faster",
+    ],
+  },
 ];
 
 // Timer Component
@@ -1231,19 +1492,60 @@ function AIChatPanel({ problem, code, colors }) {
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
 
-    setTimeout(() => {
-      const responses = [
-        "Looking at your code, the bug is in the comparison operator. You're using `<` when you should use `>=`. This keeps old requests instead of recent ones.",
-        "To fix this, change `if ts < window_start` to `if ts >= window_start`. This will keep timestamps within the current window.",
-        "For visited tracking, add nodes to visited BEFORE adding to the queue. This prevents duplicates.",
-        "The time complexity is O(n). Space complexity is O(n) for storing the cache entries.",
-      ];
+    try {
+      // Get API keys from settings
+      const apiKeys = getApiKeys();
+
+      // Determine which provider to use (prefer Anthropic, then Gemini, then OpenAI)
+      let provider = 'anthropic';
+      let apiKey = apiKeys.anthropic;
+
+      if (!apiKey && apiKeys.gemini) {
+        provider = 'gemini';
+        apiKey = apiKeys.gemini;
+      } else if (!apiKey && apiKeys.openai) {
+        provider = 'openai';
+        apiKey = apiKeys.openai;
+      }
+
+      const response = await fetch('http://localhost:3001/api/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userMessage,
+          context: {
+            problemTitle: problem.title,
+            problemDescription: problem.description,
+            currentCode: code,
+            hints: problem.hints
+          },
+          mode: 'interview',
+          provider,
+          apiKey
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.error) {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: `⚠️ ${result.error}\n\nGo to Settings to add your API key.`
+        }]);
+      } else {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: result.response
+        }]);
+      }
+    } catch (error) {
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: responses[Math.floor(Math.random() * responses.length)]
+        content: `❌ Failed to connect to AI service: ${error.message}`
       }]);
-      setIsLoading(false);
-    }, 1000);
+    }
+
+    setIsLoading(false);
   };
 
   const quickPrompts = ["What's the bug?", "How to fix it?", "Time complexity?", "Show solution"];
@@ -1353,7 +1655,7 @@ function AIChatPanel({ problem, code, colors }) {
 }
 
 // Main Component
-export default function AIInterview({ onBack }) {
+export default function AIInterview({ onBack, onSettings }) {
   const [selectedProblem, setSelectedProblem] = useState(null);
   const [files, setFiles] = useState({});
   const [activeFile, setActiveFile] = useState('');
@@ -1388,22 +1690,82 @@ export default function AIInterview({ onBack }) {
     setFiles(prev => ({ ...prev, [activeFile]: content }));
   };
 
-  const runCode = () => {
+  const runCode = async () => {
     setIsRunning(true);
     setTerminalOutput('$ python main.py\n\nRunning...\n');
-    setTimeout(() => {
-      setTerminalOutput(prev => prev + '\n=== Output ===\nSimulated output. Run tests for actual results.\n');
-      setIsRunning(false);
-    }, 800);
+
+    try {
+      const response = await fetch('http://localhost:3001/api/execute-python-files', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          files: files,
+          entryPoint: 'main.py'
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setTerminalOutput(prev => prev + '\n' + result.output);
+      } else {
+        setTerminalOutput(prev => prev + '\n❌ Error:\n' + (result.error || 'Unknown error'));
+      }
+    } catch (error) {
+      setTerminalOutput(prev => prev + '\n❌ Failed to connect to server: ' + error.message);
+    }
+
+    setIsRunning(false);
   };
 
-  const runTests = () => {
+  const runTests = async () => {
     setIsRunning(true);
-    setTerminalOutput('$ python -m pytest test_*.py -v\n\nCollecting tests...\n');
-    setTimeout(() => {
-      setTerminalOutput(prev => prev + (problem?.testOutput || 'Tests complete.'));
+
+    // Find the test file
+    const testFile = Object.keys(files).find(f => f.startsWith('test_'));
+    if (!testFile) {
+      setTerminalOutput('❌ No test file found');
       setIsRunning(false);
-    }, 1200);
+      return;
+    }
+
+    setTerminalOutput(`$ python -m pytest ${testFile} -v\n\nCollecting tests...\n`);
+
+    try {
+      // Create a modified test file that runs with unittest
+      const testCode = files[testFile];
+      const modifiedFiles = { ...files };
+
+      // Add unittest runner if not present
+      if (!testCode.includes("unittest.main()")) {
+        modifiedFiles[testFile] = testCode + "\n\nif __name__ == '__main__':\n    unittest.main(verbosity=2)\n";
+      }
+
+      const response = await fetch('http://localhost:3001/api/execute-python-files', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          files: modifiedFiles,
+          entryPoint: testFile
+        })
+      });
+
+      const result = await response.json();
+
+      // Format test output
+      const output = result.output || '';
+      const errors = result.error || '';
+
+      if (output || errors) {
+        setTerminalOutput(prev => prev + '\n' + output + (errors ? '\n' + errors : ''));
+      } else {
+        setTerminalOutput(prev => prev + '\n' + (result.success ? '✅ All tests passed!' : '❌ Tests failed'));
+      }
+    } catch (error) {
+      setTerminalOutput(prev => prev + '\n❌ Failed to connect to server: ' + error.message);
+    }
+
+    setIsRunning(false);
   };
 
   // Problem Selection Screen
@@ -1431,6 +1793,26 @@ export default function AIInterview({ onBack }) {
             >
               ← Back to Menu
             </button>
+            {onSettings && (
+              <button
+                onClick={onSettings}
+                style={{
+                  marginBottom: '2rem',
+                  marginLeft: '0.5rem',
+                  padding: '0.75rem 1.5rem',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  backgroundColor: colors.bgTertiary,
+                  color: colors.textPrimary,
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                ⚙️ Settings
+              </button>
+            )}
           </div>
 
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>

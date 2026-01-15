@@ -6,70 +6,70 @@ const DAILY_CHALLENGE_KEY = 'daily_challenge';
 // Format: { id, title, difficulty, category, page }
 const CHALLENGE_PROBLEMS = [
   // Arrays
-  { id: 'arrays-1', title: 'Two Sum', difficulty: 'Easy', category: 'Arrays', page: 'arrays' },
-  { id: 'arrays-2', title: 'Best Time to Buy and Sell Stock', difficulty: 'Easy', category: 'Arrays', page: 'arrays' },
-  { id: 'arrays-3', title: 'Contains Duplicate', difficulty: 'Easy', category: 'Arrays', page: 'arrays' },
-  { id: 'arrays-4', title: 'Product of Array Except Self', difficulty: 'Medium', category: 'Arrays', page: 'arrays' },
-  { id: 'arrays-5', title: 'Maximum Subarray', difficulty: 'Medium', category: 'Arrays', page: 'arrays' },
+  { id: 'arrays-1', title: 'Two Sum', difficulty: 'Easy', category: 'Arrays', page: 'Arrays' },
+  { id: 'arrays-2', title: 'Best Time to Buy and Sell Stock', difficulty: 'Easy', category: 'Arrays', page: 'Arrays' },
+  { id: 'arrays-3', title: 'Contains Duplicate', difficulty: 'Easy', category: 'Arrays', page: 'Arrays' },
+  { id: 'arrays-4', title: 'Product of Array Except Self', difficulty: 'Medium', category: 'Arrays', page: 'Arrays' },
+  { id: 'arrays-5', title: 'Maximum Subarray', difficulty: 'Medium', category: 'Arrays', page: 'Arrays' },
 
   // Strings
-  { id: 'strings-1', title: 'Valid Anagram', difficulty: 'Easy', category: 'Strings', page: 'strings' },
-  { id: 'strings-2', title: 'Valid Palindrome', difficulty: 'Easy', category: 'Strings', page: 'strings' },
-  { id: 'strings-3', title: 'Longest Substring Without Repeating', difficulty: 'Medium', category: 'Strings', page: 'strings' },
-  { id: 'strings-4', title: 'Longest Palindromic Substring', difficulty: 'Medium', category: 'Strings', page: 'strings' },
+  { id: 'strings-1', title: 'Valid Anagram', difficulty: 'Easy', category: 'Strings', page: 'Strings' },
+  { id: 'strings-2', title: 'Valid Palindrome', difficulty: 'Easy', category: 'Strings', page: 'Strings' },
+  { id: 'strings-3', title: 'Longest Substring Without Repeating', difficulty: 'Medium', category: 'Strings', page: 'Strings' },
+  { id: 'strings-4', title: 'Longest Palindromic Substring', difficulty: 'Medium', category: 'Strings', page: 'Strings' },
 
   // Binary Search
-  { id: 'binary-search-1', title: 'Binary Search', difficulty: 'Easy', category: 'Binary Search', page: 'binary-search' },
-  { id: 'binary-search-2', title: 'Search in Rotated Sorted Array', difficulty: 'Medium', category: 'Binary Search', page: 'binary-search' },
-  { id: 'binary-search-3', title: 'Find Minimum in Rotated Sorted Array', difficulty: 'Medium', category: 'Binary Search', page: 'binary-search' },
+  { id: 'binary-search-1', title: 'Binary Search', difficulty: 'Easy', category: 'Binary Search', page: 'Binary Search' },
+  { id: 'binary-search-2', title: 'Search in Rotated Sorted Array', difficulty: 'Medium', category: 'Binary Search', page: 'Binary Search' },
+  { id: 'binary-search-3', title: 'Find Minimum in Rotated Sorted Array', difficulty: 'Medium', category: 'Binary Search', page: 'Binary Search' },
 
   // Linked Lists
-  { id: 'linked-lists-1', title: 'Reverse Linked List', difficulty: 'Easy', category: 'Linked Lists', page: 'linked-lists' },
-  { id: 'linked-lists-2', title: 'Merge Two Sorted Lists', difficulty: 'Easy', category: 'Linked Lists', page: 'linked-lists' },
-  { id: 'linked-lists-3', title: 'Linked List Cycle', difficulty: 'Easy', category: 'Linked Lists', page: 'linked-lists' },
-  { id: 'linked-lists-4', title: 'Remove Nth Node From End', difficulty: 'Medium', category: 'Linked Lists', page: 'linked-lists' },
+  { id: 'linked-lists-1', title: 'Reverse Linked List', difficulty: 'Easy', category: 'Linked Lists', page: 'Linked Lists' },
+  { id: 'linked-lists-2', title: 'Merge Two Sorted Lists', difficulty: 'Easy', category: 'Linked Lists', page: 'Linked Lists' },
+  { id: 'linked-lists-3', title: 'Linked List Cycle', difficulty: 'Easy', category: 'Linked Lists', page: 'Linked Lists' },
+  { id: 'linked-lists-4', title: 'Remove Nth Node From End', difficulty: 'Medium', category: 'Linked Lists', page: 'Linked Lists' },
 
   // Trees
-  { id: 'trees-1', title: 'Maximum Depth of Binary Tree', difficulty: 'Easy', category: 'Trees', page: 'trees' },
-  { id: 'trees-2', title: 'Invert Binary Tree', difficulty: 'Easy', category: 'Trees', page: 'trees' },
-  { id: 'trees-3', title: 'Validate Binary Search Tree', difficulty: 'Medium', category: 'Trees', page: 'binary-trees' },
-  { id: 'trees-4', title: 'Binary Tree Level Order Traversal', difficulty: 'Medium', category: 'Trees', page: 'binary-trees' },
+  { id: 'trees-1', title: 'Maximum Depth of Binary Tree', difficulty: 'Easy', category: 'Trees', page: 'Trees' },
+  { id: 'trees-2', title: 'Invert Binary Tree', difficulty: 'Easy', category: 'Trees', page: 'Trees' },
+  { id: 'trees-3', title: 'Validate Binary Search Tree', difficulty: 'Medium', category: 'Trees', page: 'Binary Trees' },
+  { id: 'trees-4', title: 'Binary Tree Level Order Traversal', difficulty: 'Medium', category: 'Trees', page: 'Binary Trees' },
 
   // Dynamic Programming
-  { id: 'dp-1', title: 'Climbing Stairs', difficulty: 'Easy', category: 'Dynamic Programming', page: 'dynamic-programming' },
-  { id: 'dp-2', title: 'Coin Change', difficulty: 'Medium', category: 'Dynamic Programming', page: 'dynamic-programming' },
-  { id: 'dp-3', title: 'Longest Increasing Subsequence', difficulty: 'Medium', category: 'Dynamic Programming', page: 'dynamic-programming' },
-  { id: 'dp-4', title: 'House Robber', difficulty: 'Medium', category: 'Dynamic Programming', page: 'dynamic-programming' },
+  { id: 'dp-1', title: 'Climbing Stairs', difficulty: 'Easy', category: 'Dynamic Programming', page: 'Dynamic Programming' },
+  { id: 'dp-2', title: 'Coin Change', difficulty: 'Medium', category: 'Dynamic Programming', page: 'Dynamic Programming' },
+  { id: 'dp-3', title: 'Longest Increasing Subsequence', difficulty: 'Medium', category: 'Dynamic Programming', page: 'Dynamic Programming' },
+  { id: 'dp-4', title: 'House Robber', difficulty: 'Medium', category: 'Dynamic Programming', page: 'Dynamic Programming' },
 
   // Graphs
-  { id: 'graphs-1', title: 'Number of Islands', difficulty: 'Medium', category: 'Graphs', page: 'graphs' },
-  { id: 'graphs-2', title: 'Clone Graph', difficulty: 'Medium', category: 'Graphs', page: 'graphs' },
-  { id: 'graphs-3', title: 'Course Schedule', difficulty: 'Medium', category: 'Graphs', page: 'graphs' },
+  { id: 'graphs-1', title: 'Number of Islands', difficulty: 'Medium', category: 'Graphs', page: 'Graphs' },
+  { id: 'graphs-2', title: 'Clone Graph', difficulty: 'Medium', category: 'Graphs', page: 'Graphs' },
+  { id: 'graphs-3', title: 'Course Schedule', difficulty: 'Medium', category: 'Graphs', page: 'Graphs' },
 
   // Stacks
-  { id: 'stacks-1', title: 'Valid Parentheses', difficulty: 'Easy', category: 'Stacks', page: 'stacks' },
-  { id: 'stacks-2', title: 'Min Stack', difficulty: 'Medium', category: 'Stacks', page: 'stacks' },
+  { id: 'stacks-1', title: 'Valid Parentheses', difficulty: 'Easy', category: 'Stacks', page: 'Stacks' },
+  { id: 'stacks-2', title: 'Min Stack', difficulty: 'Medium', category: 'Stacks', page: 'Stacks' },
 
   // Hash Tables
-  { id: 'hash-1', title: 'Group Anagrams', difficulty: 'Medium', category: 'Hash Tables', page: 'hash-tables' },
-  { id: 'hash-2', title: 'Top K Frequent Elements', difficulty: 'Medium', category: 'Hash Tables', page: 'hash-tables' },
+  { id: 'hash-1', title: 'Group Anagrams', difficulty: 'Medium', category: 'Hash Tables', page: 'Hash Tables' },
+  { id: 'hash-2', title: 'Top K Frequent Elements', difficulty: 'Medium', category: 'Hash Tables', page: 'Hash Tables' },
 
   // Two Pointers
-  { id: 'two-pointers-1', title: 'Container With Most Water', difficulty: 'Medium', category: 'Two Pointers', page: 'two-pointers' },
-  { id: 'two-pointers-2', title: '3Sum', difficulty: 'Medium', category: 'Two Pointers', page: 'two-pointers' },
+  { id: 'two-pointers-1', title: 'Container With Most Water', difficulty: 'Medium', category: 'Two Pointers', page: 'Two Pointers' },
+  { id: 'two-pointers-2', title: '3Sum', difficulty: 'Medium', category: 'Two Pointers', page: 'Two Pointers' },
 
   // Sliding Window
-  { id: 'sliding-window-1', title: 'Maximum Sum Subarray of Size K', difficulty: 'Easy', category: 'Sliding Window', page: 'sliding-window' },
-  { id: 'sliding-window-2', title: 'Minimum Window Substring', difficulty: 'Hard', category: 'Sliding Window', page: 'sliding-window' },
+  { id: 'sliding-window-1', title: 'Maximum Sum Subarray of Size K', difficulty: 'Easy', category: 'Sliding Window', page: 'Sliding Window' },
+  { id: 'sliding-window-2', title: 'Minimum Window Substring', difficulty: 'Hard', category: 'Sliding Window', page: 'Sliding Window' },
 
   // Heaps
-  { id: 'heaps-1', title: 'Kth Largest Element', difficulty: 'Medium', category: 'Heaps', page: 'heaps' },
-  { id: 'heaps-2', title: 'Merge K Sorted Lists', difficulty: 'Hard', category: 'Heaps', page: 'heaps' },
+  { id: 'heaps-1', title: 'Kth Largest Element', difficulty: 'Medium', category: 'Heaps', page: 'Heaps' },
+  { id: 'heaps-2', title: 'Merge K Sorted Lists', difficulty: 'Hard', category: 'Heaps', page: 'Heaps' },
 
   // Backtracking
-  { id: 'backtracking-1', title: 'Subsets', difficulty: 'Medium', category: 'Backtracking', page: 'backtracking' },
-  { id: 'backtracking-2', title: 'Permutations', difficulty: 'Medium', category: 'Backtracking', page: 'backtracking' },
-  { id: 'backtracking-3', title: 'Combination Sum', difficulty: 'Medium', category: 'Backtracking', page: 'backtracking' },
+  { id: 'backtracking-1', title: 'Subsets', difficulty: 'Medium', category: 'Backtracking', page: 'Backtracking' },
+  { id: 'backtracking-2', title: 'Permutations', difficulty: 'Medium', category: 'Backtracking', page: 'Backtracking' },
+  { id: 'backtracking-3', title: 'Combination Sum', difficulty: 'Medium', category: 'Backtracking', page: 'Backtracking' },
 ];
 
 /**

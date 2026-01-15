@@ -104,7 +104,12 @@
       "Bash(if grep -q \"example:\" \"$f\")",
       "Bash(! grep -q \"examples:\" \"$f\")",
       "Bash(npm start)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(node:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(npx vite)"
     ],
     "deny": [],
     "ask": []
