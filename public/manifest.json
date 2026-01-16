@@ -1,7 +1,7 @@
 {
-  "name": "Java Learning Platform",
-  "short_name": "Java Learn",
-  "description": "Comprehensive interactive learning platform for Java programming, design patterns, and system design",
+  "name": "EggyEggs - Technical Interview Prep",
+  "short_name": "EggyEggs",
+  "description": "Ace your technical interviews with 500+ coding problems, system design guides, and DSA practice for FAANG and top tech companies",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -38,7 +38,7 @@
       "src": "/screenshot1.png",
       "sizes": "1280x720",
       "type": "image/png",
-      "label": "Java Learning Platform Home"
+      "label": "EggyEggs Technical Interview Prep Home"
     }
   ]
 }

@@ -8,8 +8,8 @@
     "dev:vite": "vite",
     "dev:server": "node server/server.js",
     "server": "node server/server.js",
-    "build": "vite build",
-    "build:snap": "vite build && react-snap",
+    "build": "vite build && react-snap",
+    "build:no-snap": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },

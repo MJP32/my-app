@@ -32,6 +32,10 @@ import Testing from './pages/projects/Testing.jsx'
 import MyProjects from './pages/projects/MyProjects.jsx'
 import VirtualNumbers from './pages/projects/VirtualNumbers.jsx'
 import AIInterviewTips from './pages/projects/AIInterviewTips.jsx'
+import HashMapInternals from './pages/projects/HashMapInternals.jsx'
+import BlockingQueuePage from './pages/projects/BlockingQueue.jsx'
+import ConcurrentHashMapInternals from './pages/projects/ConcurrentHashMapInternals.jsx'
+import ThreadPoolExecutorInternals from './pages/projects/ThreadPoolExecutorInternals.jsx'
 import AIInterview from './pages/AIInterview.jsx'
 import Settings from './pages/Settings.jsx'
 
@@ -267,6 +271,7 @@ import { AchievementNotification } from './components/achievements'
 import DailyChallenge from './components/DailyChallenge'
 import { ActivityHeatmap, WeeklyProgressChart } from './components/charts'
 import { checkStreakStatus } from './services/gamificationService'
+import { useSEO } from './hooks/useSEO'
 
 // Category organization metadata (for visual grouping)
 const categoryOrganization = {
@@ -327,7 +332,7 @@ const categoryGroups = {
     color: '#10b981',
     groupSection: 'Projects',
     description: 'Real-world project implementations',
-    items: ['Var/CVar', 'Var/CVar - Advanced', 'Var/CVar 3', 'Dark Pool Matching Engine', 'Dark Pool Matching Engine - Basic', 'Medi/Health', 'Dark Pool Engine 3', 'Monolith to Microservice', 'Financial Banking', 'Credit Card Portal', 'Credit Card Portal 2', 'Credit Card Portal 3', 'Virtual Numbers', 'Ride Share']
+    items: ['Var/CVar', 'Var/CVar - Advanced', 'Var/CVar 3', 'Dark Pool Matching Engine', 'Dark Pool Matching Engine - Basic', 'Medi/Health', 'Dark Pool Engine 3', 'Monolith to Microservice', 'Financial Banking', 'Credit Card Portal', 'Credit Card Portal 2', 'Credit Card Portal 3', 'Virtual Numbers', 'Ride Share', 'HashMap - Internal Workings', 'Blocking Queue', 'ConcurrentHashMap - Internal Workings', 'ThreadPoolExecutor - Internal Workings']
   },
   'Frameworks': {
     icon: '🌱',
@@ -826,6 +831,9 @@ function App() {
 
   // Use ref to always have access to current selectedOption in event handlers
   const selectedOptionRef = useRef(selectedOption)
+
+  // Apply SEO settings based on current page
+  useSEO(selectedOption)
 
   // Initialize user and progress tracking on mount
   useEffect(() => {
@@ -3459,6 +3467,34 @@ function App() {
         category: { name: 'System Design Projects', onClick: () => setSelectedOptionAndRef('My Projects') },
         topic: 'Ride Share'
       }} />
+    }
+    if (selectedOption === 'HashMap - Internal Workings') {
+      return (
+        <div ref={componentContainerRef}>
+          <HashMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'Blocking Queue') {
+      return (
+        <div ref={componentContainerRef}>
+          <BlockingQueuePage onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'ConcurrentHashMap - Internal Workings') {
+      return (
+        <div ref={componentContainerRef}>
+          <ConcurrentHashMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'ThreadPoolExecutor - Internal Workings') {
+      return (
+        <div ref={componentContainerRef}>
+          <ThreadPoolExecutorInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
     }
     if (selectedOption === 'Google Docs') {
       return <GoogleDocs onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
