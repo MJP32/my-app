@@ -8058,9 +8058,6 @@ function App() {
             >
               <span style={{ fontSize: '0.8rem' }}>{group.icon}</span>
               <span>{groupName}</span>
-              <span style={{ fontSize: '0.55rem', opacity: 0.8, backgroundColor: expandedGroup === groupName ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.05)', padding: '0.05rem 0.2rem', borderRadius: '3px' }}>
-                {group.items?.length || 0}
-              </span>
             </button>
           ))}
 
