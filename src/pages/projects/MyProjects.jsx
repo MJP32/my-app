@@ -630,6 +630,58 @@ function MyProjects({ onBack, onSelectItem }) {
           </div>
         </div>
 
+        {/* Dark themed Breadcrumb */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          padding: '0.75rem 1rem',
+          backgroundColor: 'rgba(13, 148, 136, 0.1)',
+          borderRadius: '8px',
+          marginBottom: '1.5rem',
+          flexWrap: 'wrap',
+          border: '1px solid rgba(13, 148, 136, 0.3)'
+        }}>
+          <button
+            onClick={onBack}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#2dd4bf',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              fontWeight: '500',
+              padding: '0.25rem 0.5rem',
+              borderRadius: '4px',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(13, 148, 136, 0.2)'
+              e.currentTarget.style.color = '#5eead4'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color = '#2dd4bf'
+            }}
+          >
+            <span>💼</span> My Projects
+          </button>
+          <span style={{ color: '#0d9488', fontSize: '0.9rem' }}>→</span>
+          <span style={{
+            color: '#e2e8f0',
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            padding: '0.25rem 0.75rem',
+            backgroundColor: 'rgba(13, 148, 136, 0.2)',
+            borderRadius: '4px'
+          }}>
+            Project Gallery
+          </span>
+        </div>
+
         <p style={{
           fontSize: '1.2rem',
           color: '#d1d5db',
