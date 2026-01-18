@@ -858,17 +858,8 @@ function App() {
     // Function to find which category contains a given item
     const findCategoryForItem = (itemName) => {
       for (const [categoryName, categoryData] of Object.entries(categoryGroups)) {
-        // Check direct items
         if (categoryData.items && categoryData.items.includes(itemName)) {
           return categoryName;
-        }
-        // Check subcategory items
-        if (categoryData.hasSubcategories && categoryData.subcategories) {
-          for (const subcategoryData of Object.values(categoryData.subcategories)) {
-            if (subcategoryData.items && subcategoryData.items.includes(itemName)) {
-              return categoryName;
-            }
-          }
         }
       }
       return null;
@@ -2701,11 +2692,15 @@ function App() {
           setExpandedGroup(categoryName)
           setFocusedItemIndex(0)
           const categoryData = categoryGroups[categoryName]
-          const itemCount = categoryData.hasSubcategories
-            ? Object.keys(categoryData.subcategories).length
-            : categoryData.items.length
-          const itemType = categoryData.hasSubcategories ? 'subcategories' : 'items'
-          AriaUtils.announce(`${categoryName} category expanded, ${itemCount} ${itemType} available`);
+          const itemCount = categoryData.items?.length || 0
+          AriaUtils.announce(`${categoryName} category expanded, ${itemCount} items available`);
+          // Focus first item after DOM updates
+          setTimeout(() => {
+            const firstItem = document.querySelector('[data-item-index="0"]')
+            if (firstItem) {
+              firstItem.focus()
+            }
+          }, 50)
         } else if (e.key === 'ArrowUp') {
           e.preventDefault()
           const newIndex = (focusedCategoryIndex - 1 + categoryNames.length) % categoryNames.length;
@@ -2726,22 +2721,24 @@ function App() {
             setFocusedItemIndex(isExpanding ? 0 : -1)
             if (isExpanding) {
               const categoryData = categoryGroups[categoryName]
-              const itemCount = categoryData.hasSubcategories
-                ? Object.keys(categoryData.subcategories).length
-                : categoryData.items.length
-              const itemType = categoryData.hasSubcategories ? 'subcategories' : 'items'
-              AriaUtils.announce(`${categoryName} category expanded, ${itemCount} ${itemType} available`);
+              const itemCount = categoryData.items?.length || 0
+              AriaUtils.announce(`${categoryName} category expanded, ${itemCount} items available`);
+              // Focus first item after DOM updates
+              setTimeout(() => {
+                const firstItem = document.querySelector('[data-item-index="0"]')
+                if (firstItem) {
+                  firstItem.focus()
+                }
+              }, 50)
             } else {
               AriaUtils.announce(`${categoryName} category collapsed`);
             }
           }
         }
       } else {
-        // Navigate between expanded items (flattened; no subcategory navigation)
+        // Navigate between expanded items
         const categoryData = categoryGroups[expandedGroup]
-        const items = categoryData.hasSubcategories
-          ? Object.values(categoryData.subcategories).flatMap(s => s.items)
-          : categoryData.items
+        const items = categoryData.items || []
 
         if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
           e.preventDefault()
@@ -7965,7 +7962,7 @@ function App() {
               key={groupName}
               role="menuitem"
               title={group.description || `${groupName} category`}
-              aria-label={`${groupName}: ${group.description}. ${group.hasSubcategories ? Object.keys(group.subcategories).length + ' subcategories' : (group.items?.length || 0) + ' items'}`}
+              aria-label={`${groupName}: ${group.description}. ${group.items?.length || 0} items`}
               aria-expanded={expandedGroup === groupName}
               aria-haspopup="true"
               data-category-button
@@ -8002,19 +7999,23 @@ function App() {
                 }
               }}
               onClick={(e) => {
-                // Special case: Practice and Questions should open their pages, not just expand
-                if (groupName === 'Practice' || groupName === 'Questions') {
-                  setSelectedOptionAndRef(groupName, e.target)
-                  setExpandedGroup(null)
+                // Categories with items should expand to show items
+                if (group.items && group.items.length > 0) {
+                  const isExpanding = expandedGroup !== groupName
+                  setExpandedGroup(isExpanding ? groupName : null)
                   setExpandedSubcategory(null)
-                } else if (group.hasSubcategories) {
-                  // Categories with subcategories should expand to show subcategories
-                  console.log('Expanding category with subcategories:', groupName)
-                  setExpandedGroup(expandedGroup === groupName ? null : groupName)
-                  setExpandedSubcategory(null)
-                  setFocusedItemIndex(-1)
+                  setFocusedItemIndex(isExpanding ? 0 : -1)
+                  // Focus first item after DOM updates
+                  if (isExpanding) {
+                    setTimeout(() => {
+                      const firstItem = document.querySelector('[data-item-index="0"]')
+                      if (firstItem) {
+                        firstItem.focus()
+                      }
+                    }, 50)
+                  }
                 } else {
-                  // Regular categories navigate to their own pages
+                  // Categories without items navigate to their own pages
                   setSelectedOptionAndRef(groupName, e.target)
                   setExpandedGroup(null)
                   setExpandedSubcategory(null)
@@ -8058,7 +8059,7 @@ function App() {
               <span style={{ fontSize: '0.8rem' }}>{group.icon}</span>
               <span>{groupName}</span>
               <span style={{ fontSize: '0.55rem', opacity: 0.8, backgroundColor: expandedGroup === groupName ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.05)', padding: '0.05rem 0.2rem', borderRadius: '3px' }}>
-                {group.hasSubcategories ? Object.keys(group.subcategories).length : (group.items?.length || 0)}
+                {group.items?.length || 0}
               </span>
             </button>
           ))}
@@ -8253,13 +8254,11 @@ function App() {
               maxWidth: '1400px',
               margin: '0 auto'
             }}>
-            {/* Always show items list (flattened from subcategories if present) */}
+            {/* Show items list */}
             <>
               {(() => {
                 const group = categoryGroups[expandedGroup];
-                const items = group.hasSubcategories
-                  ? Object.values(group.subcategories).flatMap(s => s.items)
-                  : group.items || []
+                const items = group.items || []
                 return items
               })().map((itemValue, itemIndex) => {
                 const option = options.find(opt => opt.value === itemValue)
