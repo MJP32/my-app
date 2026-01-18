@@ -384,78 +384,14 @@ const categoryGroups = {
     color: '#10b981',
     groupSection: 'Practice',
     description: 'Algorithm practice and coding challenges',
-    hasSubcategories: true,
-    subcategories: {
-      'Data Structures': {
-        icon: '📊',
-        items: ['Arrays', 'Hash Tables', 'Stacks', 'Queues', 'Trees', 'Graphs', 'Heaps', 'Linked Lists']
-      },
-      'Algorithms': {
-        icon: '🎯',
-        items: ['Sorting', 'Binary Search', 'Recursion', 'Dynamic Programming', 'Union Find', 'Trie']
-      },
-      'Java Features': {
-        icon: '☕',
-        items: ['Streams', 'Lambdas', 'Functional Interfaces', 'Collections Framework']
-      },
-      'Concurrency': {
-        icon: '🔀',
-        items: ['Concurrency', 'Multithreading']
-      },
-      'Core Java Fundamentals': {
-        icon: '⚙️',
-        items: ['Object-Oriented Programming', 'Exception Handling', 'File I/O', 'JVM Internals', 'Memory Management', 'Data Structures', 'Strings', 'Generics']
-      },
-      'System Design': {
-        icon: '🛠️',
-        items: ['Design Patterns Practice', 'LRU Cache', 'Rate Limiter', 'Design Problems']
-      },
-      'Python Operations': {
-        icon: '🐍',
-        items: ['Set Operations', 'Map Operations']
-      },
-      'Interview Prep': {
-        icon: '🤖',
-        items: ['AI Interview']
-      }
-    }
+    items: ['Arrays', 'Hash Tables', 'Stacks', 'Queues', 'Trees', 'Graphs', 'Heaps', 'Linked Lists', 'Sorting', 'Binary Search', 'Recursion', 'Dynamic Programming', 'Union Find', 'Trie', 'Streams', 'Lambdas', 'Functional Interfaces', 'Collections Framework', 'Concurrency', 'Multithreading', 'Object-Oriented Programming', 'Exception Handling', 'File I/O', 'JVM Internals', 'Memory Management', 'Data Structures', 'Strings', 'Generics', 'Design Patterns Practice', 'LRU Cache', 'Rate Limiter', 'Design Problems', 'Set Operations', 'Map Operations', 'AI Interview']
   },
   'Questions': {
     icon: '❓',
     color: '#8b5cf6',
     groupSection: 'Practice',
     description: 'Interview questions and answers',
-    hasSubcategories: true,
-    subcategories: {
-      'Spring Framework': {
-        icon: '🌱',
-        items: ['Spring Core Questions', 'Spring Boot Questions', 'Spring Security Questions', 'Spring Data JPA Questions', 'Spring Annotations Questions']
-      },
-      'Java': {
-        icon: '☕',
-        items: ['Java 8 Questions', 'Java 11 Questions', 'Java 15 Questions', 'Java 21 Questions', 'Java 24 Questions']
-      },
-      'Databases': {
-        icon: '🗃️',
-        items: ['SQL Questions', 'Hibernate Questions']
-      },
-      'Messaging': {
-        icon: '📨',
-        items: ['Kafka Questions', 'RabbitMQ Questions', 'Solace Questions']
-      },
-      'APIs & Integration': {
-        icon: '🔌',
-        items: ['REST API Questions']
-      },
-      'CI/CD': {
-        icon: '🔄',
-        items: ['Jenkins Questions', 'TeamCity Questions']
-      },
-      'Monitoring': {
-        icon: '📊',
-        items: ['Prometheus Questions', 'Grafana Questions', 'Zipkin Questions', 'Actuator Questions']
-      }
-    }
+    items: ['Spring Core Questions', 'Spring Boot Questions', 'Spring Security Questions', 'Spring Data JPA Questions', 'Spring Annotations Questions', 'Java 8 Questions', 'Java 11 Questions', 'Java 15 Questions', 'Java 21 Questions', 'Java 24 Questions', 'SQL Questions', 'Hibernate Questions', 'Kafka Questions', 'RabbitMQ Questions', 'Solace Questions', 'REST API Questions', 'Jenkins Questions', 'TeamCity Questions', 'Prometheus Questions', 'Grafana Questions', 'Zipkin Questions', 'Actuator Questions']
   }
 }
 
