@@ -147,6 +147,22 @@ const PAGE_TO_SEO_PRESET = {
   'ConcurrentHashMap - Internal Workings': 'concurrentHashMap',
   'ThreadPoolExecutor - Internal Workings': 'threadPoolExecutor',
   'CompletableFuture - Internal Workings': 'completableFuture',
+  'ArrayList - Internal Workings': 'arrayList',
+  'LinkedHashMap - Internal Workings': 'linkedHashMap',
+  'ReentrantLock - Internal Workings': 'reentrantLock',
+  'Atomic & CAS - Internal Workings': 'atomicCas',
+  'String Pool - Internal Workings': 'stringPool',
+  'JVM Memory Model': 'jvmMemory',
+  'TreeMap - Internal Workings': 'treeMap',
+  'Garbage Collection': 'garbageCollection',
+  'Virtual Threads (Java 21)': 'virtualThreads',
+  'Synchronized Internals': 'synchronizedInternals',
+  'PriorityQueue - Internal Workings': 'priorityQueue',
+  'ForkJoinPool - Internal Workings': 'forkJoinPool',
+  'CountDownLatch & CyclicBarrier': 'countDownLatchCyclicBarrier',
+  'Semaphore - Internal Workings': 'semaphore',
+  'Class Loading': 'classLoading',
+  'Java NIO': 'javaNio',
 }
 
 /**

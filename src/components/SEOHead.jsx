@@ -380,5 +380,117 @@ export const seoPresets = {
     description: 'Master CompletableFuture for interviews: async composition, completion stages, exception handling, thenApply vs thenCompose, allOf/anyOf. Essential for FAANG interviews.',
     keywords: 'CompletableFuture, Java async, non-blocking, thenApply, thenCompose, CompletionStage, Future, Java interview, async programming',
     structuredData: createCourseSchema('CompletableFuture Internals', 'Deep dive into Java CompletableFuture implementation')
+  },
+
+  arrayList: {
+    title: 'ArrayList Internal Workings - Java Collections Deep Dive | EggyEggs',
+    description: 'Master ArrayList for interviews: dynamic array growth, amortized O(1), element shifting, fail-fast iterators, ArrayList vs LinkedList. Essential for FAANG interviews.',
+    keywords: 'ArrayList, Java collections, dynamic array, growth strategy, LinkedList comparison, Java interview',
+    structuredData: createCourseSchema('ArrayList Internals', 'Deep dive into Java ArrayList implementation')
+  },
+
+  linkedHashMap: {
+    title: 'LinkedHashMap Internal Workings - LRU Cache Implementation | EggyEggs',
+    description: 'Master LinkedHashMap for interviews: insertion vs access order, LRU cache implementation, removeEldestEntry, doubly-linked list. Essential for FAANG interviews.',
+    keywords: 'LinkedHashMap, LRU cache, Java collections, insertion order, access order, Java interview',
+    structuredData: createCourseSchema('LinkedHashMap Internals', 'Deep dive into Java LinkedHashMap and LRU cache')
+  },
+
+  reentrantLock: {
+    title: 'ReentrantLock Internal Workings - AQS Deep Dive | EggyEggs',
+    description: 'Master ReentrantLock for interviews: AQS framework, fair vs non-fair locks, CLH queue, Conditions, tryLock. Essential for FAANG interviews.',
+    keywords: 'ReentrantLock, AQS, Java concurrency, fair lock, Condition, synchronized comparison, Java interview',
+    structuredData: createCourseSchema('ReentrantLock Internals', 'Deep dive into Java ReentrantLock and AQS')
+  },
+
+  atomicCas: {
+    title: 'Atomic & CAS Internal Workings - Lock-Free Programming | EggyEggs',
+    description: 'Master AtomicInteger and CAS for interviews: compare-and-swap, lock-free programming, ABA problem, AtomicReference, LongAdder. Essential for FAANG interviews.',
+    keywords: 'AtomicInteger, CAS, compare-and-swap, lock-free, ABA problem, AtomicReference, Java interview',
+    structuredData: createCourseSchema('Atomic & CAS Internals', 'Deep dive into Java atomic operations and CAS')
+  },
+
+  stringPool: {
+    title: 'String Pool Internal Workings - Java Memory Optimization | EggyEggs',
+    description: 'Master String Pool for interviews: interning, immutability, compile-time optimization, Compact Strings, memory tuning. Essential for FAANG interviews.',
+    keywords: 'String Pool, intern, String immutability, Compact Strings, Java memory, Java interview',
+    structuredData: createCourseSchema('String Pool Internals', 'Deep dive into Java String Pool and memory optimization')
+  },
+
+  jvmMemory: {
+    title: 'JVM Memory Model - Heap, Stack, Metaspace | EggyEggs',
+    description: 'Master JVM memory for interviews: heap, stack, metaspace, object layout, volatile, happens-before, memory barriers. Essential for FAANG interviews.',
+    keywords: 'JVM memory, heap, stack, metaspace, volatile, happens-before, object layout, Java interview',
+    structuredData: createCourseSchema('JVM Memory Model', 'Deep dive into JVM memory architecture')
+  },
+
+  treeMap: {
+    title: 'TreeMap Internal Workings - Red-Black Tree | EggyEggs',
+    description: 'Master TreeMap for interviews: Red-Black tree, O(log n) operations, tree rotations, NavigableMap methods. Essential for FAANG interviews.',
+    keywords: 'TreeMap, Red-Black tree, NavigableMap, tree rotations, sorted map, Java interview',
+    structuredData: createCourseSchema('TreeMap Internals', 'Deep dive into Java TreeMap and Red-Black trees')
+  },
+
+  garbageCollection: {
+    title: 'Garbage Collection - G1, ZGC, GC Tuning | EggyEggs',
+    description: 'Master GC for interviews: generational collection, G1/ZGC/Shenandoah, GC roots, tuning, choosing collectors. Essential for FAANG interviews.',
+    keywords: 'Garbage Collection, G1 GC, ZGC, Shenandoah, GC tuning, generational GC, Java interview',
+    structuredData: createCourseSchema('Garbage Collection', 'Deep dive into JVM Garbage Collection')
+  },
+
+  virtualThreads: {
+    title: 'Virtual Threads (Java 21) - Project Loom | EggyEggs',
+    description: 'Master Virtual Threads for interviews: Project Loom, carrier threads, thread pinning, structured concurrency, million-thread scalability. Essential for FAANG interviews.',
+    keywords: 'Virtual Threads, Project Loom, Java 21, carrier threads, thread pinning, structured concurrency, Java interview',
+    structuredData: createCourseSchema('Virtual Threads', 'Deep dive into Java 21 Virtual Threads')
+  },
+
+  synchronizedInternals: {
+    title: 'Synchronized Internals - Object Monitors, Lock Inflation | EggyEggs',
+    description: 'Master synchronized for interviews: object monitors, Mark Word, biased/thin/fat locks, lock inflation, wait/notify. Essential for FAANG interviews.',
+    keywords: 'synchronized, object monitor, biased locking, lock inflation, wait notify, Mark Word, Java interview',
+    structuredData: createCourseSchema('Synchronized Internals', 'Deep dive into Java synchronized keyword')
+  },
+
+  priorityQueue: {
+    title: 'PriorityQueue Internals - Binary Heap Implementation | EggyEggs',
+    description: 'Master PriorityQueue for interviews: binary heap in array, sift up/down, heapify algorithm, common patterns for K-th element and merge operations.',
+    keywords: 'PriorityQueue, binary heap, sift up, sift down, heapify, Java interview, heap data structure',
+    structuredData: createCourseSchema('PriorityQueue Internals', 'Deep dive into Java PriorityQueue implementation')
+  },
+
+  forkJoinPool: {
+    title: 'ForkJoinPool Internals - Work-Stealing Algorithm | EggyEggs',
+    description: 'Master ForkJoinPool for interviews: work-stealing, fork/join operations, RecursiveTask, parallel streams. Essential for FAANG interviews.',
+    keywords: 'ForkJoinPool, work-stealing, fork join, RecursiveTask, parallel streams, Java concurrency interview',
+    structuredData: createCourseSchema('ForkJoinPool Internals', 'Deep dive into Java ForkJoinPool implementation')
+  },
+
+  countDownLatchCyclicBarrier: {
+    title: 'CountDownLatch & CyclicBarrier - Thread Synchronization | EggyEggs',
+    description: 'Master thread synchronization: CountDownLatch, CyclicBarrier, Phaser. Understand one-time vs reusable barriers for FAANG interviews.',
+    keywords: 'CountDownLatch, CyclicBarrier, Phaser, thread synchronization, Java concurrency, barrier interview',
+    structuredData: createCourseSchema('CountDownLatch & CyclicBarrier', 'Thread synchronization primitives in Java')
+  },
+
+  semaphore: {
+    title: 'Semaphore Internals - Permit-Based Synchronization | EggyEggs',
+    description: 'Master Semaphore for interviews: permit-based access control, fair vs non-fair, connection pooling, rate limiting patterns.',
+    keywords: 'Semaphore, permits, connection pool, rate limiting, fair semaphore, Java concurrency interview',
+    structuredData: createCourseSchema('Semaphore Internals', 'Deep dive into Java Semaphore implementation')
+  },
+
+  classLoading: {
+    title: 'Class Loading - JVM Internals | EggyEggs',
+    description: 'Master JVM class loading: loading phases, delegation model, custom ClassLoaders, Metaspace. Essential for FAANG interviews.',
+    keywords: 'ClassLoader, class loading, delegation model, Metaspace, JVM internals, Java interview',
+    structuredData: createCourseSchema('Class Loading', 'Deep dive into JVM class loading mechanism')
+  },
+
+  javaNio: {
+    title: 'Java NIO - Non-Blocking I/O Internals | EggyEggs',
+    description: 'Master Java NIO for interviews: ByteBuffer, channels, selectors, memory-mapped files, non-blocking I/O for high-performance applications.',
+    keywords: 'Java NIO, ByteBuffer, channels, selectors, non-blocking IO, memory-mapped files, Java interview',
+    structuredData: createCourseSchema('Java NIO', 'Deep dive into Java NIO and non-blocking I/O')
   }
 }

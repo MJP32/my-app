@@ -37,6 +37,22 @@ import BlockingQueuePage from './pages/projects/BlockingQueue.jsx'
 import ConcurrentHashMapInternals from './pages/projects/ConcurrentHashMapInternals.jsx'
 import ThreadPoolExecutorInternals from './pages/projects/ThreadPoolExecutorInternals.jsx'
 import CompletableFutureInternals from './pages/projects/CompletableFutureInternals.jsx'
+import ArrayListInternals from './pages/projects/ArrayListInternals.jsx'
+import LinkedHashMapInternals from './pages/projects/LinkedHashMapInternals.jsx'
+import ReentrantLockInternals from './pages/projects/ReentrantLockInternals.jsx'
+import AtomicInternals from './pages/projects/AtomicInternals.jsx'
+import StringPoolInternals from './pages/projects/StringPoolInternals.jsx'
+import JVMMemoryModel from './pages/projects/JVMMemoryModel.jsx'
+import TreeMapInternals from './pages/projects/TreeMapInternals.jsx'
+import GarbageCollectionInternals from './pages/projects/GarbageCollectionInternals.jsx'
+import VirtualThreadsInternals from './pages/projects/VirtualThreadsInternals.jsx'
+import SynchronizedInternals from './pages/projects/SynchronizedInternals.jsx'
+import PriorityQueueInternals from './pages/projects/PriorityQueueInternals.jsx'
+import ForkJoinPoolInternals from './pages/projects/ForkJoinPoolInternals.jsx'
+import CountDownLatchCyclicBarrier from './pages/projects/CountDownLatchCyclicBarrier.jsx'
+import SemaphoreInternals from './pages/projects/SemaphoreInternals.jsx'
+import ClassLoadingInternals from './pages/projects/ClassLoadingInternals.jsx'
+import JavaNIOInternals from './pages/projects/JavaNIOInternals.jsx'
 import AIInterview from './pages/AIInterview.jsx'
 import Settings from './pages/Settings.jsx'
 
@@ -3501,6 +3517,118 @@ function App() {
       return (
         <div ref={componentContainerRef}>
           <CompletableFutureInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'ArrayList - Internal Workings') {
+      return (
+        <div ref={componentContainerRef}>
+          <ArrayListInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'LinkedHashMap - Internal Workings') {
+      return (
+        <div ref={componentContainerRef}>
+          <LinkedHashMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'ReentrantLock - Internal Workings') {
+      return (
+        <div ref={componentContainerRef}>
+          <ReentrantLockInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'Atomic & CAS - Internal Workings') {
+      return (
+        <div ref={componentContainerRef}>
+          <AtomicInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'String Pool - Internal Workings') {
+      return (
+        <div ref={componentContainerRef}>
+          <StringPoolInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'JVM Memory Model') {
+      return (
+        <div ref={componentContainerRef}>
+          <JVMMemoryModel onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'TreeMap - Internal Workings') {
+      return (
+        <div ref={componentContainerRef}>
+          <TreeMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'Garbage Collection') {
+      return (
+        <div ref={componentContainerRef}>
+          <GarbageCollectionInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'Virtual Threads (Java 21)') {
+      return (
+        <div ref={componentContainerRef}>
+          <VirtualThreadsInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'Synchronized Internals') {
+      return (
+        <div ref={componentContainerRef}>
+          <SynchronizedInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'PriorityQueue - Internal Workings') {
+      return (
+        <div ref={componentContainerRef}>
+          <PriorityQueueInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'ForkJoinPool - Internal Workings') {
+      return (
+        <div ref={componentContainerRef}>
+          <ForkJoinPoolInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'CountDownLatch & CyclicBarrier') {
+      return (
+        <div ref={componentContainerRef}>
+          <CountDownLatchCyclicBarrier onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'Semaphore - Internal Workings') {
+      return (
+        <div ref={componentContainerRef}>
+          <SemaphoreInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'Class Loading') {
+      return (
+        <div ref={componentContainerRef}>
+          <ClassLoadingInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'Java NIO') {
+      return (
+        <div ref={componentContainerRef}>
+          <JavaNIOInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
         </div>
       )
     }
