@@ -328,70 +328,70 @@ const categoryGroups = {
     color: '#f59e0b',
     groupSection: 'Learning',
     description: 'Java fundamentals and versions',
-    items: ['Core Java', 'Java 8', 'Java 11', 'Java 15', 'Java 21', 'Java 24']
+    items: []
   },
   'Python': {
     icon: '🐍',
     color: '#3776ab',
     groupSection: 'Learning',
     description: 'Python programming and libraries',
-    items: ['Core Python', 'Index Slicing', 'Bitwise Operations', 'List Comprehension', 'Lambda', 'Bisect Functions', 'Python Advanced', 'Data Science', 'Machine Learning', 'Web Frameworks', 'Async Python', 'Python Set Operations', 'Python Dict Operations', 'Python Tuples', 'Python Map Functions', 'Python String Methods', 'Python Heaps', 'Python Pitfalls']
+    items: []
   },
   'Design': {
     icon: '🎨',
     color: '#8b5cf6',
     groupSection: 'Learning',
     description: 'Design patterns and architecture',
-    items: ['Design Patterns', 'Microservice Design Patterns', 'Class', 'System Design', 'Module', 'Function', 'Interface', 'Event Driven Architecture', 'Domain Driven Design']
+    items: []
   },
   'My Projects': {
     icon: '💼',
     color: '#10b981',
     groupSection: 'Projects',
     description: 'Real-world project implementations',
-    items: ['Var/CVar', 'Var/CVar - Advanced', 'Var/CVar 3', 'Dark Pool Matching Engine', 'Dark Pool Matching Engine - Basic', 'Medi/Health', 'Dark Pool Engine 3', 'Monolith to Microservice', 'Financial Banking', 'Credit Card Portal', 'Credit Card Portal 2', 'Credit Card Portal 3', 'Virtual Numbers', 'Ride Share', 'HashMap - Internal Workings', 'Blocking Queue', 'ConcurrentHashMap - Internal Workings', 'ThreadPoolExecutor - Internal Workings', 'CompletableFuture - Internal Workings']
+    items: []
   },
   'Frameworks': {
     icon: '🌱',
     color: '#ec4899',
     groupSection: 'Tech Stack',
     description: 'Spring, REST, Hibernate, React',
-    items: ['Spring', 'Spring Boot', 'REST API', 'Hibernate', 'gRPC', 'SOAP', 'React', 'Actuator', 'Dependency Injection']
+    items: []
   },
   'Databases': {
     icon: '🗃️',
     color: '#3b82f6',
     groupSection: 'Tech Stack',
     description: 'SQL, NoSQL, ORM, caching',
-    items: ['SQL', 'NoSQL', 'Oracle', 'ORM', 'Redis', 'PL/SQL']
+    items: []
   },
   'Cloud': {
     icon: '☁️',
     color: '#0ea5e9',
     groupSection: 'Tech Stack',
     description: 'AWS, GCP, Azure platforms',
-    items: ['AWS', 'GCP', 'Azure']
+    items: []
   },
   'DevOps': {
     icon: '🛠️',
     color: '#0ea5e9',
     groupSection: 'Operations',
     description: 'CI/CD, Docker, Kubernetes, Messaging, Security',
-    items: ['Deployment', 'Docker', 'Kubernetes', 'Testing', 'CI/CD', 'Agile Scrum', 'Production Support', 'TeamCity', 'Jenkins', 'Prometheus', 'Grafana', 'Security OWASP', 'JWT', 'OAuth', 'OAuth2', 'Kafka', 'Apache Flink', 'RabbitMQ', 'Solace', 'MuleSoft']
+    items: []
   },
   'Practice': {
     icon: '💪',
     color: '#10b981',
     groupSection: 'Practice',
     description: 'Algorithm practice and coding challenges',
-    items: ['Arrays', 'Hash Tables', 'Stacks', 'Queues', 'Trees', 'Graphs', 'Heaps', 'Linked Lists', 'Sorting', 'Binary Search', 'Recursion', 'Dynamic Programming', 'Union Find', 'Trie', 'Streams', 'Lambdas', 'Functional Interfaces', 'Collections Framework', 'Concurrency', 'Multithreading', 'Object-Oriented Programming', 'Exception Handling', 'File I/O', 'JVM Internals', 'Memory Management', 'Data Structures', 'Strings', 'Generics', 'Design Patterns Practice', 'LRU Cache', 'Rate Limiter', 'Design Problems', 'Set Operations', 'Map Operations', 'AI Interview']
+    items: []
   },
   'Questions': {
     icon: '❓',
     color: '#8b5cf6',
     groupSection: 'Practice',
     description: 'Interview questions and answers',
-    items: ['Spring Core Questions', 'Spring Boot Questions', 'Spring Security Questions', 'Spring Data JPA Questions', 'Spring Annotations Questions', 'Java 8 Questions', 'Java 11 Questions', 'Java 15 Questions', 'Java 21 Questions', 'Java 24 Questions', 'SQL Questions', 'Hibernate Questions', 'Kafka Questions', 'RabbitMQ Questions', 'Solace Questions', 'REST API Questions', 'Jenkins Questions', 'TeamCity Questions', 'Prometheus Questions', 'Grafana Questions', 'Zipkin Questions', 'Actuator Questions']
+    items: []
   }
 }
 
