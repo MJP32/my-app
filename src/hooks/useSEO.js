@@ -146,6 +146,7 @@ const PAGE_TO_SEO_PRESET = {
   'Blocking Queue': 'blockingQueue',
   'ConcurrentHashMap - Internal Workings': 'concurrentHashMap',
   'ThreadPoolExecutor - Internal Workings': 'threadPoolExecutor',
+  'CompletableFuture - Internal Workings': 'completableFuture',
 }
 
 /**

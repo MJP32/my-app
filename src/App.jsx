@@ -36,6 +36,7 @@ import HashMapInternals from './pages/projects/HashMapInternals.jsx'
 import BlockingQueuePage from './pages/projects/BlockingQueue.jsx'
 import ConcurrentHashMapInternals from './pages/projects/ConcurrentHashMapInternals.jsx'
 import ThreadPoolExecutorInternals from './pages/projects/ThreadPoolExecutorInternals.jsx'
+import CompletableFutureInternals from './pages/projects/CompletableFutureInternals.jsx'
 import AIInterview from './pages/AIInterview.jsx'
 import Settings from './pages/Settings.jsx'
 
@@ -332,7 +333,7 @@ const categoryGroups = {
     color: '#10b981',
     groupSection: 'Projects',
     description: 'Real-world project implementations',
-    items: ['Var/CVar', 'Var/CVar - Advanced', 'Var/CVar 3', 'Dark Pool Matching Engine', 'Dark Pool Matching Engine - Basic', 'Medi/Health', 'Dark Pool Engine 3', 'Monolith to Microservice', 'Financial Banking', 'Credit Card Portal', 'Credit Card Portal 2', 'Credit Card Portal 3', 'Virtual Numbers', 'Ride Share', 'HashMap - Internal Workings', 'Blocking Queue', 'ConcurrentHashMap - Internal Workings', 'ThreadPoolExecutor - Internal Workings']
+    items: ['Var/CVar', 'Var/CVar - Advanced', 'Var/CVar 3', 'Dark Pool Matching Engine', 'Dark Pool Matching Engine - Basic', 'Medi/Health', 'Dark Pool Engine 3', 'Monolith to Microservice', 'Financial Banking', 'Credit Card Portal', 'Credit Card Portal 2', 'Credit Card Portal 3', 'Virtual Numbers', 'Ride Share', 'HashMap - Internal Workings', 'Blocking Queue', 'ConcurrentHashMap - Internal Workings', 'ThreadPoolExecutor - Internal Workings', 'CompletableFuture - Internal Workings']
   },
   'Frameworks': {
     icon: '🌱',
@@ -3493,6 +3494,13 @@ function App() {
       return (
         <div ref={componentContainerRef}>
           <ThreadPoolExecutorInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+        </div>
+      )
+    }
+    if (selectedOption === 'CompletableFuture - Internal Workings') {
+      return (
+        <div ref={componentContainerRef}>
+          <CompletableFutureInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
         </div>
       )
     }

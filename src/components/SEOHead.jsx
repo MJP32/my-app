@@ -373,5 +373,12 @@ export const seoPresets = {
     description: 'Master ThreadPoolExecutor for interviews: 7 core parameters, work queues, rejection policies, ctl field, Worker class, task execution flow. Essential for FAANG interviews.',
     keywords: 'ThreadPoolExecutor, Java concurrency, thread pool, executor service, work queue, rejection policy, Java interview, core pool size, maximum pool size',
     structuredData: createCourseSchema('ThreadPoolExecutor Internals', 'Deep dive into Java ThreadPoolExecutor implementation')
+  },
+
+  completableFuture: {
+    title: 'CompletableFuture Internal Workings - Java Async Programming Deep Dive | EggyEggs',
+    description: 'Master CompletableFuture for interviews: async composition, completion stages, exception handling, thenApply vs thenCompose, allOf/anyOf. Essential for FAANG interviews.',
+    keywords: 'CompletableFuture, Java async, non-blocking, thenApply, thenCompose, CompletionStage, Future, Java interview, async programming',
+    structuredData: createCourseSchema('CompletableFuture Internals', 'Deep dive into Java CompletableFuture implementation')
   }
 }
