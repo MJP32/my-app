@@ -2664,14 +2664,23 @@ def twoSum(self, numbers: List[int], target: int) -> List[int]:
   }
 
   if (selectedQuestion) {
+    // Create extended breadcrumb with problem title
+    const problemBreadcrumb = {
+      ...breadcrumb,
+      category: { name: 'Arrays', onClick: () => setSelectedQuestion(null) },
+      topic: selectedQuestion.title
+    }
+
     return (
       <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <button onClick={() => setSelectedQuestion(null)} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}>
-            ← Back to Practice
+            ← Back to Arrays
           </button>
           <LanguageToggle />
         </div>
+
+        <Breadcrumb breadcrumb={problemBreadcrumb} />
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
           {/* Problem Description */}

@@ -3550,147 +3550,252 @@ function App() {
     if (selectedOption === 'HashMap - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <HashMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <HashMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'HashMap - Internal Workings',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'Blocking Queue') {
       return (
         <div ref={componentContainerRef}>
-          <BlockingQueuePage onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <BlockingQueuePage onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'Blocking Queue',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'ConcurrentHashMap - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <ConcurrentHashMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <ConcurrentHashMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'ConcurrentHashMap - Internal Workings',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'ThreadPoolExecutor - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <ThreadPoolExecutorInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <ThreadPoolExecutorInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'ThreadPoolExecutor - Internal Workings',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'CompletableFuture - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <CompletableFutureInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <CompletableFutureInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'CompletableFuture - Internal Workings',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'ArrayList - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <ArrayListInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <ArrayListInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'ArrayList - Internal Workings',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'LinkedHashMap - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <LinkedHashMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <LinkedHashMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'LinkedHashMap - Internal Workings',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'ReentrantLock - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <ReentrantLockInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <ReentrantLockInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'ReentrantLock - Internal Workings',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'Atomic & CAS - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <AtomicInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <AtomicInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'Atomic & CAS - Internal Workings',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'String Pool - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <StringPoolInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <StringPoolInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'String Pool - Internal Workings',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'JVM Memory Model') {
       return (
         <div ref={componentContainerRef}>
-          <JVMMemoryModel onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <JVMMemoryModel onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'JVM Memory Model',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'TreeMap - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <TreeMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <TreeMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'TreeMap - Internal Workings',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'Garbage Collection') {
       return (
         <div ref={componentContainerRef}>
-          <GarbageCollectionInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <GarbageCollectionInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'Garbage Collection',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'Virtual Threads (Java 21)') {
       return (
         <div ref={componentContainerRef}>
-          <VirtualThreadsInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <VirtualThreadsInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'Virtual Threads (Java 21)',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'Synchronized Internals') {
       return (
         <div ref={componentContainerRef}>
-          <SynchronizedInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <SynchronizedInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'Synchronized Internals',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'PriorityQueue - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <PriorityQueueInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <PriorityQueueInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'PriorityQueue - Internal Workings',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'ForkJoinPool - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <ForkJoinPoolInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <ForkJoinPoolInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'ForkJoinPool - Internal Workings',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'CountDownLatch & CyclicBarrier') {
       return (
         <div ref={componentContainerRef}>
-          <CountDownLatchCyclicBarrier onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <CountDownLatchCyclicBarrier onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'CountDownLatch & CyclicBarrier',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'Semaphore - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <SemaphoreInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <SemaphoreInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'Semaphore - Internal Workings',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'Class Loading') {
       return (
         <div ref={componentContainerRef}>
-          <ClassLoadingInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <ClassLoadingInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'Class Loading',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }
     if (selectedOption === 'Java NIO') {
       return (
         <div ref={componentContainerRef}>
-          <JavaNIOInternals onBack={() => setSelectedOptionAndRef('My Projects')} />
+          <JavaNIOInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
+            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+            category: { name: 'Java Internals', onClick: () => setSelectedOptionAndRef('My Projects') },
+            topic: 'Java NIO',
+            colors: BREADCRUMB_COLORS['My Projects']
+          }} />
         </div>
       )
     }

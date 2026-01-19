@@ -40,7 +40,7 @@ const highlightCode = (code) => {
   return highlighted;
 };
 
-const ConcurrentHashMapInternals = ({ onBack }) => {
+const ConcurrentHashMapInternals = ({ onBack, breadcrumb }) => {
   const { colors } = useTheme();
   const [expandedSections, setExpandedSections] = useState({ 0: true });
   const backButtonRef = useRef(null);
@@ -677,13 +677,7 @@ map.forEach((key, value) -> {
             <ArrowLeft className="w-4 h-4" />
             <span>Back</span>
           </button>
-          <Breadcrumb
-            items={[
-              { label: 'Home', onClick: onBack },
-              { label: 'My Projects' },
-              { label: 'ConcurrentHashMap - Internal Workings' }
-            ]}
-          />
+{breadcrumb && <Breadcrumb breadcrumb={breadcrumb} />}
         </div>
 
         {/* Title */}

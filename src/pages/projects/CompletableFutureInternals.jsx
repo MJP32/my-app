@@ -40,7 +40,7 @@ const highlightCode = (code) => {
   return highlighted;
 };
 
-const CompletableFutureInternals = ({ onBack }) => {
+const CompletableFutureInternals = ({ onBack, breadcrumb }) => {
   const { colors } = useTheme();
   const [expandedSections, setExpandedSections] = useState({ 0: true });
   const backButtonRef = useRef(null);
@@ -738,11 +738,7 @@ cf.cancel(true);  // Sets result but doesn't stop task
   return (
     <div className={`min-h-screen ${colors.background}`}>
       <div className="max-w-6xl mx-auto p-6">
-        <Breadcrumb
-          section={{ name: 'My Projects', icon: '💼', onClick: onBack }}
-          category={{ name: 'Java Internals', onClick: onBack }}
-          topic="CompletableFuture - Internal Workings"
-        />
+{breadcrumb && <Breadcrumb breadcrumb={breadcrumb} />}
 
         <div className="flex items-center gap-3 mt-4">
           <button

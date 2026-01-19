@@ -777,14 +777,23 @@ function MathGeometry({ onBack, onPrevious, onNext, previousName, nextName, curr
   }
 
   if (selectedQuestion) {
+    // Create extended breadcrumb with problem title
+    const problemBreadcrumb = {
+      ...breadcrumb,
+      category: { name: 'Math & Geometry', onClick: () => setSelectedQuestion(null) },
+      topic: selectedQuestion.title
+    }
+
     return (
       <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <button onClick={() => setSelectedQuestion(null)} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
-            ← Back to Practice
+            ← Back to Math & Geometry
           </button>
           <LanguageToggle />
         </div>
+
+        <Breadcrumb breadcrumb={problemBreadcrumb} />
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
           <div style={{ background: 'linear-gradient(to bottom right, #1f2937, #111827)', padding: '2rem', borderRadius: '12px', border: '2px solid #3b82f6', maxHeight: '85vh', overflowY: 'auto' }}>

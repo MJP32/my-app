@@ -40,7 +40,7 @@ const highlightCode = (code) => {
   return highlighted;
 };
 
-const HashMapInternals = ({ onBack }) => {
+const HashMapInternals = ({ onBack, breadcrumb }) => {
   const { colors } = useTheme();
   const [expandedSections, setExpandedSections] = useState({ 0: true });
   const backButtonRef = useRef(null);
@@ -432,13 +432,7 @@ public boolean equals(Object obj) {
             <ArrowLeft className="w-4 h-4" />
             <span>Back</span>
           </button>
-          <Breadcrumb
-            items={[
-              { label: 'Home', onClick: onBack },
-              { label: 'My Projects' },
-              { label: 'HashMap - Internal Workings' }
-            ]}
-          />
+{breadcrumb && <Breadcrumb breadcrumb={breadcrumb} />}
         </div>
 
         {/* Title */}

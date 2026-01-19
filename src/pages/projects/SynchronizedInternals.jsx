@@ -22,7 +22,7 @@ const highlightCode = (code) => {
   return highlighted;
 };
 
-const SynchronizedInternals = ({ onBack }) => {
+const SynchronizedInternals = ({ onBack, breadcrumb }) => {
   const { colors } = useTheme();
   const [expandedSections, setExpandedSections] = useState({ 0: true });
   const backButtonRef = useRef(null);
@@ -383,8 +383,7 @@ synchronized (Example.class) // Class lock
   return (
     <div className={`min-h-screen ${colors.background}`}>
       <div className="max-w-6xl mx-auto p-6">
-        <Breadcrumb section={{ name: 'My Projects', icon: '💼', onClick: onBack }}
-          category={{ name: 'Java Internals', onClick: onBack }} topic="Synchronized Internals" />
+{breadcrumb && <Breadcrumb breadcrumb={breadcrumb} />}
         <div className="flex items-center gap-3 mt-4">
           <button ref={backButtonRef} onClick={onBack}
             className={`flex items-center gap-2 px-4 py-2 ${colors.buttonBg} text-white rounded-lg transition-all duration-200 hover:scale-105`}>

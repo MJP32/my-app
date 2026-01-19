@@ -40,7 +40,7 @@ const highlightCode = (code) => {
   return highlighted;
 };
 
-const BlockingQueue = ({ onBack }) => {
+const BlockingQueue = ({ onBack, breadcrumb }) => {
   const { colors } = useTheme();
   const [expandedSections, setExpandedSections] = useState({ 0: true });
   const backButtonRef = useRef(null);
@@ -713,13 +713,7 @@ ExecutorService cachedPool = Executors.newCachedThreadPool();
             <ArrowLeft className="w-4 h-4" />
             <span>Back</span>
           </button>
-          <Breadcrumb
-            items={[
-              { label: 'Home', onClick: onBack },
-              { label: 'My Projects' },
-              { label: 'Blocking Queue' }
-            ]}
-          />
+{breadcrumb && <Breadcrumb breadcrumb={breadcrumb} />}
         </div>
 
         {/* Title */}

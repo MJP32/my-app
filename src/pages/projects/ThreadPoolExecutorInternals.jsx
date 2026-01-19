@@ -40,7 +40,7 @@ const highlightCode = (code) => {
   return highlighted;
 };
 
-const ThreadPoolExecutorInternals = ({ onBack }) => {
+const ThreadPoolExecutorInternals = ({ onBack, breadcrumb }) => {
   const { colors } = useTheme();
   const [expandedSections, setExpandedSections] = useState({ 0: true });
   const backButtonRef = useRef(null);
@@ -782,13 +782,7 @@ int ioPool = 8 * (1 + 50/5);  // = 88 threads
             <ArrowLeft className="w-4 h-4" />
             <span>Back</span>
           </button>
-          <Breadcrumb
-            items={[
-              { label: 'Home', onClick: onBack },
-              { label: 'My Projects' },
-              { label: 'ThreadPoolExecutor - Internal Workings' }
-            ]}
-          />
+{breadcrumb && <Breadcrumb breadcrumb={breadcrumb} />}
         </div>
 
         {/* Title */}
