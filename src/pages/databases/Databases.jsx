@@ -37,6 +37,20 @@ function Databases({ onBack, onSelectItem }) {
       icon: '⚡',
       color: '#ef4444',
       description: 'In-memory data structure store, caching, pub/sub messaging, distributed locks, and session management.'
+    },
+    {
+      id: 'StoredProcedures',
+      name: 'Stored Procedures',
+      icon: '📜',
+      color: '#8b5cf6',
+      description: 'Database stored procedures, functions, triggers, cursors, and procedural SQL programming for encapsulating business logic.'
+    },
+    {
+      id: 'DatabaseOptimization',
+      name: 'Database Optimization',
+      icon: '🚀',
+      color: '#10b981',
+      description: 'Query optimization, indexing strategies, execution plans, performance tuning, and database profiling techniques.'
     }
   ]
 

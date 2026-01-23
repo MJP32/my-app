@@ -136,6 +136,8 @@ import Oracle from './pages/databases/Oracle.jsx'
 import ORM from './pages/databases/ORM.jsx'
 import Redis from './pages/databases/Redis.jsx'
 import PLSQL from './pages/databases/PLSQL.jsx'
+import StoredProcedures from './pages/databases/StoredProcedures.jsx'
+import DatabaseOptimization from './pages/databases/DatabaseOptimization.jsx'
 import Databases from './pages/databases/Databases.jsx'
 
 // DevOps pages
@@ -530,7 +532,7 @@ const getLearningComponentIndex = (componentName) => {
 }
 
 // Order of database components for navigation
-const DATABASE_COMPONENTS_ORDER = ['SQL', 'NoSQL', 'Oracle', 'ORM', 'Redis', 'PLSQL']
+const DATABASE_COMPONENTS_ORDER = ['SQL', 'NoSQL', 'Oracle', 'ORM', 'Redis', 'PLSQL', 'StoredProcedures', 'DatabaseOptimization']
 
 // Display names for database components
 const DATABASE_DISPLAY_NAMES = {
@@ -539,7 +541,9 @@ const DATABASE_DISPLAY_NAMES = {
   'Oracle': 'Oracle',
   'ORM': 'ORM',
   'Redis': 'Redis',
-  'PLSQL': 'PL/SQL'
+  'PLSQL': 'PL/SQL',
+  'StoredProcedures': 'Stored Procedures',
+  'DatabaseOptimization': 'Optimization'
 }
 
 // Helper functions for database component navigation
@@ -828,6 +832,8 @@ function App() {
   const [showORMModal, setShowORMModal] = useState(false)
   const [showRedisModal, setShowRedisModal] = useState(false)
   const [showPLSQLModal, setShowPLSQLModal] = useState(false)
+  const [showStoredProceduresModal, setShowStoredProceduresModal] = useState(false)
+  const [showDatabaseOptimizationModal, setShowDatabaseOptimizationModal] = useState(false)
   const [showSpringModal, setShowSpringModal] = useState(false)
   const [showSpringBootModal, setShowSpringBootModal] = useState(false)
   const [showRESTAPIModal, setShowRESTAPIModal] = useState(false)
@@ -1737,6 +1743,8 @@ function App() {
       setShowORMModal(false)
       setShowRedisModal(false)
       setShowPLSQLModal(false)
+      setShowStoredProceduresModal(false)
+      setShowDatabaseOptimizationModal(false)
 
       // Open the target modal
       if (componentName === 'SQL') {
@@ -1751,6 +1759,10 @@ function App() {
         setShowRedisModal(true)
       } else if (componentName === 'PLSQL') {
         setShowPLSQLModal(true)
+      } else if (componentName === 'StoredProcedures') {
+        setShowStoredProceduresModal(true)
+      } else if (componentName === 'DatabaseOptimization') {
+        setShowDatabaseOptimizationModal(true)
       }
     }
 
@@ -3255,7 +3267,9 @@ function App() {
     'PLSQL': { name: 'Relational', id: 'relational' },
     'NoSQL': { name: 'Non-Relational', id: 'non-relational' },
     'Redis': { name: 'Non-Relational', id: 'non-relational' },
-    'ORM': { name: 'Data Access', id: 'data-access' }
+    'ORM': { name: 'Data Access', id: 'data-access' },
+    'StoredProcedures': { name: 'Procedural', id: 'procedural' },
+    'DatabaseOptimization': { name: 'Performance', id: 'performance' }
   }
 
   // Helper function to navigate to Databases with a specific category
@@ -3884,6 +3898,16 @@ function App() {
     }
     if (selectedOption === 'PL/SQL') {
       setShowPLSQLModal(true)
+      setSelectedOptionAndRef('')
+      return null
+    }
+    if (selectedOption === 'StoredProcedures') {
+      setShowStoredProceduresModal(true)
+      setSelectedOptionAndRef('')
+      return null
+    }
+    if (selectedOption === 'DatabaseOptimization') {
+      setShowDatabaseOptimizationModal(true)
       setSelectedOptionAndRef('')
       return null
     }
@@ -5219,6 +5243,46 @@ function App() {
               section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowPLSQLModal(false); setSelectedOptionAndRef('Databases') } },
               category: { name: databaseTopicCategories['PLSQL'].name, onClick: () => { setShowPLSQLModal(false); goToDatabasesCategory(databaseTopicCategories['PLSQL'].id) } },
               topic: 'PL/SQL',
+              colors: BREADCRUMB_COLORS.Databases
+            }} />
+          </div>
+        </div>
+      )}
+
+      {/* Stored Procedures Modal */}
+      {showStoredProceduresModal && (
+        <div
+          style={modalOverlayStyle}
+          onClick={() => setShowStoredProceduresModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={modalContentStyle}
+          >
+            <StoredProcedures onBack={() => setShowStoredProceduresModal(false)} {...createDatabaseNavigationCallbacks('StoredProcedures')} breadcrumb={{
+              section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowStoredProceduresModal(false); setSelectedOptionAndRef('Databases') } },
+              category: { name: databaseTopicCategories['StoredProcedures'].name, onClick: () => { setShowStoredProceduresModal(false); goToDatabasesCategory(databaseTopicCategories['StoredProcedures'].id) } },
+              topic: 'Stored Procedures',
+              colors: BREADCRUMB_COLORS.Databases
+            }} />
+          </div>
+        </div>
+      )}
+
+      {/* Database Optimization Modal */}
+      {showDatabaseOptimizationModal && (
+        <div
+          style={modalOverlayStyle}
+          onClick={() => setShowDatabaseOptimizationModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={modalContentStyle}
+          >
+            <DatabaseOptimization onBack={() => setShowDatabaseOptimizationModal(false)} {...createDatabaseNavigationCallbacks('DatabaseOptimization')} breadcrumb={{
+              section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowDatabaseOptimizationModal(false); setSelectedOptionAndRef('Databases') } },
+              category: { name: databaseTopicCategories['DatabaseOptimization'].name, onClick: () => { setShowDatabaseOptimizationModal(false); goToDatabasesCategory(databaseTopicCategories['DatabaseOptimization'].id) } },
+              topic: 'Database Optimization',
               colors: BREADCRUMB_COLORS.Databases
             }} />
           </div>
