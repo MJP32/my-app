@@ -21,6 +21,235 @@ const SUBTOPIC_COLORS = [
   { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
 ]
 
+// MongoDB Document Model Diagram
+const MongoDBDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">MongoDB Document Model</text>
+    <rect x="50" y="45" width="200" height="110" rx="6" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" strokeWidth="2"/>
+    <text x="150" y="65" textAnchor="middle" fill="#10b981" fontSize="10" fontWeight="bold">Document (BSON)</text>
+    <text x="70" y="85" fill="#4ade80" fontSize="8">{"{"} _id: ObjectId(...),</text>
+    <text x="70" y="100" fill="#4ade80" fontSize="8">  name: "John",</text>
+    <text x="70" y="115" fill="#4ade80" fontSize="8">  address: {"{"} city: "NYC" {"}"},</text>
+    <text x="70" y="130" fill="#4ade80" fontSize="8">  orders: [ ... ]</text>
+    <text x="70" y="145" fill="#4ade80" fontSize="8">{"}"}</text>
+    <rect x="280" y="45" width="150" height="50" rx="6" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="355" y="70" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Collection</text>
+    <text x="355" y="85" textAnchor="middle" fill="#c4b5fd" fontSize="7">Group of Documents</text>
+    <rect x="280" y="105" width="150" height="50" rx="6" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="355" y="130" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Database</text>
+    <text x="355" y="145" textAnchor="middle" fill="#fcd34d" fontSize="7">Group of Collections</text>
+    <rect x="460" y="45" width="190" height="110" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="555" y="65" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Aggregation Pipeline</text>
+    <text x="480" y="85" fill="#93c5fd" fontSize="8">$match → filter</text>
+    <text x="480" y="100" fill="#93c5fd" fontSize="8">$group → aggregate</text>
+    <text x="480" y="115" fill="#93c5fd" fontSize="8">$project → reshape</text>
+    <text x="480" y="130" fill="#93c5fd" fontSize="8">$lookup → join</text>
+    <text x="480" y="145" fill="#93c5fd" fontSize="8">$sort → order</text>
+    <text x="350" y="172" textAnchor="middle" fill="#64748b" fontSize="9">Flexible schema • Embedded documents • Horizontal scaling</text>
+  </svg>
+)
+
+// Cassandra Ring Architecture Diagram
+const CassandraDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Cassandra Ring Architecture</text>
+    <circle cx="200" cy="100" r="60" fill="none" stroke="#8b5cf6" strokeWidth="2" strokeDasharray="5"/>
+    <circle cx="200" cy="40" r="15" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="200" y="44" textAnchor="middle" fill="white" fontSize="8">N1</text>
+    <circle cx="260" cy="100" r="15" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="260" y="104" textAnchor="middle" fill="white" fontSize="8">N2</text>
+    <circle cx="200" cy="160" r="15" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="200" y="164" textAnchor="middle" fill="white" fontSize="8">N3</text>
+    <circle cx="140" cy="100" r="15" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="140" y="104" textAnchor="middle" fill="white" fontSize="8">N4</text>
+    <rect x="320" y="40" width="160" height="55" rx="6" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="400" y="60" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Consistent Hashing</text>
+    <text x="400" y="78" textAnchor="middle" fill="#fcd34d" fontSize="8">Token ranges per node</text>
+    <text x="400" y="90" textAnchor="middle" fill="#fcd34d" fontSize="7">Automatic rebalancing</text>
+    <rect x="320" y="105" width="160" height="55" rx="6" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" strokeWidth="2"/>
+    <text x="400" y="125" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Tunable Consistency</text>
+    <text x="400" y="143" textAnchor="middle" fill="#86efac" fontSize="8">ONE / QUORUM / ALL</text>
+    <text x="400" y="155" textAnchor="middle" fill="#86efac" fontSize="7">Per-operation control</text>
+    <rect x="510" y="40" width="160" height="120" rx="6" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="590" y="60" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">Column Family</text>
+    <text x="530" y="80" fill="#fca5a5" fontSize="7">Row Key: user123</text>
+    <text x="530" y="95" fill="#fca5a5" fontSize="7">├─ name: "Alice"</text>
+    <text x="530" y="110" fill="#fca5a5" fontSize="7">├─ email: "a@b.c"</text>
+    <text x="530" y="125" fill="#fca5a5" fontSize="7">└─ created: ts</text>
+    <text x="590" y="150" textAnchor="middle" fill="#fca5a5" fontSize="7">Dynamic columns</text>
+    <text x="350" y="172" textAnchor="middle" fill="#64748b" fontSize="9">Masterless • Linear scalability • Write-optimized</text>
+  </svg>
+)
+
+// Redis In-Memory Diagram
+const RedisDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Redis In-Memory Architecture</text>
+    <rect x="50" y="50" width="120" height="70" rx="6" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="110" y="75" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">RAM</text>
+    <text x="110" y="95" textAnchor="middle" fill="#fca5a5" fontSize="8">μs latency</text>
+    <text x="110" y="110" textAnchor="middle" fill="#fca5a5" fontSize="7">All data in memory</text>
+    <rect x="200" y="50" width="200" height="70" rx="6" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="300" y="70" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Data Structures</text>
+    <text x="220" y="90" fill="#fcd34d" fontSize="7">String • Hash • List</text>
+    <text x="220" y="105" fill="#fcd34d" fontSize="7">Set • Sorted Set • Stream</text>
+    <rect x="430" y="50" width="120" height="70" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="490" y="75" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Persistence</text>
+    <text x="490" y="95" textAnchor="middle" fill="#93c5fd" fontSize="8">RDB / AOF</text>
+    <text x="490" y="110" textAnchor="middle" fill="#93c5fd" fontSize="7">Optional disk</text>
+    <rect x="580" y="50" width="90" height="70" rx="6" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="625" y="75" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Cluster</text>
+    <text x="625" y="95" textAnchor="middle" fill="#c4b5fd" fontSize="8">Sharding</text>
+    <text x="625" y="110" textAnchor="middle" fill="#c4b5fd" fontSize="7">Sentinel HA</text>
+    <line x1="170" y1="85" x2="195" y2="85" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="400" y1="85" x2="425" y2="85" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="550" y1="85" x2="575" y2="85" stroke="#4ade80" strokeWidth="2"/>
+    <text x="350" y="145" textAnchor="middle" fill="#64748b" fontSize="9">Sub-millisecond • Atomic operations • Pub/Sub messaging</text>
+  </svg>
+)
+
+// DynamoDB Diagram
+const DynamoDBDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Amazon DynamoDB Architecture</text>
+    <rect x="50" y="45" width="180" height="80" rx="6" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="140" y="65" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Table Structure</text>
+    <text x="70" y="85" fill="#fcd34d" fontSize="8">Partition Key (PK)</text>
+    <text x="70" y="100" fill="#fcd34d" fontSize="8">+ Sort Key (SK)</text>
+    <text x="70" y="115" fill="#fcd34d" fontSize="8">= Primary Key</text>
+    <rect x="260" y="45" width="180" height="80" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="350" y="65" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Capacity Modes</text>
+    <text x="280" y="85" fill="#93c5fd" fontSize="8">Provisioned: Fixed RCU/WCU</text>
+    <text x="280" y="100" fill="#93c5fd" fontSize="8">On-Demand: Pay-per-request</text>
+    <text x="280" y="115" fill="#93c5fd" fontSize="8">Auto-scaling available</text>
+    <rect x="470" y="45" width="180" height="80" rx="6" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" strokeWidth="2"/>
+    <text x="560" y="65" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Global Tables</text>
+    <text x="490" y="85" fill="#86efac" fontSize="8">Multi-region replication</text>
+    <text x="490" y="100" fill="#86efac" fontSize="8">Active-active writes</text>
+    <text x="490" y="115" fill="#86efac" fontSize="8">Single-digit ms latency</text>
+    <rect x="150" y="135" width="400" height="30" rx="4" fill="rgba(139, 92, 246, 0.15)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="350" y="155" textAnchor="middle" fill="#a78bfa" fontSize="9">DynamoDB Streams → Lambda triggers → Event-driven architecture</text>
+    <text x="350" y="175" textAnchor="middle" fill="#64748b" fontSize="9">Fully managed • Serverless • Automatic scaling • GSI/LSI indexes</text>
+  </svg>
+)
+
+// Document Store Diagram
+const DocumentStoreDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Document Store Model</text>
+    <rect x="50" y="45" width="180" height="90" rx="6" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="140" y="65" textAnchor="middle" fill="#22d3ee" fontSize="10" fontWeight="bold">JSON/BSON Document</text>
+    <text x="70" y="85" fill="#67e8f9" fontSize="8">{"{"} id: 1,</text>
+    <text x="70" y="98" fill="#67e8f9" fontSize="8">  nested: {"{"} ... {"}"},</text>
+    <text x="70" y="111" fill="#67e8f9" fontSize="8">  array: [ ... ]</text>
+    <text x="70" y="124" fill="#67e8f9" fontSize="8">{"}"}</text>
+    <rect x="260" y="45" width="180" height="90" rx="6" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="350" y="65" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Schema Flexibility</text>
+    <text x="280" y="85" fill="#fcd34d" fontSize="8">• No predefined schema</text>
+    <text x="280" y="100" fill="#fcd34d" fontSize="8">• Fields vary per doc</text>
+    <text x="280" y="115" fill="#fcd34d" fontSize="8">• Easy migrations</text>
+    <text x="280" y="130" fill="#fcd34d" fontSize="8">• Rapid development</text>
+    <rect x="470" y="45" width="180" height="90" rx="6" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="560" y="65" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Query Capabilities</text>
+    <text x="490" y="85" fill="#c4b5fd" fontSize="8">• Rich query language</text>
+    <text x="490" y="100" fill="#c4b5fd" fontSize="8">• Filter nested fields</text>
+    <text x="490" y="115" fill="#c4b5fd" fontSize="8">• Aggregation support</text>
+    <text x="490" y="130" fill="#c4b5fd" fontSize="8">• Index optimization</text>
+    <text x="350" y="152" textAnchor="middle" fill="#64748b" fontSize="9">Self-contained documents • Natural object mapping • Embedded relationships</text>
+  </svg>
+)
+
+// Key-Value Store Diagram
+const KeyValueDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Key-Value Store Model</text>
+    <rect x="50" y="50" width="200" height="80" rx="6" fill="rgba(236, 72, 153, 0.2)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="150" y="72" textAnchor="middle" fill="#f472b6" fontSize="10" fontWeight="bold">Simple Model</text>
+    <text x="70" y="95" fill="#f9a8d4" fontSize="9">Key → Value</text>
+    <text x="70" y="112" fill="#f9a8d4" fontSize="8">"user:123" → {"{"} ... {"}"}</text>
+    <rect x="280" y="50" width="200" height="80" rx="6" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="380" y="72" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Operations</text>
+    <text x="300" y="92" fill="#86efac" fontSize="9">PUT(key, value)</text>
+    <text x="300" y="107" fill="#86efac" fontSize="9">GET(key) → value</text>
+    <text x="300" y="122" fill="#86efac" fontSize="9">DELETE(key)</text>
+    <rect x="510" y="50" width="140" height="80" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="580" y="72" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Use Cases</text>
+    <text x="530" y="92" fill="#93c5fd" fontSize="8">• Caching</text>
+    <text x="530" y="107" fill="#93c5fd" fontSize="8">• Sessions</text>
+    <text x="530" y="122" fill="#93c5fd" fontSize="8">• Counters</text>
+    <text x="350" y="148" textAnchor="middle" fill="#64748b" fontSize="9">O(1) lookups • Maximum throughput • Horizontal scaling via consistent hashing</text>
+  </svg>
+)
+
+// Column-Family Diagram
+const ColumnFamilyDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Column-Family Database Model</text>
+    <rect x="50" y="45" width="280" height="100" rx="6" fill="rgba(99, 102, 241, 0.2)" stroke="#6366f1" strokeWidth="2"/>
+    <text x="190" y="65" textAnchor="middle" fill="#818cf8" fontSize="10" fontWeight="bold">Wide Column Structure</text>
+    <line x1="70" y1="80" x2="310" y2="80" stroke="#6366f1" strokeWidth="1"/>
+    <text x="80" y="95" fill="#a5b4fc" fontSize="8" fontWeight="bold">Row</text>
+    <text x="130" y="95" fill="#a5b4fc" fontSize="8">Col1</text>
+    <text x="180" y="95" fill="#a5b4fc" fontSize="8">Col2</text>
+    <text x="230" y="95" fill="#a5b4fc" fontSize="8">Col3</text>
+    <text x="280" y="95" fill="#a5b4fc" fontSize="8">...</text>
+    <line x1="70" y1="102" x2="310" y2="102" stroke="#6366f1" strokeWidth="1"/>
+    <text x="80" y="117" fill="#c7d2fe" fontSize="8">r1</text>
+    <text x="130" y="117" fill="#c7d2fe" fontSize="8">v1</text>
+    <text x="180" y="117" fill="#c7d2fe" fontSize="8">v2</text>
+    <text x="230" y="117" fill="#c7d2fe" fontSize="8">-</text>
+    <text x="80" y="132" fill="#c7d2fe" fontSize="8">r2</text>
+    <text x="130" y="132" fill="#c7d2fe" fontSize="8">-</text>
+    <text x="180" y="132" fill="#c7d2fe" fontSize="8">v3</text>
+    <text x="230" y="132" fill="#c7d2fe" fontSize="8">v4</text>
+    <rect x="360" y="45" width="150" height="50" rx="6" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="435" y="70" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Column Families</text>
+    <text x="435" y="85" textAnchor="middle" fill="#fcd34d" fontSize="7">Group related columns</text>
+    <rect x="360" y="105" width="150" height="40" rx="6" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" strokeWidth="2"/>
+    <text x="435" y="125" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Versioning</text>
+    <text x="435" y="140" textAnchor="middle" fill="#86efac" fontSize="7">Timestamps per cell</text>
+    <rect x="540" y="45" width="130" height="100" rx="6" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="605" y="65" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">Benefits</text>
+    <text x="555" y="85" fill="#fca5a5" fontSize="7">• Sparse data</text>
+    <text x="555" y="100" fill="#fca5a5" fontSize="7">• Compression</text>
+    <text x="555" y="115" fill="#fca5a5" fontSize="7">• Analytics</text>
+    <text x="555" y="130" fill="#fca5a5" fontSize="7">• Time-series</text>
+    <text x="350" y="165" textAnchor="middle" fill="#64748b" fontSize="9">HBase • Bigtable • Cassandra • Optimized for write-heavy analytics</text>
+  </svg>
+)
+
+// Graph Database Diagram
+const GraphDatabaseDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Graph Database Model</text>
+    <circle cx="100" cy="90" r="25" fill="rgba(20, 184, 166, 0.3)" stroke="#14b8a6" strokeWidth="2"/>
+    <text x="100" y="95" textAnchor="middle" fill="#2dd4bf" fontSize="9">User</text>
+    <circle cx="220" cy="60" r="25" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="220" y="65" textAnchor="middle" fill="#60a5fa" fontSize="9">Product</text>
+    <circle cx="220" cy="130" r="25" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="220" y="135" textAnchor="middle" fill="#a78bfa" fontSize="9">Order</text>
+    <line x1="125" y1="80" x2="195" y2="65" stroke="#4ade80" strokeWidth="2"/>
+    <text x="155" y="62" fill="#4ade80" fontSize="7">VIEWED</text>
+    <line x1="125" y1="100" x2="195" y2="120" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="155" y="125" fill="#fbbf24" fontSize="7">PLACED</text>
+    <line x1="220" y1="85" x2="220" y2="105" stroke="#ec4899" strokeWidth="2"/>
+    <text x="235" y="98" fill="#f472b6" fontSize="7">CONTAINS</text>
+    <rect x="300" y="45" width="170" height="90" rx="6" fill="rgba(20, 184, 166, 0.15)" stroke="#14b8a6" strokeWidth="1"/>
+    <text x="385" y="65" textAnchor="middle" fill="#2dd4bf" fontSize="9" fontWeight="bold">Graph Elements</text>
+    <text x="320" y="85" fill="#5eead4" fontSize="8">Nodes: Entities</text>
+    <text x="320" y="100" fill="#5eead4" fontSize="8">Edges: Relationships</text>
+    <text x="320" y="115" fill="#5eead4" fontSize="8">Properties: Attributes</text>
+    <text x="320" y="130" fill="#5eead4" fontSize="8">Labels: Types</text>
+    <rect x="500" y="45" width="170" height="90" rx="6" fill="rgba(236, 72, 153, 0.15)" stroke="#ec4899" strokeWidth="1"/>
+    <text x="585" y="65" textAnchor="middle" fill="#f472b6" fontSize="9" fontWeight="bold">Use Cases</text>
+    <text x="520" y="85" fill="#f9a8d4" fontSize="8">• Social networks</text>
+    <text x="520" y="100" fill="#f9a8d4" fontSize="8">• Recommendations</text>
+    <text x="520" y="115" fill="#f9a8d4" fontSize="8">• Fraud detection</text>
+    <text x="520" y="130" fill="#f9a8d4" fontSize="8">• Knowledge graphs</text>
+    <text x="350" y="165" textAnchor="middle" fill="#64748b" fontSize="9">Neo4j • Neptune • Cypher/Gremlin • O(1) traversals</text>
+  </svg>
+)
+
 function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
@@ -32,6 +261,7 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       icon: '🍃',
       color: '#10b981',
       description: 'Leading document database with flexible schema and powerful aggregation',
+      diagram: MongoDBDiagram,
       details: [
         {
           name: 'Document Database',
@@ -65,6 +295,7 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       icon: '💎',
       color: '#8b5cf6',
       description: 'Highly scalable column-family database with masterless architecture',
+      diagram: CassandraDiagram,
       details: [
         {
           name: 'Column-Family Store',
@@ -98,6 +329,7 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       icon: '🔴',
       color: '#ef4444',
       description: 'Ultra-fast in-memory data store with rich data structures',
+      diagram: RedisDiagram,
       details: [
         {
           name: 'In-Memory Store',
@@ -131,6 +363,7 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       icon: '⚡',
       color: '#f59e0b',
       description: 'Fully managed, serverless NoSQL database with automatic scaling',
+      diagram: DynamoDBDiagram,
       details: [
         {
           name: 'Managed Service',
@@ -164,6 +397,7 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       icon: '📄',
       color: '#06b6d4',
       description: 'Database paradigm storing data as self-contained documents',
+      diagram: DocumentStoreDiagram,
       details: [
         {
           name: 'Schema Flexibility',
@@ -189,6 +423,7 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       icon: '🔑',
       color: '#ec4899',
       description: 'Simplest NoSQL model optimized for high-performance lookups',
+      diagram: KeyValueDiagram,
       details: [
         {
           name: 'Simple Model',
@@ -214,6 +449,7 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       icon: '📊',
       color: '#6366f1',
       description: 'Databases organizing data by column families for analytics',
+      diagram: ColumnFamilyDiagram,
       details: [
         {
           name: 'Wide-Column Model',
@@ -243,6 +479,7 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       icon: '🕸️',
       color: '#14b8a6',
       description: 'Specialized databases for highly connected data',
+      diagram: GraphDatabaseDiagram,
       details: [
         {
           name: 'Nodes & Relationships',
@@ -540,9 +777,15 @@ function NoSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
             {(() => {
               const detail = selectedConcept.details[selectedDetailIndex]
               const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
               return (
                 <div>
                   <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>{detail.name}</h3>
+                  {DiagramComponent && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
                   <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
                 </div>
               )

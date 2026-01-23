@@ -21,6 +21,168 @@ const SUBTOPIC_COLORS = [
   { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
 ]
 
+// Query Optimization Diagram
+const QueryOptDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Query Optimization Techniques</text>
+    <rect x="50" y="50" width="140" height="60" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="120" y="72" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">SELECT</text>
+    <text x="120" y="90" textAnchor="middle" fill="#93c5fd" fontSize="7">Only needed cols</text>
+    <rect x="210" y="50" width="140" height="60" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="280" y="72" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">WHERE</text>
+    <text x="280" y="90" textAnchor="middle" fill="#86efac" fontSize="7">Indexed columns</text>
+    <rect x="370" y="50" width="140" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="440" y="72" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">JOIN</text>
+    <text x="440" y="90" textAnchor="middle" fill="#fcd34d" fontSize="7">Proper order</text>
+    <rect x="530" y="50" width="120" height="60" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="590" y="72" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">INDEX</text>
+    <text x="590" y="90" textAnchor="middle" fill="#c4b5fd" fontSize="7">Covering</text>
+    <text x="350" y="135" textAnchor="middle" fill="#64748b" fontSize="9">Avoid SELECT * • Use EXISTS over IN • Prefer JOINs over subqueries</text>
+  </svg>
+)
+
+// Indexing Strategies Diagram
+const IndexingDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Index Types & Usage</text>
+    <rect x="50" y="45" width="150" height="55" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="125" y="67" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">B-Tree</text>
+    <text x="125" y="85" textAnchor="middle" fill="#86efac" fontSize="7">Range & equality</text>
+    <rect x="220" y="45" width="150" height="55" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="295" y="67" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Composite</text>
+    <text x="295" y="85" textAnchor="middle" fill="#93c5fd" fontSize="7">Multi-column</text>
+    <rect x="390" y="45" width="150" height="55" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="465" y="67" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Covering</text>
+    <text x="465" y="85" textAnchor="middle" fill="#c4b5fd" fontSize="7">Index-only scan</text>
+    <rect x="560" y="45" width="100" height="55" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="610" y="67" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Partial</text>
+    <text x="610" y="85" textAnchor="middle" fill="#fcd34d" fontSize="7">Filtered</text>
+    <rect x="150" y="115" width="400" height="45" rx="6" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" strokeWidth="1"/>
+    <text x="350" y="135" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">Leftmost Prefix Rule</text>
+    <text x="350" y="152" textAnchor="middle" fill="#fca5a5" fontSize="8">Index (a,b,c) works for queries on a, (a,b), or (a,b,c)</text>
+    <text x="350" y="175" textAnchor="middle" fill="#64748b" fontSize="9">Balance read speed vs write overhead • Monitor index usage</text>
+  </svg>
+)
+
+// Execution Plans Diagram
+const ExecPlansDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Execution Plan Analysis</text>
+    <rect x="50" y="55" width="120" height="50" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="110" y="85" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">EXPLAIN</text>
+    <rect x="200" y="55" width="140" height="50" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="270" y="78" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Plan Operations</text>
+    <text x="270" y="95" textAnchor="middle" fill="#93c5fd" fontSize="7">Scan/Seek/Join</text>
+    <rect x="370" y="55" width="140" height="50" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="440" y="78" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Cost Metrics</text>
+    <text x="440" y="95" textAnchor="middle" fill="#86efac" fontSize="7">Rows • I/O • CPU</text>
+    <rect x="540" y="55" width="120" height="50" rx="6" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="600" y="78" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">Bottlenecks</text>
+    <text x="600" y="95" textAnchor="middle" fill="#fca5a5" fontSize="7">Full scans</text>
+    <line x1="170" y1="80" x2="195" y2="80" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="340" y1="80" x2="365" y2="80" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="510" y1="80" x2="535" y2="80" stroke="#4ade80" strokeWidth="2"/>
+    <text x="350" y="130" textAnchor="middle" fill="#64748b" fontSize="9">Index Seek > Index Scan > Table Scan • Compare estimated vs actual rows</text>
+  </svg>
+)
+
+// Performance Tuning Diagram
+const PerfTuningDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Performance Tuning Cycle</text>
+    <rect x="100" y="50" width="120" height="50" rx="6" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="160" y="80" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">Identify</text>
+    <rect x="250" y="50" width="120" height="50" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="310" y="80" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Analyze</text>
+    <rect x="400" y="50" width="120" height="50" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="460" y="80" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Optimize</text>
+    <rect x="550" y="50" width="100" height="50" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="600" y="80" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Monitor</text>
+    <line x1="220" y1="75" x2="245" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="370" y1="75" x2="395" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="520" y1="75" x2="545" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <path d="M 600 100 Q 600 130 350 130 Q 100 130 100 100" stroke="#64748b" strokeWidth="1" fill="none" strokeDasharray="4"/>
+    <text x="350" y="150" textAnchor="middle" fill="#64748b" fontSize="9">Slow query logs • Statistics updates • Index analysis • Connection pooling</text>
+  </svg>
+)
+
+// Profiling Diagram
+const ProfilingDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Database Profiling Tools</text>
+    <rect x="50" y="50" width="180" height="70" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="140" y="72" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Query Profiler</text>
+    <text x="140" y="90" textAnchor="middle" fill="#c4b5fd" fontSize="7">Execution time</text>
+    <text x="140" y="105" textAnchor="middle" fill="#c4b5fd" fontSize="7">Resource usage</text>
+    <rect x="260" y="50" width="180" height="70" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="350" y="72" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Wait Statistics</text>
+    <text x="350" y="90" textAnchor="middle" fill="#86efac" fontSize="7">Lock waits</text>
+    <text x="350" y="105" textAnchor="middle" fill="#86efac" fontSize="7">I/O bottlenecks</text>
+    <rect x="470" y="50" width="180" height="70" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="560" y="72" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">System Views</text>
+    <text x="560" y="90" textAnchor="middle" fill="#fcd34d" fontSize="7">pg_stat / sys.dm_</text>
+    <text x="560" y="105" textAnchor="middle" fill="#fcd34d" fontSize="7">Real-time metrics</text>
+    <text x="350" y="145" textAnchor="middle" fill="#64748b" fontSize="9">Baseline → Identify anomalies → Root cause analysis → Fix & verify</text>
+  </svg>
+)
+
+// Data Modeling Diagram
+const DataModelingDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Data Modeling for Performance</text>
+    <rect x="50" y="50" width="180" height="60" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="140" y="75" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Normalization</text>
+    <text x="140" y="93" textAnchor="middle" fill="#93c5fd" fontSize="7">Reduce redundancy</text>
+    <rect x="260" y="50" width="180" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="350" y="75" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Denormalization</text>
+    <text x="350" y="93" textAnchor="middle" fill="#fcd34d" fontSize="7">Read performance</text>
+    <rect x="470" y="50" width="180" height="60" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="560" y="75" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Partitioning</text>
+    <text x="560" y="93" textAnchor="middle" fill="#86efac" fontSize="7">Large table mgmt</text>
+    <text x="350" y="135" textAnchor="middle" fill="#64748b" fontSize="9">Balance integrity vs performance • Choose based on workload patterns</text>
+  </svg>
+)
+
+// Write Optimization Diagram
+const WriteOptDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Write Optimization</text>
+    <rect x="50" y="50" width="140" height="60" rx="6" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="120" y="75" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">Batch Inserts</text>
+    <text x="120" y="93" textAnchor="middle" fill="#fca5a5" fontSize="7">Multi-row VALUES</text>
+    <rect x="210" y="50" width="140" height="60" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="280" y="75" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Bulk Load</text>
+    <text x="280" y="93" textAnchor="middle" fill="#86efac" fontSize="7">COPY / BULK INSERT</text>
+    <rect x="370" y="50" width="140" height="60" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="440" y="75" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Index Mgmt</text>
+    <text x="440" y="93" textAnchor="middle" fill="#c4b5fd" fontSize="7">Disable during load</text>
+    <rect x="530" y="50" width="120" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="590" y="75" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Tx Batching</text>
+    <text x="590" y="93" textAnchor="middle" fill="#fcd34d" fontSize="7">Commit groups</text>
+    <text x="350" y="135" textAnchor="middle" fill="#64748b" fontSize="9">UPSERT/MERGE • Minimize index updates • Use appropriate isolation levels</text>
+  </svg>
+)
+
+// Caching Diagram
+const CachingOptDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Database Caching Layers</text>
+    <rect x="50" y="50" width="140" height="60" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="120" y="75" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Buffer Pool</text>
+    <text x="120" y="93" textAnchor="middle" fill="#93c5fd" fontSize="7">Data pages</text>
+    <rect x="210" y="50" width="140" height="60" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="280" y="75" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Query Cache</text>
+    <text x="280" y="93" textAnchor="middle" fill="#86efac" fontSize="7">Result sets</text>
+    <rect x="370" y="50" width="140" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="440" y="75" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Plan Cache</text>
+    <text x="440" y="93" textAnchor="middle" fill="#fcd34d" fontSize="7">Execution plans</text>
+    <rect x="530" y="50" width="120" height="60" rx="6" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="590" y="75" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">App Cache</text>
+    <text x="590" y="93" textAnchor="middle" fill="#fca5a5" fontSize="7">Redis/Memcached</text>
+    <text x="350" y="135" textAnchor="middle" fill="#64748b" fontSize="9">Memory sizing • Cache hit ratios • Invalidation strategies • TTL management</text>
+  </svg>
+)
+
 function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
@@ -32,6 +194,7 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
       icon: '⚡',
       color: '#3b82f6',
       description: 'Techniques to improve SQL query performance and reduce execution time',
+      diagram: QueryOptDiagram,
       details: [
         {
           name: 'SELECT Optimization',
@@ -65,6 +228,7 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
       icon: '📑',
       color: '#10b981',
       description: 'Creating and managing indexes for optimal query performance',
+      diagram: IndexingDiagram,
       details: [
         {
           name: 'B-Tree Indexes',
@@ -98,6 +262,7 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
       icon: '🗺️',
       color: '#f59e0b',
       description: 'Understanding and analyzing query execution plans',
+      diagram: ExecPlansDiagram,
       details: [
         {
           name: 'Reading Execution Plans',
@@ -131,6 +296,7 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
       icon: '🔧',
       color: '#ef4444',
       description: 'Database configuration and server-level optimizations',
+      diagram: PerfTuningDiagram,
       details: [
         {
           name: 'Memory Configuration',
@@ -164,6 +330,7 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
       icon: '📊',
       color: '#8b5cf6',
       description: 'Tools and techniques for identifying performance bottlenecks',
+      diagram: ProfilingDiagram,
       details: [
         {
           name: 'Slow Query Log',
@@ -197,6 +364,7 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
       icon: '🏗️',
       color: '#06b6d4',
       description: 'Designing database schemas optimized for query performance',
+      diagram: DataModelingDiagram,
       details: [
         {
           name: 'Normalization Trade-offs',
@@ -230,6 +398,7 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
       icon: '✍️',
       color: '#ec4899',
       description: 'Optimizing INSERT, UPDATE, and DELETE operations',
+      diagram: WriteOptDiagram,
       details: [
         {
           name: 'Batch Operations',
@@ -263,6 +432,7 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
       icon: '💾',
       color: '#14b8a6',
       description: 'Caching strategies to reduce database load',
+      diagram: CachingOptDiagram,
       details: [
         {
           name: 'Query Result Caching',
@@ -564,9 +734,15 @@ function DatabaseOptimization({ onBack, onPrevious, onNext, previousName, nextNa
             {(() => {
               const detail = selectedConcept.details[selectedDetailIndex]
               const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
               return (
                 <div>
                   <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>{detail.name}</h3>
+                  {DiagramComponent && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
                   <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
                 </div>
               )

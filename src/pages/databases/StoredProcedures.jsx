@@ -21,6 +21,187 @@ const SUBTOPIC_COLORS = [
   { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
 ]
 
+// Stored Procedures Diagram
+const StoredProceduresDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Stored Procedure Architecture</text>
+    <rect x="50" y="50" width="120" height="60" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="110" y="75" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Application</text>
+    <text x="110" y="92" textAnchor="middle" fill="#c4b5fd" fontSize="7">CALL proc()</text>
+    <rect x="200" y="50" width="150" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="275" y="70" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Stored Procedure</text>
+    <text x="275" y="88" textAnchor="middle" fill="#fcd34d" fontSize="7">IN/OUT params</text>
+    <text x="275" y="102" textAnchor="middle" fill="#fcd34d" fontSize="7">Precompiled</text>
+    <rect x="380" y="50" width="120" height="60" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="440" y="75" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Database</text>
+    <text x="440" y="92" textAnchor="middle" fill="#86efac" fontSize="7">Execute SQL</text>
+    <rect x="530" y="50" width="120" height="60" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="590" y="75" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Results</text>
+    <text x="590" y="92" textAnchor="middle" fill="#93c5fd" fontSize="7">OUT params</text>
+    <line x1="170" y1="80" x2="195" y2="80" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="350" y1="80" x2="375" y2="80" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="500" y1="80" x2="525" y2="80" stroke="#4ade80" strokeWidth="2"/>
+    <text x="350" y="135" textAnchor="middle" fill="#64748b" fontSize="9">Single call • Reduced network trips • Cached execution plan</text>
+  </svg>
+)
+
+// User-Defined Functions Diagram
+const FunctionsDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">User-Defined Functions</text>
+    <rect x="50" y="50" width="180" height="70" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="140" y="72" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Scalar Function</text>
+    <text x="140" y="90" textAnchor="middle" fill="#93c5fd" fontSize="8">Returns single value</text>
+    <text x="140" y="105" textAnchor="middle" fill="#93c5fd" fontSize="7">Used in expressions</text>
+    <rect x="260" y="50" width="180" height="70" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="350" y="72" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Table-Valued</text>
+    <text x="350" y="90" textAnchor="middle" fill="#86efac" fontSize="8">Returns result set</text>
+    <text x="350" y="105" textAnchor="middle" fill="#86efac" fontSize="7">Used in FROM clause</text>
+    <rect x="470" y="50" width="180" height="70" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="560" y="72" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Aggregate</text>
+    <text x="560" y="90" textAnchor="middle" fill="#c4b5fd" fontSize="8">Custom aggregations</text>
+    <text x="560" y="105" textAnchor="middle" fill="#c4b5fd" fontSize="7">GROUP BY support</text>
+    <text x="350" y="145" textAnchor="middle" fill="#64748b" fontSize="9">DETERMINISTIC • RETURNS clause • No side effects • Reusable logic</text>
+  </svg>
+)
+
+// Triggers Diagram
+const TriggersDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Database Triggers</text>
+    <rect x="50" y="50" width="150" height="55" rx="6" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="125" y="72" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">BEFORE Trigger</text>
+    <text x="125" y="90" textAnchor="middle" fill="#fca5a5" fontSize="7">Validate / Modify</text>
+    <rect x="230" y="50" width="150" height="55" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="305" y="72" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">DML Operation</text>
+    <text x="305" y="90" textAnchor="middle" fill="#fcd34d" fontSize="7">INSERT/UPDATE/DELETE</text>
+    <rect x="410" y="50" width="150" height="55" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="485" y="72" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">AFTER Trigger</text>
+    <text x="485" y="90" textAnchor="middle" fill="#86efac" fontSize="7">Audit / Cascade</text>
+    <line x1="200" y1="77" x2="225" y2="77" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="380" y1="77" x2="405" y2="77" stroke="#4ade80" strokeWidth="2"/>
+    <rect x="590" y="50" width="80" height="55" rx="6" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="630" y="72" textAnchor="middle" fill="#a78bfa" fontSize="8" fontWeight="bold">INSTEAD</text>
+    <text x="630" y="87" textAnchor="middle" fill="#c4b5fd" fontSize="7">OF</text>
+    <rect x="150" y="120" width="400" height="40" rx="4" fill="rgba(59, 130, 246, 0.15)" stroke="#3b82f6" strokeWidth="1"/>
+    <text x="350" y="140" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">OLD.column / NEW.column access</text>
+    <text x="350" y="155" textAnchor="middle" fill="#93c5fd" fontSize="7">Row-level vs Statement-level • Cascading considerations</text>
+    <text x="350" y="175" textAnchor="middle" fill="#64748b" fontSize="9">Automatic execution • Audit logging • Data validation • Referential actions</text>
+  </svg>
+)
+
+// Cursors Diagram
+const CursorsDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Cursor Lifecycle</text>
+    <rect x="50" y="55" width="100" height="45" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="100" y="82" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">DECLARE</text>
+    <rect x="170" y="55" width="100" height="45" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="220" y="82" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">OPEN</text>
+    <rect x="290" y="55" width="100" height="45" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="340" y="82" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">FETCH</text>
+    <rect x="410" y="55" width="100" height="45" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="460" y="82" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">CLOSE</text>
+    <rect x="530" y="55" width="120" height="45" rx="6" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="590" y="82" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">DEALLOCATE</text>
+    <line x1="150" y1="77" x2="165" y2="77" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="270" y1="77" x2="285" y2="77" stroke="#4ade80" strokeWidth="2"/>
+    <path d="M 340 100 Q 340 120 340 130 Q 340 135 335 135 L 295 135 Q 290 135 290 130 L 290 100" stroke="#fbbf24" strokeWidth="1.5" fill="none" strokeDasharray="3"/>
+    <text x="315" y="125" textAnchor="middle" fill="#fcd34d" fontSize="7">LOOP</text>
+    <line x1="390" y1="77" x2="405" y2="77" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="510" y1="77" x2="525" y2="77" stroke="#4ade80" strokeWidth="2"/>
+    <text x="350" y="155" textAnchor="middle" fill="#64748b" fontSize="9">Row-by-row processing • Prefer set-based operations when possible</text>
+  </svg>
+)
+
+// Dynamic SQL Diagram
+const DynamicSQLDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Dynamic SQL Execution</text>
+    <rect x="50" y="50" width="180" height="70" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="140" y="72" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Build SQL String</text>
+    <text x="140" y="90" textAnchor="middle" fill="#fcd34d" fontSize="7">Concatenation</text>
+    <text x="140" y="105" textAnchor="middle" fill="#fcd34d" fontSize="7">+ Parameters</text>
+    <rect x="260" y="50" width="180" height="70" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="350" y="72" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">EXECUTE IMMEDIATE</text>
+    <text x="350" y="90" textAnchor="middle" fill="#86efac" fontSize="7">sp_executesql</text>
+    <text x="350" y="105" textAnchor="middle" fill="#86efac" fontSize="7">USING bind vars</text>
+    <rect x="470" y="50" width="180" height="70" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="560" y="72" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Runtime Execution</text>
+    <text x="560" y="90" textAnchor="middle" fill="#93c5fd" fontSize="7">Parse → Plan</text>
+    <text x="560" y="105" textAnchor="middle" fill="#93c5fd" fontSize="7">→ Execute</text>
+    <line x1="230" y1="85" x2="255" y2="85" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="440" y1="85" x2="465" y2="85" stroke="#4ade80" strokeWidth="2"/>
+    <rect x="150" y="130" width="400" height="20" rx="4" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" strokeWidth="1"/>
+    <text x="350" y="145" textAnchor="middle" fill="#f87171" fontSize="9">Use parameterized queries to prevent SQL injection!</text>
+  </svg>
+)
+
+// Packages Diagram
+const PackagesDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Oracle Package Structure</text>
+    <rect x="50" y="45" width="280" height="110" rx="6" fill="rgba(220, 38, 38, 0.2)" stroke="#dc2626" strokeWidth="2"/>
+    <text x="190" y="65" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">Package Specification</text>
+    <text x="70" y="85" fill="#fca5a5" fontSize="8">PROCEDURE public_proc(...);</text>
+    <text x="70" y="100" fill="#fca5a5" fontSize="8">FUNCTION public_func(...) RETURN;</text>
+    <text x="70" y="115" fill="#fca5a5" fontSize="8">TYPE public_type IS ...;</text>
+    <text x="70" y="130" fill="#fca5a5" fontSize="8">CONSTANT public_const := ...;</text>
+    <text x="190" y="148" textAnchor="middle" fill="#fca5a5" fontSize="7">PUBLIC API</text>
+    <rect x="370" y="45" width="280" height="110" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="510" y="65" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Package Body</text>
+    <text x="390" y="85" fill="#93c5fd" fontSize="8">PROCEDURE private_helper(...);</text>
+    <text x="390" y="100" fill="#93c5fd" fontSize="8">PROCEDURE public_proc(...) IS</text>
+    <text x="390" y="115" fill="#93c5fd" fontSize="8">  BEGIN ... END;</text>
+    <text x="390" y="130" fill="#93c5fd" fontSize="8">state_var NUMBER;</text>
+    <text x="510" y="148" textAnchor="middle" fill="#93c5fd" fontSize="7">IMPLEMENTATION</text>
+    <text x="350" y="175" textAnchor="middle" fill="#64748b" fontSize="9">Encapsulation • Session state • Overloading • Dependency management</text>
+  </svg>
+)
+
+// Transactions in Procedures Diagram
+const TransactionsProcDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Transaction Control in Procedures</text>
+    <rect x="50" y="50" width="100" height="50" rx="6" fill="rgba(14, 165, 233, 0.3)" stroke="#0ea5e9" strokeWidth="2"/>
+    <text x="100" y="80" textAnchor="middle" fill="#38bdf8" fontSize="9" fontWeight="bold">BEGIN</text>
+    <rect x="180" y="50" width="200" height="50" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="280" y="72" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">SQL Operations</text>
+    <text x="280" y="88" textAnchor="middle" fill="#fcd34d" fontSize="7">SAVEPOINT for partial rollback</text>
+    <rect x="410" y="40" width="100" height="35" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="460" y="62" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">COMMIT</text>
+    <rect x="410" y="85" width="100" height="35" rx="6" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="460" y="107" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">ROLLBACK</text>
+    <rect x="540" y="50" width="120" height="50" rx="6" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="600" y="72" textAnchor="middle" fill="#a78bfa" fontSize="8" fontWeight="bold">Isolation</text>
+    <text x="600" y="88" textAnchor="middle" fill="#c4b5fd" fontSize="7">Level control</text>
+    <line x1="150" y1="75" x2="175" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="380" y1="65" x2="405" y2="57" stroke="#10b981" strokeWidth="2"/>
+    <line x1="380" y1="85" x2="405" y2="102" stroke="#ef4444" strokeWidth="2"/>
+    <text x="350" y="145" textAnchor="middle" fill="#64748b" fontSize="9">ACID • TRY...CATCH error handling • Keep transactions short</text>
+  </svg>
+)
+
+// Debugging Diagram
+const DebuggingDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Debugging Stored Procedures</text>
+    <rect x="50" y="50" width="140" height="60" rx="6" fill="rgba(99, 102, 241, 0.3)" stroke="#6366f1" strokeWidth="2"/>
+    <text x="120" y="72" textAnchor="middle" fill="#818cf8" fontSize="9" fontWeight="bold">PRINT/DEBUG</text>
+    <text x="120" y="90" textAnchor="middle" fill="#a5b4fc" fontSize="7">Trace output</text>
+    <rect x="210" y="50" width="140" height="60" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="280" y="72" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">IDE Debugger</text>
+    <text x="280" y="90" textAnchor="middle" fill="#86efac" fontSize="7">Breakpoints/Step</text>
+    <rect x="370" y="50" width="140" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="440" y="72" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Unit Testing</text>
+    <text x="440" y="90" textAnchor="middle" fill="#fcd34d" fontSize="7">tSQLt/utPLSQL</text>
+    <rect x="530" y="50" width="130" height="60" rx="6" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="595" y="72" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">Exec Plans</text>
+    <text x="595" y="90" textAnchor="middle" fill="#fca5a5" fontSize="7">EXPLAIN ANALYZE</text>
+    <text x="350" y="135" textAnchor="middle" fill="#64748b" fontSize="9">Log tables • CI/CD integration • Performance monitoring</text>
+  </svg>
+)
+
 function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
@@ -32,6 +213,7 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
       icon: '📜',
       color: '#8b5cf6',
       description: 'Precompiled SQL statements stored in the database for reusable business logic',
+      diagram: StoredProceduresDiagram,
       details: [
         {
           name: 'Basic Syntax',
@@ -65,6 +247,7 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
       icon: '🔧',
       color: '#3b82f6',
       description: 'Custom functions that return values and can be used in SQL expressions',
+      diagram: FunctionsDiagram,
       details: [
         {
           name: 'Scalar Functions',
@@ -98,6 +281,7 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
       icon: '⚡',
       color: '#ef4444',
       description: 'Automatic actions executed in response to data modifications',
+      diagram: TriggersDiagram,
       details: [
         {
           name: 'Trigger Types',
@@ -131,6 +315,7 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
       icon: '🔄',
       color: '#10b981',
       description: 'Row-by-row processing for complex procedural logic',
+      diagram: CursorsDiagram,
       details: [
         {
           name: 'Cursor Basics',
@@ -164,6 +349,7 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
       icon: '🔨',
       color: '#f59e0b',
       description: 'Building and executing SQL statements at runtime',
+      diagram: DynamicSQLDiagram,
       details: [
         {
           name: 'EXECUTE IMMEDIATE',
@@ -197,6 +383,7 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
       icon: '📦',
       color: '#dc2626',
       description: 'Grouping related procedures, functions, and variables together',
+      diagram: PackagesDiagram,
       details: [
         {
           name: 'Package Structure',
@@ -230,6 +417,7 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
       icon: '🔐',
       color: '#0ea5e9',
       description: 'Managing transaction boundaries within stored procedures',
+      diagram: TransactionsProcDiagram,
       details: [
         {
           name: 'Transaction Control',
@@ -263,6 +451,7 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
       icon: '🐛',
       color: '#6366f1',
       description: 'Techniques for debugging and testing stored procedures',
+      diagram: DebuggingDiagram,
       details: [
         {
           name: 'Print Debugging',
@@ -564,9 +753,15 @@ function StoredProcedures({ onBack, onPrevious, onNext, previousName, nextName, 
             {(() => {
               const detail = selectedConcept.details[selectedDetailIndex]
               const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
               return (
                 <div>
                   <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>{detail.name}</h3>
+                  {DiagramComponent && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
                   <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
                 </div>
               )

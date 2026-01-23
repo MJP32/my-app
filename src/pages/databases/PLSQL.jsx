@@ -21,6 +21,190 @@ const SUBTOPIC_COLORS = [
   { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
 ]
 
+// PL/SQL Block Structure Diagram
+const PLSQLBlockDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">PL/SQL Block Structure</text>
+    <rect x="150" y="40" width="400" height="120" rx="8" fill="rgba(59, 130, 246, 0.1)" stroke="#3b82f6" strokeWidth="2"/>
+    <rect x="170" y="50" width="360" height="25" rx="4" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="350" y="68" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">DECLARE (optional) - Variables, cursors, types</text>
+    <rect x="170" y="80" width="360" height="35" rx="4" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="1"/>
+    <text x="350" y="103" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">BEGIN (required) - Executable statements</text>
+    <rect x="170" y="120" width="360" height="25" rx="4" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="1"/>
+    <text x="350" y="138" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">EXCEPTION (optional) - Error handlers</text>
+    <text x="350" y="155" textAnchor="middle" fill="#60a5fa" fontSize="8">END;</text>
+    <text x="350" y="175" textAnchor="middle" fill="#64748b" fontSize="9">Anonymous blocks • Named blocks (procedures/functions) • Nested blocks</text>
+  </svg>
+)
+
+// Procedures & Functions Diagram
+const ProcFuncDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Procedures vs Functions</text>
+    <rect x="50" y="50" width="280" height="80" rx="6" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" strokeWidth="2"/>
+    <text x="190" y="72" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">PROCEDURE</text>
+    <text x="190" y="92" textAnchor="middle" fill="#86efac" fontSize="8">Performs actions</text>
+    <text x="190" y="107" textAnchor="middle" fill="#86efac" fontSize="8">OUT parameters for returns</text>
+    <text x="190" y="122" textAnchor="middle" fill="#86efac" fontSize="7">CALL / EXECUTE to invoke</text>
+    <rect x="370" y="50" width="280" height="80" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="510" y="72" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">FUNCTION</text>
+    <text x="510" y="92" textAnchor="middle" fill="#93c5fd" fontSize="8">Returns a value</text>
+    <text x="510" y="107" textAnchor="middle" fill="#93c5fd" fontSize="8">Use in SQL expressions</text>
+    <text x="510" y="122" textAnchor="middle" fill="#93c5fd" fontSize="7">DETERMINISTIC for caching</text>
+    <text x="350" y="150" textAnchor="middle" fill="#64748b" fontSize="9">IN / OUT / IN OUT parameters • Overloading in packages</text>
+  </svg>
+)
+
+// Cursors Diagram
+const PLSQLCursorDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">PL/SQL Cursors</text>
+    <rect x="50" y="50" width="280" height="70" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="190" y="72" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Explicit Cursors</text>
+    <text x="190" y="92" textAnchor="middle" fill="#c4b5fd" fontSize="8">DECLARE → OPEN → FETCH → CLOSE</text>
+    <text x="190" y="107" textAnchor="middle" fill="#c4b5fd" fontSize="7">Full control • FOR loops</text>
+    <rect x="370" y="50" width="280" height="70" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="510" y="72" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Implicit Cursors</text>
+    <text x="510" y="92" textAnchor="middle" fill="#fcd34d" fontSize="8">SQL%ROWCOUNT, SQL%FOUND</text>
+    <text x="510" y="107" textAnchor="middle" fill="#fcd34d" fontSize="7">Single-row queries • DML</text>
+    <text x="350" y="145" textAnchor="middle" fill="#64748b" fontSize="9">REF CURSOR for dynamic queries • BULK COLLECT for performance</text>
+  </svg>
+)
+
+// Exception Handling Diagram
+const ExceptionDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">PL/SQL Exception Handling</text>
+    <rect x="50" y="50" width="180" height="60" rx="6" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="140" y="72" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">Predefined</text>
+    <text x="140" y="90" textAnchor="middle" fill="#fca5a5" fontSize="7">NO_DATA_FOUND</text>
+    <text x="140" y="102" textAnchor="middle" fill="#fca5a5" fontSize="7">TOO_MANY_ROWS</text>
+    <rect x="260" y="50" width="180" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="350" y="72" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">User-Defined</text>
+    <text x="350" y="90" textAnchor="middle" fill="#fcd34d" fontSize="7">DECLARE exc EXCEPTION</text>
+    <text x="350" y="102" textAnchor="middle" fill="#fcd34d" fontSize="7">RAISE exc</text>
+    <rect x="470" y="50" width="180" height="60" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="560" y="72" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">WHEN OTHERS</text>
+    <text x="560" y="90" textAnchor="middle" fill="#86efac" fontSize="7">SQLCODE, SQLERRM</text>
+    <text x="560" y="102" textAnchor="middle" fill="#86efac" fontSize="7">RAISE_APPLICATION_ERROR</text>
+    <text x="350" y="135" textAnchor="middle" fill="#64748b" fontSize="9">EXCEPTION_INIT pragma • Propagation hierarchy • RERAISE</text>
+  </svg>
+)
+
+// Packages Diagram
+const PLSQLPackageDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">PL/SQL Packages</text>
+    <rect x="50" y="45" width="280" height="90" rx="6" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="190" y="65" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">Specification</text>
+    <text x="190" y="85" textAnchor="middle" fill="#fca5a5" fontSize="8">Public API declaration</text>
+    <text x="190" y="102" textAnchor="middle" fill="#fca5a5" fontSize="7">Types, constants, procedures</text>
+    <text x="190" y="117" textAnchor="middle" fill="#fca5a5" fontSize="7">Visible to callers</text>
+    <rect x="370" y="45" width="280" height="90" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="510" y="65" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Body</text>
+    <text x="510" y="85" textAnchor="middle" fill="#93c5fd" fontSize="8">Implementation details</text>
+    <text x="510" y="102" textAnchor="middle" fill="#93c5fd" fontSize="7">Private helpers</text>
+    <text x="510" y="117" textAnchor="middle" fill="#93c5fd" fontSize="7">Session state variables</text>
+    <text x="350" y="155" textAnchor="middle" fill="#64748b" fontSize="9">Encapsulation • Overloading • Initialization • Dependency tracking</text>
+  </svg>
+)
+
+// Triggers Diagram
+const PLSQLTriggerDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">PL/SQL Triggers</text>
+    <rect x="50" y="50" width="180" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="140" y="72" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">DML Triggers</text>
+    <text x="140" y="90" textAnchor="middle" fill="#fcd34d" fontSize="7">INSERT/UPDATE/DELETE</text>
+    <text x="140" y="102" textAnchor="middle" fill="#fcd34d" fontSize="7">:OLD and :NEW</text>
+    <rect x="260" y="50" width="180" height="60" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="350" y="72" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Timing</text>
+    <text x="350" y="90" textAnchor="middle" fill="#c4b5fd" fontSize="7">BEFORE / AFTER</text>
+    <text x="350" y="102" textAnchor="middle" fill="#c4b5fd" fontSize="7">FOR EACH ROW</text>
+    <rect x="470" y="50" width="180" height="60" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="560" y="72" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Compound</text>
+    <text x="560" y="90" textAnchor="middle" fill="#86efac" fontSize="7">Combines timing points</text>
+    <text x="560" y="102" textAnchor="middle" fill="#86efac" fontSize="7">Avoid mutating table</text>
+    <text x="350" y="135" textAnchor="middle" fill="#64748b" fontSize="9">Auditing • Validation • Derived columns • INSTEAD OF for views</text>
+  </svg>
+)
+
+// Collections Diagram
+const CollectionsDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">PL/SQL Collections</text>
+    <rect x="50" y="50" width="180" height="70" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="140" y="72" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Associative Array</text>
+    <text x="140" y="90" textAnchor="middle" fill="#93c5fd" fontSize="7">INDEX BY VARCHAR2</text>
+    <text x="140" y="105" textAnchor="middle" fill="#93c5fd" fontSize="7">Sparse • PL/SQL only</text>
+    <rect x="260" y="50" width="180" height="70" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="350" y="72" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Nested Table</text>
+    <text x="350" y="90" textAnchor="middle" fill="#86efac" fontSize="7">Unbounded</text>
+    <text x="350" y="105" textAnchor="middle" fill="#86efac" fontSize="7">Can be column type</text>
+    <rect x="470" y="50" width="180" height="70" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="560" y="72" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">VARRAY</text>
+    <text x="560" y="90" textAnchor="middle" fill="#fcd34d" fontSize="7">Fixed max size</text>
+    <text x="560" y="105" textAnchor="middle" fill="#fcd34d" fontSize="7">Dense • Ordered</text>
+    <text x="350" y="145" textAnchor="middle" fill="#64748b" fontSize="9">BULK COLLECT • FORALL • Collection methods: COUNT, FIRST, LAST, DELETE</text>
+  </svg>
+)
+
+// Dynamic SQL Diagram
+const PLSQLDynamicDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Dynamic SQL in PL/SQL</text>
+    <rect x="50" y="50" width="280" height="70" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="190" y="72" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">EXECUTE IMMEDIATE</text>
+    <text x="190" y="92" textAnchor="middle" fill="#c4b5fd" fontSize="8">Simple dynamic SQL</text>
+    <text x="190" y="107" textAnchor="middle" fill="#c4b5fd" fontSize="7">INTO / USING / RETURNING</text>
+    <rect x="370" y="50" width="280" height="70" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="510" y="72" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">DBMS_SQL</text>
+    <text x="510" y="92" textAnchor="middle" fill="#fcd34d" fontSize="8">Complex dynamic SQL</text>
+    <text x="510" y="107" textAnchor="middle" fill="#fcd34d" fontSize="7">Parse • Bind • Execute • Fetch</text>
+    <text x="350" y="145" textAnchor="middle" fill="#64748b" fontSize="9">Use bind variables to prevent injection • REF CURSOR for dynamic queries</text>
+  </svg>
+)
+
+// Performance Diagram
+const PLSQLPerfDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">PL/SQL Performance Optimization</text>
+    <rect x="50" y="50" width="180" height="60" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="140" y="72" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">BULK COLLECT</text>
+    <text x="140" y="90" textAnchor="middle" fill="#86efac" fontSize="7">Array fetching</text>
+    <text x="140" y="102" textAnchor="middle" fill="#86efac" fontSize="7">LIMIT clause</text>
+    <rect x="260" y="50" width="180" height="60" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="350" y="72" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">FORALL</text>
+    <text x="350" y="90" textAnchor="middle" fill="#93c5fd" fontSize="7">Bulk DML</text>
+    <text x="350" y="102" textAnchor="middle" fill="#93c5fd" fontSize="7">SAVE EXCEPTIONS</text>
+    <rect x="470" y="50" width="180" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="560" y="72" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Native Compile</text>
+    <text x="560" y="90" textAnchor="middle" fill="#fcd34d" fontSize="7">PLSQL_CODE_TYPE</text>
+    <text x="560" y="102" textAnchor="middle" fill="#fcd34d" fontSize="7">10-30% faster</text>
+    <text x="350" y="135" textAnchor="middle" fill="#64748b" fontSize="9">Reduce context switches • Use Result Cache • Avoid row-by-row processing</text>
+  </svg>
+)
+
+// Advanced Features Diagram
+const PLSQLAdvancedDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Advanced PL/SQL Features</text>
+    <rect x="50" y="50" width="140" height="60" rx="6" fill="rgba(99, 102, 241, 0.3)" stroke="#6366f1" strokeWidth="2"/>
+    <text x="120" y="72" textAnchor="middle" fill="#818cf8" fontSize="8" fontWeight="bold">Pipelined</text>
+    <text x="120" y="90" textAnchor="middle" fill="#a5b4fc" fontSize="7">Stream rows</text>
+    <rect x="210" y="50" width="140" height="60" rx="6" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="280" y="72" textAnchor="middle" fill="#f472b6" fontSize="8" fontWeight="bold">Parallel</text>
+    <text x="280" y="90" textAnchor="middle" fill="#f9a8d4" fontSize="7">PARALLEL_ENABLE</text>
+    <rect x="370" y="50" width="140" height="60" rx="6" fill="rgba(20, 184, 166, 0.3)" stroke="#14b8a6" strokeWidth="2"/>
+    <text x="440" y="72" textAnchor="middle" fill="#2dd4bf" fontSize="8" fontWeight="bold">Result Cache</text>
+    <text x="440" y="90" textAnchor="middle" fill="#5eead4" fontSize="7">Cache returns</text>
+    <rect x="530" y="50" width="120" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="590" y="72" textAnchor="middle" fill="#fbbf24" fontSize="8" fontWeight="bold">Edition</text>
+    <text x="590" y="90" textAnchor="middle" fill="#fcd34d" fontSize="7">EBR upgrades</text>
+    <text x="350" y="135" textAnchor="middle" fill="#64748b" fontSize="9">Object types • DBMS_SCHEDULER • UTL packages • Autonomous transactions</text>
+  </svg>
+)
+
 function PLSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
@@ -32,6 +216,7 @@ function PLSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       icon: '📦',
       color: '#3b82f6',
       description: 'Core PL/SQL concepts including blocks, variables, and control structures',
+      diagram: PLSQLBlockDiagram,
       details: [
         {
           name: 'Block Structure',
@@ -65,6 +250,7 @@ function PLSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       icon: '⚙️',
       color: '#10b981',
       description: 'Creating and using stored procedures and functions',
+      diagram: ProcFuncDiagram,
       details: [
         {
           name: 'Stored Procedures',
@@ -98,6 +284,7 @@ function PLSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       icon: '🔄',
       color: '#8b5cf6',
       description: 'Working with explicit and implicit cursors for data retrieval',
+      diagram: PLSQLCursorDiagram,
       details: [
         {
           name: 'Implicit Cursors',
@@ -131,6 +318,7 @@ function PLSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       icon: '🛡️',
       color: '#ef4444',
       description: 'Handling errors and exceptions in PL/SQL programs',
+      diagram: ExceptionDiagram,
       details: [
         {
           name: 'Predefined Exceptions',
@@ -164,6 +352,7 @@ function PLSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       icon: '📚',
       color: '#f59e0b',
       description: 'Organizing code with packages for modularity and encapsulation',
+      diagram: PLSQLPackageDiagram,
       details: [
         {
           name: 'Package Structure',
@@ -197,6 +386,7 @@ function PLSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       icon: '⚡',
       color: '#14b8a6',
       description: 'Automating actions with database triggers',
+      diagram: PLSQLTriggerDiagram,
       details: [
         {
           name: 'DML Triggers',
@@ -230,6 +420,7 @@ function PLSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       icon: '📋',
       color: '#6366f1',
       description: 'Working with arrays and collection types',
+      diagram: CollectionsDiagram,
       details: [
         {
           name: 'Associative Arrays',
@@ -263,6 +454,7 @@ function PLSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       icon: '🔧',
       color: '#ec4899',
       description: 'Building and executing SQL statements at runtime',
+      diagram: PLSQLDynamicDiagram,
       details: [
         {
           name: 'EXECUTE IMMEDIATE',
@@ -296,6 +488,7 @@ function PLSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       icon: '🚀',
       color: '#0ea5e9',
       description: 'Techniques for writing efficient PL/SQL code',
+      diagram: PLSQLPerfDiagram,
       details: [
         {
           name: 'Bulk Processing',
@@ -329,6 +522,7 @@ function PLSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
       icon: '🎓',
       color: '#a855f7',
       description: 'Advanced PL/SQL features for complex scenarios',
+      diagram: PLSQLAdvancedDiagram,
       details: [
         {
           name: 'Object Types',
@@ -630,9 +824,15 @@ function PLSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
             {(() => {
               const detail = selectedConcept.details[selectedDetailIndex]
               const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
               return (
                 <div>
                   <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>{detail.name}</h3>
+                  {DiagramComponent && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
                   <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
                 </div>
               )

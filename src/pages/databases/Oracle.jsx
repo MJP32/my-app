@@ -21,6 +21,205 @@ const SUBTOPIC_COLORS = [
   { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
 ]
 
+// PL/SQL Programming Diagram
+const PLSQLDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">PL/SQL Architecture</text>
+    <rect x="50" y="45" width="140" height="60" rx="6" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="120" y="70" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">Procedures</text>
+    <text x="120" y="88" textAnchor="middle" fill="#fca5a5" fontSize="8">Business logic</text>
+    <rect x="210" y="45" width="140" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="280" y="70" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Functions</text>
+    <text x="280" y="88" textAnchor="middle" fill="#fcd34d" fontSize="8">Return values</text>
+    <rect x="370" y="45" width="140" height="60" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="440" y="70" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Triggers</text>
+    <text x="440" y="88" textAnchor="middle" fill="#c4b5fd" fontSize="8">Event handlers</text>
+    <rect x="530" y="45" width="140" height="60" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="600" y="70" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Packages</text>
+    <text x="600" y="88" textAnchor="middle" fill="#86efac" fontSize="8">Encapsulation</text>
+    <rect x="150" y="120" width="400" height="40" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="350" y="145" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">BULK COLLECT • FORALL • Exception Handling</text>
+    <text x="350" y="175" textAnchor="middle" fill="#64748b" fontSize="9">Server-side execution • Reduced network overhead • Strong typing</text>
+  </svg>
+)
+
+// Performance Tuning Diagram
+const PerformanceTuningDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Oracle Performance Tuning Workflow</text>
+    <rect x="50" y="50" width="120" height="55" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="110" y="75" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">AWR/ADDM</text>
+    <text x="110" y="92" textAnchor="middle" fill="#fcd34d" fontSize="7">Diagnostics</text>
+    <rect x="190" y="50" width="120" height="55" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="250" y="75" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Explain Plan</text>
+    <text x="250" y="92" textAnchor="middle" fill="#93c5fd" fontSize="7">Execution path</text>
+    <rect x="330" y="50" width="120" height="55" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="390" y="75" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Optimizer</text>
+    <text x="390" y="92" textAnchor="middle" fill="#c4b5fd" fontSize="7">Hints & stats</text>
+    <rect x="470" y="50" width="120" height="55" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="530" y="75" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Indexing</text>
+    <text x="530" y="92" textAnchor="middle" fill="#86efac" fontSize="7">B-tree/Bitmap</text>
+    <line x1="170" y1="77" x2="185" y2="77" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="310" y1="77" x2="325" y2="77" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="450" y1="77" x2="465" y2="77" stroke="#4ade80" strokeWidth="2"/>
+    <rect x="150" y="120" width="400" height="40" rx="6" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" strokeWidth="1"/>
+    <text x="350" y="140" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">Partitioning • Parallel Query • Result Cache</text>
+    <text x="350" y="155" textAnchor="middle" fill="#fca5a5" fontSize="8">Scale large datasets efficiently</text>
+    <text x="350" y="175" textAnchor="middle" fill="#64748b" fontSize="9">Identify → Analyze → Optimize → Monitor</text>
+  </svg>
+)
+
+// RAC & High Availability Diagram
+const RACDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Oracle RAC Architecture</text>
+    <rect x="100" y="45" width="100" height="50" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="150" y="70" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Instance 1</text>
+    <text x="150" y="85" textAnchor="middle" fill="#c4b5fd" fontSize="7">SGA + PGA</text>
+    <rect x="220" y="45" width="100" height="50" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="270" y="70" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Instance 2</text>
+    <text x="270" y="85" textAnchor="middle" fill="#c4b5fd" fontSize="7">SGA + PGA</text>
+    <rect x="340" y="45" width="100" height="50" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="390" y="70" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Instance N</text>
+    <text x="390" y="85" textAnchor="middle" fill="#c4b5fd" fontSize="7">SGA + PGA</text>
+    <rect x="100" y="105" width="340" height="30" rx="4" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" strokeWidth="2"/>
+    <text x="270" y="125" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Cache Fusion (Interconnect)</text>
+    <rect x="100" y="145" width="340" height="25" rx="4" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="270" y="162" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Shared Storage (ASM)</text>
+    <rect x="480" y="45" width="170" height="90" rx="6" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="565" y="65" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Data Guard</text>
+    <text x="500" y="85" fill="#fcd34d" fontSize="7">• Physical standby</text>
+    <text x="500" y="100" fill="#fcd34d" fontSize="7">• Logical standby</text>
+    <text x="500" y="115" fill="#fcd34d" fontSize="7">• Auto failover</text>
+    <text x="500" y="130" fill="#fcd34d" fontSize="7">• Active Data Guard</text>
+    <text x="350" y="175" textAnchor="middle" fill="#64748b" fontSize="9">No single point of failure • Linear scalability • Automatic failover</text>
+  </svg>
+)
+
+// Security & Auditing Diagram
+const SecurityDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Oracle Security Layers</text>
+    <rect x="50" y="50" width="120" height="70" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="110" y="75" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Authentication</text>
+    <text x="110" y="92" textAnchor="middle" fill="#93c5fd" fontSize="7">Users/Roles</text>
+    <text x="110" y="107" textAnchor="middle" fill="#93c5fd" fontSize="7">LDAP/Kerberos</text>
+    <rect x="190" y="50" width="120" height="70" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="250" y="75" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">VPD</text>
+    <text x="250" y="92" textAnchor="middle" fill="#c4b5fd" fontSize="7">Row-level security</text>
+    <text x="250" y="107" textAnchor="middle" fill="#c4b5fd" fontSize="7">Policy functions</text>
+    <rect x="330" y="50" width="120" height="70" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="390" y="75" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">TDE</text>
+    <text x="390" y="92" textAnchor="middle" fill="#86efac" fontSize="7">Data encryption</text>
+    <text x="390" y="107" textAnchor="middle" fill="#86efac" fontSize="7">Wallet mgmt</text>
+    <rect x="470" y="50" width="120" height="70" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="530" y="75" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Audit</text>
+    <text x="530" y="92" textAnchor="middle" fill="#fcd34d" fontSize="7">Unified audit</text>
+    <text x="530" y="107" textAnchor="middle" fill="#fcd34d" fontSize="7">Fine-grained</text>
+    <rect x="150" y="130" width="400" height="20" rx="4" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" strokeWidth="1"/>
+    <text x="350" y="145" textAnchor="middle" fill="#f87171" fontSize="9">Database Vault • Label Security • Data Redaction</text>
+  </svg>
+)
+
+// Data Warehousing Diagram
+const DataWarehousingDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Oracle Data Warehouse Architecture</text>
+    <rect x="50" y="50" width="130" height="70" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="115" y="72" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Star Schema</text>
+    <text x="115" y="90" textAnchor="middle" fill="#86efac" fontSize="7">Fact + Dimensions</text>
+    <text x="115" y="105" textAnchor="middle" fill="#86efac" fontSize="7">Bitmap indexes</text>
+    <rect x="200" y="50" width="130" height="70" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="265" y="72" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Materialized Views</text>
+    <text x="265" y="90" textAnchor="middle" fill="#93c5fd" fontSize="7">Pre-aggregation</text>
+    <text x="265" y="105" textAnchor="middle" fill="#93c5fd" fontSize="7">Query rewrite</text>
+    <rect x="350" y="50" width="130" height="70" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="415" y="72" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Parallel Query</text>
+    <text x="415" y="90" textAnchor="middle" fill="#c4b5fd" fontSize="7">Multi-CPU scaling</text>
+    <text x="415" y="105" textAnchor="middle" fill="#c4b5fd" fontSize="7">DOP tuning</text>
+    <rect x="500" y="50" width="150" height="70" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="575" y="72" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Analytics</text>
+    <text x="575" y="90" textAnchor="middle" fill="#fcd34d" fontSize="7">Window functions</text>
+    <text x="575" y="105" textAnchor="middle" fill="#fcd34d" fontSize="7">PIVOT/MODEL</text>
+    <rect x="150" y="135" width="400" height="30" rx="4" fill="rgba(236, 72, 153, 0.15)" stroke="#ec4899" strokeWidth="1"/>
+    <text x="350" y="155" textAnchor="middle" fill="#f472b6" fontSize="9">Compression • Partitioning • Direct-Path Load • External Tables</text>
+    <text x="350" y="175" textAnchor="middle" fill="#64748b" fontSize="9">Optimized for analytical queries and large-scale data processing</text>
+  </svg>
+)
+
+// Advanced Features Diagram
+const AdvancedFeaturesDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Oracle Advanced Features</text>
+    <rect x="50" y="50" width="140" height="60" rx="6" fill="rgba(20, 184, 166, 0.3)" stroke="#14b8a6" strokeWidth="2"/>
+    <text x="120" y="72" textAnchor="middle" fill="#2dd4bf" fontSize="9" fontWeight="bold">In-Memory</text>
+    <text x="120" y="90" textAnchor="middle" fill="#5eead4" fontSize="7">Column store</text>
+    <text x="120" y="102" textAnchor="middle" fill="#5eead4" fontSize="7">Analytics boost</text>
+    <rect x="210" y="50" width="140" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="280" y="72" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Multitenant</text>
+    <text x="280" y="90" textAnchor="middle" fill="#fcd34d" fontSize="7">CDB + PDBs</text>
+    <text x="280" y="102" textAnchor="middle" fill="#fcd34d" fontSize="7">Consolidation</text>
+    <rect x="370" y="50" width="140" height="60" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="440" y="72" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">JSON/XML</text>
+    <text x="440" y="90" textAnchor="middle" fill="#93c5fd" fontSize="7">Native types</text>
+    <text x="440" y="102" textAnchor="middle" fill="#93c5fd" fontSize="7">Path queries</text>
+    <rect x="530" y="50" width="140" height="60" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="600" y="72" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Spatial/Graph</text>
+    <text x="600" y="90" textAnchor="middle" fill="#c4b5fd" fontSize="7">Geographic data</text>
+    <text x="600" y="102" textAnchor="middle" fill="#c4b5fd" fontSize="7">Network models</text>
+    <text x="350" y="135" textAnchor="middle" fill="#64748b" fontSize="9">Edition-Based Redefinition • Advanced Queuing • Sharding</text>
+  </svg>
+)
+
+// Oracle Cloud & Exadata Diagram
+const CloudExadataDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Oracle Cloud & Exadata</text>
+    <rect x="50" y="50" width="180" height="80" rx="6" fill="rgba(99, 102, 241, 0.3)" stroke="#6366f1" strokeWidth="2"/>
+    <text x="140" y="72" textAnchor="middle" fill="#818cf8" fontSize="10" fontWeight="bold">Autonomous DB</text>
+    <text x="140" y="92" textAnchor="middle" fill="#a5b4fc" fontSize="8">Self-driving</text>
+    <text x="140" y="107" textAnchor="middle" fill="#a5b4fc" fontSize="8">Self-securing</text>
+    <text x="140" y="122" textAnchor="middle" fill="#a5b4fc" fontSize="8">Self-repairing</text>
+    <rect x="260" y="50" width="180" height="80" rx="6" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="350" y="72" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">Exadata</text>
+    <text x="350" y="92" textAnchor="middle" fill="#fca5a5" fontSize="8">Smart Scan</text>
+    <text x="350" y="107" textAnchor="middle" fill="#fca5a5" fontSize="8">Flash cache</text>
+    <text x="350" y="122" textAnchor="middle" fill="#fca5a5" fontSize="8">InfiniBand</text>
+    <rect x="470" y="50" width="180" height="80" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="560" y="72" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Cloud Services</text>
+    <text x="560" y="92" textAnchor="middle" fill="#86efac" fontSize="8">DBCS / VMDB</text>
+    <text x="560" y="107" textAnchor="middle" fill="#86efac" fontSize="8">Auto backups</text>
+    <text x="560" y="122" textAnchor="middle" fill="#86efac" fontSize="8">Scaling</text>
+    <rect x="150" y="145" width="400" height="25" rx="4" fill="rgba(245, 158, 11, 0.15)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="350" y="162" textAnchor="middle" fill="#fbbf24" fontSize="9">ORDS REST APIs • GoldenGate • Zero Downtime Migration</text>
+    <text x="350" y="180" textAnchor="middle" fill="#64748b" fontSize="9">Machine learning optimization • Automatic tuning • Elastic resources</text>
+  </svg>
+)
+
+// DBA Operations Diagram
+const DBAOperationsDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Oracle DBA Operations</text>
+    <rect x="50" y="50" width="140" height="60" rx="6" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="120" y="72" textAnchor="middle" fill="#f472b6" fontSize="9" fontWeight="bold">DB Creation</text>
+    <text x="120" y="90" textAnchor="middle" fill="#f9a8d4" fontSize="7">DBCA • Scripts</text>
+    <text x="120" y="102" textAnchor="middle" fill="#f9a8d4" fontSize="7">Parameters</text>
+    <rect x="210" y="50" width="140" height="60" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="280" y="72" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Space Mgmt</text>
+    <text x="280" y="90" textAnchor="middle" fill="#93c5fd" fontSize="7">Tablespaces</text>
+    <text x="280" y="102" textAnchor="middle" fill="#93c5fd" fontSize="7">Segments</text>
+    <rect x="370" y="50" width="140" height="60" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
+    <text x="440" y="72" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Maintenance</text>
+    <text x="440" y="90" textAnchor="middle" fill="#86efac" fontSize="7">Statistics</text>
+    <text x="440" y="102" textAnchor="middle" fill="#86efac" fontSize="7">Advisors</text>
+    <rect x="530" y="50" width="140" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="600" y="72" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Monitoring</text>
+    <text x="600" y="90" textAnchor="middle" fill="#fcd34d" fontSize="7">EM Cloud Control</text>
+    <text x="600" y="102" textAnchor="middle" fill="#fcd34d" fontSize="7">V$ / DBA_ views</text>
+    <text x="350" y="135" textAnchor="middle" fill="#64748b" fontSize="9">RMAN • Data Pump • Alert logs • Wait events • ASH/AWR</text>
+  </svg>
+)
+
 function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
@@ -32,6 +231,7 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
       icon: '📜',
       color: '#ef4444',
       description: 'Advanced PL/SQL programming including stored procedures, triggers, cursors, exception handling, and dynamic SQL',
+      diagram: PLSQLDiagram,
       details: [
         {
           name: 'Stored Procedures & Functions',
@@ -65,6 +265,7 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
       icon: '⚡',
       color: '#f59e0b',
       description: 'Oracle performance tuning including execution plans, AWR analysis, optimizer hints, and partitioning strategies',
+      diagram: PerformanceTuningDiagram,
       details: [
         {
           name: 'Execution Plans & AWR',
@@ -98,6 +299,7 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
       icon: '🔁',
       color: '#8b5cf6',
       description: 'High availability solutions including RAC clustering, Data Guard replication, RMAN backups, and ASM storage',
+      diagram: RACDiagram,
       details: [
         {
           name: 'Real Application Clusters',
@@ -131,6 +333,7 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
       icon: '🔒',
       color: '#3b82f6',
       description: 'Oracle security features including VPD, TDE encryption, comprehensive auditing, and Database Vault',
+      diagram: SecurityDiagram,
       details: [
         {
           name: 'Fine-Grained Access',
@@ -164,6 +367,7 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
       icon: '📊',
       color: '#10b981',
       description: 'Data warehousing features including materialized views, star schema, parallel processing, and columnar compression',
+      diagram: DataWarehousingDiagram,
       details: [
         {
           name: 'Materialized Views',
@@ -197,6 +401,7 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
       icon: '🚀',
       color: '#14b8a6',
       description: 'Advanced Oracle features including in-memory column store, multitenant architecture, JSON support, and spatial data',
+      diagram: AdvancedFeaturesDiagram,
       details: [
         {
           name: 'In-Memory Column Store',
@@ -230,6 +435,7 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
       icon: '☁️',
       color: '#6366f1',
       description: 'Oracle Cloud and Exadata including Autonomous Database, cloud services, migration tools, and REST APIs',
+      diagram: CloudExadataDiagram,
       details: [
         {
           name: 'Autonomous Database',
@@ -263,6 +469,7 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
       icon: '⚙️',
       color: '#ec4899',
       description: 'Database administration including database creation, space management, maintenance tasks, and monitoring',
+      diagram: DBAOperationsDiagram,
       details: [
         {
           name: 'Database Creation',
@@ -556,9 +763,15 @@ function Oracle({ onBack, onPrevious, onNext, previousName, nextName, currentSub
             {(() => {
               const detail = selectedConcept.details[selectedDetailIndex]
               const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
               return (
                 <div>
                   <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>{detail.name}</h3>
+                  {DiagramComponent && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
                   <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
                 </div>
               )
