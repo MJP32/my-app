@@ -1,9 +1,18 @@
-import { useState } from 'react'
+import { useState, Suspense, lazy } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
+import LoadingSpinner from '../../components/LoadingSpinner'
+
+// Lazy load existing design pages
+const YouTube = lazy(() => import('./YouTube.jsx'))
+const GoogleDocs = lazy(() => import('./GoogleDocs.jsx'))
+const WhatsApp = lazy(() => import('./WhatsApp.jsx'))
+const NotificationSystem = lazy(() => import('./NotificationSystem.jsx'))
+const RateLimiter = lazy(() => import('./RateLimiter.jsx'))
+const Dropbox = lazy(() => import('./Dropbox.jsx'))
+const TypeAhead = lazy(() => import('./TypeAhead.jsx'))
 
 function L5SystemDesign({ onBack }) {
-  const [expandedProblem, setExpandedProblem] = useState(null)
-  const [activeTab, setActiveTab] = useState({})
+  const [selectedTopic, setSelectedTopic] = useState(null)
 
   const breadcrumb = {
     section: { name: 'Design', icon: '🎨', onClick: onBack },
@@ -20,634 +29,253 @@ function L5SystemDesign({ onBack }) {
     }
   }
 
-  const problems = [
+  const topics = [
     {
       id: 'youtube',
-      title: 'Design YouTube / Video Streaming',
+      title: 'YouTube / Video Streaming',
       icon: '📺',
       color: '#ef4444',
       difficulty: 'Hard',
-      timeEstimate: '45-60 min',
-      topics: ['CDN', 'Transcoding', 'Streaming', 'Recommendations'],
-      overview: 'Build a video sharing platform supporting upload, transcoding, streaming, and discovery.',
-      requirements: [
-        'Video upload and processing',
-        'Adaptive bitrate streaming',
-        'Video recommendations',
-        'Comments, likes, subscriptions',
-        'Live streaming support'
-      ],
-      architecture: {
-        components: [
-          { name: 'Upload Service', desc: 'Handle large file uploads with resumable uploads' },
-          { name: 'Transcoding Pipeline', desc: 'Convert to multiple resolutions/codecs (HLS/DASH)' },
-          { name: 'Video Storage', desc: 'Object storage (S3) for video segments' },
-          { name: 'CDN', desc: 'Edge caching for video delivery worldwide' },
-          { name: 'Metadata Service', desc: 'Video info, user data, engagement metrics' },
-          { name: 'Recommendation Engine', desc: 'ML-based personalized suggestions' },
-          { name: 'Search Service', desc: 'Elasticsearch for video discovery' }
-        ],
-        dataFlow: [
-          '1. User uploads video → Upload Service stores raw file',
-          '2. Message queue triggers Transcoding Pipeline',
-          '3. Transcoded segments stored in Object Storage',
-          '4. CDN pulls and caches segments from origin',
-          '5. Client requests manifest, streams adaptive segments'
-        ]
-      },
-      deepDive: {
-        'Video Processing': [
-          'Chunked upload with resumption support',
-          'Transcode to multiple resolutions: 360p, 480p, 720p, 1080p, 4K',
-          'Generate HLS/DASH manifests for adaptive streaming',
-          'Create thumbnails at multiple timestamps',
-          'Content moderation pipeline (ML + manual review)'
-        ],
-        'Streaming': [
-          'Adaptive Bitrate Streaming (ABR) based on bandwidth',
-          'CDN with geographic distribution and edge caching',
-          'Prefetch next segments for smooth playback',
-          'Handle seek operations efficiently',
-          'Live streaming: RTMP ingest → HLS/DASH output'
-        ],
-        'Scale': [
-          'Distributed transcoding workers (K8s jobs)',
-          'Tiered storage: hot (SSD) → warm → cold (Glacier)',
-          'Database sharding by video ID and user ID',
-          'Cache video metadata and user engagement',
-          '~500 hours of video uploaded per minute at YouTube scale'
-        ]
-      }
+      hasExistingPage: true,
+      component: YouTube,
+      description: 'Design a video sharing platform with upload, transcoding, streaming, and recommendations.'
     },
     {
       id: 'google-search',
-      title: 'Design Google Search',
+      title: 'Google Search',
       icon: '🔍',
       color: '#4285f4',
       difficulty: 'Hard',
-      timeEstimate: '50-60 min',
-      topics: ['Crawling', 'Indexing', 'Ranking', 'Query Processing'],
-      overview: 'Build a web search engine with crawling, indexing, and ranking capabilities.',
-      requirements: [
-        'Crawl billions of web pages',
-        'Build searchable index',
-        'Rank results by relevance',
-        'Sub-second query response',
-        'Handle 100K+ QPS'
-      ],
-      architecture: {
-        components: [
-          { name: 'Web Crawler', desc: 'Distributed crawler respecting robots.txt' },
-          { name: 'URL Frontier', desc: 'Prioritized queue of URLs to crawl' },
-          { name: 'Document Store', desc: 'Store raw HTML and parsed content' },
-          { name: 'Indexer', desc: 'Build inverted index from documents' },
-          { name: 'Index Servers', desc: 'Serve index shards for query processing' },
-          { name: 'Ranking Service', desc: 'PageRank + 200+ signals' },
-          { name: 'Query Processor', desc: 'Parse, expand, and route queries' }
-        ],
-        dataFlow: [
-          '1. Crawler fetches pages → stores in Document Store',
-          '2. Indexer processes documents → builds inverted index',
-          '3. Index partitioned and distributed to Index Servers',
-          '4. Query comes in → Query Processor parses and expands',
-          '5. Scatter query to index shards → gather and rank results'
-        ]
-      },
-      deepDive: {
-        'Indexing': [
-          'Inverted index: term → list of (docID, positions, frequency)',
-          'Forward index: docID → document metadata and features',
-          'Index sharding: by document (horizontal) or term (vertical)',
-          'Incremental indexing for fresh content',
-          'Compression: variable-byte encoding, delta encoding'
-        ],
-        'Ranking': [
-          'PageRank: importance based on link structure',
-          'TF-IDF: term frequency-inverse document frequency',
-          'User signals: click-through rate, dwell time',
-          'Freshness: recency for time-sensitive queries',
-          'Machine learning: Learning to Rank (LTR) models'
-        ],
-        'Scale': [
-          'Trillions of documents indexed',
-          'Index size: hundreds of petabytes',
-          'Query fanout to thousands of index shards',
-          'Caching: query cache, result cache, snippet cache',
-          'Multiple data centers with geographic routing'
-        ]
-      }
+      hasExistingPage: true,
+      component: TypeAhead,
+      description: 'Design a web search engine with crawling, indexing, ranking, and query processing.'
     },
     {
       id: 'google-maps',
-      title: 'Design Google Maps',
+      title: 'Google Maps',
       icon: '🗺️',
       color: '#34a853',
       difficulty: 'Hard',
-      timeEstimate: '45-60 min',
-      topics: ['Geospatial', 'Routing', 'Tile Rendering', 'Real-time Traffic'],
-      overview: 'Build a mapping service with navigation, real-time traffic, and location search.',
-      requirements: [
-        'Display map tiles at various zoom levels',
-        'Search for places and addresses',
-        'Turn-by-turn navigation',
-        'Real-time traffic updates',
-        'Offline maps support'
-      ],
-      architecture: {
+      hasExistingPage: false,
+      description: 'Design a mapping service with navigation, real-time traffic, and location search.',
+      content: {
+        requirements: [
+          'Display map tiles at various zoom levels',
+          'Search for places and addresses (geocoding)',
+          'Turn-by-turn navigation with route calculation',
+          'Real-time traffic updates',
+          'Offline maps support'
+        ],
         components: [
           { name: 'Tile Service', desc: 'Pre-rendered map tiles at 20+ zoom levels' },
-          { name: 'Geocoding Service', desc: 'Address ↔ coordinates conversion' },
+          { name: 'Geocoding Service', desc: 'Convert addresses ↔ coordinates' },
           { name: 'Places Service', desc: 'POI search with location context' },
-          { name: 'Routing Engine', desc: 'Calculate optimal routes (Dijkstra/A*)' },
-          { name: 'Traffic Service', desc: 'Real-time traffic data aggregation' },
-          { name: 'ETA Service', desc: 'Predict arrival times with ML' },
-          { name: 'Location Service', desc: 'Track user location, share with others' }
+          { name: 'Routing Engine', desc: 'Calculate optimal routes using graph algorithms' },
+          { name: 'Traffic Service', desc: 'Aggregate real-time traffic data' },
+          { name: 'ETA Service', desc: 'Predict arrival times using ML' }
         ],
-        dataFlow: [
-          '1. Client requests tiles for viewport → Tile Service returns cached tiles',
-          '2. User searches → Geocoding/Places returns coordinates',
-          '3. Route request → Routing Engine calculates path with traffic',
-          '4. During navigation → continuous traffic updates and rerouting',
-          '5. Crowdsourced location data improves traffic accuracy'
-        ]
-      },
-      deepDive: {
-        'Map Tiles': [
-          'Quadtree structure for spatial indexing',
-          'Pre-render tiles at zoom levels 0-20',
-          'Vector tiles vs raster tiles trade-off',
-          'Tile caching at CDN edge locations',
-          'Dynamic layers: traffic, transit, terrain'
+        keyDecisions: [
+          'Map tiles: Quadtree structure, pre-render at zoom 0-20',
+          'Vector vs raster tiles: Vector for flexibility, raster for simplicity',
+          'Routing: Contraction Hierarchies for fast point-to-point routing',
+          'Traffic: Crowdsourced GPS data + historical patterns'
         ],
-        'Routing': [
-          'Graph representation of road network',
-          'Contraction Hierarchies for fast routing',
-          'Consider: distance, time, tolls, road type',
-          'Alternative routes generation',
-          'Real-time rerouting based on traffic'
+        architecture: [
+          '1. Client requests tiles for viewport → CDN serves cached tiles',
+          '2. User searches → Geocoding returns coordinates',
+          '3. Route request → Graph traversal with traffic weights',
+          '4. During navigation → continuous traffic updates',
+          '5. ETA updates based on current conditions'
         ],
-        'Scale': [
-          'Billions of map tile requests per day',
-          'Road network: 100M+ road segments',
-          'Hierarchical data: country → region → city → street',
-          'Partition by geographic regions (geohash)',
-          'Edge computing for low-latency navigation'
+        scaling: [
+          'CDN edge caching for map tiles',
+          'Partition road graph by geographic regions',
+          'Pre-compute routes between major points',
+          'Real-time traffic via streaming pipeline'
         ]
       }
     },
     {
       id: 'distributed-cache',
-      title: 'Design Distributed Cache System',
+      title: 'Distributed Cache',
       icon: '💾',
       color: '#f59e0b',
       difficulty: 'Hard',
-      timeEstimate: '40-50 min',
-      topics: ['Consistent Hashing', 'Replication', 'Eviction', 'Partitioning'],
-      overview: 'Build a distributed in-memory cache like Redis or Memcached.',
-      requirements: [
-        'Key-value storage with O(1) operations',
-        'Distributed across multiple nodes',
-        'High availability with replication',
-        'Support for eviction policies',
-        'Cluster management and rebalancing'
-      ],
-      architecture: {
+      hasExistingPage: false,
+      description: 'Design a distributed in-memory cache system like Redis or Memcached.',
+      content: {
+        requirements: [
+          'Key-value storage with O(1) get/put',
+          'Distributed across multiple nodes',
+          'High availability with replication',
+          'Support eviction policies (LRU, LFU, TTL)',
+          'Cluster management and rebalancing'
+        ],
         components: [
           { name: 'Cache Nodes', desc: 'Store data partitions in memory' },
           { name: 'Coordinator', desc: 'Route requests to correct node' },
           { name: 'Cluster Manager', desc: 'Track node health, handle failures' },
-          { name: 'Replication Manager', desc: 'Sync data to replicas' },
-          { name: 'Client Library', desc: 'Handle partitioning, failover' }
+          { name: 'Replication Manager', desc: 'Sync data across replicas' }
         ],
-        dataFlow: [
-          '1. Client hashes key → determines partition',
-          '2. Request routed to primary node for partition',
-          '3. Write: replicate to N-1 replica nodes',
-          '4. Read: serve from primary or any replica',
-          '5. Node failure: promote replica, rebalance'
-        ]
-      },
-      deepDive: {
-        'Partitioning': [
-          'Consistent hashing with virtual nodes',
-          'Each physical node owns multiple virtual nodes',
-          'Adding/removing nodes moves minimal data',
-          'Hash ring for deterministic routing',
-          'Rebalancing triggered on topology changes'
+        keyDecisions: [
+          'Partitioning: Consistent hashing with virtual nodes',
+          'Replication: N replicas per partition (typically N=3)',
+          'Consistency: Quorum reads/writes (R + W > N)',
+          'Failure detection: Heartbeats + gossip protocol'
         ],
-        'Replication': [
-          'Replicate each partition to N nodes (typically N=3)',
-          'Synchronous vs asynchronous replication trade-off',
-          'Quorum reads/writes for consistency',
-          'Handle network partitions gracefully',
-          'Anti-entropy for eventual consistency'
+        operations: [
+          'GET: Hash key → find partition → route to any replica',
+          'PUT: Hash key → route to primary → replicate to secondaries',
+          'Node join: Claim virtual nodes, copy data from neighbors',
+          'Node failure: Promote replica, rebalance'
         ],
-        'Operations': [
-          'LRU, LFU, TTL-based eviction policies',
-          'Memory management and OOM handling',
-          'Atomic operations: CAS, increment',
-          'Pub/sub for cache invalidation',
-          'Persistence options: RDB, AOF'
+        eviction: [
+          'LRU: Doubly linked list + hashmap',
+          'LFU: Min-heap by frequency',
+          'TTL: Lazy expiration + periodic cleanup',
+          'Memory pressure: Evict when approaching limit'
         ]
       }
     },
     {
       id: 'google-drive',
-      title: 'Design Google Drive',
+      title: 'Google Drive',
       icon: '📂',
       color: '#4285f4',
       difficulty: 'Hard',
-      timeEstimate: '45-55 min',
-      topics: ['File Sync', 'Chunking', 'Conflict Resolution', 'Collaboration'],
-      overview: 'Build a cloud file storage and sync service with real-time collaboration.',
-      requirements: [
-        'File upload/download with folder hierarchy',
-        'Sync files across multiple devices',
-        'Real-time collaboration on documents',
-        'Version history and recovery',
-        'Sharing and permissions'
-      ],
-      architecture: {
-        components: [
-          { name: 'API Gateway', desc: 'Authentication, rate limiting' },
-          { name: 'Metadata Service', desc: 'File/folder structure, permissions' },
-          { name: 'Block Server', desc: 'Handle file chunks' },
-          { name: 'Object Storage', desc: 'Store actual file blocks (S3)' },
-          { name: 'Sync Service', desc: 'Track changes, sync to devices' },
-          { name: 'Notification Service', desc: 'Push updates to clients' }
-        ],
-        dataFlow: [
-          '1. File change detected → compute delta',
-          '2. Upload changed blocks → Block Server',
-          '3. Update metadata with new block references',
-          '4. Notify other devices via long-poll/WebSocket',
-          '5. Other devices pull changed blocks'
-        ]
-      },
-      deepDive: {
-        'Sync Algorithm': [
-          'Split files into fixed-size blocks (4-8 MB)',
-          'Content-defined chunking for better dedup',
-          'Block-level deduplication across users',
-          'Delta sync: only transfer changed blocks',
-          'Client maintains local cache of blocks'
-        ],
-        'Conflict Resolution': [
-          'Optimistic concurrency with version vectors',
-          'Last-writer-wins for simple conflicts',
-          'Create conflict copies for complex cases',
-          'Operational Transform for real-time editing',
-          'CRDT for eventual consistency'
-        ],
-        'Scale': [
-          'Metadata sharded by user ID',
-          'Block storage distributed by content hash',
-          'Cold storage tier for old versions',
-          'Edge caching for frequently accessed files',
-          'Billions of files, petabytes of storage'
-        ]
-      }
+      hasExistingPage: true,
+      component: Dropbox,
+      description: 'Design cloud file storage with sync, sharing, and collaboration.'
     },
     {
       id: 'gmail',
-      title: 'Design Gmail',
+      title: 'Gmail',
       icon: '📧',
       color: '#ea4335',
       difficulty: 'Hard',
-      timeEstimate: '45-55 min',
-      topics: ['Email Protocol', 'Search', 'Spam Filter', 'Storage'],
-      overview: 'Build an email service handling billions of messages with search and spam filtering.',
-      requirements: [
-        'Send and receive emails (SMTP/IMAP)',
-        'Full-text search across emails',
-        'Spam and phishing detection',
-        'Labels, filters, and organization',
-        'Attachments and large files'
-      ],
-      architecture: {
+      hasExistingPage: false,
+      description: 'Design an email service with billions of messages, search, and spam filtering.',
+      content: {
+        requirements: [
+          'Send and receive emails (SMTP/IMAP)',
+          'Full-text search across all emails',
+          'Spam and phishing detection',
+          'Labels, filters, and organization',
+          'Attachment handling'
+        ],
         components: [
-          { name: 'SMTP Gateway', desc: 'Send/receive emails' },
+          { name: 'SMTP Gateway', desc: 'Send/receive emails, handle protocols' },
           { name: 'Mail Processor', desc: 'Parse, classify, route messages' },
           { name: 'Spam Filter', desc: 'ML-based spam detection' },
           { name: 'Message Store', desc: 'Store emails with metadata' },
-          { name: 'Search Index', desc: 'Full-text search capability' },
+          { name: 'Search Index', desc: 'Full-text search using Elasticsearch' },
           { name: 'Attachment Store', desc: 'Object storage for files' }
         ],
-        dataFlow: [
-          '1. Incoming email → SMTP Gateway',
-          '2. Spam Filter scores message',
-          '3. Mail Processor applies user filters',
-          '4. Store message and index for search',
-          '5. Notify user via push/poll'
-        ]
-      },
-      deepDive: {
-        'Email Processing': [
-          'SMTP for sending, IMAP/POP3 for retrieval',
-          'DKIM, SPF, DMARC for authentication',
-          'Parse MIME structure for body/attachments',
-          'Apply user-defined filters and labels',
-          'Thread grouping by subject and references'
+        keyDecisions: [
+          'Storage: Shard mailboxes by user ID',
+          'Search: Per-user inverted index for privacy',
+          'Spam: ML model + sender reputation + user signals',
+          'Threading: Group by subject and references header'
         ],
-        'Spam Detection': [
-          'Content analysis: keywords, patterns',
-          'Sender reputation scoring',
-          'User behavior signals (mark as spam)',
-          'ML models: Naive Bayes, neural networks',
-          'Real-time threat intelligence'
+        emailFlow: [
+          '1. Incoming email → SMTP Gateway validates sender',
+          '2. Spam Filter scores message (0-100)',
+          '3. Mail Processor applies user filters/labels',
+          '4. Store message and update search index',
+          '5. Push notification to connected clients'
         ],
-        'Scale': [
-          'Billions of active users',
-          'Hundreds of billions of emails per day',
-          'Shard mailboxes by user ID',
-          'Per-user search indexes',
-          'Attachment deduplication across users'
-        ]
-      }
-    },
-    {
-      id: 'google-docs',
-      title: 'Design Google Docs (Collaborative Editing)',
-      icon: '📝',
-      color: '#4285f4',
-      difficulty: 'Hard',
-      timeEstimate: '50-60 min',
-      topics: ['OT/CRDT', 'Real-time Sync', 'Presence', 'Conflict Resolution'],
-      overview: 'Build a real-time collaborative document editor supporting multiple concurrent users.',
-      requirements: [
-        'Real-time collaborative editing',
-        'See other users\' cursors and selections',
-        'Offline editing with sync',
-        'Version history and restore',
-        'Comments and suggestions'
-      ],
-      architecture: {
-        components: [
-          { name: 'Collaboration Server', desc: 'Handle real-time operations' },
-          { name: 'OT/CRDT Engine', desc: 'Transform concurrent operations' },
-          { name: 'Document Store', desc: 'Persist document state' },
-          { name: 'Presence Service', desc: 'Track user cursors/selections' },
-          { name: 'History Service', desc: 'Store operation log for versioning' },
-          { name: 'WebSocket Gateway', desc: 'Real-time bidirectional communication' }
-        ],
-        dataFlow: [
-          '1. User types → local operation generated',
-          '2. Send operation to Collaboration Server',
-          '3. Server transforms operation against concurrent ops',
-          '4. Broadcast transformed op to all clients',
-          '5. Clients apply operation to local document'
-        ]
-      },
-      deepDive: {
-        'Operational Transform': [
-          'Transform(op1, op2) → (op1\', op2\')',
-          'Preserve user intent despite concurrent edits',
-          'Server maintains canonical operation order',
-          'Client optimistically applies local ops',
-          'Convergence: all clients reach same state'
-        ],
-        'CRDT Alternative': [
-          'Conflict-free Replicated Data Types',
-          'No central server needed for consistency',
-          'Commutative, associative, idempotent operations',
-          'Higher bandwidth but simpler coordination',
-          'Examples: Yjs, Automerge'
-        ],
-        'Scale': [
-          'One collaboration server per document',
-          'Shard documents across servers',
-          'Compress operation history',
-          'Checkpoint document state periodically',
-          'Handle reconnection and sync'
-        ]
-      }
-    },
-    {
-      id: 'rate-limiter',
-      title: 'Design Rate Limiter',
-      icon: '🚦',
-      color: '#f59e0b',
-      difficulty: 'Medium-Hard',
-      timeEstimate: '35-45 min',
-      topics: ['Algorithms', 'Distributed Systems', 'Redis', 'API Gateway'],
-      overview: 'Build a distributed rate limiting system to protect APIs from abuse.',
-      requirements: [
-        'Limit requests per user/IP/API key',
-        'Multiple rate limit rules (per second, minute, day)',
-        'Distributed across multiple servers',
-        'Low latency impact on requests',
-        'Graceful handling of bursts'
-      ],
-      architecture: {
-        components: [
-          { name: 'Rate Limiter Middleware', desc: 'Check limits before request processing' },
-          { name: 'Rules Engine', desc: 'Configure limits per endpoint/user' },
-          { name: 'Counter Store', desc: 'Track request counts (Redis)' },
-          { name: 'Rate Limit Headers', desc: 'Return remaining quota to clients' }
-        ],
-        dataFlow: [
-          '1. Request arrives at API Gateway',
-          '2. Extract rate limit key (user ID, IP, API key)',
-          '3. Check counter in Redis against limit',
-          '4. Allow or reject with 429 Too Many Requests',
-          '5. Increment counter, return rate limit headers'
-        ]
-      },
-      deepDive: {
-        'Algorithms': [
-          'Token Bucket: tokens refill at fixed rate, request consumes token',
-          'Leaky Bucket: requests processed at fixed rate, overflow rejected',
-          'Fixed Window: count requests in time window',
-          'Sliding Window Log: track timestamps of requests',
-          'Sliding Window Counter: hybrid of fixed windows'
-        ],
-        'Distributed': [
-          'Centralized Redis counter (simple, single point of failure)',
-          'Race conditions: use Lua scripts or MULTI/EXEC',
-          'Sticky sessions to route to same rate limiter',
-          'Eventually consistent: allow some overflow',
-          'Local counters with periodic sync'
-        ],
-        'Production': [
-          'Multiple dimensions: IP + user + endpoint',
-          'Different limits for different tiers',
-          'Bypass for internal services',
-          'Monitoring and alerting on rate limit hits',
-          'Graceful degradation under load'
-        ]
-      }
-    },
-    {
-      id: 'notification-system',
-      title: 'Design Notification System',
-      icon: '🔔',
-      color: '#8b5cf6',
-      difficulty: 'Medium-Hard',
-      timeEstimate: '40-50 min',
-      topics: ['Push', 'Email', 'SMS', 'Queueing', 'Preferences'],
-      overview: 'Build a multi-channel notification system supporting push, email, SMS, and in-app.',
-      requirements: [
-        'Multiple channels: push, email, SMS, in-app',
-        'User notification preferences',
-        'Template management',
-        'Delivery tracking and analytics',
-        'Rate limiting and batching'
-      ],
-      architecture: {
-        components: [
-          { name: 'Notification Service', desc: 'API to trigger notifications' },
-          { name: 'Preference Service', desc: 'User channel and frequency preferences' },
-          { name: 'Template Service', desc: 'Manage notification templates' },
-          { name: 'Message Queue', desc: 'Buffer notifications for processing' },
-          { name: 'Channel Workers', desc: 'Send via specific channels' },
-          { name: 'Delivery Tracker', desc: 'Track delivery status' }
-        ],
-        dataFlow: [
-          '1. Event triggers notification request',
-          '2. Fetch user preferences and template',
-          '3. Render notification, enqueue for each channel',
-          '4. Channel workers process queue, call external providers',
-          '5. Track delivery status, handle retries'
-        ]
-      },
-      deepDive: {
-        'Channels': [
-          'Push: APNs (iOS), FCM (Android) - device tokens',
-          'Email: SMTP, SES, SendGrid - handle bounces',
-          'SMS: Twilio, SNS - expensive, use sparingly',
-          'In-app: WebSocket or polling',
-          'Webhook: for B2B integrations'
-        ],
-        'Reliability': [
-          'Retry with exponential backoff',
-          'Dead letter queue for failed deliveries',
-          'Idempotency to prevent duplicates',
-          'Priority queues for urgent notifications',
-          'Circuit breaker for failing providers'
-        ],
-        'Scale': [
-          'Partition queues by notification type',
-          'Batch similar notifications (digest emails)',
-          'Rate limit per user to prevent spam',
-          'Millions of notifications per minute',
-          'Multi-region for low latency'
-        ]
-      }
-    },
-    {
-      id: 'whatsapp',
-      title: 'Design WhatsApp / Messaging System',
-      icon: '💬',
-      color: '#25d366',
-      difficulty: 'Hard',
-      timeEstimate: '50-60 min',
-      topics: ['WebSocket', 'E2E Encryption', 'Message Queue', 'Presence'],
-      overview: 'Build a messaging platform supporting billions of users with end-to-end encryption.',
-      requirements: [
-        '1:1 and group messaging',
-        'End-to-end encryption',
-        'Message delivery status (sent, delivered, read)',
-        'Online/offline presence',
-        'Media sharing (images, videos, documents)'
-      ],
-      architecture: {
-        components: [
-          { name: 'Gateway Service', desc: 'WebSocket connection management' },
-          { name: 'Chat Service', desc: 'Message routing and delivery' },
-          { name: 'Group Service', desc: 'Manage group membership and fan-out' },
-          { name: 'Presence Service', desc: 'Track online status' },
-          { name: 'Message Store', desc: 'Persist messages until delivered' },
-          { name: 'Media Service', desc: 'Store and serve media files' },
-          { name: 'Push Service', desc: 'Wake up offline devices' }
-        ],
-        dataFlow: [
-          '1. User connects → assigned to Gateway server',
-          '2. Send message → route to recipient\'s Gateway',
-          '3. If offline → store message, send push notification',
-          '4. Recipient connects → deliver pending messages',
-          '5. Delivery receipts flow back to sender'
-        ]
-      },
-      deepDive: {
-        'Real-time Messaging': [
-          'Long-lived WebSocket connections',
-          'Consistent hashing to assign users to servers',
-          'Message ordering per conversation',
-          'Optimistic local delivery, server confirmation',
-          'Heartbeat for connection health'
-        ],
-        'Encryption': [
-          'Signal Protocol for E2E encryption',
-          'Pre-key bundles for async key exchange',
-          'Double Ratchet for forward secrecy',
-          'Server cannot read message content',
-          'Media encrypted with random key, key sent in message'
-        ],
-        'Scale': [
-          '2+ billion users, 100B+ messages/day',
-          'Minimal server storage (messages deleted after delivery)',
-          'Erlang/Elixir for massive concurrency',
-          'Shard by user ID for message storage',
+        scaling: [
+          'Billions of users, 100B+ emails/day',
+          'Attachment deduplication across users',
+          'Tiered storage: hot → warm → cold',
           'Regional data centers for latency'
         ]
       }
     },
     {
       id: 'google-photos',
-      title: 'Design Google Photos',
+      title: 'Google Photos',
       icon: '📸',
       color: '#4285f4',
       difficulty: 'Hard',
-      timeEstimate: '45-55 min',
-      topics: ['ML/AI', 'Object Storage', 'Search', 'Compression'],
-      overview: 'Build a photo storage service with ML-powered organization and search.',
-      requirements: [
-        'Photo/video upload and storage',
-        'Automatic organization (faces, places, things)',
-        'Search by content (no tags needed)',
-        'Shared albums and collaboration',
-        'Free tier with storage optimization'
-      ],
-      architecture: {
+      hasExistingPage: false,
+      description: 'Design a photo service with ML-powered organization and search.',
+      content: {
+        requirements: [
+          'Photo/video upload and storage',
+          'Automatic organization by faces, places, things',
+          'Search by content without manual tags',
+          'Shared albums and collaboration',
+          'Storage optimization (free tier)'
+        ],
         components: [
-          { name: 'Upload Service', desc: 'Handle photo/video uploads' },
-          { name: 'Processing Pipeline', desc: 'Analyze, compress, generate thumbnails' },
+          { name: 'Upload Service', desc: 'Handle chunked uploads with resume' },
+          { name: 'Processing Pipeline', desc: 'Generate thumbnails, extract metadata' },
           { name: 'ML Services', desc: 'Face detection, object recognition, OCR' },
           { name: 'Object Storage', desc: 'Store originals and processed versions' },
           { name: 'Search Service', desc: 'Index ML features for content search' },
-          { name: 'Album Service', desc: 'Manage albums and sharing' }
+          { name: 'Album Service', desc: 'Manage albums, shares, permissions' }
         ],
-        dataFlow: [
-          '1. Photo uploaded → stored in Object Storage',
-          '2. Processing pipeline generates thumbnails',
-          '3. ML services extract features (faces, objects, text)',
-          '4. Index features in Search Service',
-          '5. User searches → query ML features → return results'
-        ]
-      },
-      deepDive: {
-        'ML Features': [
-          'Face detection and clustering (group by person)',
-          'Object and scene recognition',
+        mlFeatures: [
+          'Face detection → clustering by person',
+          'Object/scene recognition (1000+ categories)',
           'OCR for text in images',
-          'Location extraction from EXIF/reverse geocoding',
-          'Auto-generated albums (trips, events)'
+          'Location from EXIF or landmark detection',
+          'Auto-generated memories and albums'
         ],
-        'Storage Optimization': [
+        storageOptimization: [
           'Lossy compression for "high quality" tier',
-          'Deduplication using perceptual hashing',
-          'Progressive image loading (blur → full)',
-          'Adaptive quality based on viewing device',
-          'Cold storage for old, rarely accessed photos'
+          'Perceptual hashing for deduplication',
+          'Progressive loading (blur → full)',
+          'Cold storage for rarely accessed photos'
         ],
-        'Scale': [
+        scaling: [
           'Billions of photos uploaded daily',
-          'Petabytes of storage',
           'GPU clusters for ML inference',
           'CDN for thumbnail delivery',
           'Batch processing for bulk analysis'
         ]
       }
+    },
+    {
+      id: 'google-docs',
+      title: 'Google Docs (Collaborative Editing)',
+      icon: '📝',
+      color: '#4285f4',
+      difficulty: 'Hard',
+      hasExistingPage: true,
+      component: GoogleDocs,
+      description: 'Design real-time collaborative document editing with conflict resolution.'
+    },
+    {
+      id: 'rate-limiter',
+      title: 'Rate Limiter',
+      icon: '🚦',
+      color: '#f59e0b',
+      difficulty: 'Medium-Hard',
+      hasExistingPage: true,
+      component: RateLimiter,
+      description: 'Design a distributed rate limiting system to protect APIs.'
+    },
+    {
+      id: 'notification-system',
+      title: 'Notification System',
+      icon: '🔔',
+      color: '#8b5cf6',
+      difficulty: 'Medium-Hard',
+      hasExistingPage: true,
+      component: NotificationSystem,
+      description: 'Design multi-channel notifications with push, email, SMS, and in-app.'
+    },
+    {
+      id: 'whatsapp',
+      title: 'WhatsApp / Messaging',
+      icon: '💬',
+      color: '#25d366',
+      difficulty: 'Hard',
+      hasExistingPage: true,
+      component: WhatsApp,
+      description: 'Design messaging platform with E2E encryption and billions of users.'
     }
   ]
 
@@ -660,8 +288,268 @@ function L5SystemDesign({ onBack }) {
     }
   }
 
-  const getTabForProblem = (problemId) => activeTab[problemId] || 'overview'
-  const setTabForProblem = (problemId, tab) => setActiveTab({ ...activeTab, [problemId]: tab })
+  const renderExistingPageModal = (topic) => {
+    const PageComponent = topic.component
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.9)',
+          zIndex: 1000,
+          overflow: 'auto'
+        }}
+      >
+        <button
+          onClick={() => setSelectedTopic(null)}
+          style={{
+            position: 'fixed',
+            top: '1rem',
+            right: '1rem',
+            background: '#ef4444',
+            color: 'white',
+            border: 'none',
+            padding: '0.75rem 1.5rem',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontWeight: '600',
+            zIndex: 1001,
+            fontSize: '1rem'
+          }}
+        >
+          ✕ Close
+        </button>
+        <Suspense fallback={<LoadingSpinner fullScreen text={`Loading ${topic.title}...`} />}>
+          <PageComponent onBack={() => setSelectedTopic(null)} />
+        </Suspense>
+      </div>
+    )
+  }
+
+  const renderCustomModal = (topic) => {
+    const content = topic.content
+
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '1rem'
+        }}
+        onClick={() => setSelectedTopic(null)}
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+            borderRadius: '16px',
+            maxWidth: '950px',
+            width: '100%',
+            maxHeight: '90vh',
+            overflow: 'auto',
+            border: `2px solid ${topic.color}`,
+            boxShadow: `0 25px 50px -12px ${topic.color}40`
+          }}
+        >
+          <div style={{
+            padding: '1.5rem',
+            borderBottom: '1px solid #374151',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            position: 'sticky',
+            top: 0,
+            background: '#1f2937',
+            zIndex: 10
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <span style={{ fontSize: '2.5rem' }}>{topic.icon}</span>
+              <div>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: topic.color, margin: 0 }}>
+                  {topic.title}
+                </h2>
+                <span style={{
+                  background: getDifficultyColor(topic.difficulty),
+                  color: 'white',
+                  padding: '0.2rem 0.5rem',
+                  borderRadius: '4px',
+                  fontSize: '0.75rem',
+                  fontWeight: '600'
+                }}>
+                  {topic.difficulty}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => setSelectedTopic(null)}
+              style={{
+                background: '#374151',
+                border: 'none',
+                color: '#9ca3af',
+                width: '2.5rem',
+                height: '2.5rem',
+                borderRadius: '50%',
+                cursor: 'pointer',
+                fontSize: '1.25rem'
+              }}
+            >
+              ×
+            </button>
+          </div>
+
+          <div style={{ padding: '1.5rem' }}>
+            <p style={{ color: '#d1d5db', marginBottom: '1.5rem', fontSize: '1.05rem' }}>
+              {topic.description}
+            </p>
+
+            {content.requirements && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ color: '#22c55e', marginBottom: '0.75rem', fontSize: '1.1rem', fontWeight: '600' }}>
+                  Functional Requirements
+                </h3>
+                <ul style={{ paddingLeft: '1.5rem', color: '#d1d5db' }}>
+                  {content.requirements.map((req, i) => (
+                    <li key={i} style={{ marginBottom: '0.4rem' }}>{req}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {content.components && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ color: '#3b82f6', marginBottom: '0.75rem', fontSize: '1.1rem', fontWeight: '600' }}>
+                  Key Components
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.75rem' }}>
+                  {content.components.map((comp, i) => (
+                    <div key={i} style={{ background: '#374151', padding: '0.75rem', borderRadius: '6px' }}>
+                      <span style={{ color: topic.color, fontWeight: '600' }}>{comp.name}</span>
+                      <p style={{ color: '#9ca3af', fontSize: '0.85rem', marginTop: '0.25rem' }}>{comp.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {content.keyDecisions && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ color: '#f59e0b', marginBottom: '0.75rem', fontSize: '1.1rem', fontWeight: '600' }}>
+                  Key Design Decisions
+                </h3>
+                <ul style={{ paddingLeft: '1.5rem', color: '#d1d5db' }}>
+                  {content.keyDecisions.map((dec, i) => (
+                    <li key={i} style={{ marginBottom: '0.4rem' }}>{dec}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {content.architecture && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ color: '#8b5cf6', marginBottom: '0.75rem', fontSize: '1.1rem', fontWeight: '600' }}>
+                  Data Flow
+                </h3>
+                <ol style={{ paddingLeft: '1.5rem', color: '#d1d5db' }}>
+                  {content.architecture.map((step, i) => (
+                    <li key={i} style={{ marginBottom: '0.4rem' }}>{step}</li>
+                  ))}
+                </ol>
+              </div>
+            )}
+
+            {content.operations && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ color: '#ec4899', marginBottom: '0.75rem', fontSize: '1.1rem', fontWeight: '600' }}>
+                  Operations
+                </h3>
+                <ul style={{ paddingLeft: '1.5rem', color: '#d1d5db' }}>
+                  {content.operations.map((op, i) => (
+                    <li key={i} style={{ marginBottom: '0.4rem' }}>{op}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {content.eviction && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ color: '#06b6d4', marginBottom: '0.75rem', fontSize: '1.1rem', fontWeight: '600' }}>
+                  Eviction Policies
+                </h3>
+                <ul style={{ paddingLeft: '1.5rem', color: '#d1d5db' }}>
+                  {content.eviction.map((item, i) => (
+                    <li key={i} style={{ marginBottom: '0.4rem' }}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {content.emailFlow && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ color: '#8b5cf6', marginBottom: '0.75rem', fontSize: '1.1rem', fontWeight: '600' }}>
+                  Email Processing Flow
+                </h3>
+                <ol style={{ paddingLeft: '1.5rem', color: '#d1d5db' }}>
+                  {content.emailFlow.map((step, i) => (
+                    <li key={i} style={{ marginBottom: '0.4rem' }}>{step}</li>
+                  ))}
+                </ol>
+              </div>
+            )}
+
+            {content.mlFeatures && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ color: '#a855f7', marginBottom: '0.75rem', fontSize: '1.1rem', fontWeight: '600' }}>
+                  ML Features
+                </h3>
+                <ul style={{ paddingLeft: '1.5rem', color: '#d1d5db' }}>
+                  {content.mlFeatures.map((feature, i) => (
+                    <li key={i} style={{ marginBottom: '0.4rem' }}>{feature}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {content.storageOptimization && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ color: '#14b8a6', marginBottom: '0.75rem', fontSize: '1.1rem', fontWeight: '600' }}>
+                  Storage Optimization
+                </h3>
+                <ul style={{ paddingLeft: '1.5rem', color: '#d1d5db' }}>
+                  {content.storageOptimization.map((item, i) => (
+                    <li key={i} style={{ marginBottom: '0.4rem' }}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {content.scaling && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ color: '#10b981', marginBottom: '0.75rem', fontSize: '1.1rem', fontWeight: '600' }}>
+                  Scale Considerations
+                </h3>
+                <ul style={{ paddingLeft: '1.5rem', color: '#d1d5db' }}>
+                  {content.scaling.map((item, i) => (
+                    <li key={i} style={{ marginBottom: '0.4rem' }}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div style={{
@@ -706,172 +594,91 @@ function L5SystemDesign({ onBack }) {
           </p>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {problems.map(problem => (
-            <div
-              key={problem.id}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+          gap: '1.5rem'
+        }}>
+          {topics.map(topic => (
+            <button
+              key={topic.id}
+              onClick={() => setSelectedTopic(topic)}
               style={{
                 background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                padding: '1.5rem',
                 borderRadius: '12px',
-                border: `2px solid ${problem.color}`,
-                overflow: 'hidden'
+                border: `2px solid ${topic.color}40`,
+                cursor: 'pointer',
+                textAlign: 'left',
+                transition: 'all 0.3s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = topic.color
+                e.currentTarget.style.transform = 'translateY(-4px)'
+                e.currentTarget.style.boxShadow = `0 15px 40px -10px ${topic.color}50`
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = `${topic.color}40`
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = 'none'
               }}
             >
-              <button
-                onClick={() => setExpandedProblem(expandedProblem === problem.id ? null : problem.id)}
-                style={{
-                  width: '100%',
-                  padding: '1.5rem',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <span style={{ fontSize: '2.5rem' }}>{problem.icon}</span>
-                  <div style={{ textAlign: 'left' }}>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: problem.color }}>
-                      {problem.title}
-                    </h2>
-                    <p style={{ color: '#9ca3af', fontSize: '0.9rem', marginTop: '0.25rem' }}>
-                      {problem.overview}
-                    </p>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                <span style={{ fontSize: '2.5rem' }}>{topic.icon}</span>
+                <div>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#f3f4f6', margin: 0 }}>
+                    {topic.title}
+                  </h3>
+                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
                     <span style={{
-                      background: getDifficultyColor(problem.difficulty),
+                      background: getDifficultyColor(topic.difficulty),
                       color: 'white',
-                      padding: '0.25rem 0.75rem',
+                      padding: '0.2rem 0.5rem',
                       borderRadius: '4px',
-                      fontSize: '0.8rem',
+                      fontSize: '0.75rem',
                       fontWeight: '600'
                     }}>
-                      {problem.difficulty}
+                      {topic.difficulty}
                     </span>
-                    <span style={{
-                      background: '#374151',
-                      color: '#d1d5db',
-                      padding: '0.25rem 0.75rem',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem'
-                    }}>
-                      {problem.timeEstimate}
-                    </span>
-                  </div>
-                  <span style={{ color: problem.color, fontSize: '1.5rem' }}>
-                    {expandedProblem === problem.id ? '−' : '+'}
-                  </span>
-                </div>
-              </button>
-
-              {expandedProblem === problem.id && (
-                <div style={{ padding: '0 1.5rem 1.5rem', borderTop: '1px solid #374151' }}>
-                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-                    {problem.topics.map((topic, i) => (
-                      <span
-                        key={i}
-                        style={{
-                          background: `${problem.color}30`,
-                          color: problem.color,
-                          padding: '0.3rem 0.6rem',
-                          borderRadius: '4px',
-                          fontSize: '0.8rem',
-                          fontWeight: '500'
-                        }}
-                      >
-                        {topic}
+                    {topic.hasExistingPage && (
+                      <span style={{
+                        background: '#374151',
+                        color: '#9ca3af',
+                        padding: '0.2rem 0.5rem',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem'
+                      }}>
+                        Full Guide
                       </span>
-                    ))}
+                    )}
                   </div>
-
-                  <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '1px solid #374151', paddingBottom: '0.5rem' }}>
-                    {['overview', 'architecture', 'deepDive'].map(tab => (
-                      <button
-                        key={tab}
-                        onClick={() => setTabForProblem(problem.id, tab)}
-                        style={{
-                          padding: '0.5rem 1rem',
-                          background: getTabForProblem(problem.id) === tab ? problem.color : 'transparent',
-                          color: getTabForProblem(problem.id) === tab ? 'white' : '#9ca3af',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontWeight: '500',
-                          fontSize: '0.9rem'
-                        }}
-                      >
-                        {tab === 'overview' ? 'Requirements' : tab === 'architecture' ? 'Architecture' : 'Deep Dive'}
-                      </button>
-                    ))}
-                  </div>
-
-                  {getTabForProblem(problem.id) === 'overview' && (
-                    <div>
-                      <h4 style={{ color: '#d1d5db', marginBottom: '0.75rem', fontSize: '1rem' }}>Functional Requirements</h4>
-                      <ul style={{ paddingLeft: '1.5rem', color: '#9ca3af' }}>
-                        {problem.requirements.map((req, i) => (
-                          <li key={i} style={{ marginBottom: '0.5rem' }}>{req}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {getTabForProblem(problem.id) === 'architecture' && (
-                    <div>
-                      <h4 style={{ color: '#d1d5db', marginBottom: '0.75rem', fontSize: '1rem' }}>Key Components</h4>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.75rem', marginBottom: '1.5rem' }}>
-                        {problem.architecture.components.map((comp, i) => (
-                          <div key={i} style={{
-                            background: '#1f2937',
-                            padding: '0.75rem',
-                            borderRadius: '6px',
-                            border: '1px solid #374151'
-                          }}>
-                            <span style={{ color: problem.color, fontWeight: '600' }}>{comp.name}</span>
-                            <p style={{ color: '#9ca3af', fontSize: '0.85rem', marginTop: '0.25rem' }}>{comp.desc}</p>
-                          </div>
-                        ))}
-                      </div>
-
-                      <h4 style={{ color: '#d1d5db', marginBottom: '0.75rem', fontSize: '1rem' }}>Data Flow</h4>
-                      <div style={{ background: '#1f2937', padding: '1rem', borderRadius: '6px', border: '1px solid #374151' }}>
-                        {problem.architecture.dataFlow.map((step, i) => (
-                          <p key={i} style={{ color: '#9ca3af', fontSize: '0.9rem', marginBottom: '0.5rem' }}>{step}</p>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {getTabForProblem(problem.id) === 'deepDive' && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-                      {Object.entries(problem.deepDive).map(([title, points]) => (
-                        <div key={title} style={{
-                          background: '#1f2937',
-                          padding: '1rem',
-                          borderRadius: '6px',
-                          border: '1px solid #374151'
-                        }}>
-                          <h5 style={{ color: problem.color, marginBottom: '0.75rem', fontWeight: '600' }}>{title}</h5>
-                          <ul style={{ paddingLeft: '1.25rem', color: '#9ca3af', fontSize: '0.85rem' }}>
-                            {points.map((point, i) => (
-                              <li key={i} style={{ marginBottom: '0.4rem' }}>{point}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
-              )}
-            </div>
+              </div>
+              <p style={{ color: '#9ca3af', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                {topic.description}
+              </p>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                gap: '0.5rem',
+                marginTop: '1rem',
+                color: topic.color,
+                fontSize: '0.9rem',
+                fontWeight: '600'
+              }}>
+                {topic.hasExistingPage ? 'Open Full Guide →' : 'View Solution →'}
+              </div>
+            </button>
           ))}
         </div>
       </div>
+
+      {selectedTopic && (
+        selectedTopic.hasExistingPage
+          ? renderExistingPageModal(selectedTopic)
+          : renderCustomModal(selectedTopic)
+      )}
     </div>
   )
 }
