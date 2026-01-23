@@ -21,6 +21,112 @@ const SUBTOPIC_COLORS = [
   { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
 ]
 
+// gRPC Architecture Diagram
+const GRPCFundamentalsDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">gRPC Architecture - Protocol Buffers + HTTP/2</text>
+    <rect x="50" y="50" width="140" height="70" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="120" y="75" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Client Stub</text>
+    <text x="120" y="92" textAnchor="middle" fill="#93c5fd" fontSize="8">Generated code</text>
+    <text x="120" y="106" textAnchor="middle" fill="#93c5fd" fontSize="8">Type-safe calls</text>
+    <rect x="220" y="40" width="260" height="90" rx="6" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="350" y="60" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">HTTP/2 Transport</text>
+    <rect x="240" y="70" width="100" height="45" rx="4" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="290" y="90" textAnchor="middle" fill="#a78bfa" fontSize="8">Protobuf</text>
+    <text x="290" y="105" textAnchor="middle" fill="#c4b5fd" fontSize="7">Binary encode</text>
+    <rect x="360" y="70" width="100" height="45" rx="4" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="410" y="90" textAnchor="middle" fill="#4ade80" fontSize="8">Multiplexing</text>
+    <text x="410" y="105" textAnchor="middle" fill="#86efac" fontSize="7">Stream frames</text>
+    <rect x="510" y="50" width="140" height="70" rx="6" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="580" y="75" textAnchor="middle" fill="#f472b6" fontSize="10" fontWeight="bold">Server Impl</text>
+    <text x="580" y="92" textAnchor="middle" fill="#f9a8d4" fontSize="8">Business logic</text>
+    <text x="580" y="106" textAnchor="middle" fill="#f9a8d4" fontSize="8">StreamObserver</text>
+    <line x1="190" y1="85" x2="215" y2="85" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="480" y1="85" x2="505" y2="85" stroke="#4ade80" strokeWidth="2"/>
+    <text x="350" y="155" textAnchor="middle" fill="#64748b" fontSize="9">10x smaller than JSON • Header compression • Single connection • Bidirectional streaming</text>
+  </svg>
+)
+
+// gRPC Server Diagram
+const GRPCServerDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">gRPC Server Lifecycle</text>
+    <rect x="50" y="50" width="100" height="50" rx="6" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="100" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Server</text>
+    <text x="100" y="88" textAnchor="middle" fill="#bfdbfe" fontSize="8">Builder</text>
+    <rect x="170" y="50" width="100" height="50" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="220" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">addService</text>
+    <text x="220" y="88" textAnchor="middle" fill="#bbf7d0" fontSize="8">(impl)</text>
+    <rect x="290" y="50" width="100" height="50" rx="6" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="340" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">build()</text>
+    <text x="340" y="88" textAnchor="middle" fill="#fef3c7" fontSize="8">Server</text>
+    <rect x="410" y="50" width="100" height="50" rx="6" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="460" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">start()</text>
+    <text x="460" y="88" textAnchor="middle" fill="#ddd6fe" fontSize="8">Listen</text>
+    <rect x="530" y="50" width="120" height="50" rx="6" fill="#ef4444" stroke="#f87171" strokeWidth="2"/>
+    <text x="590" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">awaitTermination</text>
+    <text x="590" y="88" textAnchor="middle" fill="#fecaca" fontSize="8">Block</text>
+    <line x1="150" y1="75" x2="165" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="270" y1="75" x2="285" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="390" y1="75" x2="405" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="510" y1="75" x2="525" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <text x="350" y="130" textAnchor="middle" fill="#64748b" fontSize="9">Port binding → Service registration → Request handling → Graceful shutdown</text>
+  </svg>
+)
+
+// gRPC Client Diagram
+const GRPCClientDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">gRPC Client Stub Types</text>
+    <rect x="50" y="50" width="120" height="60" rx="6" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="110" y="75" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">ManagedChannel</text>
+    <text x="110" y="92" textAnchor="middle" fill="#bfdbfe" fontSize="8">Connection pool</text>
+    <rect x="200" y="45" width="150" height="35" rx="4" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="275" y="68" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Blocking Stub</text>
+    <rect x="200" y="85" width="150" height="35" rx="4" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="275" y="108" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Async Stub</text>
+    <rect x="380" y="45" width="130" height="35" rx="4" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="445" y="68" textAnchor="middle" fill="#fcd34d" fontSize="8">Sync • Waits</text>
+    <rect x="380" y="85" width="130" height="35" rx="4" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="445" y="108" textAnchor="middle" fill="#c4b5fd" fontSize="8">Callbacks • Non-blocking</text>
+    <rect x="540" y="50" width="120" height="60" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="600" y="75" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Server</text>
+    <text x="600" y="92" textAnchor="middle" fill="#86efac" fontSize="8">RPC Handler</text>
+    <line x1="170" y1="62" x2="195" y2="62" stroke="#f59e0b" strokeWidth="2"/>
+    <line x1="170" y1="102" x2="195" y2="102" stroke="#8b5cf6" strokeWidth="2"/>
+    <line x1="510" y1="80" x2="535" y2="80" stroke="#22c55e" strokeWidth="2"/>
+    <text x="350" y="145" textAnchor="middle" fill="#64748b" fontSize="9">Choose stub type based on use case • Reuse channel • Configure deadlines</text>
+  </svg>
+)
+
+// gRPC Streaming Diagram
+const GRPCStreamingDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">gRPC Streaming Types</text>
+    <rect x="50" y="45" width="140" height="50" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="120" y="65" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Unary</text>
+    <text x="120" y="82" textAnchor="middle" fill="#93c5fd" fontSize="7">Req → Resp</text>
+    <rect x="210" y="45" width="140" height="50" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="280" y="65" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Server Stream</text>
+    <text x="280" y="82" textAnchor="middle" fill="#86efac" fontSize="7">Req → Resp*</text>
+    <rect x="370" y="45" width="140" height="50" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="440" y="65" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Client Stream</text>
+    <text x="440" y="82" textAnchor="middle" fill="#fcd34d" fontSize="7">Req* → Resp</text>
+    <rect x="530" y="45" width="140" height="50" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="600" y="65" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Bidirectional</text>
+    <text x="600" y="82" textAnchor="middle" fill="#c4b5fd" fontSize="7">Req* ↔ Resp*</text>
+    <rect x="50" y="105" width="140" height="30" rx="4" fill="rgba(59, 130, 246, 0.1)" stroke="#3b82f6" strokeWidth="1"/>
+    <text x="120" y="125" textAnchor="middle" fill="#93c5fd" fontSize="7">Simple query</text>
+    <rect x="210" y="105" width="140" height="30" rx="4" fill="rgba(34, 197, 94, 0.1)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="280" y="125" textAnchor="middle" fill="#86efac" fontSize="7">Large dataset fetch</text>
+    <rect x="370" y="105" width="140" height="30" rx="4" fill="rgba(245, 158, 11, 0.1)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="440" y="125" textAnchor="middle" fill="#fcd34d" fontSize="7">File upload</text>
+    <rect x="530" y="105" width="140" height="30" rx="4" fill="rgba(139, 92, 246, 0.1)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="600" y="125" textAnchor="middle" fill="#c4b5fd" fontSize="7">Chat / Real-time</text>
+    <text x="350" y="160" textAnchor="middle" fill="#64748b" fontSize="9">* = stream of messages • StreamObserver for async handling</text>
+  </svg>
+)
+
 function GRPC({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
@@ -32,6 +138,7 @@ function GRPC({ onBack, onPrevious, onNext, previousName, nextName, currentSubca
       icon: '⚡',
       color: '#3b82f6',
       description: 'High-performance RPC framework basics with Protocol Buffers',
+      diagram: GRPCFundamentalsDiagram,
       details: [
         {
           name: 'Overview',
@@ -65,6 +172,7 @@ function GRPC({ onBack, onPrevious, onNext, previousName, nextName, currentSubca
       icon: '🖥️',
       color: '#10b981',
       description: 'Creating and configuring gRPC servers',
+      diagram: GRPCServerDiagram,
       details: [
         {
           name: 'Server Basics',
@@ -98,6 +206,7 @@ function GRPC({ onBack, onPrevious, onNext, previousName, nextName, currentSubca
       icon: '📱',
       color: '#8b5cf6',
       description: 'Creating gRPC clients and making RPC calls',
+      diagram: GRPCClientDiagram,
       details: [
         {
           name: 'Client Basics',
@@ -131,6 +240,7 @@ function GRPC({ onBack, onPrevious, onNext, previousName, nextName, currentSubca
       icon: '🌊',
       color: '#ef4444',
       description: 'Streaming RPCs, interceptors, and error handling',
+      diagram: GRPCStreamingDiagram,
       details: [
         {
           name: 'Server Streaming',
@@ -432,9 +542,15 @@ function GRPC({ onBack, onPrevious, onNext, previousName, nextName, currentSubca
             {(() => {
               const detail = selectedConcept.details[selectedDetailIndex]
               const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
               return (
                 <div>
                   <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>{detail.name}</h3>
+                  {DiagramComponent && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
                   <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
                 </div>
               )

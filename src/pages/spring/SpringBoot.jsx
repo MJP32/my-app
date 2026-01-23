@@ -21,6 +21,166 @@ const SUBTOPIC_COLORS = [
   { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
 ]
 
+// Auto-Configuration Flow Diagram
+const AutoConfigDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Spring Boot Auto-Configuration Flow</text>
+    <rect x="30" y="50" width="100" height="50" rx="6" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="80" y="80" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">@SpringBoot</text>
+    <text x="80" y="92" textAnchor="middle" fill="white" fontSize="8">Application</text>
+    <rect x="155" y="50" width="100" height="50" rx="6" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="205" y="75" textAnchor="middle" fill="white" fontSize="8">Scan</text>
+    <text x="205" y="88" textAnchor="middle" fill="white" fontSize="8">spring.factories</text>
+    <rect x="280" y="50" width="100" height="50" rx="6" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="330" y="75" textAnchor="middle" fill="white" fontSize="8">@Conditional</text>
+    <text x="330" y="88" textAnchor="middle" fill="white" fontSize="8">Evaluation</text>
+    <rect x="405" y="50" width="100" height="50" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="455" y="75" textAnchor="middle" fill="white" fontSize="8">Bean</text>
+    <text x="455" y="88" textAnchor="middle" fill="white" fontSize="8">Registration</text>
+    <rect x="530" y="50" width="100" height="50" rx="6" fill="#06b6d4" stroke="#22d3ee" strokeWidth="2"/>
+    <text x="580" y="80" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Ready!</text>
+    <line x1="130" y1="75" x2="150" y2="75" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowhead)"/>
+    <line x1="255" y1="75" x2="275" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="380" y1="75" x2="400" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="505" y1="75" x2="525" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <text x="350" y="130" textAnchor="middle" fill="#64748b" fontSize="9">Classpath scanning → Conditional checks → Auto-configured beans</text>
+  </svg>
+)
+
+// Starter Dependencies Diagram
+const StarterDependenciesDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Spring Boot Starter Dependencies</text>
+    <rect x="250" y="40" width="200" height="40" rx="6" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="350" y="65" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">spring-boot-starter-web</text>
+    <rect x="50" y="100" width="120" height="35" rx="4" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="110" y="122" textAnchor="middle" fill="#4ade80" fontSize="9">Tomcat</text>
+    <rect x="190" y="100" width="120" height="35" rx="4" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="250" y="122" textAnchor="middle" fill="#a78bfa" fontSize="9">Spring MVC</text>
+    <rect x="330" y="100" width="120" height="35" rx="4" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="390" y="122" textAnchor="middle" fill="#fbbf24" fontSize="9">Jackson JSON</text>
+    <rect x="470" y="100" width="120" height="35" rx="4" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" strokeWidth="1"/>
+    <text x="530" y="122" textAnchor="middle" fill="#f472b6" fontSize="9">Validation</text>
+    <line x1="250" y1="80" x2="110" y2="95" stroke="#64748b" strokeWidth="1"/>
+    <line x1="300" y1="80" x2="250" y2="95" stroke="#64748b" strokeWidth="1"/>
+    <line x1="400" y1="80" x2="390" y2="95" stroke="#64748b" strokeWidth="1"/>
+    <line x1="450" y1="80" x2="530" y2="95" stroke="#64748b" strokeWidth="1"/>
+    <text x="350" y="160" textAnchor="middle" fill="#64748b" fontSize="9">One declaration → All compatible dependencies included</text>
+  </svg>
+)
+
+// Embedded Server Diagram
+const EmbeddedServerDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Embedded Server Architecture</text>
+    <rect x="150" y="45" width="400" height="90" rx="8" fill="rgba(59, 130, 246, 0.1)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="350" y="65" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">application.jar</text>
+    <rect x="170" y="75" width="100" height="45" rx="4" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="220" y="95" textAnchor="middle" fill="#a78bfa" fontSize="9">Your Code</text>
+    <text x="220" y="110" textAnchor="middle" fill="#c4b5fd" fontSize="8">Controllers, Services</text>
+    <rect x="290" y="75" width="100" height="45" rx="4" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="340" y="95" textAnchor="middle" fill="#4ade80" fontSize="9">Spring Boot</text>
+    <text x="340" y="110" textAnchor="middle" fill="#86efac" fontSize="8">Auto-config</text>
+    <rect x="410" y="75" width="120" height="45" rx="4" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="470" y="95" textAnchor="middle" fill="#fbbf24" fontSize="9">Tomcat/Jetty</text>
+    <text x="470" y="110" textAnchor="middle" fill="#fcd34d" fontSize="8">Embedded Server</text>
+    <rect x="580" y="70" width="80" height="55" rx="4" fill="rgba(6, 182, 212, 0.3)" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="620" y="95" textAnchor="middle" fill="#22d3ee" fontSize="9" fontWeight="bold">JRE</text>
+    <text x="620" y="110" textAnchor="middle" fill="#67e8f9" fontSize="8">java -jar</text>
+    <line x1="550" y1="97" x2="575" y2="97" stroke="#22d3ee" strokeWidth="2"/>
+    <text x="350" y="150" textAnchor="middle" fill="#64748b" fontSize="9">Self-contained JAR • No external server needed • Simple deployment</text>
+  </svg>
+)
+
+// Actuator Endpoints Diagram
+const ActuatorDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Spring Boot Actuator Endpoints</text>
+    <rect x="250" y="40" width="200" height="35" rx="6" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="350" y="63" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">/actuator</text>
+    <rect x="50" y="95" width="90" height="50" rx="4" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="95" y="115" textAnchor="middle" fill="#4ade80" fontSize="9">/health</text>
+    <text x="95" y="130" textAnchor="middle" fill="#86efac" fontSize="7">Liveness</text>
+    <rect x="155" y="95" width="90" height="50" rx="4" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="1"/>
+    <text x="200" y="115" textAnchor="middle" fill="#60a5fa" fontSize="9">/metrics</text>
+    <text x="200" y="130" textAnchor="middle" fill="#93c5fd" fontSize="7">JVM/HTTP</text>
+    <rect x="260" y="95" width="90" height="50" rx="4" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="305" y="115" textAnchor="middle" fill="#a78bfa" fontSize="9">/info</text>
+    <text x="305" y="130" textAnchor="middle" fill="#c4b5fd" fontSize="7">Build info</text>
+    <rect x="365" y="95" width="90" height="50" rx="4" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" strokeWidth="1"/>
+    <text x="410" y="115" textAnchor="middle" fill="#f472b6" fontSize="9">/loggers</text>
+    <text x="410" y="130" textAnchor="middle" fill="#f9a8d4" fontSize="7">Dynamic logs</text>
+    <rect x="470" y="95" width="90" height="50" rx="4" fill="rgba(6, 182, 212, 0.3)" stroke="#06b6d4" strokeWidth="1"/>
+    <text x="515" y="115" textAnchor="middle" fill="#22d3ee" fontSize="9">/prometheus</text>
+    <text x="515" y="130" textAnchor="middle" fill="#67e8f9" fontSize="7">Scrape</text>
+    <rect x="575" y="95" width="90" height="50" rx="4" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="1"/>
+    <text x="620" y="115" textAnchor="middle" fill="#f87171" fontSize="9">/env</text>
+    <text x="620" y="130" textAnchor="middle" fill="#fca5a5" fontSize="7">Config</text>
+    <line x1="250" y1="75" x2="95" y2="90" stroke="#64748b" strokeWidth="1"/>
+    <line x1="300" y1="75" x2="200" y2="90" stroke="#64748b" strokeWidth="1"/>
+    <line x1="350" y1="75" x2="305" y2="90" stroke="#64748b" strokeWidth="1"/>
+    <line x1="400" y1="75" x2="410" y2="90" stroke="#64748b" strokeWidth="1"/>
+    <line x1="450" y1="75" x2="515" y2="90" stroke="#64748b" strokeWidth="1"/>
+    <line x1="450" y1="75" x2="620" y2="90" stroke="#64748b" strokeWidth="1"/>
+    <text x="350" y="165" textAnchor="middle" fill="#64748b" fontSize="9">Production-ready monitoring • Kubernetes probes • Observability</text>
+  </svg>
+)
+
+// DevTools Diagram
+const DevToolsDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">DevTools Fast Restart Architecture</text>
+    <rect x="50" y="50" width="140" height="70" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="120" y="75" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Base ClassLoader</text>
+    <text x="120" y="92" textAnchor="middle" fill="#93c5fd" fontSize="8">Dependencies</text>
+    <text x="120" y="106" textAnchor="middle" fill="#93c5fd" fontSize="8">(Stable)</text>
+    <rect x="220" y="50" width="140" height="70" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="290" y="75" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Restart ClassLoader</text>
+    <text x="290" y="92" textAnchor="middle" fill="#86efac" fontSize="8">Your Code</text>
+    <text x="290" y="106" textAnchor="middle" fill="#86efac" fontSize="8">(Reloads fast)</text>
+    <rect x="400" y="50" width="100" height="70" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="450" y="80" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">File Watcher</text>
+    <text x="450" y="100" textAnchor="middle" fill="#fcd34d" fontSize="8">Trigger restart</text>
+    <rect x="540" y="50" width="120" height="70" rx="6" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="600" y="75" textAnchor="middle" fill="#f472b6" fontSize="9" fontWeight="bold">LiveReload</text>
+    <text x="600" y="92" textAnchor="middle" fill="#f9a8d4" fontSize="8">Browser refresh</text>
+    <text x="600" y="106" textAnchor="middle" fill="#f9a8d4" fontSize="8">on change</text>
+    <path d="M 400 85 Q 340 130 290 120" stroke="#f59e0b" strokeWidth="2" fill="none" strokeDasharray="5"/>
+    <text x="350" y="145" textAnchor="middle" fill="#64748b" fontSize="9">Code change → 5-10s restart (vs 30-60s full restart)</text>
+  </svg>
+)
+
+// Configuration Properties Diagram
+const ConfigPropertiesDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Configuration Property Precedence</text>
+    <rect x="50" y="45" width="100" height="40" rx="4" fill="#ef4444" stroke="#f87171" strokeWidth="2"/>
+    <text x="100" y="65" textAnchor="middle" fill="white" fontSize="8" fontWeight="bold">Command Line</text>
+    <text x="100" y="78" textAnchor="middle" fill="white" fontSize="7">Highest</text>
+    <rect x="165" y="45" width="100" height="40" rx="4" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="215" y="65" textAnchor="middle" fill="white" fontSize="8" fontWeight="bold">Env Variables</text>
+    <text x="215" y="78" textAnchor="middle" fill="white" fontSize="7">APP_NAME</text>
+    <rect x="280" y="45" width="100" height="40" rx="4" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="330" y="65" textAnchor="middle" fill="white" fontSize="8" fontWeight="bold">application.yml</text>
+    <text x="330" y="78" textAnchor="middle" fill="white" fontSize="7">Profile-specific</text>
+    <rect x="395" y="45" width="100" height="40" rx="4" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="445" y="65" textAnchor="middle" fill="white" fontSize="8" fontWeight="bold">application.yml</text>
+    <text x="445" y="78" textAnchor="middle" fill="white" fontSize="7">Default</text>
+    <rect x="510" y="45" width="100" height="40" rx="4" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="560" y="65" textAnchor="middle" fill="white" fontSize="8" fontWeight="bold">@Value default</text>
+    <text x="560" y="78" textAnchor="middle" fill="white" fontSize="7">Lowest</text>
+    <line x1="100" y1="90" x2="100" y2="105" stroke="#ef4444" strokeWidth="2"/>
+    <line x1="215" y1="90" x2="215" y2="105" stroke="#f59e0b" strokeWidth="2"/>
+    <line x1="330" y1="90" x2="330" y2="105" stroke="#22c55e" strokeWidth="2"/>
+    <line x1="445" y1="90" x2="445" y2="105" stroke="#3b82f6" strokeWidth="2"/>
+    <line x1="560" y1="90" x2="560" y2="105" stroke="#8b5cf6" strokeWidth="2"/>
+    <rect x="150" y="110" width="400" height="45" rx="6" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="350" y="130" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">@ConfigurationProperties(prefix = "app")</text>
+    <text x="350" y="145" textAnchor="middle" fill="#c4b5fd" fontSize="8">Type-safe binding with validation</text>
+    <text x="350" y="170" textAnchor="middle" fill="#64748b" fontSize="9">Same binary → Different environments via configuration</text>
+  </svg>
+)
+
 function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
@@ -32,6 +192,7 @@ function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, curren
       icon: '⚙️',
       color: '#4ade80',
       description: 'Intelligent bean configuration based on classpath dependencies and conditional logic',
+      diagram: AutoConfigDiagram,
       details: [
         {
           name: 'How It Works',
@@ -65,6 +226,7 @@ function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, curren
       icon: '📦',
       color: '#3b82f6',
       description: 'Curated dependency sets providing everything needed for specific use cases in one package',
+      diagram: StarterDependenciesDiagram,
       details: [
         {
           name: 'How It Works',
@@ -98,6 +260,7 @@ function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, curren
       icon: '🌐',
       color: '#8b5cf6',
       description: 'Self-contained web servers packaged directly in your application JAR',
+      diagram: EmbeddedServerDiagram,
       details: [
         {
           name: 'How It Works',
@@ -131,6 +294,7 @@ function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, curren
       icon: '📊',
       color: '#f59e0b',
       description: 'Production-ready monitoring, management, and diagnostic features through HTTP endpoints',
+      diagram: ActuatorDiagram,
       details: [
         {
           name: 'How It Works',
@@ -164,6 +328,7 @@ function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, curren
       icon: '🛠️',
       color: '#ec4899',
       description: 'Development productivity features including automatic restart and LiveReload',
+      diagram: DevToolsDiagram,
       details: [
         {
           name: 'How It Works',
@@ -197,6 +362,7 @@ function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, curren
       icon: '⚙️',
       color: '#14b8a6',
       description: 'Type-safe externalized configuration enabling environment-specific deployments',
+      diagram: ConfigPropertiesDiagram,
       details: [
         {
           name: 'How It Works',
@@ -531,9 +697,15 @@ function SpringBoot({ onBack, onPrevious, onNext, previousName, nextName, curren
             {(() => {
               const detail = selectedConcept.details[selectedDetailIndex]
               const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
               return (
                 <div>
                   <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>{detail.name}</h3>
+                  {DiagramComponent && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
                   <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
                 </div>
               )

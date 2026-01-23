@@ -23,6 +23,128 @@ const SUBTOPIC_COLORS = [
   { bg: 'rgba(234, 179, 8, 0.15)', border: 'rgba(234, 179, 8, 0.3)' },
 ]
 
+// ORM Mapping Diagram
+const ORMDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Object-Relational Mapping (ORM)</text>
+    <rect x="50" y="50" width="180" height="90" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="140" y="75" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Java Object</text>
+    <text x="140" y="95" textAnchor="middle" fill="#c4b5fd" fontSize="8">class User</text>
+    <text x="140" y="110" textAnchor="middle" fill="#c4b5fd" fontSize="8">Long id</text>
+    <text x="140" y="125" textAnchor="middle" fill="#c4b5fd" fontSize="8">String username</text>
+    <rect x="260" y="65" width="180" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="350" y="90" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Hibernate ORM</text>
+    <text x="350" y="110" textAnchor="middle" fill="#fcd34d" fontSize="8">@Entity → Table mapping</text>
+    <rect x="470" y="50" width="180" height="90" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="560" y="75" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Database Table</text>
+    <text x="560" y="95" textAnchor="middle" fill="#86efac" fontSize="8">users</text>
+    <text x="560" y="110" textAnchor="middle" fill="#86efac" fontSize="8">id BIGINT PK</text>
+    <text x="560" y="125" textAnchor="middle" fill="#86efac" fontSize="8">username VARCHAR</text>
+    <line x1="230" y1="95" x2="255" y2="95" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="440" y1="95" x2="465" y2="95" stroke="#4ade80" strokeWidth="2"/>
+    <text x="350" y="160" textAnchor="middle" fill="#64748b" fontSize="9">Java objects ↔ SQL records • No manual JDBC • Database independence</text>
+  </svg>
+)
+
+// Entity Relationships Diagram
+const RelationshipsDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">JPA Entity Relationships</text>
+    <rect x="50" y="50" width="130" height="50" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="115" y="80" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">@OneToOne</text>
+    <rect x="200" y="50" width="130" height="50" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="265" y="80" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">@OneToMany</text>
+    <rect x="350" y="50" width="130" height="50" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="415" y="80" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">@ManyToOne</text>
+    <rect x="500" y="50" width="130" height="50" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="565" y="80" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">@ManyToMany</text>
+    <text x="115" y="115" textAnchor="middle" fill="#93c5fd" fontSize="7">User ↔ Profile</text>
+    <text x="265" y="115" textAnchor="middle" fill="#86efac" fontSize="7">Dept → Employees</text>
+    <text x="415" y="115" textAnchor="middle" fill="#fcd34d" fontSize="7">Employee → Dept</text>
+    <text x="565" y="115" textAnchor="middle" fill="#c4b5fd" fontSize="7">Student ↔ Course</text>
+    <rect x="150" y="130" width="400" height="35" rx="4" fill="rgba(236, 72, 153, 0.2)" stroke="#ec4899" strokeWidth="1"/>
+    <text x="350" y="150" textAnchor="middle" fill="#f472b6" fontSize="9">mappedBy = owner side • @JoinColumn • cascade = CascadeType.ALL</text>
+  </svg>
+)
+
+// Session Lifecycle Diagram
+const SessionDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Hibernate Session Lifecycle</text>
+    <rect x="30" y="50" width="100" height="50" rx="6" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="80" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Session</text>
+    <text x="80" y="88" textAnchor="middle" fill="#bfdbfe" fontSize="8">Factory</text>
+    <rect x="150" y="50" width="100" height="50" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="200" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">openSession</text>
+    <text x="200" y="88" textAnchor="middle" fill="#bbf7d0" fontSize="8">()</text>
+    <rect x="270" y="50" width="100" height="50" rx="6" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="320" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">begin</text>
+    <text x="320" y="88" textAnchor="middle" fill="#fef3c7" fontSize="8">Transaction</text>
+    <rect x="390" y="50" width="100" height="50" rx="6" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="440" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">CRUD</text>
+    <text x="440" y="88" textAnchor="middle" fill="#ddd6fe" fontSize="8">Operations</text>
+    <rect x="510" y="50" width="80" height="50" rx="6" fill="#06b6d4" stroke="#22d3ee" strokeWidth="2"/>
+    <text x="550" y="80" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">commit</text>
+    <rect x="610" y="50" width="60" height="50" rx="6" fill="#ef4444" stroke="#f87171" strokeWidth="2"/>
+    <text x="640" y="80" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">close</text>
+    <line x1="130" y1="75" x2="145" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="250" y1="75" x2="265" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="370" y1="75" x2="385" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="490" y1="75" x2="505" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="590" y1="75" x2="605" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <text x="350" y="130" textAnchor="middle" fill="#64748b" fontSize="9">One Session per request • First-level cache • Always close session</text>
+  </svg>
+)
+
+// Entity States Diagram
+const EntityStatesDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Hibernate Entity States</text>
+    <rect x="50" y="60" width="120" height="50" rx="6" fill="rgba(100, 116, 139, 0.3)" stroke="#64748b" strokeWidth="2"/>
+    <text x="110" y="90" textAnchor="middle" fill="#94a3b8" fontSize="10" fontWeight="bold">Transient</text>
+    <rect x="210" y="60" width="120" height="50" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="270" y="90" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Persistent</text>
+    <rect x="370" y="60" width="120" height="50" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="430" y="90" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Detached</text>
+    <rect x="530" y="60" width="120" height="50" rx="6" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="590" y="90" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">Removed</text>
+    <path d="M 170 85 L 200 85" stroke="#22c55e" strokeWidth="2" markerEnd="url(#arrow)"/>
+    <text x="185" y="75" textAnchor="middle" fill="#4ade80" fontSize="7">save()</text>
+    <path d="M 330 85 L 360 85" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="345" y="75" textAnchor="middle" fill="#fbbf24" fontSize="7">close()</text>
+    <path d="M 330 105 L 360 105" stroke="#ef4444" strokeWidth="2"/>
+    <text x="345" y="130" textAnchor="middle" fill="#f87171" fontSize="7">delete()</text>
+    <path d="M 490 85 L 520 85" stroke="#ef4444" strokeWidth="2"/>
+    <text x="110" y="130" textAnchor="middle" fill="#64748b" fontSize="7">new Object()</text>
+    <text x="270" y="130" textAnchor="middle" fill="#86efac" fontSize="7">In Session cache</text>
+    <text x="430" y="130" textAnchor="middle" fill="#fcd34d" fontSize="7">Session closed</text>
+    <text x="590" y="130" textAnchor="middle" fill="#fca5a5" fontSize="7">Marked for delete</text>
+    <text x="350" y="165" textAnchor="middle" fill="#64748b" fontSize="9">merge() reattaches • refresh() reloads • Changes auto-sync when persistent</text>
+  </svg>
+)
+
+// Caching Diagram
+const CachingDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Hibernate Caching Levels</text>
+    <rect x="50" y="50" width="200" height="70" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="150" y="75" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">First-Level Cache</text>
+    <text x="150" y="95" textAnchor="middle" fill="#93c5fd" fontSize="8">Session scope (automatic)</text>
+    <text x="150" y="110" textAnchor="middle" fill="#93c5fd" fontSize="8">Entities by ID</text>
+    <rect x="280" y="50" width="200" height="70" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="380" y="75" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Second-Level Cache</text>
+    <text x="380" y="95" textAnchor="middle" fill="#c4b5fd" fontSize="8">SessionFactory scope</text>
+    <text x="380" y="110" textAnchor="middle" fill="#c4b5fd" fontSize="8">EhCache, Redis</text>
+    <rect x="510" y="50" width="140" height="70" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="580" y="75" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Query Cache</text>
+    <text x="580" y="95" textAnchor="middle" fill="#86efac" fontSize="8">Cache query results</text>
+    <text x="580" y="110" textAnchor="middle" fill="#86efac" fontSize="8">Invalidate on write</text>
+    <line x1="250" y1="85" x2="275" y2="85" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="480" y1="85" x2="505" y2="85" stroke="#4ade80" strokeWidth="2"/>
+    <text x="350" y="145" textAnchor="middle" fill="#64748b" fontSize="9">L1 = per session • L2 = shared across sessions • Query cache for HQL results</text>
+  </svg>
+)
+
 // Simple syntax highlighter for Java code
 const SyntaxHighlighter = ({ code }) => {
   const highlightJava = (code) => {
@@ -92,6 +214,7 @@ function Hibernate({ onBack, onPrevious, onNext, previousName, nextName, current
       icon: '🔧',
       color: '#8b5cf6',
       description: 'Object-Relational Mapping fundamentals',
+      diagram: ORMDiagram,
       details: [
         {
           name: 'ORM Overview',
@@ -165,6 +288,7 @@ session.close();`
       icon: '🔗',
       color: '#10b981',
       description: 'OneToMany, ManyToOne, ManyToMany mappings',
+      diagram: RelationshipsDiagram,
       details: [
         {
           name: 'One-to-Many / Many-to-One',
@@ -250,6 +374,7 @@ public class Order {
       icon: '⚙️',
       color: '#3b82f6',
       description: 'SessionFactory, Session, and Transaction handling',
+      diagram: SessionDiagram,
       details: [
         {
           name: 'Session Lifecycle',
@@ -342,6 +467,7 @@ User managed = (User) newSession.merge(transient);`
       name: 'Caching Strategies',
       icon: '💾',
       color: '#ef4444',
+      diagram: CachingDiagram,
       description: 'First-level, second-level, and query cache',
       details: [
         {
@@ -732,9 +858,15 @@ List<Department> depts = session
             {(() => {
               const detail = selectedConcept.details[selectedDetailIndex]
               const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
               return (
                 <div>
                   <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>{detail.name}</h3>
+                  {DiagramComponent && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
                   <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
                   {detail.codeExample && (
                     <div style={{

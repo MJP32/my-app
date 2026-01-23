@@ -21,6 +21,156 @@ const SUBTOPIC_COLORS = [
   { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
 ]
 
+// REST Principles Diagram
+const RESTPrinciplesDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">REST Architectural Constraints</text>
+    <rect x="50" y="50" width="90" height="60" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="95" y="75" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Client</text>
+    <text x="95" y="90" textAnchor="middle" fill="#93c5fd" fontSize="7">UI/UX</text>
+    <text x="95" y="102" textAnchor="middle" fill="#93c5fd" fontSize="7">Stateless</text>
+    <rect x="165" y="50" width="90" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="210" y="75" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Cache</text>
+    <text x="210" y="92" textAnchor="middle" fill="#fcd34d" fontSize="7">Optional</text>
+    <rect x="280" y="50" width="90" height="60" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="325" y="75" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Load</text>
+    <text x="325" y="90" textAnchor="middle" fill="#c4b5fd" fontSize="7">Balancer</text>
+    <rect x="395" y="50" width="90" height="60" rx="6" fill="rgba(6, 182, 212, 0.3)" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="440" y="75" textAnchor="middle" fill="#22d3ee" fontSize="9" fontWeight="bold">Gateway</text>
+    <text x="440" y="92" textAnchor="middle" fill="#67e8f9" fontSize="7">Layered</text>
+    <rect x="510" y="50" width="90" height="60" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="555" y="75" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Server</text>
+    <text x="555" y="90" textAnchor="middle" fill="#86efac" fontSize="7">Resources</text>
+    <text x="555" y="102" textAnchor="middle" fill="#86efac" fontSize="7">Uniform I/F</text>
+    <line x1="140" y1="80" x2="160" y2="80" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="255" y1="80" x2="275" y2="80" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="370" y1="80" x2="390" y2="80" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="485" y1="80" x2="505" y2="80" stroke="#4ade80" strokeWidth="2"/>
+    <rect x="150" y="130" width="400" height="30" rx="4" fill="rgba(236, 72, 153, 0.2)" stroke="#ec4899" strokeWidth="1"/>
+    <text x="350" y="150" textAnchor="middle" fill="#f472b6" fontSize="9">Uniform Interface: URIs • HTTP Methods • Self-descriptive Messages • HATEOAS</text>
+  </svg>
+)
+
+// HTTP Methods Diagram
+const HTTPMethodsDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">HTTP Methods & Idempotency</text>
+    <rect x="50" y="50" width="100" height="60" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="100" y="75" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">GET</text>
+    <text x="100" y="92" textAnchor="middle" fill="#bbf7d0" fontSize="8">Read • Safe</text>
+    <text x="100" y="104" textAnchor="middle" fill="#bbf7d0" fontSize="8">Idempotent ✓</text>
+    <rect x="170" y="50" width="100" height="60" rx="6" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="220" y="75" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">POST</text>
+    <text x="220" y="92" textAnchor="middle" fill="#bfdbfe" fontSize="8">Create • Unsafe</text>
+    <text x="220" y="104" textAnchor="middle" fill="#bfdbfe" fontSize="8">Not Idempotent ✗</text>
+    <rect x="290" y="50" width="100" height="60" rx="6" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="340" y="75" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">PUT</text>
+    <text x="340" y="92" textAnchor="middle" fill="#fef3c7" fontSize="8">Replace • Unsafe</text>
+    <text x="340" y="104" textAnchor="middle" fill="#fef3c7" fontSize="8">Idempotent ✓</text>
+    <rect x="410" y="50" width="100" height="60" rx="6" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="460" y="75" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">PATCH</text>
+    <text x="460" y="92" textAnchor="middle" fill="#ddd6fe" fontSize="8">Update • Unsafe</text>
+    <text x="460" y="104" textAnchor="middle" fill="#ddd6fe" fontSize="8">May vary</text>
+    <rect x="530" y="50" width="100" height="60" rx="6" fill="#ef4444" stroke="#f87171" strokeWidth="2"/>
+    <text x="580" y="75" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">DELETE</text>
+    <text x="580" y="92" textAnchor="middle" fill="#fecaca" fontSize="8">Remove • Unsafe</text>
+    <text x="580" y="104" textAnchor="middle" fill="#fecaca" fontSize="8">Idempotent ✓</text>
+    <text x="350" y="140" textAnchor="middle" fill="#64748b" fontSize="9">Idempotent = Same result when called multiple times</text>
+  </svg>
+)
+
+// Resource Design Diagram
+const ResourceDesignDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">RESTful Resource URI Design</text>
+    <rect x="50" y="45" width="600" height="90" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="2"/>
+    <text x="70" y="70" fill="#22c55e" fontSize="10" fontFamily="monospace">/api/v1/users</text>
+    <text x="250" y="70" fill="#64748b" fontSize="9">→ Collection (GET: list, POST: create)</text>
+    <text x="70" y="90" fill="#3b82f6" fontSize="10" fontFamily="monospace">/api/v1/users/123</text>
+    <text x="250" y="90" fill="#64748b" fontSize="9">→ Single Resource (GET, PUT, DELETE)</text>
+    <text x="70" y="110" fill="#f59e0b" fontSize="10" fontFamily="monospace">/api/v1/users/123/orders</text>
+    <text x="300" y="110" fill="#64748b" fontSize="9">→ Nested Collection</text>
+    <text x="70" y="130" fill="#8b5cf6" fontSize="10" fontFamily="monospace">/api/v1/users?status=active&amp;page=1</text>
+    <text x="380" y="130" fill="#64748b" fontSize="9">→ Filtering & Pagination</text>
+    <text x="350" y="155" textAnchor="middle" fill="#64748b" fontSize="9">Nouns not verbs • Plural names • Hierarchical nesting</text>
+  </svg>
+)
+
+// Spring Boot REST Diagram
+const SpringBootRESTDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Spring Boot REST Request Flow</text>
+    <rect x="30" y="50" width="80" height="50" rx="6" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="70" y="80" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Client</text>
+    <rect x="130" y="50" width="90" height="50" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="175" y="72" textAnchor="middle" fill="#a78bfa" fontSize="8">Dispatcher</text>
+    <text x="175" y="86" textAnchor="middle" fill="#c4b5fd" fontSize="8">Servlet</text>
+    <rect x="240" y="50" width="90" height="50" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="285" y="72" textAnchor="middle" fill="#4ade80" fontSize="8">@Rest</text>
+    <text x="285" y="86" textAnchor="middle" fill="#86efac" fontSize="8">Controller</text>
+    <rect x="350" y="50" width="90" height="50" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="395" y="80" textAnchor="middle" fill="#fbbf24" fontSize="9">@Service</text>
+    <rect x="460" y="50" width="90" height="50" rx="6" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="505" y="80" textAnchor="middle" fill="#f472b6" fontSize="9">Repository</text>
+    <rect x="570" y="50" width="80" height="50" rx="6" fill="rgba(6, 182, 212, 0.3)" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="610" y="80" textAnchor="middle" fill="#22d3ee" fontSize="9">Database</text>
+    <line x1="110" y1="75" x2="125" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="220" y1="75" x2="235" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="330" y1="75" x2="345" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="440" y1="75" x2="455" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="550" y1="75" x2="565" y2="75" stroke="#4ade80" strokeWidth="2"/>
+    <text x="350" y="130" textAnchor="middle" fill="#64748b" fontSize="9">HTTP Request → JSON Serialization → Business Logic → Data Access</text>
+  </svg>
+)
+
+// API Security Diagram
+const APISecurityDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">JWT Authentication Flow</text>
+    <rect x="50" y="50" width="90" height="50" rx="6" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="95" y="80" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Client</text>
+    <rect x="170" y="40" width="120" height="70" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="230" y="60" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Auth Server</text>
+    <text x="230" y="78" textAnchor="middle" fill="#fcd34d" fontSize="8">1. Login</text>
+    <text x="230" y="92" textAnchor="middle" fill="#fcd34d" fontSize="8">2. Issue JWT</text>
+    <rect x="320" y="40" width="150" height="70" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="395" y="60" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">JWT Token</text>
+    <text x="395" y="78" textAnchor="middle" fill="#c4b5fd" fontSize="7">Header.Payload.Signature</text>
+    <text x="395" y="92" textAnchor="middle" fill="#c4b5fd" fontSize="7">exp, sub, roles</text>
+    <rect x="500" y="40" width="120" height="70" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="560" y="60" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">API Server</text>
+    <text x="560" y="78" textAnchor="middle" fill="#86efac" fontSize="8">3. Verify signature</text>
+    <text x="560" y="92" textAnchor="middle" fill="#86efac" fontSize="8">4. Check claims</text>
+    <line x1="140" y1="75" x2="165" y2="75" stroke="#f59e0b" strokeWidth="2"/>
+    <line x1="290" y1="75" x2="315" y2="75" stroke="#8b5cf6" strokeWidth="2"/>
+    <line x1="470" y1="75" x2="495" y2="75" stroke="#22c55e" strokeWidth="2"/>
+    <text x="350" y="140" textAnchor="middle" fill="#64748b" fontSize="9">Stateless auth • Self-contained tokens • No server session needed</text>
+  </svg>
+)
+
+// API Documentation Diagram
+const APIDocsDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">OpenAPI / Swagger Integration</text>
+    <rect x="50" y="50" width="140" height="60" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="120" y="75" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Spring Boot Code</text>
+    <text x="120" y="92" textAnchor="middle" fill="#93c5fd" fontSize="8">@RestController</text>
+    <rect x="220" y="50" width="140" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="290" y="75" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">springdoc-openapi</text>
+    <text x="290" y="92" textAnchor="middle" fill="#fcd34d" fontSize="8">Auto-generate spec</text>
+    <rect x="390" y="50" width="140" height="60" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="460" y="75" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">OpenAPI 3.0</text>
+    <text x="460" y="92" textAnchor="middle" fill="#86efac" fontSize="8">/v3/api-docs</text>
+    <rect x="560" y="50" width="100" height="60" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="610" y="75" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Swagger UI</text>
+    <text x="610" y="92" textAnchor="middle" fill="#c4b5fd" fontSize="8">Interactive</text>
+    <line x1="190" y1="80" x2="215" y2="80" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="360" y1="80" x2="385" y2="80" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="530" y1="80" x2="555" y2="80" stroke="#4ade80" strokeWidth="2"/>
+    <text x="350" y="140" textAnchor="middle" fill="#64748b" fontSize="9">Code → Spec → Interactive documentation • Try endpoints in browser</text>
+  </svg>
+)
+
 function RestAPI({ onBack, onPrevious, onNext, previousName, nextName }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
@@ -32,6 +182,7 @@ function RestAPI({ onBack, onPrevious, onNext, previousName, nextName }) {
       icon: '📐',
       color: '#3b82f6',
       description: 'Fundamental REST architectural constraints',
+      diagram: RESTPrinciplesDiagram,
       details: [
         {
           name: 'Client-Server',
@@ -65,6 +216,7 @@ function RestAPI({ onBack, onPrevious, onNext, previousName, nextName }) {
       icon: '🔤',
       color: '#10b981',
       description: 'HTTP verbs and response codes',
+      diagram: HTTPMethodsDiagram,
       details: [
         {
           name: 'GET',
@@ -98,6 +250,7 @@ function RestAPI({ onBack, onPrevious, onNext, previousName, nextName }) {
       icon: '🎯',
       color: '#f59e0b',
       description: 'URI design and resource modeling',
+      diagram: ResourceDesignDiagram,
       details: [
         {
           name: 'Resource Naming',
@@ -131,6 +284,7 @@ function RestAPI({ onBack, onPrevious, onNext, previousName, nextName }) {
       icon: '🍃',
       color: '#8b5cf6',
       description: 'Building REST APIs with Spring Boot',
+      diagram: SpringBootRESTDiagram,
       details: [
         {
           name: '@RestController',
@@ -164,6 +318,7 @@ function RestAPI({ onBack, onPrevious, onNext, previousName, nextName }) {
       icon: '🔐',
       color: '#ec4899',
       description: 'Authentication and authorization',
+      diagram: APISecurityDiagram,
       details: [
         {
           name: 'JWT Authentication',
@@ -197,6 +352,7 @@ function RestAPI({ onBack, onPrevious, onNext, previousName, nextName }) {
       icon: '📚',
       color: '#06b6d4',
       description: 'OpenAPI/Swagger documentation',
+      diagram: APIDocsDiagram,
       details: [
         {
           name: 'OpenAPI Specification',
@@ -531,9 +687,15 @@ function RestAPI({ onBack, onPrevious, onNext, previousName, nextName }) {
             {(() => {
               const detail = selectedConcept.details[selectedDetailIndex]
               const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
               return (
                 <div>
                   <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>{detail.name}</h3>
+                  {DiagramComponent && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
                   <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
                 </div>
               )
