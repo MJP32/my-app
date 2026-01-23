@@ -94,6 +94,183 @@ function Java({ onBack, onSelectItem, initialCategory }) {
           description: 'Cutting-edge preview features including advanced pattern matching, class-file API improvements, and next-generation JVM capabilities.'
         }
       ]
+    },
+    {
+      id: 'internals',
+      name: 'Java Internals',
+      icon: '⚙️',
+      color: '#f97316',
+      description: 'Deep dive into Java internals - collections, concurrency, memory management, and JVM mechanics. Essential knowledge for FAANG interviews.',
+      topics: [
+        {
+          id: 'HashMap - Internal Workings',
+          name: 'HashMap Internals',
+          icon: '🗺️',
+          color: '#f97316',
+          complexity: 'Advanced',
+          description: 'Deep dive into Java HashMap: hash function, bucket array, collision handling with chaining, treeification (Java 8+), load factor, and resizing.'
+        },
+        {
+          id: 'Blocking Queue',
+          name: 'Blocking Queue',
+          icon: '🚦',
+          color: '#eab308',
+          complexity: 'Advanced',
+          description: 'Master Java BlockingQueue: producer-consumer pattern, ArrayBlockingQueue vs LinkedBlockingQueue, put/take operations, and custom implementation.'
+        },
+        {
+          id: 'ConcurrentHashMap - Internal Workings',
+          name: 'ConcurrentHashMap Internals',
+          icon: '🔐',
+          color: '#22c55e',
+          complexity: 'Advanced',
+          description: 'Understand ConcurrentHashMap internals: lock-free reads, per-bucket locking, CAS operations, Java 7 segments vs Java 8+ node locking.'
+        },
+        {
+          id: 'ThreadPoolExecutor - Internal Workings',
+          name: 'ThreadPoolExecutor Internals',
+          icon: '⚙️',
+          color: '#3b82f6',
+          complexity: 'Advanced',
+          description: 'Master ThreadPoolExecutor: 7 core parameters, work queue types, rejection policies, ctl field internals, Worker class, and task execution flow.'
+        },
+        {
+          id: 'CompletableFuture - Internal Workings',
+          name: 'CompletableFuture Internals',
+          icon: '🔮',
+          color: '#8b5cf6',
+          complexity: 'Advanced',
+          description: 'Deep dive into CompletableFuture: async composition, completion stages, thenApply vs thenCompose, exception handling, and internal mechanism.'
+        },
+        {
+          id: 'ArrayList - Internal Workings',
+          name: 'ArrayList Internals',
+          icon: '📋',
+          color: '#06b6d4',
+          complexity: 'Intermediate',
+          description: 'Master ArrayList internals: dynamic array growth (1.5x), amortized O(1) add, element shifting, fail-fast iterators, and vs LinkedList comparison.'
+        },
+        {
+          id: 'LinkedHashMap - Internal Workings',
+          name: 'LinkedHashMap Internals',
+          icon: '🔗',
+          color: '#14b8a6',
+          complexity: 'Advanced',
+          description: 'Understand LinkedHashMap: insertion vs access order, doubly-linked list, LRU cache implementation, removeEldestEntry, and when to use over HashMap.'
+        },
+        {
+          id: 'ReentrantLock - Internal Workings',
+          name: 'ReentrantLock Internals',
+          icon: '🔒',
+          color: '#ef4444',
+          complexity: 'Advanced',
+          description: 'Master ReentrantLock: AQS framework, fair vs non-fair locks, CLH queue, Conditions, lock interruptibly, tryLock, and comparison with synchronized.'
+        },
+        {
+          id: 'Atomic & CAS - Internal Workings',
+          name: 'Atomic & CAS Internals',
+          icon: '⚛️',
+          color: '#a855f7',
+          complexity: 'Advanced',
+          description: 'Deep dive into AtomicInteger, CAS operations, lock-free programming, ABA problem, AtomicReference, and LongAdder for high-contention counting.'
+        },
+        {
+          id: 'String Pool - Internal Workings',
+          name: 'String Pool Internals',
+          icon: '📝',
+          color: '#f59e0b',
+          complexity: 'Intermediate',
+          description: 'Understand String Pool: interning, immutability benefits, compile-time optimization, Compact Strings (Java 9+), and memory tuning.'
+        },
+        {
+          id: 'JVM Memory Model',
+          name: 'JVM Memory Model',
+          icon: '🧠',
+          color: '#ec4899',
+          complexity: 'Advanced',
+          description: 'Master JVM memory: heap, stack, metaspace, object layout, volatile visibility, happens-before relationships, and memory barriers.'
+        },
+        {
+          id: 'TreeMap - Internal Workings',
+          name: 'TreeMap Internals',
+          icon: '🌳',
+          color: '#84cc16',
+          complexity: 'Advanced',
+          description: 'Understand TreeMap: Red-Black tree implementation, O(log n) operations, tree rotations, NavigableMap methods, and when to use over HashMap.'
+        },
+        {
+          id: 'Garbage Collection',
+          name: 'Garbage Collection',
+          icon: '🗑️',
+          color: '#6366f1',
+          complexity: 'Advanced',
+          description: 'Master GC: generational collection, G1/ZGC/Shenandoah collectors, GC roots, marking algorithms, tuning, and choosing the right collector.'
+        },
+        {
+          id: 'Virtual Threads (Java 21)',
+          name: 'Virtual Threads',
+          icon: '🧵',
+          color: '#0ea5e9',
+          complexity: 'Advanced',
+          description: 'Understand Virtual Threads: Project Loom, carrier threads, thread pinning, million-thread scalability, structured concurrency, and migration.'
+        },
+        {
+          id: 'Synchronized Internals',
+          name: 'Synchronized Internals',
+          icon: '🔐',
+          color: '#dc2626',
+          complexity: 'Advanced',
+          description: 'Master synchronized: object monitors, Mark Word, biased/thin/fat locks, lock inflation, wait/notify, and comparison with ReentrantLock.'
+        },
+        {
+          id: 'PriorityQueue - Internal Workings',
+          name: 'PriorityQueue Internals',
+          icon: '📊',
+          color: '#0891b2',
+          complexity: 'Intermediate',
+          description: 'Deep dive into PriorityQueue: binary heap in array, sift up/down operations, heapify algorithm, and common interview patterns.'
+        },
+        {
+          id: 'ForkJoinPool - Internal Workings',
+          name: 'ForkJoinPool Internals',
+          icon: '🔀',
+          color: '#7c3aed',
+          complexity: 'Advanced',
+          description: 'Master ForkJoinPool: work-stealing algorithm, fork/join operations, RecursiveTask vs RecursiveAction, and parallel stream internals.'
+        },
+        {
+          id: 'CountDownLatch & CyclicBarrier',
+          name: 'CountDownLatch & CyclicBarrier',
+          icon: '🚦',
+          color: '#059669',
+          complexity: 'Advanced',
+          description: 'Understand thread synchronization: CountDownLatch for one-time events, CyclicBarrier for reusable sync points, and Phaser for advanced coordination.'
+        },
+        {
+          id: 'Semaphore - Internal Workings',
+          name: 'Semaphore Internals',
+          icon: '🎫',
+          color: '#ea580c',
+          complexity: 'Advanced',
+          description: 'Deep dive into Semaphore: permit-based synchronization, fair vs non-fair modes, connection pooling patterns, and rate limiting.'
+        },
+        {
+          id: 'Class Loading',
+          name: 'Class Loading',
+          icon: '📦',
+          color: '#4f46e5',
+          complexity: 'Advanced',
+          description: 'Master JVM class loading: loading phases, delegation model, custom ClassLoaders, Metaspace, and class unloading.'
+        },
+        {
+          id: 'Java NIO',
+          name: 'Java NIO',
+          icon: '📡',
+          color: '#0284c7',
+          complexity: 'Advanced',
+          description: 'Deep dive into Java NIO: ByteBuffer internals, channels and selectors, non-blocking I/O, memory-mapped files, and high-performance networking.'
+        }
+      ]
     }
   ]
 
