@@ -100,6 +100,34 @@ function Java8({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
   const [focusedConceptIndex, setFocusedConceptIndex] = useState(0)
   const [isKeyboardUser, setIsKeyboardUser] = useState(false)
 
+  // Compute extended breadcrumb based on selection state
+  const activeBreadcrumb = selectedConcept && selectedCategory ? {
+    section: breadcrumb.section,
+    category: breadcrumb.category,
+    subcategory: {
+      name: breadcrumb.topic,
+      onClick: () => {
+        setSelectedCategory(null)
+        setSelectedConcept(null)
+      }
+    },
+    subsubcategory: {
+      name: selectedCategory.name,
+      onClick: () => setSelectedConcept(null)
+    },
+    topic: selectedConcept.name,
+    colors: breadcrumb.colors
+  } : selectedCategory ? {
+    section: breadcrumb.section,
+    category: breadcrumb.category,
+    subcategory: {
+      name: breadcrumb.topic,
+      onClick: () => setSelectedCategory(null)
+    },
+    topic: selectedCategory.name,
+    colors: breadcrumb.colors
+  } : breadcrumb
+
   // Refs for keyboard navigation
   const backButtonRef = useRef(null)
   const categoryRefs = useRef([])
@@ -3566,7 +3594,7 @@ Long sum = pool.invoke(new SumTask(array, 0, array.length));
         </div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      <Breadcrumb breadcrumb={activeBreadcrumb} />
 
       <div style={{
         background: 'linear-gradient(to bottom right, #1f2937, #111827)',

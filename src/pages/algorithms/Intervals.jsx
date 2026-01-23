@@ -8,7 +8,7 @@ import { isProblemCompleted } from '../../services/progressService'
 import { getPreferredLanguage } from '../../services/languageService'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 
-function Intervals({ onBack, breadcrumb }) {
+function Intervals({ onBack, breadcrumb, breadcrumbStack, onBreadcrumbClick, pushBreadcrumb, breadcrumbColors }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null)
   const [showSolution, setShowSolution] = useState(false)
   const [userCode, setUserCode] = useState('')
@@ -673,6 +673,18 @@ function Intervals({ onBack, breadcrumb }) {
       topic: selectedQuestion.title
     }
 
+    const problemBreadcrumbStack = breadcrumbStack
+      ? [...breadcrumbStack.slice(0, -1), { name: 'Intervals', page: null }, { name: selectedQuestion.title, page: null }]
+      : null
+
+    const handleProblemBreadcrumbClick = (index, item) => {
+      if (problemBreadcrumbStack && index === problemBreadcrumbStack.length - 2) {
+        setSelectedQuestion(null)
+      } else if (onBreadcrumbClick) {
+        onBreadcrumbClick(index, item)
+      }
+    }
+
     return (
       <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
         <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -682,7 +694,12 @@ function Intervals({ onBack, breadcrumb }) {
           <LanguageToggle />
         </div>
 
-        <Breadcrumb breadcrumb={problemBreadcrumb} />
+        <Breadcrumb
+          breadcrumb={problemBreadcrumb}
+          breadcrumbStack={problemBreadcrumbStack}
+          onBreadcrumbClick={handleProblemBreadcrumbClick}
+          colors={breadcrumbColors}
+        />
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
           <div style={{ backgroundColor: '#1f2937', padding: '2rem', borderRadius: '12px', border: '2px solid #374151', maxHeight: '85vh', overflowY: 'auto' }}>
@@ -774,7 +791,12 @@ function Intervals({ onBack, breadcrumb }) {
         </button>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      <Breadcrumb
+        breadcrumb={breadcrumb}
+        breadcrumbStack={breadcrumbStack}
+        onBreadcrumbClick={onBreadcrumbClick}
+        colors={breadcrumbColors}
+      />
 
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <h1 style={{ fontSize: '2.5rem', fontWeight: '800', background: 'linear-gradient(to right, #93c5fd, #60a5fa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginBottom: '0.5rem', color: 'white' }}>Intervals</h1>

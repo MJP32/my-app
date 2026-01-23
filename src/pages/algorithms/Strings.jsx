@@ -8,7 +8,7 @@ import { isProblemCompleted } from '../../services/progressService'
 import { getPreferredLanguage } from '../../services/languageService'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 
-function Strings({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb }) {
+function Strings({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb, breadcrumbStack, onBreadcrumbClick, pushBreadcrumb, breadcrumbColors }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null)
   const [showSolution, setShowSolution] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
@@ -1853,11 +1853,25 @@ def justify(self, words, num_chars, max_width, is_last_line):
   }
 
   if (selectedQuestion) {
-    // Create extended breadcrumb with problem title
+    // Create extended breadcrumb stack with problem title
+    const problemBreadcrumbStack = breadcrumbStack
+      ? [...breadcrumbStack.slice(0, -1), { name: 'Strings', page: null }, { name: selectedQuestion.title, page: null }]
+      : null
+
+    // Fallback to legacy format
     const problemBreadcrumb = {
       ...breadcrumb,
       category: { name: 'Strings', onClick: () => setSelectedQuestion(null) },
       topic: selectedQuestion.title
+    }
+
+    // Handle breadcrumb click for problem view
+    const handleProblemBreadcrumbClick = (index, item) => {
+      if (problemBreadcrumbStack && index === problemBreadcrumbStack.length - 2) {
+        setSelectedQuestion(null)
+      } else if (onBreadcrumbClick) {
+        onBreadcrumbClick(index, item)
+      }
     }
 
     return (
@@ -1869,7 +1883,12 @@ def justify(self, words, num_chars, max_width, is_last_line):
           <LanguageToggle />
         </div>
 
-        <Breadcrumb breadcrumb={problemBreadcrumb} />
+        <Breadcrumb
+          breadcrumb={problemBreadcrumb}
+          breadcrumbStack={problemBreadcrumbStack}
+          onBreadcrumbClick={handleProblemBreadcrumbClick}
+          colors={breadcrumbColors}
+        />
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
           {/* Problem Description */}
@@ -1980,7 +1999,12 @@ def justify(self, words, num_chars, max_width, is_last_line):
         </button>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      <Breadcrumb
+        breadcrumb={breadcrumb}
+        breadcrumbStack={breadcrumbStack}
+        onBreadcrumbClick={onBreadcrumbClick}
+        colors={breadcrumbColors}
+      />
 
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <h1 style={{ fontSize: '2.5rem', fontWeight: '800', background: 'linear-gradient(to right, #93c5fd, #60a5fa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginBottom: '0.5rem' }}>🔤 Strings</h1>

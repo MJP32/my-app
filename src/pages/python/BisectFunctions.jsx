@@ -6,6 +6,18 @@ import Breadcrumb from '../../components/Breadcrumb'
 function BisectFunctions({ onBack, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
 
+  // Compute extended breadcrumb when a concept is selected
+  const activeBreadcrumb = selectedConcept ? {
+    section: breadcrumb.section,
+    category: breadcrumb.category,
+    subcategory: {
+      name: breadcrumb.topic,
+      onClick: () => setSelectedConcept(null)
+    },
+    topic: selectedConcept.name,
+    colors: breadcrumb.colors
+  } : breadcrumb
+
   const parseCodeSections = (code) => {
     const sections = []
     const lines = code.split('\n')
@@ -1017,7 +1029,7 @@ for score in [85, 92, 78, 88, 95, 72, 90]:
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={activeBreadcrumb} />
 
         <div style={{
           display: 'grid',

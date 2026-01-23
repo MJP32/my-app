@@ -74,6 +74,34 @@ function Java24({ onBack, onPrevious, onNext, previousName, nextName, currentSub
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedConcept, setSelectedConcept] = useState(null)
 
+  // Compute extended breadcrumb based on selection state
+  const activeBreadcrumb = selectedConcept && selectedCategory ? {
+    section: breadcrumb.section,
+    category: breadcrumb.category,
+    subcategory: {
+      name: breadcrumb.topic,
+      onClick: () => {
+        setSelectedCategory(null)
+        setSelectedConcept(null)
+      }
+    },
+    subsubcategory: {
+      name: selectedCategory.name,
+      onClick: () => setSelectedConcept(null)
+    },
+    topic: selectedConcept.name,
+    colors: breadcrumb.colors
+  } : selectedCategory ? {
+    section: breadcrumb.section,
+    category: breadcrumb.category,
+    subcategory: {
+      name: breadcrumb.topic,
+      onClick: () => setSelectedCategory(null)
+    },
+    topic: selectedCategory.name,
+    colors: breadcrumb.colors
+  } : breadcrumb
+
   const parseCodeSections = (code) => {
     const sections = []
     const lines = code.split('\n')
@@ -2662,7 +2690,7 @@ class KotlinCompiler {
         </div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      <Breadcrumb breadcrumb={activeBreadcrumb} />
 
       <div style={{
         background: 'linear-gradient(to bottom right, #1f2937, #111827)', padding: '2.5rem 10rem',

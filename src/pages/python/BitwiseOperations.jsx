@@ -6,6 +6,18 @@ import Breadcrumb from '../../components/Breadcrumb'
 const BitwiseOperations = ({ onBack, breadcrumb }) => {
   const [selectedConcept, setSelectedConcept] = useState(null)
 
+  // Compute extended breadcrumb when a concept is selected
+  const activeBreadcrumb = selectedConcept ? {
+    section: breadcrumb.section,
+    category: breadcrumb.category,
+    subcategory: {
+      name: breadcrumb.topic,
+      onClick: () => setSelectedConcept(null)
+    },
+    topic: selectedConcept.name,
+    colors: breadcrumb.colors
+  } : breadcrumb
+
   const parseCodeSections = (codeString) => {
     const sections = codeString.split('\n\n')
     return sections.map((section, index) => ({
@@ -993,7 +1005,7 @@ print(f"7 / -3 = {divide(7, -3)}")    # -2`
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={activeBreadcrumb} />
 
         <div style={{
           display: 'grid',

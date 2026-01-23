@@ -2,8 +2,15 @@ import { useState } from 'react'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 import Breadcrumb from '../../components/Breadcrumb'
 
-function DevOpsPage({ onBack, onSelectItem, breadcrumb }) {
-  const [selectedCategory, setSelectedCategory] = useState(null)
+function DevOpsPage({ onBack, onSelectItem, breadcrumb, initialCategory, onInitialCategoryUsed }) {
+  const [selectedCategory, setSelectedCategory] = useState(() => {
+    // If initialCategory is provided, find the matching category
+    if (initialCategory) {
+      setTimeout(() => onInitialCategoryUsed?.(), 0)
+      return initialCategory
+    }
+    return null
+  })
 
   const categories = [
     {

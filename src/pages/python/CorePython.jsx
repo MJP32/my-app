@@ -6,6 +6,18 @@ import Breadcrumb from '../../components/Breadcrumb'
 const CorePython = ({ onBack, breadcrumb }) => {
   const [selectedConcept, setSelectedConcept] = useState(null)
 
+  // Compute extended breadcrumb when a concept is selected
+  const activeBreadcrumb = selectedConcept ? {
+    section: breadcrumb.section,
+    category: breadcrumb.category,
+    subcategory: {
+      name: breadcrumb.topic,
+      onClick: () => setSelectedConcept(null)
+    },
+    topic: selectedConcept.name,
+    colors: breadcrumb.colors
+  } : breadcrumb
+
   const parseCodeSections = (codeString) => {
     const sections = codeString.split('\n\n')
     return sections.map((section, index) => ({
@@ -957,7 +969,7 @@ with open('people.csv', 'r') as f:
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={activeBreadcrumb} />
 
         <div style={{
           display: 'grid',
