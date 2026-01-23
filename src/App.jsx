@@ -128,6 +128,7 @@ import SpringBootQuestions from './pages/questions/SpringBootQuestions.jsx'
 import SpringSecurityQuestions from './pages/questions/SpringSecurityQuestions.jsx'
 import SpringDataJPAQuestions from './pages/questions/SpringDataJPAQuestions.jsx'
 import SpringAnnotationsQuestions from './pages/questions/SpringAnnotationsQuestions.jsx'
+import EtradingQuestions from './pages/questions/EtradingQuestions.jsx'
 
 // Database pages
 import SQL from './pages/databases/SQL.jsx'
@@ -930,6 +931,7 @@ function App() {
   const [showSpringSecurityQuestionsModal, setShowSpringSecurityQuestionsModal] = useState(false)
   const [showSpringDataJPAQuestionsModal, setShowSpringDataJPAQuestionsModal] = useState(false)
   const [showSpringAnnotationsQuestionsModal, setShowSpringAnnotationsQuestionsModal] = useState(false)
+  const [showEtradingQuestionsModal, setShowEtradingQuestionsModal] = useState(false)
   const [showSearchingModal, setShowSearchingModal] = useState(false)
   const [showGreedyAlgorithmsModal, setShowGreedyAlgorithmsModal] = useState(false)
   const [showFamousAlgorithmsModal, setShowFamousAlgorithmsModal] = useState(false)
@@ -2926,6 +2928,7 @@ function App() {
             [showSpringSecurityQuestionsModal, setShowSpringSecurityQuestionsModal],
             [showSpringDataJPAQuestionsModal, setShowSpringDataJPAQuestionsModal],
             [showSpringAnnotationsQuestionsModal, setShowSpringAnnotationsQuestionsModal],
+            [showEtradingQuestionsModal, setShowEtradingQuestionsModal],
           ];
           // Close the last (topmost) open modal
           for (let i = closers.length - 1; i >= 0; i--) {
@@ -3172,7 +3175,8 @@ function App() {
     showSpringBootQuestionsModal,
     showSpringSecurityQuestionsModal,
     showSpringDataJPAQuestionsModal,
-    showSpringAnnotationsQuestionsModal
+    showSpringAnnotationsQuestionsModal,
+    showEtradingQuestionsModal
   ]);
 
   // Design topic category mapping for breadcrumbs (component level for modal access)
@@ -4883,6 +4887,7 @@ function App() {
             case 'Spring Security Questions': setShowSpringSecurityQuestionsModal(true); break;
             case 'Spring Data JPA Questions': setShowSpringDataJPAQuestionsModal(true); break;
             case 'Spring Annotations Questions': setShowSpringAnnotationsQuestionsModal(true); break;
+            case 'eTrading Questions': setShowEtradingQuestionsModal(true); break;
             default:
               console.log('No match found for item:', item);
               break;
@@ -8674,6 +8679,49 @@ function App() {
               breadcrumb={{
                 section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringAnnotationsQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Spring Annotations',
+                colors: BREADCRUMB_COLORS.Questions
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {showEtradingQuestionsModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000000,
+            padding: '1rem',
+            overflow: 'auto'
+          }}
+          onClick={() => setShowEtradingQuestionsModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: colors.bgSecondary,
+              borderRadius: '16px',
+              maxWidth: '95vw',
+              width: '1400px',
+              maxHeight: '95vh',
+              overflow: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              position: 'relative'
+            }}
+          >
+            <EtradingQuestions
+              onBack={() => setShowEtradingQuestionsModal(false)}
+              breadcrumb={{
+                section: { name: 'Questions', icon: '?', onClick: () => { setShowEtradingQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'eTrading Systems',
                 colors: BREADCRUMB_COLORS.Questions
               }}
             />

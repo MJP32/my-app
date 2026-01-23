@@ -272,6 +272,23 @@ function Questions({ onBack, onSelectItem, initialCategory }) {
           description: 'Health checks, metrics endpoints, custom endpoints, and production readiness.'
         }
       ]
+    },
+    {
+      id: 'etrading',
+      name: 'eTrading Systems',
+      icon: '📈',
+      color: '#22c55e',
+      description: 'Electronic trading systems, protocols, and low-latency architectures used in financial markets.',
+      topics: [
+        {
+          id: 'eTrading Questions',
+          name: 'eTrading Systems',
+          icon: '📈',
+          color: '#22c55e',
+          complexity: 'Advanced',
+          description: 'RFQ systems, order management, FIX protocol, low-latency trading, and market making.'
+        }
+      ]
     }
   ]
 
