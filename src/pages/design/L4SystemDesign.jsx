@@ -7,6 +7,7 @@ const TinyURL = lazy(() => import('./TinyURL.jsx'))
 const WhatsApp = lazy(() => import('./WhatsApp.jsx'))
 const Newsfeed = lazy(() => import('./Newsfeed.jsx'))
 const Dropbox = lazy(() => import('./Dropbox.jsx'))
+const FoodDelivery = lazy(() => import('./FoodDelivery.jsx'))
 
 function L4SystemDesign({ onBack }) {
   const [selectedTopic, setSelectedTopic] = useState(null)
@@ -163,6 +164,16 @@ function L4SystemDesign({ onBack }) {
           'Monthly passes and reservations'
         ]
       }
+    },
+    {
+      id: 'food-delivery',
+      title: 'Food Delivery (Uber Eats)',
+      icon: '🍕',
+      color: '#ff6347',
+      difficulty: 'Medium',
+      hasExistingPage: true,
+      component: FoodDelivery,
+      description: 'Design a food delivery platform with restaurant discovery, real-time order tracking, driver routing, and dynamic pricing.'
     }
   ]
 

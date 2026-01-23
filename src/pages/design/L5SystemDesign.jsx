@@ -10,6 +10,12 @@ const NotificationSystem = lazy(() => import('./NotificationSystem.jsx'))
 const RateLimiter = lazy(() => import('./RateLimiter.jsx'))
 const Dropbox = lazy(() => import('./Dropbox.jsx'))
 const TypeAhead = lazy(() => import('./TypeAhead.jsx'))
+const Instagram = lazy(() => import('./Instagram.jsx'))
+const Netflix = lazy(() => import('./Netflix.jsx'))
+const Twitter = lazy(() => import('./Twitter.jsx'))
+const Amazon = lazy(() => import('./Amazon.jsx'))
+const Zoom = lazy(() => import('./Zoom.jsx'))
+const RideShare = lazy(() => import('./RideShare.jsx'))
 
 function L5SystemDesign({ onBack }) {
   const [selectedTopic, setSelectedTopic] = useState(null)
@@ -276,6 +282,66 @@ function L5SystemDesign({ onBack }) {
       hasExistingPage: true,
       component: WhatsApp,
       description: 'Design messaging platform with E2E encryption and billions of users.'
+    },
+    {
+      id: 'instagram',
+      title: 'Instagram',
+      icon: '📸',
+      color: '#e1306c',
+      difficulty: 'Hard',
+      hasExistingPage: true,
+      component: Instagram,
+      description: 'Design a photo-sharing platform with feed generation, stories, likes, comments, and billion-user scale.'
+    },
+    {
+      id: 'netflix',
+      title: 'Netflix',
+      icon: '🎬',
+      color: '#e50914',
+      difficulty: 'Hard',
+      hasExistingPage: true,
+      component: Netflix,
+      description: 'Design a video streaming platform with encoding, CDN, recommendations, and adaptive bitrate for 200M+ users.'
+    },
+    {
+      id: 'twitter',
+      title: 'Twitter / X',
+      icon: '🐦',
+      color: '#1da1f2',
+      difficulty: 'Hard',
+      hasExistingPage: true,
+      component: Twitter,
+      description: 'Design a social platform with real-time tweets, timeline generation, trending topics, and fan-out strategies.'
+    },
+    {
+      id: 'amazon',
+      title: 'Amazon E-Commerce',
+      icon: '🛒',
+      color: '#ff9900',
+      difficulty: 'Hard',
+      hasExistingPage: true,
+      component: Amazon,
+      description: 'Design an e-commerce platform with product catalog, inventory, cart, orders, and payment processing.'
+    },
+    {
+      id: 'zoom',
+      title: 'Zoom',
+      icon: '📹',
+      color: '#2d8cff',
+      difficulty: 'Hard',
+      hasExistingPage: true,
+      component: Zoom,
+      description: 'Design a video conferencing platform with WebRTC, screen sharing, recording, and 1000+ participant meetings.'
+    },
+    {
+      id: 'rideshare',
+      title: 'Ride Share (Uber/Lyft)',
+      icon: '🚗',
+      color: '#10b981',
+      difficulty: 'Hard',
+      hasExistingPage: true,
+      component: RideShare,
+      description: 'Design a ride-sharing platform with real-time matching, geospatial routing, and high availability.'
     }
   ]
 

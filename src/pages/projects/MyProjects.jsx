@@ -183,62 +183,6 @@ function MyProjects({ onBack, onSelectItem }) {
       ]
     },
     {
-      title: 'System Design Projects',
-      icon: '🏛️',
-      color: '#3b82f6',
-      projects: [
-        {
-          id: 'Ride Share',
-          name: 'Ride Share',
-          icon: '🚗',
-          color: '#10b981',
-          description: 'Fault-tolerant ride sharing platform with real-time matching, geospatial routing, and high availability architecture.'
-        },
-        {
-          id: 'Instagram',
-          name: 'Instagram',
-          icon: '📸',
-          color: '#e1306c',
-          description: 'Design a photo-sharing platform like Instagram. Handle image upload/storage, feed generation, stories, likes/comments, followers, and billion-user scale.'
-        },
-        {
-          id: 'Netflix',
-          name: 'Netflix',
-          icon: '🎬',
-          color: '#e50914',
-          description: 'Design a video streaming platform like Netflix. Handle video encoding, CDN architecture, personalized recommendations, adaptive bitrate streaming, and global scale for 200M+ users.'
-        },
-        {
-          id: 'Twitter',
-          name: 'Twitter/X',
-          icon: '🐦',
-          color: '#1da1f2',
-          description: 'Design a social media platform like Twitter. Handle real-time tweets, timeline generation, trending topics, fan-out strategies, and billions of daily interactions.'
-        },
-        {
-          id: 'Amazon',
-          name: 'Amazon E-Commerce',
-          icon: '🛒',
-          color: '#ff9900',
-          description: 'Design an e-commerce platform like Amazon. Handle product catalog, inventory management, shopping cart, order processing, payment gateway, and millions of SKUs.'
-        },
-        {
-          id: 'Zoom',
-          name: 'Zoom',
-          icon: '📹',
-          color: '#2d8cff',
-          description: 'Design a video conferencing platform like Zoom. Handle WebRTC, real-time communication, screen sharing, recording, and scalable meetings for 1000+ participants.'
-        },
-        {
-          id: 'Food Delivery',
-          name: 'Food Delivery',
-          icon: '🍕',
-          color: '#ff6347',
-          description: 'Design a food delivery platform like Uber Eats. Handle restaurant discovery, real-time order tracking, driver routing, geospatial indexing, and dynamic pricing.'
-        }
-      ]
-    },
-    {
       title: 'Enterprise & Healthcare',
       icon: '🏢',
       color: '#8b5cf6',
