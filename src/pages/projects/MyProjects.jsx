@@ -147,45 +147,17 @@ function MyProjects({ onBack, onSelectItem }) {
       projects: [
         {
           id: 'Var/CVar',
-          name: 'Var/CVar',
+          name: 'VaR/CVaR Risk Management',
           icon: '📈',
           color: '#10b981',
-          description: 'Value at Risk and Conditional Value at Risk calculations for financial risk management.'
-        },
-        {
-          id: 'Var/CVar - Advanced',
-          name: 'Var/CVar - Advanced',
-          icon: '📊',
-          color: '#059669',
-          description: 'Advanced VaR/CVaR techniques with Monte Carlo simulations and stress testing.'
-        },
-        {
-          id: 'Var/CVar 3',
-          name: 'Var/CVar 3',
-          icon: '📉',
-          color: '#047857',
-          description: 'Enhanced VaR/CVaR system with real-time analytics and portfolio optimization.'
+          description: 'Complete Value at Risk and Conditional Value at Risk system. Covers basic calculations, Monte Carlo simulations, stress testing, real-time analytics, and portfolio optimization.'
         },
         {
           id: 'Dark Pool Matching Engine',
           name: 'Dark Pool Matching Engine',
           icon: '🌑',
           color: '#6366f1',
-          description: 'High-performance order matching engine for dark pool trading operations.'
-        },
-        {
-          id: 'Dark Pool Matching Engine - Basic',
-          name: 'Dark Pool Matching Engine - Basic',
-          icon: '🌓',
-          color: '#4f46e5',
-          description: 'Simplified dark pool matching engine for learning trading system fundamentals.'
-        },
-        {
-          id: 'Dark Pool Engine 3',
-          name: 'Dark Pool Engine 3',
-          icon: '🌚',
-          color: '#3730a3',
-          description: 'Latest iteration of dark pool engine with advanced features and optimizations.'
+          description: 'High-performance order matching engine for dark pool trading. From fundamentals to advanced features including order book management, matching algorithms, and latency optimization.'
         },
         {
           id: 'Financial Banking',
@@ -199,21 +171,7 @@ function MyProjects({ onBack, onSelectItem }) {
           name: 'Credit Card Portal',
           icon: '💳',
           color: '#ec4899',
-          description: 'Credit card management portal with transaction tracking, rewards, and payment processing.'
-        },
-        {
-          id: 'Credit Card Portal 2',
-          name: 'Credit Card Portal 2',
-          icon: '💎',
-          color: '#a855f7',
-          description: 'Enhanced credit card portal with advanced analytics, fraud detection, and premium features.'
-        },
-        {
-          id: 'Credit Card Portal 3',
-          name: 'Credit Card Portal 3',
-          icon: '🏗️',
-          color: '#0891b2',
-          description: 'System design interview preparation - Complete CQRS, Event Sourcing, Saga patterns for 10M users.'
+          description: 'Full-stack credit card management system. Includes transaction tracking, rewards, fraud detection, CQRS, Event Sourcing, Saga patterns, and scaling for 10M+ users.'
         },
         {
           id: 'Virtual Numbers',
