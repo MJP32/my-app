@@ -1,31 +1,29 @@
 import { useState, useEffect } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
 
+const DATABASE_COLORS = {
+  primary: '#60a5fa',
+  primaryHover: '#93c5fd',
+  bg: 'rgba(59, 130, 246, 0.1)',
+  border: 'rgba(59, 130, 246, 0.3)',
+  arrow: '#3b82f6',
+  hoverBg: 'rgba(59, 130, 246, 0.2)',
+  topicBg: 'rgba(59, 130, 246, 0.2)'
+}
+
+// Background colors for subtopic descriptions
+const SUBTOPIC_COLORS = [
+  { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },
+  { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' },
+  { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' },
+  { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)' },
+  { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)' },
+  { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
+]
+
 function ORM({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
-  const [selectedConcept, setSelectedConcept] = useState(null)
-
-  // Handle Escape key for modal navigation
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        e.stopPropagation() // Prevent event from reaching parent handlers
-
-        if (selectedConcept) {
-          // If viewing a concept, go back to concept list
-          setSelectedConcept(null)
-        } else {
-          // If on concept list, close the modal
-          onBack()
-        }
-      }
-    }
-
-    document.addEventListener('keydown', handleEscape)
-    return () => {
-      document.removeEventListener('keydown', handleEscape)
-    }
-  }, [selectedConcept, onBack])
+  const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
+  const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
 
   const concepts = [
     {
@@ -290,115 +288,163 @@ function ORM({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
     }
   ]
 
+  const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
+
+  // Handle keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        if (selectedConceptIndex !== null) {
+          setSelectedConceptIndex(null)
+          setSelectedDetailIndex(0)
+        } else {
+          onBack()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConceptIndex, onBack])
+
+  const handlePreviousConcept = () => {
+    if (selectedConceptIndex > 0) {
+      setSelectedConceptIndex(selectedConceptIndex - 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  const handleNextConcept = () => {
+    if (selectedConceptIndex < concepts.length - 1) {
+      setSelectedConceptIndex(selectedConceptIndex + 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  const buildBreadcrumbStack = () => {
+    const stack = [
+      { name: 'Databases', icon: '🗃️', onClick: onBack }
+    ]
+
+    if (selectedConcept) {
+      stack.push({ name: 'Object-Relational Mapping', icon: '🔗', onClick: () => { setSelectedConceptIndex(null); setSelectedDetailIndex(0) } })
+      stack.push({ name: selectedConcept.name, icon: selectedConcept.icon })
+    } else {
+      stack.push({ name: 'Object-Relational Mapping', icon: '🔗' })
+    }
+
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index) => {
+    const stack = buildBreadcrumbStack()
+    if (stack[index].onClick) {
+      stack[index].onClick()
+    }
+  }
+
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%)',
+    padding: '2rem',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
+  }
+
+  const headerStyle = {
+    maxWidth: '1400px',
+    margin: '0 auto 2rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '1rem'
+  }
+
+  const titleStyle = {
+    fontSize: '2.5rem',
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #93c5fd, #60a5fa)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    margin: 0
+  }
+
+  const backButtonStyle = {
+    padding: '0.75rem 1.5rem',
+    background: 'rgba(59, 130, 246, 0.2)',
+    border: '1px solid rgba(59, 130, 246, 0.3)',
+    borderRadius: '0.5rem',
+    color: '#60a5fa',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    transition: 'all 0.2s'
+  }
+
+  const navButtonStyle = {
+    padding: '0.75rem 1.25rem',
+    background: 'rgba(16, 185, 129, 0.2)',
+    border: '1px solid rgba(16, 185, 129, 0.3)',
+    borderRadius: '0.5rem',
+    color: '#4ade80',
+    cursor: 'pointer',
+    fontSize: '0.95rem',
+    transition: 'all 0.2s',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem'
+  }
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
-      color: 'white',
-      padding: '1.5rem'
-    }}>
-      <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '2rem',
-          gap: '1rem',
-          flexWrap: 'wrap'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button
-              onClick={onBack}
-              style={{
-                padding: '0.75rem 1.5rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
-            >
-              ← Back to Databases
-            </button>
-            <div>
-              <h1 style={{
-                fontSize: '2.5rem',
-                fontWeight: '800',
-                background: 'linear-gradient(to right, #93c5fd, #60a5fa)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                margin: 0
-              }}>
-                Object-Relational Mapping
-              </h1>
-            {currentSubcategory && (
-              <span style={{
-                padding: '0.25rem 0.75rem',
-                fontSize: '0.85rem',
-                fontWeight: '600',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
-                borderRadius: '6px',
-                marginTop: '0.25rem',
-                display: 'inline-block'
-              }}>
-                {currentSubcategory}
-              </span>
-            )}
-          </div>
+    <div style={containerStyle}>
+      <div style={headerStyle}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button
+            style={backButtonStyle}
+            onClick={onBack}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.3)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)'
+              e.currentTarget.style.transform = 'translateY(0)'
+            }}
+          >
+            ← Back to Databases
+          </button>
+          <h1 style={titleStyle}>Object-Relational Mapping</h1>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           {onPrevious && (
             <button
+              style={navButtonStyle}
               onClick={onPrevious}
-              style={{
-                padding: '0.75rem 1.25rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.3)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
             >
               ← {previousName}
             </button>
           )}
           {onNext && (
             <button
+              style={navButtonStyle}
               onClick={onNext}
-              style={{
-                padding: '0.75rem 1.25rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.3)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
             >
               {nextName} →
             </button>
@@ -406,228 +452,125 @@ function ORM({ onBack, onPrevious, onNext, previousName, nextName, currentSubcat
         </div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
-
-      <p style={{
-        fontSize: '1.2rem',
-        color: '#9ca3af',
-        textAlign: 'center',
-        marginBottom: '3rem',
-        lineHeight: '1.8'
-      }}>
-        Object-Relational Mapping: Hibernate and JPA frameworks enabling transparent persistence,
-        entity mapping strategies, query optimization techniques, caching layers, transaction management,
-        lazy/eager loading patterns, and solving the N+1 query problem.
-      </p>
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          colors={DATABASE_COLORS}
+        />
+      </div>
 
       <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
         display: 'grid',
-        gridTemplateColumns: selectedConcept ? '350px 1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '2rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gap: '1.5rem'
       }}>
-        {selectedConcept ? (
-          <>
-            {/* Sidebar */}
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}>
-              <button
-                onClick={() => setSelectedConcept(null)}
-                style={{
-                  padding: '0.75rem',
-                  fontSize: '0.95rem',
-                  fontWeight: '600',
-                  backgroundColor: '#f59e0b',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  marginBottom: '0.5rem'
-                }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#d97706'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#f59e0b'}
-              >
-                ← Back to Categories
-              </button>
-              {concepts.map((concept) => (
-                <div
-                  key={concept.id}
-                  onClick={() => setSelectedConcept(concept)}
-                  style={{
-                    padding: '1rem',
-                    backgroundColor: selectedConcept.id === concept.id ? concept.color + '20' : '#1f2937',
-                    border: `2px solid ${selectedConcept.id === concept.id ? concept.color : '#374151'}`,
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (selectedConcept.id !== concept.id) {
-                      e.currentTarget.style.backgroundColor = '#374151'
-                      e.currentTarget.style.borderColor = '#4b5563'
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (selectedConcept.id !== concept.id) {
-                      e.currentTarget.style.backgroundColor = '#1f2937'
-                      e.currentTarget.style.borderColor = '#374151'
-                    }
-                  }}
-                >
-                  <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{concept.icon}</div>
-                  <div style={{
-                    fontSize: '0.9rem',
-                    fontWeight: '600',
-                    color: 'white'
-                  }}>
-                    {concept.name}
-                  </div>
-                </div>
+        {concepts.map((concept, index) => (
+          <div
+            key={concept.id}
+            onClick={() => setSelectedConceptIndex(index)}
+            style={{
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              border: `1px solid ${concept.color}40`,
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = `0 20px 40px ${concept.color}20`
+              e.currentTarget.style.borderColor = concept.color
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.borderColor = `${concept.color}40`
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
+              <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
+            </div>
+            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
+            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+              {concept.details.length} topics • Click to explore
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Concept Detail Modal */}
+      {selectedConcept && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '2rem'
+          }}
+          onClick={() => setSelectedConceptIndex(null)}
+        >
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              maxWidth: '1200px',
+              maxHeight: '92vh',
+              overflow: 'auto',
+              border: `1px solid ${selectedConcept.color}40`
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Breadcrumb */}
+            <Breadcrumb
+              breadcrumbStack={buildBreadcrumbStack()}
+              onBreadcrumbClick={handleBreadcrumbClick}
+              colors={DATABASE_COLORS}
+            />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid #334155' }}>
+              <h2 style={{ color: selectedConcept.color, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.25rem' }}>
+                <span>{selectedConcept.icon}</span>
+                {selectedConcept.name}
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button onClick={handlePreviousConcept} disabled={selectedConceptIndex === 0} style={{ padding: '0.4rem 0.75rem', background: 'rgba(100, 116, 139, 0.2)', border: '1px solid rgba(100, 116, 139, 0.3)', borderRadius: '0.375rem', color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8', cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer', fontSize: '0.8rem' }}>←</button>
+                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>{selectedConceptIndex + 1}/{concepts.length}</span>
+                <button onClick={handleNextConcept} disabled={selectedConceptIndex === concepts.length - 1} style={{ padding: '0.4rem 0.75rem', background: 'rgba(100, 116, 139, 0.2)', border: '1px solid rgba(100, 116, 139, 0.3)', borderRadius: '0.375rem', color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8', cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer', fontSize: '0.8rem' }}>→</button>
+                <button onClick={() => setSelectedConceptIndex(null)} style={{ padding: '0.4rem 0.75rem', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '0.375rem', color: '#f87171', cursor: 'pointer', fontSize: '0.8rem', marginLeft: '0.5rem' }}>✕</button>
+              </div>
+            </div>
+
+            {/* Subtopic Tabs */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {selectedConcept.details.map((detail, i) => (
+                <button key={i} onClick={() => setSelectedDetailIndex(i)} style={{ padding: '0.5rem 1rem', background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)', border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`, borderRadius: '0.5rem', color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8', cursor: 'pointer', fontSize: '0.85rem', fontWeight: selectedDetailIndex === i ? '600' : '400', transition: 'all 0.2s' }}>{detail.name}</button>
               ))}
             </div>
 
-            {/* Main content */}
-            <div>
-              <div style={{
-                backgroundColor: selectedConcept.color + '10',
-                padding: '2rem',
-                borderRadius: '12px',
-                border: `3px solid ${selectedConcept.color}40`,
-                marginBottom: '2rem'
-              }}>
-                <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>{selectedConcept.icon}</div>
-                <h2 style={{
-                  fontSize: '2rem',
-                  fontWeight: '800',
-                  color: 'white',
-                  marginBottom: '1rem'
-                }}>
-                  {selectedConcept.name}
-                </h2>
-                <p style={{
-                  fontSize: '1.1rem',
-                  color: '#9ca3af',
-                  lineHeight: '1.8'
-                }}>
-                  {selectedConcept.description}
-                </p>
-              </div>
+            {/* Selected Subtopic Content */}
+            {(() => {
+              const detail = selectedConcept.details[selectedDetailIndex]
+              const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              return (
+                <div>
+                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>{detail.name}</h3>
+                  <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
+                </div>
+              )
+            })()}
 
-              <div style={{
-                display: 'grid',
-                gap: '1.5rem'
-              }}>
-                {selectedConcept.details.map((detail, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      backgroundColor: '#1f2937',
-                      padding: '1.5rem',
-                      borderRadius: '12px',
-                      border: `2px solid #374151`,
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                    }}
-                  >
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem',
-                      marginBottom: '0.75rem'
-                    }}>
-                      <div style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '50%',
-                        backgroundColor: selectedConcept.color,
-                        color: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '0.9rem',
-                        fontWeight: '700'
-                      }}>
-                        {index + 1}
-                      </div>
-                      <h3 style={{
-                        fontSize: '1.1rem',
-                        fontWeight: '700',
-                        color: 'white',
-                        margin: 0
-                      }}>
-                        {detail.name}
-                      </h3>
-                    </div>
-                    <p style={{
-                      fontSize: '1rem',
-                      color: '#9ca3af',
-                      lineHeight: '1.7',
-                      margin: 0
-                    }}>
-                      {detail.explanation}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </>
-        ) : (
-          concepts.map((concept) => (
-            <div
-              key={concept.id}
-              onClick={() => setSelectedConcept(concept)}
-              style={{
-                backgroundColor: concept.color + '10',
-                padding: '2rem',
-                borderRadius: '12px',
-                border: `3px solid ${concept.color}40`,
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                transform: 'translateY(0)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)'
-                e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.15)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
-            >
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{concept.icon}</div>
-              <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: 'white',
-                marginBottom: '0.75rem'
-              }}>
-                {concept.name}
-              </h3>
-              <p style={{
-                fontSize: '0.95rem',
-                color: '#9ca3af',
-                lineHeight: '1.6',
-                marginBottom: '1rem'
-              }}>
-                {concept.description}
-              </p>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontSize: '0.9rem',
-                color: concept.color,
-                fontWeight: '600'
-              }}>
-                <span>Learn more</span>
-                <span>→</span>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
