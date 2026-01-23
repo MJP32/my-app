@@ -237,48 +237,6 @@ function MyProjects({ onBack, onSelectItem }) {
           description: 'Fault-tolerant ride sharing platform with real-time matching, geospatial routing, and high availability architecture.'
         },
         {
-          id: 'Google Docs',
-          name: 'Google Docs',
-          icon: '📝',
-          color: '#3b82f6',
-          description: 'Understand the System Design of Google Docs, using different techniques to address storage, collaborative editing, and concurrency issues.'
-        },
-        {
-          id: 'YouTube',
-          name: 'YouTube',
-          icon: '▶️',
-          color: '#ff0000',
-          description: 'Design a video streaming platform like YouTube. Handle video upload, transcoding, CDN delivery, recommendations, and scalability for millions of users.'
-        },
-        {
-          id: 'Newsfeed System',
-          name: 'Newsfeed System',
-          icon: '📰',
-          color: '#1877f2',
-          description: 'Design a scalable newsfeed system like Facebook or Twitter. Handle fan-out strategies, ranking algorithms, real-time updates, and personalized content delivery.'
-        },
-        {
-          id: 'TinyURL',
-          name: 'TinyURL',
-          icon: '🔗',
-          color: '#06b6d4',
-          description: 'Design a URL shortening service like TinyURL or Bitly. Handle short URL generation, redirection, analytics, rate limiting, and high-volume traffic.'
-        },
-        {
-          id: 'WhatsApp',
-          name: 'WhatsApp',
-          icon: '💬',
-          color: '#25d366',
-          description: 'Design a messaging platform like WhatsApp. Handle real-time messaging, end-to-end encryption, group chats, media sharing, and billions of messages daily.'
-        },
-        {
-          id: 'Type Ahead System',
-          name: 'Type Ahead System',
-          icon: '🔍',
-          color: '#8b5cf6',
-          description: 'Design an autocomplete/type-ahead system like Google Search. Handle prefix matching, ranking, caching, real-time suggestions, and billions of queries.'
-        },
-        {
           id: 'Instagram',
           name: 'Instagram',
           icon: '📸',
@@ -312,27 +270,6 @@ function MyProjects({ onBack, onSelectItem }) {
           icon: '📹',
           color: '#2d8cff',
           description: 'Design a video conferencing platform like Zoom. Handle WebRTC, real-time communication, screen sharing, recording, and scalable meetings for 1000+ participants.'
-        },
-        {
-          id: 'Dropbox',
-          name: 'Dropbox',
-          icon: '📁',
-          color: '#0061ff',
-          description: 'Design a file storage and sync service like Dropbox. Handle file chunking, deduplication, conflict resolution, version history, and cross-device synchronization.'
-        },
-        {
-          id: 'Notification System',
-          name: 'Notification System',
-          icon: '🔔',
-          color: '#f59e0b',
-          description: 'Design a scalable notification system. Handle push notifications, email, SMS, rate limiting, prioritization, delivery guarantees, and millions of notifications per second.'
-        },
-        {
-          id: 'Rate Limiter',
-          name: 'Rate Limiter',
-          icon: '⏱️',
-          color: '#8b5cf6',
-          description: 'Design a distributed rate limiting system. Handle token bucket, sliding window algorithms, Redis-based implementation, and protect APIs from abuse at scale.'
         },
         {
           id: 'Food Delivery',
