@@ -158,6 +158,19 @@ import GCP from './pages/cloud/GCP.jsx'
 import Azure from './pages/cloud/Azure.jsx'
 import Cloud from './pages/cloud/Cloud.jsx'
 import Messaging from './pages/messaging/Messaging.jsx'
+import ETrading from './pages/etrading/ETrading.jsx'
+import RFQSystems from './pages/etrading/RFQSystems.jsx'
+import FixedIncomeTrading from './pages/etrading/FixedIncomeTrading.jsx'
+import AeronMessaging from './pages/etrading/AeronMessaging.jsx'
+import LowLatency from './pages/etrading/LowLatency.jsx'
+import OrderManagement from './pages/etrading/OrderManagement.jsx'
+import ExecutionAlgorithms from './pages/etrading/ExecutionAlgorithms.jsx'
+import AutomatedHedging from './pages/etrading/AutomatedHedging.jsx'
+import FIXProtocol from './pages/etrading/FIXProtocol.jsx'
+import JavaTrading from './pages/etrading/JavaTrading.jsx'
+import RiskManagement from './pages/etrading/RiskManagement.jsx'
+import PriceContribution from './pages/etrading/PriceContribution.jsx'
+import DistributedSystems from './pages/etrading/DistributedSystems.jsx'
 
 // Algorithm pages - lazy loaded for better performance
 const Arrays = lazy(() => import('./pages/algorithms/Arrays.jsx'))
@@ -222,6 +235,9 @@ const MobileWeatherApp = lazy(() => import('./pages/design/MobileWeatherApp.jsx'
 const ApartmentAlarmSystem = lazy(() => import('./pages/design/ApartmentAlarmSystem.jsx'))
 const EventDrivenArchitecture = lazy(() => import('./pages/design/EventDrivenArchitecture.jsx'))
 const DomainDrivenDesign = lazy(() => import('./pages/design/DomainDrivenDesign.jsx'))
+const L3SystemDesign = lazy(() => import('./pages/design/L3SystemDesign.jsx'))
+const L4SystemDesign = lazy(() => import('./pages/design/L4SystemDesign.jsx'))
+const L5SystemDesign = lazy(() => import('./pages/design/L5SystemDesign.jsx'))
 
 // System Design Concept pages
 import LoadBalancing from './pages/concepts/LoadBalancing.jsx'
@@ -284,7 +300,7 @@ import FeedbackModal from './components/FeedbackModal.jsx'
 import GoogleAnalytics from './components/GoogleAnalytics.jsx'
 import { initializeUser, getProgressStats, getCategoryStats, getCategoryGroupings, getAllPracticeProblems, getCompletedProblems, migrateCompletionData } from './services/progressService'
 import { onAuthStateChange, getCurrentUser } from './services/authService'
-import { GamificationHeader, XPGainNotification } from './components/gamification'
+import { XPGainNotification } from './components/gamification'
 import { AchievementNotification } from './components/achievements'
 import DailyChallenge from './components/DailyChallenge'
 import { ActivityHeatmap, WeeklyProgressChart } from './components/charts'
@@ -378,6 +394,13 @@ const categoryGroups = {
     color: '#0ea5e9',
     groupSection: 'Operations',
     description: 'CI/CD, Docker, Kubernetes, Messaging, Security',
+    items: []
+  },
+  'eTrading': {
+    icon: '📈',
+    color: '#22c55e',
+    groupSection: 'Tech Stack',
+    description: 'Electronic trading systems and protocols',
     items: []
   },
   'Practice': {
@@ -619,6 +642,7 @@ const ROUTE_TO_PAGE = {
   '/cloud': 'Cloud',
   '/security': 'Security',
   '/messaging': 'Messaging',
+  '/etrading': 'eTrading',
   '/projects': 'Projects',
   '/progress': 'Progress',
   '/ai-interview': 'AI Interview'
@@ -737,6 +761,15 @@ const BREADCRUMB_COLORS = {
     arrow: '#ef4444',
     hoverBg: 'rgba(239, 68, 68, 0.2)',
     topicBg: 'rgba(239, 68, 68, 0.2)'
+  },
+  eTrading: {
+    primary: '#4ade80',
+    primaryHover: '#86efac',
+    bg: 'rgba(34, 197, 94, 0.1)',
+    border: 'rgba(34, 197, 94, 0.3)',
+    arrow: '#22c55e',
+    hoverBg: 'rgba(34, 197, 94, 0.2)',
+    topicBg: 'rgba(34, 197, 94, 0.2)'
   }
 }
 
@@ -3478,6 +3511,36 @@ function App() {
       setSelectedOptionAndRef('')
       return null
     }
+    if (selectedOption === 'L3 System Design') {
+      return (
+        <Suspense fallback={<LoadingSpinner text="Loading L3 System Design..." />}>
+          <L3SystemDesign onBack={() => {
+            setDesignInitialCategory('interview')
+            setSelectedOptionAndRef('Design')
+          }} />
+        </Suspense>
+      )
+    }
+    if (selectedOption === 'L4 System Design') {
+      return (
+        <Suspense fallback={<LoadingSpinner text="Loading L4 System Design..." />}>
+          <L4SystemDesign onBack={() => {
+            setDesignInitialCategory('interview')
+            setSelectedOptionAndRef('Design')
+          }} />
+        </Suspense>
+      )
+    }
+    if (selectedOption === 'L5 System Design') {
+      return (
+        <Suspense fallback={<LoadingSpinner text="Loading L5 System Design..." />}>
+          <L5SystemDesign onBack={() => {
+            setDesignInitialCategory('interview')
+            setSelectedOptionAndRef('Design')
+          }} />
+        </Suspense>
+      )
+    }
     if (selectedOption === 'Design') {
       return <Design
         onBack={() => {
@@ -3561,6 +3624,136 @@ function App() {
         onSelectItem={(item) => {
           // Open the appropriate messaging topic
           setSelectedOptionAndRef(item)
+        }}
+      />
+    }
+    if (selectedOption === 'eTrading') {
+      return <ETrading
+        onBack={() => setSelectedOptionAndRef('')}
+        onSelectItem={(item) => {
+          // Open the appropriate eTrading topic
+          setSelectedOptionAndRef(item)
+        }}
+      />
+    }
+    // eTrading topic pages
+    if (selectedOption === 'RFQ Systems') {
+      return <RFQSystems
+        onBack={() => setSelectedOptionAndRef('eTrading')}
+        breadcrumb={{
+          section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
+          topic: 'RFQ Systems',
+          colors: BREADCRUMB_COLORS.eTrading
+        }}
+      />
+    }
+    if (selectedOption === 'Fixed Income Trading') {
+      return <FixedIncomeTrading
+        onBack={() => setSelectedOptionAndRef('eTrading')}
+        breadcrumb={{
+          section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
+          topic: 'Fixed Income Trading',
+          colors: BREADCRUMB_COLORS.eTrading
+        }}
+      />
+    }
+    if (selectedOption === 'Aeron Messaging') {
+      return <AeronMessaging
+        onBack={() => setSelectedOptionAndRef('eTrading')}
+        breadcrumb={{
+          section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
+          topic: 'Aeron Messaging',
+          colors: BREADCRUMB_COLORS.eTrading
+        }}
+      />
+    }
+    if (selectedOption === 'Low Latency') {
+      return <LowLatency
+        onBack={() => setSelectedOptionAndRef('eTrading')}
+        breadcrumb={{
+          section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
+          topic: 'Low Latency Systems',
+          colors: BREADCRUMB_COLORS.eTrading
+        }}
+      />
+    }
+    if (selectedOption === 'Order Management') {
+      return <OrderManagement
+        onBack={() => setSelectedOptionAndRef('eTrading')}
+        breadcrumb={{
+          section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
+          topic: 'Order Management',
+          colors: BREADCRUMB_COLORS.eTrading
+        }}
+      />
+    }
+    if (selectedOption === 'Execution Algorithms') {
+      return <ExecutionAlgorithms
+        onBack={() => setSelectedOptionAndRef('eTrading')}
+        breadcrumb={{
+          section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
+          topic: 'Execution Algorithms',
+          colors: BREADCRUMB_COLORS.eTrading
+        }}
+      />
+    }
+    if (selectedOption === 'Automated Hedging') {
+      return <AutomatedHedging
+        onBack={() => setSelectedOptionAndRef('eTrading')}
+        breadcrumb={{
+          section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
+          topic: 'Automated Hedging',
+          colors: BREADCRUMB_COLORS.eTrading
+        }}
+      />
+    }
+    if (selectedOption === 'FIX Protocol') {
+      return <FIXProtocol
+        onBack={() => setSelectedOptionAndRef('eTrading')}
+        breadcrumb={{
+          section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
+          topic: 'FIX Protocol',
+          colors: BREADCRUMB_COLORS.eTrading
+        }}
+      />
+    }
+    if (selectedOption === 'Java Trading') {
+      return <JavaTrading
+        onBack={() => setSelectedOptionAndRef('eTrading')}
+        breadcrumb={{
+          section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
+          topic: 'Java for Trading',
+          colors: BREADCRUMB_COLORS.eTrading
+        }}
+      />
+    }
+    if (selectedOption === 'Risk Management') {
+      return <RiskManagement
+        onBack={() => setSelectedOptionAndRef('eTrading')}
+        breadcrumb={{
+          section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
+          topic: 'Risk Management',
+          colors: BREADCRUMB_COLORS.eTrading
+        }}
+      />
+    }
+    if (selectedOption === 'Price Contribution') {
+      return <PriceContribution
+        onBack={() => setSelectedOptionAndRef('eTrading')}
+        breadcrumb={{
+          section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
+          topic: 'Real-time Pricing',
+          colors: BREADCRUMB_COLORS.eTrading
+        }}
+      />
+    }
+    if (selectedOption === 'Distributed Systems') {
+      return <DistributedSystems
+        onBack={() => setSelectedOptionAndRef('eTrading')}
+        breadcrumb={{
+          section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
+          topic: 'Distributed Systems',
+          colors: BREADCRUMB_COLORS.eTrading
         }}
       />
     }
@@ -8766,11 +8959,6 @@ function App() {
           >
             <span>🔍</span>
           </button>
-
-          {/* Gamification Header - Only show when user is logged in */}
-          {currentUser && (
-            <GamificationHeader userId={currentUser.uid} size="small" />
-          )}
 
           {/* Theme Toggle */}
           <ThemeToggle size="small" />

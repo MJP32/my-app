@@ -102,6 +102,39 @@ function Design({ onBack, onSelectItem, initialCategory }) {
       ]
     },
     {
+      id: 'interview',
+      name: 'System Design Interview',
+      icon: '🎯',
+      color: '#f97316',
+      description: 'System design interview questions organized by experience level. Progress from basic OOD and API design to complex distributed systems like YouTube and Google Search.',
+      topics: [
+        {
+          id: 'L3 System Design',
+          name: 'L3 Level (Junior)',
+          icon: '🌱',
+          color: '#22c55e',
+          complexity: 'Entry Level',
+          description: 'Basic object-oriented design questions, simple API design, and data structure choice discussions. Perfect for new graduates and junior engineers.'
+        },
+        {
+          id: 'L4 System Design',
+          name: 'L4 Level (Mid)',
+          icon: '🚀',
+          color: '#3b82f6',
+          complexity: 'Intermediate',
+          description: 'Design URL shortener, basic chat application, social media feed, file storage system, web crawler, and parking lot system.'
+        },
+        {
+          id: 'L5 System Design',
+          name: 'L5-L6+ Level (Senior)',
+          icon: '⭐',
+          color: '#a855f7',
+          complexity: 'Advanced',
+          description: 'Design YouTube, Google Search, Google Maps, distributed cache, Google Drive, Gmail, Google Photos, Google Docs, rate limiter, notification system, and WhatsApp.'
+        }
+      ]
+    },
+    {
       id: 'concepts',
       name: 'System Design Topics',
       icon: '🧠',
