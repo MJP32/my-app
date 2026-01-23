@@ -1,7 +1,17 @@
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
-import { useState } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
 
-function Databases({ onBack, onSelectItem }) {
+const DATABASE_COLORS = {
+  primary: '#60a5fa',
+  primaryHover: '#93c5fd',
+  bg: 'rgba(59, 130, 246, 0.1)',
+  border: 'rgba(59, 130, 246, 0.3)',
+  arrow: '#3b82f6',
+  hoverBg: 'rgba(59, 130, 246, 0.2)',
+  topicBg: 'rgba(59, 130, 246, 0.2)'
+}
+
+function Databases({ onBack, onSelectItem, breadcrumb }) {
   const databaseItems = [
     {
       id: 'SQL',
@@ -119,57 +129,13 @@ function Databases({ onBack, onSelectItem }) {
           </div>
         </div>
 
-        {/* Dark themed Breadcrumb */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          padding: '0.75rem 1rem',
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-          borderRadius: '8px',
-          marginBottom: '1.5rem',
-          flexWrap: 'wrap',
-          border: '1px solid rgba(59, 130, 246, 0.3)'
-        }}>
-          <button
-            onClick={onBack}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#93c5fd',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              fontWeight: '500',
-              padding: '0.25rem 0.5rem',
-              borderRadius: '4px',
-              transition: 'all 0.2s',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.25rem'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.2)'
-              e.currentTarget.style.color = '#bfdbfe'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent'
-              e.currentTarget.style.color = '#93c5fd'
-            }}
-          >
-            <span>🗃️</span> Databases
-          </button>
-          <span style={{ color: '#3b82f6', fontSize: '0.9rem' }}>→</span>
-          <span style={{
-            color: '#e2e8f0',
-            fontSize: '0.9rem',
-            fontWeight: '600',
-            padding: '0.25rem 0.75rem',
-            backgroundColor: 'rgba(59, 130, 246, 0.2)',
-            borderRadius: '4px'
-          }}>
-            Database Topics
-          </span>
-        </div>
+        {/* Breadcrumb */}
+        <Breadcrumb
+          breadcrumbStack={[
+            { name: 'Databases', icon: '🗃️' }
+          ]}
+          colors={DATABASE_COLORS}
+        />
 
         <p style={{
           fontSize: '1.2rem',
