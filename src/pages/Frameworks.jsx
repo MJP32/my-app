@@ -1,7 +1,17 @@
-import { useState } from 'react'
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation'
+import Breadcrumb from '../components/Breadcrumb'
 
-function Frameworks({ onBack, onSelectItem }) {
+const FRAMEWORK_COLORS = {
+  primary: '#4ade80',
+  primaryHover: '#86efac',
+  bg: 'rgba(16, 185, 129, 0.1)',
+  border: 'rgba(16, 185, 129, 0.3)',
+  arrow: '#10b981',
+  hoverBg: 'rgba(16, 185, 129, 0.2)',
+  topicBg: 'rgba(16, 185, 129, 0.2)'
+}
+
+function Frameworks({ onBack, onSelectItem, breadcrumb }) {
   const frameworkItems = [
     {
       id: 'Spring',
@@ -51,6 +61,13 @@ function Frameworks({ onBack, onSelectItem }) {
       icon: '⚛️',
       color: '#06b6d4',
       description: 'Modern JavaScript library for building user interfaces with components, hooks, and state management.'
+    },
+    {
+      id: 'DependencyInjection',
+      name: 'Dependency Injection',
+      icon: '💉',
+      color: '#ec4899',
+      description: 'Dependency Injection patterns and IoC containers for loosely coupled, testable applications.'
     }
   ]
 
@@ -59,7 +76,7 @@ function Frameworks({ onBack, onSelectItem }) {
     onSelect: (item) => onSelectItem(item.id),
     onBack,
     enabled: true,
-    gridColumns: 1,
+    gridColumns: 2,
     loop: true
   })
 
@@ -119,57 +136,13 @@ function Frameworks({ onBack, onSelectItem }) {
           </div>
         </div>
 
-        {/* Dark themed Breadcrumb */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          padding: '0.75rem 1rem',
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
-          borderRadius: '8px',
-          marginBottom: '1.5rem',
-          flexWrap: 'wrap',
-          border: '1px solid rgba(16, 185, 129, 0.3)'
-        }}>
-          <button
-            onClick={onBack}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#6ee7b7',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              fontWeight: '500',
-              padding: '0.25rem 0.5rem',
-              borderRadius: '4px',
-              transition: 'all 0.2s',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.25rem'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.2)'
-              e.currentTarget.style.color = '#a7f3d0'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent'
-              e.currentTarget.style.color = '#6ee7b7'
-            }}
-          >
-            <span>🌱</span> Frameworks
-          </button>
-          <span style={{ color: '#10b981', fontSize: '0.9rem' }}>→</span>
-          <span style={{
-            color: '#e2e8f0',
-            fontSize: '0.9rem',
-            fontWeight: '600',
-            padding: '0.25rem 0.75rem',
-            backgroundColor: 'rgba(16, 185, 129, 0.2)',
-            borderRadius: '4px'
-          }}>
-            Framework Topics
-          </span>
-        </div>
+        {/* Breadcrumb */}
+        <Breadcrumb
+          breadcrumbStack={[
+            { name: 'Frameworks', icon: '🌱' }
+          ]}
+          colors={FRAMEWORK_COLORS}
+        />
 
         <p style={{
           fontSize: '1.2rem',
