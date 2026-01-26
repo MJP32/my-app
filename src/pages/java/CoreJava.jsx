@@ -1,371 +1,406 @@
+/**
+ * Core Java Fundamentals Page
+ *
+ * Covers foundational Java concepts including:
+ * - Generics
+ * - Collections Framework
+ * - Encapsulation
+ * - Thread Management
+ * - Synchronization
+ * - Locks & Semaphores
+ * - Executor Framework
+ * - CompletableFuture
+ * - Class Loading
+ * - Bytecode
+ */
+
 import { useState, useEffect } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 
-// Normalize indentation by removing common leading whitespace
-const normalizeIndentation = (code) => {
-  const lines = code.split('\n')
+// =============================================================================
+// COLORS CONFIGURATION
+// =============================================================================
 
-  // Filter out empty lines for calculating min indentation
-  const nonEmptyLines = lines.filter(line => line.trim().length > 0)
-
-  if (nonEmptyLines.length === 0) return code
-
-  // Find minimum indentation
-  const minIndent = Math.min(
-    ...nonEmptyLines.map(line => {
-      const match = line.match(/^(\s*)/)
-      return match ? match[1].length : 0
-    })
-  )
-
-  // Remove common indentation from all lines
-  return lines.map(line => {
-    if (line.trim().length === 0) return '' // Keep empty lines empty
-    return line.substring(minIndent)
-  }).join('\n')
+const COREJAVA_COLORS = {
+  primary: '#fbbf24',           // Amber main accent
+  primaryHover: '#fcd34d',      // Lighter amber for hover
+  bg: 'rgba(245, 158, 11, 0.1)', // Amber background with transparency
+  border: 'rgba(245, 158, 11, 0.3)', // Amber border
+  arrow: '#f59e0b',             // Arrow/indicator color
+  hoverBg: 'rgba(245, 158, 11, 0.2)', // Hover background
+  topicBg: 'rgba(245, 158, 11, 0.2)'  // Topic card background
 }
 
-// Simple syntax highlighter for Java code
-const SyntaxHighlighter = ({ code }) => {
-  const highlightJava = (code) => {
-    // Normalize indentation first
-    const normalizedCode = normalizeIndentation(code)
+const SUBTOPIC_COLORS = [
+  { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },    // blue
+  { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' },      // green
+  { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' },    // amber
+  { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)' },    // purple
+  { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)' },    // pink
+  { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },      // cyan
+]
 
-    let highlighted = normalizedCode
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
+// =============================================================================
+// DIAGRAM COMPONENTS
+// =============================================================================
 
-    // Store protected content with placeholders
-    const protectedContent = []
-    let placeholder = 0
+const GenericsDiagram = () => (
+  <svg viewBox="0 0 800 220" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowhead-gen" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24" />
+      </marker>
+    </defs>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Java Generics Type System
+    </text>
+    <rect x="50" y="60" width="140" height="60" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="120" y="85" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Generic Class</text>
+    <text x="120" y="105" textAnchor="middle" fill="#93c5fd" fontSize="10">Box&lt;T&gt;</text>
+    <rect x="250" y="60" width="140" height="60" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="320" y="85" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Type Parameter</text>
+    <text x="320" y="105" textAnchor="middle" fill="#86efac" fontSize="10">T, E, K, V</text>
+    <rect x="450" y="60" width="140" height="60" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="520" y="85" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Bounded Types</text>
+    <text x="520" y="105" textAnchor="middle" fill="#c4b5fd" fontSize="10">&lt;T extends Number&gt;</text>
+    <rect x="650" y="60" width="120" height="60" rx="8" fill="#ec4899" stroke="#f472b6" strokeWidth="2"/>
+    <text x="710" y="85" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Wildcards</text>
+    <text x="710" y="105" textAnchor="middle" fill="#f9a8d4" fontSize="10">&lt;? extends/super&gt;</text>
+    <line x1="190" y1="90" x2="245" y2="90" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-gen)"/>
+    <line x1="390" y1="90" x2="445" y2="90" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-gen)"/>
+    <line x1="590" y1="90" x2="645" y2="90" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-gen)"/>
+    <rect x="200" y="150" width="400" height="50" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="400" y="180" textAnchor="middle" fill="#fbbf24" fontSize="12" fontWeight="bold">Type Erasure: Generics removed at compile time for backward compatibility</text>
+  </svg>
+)
 
-    // Protect comments first
-    highlighted = highlighted.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
-      const id = `___COMMENT_${placeholder++}___`
-      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
-      return id
-    })
+const CollectionsDiagram = () => (
+  <svg viewBox="0 0 800 280" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowhead-col" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24" />
+      </marker>
+    </defs>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Java Collections Framework Hierarchy
+    </text>
+    <rect x="320" y="45" width="160" height="40" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="400" y="70" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Iterable&lt;E&gt;</text>
+    <line x1="400" y1="85" x2="400" y2="105" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-col)"/>
+    <rect x="320" y="110" width="160" height="40" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="400" y="135" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Collection&lt;E&gt;</text>
+    <line x1="280" y1="130" x2="140" y2="180" stroke="#fbbf24" strokeWidth="2"/>
+    <line x1="400" y1="150" x2="400" y2="180" stroke="#fbbf24" strokeWidth="2"/>
+    <line x1="520" y1="130" x2="660" y2="180" stroke="#fbbf24" strokeWidth="2"/>
+    <rect x="60" y="185" width="140" height="40" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="130" y="210" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">List&lt;E&gt;</text>
+    <rect x="330" y="185" width="140" height="40" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="400" y="210" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Set&lt;E&gt;</text>
+    <rect x="590" y="185" width="140" height="40" rx="8" fill="#ec4899" stroke="#f472b6" strokeWidth="2"/>
+    <text x="660" y="210" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Queue&lt;E&gt;</text>
+    <text x="130" y="250" textAnchor="middle" fill="#86efac" fontSize="10">ArrayList, LinkedList</text>
+    <text x="400" y="250" textAnchor="middle" fill="#c4b5fd" fontSize="10">HashSet, TreeSet</text>
+    <text x="660" y="250" textAnchor="middle" fill="#f9a8d4" fontSize="10">PriorityQueue, Deque</text>
+  </svg>
+)
 
-    // Protect strings
-    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
-      const id = `___STRING_${placeholder++}___`
-      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
-      return id
-    })
+const EncapsulationDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Encapsulation: Data Hiding & Controlled Access
+    </text>
+    <rect x="250" y="50" width="300" height="130" rx="12" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="400" y="75" textAnchor="middle" fill="#4ade80" fontSize="12" fontWeight="bold">Class (Protective Barrier)</text>
+    <rect x="280" y="90" width="120" height="70" rx="8" fill="#ef4444" stroke="#f87171" strokeWidth="2"/>
+    <text x="340" y="115" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Private Fields</text>
+    <text x="340" y="135" textAnchor="middle" fill="#fca5a5" fontSize="9">-balance</text>
+    <text x="340" y="150" textAnchor="middle" fill="#fca5a5" fontSize="9">-accountNumber</text>
+    <rect x="420" y="90" width="110" height="70" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="475" y="115" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Public Methods</text>
+    <text x="475" y="135" textAnchor="middle" fill="#93c5fd" fontSize="9">+getBalance()</text>
+    <text x="475" y="150" textAnchor="middle" fill="#93c5fd" fontSize="9">+deposit()</text>
+    <rect x="50" y="100" width="100" height="50" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="100" y="130" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">External Code</text>
+    <line x1="150" y1="125" x2="410" y2="125" stroke="#fbbf24" strokeWidth="2" strokeDasharray="5,5"/>
+    <text x="280" y="195" textAnchor="middle" fill="#94a3b8" fontSize="10">Cannot access directly</text>
+    <text x="520" y="195" textAnchor="middle" fill="#4ade80" fontSize="10">Controlled access via methods</text>
+  </svg>
+)
 
-    // Apply syntax highlighting to remaining code
-    highlighted = highlighted
-      // Keywords - purple
-      .replace(/\b(public|private|protected|static|final|class|interface|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|import|package|void|abstract|synchronized|volatile|transient|native|strictfp|super|this|null|sealed|permits|non-sealed|record|instanceof|var)\b/g, '<span style="color: #c586c0;">$1</span>')
+const ThreadDiagram = () => (
+  <svg viewBox="0 0 800 220" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowhead-thread" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24" />
+      </marker>
+    </defs>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Thread Lifecycle States
+    </text>
+    <rect x="30" y="70" width="100" height="45" rx="8" fill="#6b7280" stroke="#9ca3af" strokeWidth="2"/>
+    <text x="80" y="97" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">NEW</text>
+    <rect x="170" y="70" width="110" height="45" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="225" y="97" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">RUNNABLE</text>
+    <rect x="320" y="70" width="100" height="45" rx="8" fill="#ef4444" stroke="#f87171" strokeWidth="2"/>
+    <text x="370" y="97" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">BLOCKED</text>
+    <rect x="460" y="70" width="100" height="45" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="510" y="97" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">WAITING</text>
+    <rect x="600" y="70" width="120" height="45" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="660" y="97" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">TIMED_WAIT</text>
+    <rect x="320" y="150" width="120" height="45" rx="8" fill="#1f2937" stroke="#374151" strokeWidth="2"/>
+    <text x="380" y="177" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">TERMINATED</text>
+    <line x1="130" y1="92" x2="165" y2="92" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-thread)"/>
+    <text x="147" y="85" textAnchor="middle" fill="#94a3b8" fontSize="8">start()</text>
+    <line x1="280" y1="92" x2="315" y2="92" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-thread)"/>
+    <line x1="420" y1="92" x2="455" y2="92" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-thread)"/>
+    <line x1="560" y1="92" x2="595" y2="92" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-thread)"/>
+    <line x1="225" y1="115" x2="225" y2="145" stroke="#fbbf24" strokeWidth="2"/>
+    <line x1="225" y1="145" x2="315" y2="172" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-thread)"/>
+  </svg>
+)
 
-      // Boolean and primitives - blue
-      .replace(/\b(true|false|int|double|float|long|short|byte|char|boolean)\b/g, '<span style="color: #569cd6;">$1</span>')
+const SyncDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Synchronization: Mutual Exclusion
+    </text>
+    <rect x="50" y="60" width="120" height="50" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="110" y="90" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Thread 1</text>
+    <rect x="50" y="130" width="120" height="50" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="110" y="160" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Thread 2</text>
+    <rect x="280" y="70" width="240" height="100" rx="12" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="3"/>
+    <text x="400" y="95" textAnchor="middle" fill="#fbbf24" fontSize="12" fontWeight="bold">synchronized block</text>
+    <rect x="310" y="110" width="180" height="45" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="400" y="137" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Critical Section</text>
+    <line x1="170" y1="85" x2="275" y2="120" stroke="#4ade80" strokeWidth="2" strokeDasharray="5,5"/>
+    <text x="220" y="95" textAnchor="middle" fill="#4ade80" fontSize="9">acquired</text>
+    <line x1="170" y1="155" x2="275" y2="140" stroke="#ef4444" strokeWidth="2" strokeDasharray="5,5"/>
+    <text x="220" y="155" textAnchor="middle" fill="#ef4444" fontSize="9">blocked</text>
+    <rect x="620" y="95" width="150" height="50" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="695" y="115" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Monitor Lock</text>
+    <text x="695" y="132" textAnchor="middle" fill="#86efac" fontSize="9">Intrinsic lock per object</text>
+  </svg>
+)
 
-      // Types and classes - light green
-      .replace(/\b(String|List|ArrayList|LinkedList|HashMap|TreeMap|HashSet|TreeSet|Map|Set|Queue|Deque|Collection|Arrays|Collections|Thread|Runnable|Executor|ExecutorService|CompletableFuture|Stream|Optional|Path|Files|Pattern|Matcher|StringBuilder|StringBuffer|Integer|Double|Float|Long|Short|Byte|Character|Boolean|Object|System|Math|Scanner|BufferedReader|FileReader|FileWriter|PrintWriter|InputStream|OutputStream|Exception|RuntimeException|IOException|SQLException|WeakReference|SoftReference|PhantomReference|ReferenceQueue)\b/g, '<span style="color: #4ec9b0;">$1</span>')
+const LocksDiagram = () => (
+  <svg viewBox="0 0 800 220" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowhead-lock" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24" />
+      </marker>
+    </defs>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Advanced Locking Mechanisms
+    </text>
+    <rect x="50" y="55" width="160" height="70" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="130" y="80" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">ReentrantLock</text>
+    <text x="130" y="100" textAnchor="middle" fill="#93c5fd" fontSize="9">lock() / unlock()</text>
+    <text x="130" y="115" textAnchor="middle" fill="#93c5fd" fontSize="9">tryLock(timeout)</text>
+    <rect x="250" y="55" width="160" height="70" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="330" y="80" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">ReadWriteLock</text>
+    <text x="330" y="100" textAnchor="middle" fill="#86efac" fontSize="9">Multiple readers OR</text>
+    <text x="330" y="115" textAnchor="middle" fill="#86efac" fontSize="9">Single writer</text>
+    <rect x="450" y="55" width="140" height="70" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="520" y="80" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Semaphore</text>
+    <text x="520" y="100" textAnchor="middle" fill="#c4b5fd" fontSize="9">Permit-based access</text>
+    <text x="520" y="115" textAnchor="middle" fill="#c4b5fd" fontSize="9">acquire() / release()</text>
+    <rect x="630" y="55" width="140" height="70" rx="8" fill="#ec4899" stroke="#f472b6" strokeWidth="2"/>
+    <text x="700" y="80" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">CountDownLatch</text>
+    <text x="700" y="100" textAnchor="middle" fill="#f9a8d4" fontSize="9">One-time barrier</text>
+    <text x="700" y="115" textAnchor="middle" fill="#f9a8d4" fontSize="9">await() / countDown()</text>
+    <rect x="200" y="150" width="400" height="50" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="400" y="180" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">java.util.concurrent.locks - More control than synchronized</text>
+  </svg>
+)
 
-      // Annotations - yellow
-      .replace(/(@\w+)/g, '<span style="color: #dcdcaa;">$1</span>')
+const ExecutorDiagram = () => (
+  <svg viewBox="0 0 800 240" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowhead-exec" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24" />
+      </marker>
+    </defs>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Executor Framework Architecture
+    </text>
+    <rect x="50" y="60" width="120" height="80" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="110" y="85" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Task Queue</text>
+    <text x="110" y="105" textAnchor="middle" fill="#93c5fd" fontSize="9">Runnable</text>
+    <text x="110" y="120" textAnchor="middle" fill="#93c5fd" fontSize="9">Callable&lt;V&gt;</text>
+    <rect x="260" y="50" width="280" height="100" rx="12" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="400" y="75" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">Thread Pool</text>
+    <rect x="280" y="90" width="70" height="45" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="1"/>
+    <text x="315" y="117" textAnchor="middle" fill="white" fontSize="9">Thread 1</text>
+    <rect x="365" y="90" width="70" height="45" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="1"/>
+    <text x="400" y="117" textAnchor="middle" fill="white" fontSize="9">Thread 2</text>
+    <rect x="450" y="90" width="70" height="45" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="1"/>
+    <text x="485" y="117" textAnchor="middle" fill="white" fontSize="9">Thread N</text>
+    <rect x="630" y="70" width="120" height="60" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="690" y="95" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Future&lt;V&gt;</text>
+    <text x="690" y="115" textAnchor="middle" fill="#c4b5fd" fontSize="9">get() result</text>
+    <line x1="170" y1="100" x2="255" y2="100" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-exec)"/>
+    <line x1="540" y1="100" x2="625" y2="100" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-exec)"/>
+    <text x="210" y="90" textAnchor="middle" fill="#94a3b8" fontSize="9">submit()</text>
+    <text x="580" y="90" textAnchor="middle" fill="#94a3b8" fontSize="9">returns</text>
+    <rect x="100" y="180" width="200" height="40" rx="6" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="200" y="205" textAnchor="middle" fill="#fbbf24" fontSize="10">newFixedThreadPool(n)</text>
+    <rect x="320" y="180" width="180" height="40" rx="6" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="410" y="205" textAnchor="middle" fill="#fbbf24" fontSize="10">newCachedThreadPool()</text>
+    <rect x="520" y="180" width="200" height="40" rx="6" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="620" y="205" textAnchor="middle" fill="#fbbf24" fontSize="10">newScheduledThreadPool(n)</text>
+  </svg>
+)
 
-      // Numbers - light green
-      .replace(/\b(\d+\.?\d*[fLdD]?)\b/g, '<span style="color: #b5cea8;">$1</span>')
+const CompletableFutureDiagram = () => (
+  <svg viewBox="0 0 800 220" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowhead-cf" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24" />
+      </marker>
+    </defs>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      CompletableFuture Pipeline
+    </text>
+    <rect x="30" y="70" width="130" height="50" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="95" y="100" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">supplyAsync()</text>
+    <rect x="190" y="70" width="120" height="50" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="250" y="100" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">thenApply()</text>
+    <rect x="340" y="70" width="120" height="50" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="400" y="100" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">thenCompose()</text>
+    <rect x="490" y="70" width="120" height="50" rx="8" fill="#ec4899" stroke="#f472b6" strokeWidth="2"/>
+    <text x="550" y="100" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">thenAccept()</text>
+    <rect x="640" y="70" width="130" height="50" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="705" y="100" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">exceptionally()</text>
+    <line x1="160" y1="95" x2="185" y2="95" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-cf)"/>
+    <line x1="310" y1="95" x2="335" y2="95" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-cf)"/>
+    <line x1="460" y1="95" x2="485" y2="95" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-cf)"/>
+    <line x1="610" y1="95" x2="635" y2="95" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-cf)"/>
+    <rect x="200" y="150" width="180" height="50" rx="8" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="290" y="170" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">thenCombine()</text>
+    <text x="290" y="185" textAnchor="middle" fill="#93c5fd" fontSize="9">Parallel composition</text>
+    <rect x="420" y="150" width="180" height="50" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="510" y="170" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">allOf() / anyOf()</text>
+    <text x="510" y="185" textAnchor="middle" fill="#86efac" fontSize="9">Multiple futures</text>
+  </svg>
+)
 
-      // Method calls - yellow
-      .replace(/\b([a-z_]\w*)\s*\(/g, '<span style="color: #dcdcaa;">$1</span>(')
+const ClassLoaderDiagram = () => (
+  <svg viewBox="0 0 800 260" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowhead-cl" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24" />
+      </marker>
+    </defs>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      ClassLoader Hierarchy & Delegation
+    </text>
+    <rect x="300" y="45" width="200" height="45" rx="8" fill="#ef4444" stroke="#f87171" strokeWidth="2"/>
+    <text x="400" y="72" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Bootstrap ClassLoader</text>
+    <text x="400" y="85" textAnchor="middle" fill="#fca5a5" fontSize="9">(Native code - rt.jar)</text>
+    <rect x="300" y="110" width="200" height="45" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="400" y="137" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Platform ClassLoader</text>
+    <text x="400" y="150" textAnchor="middle" fill="#fcd34d" fontSize="9">(Extension classes)</text>
+    <rect x="300" y="175" width="200" height="45" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="400" y="202" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Application ClassLoader</text>
+    <text x="400" y="215" textAnchor="middle" fill="#93c5fd" fontSize="9">(Classpath classes)</text>
+    <line x1="400" y1="90" x2="400" y2="105" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-cl)"/>
+    <line x1="400" y1="155" x2="400" y2="170" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-cl)"/>
+    <rect x="570" y="100" width="180" height="80" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="660" y="125" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Parent Delegation</text>
+    <text x="660" y="145" textAnchor="middle" fill="#86efac" fontSize="9">1. Delegate to parent</text>
+    <text x="660" y="160" textAnchor="middle" fill="#86efac" fontSize="9">2. Parent tries first</text>
+    <text x="660" y="175" textAnchor="middle" fill="#86efac" fontSize="9">3. Load if parent fails</text>
+    <line x1="505" y1="130" x2="565" y2="130" stroke="#22c55e" strokeWidth="2" strokeDasharray="5,5"/>
+  </svg>
+)
 
-    // Restore protected content
-    protectedContent.forEach(({ id, replacement }) => {
-      highlighted = highlighted.replace(id, replacement)
-    })
+const BytecodeDiagram = () => (
+  <svg viewBox="0 0 800 220" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowhead-bc" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24" />
+      </marker>
+    </defs>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Java Compilation & Bytecode Execution
+    </text>
+    <rect x="30" y="70" width="130" height="60" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="95" y="95" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Source Code</text>
+    <text x="95" y="115" textAnchor="middle" fill="#93c5fd" fontSize="10">.java</text>
+    <rect x="200" y="70" width="100" height="60" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="250" y="105" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">javac</text>
+    <rect x="340" y="70" width="130" height="60" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="405" y="95" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Bytecode</text>
+    <text x="405" y="115" textAnchor="middle" fill="#86efac" fontSize="10">.class</text>
+    <rect x="510" y="70" width="100" height="60" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="560" y="105" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">JVM</text>
+    <rect x="650" y="70" width="120" height="60" rx="8" fill="#ec4899" stroke="#f472b6" strokeWidth="2"/>
+    <text x="710" y="95" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Native Code</text>
+    <text x="710" y="115" textAnchor="middle" fill="#f9a8d4" fontSize="10">(JIT compiled)</text>
+    <line x1="160" y1="100" x2="195" y2="100" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-bc)"/>
+    <line x1="300" y1="100" x2="335" y2="100" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-bc)"/>
+    <line x1="470" y1="100" x2="505" y2="100" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-bc)"/>
+    <line x1="610" y1="100" x2="645" y2="100" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-bc)"/>
+    <rect x="250" y="160" width="300" height="45" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="400" y="180" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Stack-based VM: iload, iadd, invokevirtual, etc.</text>
+    <text x="400" y="195" textAnchor="middle" fill="#fcd34d" fontSize="9">~200 opcodes for platform independence</text>
+  </svg>
+)
 
-    return highlighted
-  }
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
 
-  return (
-    <pre style={{
-      margin: 0,
-      fontFamily: '"Fira Code", "Consolas", "Monaco", "Courier New", monospace',
-      fontSize: '0.9rem',
-      lineHeight: '1.7',
-      color: '#e2e8f0',
-      whiteSpace: 'pre',
-      overflowX: 'auto',
-      textAlign: 'left',
-      padding: '1.25rem',
-      tabSize: 4,
-      MozTabSize: 4,
-      letterSpacing: '0.02em'
-    }}>
-      <code dangerouslySetInnerHTML={{ __html: highlightJava(code) }} style={{
-        fontFamily: 'inherit',
-        fontSize: 'inherit'
-      }} />
-    </pre>
-  )
-}
+function CoreJava({ onBack, onPrevious, onNext, previousName, nextName, breadcrumb }) {
+  const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
+  const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
 
-function CoreJava({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
-  const [selectedConcept, setSelectedConcept] = useState(null)
-
-  // Compute extended breadcrumb when a concept is selected
-  const activeBreadcrumb = selectedConcept ? {
-    section: breadcrumb.section,
-    category: breadcrumb.category,
-    subcategory: {
-      name: breadcrumb.topic,
-      onClick: () => setSelectedConcept(null)
-    },
-    topic: selectedConcept.name,
-    colors: breadcrumb.colors
-  } : breadcrumb
-
-  const parseCodeSections = (code) => {
-    const sections = []
-    const lines = code.split('\n')
-    let currentSection = null
-    let currentContent = []
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
-
-      if (line.includes('// ═══════════════════════════════════════════════════════════════════════════')) {
-        if (currentSection) {
-          sections.push({
-            title: currentSection,
-            code: currentContent.join('\n')
-          })
-          currentContent = []
-        }
-
-        if (i + 1 < lines.length && lines[i + 1].includes('// ✦')) {
-          currentSection = lines[i + 1].replace('// ✦', '').trim()
-          i += 2
-          continue
-        }
-      }
-
-      if (currentSection) {
-        currentContent.push(line)
-      }
-    }
-
-    if (currentSection && currentContent.length > 0) {
-      sections.push({
-        title: currentSection,
-        code: currentContent.join('\n')
-      })
-    }
-
-    // Filter and combine sections to make them more meaningful
-    const meaningfulSections = []
-    let tempSection = null
-
-    for (let i = 0; i < sections.length; i++) {
-      const section = sections[i]
-      const codeLines = section.code.trim().split('\n').filter(line => {
-        const trimmed = line.trim()
-        return trimmed && !trimmed.startsWith('//') && trimmed !== ''
-      })
-
-      // If section has less than 3 meaningful lines, combine with next or previous
-      if (codeLines.length < 3) {
-        if (tempSection) {
-          tempSection.code += '\n\n' + section.code
-          tempSection.title = tempSection.title // Keep the first title
-        } else {
-          tempSection = { ...section }
-        }
-      } else {
-        // This is a meaningful section
-        if (tempSection) {
-          // Combine the temp section with this one
-          meaningfulSections.push({
-            title: tempSection.title,
-            code: tempSection.code + '\n\n' + section.code
-          })
-          tempSection = null
-        } else {
-          meaningfulSections.push(section)
-        }
-      }
-    }
-
-    // Add any remaining temp section
-    if (tempSection) {
-      if (meaningfulSections.length > 0) {
-        // Combine with the last section
-        const lastIdx = meaningfulSections.length - 1
-        meaningfulSections[lastIdx].code += '\n\n' + tempSection.code
-      } else {
-        meaningfulSections.push(tempSection)
-      }
-    }
-
-    return meaningfulSections
-  }
-
-  const handleConceptClick = (concept) => {
-    setSelectedConcept(concept)
-  }
-
-  // Keyboard navigation - Escape to deselect
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && selectedConcept) {
-        setSelectedConcept(null)
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [selectedConcept])
+  // =============================================================================
+  // CONCEPTS DATA
+  // =============================================================================
 
   const concepts = [
     {
+      id: 'generics',
       name: 'Generics',
       icon: '🔤',
-      explanation: `**Core Concept:**
-• Parameterized types that enable type safety at compile time
-• Introduced in Java 5 to eliminate ClassCastException at runtime
-• Allow classes, interfaces, and methods to operate on specified types
-• Provide stronger type checks and eliminate need for casting
-
-**Type Parameters:**
-• T - Type (most common, used for any class)
-• E - Element (used in collections)
-• K - Key (used in maps)
-• V - Value (used in maps)
-• N - Number (for numeric types)
-• Convention: Single uppercase letters
-
-**Generic Classes:**
-• Define type parameter in class declaration: class Box<T>
-• Type parameter used throughout class
-• Multiple type parameters allowed: class Pair<K, V>
-• Type is specified when creating instance: new Box<String>()
-
-**Generic Methods:**
-• Type parameter declared before return type: <T> void method(T param)
-• Can be static or instance methods
-• Type inference allows omitting type arguments in some cases
-• Useful for utility methods that work with any type
-
-**Bounded Type Parameters:**
-• Upper Bound - <T extends Number> restricts to Number and subclasses
-• Multiple Bounds - <T extends Class & Interface1 & Interface2>
-• Lower Bound - <? super Integer> accepts Integer and superclasses (used in wildcards)
-• Enables methods to call specific methods on the type parameter
-
-**Wildcards:**
-• Unbounded - <?> represents unknown type
-• Upper Bounded - <? extends Number> accepts Number and subclasses (covariant)
-• Lower Bounded - <? super Integer> accepts Integer and superclasses (contravariant)
-• PECS Principle - Producer Extends, Consumer Super
-
-**Type Erasure:**
-• Generics removed during compilation (backward compatibility)
-• Generic type replaced with Object or bound type
-• Bridge methods generated for polymorphism
-• Cannot create arrays of parameterized types
-• Cannot use primitive types as type parameters
-
-**Generic Interfaces:**
-• Comparable<T>, Comparator<T>, Iterable<T>
-• Custom interfaces: interface Repository<T, ID>
-• Implementation can be generic or specify concrete type
-
-**Benefits:**
-• Type Safety - Compile-time type checking prevents ClassCastException
-• Elimination of Casts - No need for explicit type casting
-• Code Reusability - Write once, use with any type
-• Cleaner Code - More readable and maintainable
-
-**Common Patterns:**
-• Generic Collections - List<String>, Map<Integer, String>
-• Generic DAO/Repository - Repository<User, Long>
-• Builder Pattern - Builder<T>
-• Factory Pattern - Factory<T>`,
-      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Generic class with single type parameter
-// ═══════════════════════════════════════════════════════════════════════════
+      color: '#f59e0b',
+      description: 'Parameterized types enabling compile-time type safety and code reuse.',
+      diagram: GenericsDiagram,
+      details: [
+        {
+          name: 'Type Parameters',
+          explanation: 'Generics use type parameters (T, E, K, V, N) as placeholders for actual types. They enable classes and methods to operate on specified types while providing compile-time type safety. Type inference with diamond operator (<>) simplifies instantiation in Java 7+.',
+          codeExample: `// Generic class with single type parameter
 class Box<T> {
     private T item;
 
-    public void set(T item) {
-        this.item = item;
-    }
-
-    public T get() {
-        return item;
-    }
+    public void set(T item) { this.item = item; }
+    public T get() { return item; }
 }
 
+// Usage with type inference
 Box<String> stringBox = new Box<>();
 stringBox.set("Hello");
 String value = stringBox.get();  // No casting needed
-System.out.println("String box: " + value);
 
-Box<Integer> intBox = new Box<>();
-intBox.set(123);
-Integer num = intBox.get();
-System.out.println("Integer box: " + num);
-// Output: String box: Hello
-// Output: Integer box: 123
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Generic class with multiple type parameters
-// ═══════════════════════════════════════════════════════════════════════════
+// Multiple type parameters
 class Pair<K, V> {
     private K key;
     private V value;
-
     public Pair(K key, V value) {
         this.key = key;
         this.value = value;
     }
-
-    public K getKey() { return key; }
-    public V getValue() { return value; }
 }
-
-Pair<String, Integer> pair = new Pair<>("Age", 25);
-System.out.println("Key: " + pair.getKey() + ", Value: " + pair.getValue());
-// Output: Key: Age, Value: 25
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Generic method
-// ═══════════════════════════════════════════════════════════════════════════
-class Util {
-    public static <T> void printArray(T[] array) {
-        for (T element : array) {
-            System.out.print(element + " ");
-        }
-        System.out.println();
-    }
-
-    public static <T> T getFirst(T[] array) {
-        return array.length > 0 ? array[0] : null;
-    }
-}
-
-Integer[] intArray = {1, 2, 3, 4, 5};
-String[] strArray = {"Java", "Python", "C++"};
-
-Util.printArray(intArray);
-Util.printArray(strArray);
-System.out.println("First integer: " + Util.getFirst(intArray));
-System.out.println("First string: " + Util.getFirst(strArray));
-// Output: 1 2 3 4 5
-// Output: Java Python C++
-// Output: First integer: 1
-// Output: First string: Java
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Bounded type parameters - upper bound
-// ═══════════════════════════════════════════════════════════════════════════
+Pair<String, Integer> pair = new Pair<>("Age", 25);`
+        },
+        {
+          name: 'Bounded Types',
+          explanation: 'Bounded type parameters restrict types to specific class hierarchies. Upper bounds (<T extends Number>) accept a class and its subclasses. Multiple bounds (<T extends Class & Interface>) combine constraints. This enables calling specific methods on type parameters.',
+          codeExample: `// Upper bounded - accepts Number and subclasses
 class NumberBox<T extends Number> {
     private T number;
 
@@ -378,640 +413,480 @@ class NumberBox<T extends Number> {
     }
 }
 
-NumberBox<Integer> intBox2 = new NumberBox<>(100);
+NumberBox<Integer> intBox = new NumberBox<>(100);
 NumberBox<Double> doubleBox = new NumberBox<>(3.14);
-System.out.println("Int as double: " + intBox2.doubleValue());
-System.out.println("Double value: " + doubleBox.doubleValue());
-// Output: Int as double: 100.0
-// Output: Double value: 3.14
 
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Multiple bounds
-// ═══════════════════════════════════════════════════════════════════════════
-interface Printable {
-    void print();
-}
-
-class Document implements Printable {
-    private String content;
-
-    public Document(String content) {
-        this.content = content;
-    }
-
-    public void print() {
-        System.out.println("Document: " + content);
-    }
-
-    public int length() {
-        return content.length();
-    }
-}
-
+// Multiple bounds - class must come first
 class Processor<T extends Document & Printable> {
     public void process(T item) {
-        item.print();
-        System.out.println("Length: " + item.length());
+        item.print();        // Printable method
+        item.getContent();   // Document method
+    }
+}`
+        },
+        {
+          name: 'Wildcards',
+          explanation: 'Wildcards (?) represent unknown types. Unbounded (<?>) accepts any type. Upper bounded (<? extends T>) is covariant for reading (Producer Extends). Lower bounded (<? super T>) is contravariant for writing (Consumer Super). The PECS principle guides proper wildcard usage.',
+          codeExample: `// Unbounded wildcard - accepts any type
+public static void printList(List<?> list) {
+    for (Object item : list) {
+        System.out.println(item);
     }
 }
 
-Processor<Document> processor = new Processor<>();
-processor.process(new Document("Hello World"));
-// Output: Document: Hello World
-// Output: Length: 11
+// Upper bounded (Producer Extends) - read from
+public static double sum(List<? extends Number> list) {
+    double total = 0;
+    for (Number num : list) {
+        total += num.doubleValue();
+    }
+    return total;
+}
 
+// Lower bounded (Consumer Super) - write to
+public static void addIntegers(List<? super Integer> list) {
+    list.add(1);
+    list.add(2);
+    list.add(3);
+}
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Wildcards - unbounded
-// ═══════════════════════════════════════════════════════════════════════════
-class WildcardDemo {
-    public static void printList(List<?> list) {
-        for (Object item : list) {
-            System.out.print(item + " ");
+// PECS: Producer Extends, Consumer Super
+List<Integer> integers = Arrays.asList(1, 2, 3);
+List<Number> numbers = new ArrayList<>();
+double result = sum(integers);      // extends - reading
+addIntegers(numbers);               // super - writing`
+        },
+        {
+          name: 'Type Erasure',
+          explanation: 'Generics are removed during compilation for backward compatibility. Generic types are replaced with Object or their bound type. Bridge methods maintain polymorphism. Limitations: cannot create arrays of parameterized types, use primitives as type parameters, or perform instanceof checks on parameterized types.',
+          codeExample: `// Before type erasure
+public class Box<T> {
+    private T item;
+    public T get() { return item; }
+}
+
+// After type erasure (what JVM sees)
+public class Box {
+    private Object item;
+    public Object get() { return item; }
+}
+
+// Bridge method example
+class StringBox extends Box<String> {
+    @Override
+    public String get() { return super.get(); }
+    // Compiler generates bridge method:
+    // public Object get() { return get(); }
+}
+
+// Limitations due to type erasure
+// Cannot do: new T(), new T[], T.class
+// Cannot do: List<int> (must use Integer)
+// Cannot do: obj instanceof List<String>`
         }
-        System.out.println();
-    }
-}
-
-List<Integer> intList = Arrays.asList(1, 2, 3);
-List<String> strList = Arrays.asList("A", "B", "C");
-
-WildcardDemo.printList(intList);
-WildcardDemo.printList(strList);
-// Output: 1 2 3
-// Output: A B C
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Upper bounded wildcard (Producer Extends)
-// ═══════════════════════════════════════════════════════════════════════════
-class NumberProcessor {
-    public static double sum(List<? extends Number> list) {
-        double total = 0;
-        for (Number num : list) {
-            total += num.doubleValue();
-        }
-        return total;
-    }
-}
-
-List<Integer> integers = Arrays.asList(1, 2, 3, 4, 5);
-List<Double> doubles = Arrays.asList(1.5, 2.5, 3.5);
-
-System.out.println("Sum of integers: " + NumberProcessor.sum(integers));
-System.out.println("Sum of doubles: " + NumberProcessor.sum(doubles));
-// Output: Sum of integers: 15.0
-// Output: Sum of doubles: 7.5
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Lower bounded wildcard (Consumer Super)
-// ═══════════════════════════════════════════════════════════════════════════
-class ListAdder {
-    public static void addIntegers(List<? super Integer> list) {
-        list.add(1);
-        list.add(2);
-        list.add(3);
-    }
-}
-
-List<Number> numberList = new ArrayList<>();
-ListAdder.addIntegers(numberList);
-System.out.println("Number list: " + numberList);
-
-List<Object> objectList = new ArrayList<>();
-ListAdder.addIntegers(objectList);
-System.out.println("Object list: " + objectList);
-// Output: Number list: [1, 2, 3]
-// Output: Object list: [1, 2, 3]
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Generic interface and implementation
-// ═══════════════════════════════════════════════════════════════════════════
-interface Repository<T, ID> {
-    T findById(ID id);
-    void save(T entity);
-}
-
-class User {
-    String name;
-    User(String name) { this.name = name; }
-    public String toString() { return "User: " + name; }
-}
-
-class UserRepository implements Repository<User, Long> {
-    private Map<Long, User> database = new HashMap<>();
-
-    public User findById(Long id) {
-        return database.get(id);
-    }
-
-    public void save(User user) {
-        database.put(System.currentTimeMillis(), user);
-        System.out.println("Saved: " + user);
-    }
-}
-
-UserRepository repo = new UserRepository();
-repo.save(new User("Alice"));
-repo.save(new User("Bob"));
-// Output: Saved: User: Alice
-// Output: Saved: User: Bob
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Type inference with diamond operator
-// ═══════════════════════════════════════════════════════════════════════════
-List<String> list1 = new ArrayList<String>();  // Java 6
-List<String> list2 = new ArrayList<>();        // Java 7+ (type inference)
-
-Map<String, List<Integer>> map1 = new HashMap<String, List<Integer>>();  // Java 6
-Map<String, List<Integer>> map2 = new HashMap<>();                       // Java 7+
-
-System.out.println("Type inference simplifies generic instantiation");
-// Output: Type inference simplifies generic instantiation
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Generic method with type inference
-// ═══════════════════════════════════════════════════════════════════════════
-class GenericMethods {
-    public static <T> List<T> createList(T... elements) {
-        List<T> list = new ArrayList<>();
-        for (T element : elements) {
-            list.add(element);
-        }
-        return list;
-    }
-}
-
-List<String> names = GenericMethods.createList("Alice", "Bob", "Charlie");
-List<Integer> numbers = GenericMethods.createList(1, 2, 3, 4, 5);
-
-System.out.println("Names: " + names);
-System.out.println("Numbers: " + numbers);
-// Output: Names: [Alice, Bob, Charlie]
-// Output: Numbers: [1, 2, 3, 4, 5]`
+      ]
     },
     {
+      id: 'collections',
       name: 'Collections Framework',
       icon: '📦',
-      explanation: `**Core Concept:**
-• Unified architecture for representing and manipulating groups of objects
-• Provides interfaces, implementations, and algorithms for common data structures
-• Part of java.util package, introduced in Java 1.2
-• Eliminates need for custom data structure implementations
+      color: '#3b82f6',
+      description: 'Unified architecture for representing and manipulating groups of objects.',
+      diagram: CollectionsDiagram,
+      details: [
+        {
+          name: 'List Implementations',
+          explanation: 'List maintains insertion order and allows duplicates. ArrayList uses resizable array for O(1) random access but O(n) insertion. LinkedList uses doubly-linked nodes for O(1) insertion but O(n) access. Choose ArrayList for most cases, LinkedList when frequent insertions/deletions at ends are needed.',
+          codeExample: `import java.util.*;
 
-**Core Interfaces:**
-• Collection - Root interface for most collection types
-• List - Ordered collection (allows duplicates): ArrayList, LinkedList, Vector
-• Set - No duplicates allowed: HashSet, TreeSet, LinkedHashSet
-• Queue - FIFO ordering: LinkedList, PriorityQueue, ArrayDeque
-• Deque - Double-ended queue: ArrayDeque, LinkedList
-• Map - Key-value pairs: HashMap, TreeMap, LinkedHashMap, Hashtable
-
-**List Implementations:**
-• ArrayList - Resizable array, fast random access O(1), slow insertion/deletion O(n)
-• LinkedList - Doubly-linked list, fast insertion/deletion O(1), slow random access O(n)
-• Vector - Thread-safe ArrayList (legacy, prefer Collections.synchronizedList)
-• CopyOnWriteArrayList - Thread-safe, optimized for read-heavy scenarios
-
-**Set Implementations:**
-• HashSet - Hash table, O(1) operations, no ordering guaranteed
-• LinkedHashSet - Maintains insertion order, slightly slower than HashSet
-• TreeSet - Red-black tree, O(log n) operations, sorted order
-• EnumSet - Optimized for enum types, very fast
-
-**Map Implementations:**
-• HashMap - Hash table, O(1) average operations, no ordering
-• LinkedHashMap - Maintains insertion/access order
-• TreeMap - Red-black tree, O(log n) operations, sorted by keys
-• Hashtable - Legacy synchronized map (prefer ConcurrentHashMap)
-• ConcurrentHashMap - Thread-safe without locking entire map
-
-**Queue Implementations:**
-• PriorityQueue - Heap-based priority queue, elements ordered by natural/comparator
-• ArrayDeque - Resizable array deque, faster than LinkedList for queue operations
-• LinkedList - Implements both List and Deque interfaces
-
-**Common Operations:**
-• add/addAll - Add elements
-• remove/removeAll - Remove elements
-• contains/containsAll - Check membership
-• size/isEmpty - Collection size
-• iterator/forEach - Traverse elements
-• clear - Remove all elements
-
-**Utility Classes:**
-• Collections - Static methods: sort, reverse, shuffle, binarySearch, synchronizedX
-• Arrays - Array manipulation: sort, binarySearch, fill, copyOf, asList
-
-**Benefits:**
-• Reduced programming effort - Pre-built data structures
-• Increased performance - Highly optimized implementations
-• Interoperability - Consistent API across different collections
-• Type safety - Generics prevent runtime ClassCastException`,
-      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ ArrayList - dynamic array
-// ═══════════════════════════════════════════════════════════════════════════
-import java.util.*;
-
+// ArrayList - resizable array, fast random access
 List<String> arrayList = new ArrayList<>();
 arrayList.add("Java");
 arrayList.add("Python");
-arrayList.add("JavaScript");
 arrayList.add(1, "C++");  // Insert at index
-System.out.println("ArrayList: " + arrayList);
-System.out.println("Element at index 2: " + arrayList.get(2));
-// Output: ArrayList: [Java, C++, Python, JavaScript]
-// Output: Element at index 2: Python
+String lang = arrayList.get(0);  // O(1) access
+// Output: [Java, C++, Python]
 
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ LinkedList - doubly-linked list
-// ═══════════════════════════════════════════════════════════════════════════
+// LinkedList - doubly-linked, fast insertion/deletion
 LinkedList<Integer> linkedList = new LinkedList<>();
 linkedList.add(10);
-linkedList.add(20);
-linkedList.addFirst(5);   // Add to front
-linkedList.addLast(30);   // Add to end
-System.out.println("LinkedList: " + linkedList);
-System.out.println("First: " + linkedList.getFirst());
-System.out.println("Last: " + linkedList.getLast());
-// Output: LinkedList: [5, 10, 20, 30]
-// Output: First: 5
-// Output: Last: 30
+linkedList.addFirst(5);   // O(1) at ends
+linkedList.addLast(30);
+int first = linkedList.getFirst();  // O(1)
+int middle = linkedList.get(1);     // O(n)
+// Output: [5, 10, 30]
 
+// When to use which:
+// ArrayList: Random access, most general use
+// LinkedList: Queue/Deque operations, frequent insertions`
+        },
+        {
+          name: 'Set Implementations',
+          explanation: 'Set ensures no duplicate elements. HashSet uses hash table for O(1) operations with no ordering guarantee. LinkedHashSet maintains insertion order with slight overhead. TreeSet uses Red-Black tree for O(log n) sorted operations. EnumSet is highly optimized for enum types.',
+          codeExample: `import java.util.*;
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ HashSet - no duplicates, no order
-// ═══════════════════════════════════════════════════════════════════════════
+// HashSet - no duplicates, no order, O(1) operations
 Set<String> hashSet = new HashSet<>();
 hashSet.add("Apple");
 hashSet.add("Banana");
-hashSet.add("Apple");  // Duplicate - ignored
-hashSet.add("Cherry");
-System.out.println("HashSet: " + hashSet);
-System.out.println("Contains Banana: " + hashSet.contains("Banana"));
-// Output: HashSet: [Apple, Cherry, Banana] (order may vary)
-// Output: Contains Banana: true
+hashSet.add("Apple");  // Duplicate ignored
+boolean has = hashSet.contains("Banana");  // O(1)
+// Output: [Apple, Banana] (order may vary)
 
+// LinkedHashSet - maintains insertion order
+Set<String> linkedSet = new LinkedHashSet<>();
+linkedSet.add("First");
+linkedSet.add("Second");
+linkedSet.add("Third");
+// Output: [First, Second, Third] (insertion order)
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ TreeSet - sorted, no duplicates
-// ═══════════════════════════════════════════════════════════════════════════
+// TreeSet - sorted order, O(log n)
 Set<Integer> treeSet = new TreeSet<>();
 treeSet.add(50);
 treeSet.add(20);
 treeSet.add(70);
-treeSet.add(20);  // Duplicate - ignored
-treeSet.add(30);
-System.out.println("TreeSet (sorted): " + treeSet);
-// Output: TreeSet (sorted): [20, 30, 50, 70]
+// Output: [20, 50, 70] (natural sorted order)
 
+// NavigableSet operations
+TreeSet<Integer> navSet = new TreeSet<>(Arrays.asList(1, 3, 5, 7));
+Integer lower = navSet.lower(5);    // 3
+Integer higher = navSet.higher(5);  // 7`
+        },
+        {
+          name: 'Map Implementations',
+          explanation: 'Map stores key-value pairs with unique keys. HashMap provides O(1) average operations. LinkedHashMap preserves insertion or access order. TreeMap maintains sorted key order with O(log n) operations. ConcurrentHashMap enables thread-safe operations without locking the entire map.',
+          codeExample: `import java.util.*;
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ HashMap - key-value pairs
-// ═══════════════════════════════════════════════════════════════════════════
+// HashMap - O(1) average, no order guarantee
 Map<String, Integer> hashMap = new HashMap<>();
 hashMap.put("Alice", 25);
 hashMap.put("Bob", 30);
-hashMap.put("Charlie", 35);
-hashMap.put("Alice", 26);  // Updates existing value
-System.out.println("HashMap: " + hashMap);
-System.out.println("Alice's age: " + hashMap.get("Alice"));
-System.out.println("Contains key 'Bob': " + hashMap.containsKey("Bob"));
-// Output: HashMap: {Bob=30, Alice=26, Charlie=35} (order may vary)
-// Output: Alice's age: 26
-// Output: Contains key 'Bob': true
+hashMap.put("Alice", 26);  // Updates existing
+Integer age = hashMap.get("Alice");  // 26
+boolean hasKey = hashMap.containsKey("Bob");
+// Methods: getOrDefault, putIfAbsent, computeIfAbsent
 
+// LinkedHashMap - insertion order or access order
+Map<String, String> linkedMap = new LinkedHashMap<>();
+linkedMap.put("First", "1");
+linkedMap.put("Second", "2");
+// Maintains insertion order during iteration
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ LinkedHashMap - maintains insertion order
-// ═══════════════════════════════════════════════════════════════════════════
-Map<String, String> linkedHashMap = new LinkedHashMap<>();
-linkedHashMap.put("First", "Java");
-linkedHashMap.put("Second", "Python");
-linkedHashMap.put("Third", "C++");
-System.out.println("LinkedHashMap: " + linkedHashMap);
-// Output: LinkedHashMap: {First=Java, Second=Python, Third=C++} (insertion order)
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ TreeMap - sorted by keys
-// ═══════════════════════════════════════════════════════════════════════════
+// TreeMap - sorted by keys, O(log n)
 Map<Integer, String> treeMap = new TreeMap<>();
 treeMap.put(3, "Three");
 treeMap.put(1, "One");
 treeMap.put(2, "Two");
-System.out.println("TreeMap (sorted): " + treeMap);
-// Output: TreeMap (sorted): {1=One, 2=Two, 3=Three}
+// Output: {1=One, 2=Two, 3=Three}
 
+// NavigableMap operations
+TreeMap<Integer, String> navMap = new TreeMap<>();
+Integer lowerKey = navMap.lowerKey(2);
+Map.Entry<Integer, String> ceiling = navMap.ceilingEntry(2);`
+        },
+        {
+          name: 'Queue & Deque',
+          explanation: 'Queue provides FIFO ordering with offer/poll operations. PriorityQueue orders elements by natural order or Comparator. ArrayDeque is efficient for both stack and queue operations. Deque supports double-ended access with addFirst/addLast and pollFirst/pollLast.',
+          codeExample: `import java.util.*;
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ PriorityQueue - min heap by default
-// ═══════════════════════════════════════════════════════════════════════════
+// PriorityQueue - min-heap by default
 PriorityQueue<Integer> pq = new PriorityQueue<>();
 pq.offer(50);
 pq.offer(20);
 pq.offer(70);
-pq.offer(30);
-System.out.println("PriorityQueue polling (min first):");
 while (!pq.isEmpty()) {
-    System.out.print(pq.poll() + " ");
+    System.out.print(pq.poll() + " ");  // 20 50 70 (min first)
 }
-System.out.println();
-// Output: PriorityQueue polling (min first):
-// Output: 20 30 50 70
 
+// Max-heap with Comparator
+PriorityQueue<Integer> maxHeap = new PriorityQueue<>(
+    Collections.reverseOrder()
+);
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ ArrayDeque - efficient stack and queue
-// ═══════════════════════════════════════════════════════════════════════════
+// ArrayDeque - efficient stack and queue
 Deque<String> deque = new ArrayDeque<>();
-deque.addFirst("Front");
-deque.addLast("Back");
+deque.addFirst("Front");  // Stack push
+deque.addLast("Back");    // Queue add
 deque.offerFirst("New Front");
-deque.offerLast("New Back");
-System.out.println("Deque: " + deque);
-System.out.println("Poll first: " + deque.pollFirst());
-System.out.println("Poll last: " + deque.pollLast());
-// Output: Deque: [New Front, Front, Back, New Back]
-// Output: Poll first: New Front
-// Output: Poll last: New Back
+String first = deque.pollFirst();
+String last = deque.pollLast();
 
+// Use as Stack (faster than Stack class)
+Deque<Integer> stack = new ArrayDeque<>();
+stack.push(1);
+stack.push(2);
+int top = stack.pop();  // 2
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Collections utility methods
-// ═══════════════════════════════════════════════════════════════════════════
-List<Integer> numbers = Arrays.asList(5, 2, 8, 1, 9);
-Collections.sort(numbers);
-System.out.println("Sorted: " + numbers);
-Collections.reverse(numbers);
-System.out.println("Reversed: " + numbers);
-System.out.println("Max: " + Collections.max(numbers));
-System.out.println("Min: " + Collections.min(numbers));
-Collections.shuffle(numbers);
-System.out.println("Shuffled: " + numbers);
-// Output: Sorted: [1, 2, 5, 8, 9]
-// Output: Reversed: [9, 8, 5, 2, 1]
-// Output: Max: 9
-// Output: Min: 1
-// Output: Shuffled: [random order]
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Iteration and forEach
-// ═══════════════════════════════════════════════════════════════════════════
-List<String> langs = Arrays.asList("Java", "Python", "C++");
-
-// Traditional for loop
-for (int i = 0; i < langs.size(); i++) {
-    System.out.println("Index " + i + ": " + langs.get(i));
-}
-
-// Enhanced for loop
-for (String lang : langs) {
-    System.out.println("Language: " + lang);
-}
-
-// Iterator
-Iterator<String> it = langs.iterator();
-while (it.hasNext()) {
-    System.out.println("Next: " + it.next());
-}
-
-// forEach with lambda
-langs.forEach(lang -> System.out.println("Lambda: " + lang));
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Thread-safe collections
-// ═══════════════════════════════════════════════════════════════════════════
-List<String> syncList = Collections.synchronizedList(new ArrayList<>());
-Set<Integer> syncSet = Collections.synchronizedSet(new HashSet<>());
-Map<String, Integer> concurrentMap = new ConcurrentHashMap<>();
-
-// CopyOnWriteArrayList for read-heavy scenarios
-List<String> cowList = new CopyOnWriteArrayList<>();
-cowList.add("Thread-safe");
-cowList.add("No locking for reads");
-
-System.out.println("Synchronized collections created for thread-safe operations");
-// Output: Synchronized collections created for thread-safe operations`
+// Use as Queue
+Deque<Integer> queue = new ArrayDeque<>();
+queue.offer(1);
+queue.offer(2);
+int head = queue.poll();  // 1`
+        }
+      ]
     },
     {
+      id: 'encapsulation',
       name: 'Encapsulation',
-      icon: '🔹',
-      explanation: `**Core Concept:**
-• One of the four fundamental OOP principles
-• Bundles data (fields) and methods (functions) within a single unit (class)
-• Creates a protective barrier around object's internal state
+      icon: '🔐',
+      color: '#22c55e',
+      description: 'Data hiding principle bundling fields and methods within protective barriers.',
+      diagram: EncapsulationDiagram,
+      details: [
+        {
+          name: 'Access Modifiers',
+          explanation: 'Access modifiers control visibility. private: only within the class. package-private (default): within the same package. protected: package + subclasses. public: accessible everywhere. Use the most restrictive access level that makes sense.',
+          codeExample: `public class AccessDemo {
+    private int privateField;      // This class only
+    int packageField;              // Same package only
+    protected int protectedField;  // Package + subclasses
+    public int publicField;        // Everywhere
 
-**Access Control:**
-• private - Accessible only within the same class
-• protected - Accessible within package and subclasses
-• public - Accessible from anywhere
-• package-private (default) - Accessible within the same package
+    // Private method - internal implementation
+    private void internalLogic() {
+        // Only callable within this class
+    }
 
-**Key Benefits:**
-• Data Integrity - Prevents unauthorized or invalid modifications
-• Data Hiding - Internal implementation details are hidden
-• Flexibility - Change internal implementation without affecting external code
-• Maintainability - Clear interface between object's internal workings and outside world
-• Security - Controlled access through public methods (getters/setters)
+    // Public method - part of API
+    public void publicMethod() {
+        internalLogic();  // Can call private methods
+    }
+}
 
-**Implementation Pattern:**
-• Make fields private
-• Provide public getter/setter methods for controlled access
-• Add validation logic in setters to maintain data consistency`,
-      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Encapsulation - hiding internal state
-// ═══════════════════════════════════════════════════════════════════════════
-public class BankAccount {
-    private double balance;  // private field
+// In another package/class
+class External {
+    void test() {
+        AccessDemo demo = new AccessDemo();
+        // demo.privateField;     // Compile error
+        // demo.packageField;     // Error if different package
+        demo.publicField = 10;    // OK
+        demo.publicMethod();      // OK
+    }
+}`
+        },
+        {
+          name: 'Getters and Setters',
+          explanation: 'Getters and setters provide controlled access to private fields. Setters can include validation logic to maintain data integrity. Getters may return copies of mutable objects to prevent external modification. This pattern enables changing internal representation without affecting external code.',
+          codeExample: `public class BankAccount {
+    private double balance;
     private String accountNumber;
+    private List<String> transactions;
 
     public BankAccount(String accountNumber) {
         this.accountNumber = accountNumber;
         this.balance = 0.0;
+        this.transactions = new ArrayList<>();
     }
 
-    // Controlled access through public methods
+    // Getter - simple read access
+    public double getBalance() {
+        return balance;
+    }
+
+    // Getter - return defensive copy
+    public List<String> getTransactions() {
+        return new ArrayList<>(transactions);  // Defensive copy
+    }
+
+    // Setter with validation
     public void deposit(double amount) {
-        if (amount > 0) {
-            balance += amount;
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
         }
+        balance += amount;
+        transactions.add("Deposit: " + amount);
     }
 
     public boolean withdraw(double amount) {
         if (amount > 0 && balance >= amount) {
             balance -= amount;
+            transactions.add("Withdraw: " + amount);
             return true;
         }
         return false;
     }
+}`
+        },
+        {
+          name: 'Immutable Objects',
+          explanation: 'Immutable objects cannot be modified after creation, making them inherently thread-safe. Make all fields final and private, provide no setters, ensure exclusive access to mutable components through defensive copying. String, Integer, and LocalDate are examples of immutable classes.',
+          codeExample: `// Immutable class pattern
+public final class ImmutablePerson {
+    private final String name;
+    private final int age;
+    private final List<String> hobbies;
 
-    // Getter with validation
-    public double getBalance() {
-        return balance;
+    public ImmutablePerson(String name, int age, List<String> hobbies) {
+        this.name = name;
+        this.age = age;
+        // Defensive copy of mutable input
+        this.hobbies = new ArrayList<>(hobbies);
+    }
+
+    public String getName() { return name; }
+    public int getAge() { return age; }
+
+    // Return defensive copy
+    public List<String> getHobbies() {
+        return new ArrayList<>(hobbies);
+    }
+
+    // "Modifier" returns new instance
+    public ImmutablePerson withAge(int newAge) {
+        return new ImmutablePerson(name, newAge, hobbies);
     }
 }
 
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Usage example
-// ═══════════════════════════════════════════════════════════════════════════
-BankAccount account = new BankAccount("123456");
-account.deposit(1000.0);
-account.withdraw(250.0);
-System.out.println(account.getBalance());
-// Output: 750.0`
+// Java 14+ Record - concise immutable data class
+public record Point(int x, int y) {
+    // Automatically: constructor, getters, equals, hashCode, toString
+}
+Point p = new Point(10, 20);
+int x = p.x();  // Accessor method`
+        }
+      ]
     },
     {
+      id: 'threads',
       name: 'Thread Management',
-      icon: '🔹',
-      explanation: `**Core Concept:**
-• Creating, controlling, and coordinating multiple concurrent execution paths
-• Enables programs to perform multiple tasks simultaneously
-• Essential for building responsive, efficient applications
-
-**Thread Creation Methods:**
-• Extend Thread class - Direct but limits inheritance
-• Implement Runnable interface - Preferred for better flexibility
-• Use lambda expressions (Java 8+) - Concise syntax
-
-**Thread Lifecycle States:**
-• NEW - Thread created but not yet started
-• RUNNABLE - Ready to run or currently running
-• BLOCKED - Waiting to acquire a monitor lock
-• WAITING - Waiting indefinitely for another thread's action
-• TIMED_WAITING - Waiting for a specified period of time
-• TERMINATED - Thread has completed execution
-
-**Control Mechanisms:**
-• Priorities - Range from 1 (MIN_PRIORITY) to 10 (MAX_PRIORITY)
-• Daemon Threads - Background threads that terminate when all user threads finish
-• Thread Methods - start(), run(), sleep(), join(), interrupt()
-
-**Key Considerations:**
-• Avoid deadlocks through careful resource ordering
-• Prevent race conditions with proper synchronization
-• Use thread pools instead of creating individual threads for better performance`,
-      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Method 1: Extend Thread class
-// ═══════════════════════════════════════════════════════════════════════════
+      icon: '🧵',
+      color: '#8b5cf6',
+      description: 'Creating, controlling, and coordinating concurrent execution paths.',
+      diagram: ThreadDiagram,
+      details: [
+        {
+          name: 'Creating Threads',
+          explanation: 'Threads can be created by extending Thread class or implementing Runnable interface. Runnable is preferred as it allows extending other classes. Java 8+ lambda expressions provide concise syntax for simple tasks. Always call start() not run() to create a new execution thread.',
+          codeExample: `// Method 1: Extend Thread class
 class MyThread extends Thread {
+    @Override
     public void run() {
         for (int i = 0; i < 3; i++) {
-            System.out.println(Thread.currentThread().getName() + ": " + i);
+            System.out.println(getName() + ": " + i);
             try { Thread.sleep(100); } catch (InterruptedException e) {}
         }
     }
 }
 
+MyThread thread1 = new MyThread();
+thread1.setName("Worker-1");
+thread1.start();  // Not run() - start creates new thread
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Method 2: Implement Runnable
-// ═══════════════════════════════════════════════════════════════════════════
+// Method 2: Implement Runnable (preferred)
 class MyRunnable implements Runnable {
+    @Override
     public void run() {
         System.out.println(Thread.currentThread().getName() + " executing");
     }
 }
 
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Creating and starting threads
-// ═══════════════════════════════════════════════════════════════════════════
-MyThread thread1 = new MyThread();
-thread1.setName("Worker-1");
-thread1.start();
-// Output: Worker-1: 0
-// Output: Worker-1: 1
-// Output: Worker-1: 2
-
-Thread thread2 = new Thread(new MyRunnable());
+Thread thread2 = new Thread(new MyRunnable(), "Worker-2");
 thread2.start();
-// Output: Thread-1 executing
 
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Method 3: Lambda with Runnable
-// ═══════════════════════════════════════════════════════════════════════════
+// Method 3: Lambda expression (Java 8+)
 Thread thread3 = new Thread(() -> {
     System.out.println("Lambda thread: " + Thread.currentThread().getId());
 });
-thread3.start();
-// Output: Lambda thread: 15
+thread3.start();`
+        },
+        {
+          name: 'Thread Lifecycle',
+          explanation: 'Thread states: NEW (created), RUNNABLE (ready/running), BLOCKED (waiting for lock), WAITING (indefinite wait), TIMED_WAITING (bounded wait), TERMINATED (completed). State transitions occur via methods like start(), sleep(), wait(), join(), and lock acquisition.',
+          codeExample: `Thread thread = new Thread(() -> {
+    try {
+        Thread.sleep(1000);
+    } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+    }
+});
 
+// NEW state - thread created but not started
+System.out.println(thread.getState());  // NEW
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Daemon thread - runs in background
-// ═══════════════════════════════════════════════════════════════════════════
+thread.start();
+// RUNNABLE state - ready to run or running
+System.out.println(thread.getState());  // RUNNABLE
+
+Thread.sleep(100);
+// TIMED_WAITING state - sleeping
+System.out.println(thread.getState());  // TIMED_WAITING
+
+thread.join();
+// TERMINATED state - execution completed
+System.out.println(thread.getState());  // TERMINATED
+
+// WAITING example
+Object lock = new Object();
+Thread waiter = new Thread(() -> {
+    synchronized (lock) {
+        try {
+            lock.wait();  // WAITING until notified
+        } catch (InterruptedException e) {}
+    }
+});
+
+// BLOCKED example - waiting for synchronized lock
+// Thread trying to enter synchronized block held by another thread`
+        },
+        {
+          name: 'Thread Control',
+          explanation: 'Control threads with sleep() for pausing, join() for waiting, interrupt() for signaling. Daemon threads run in background and terminate when all user threads finish. Thread priorities (1-10) provide hints to scheduler but behavior is platform-dependent.',
+          codeExample: `// Thread.sleep() - pause execution
+Thread.sleep(1000);  // Sleep 1 second
+
+// Thread.join() - wait for thread completion
+Thread worker = new Thread(() -> {
+    // Long running task
+    System.out.println("Work done");
+});
+worker.start();
+worker.join();  // Wait for worker to complete
+System.out.println("After worker");
+
+// Thread.interrupt() - signal interruption
+Thread task = new Thread(() -> {
+    while (!Thread.currentThread().isInterrupted()) {
+        // Do work
+    }
+    System.out.println("Thread interrupted, cleaning up...");
+});
+task.start();
+Thread.sleep(100);
+task.interrupt();  // Request interruption
+
+// Daemon threads - background threads
 Thread daemon = new Thread(() -> {
     while (true) {
         System.out.println("Daemon running...");
         try { Thread.sleep(500); } catch (InterruptedException e) {}
     }
 });
-daemon.setDaemon(true);
+daemon.setDaemon(true);  // Must set before start()
 daemon.start();
+// Daemon terminates when all user threads finish
 
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Thread priorities
-// ═══════════════════════════════════════════════════════════════════════════
-thread1.setPriority(Thread.MAX_PRIORITY);  // 10
-thread2.setPriority(Thread.MIN_PRIORITY);  // 1
-System.out.println("Thread 1 priority: " + thread1.getPriority());
-// Output: Thread 1 priority: 10`
+// Thread priorities (hint to scheduler)
+thread.setPriority(Thread.MAX_PRIORITY);  // 10
+thread.setPriority(Thread.MIN_PRIORITY);  // 1
+thread.setPriority(Thread.NORM_PRIORITY); // 5 (default)`
+        }
+      ]
     },
     {
+      id: 'synchronization',
       name: 'Synchronization',
-      icon: '🔹',
-      explanation: `**Core Concept:**
-• Coordinates access to shared resources among multiple threads
-• Prevents data inconsistency and race conditions
-• Critical for thread safety in concurrent programs
-
-**Synchronized Keyword:**
-• Synchronized Methods - Lock entire method for single-thread access
-• Synchronized Blocks - Lock specific code sections for fine-grained control
-• Uses intrinsic locks (monitors) to ensure mutual exclusion
-• Only one thread can execute synchronized code at a time
-
-**Wait/Notify Mechanism:**
-• wait() - Thread releases lock and waits for notification
-• notify() - Wakes up one waiting thread
-• notifyAll() - Wakes up all waiting threads
-• Enables inter-thread communication and coordination
-
-**Volatile Keyword:**
-• Ensures memory visibility across threads
-• Forces reads from main memory instead of thread-local cache
-• Prevents instruction reordering
-• Does NOT provide atomicity for compound operations (i++, etc.)
-
-**Benefits:**
-• Prevents race conditions
-• Ensures thread safety
-• Maintains data consistency
-• Provides happens-before guarantees in Java Memory Model
-
-**Considerations:**
-• Performance - Excessive synchronization creates bottlenecks
-• Deadlocks - Improper lock ordering can cause threads to wait indefinitely
-• Liveness - Balance between safety and performance`,
-      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Synchronized method and block
-// ═══════════════════════════════════════════════════════════════════════════
-class Counter {
+      icon: '🔒',
+      color: '#ef4444',
+      description: 'Coordinating access to shared resources and preventing race conditions.',
+      diagram: SyncDiagram,
+      details: [
+        {
+          name: 'Synchronized Keyword',
+          explanation: 'The synchronized keyword provides mutual exclusion using intrinsic locks (monitors). Synchronized methods lock on this (instance) or Class object (static). Synchronized blocks allow finer-grained locking on specific objects. Only one thread can hold a lock at a time.',
+          codeExample: `class Counter {
     private int count = 0;
 
-    // Synchronized method - locks entire method
+    // Synchronized method - locks on 'this'
     public synchronized void increment() {
         count++;
     }
@@ -1020,18 +895,31 @@ class Counter {
         return count;
     }
 
-    // Synchronized block - more fine-grained control
+    // Synchronized block - more fine-grained
     public void incrementBlock() {
-        synchronized(this) {
+        synchronized (this) {
             count++;
         }
     }
+
+    // Lock on specific object
+    private final Object lock = new Object();
+
+    public void safeIncrement() {
+        synchronized (lock) {
+            count++;
+        }
+    }
+
+    // Static synchronized - locks on Class object
+    private static int staticCount = 0;
+
+    public static synchronized void staticIncrement() {
+        staticCount++;  // Locks on Counter.class
+    }
 }
 
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Usage - thread-safe counter
-// ═══════════════════════════════════════════════════════════════════════════
+// Usage
 Counter counter = new Counter();
 Thread t1 = new Thread(() -> {
     for (int i = 0; i < 1000; i++) counter.increment();
@@ -1039,125 +927,154 @@ Thread t1 = new Thread(() -> {
 Thread t2 = new Thread(() -> {
     for (int i = 0; i < 1000; i++) counter.increment();
 });
-t1.start();
-t2.start();
-t1.join();
-t2.join();
-System.out.println("Final count: " + counter.getCount());
-// Output: Final count: 2000 (correct with synchronization)
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Wait/Notify pattern - Producer/Consumer
-// ═══════════════════════════════════════════════════════════════════════════
-class SharedResource {
+t1.start(); t2.start();
+t1.join(); t2.join();
+System.out.println(counter.getCount());  // Always 2000`
+        },
+        {
+          name: 'Wait and Notify',
+          explanation: 'wait() releases the lock and waits for notification. notify() wakes one waiting thread, notifyAll() wakes all. Must be called within synchronized block on the same object. Use while loops (not if) to recheck conditions after waking to handle spurious wakeups.',
+          codeExample: `class SharedBuffer {
     private int data;
     private boolean hasData = false;
 
-    public synchronized void produce(int value) throws InterruptedException {
+    public synchronized void produce(int value)
+            throws InterruptedException {
         while (hasData) {
-            wait();  // Wait until consumed
+            wait();  // Release lock and wait
         }
         data = value;
         hasData = true;
         System.out.println("Produced: " + value);
-        notify();  // Notify consumer
+        notify();  // Wake up consumer
     }
 
-    public synchronized int consume() throws InterruptedException {
+    public synchronized int consume()
+            throws InterruptedException {
         while (!hasData) {
-            wait();  // Wait until produced
+            wait();  // Release lock and wait
         }
         hasData = false;
         System.out.println("Consumed: " + data);
-        notify();  // Notify producer
+        notify();  // Wake up producer
         return data;
     }
 }
 
+// Producer-Consumer usage
+SharedBuffer buffer = new SharedBuffer();
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Volatile keyword - memory visibility
-// ═══════════════════════════════════════════════════════════════════════════
-class VolatileExample {
-    private volatile boolean flag = false;
+Thread producer = new Thread(() -> {
+    for (int i = 1; i <= 5; i++) {
+        try {
+            buffer.produce(i);
+        } catch (InterruptedException e) {}
+    }
+});
 
-    public void writer() {
-        flag = true;  // Visible to all threads immediately
+Thread consumer = new Thread(() -> {
+    for (int i = 1; i <= 5; i++) {
+        try {
+            buffer.consume();
+        } catch (InterruptedException e) {}
+    }
+});
+
+producer.start();
+consumer.start();`
+        },
+        {
+          name: 'Volatile Keyword',
+          explanation: 'volatile ensures visibility of changes across threads by forcing reads from main memory. It prevents instruction reordering but does NOT provide atomicity for compound operations (i++). Use for simple flags or when one thread writes and others only read.',
+          codeExample: `class VolatileExample {
+    // Without volatile - change may not be visible to other threads
+    private volatile boolean running = true;
+
+    public void stop() {
+        running = false;  // Immediately visible to all threads
     }
 
-    public void reader() {
-        if (flag) {
-            System.out.println("Flag is true!");
+    public void run() {
+        while (running) {
+            // Process...
         }
+        System.out.println("Stopped");
+    }
+}
+
+// Volatile does NOT make compound operations atomic
+class UnsafeCounter {
+    private volatile int count = 0;
+
+    public void increment() {
+        count++;  // NOT atomic: read-modify-write
+        // Multiple threads can still cause race condition
+    }
+}
+
+// For atomic compound operations, use AtomicInteger
+import java.util.concurrent.atomic.AtomicInteger;
+
+class SafeCounter {
+    private AtomicInteger count = new AtomicInteger(0);
+
+    public void increment() {
+        count.incrementAndGet();  // Atomic operation
+    }
+
+    public int get() {
+        return count.get();
+    }
+}
+
+// Double-checked locking pattern (uses volatile)
+class Singleton {
+    private static volatile Singleton instance;
+
+    public static Singleton getInstance() {
+        if (instance == null) {
+            synchronized (Singleton.class) {
+                if (instance == null) {
+                    instance = new Singleton();
+                }
+            }
+        }
+        return instance;
     }
 }`
+        }
+      ]
     },
     {
+      id: 'locks',
       name: 'Locks & Semaphores',
-      icon: '🔹',
-      explanation: `**Core Concept:**
-• Advanced synchronization primitives from java.util.concurrent.locks
-• Offer more flexibility and functionality than synchronized keyword
-• Provide fine-grained control over locking behavior
-
-**ReentrantLock:**
-• Explicit lock/unlock control with try-finally pattern
-• tryLock() - Non-blocking lock acquisition attempt
-• tryLock(timeout) - Timed lock acquisition
-• Fairness policy - Optional FIFO ordering for waiting threads
-• Interruptible lock acquisition
-• Condition variables for advanced wait/notify patterns
-
-**ReadWriteLock (ReentrantReadWriteLock):**
-• Optimizes read-heavy scenarios
-• Multiple concurrent readers allowed
-• Exclusive access for single writer
-• Improves performance over exclusive locks
-• Prevents writer starvation with fairness option
-
-**Semaphore:**
-• Controls access to limited number of resources
-• Maintains counter of available permits
-• acquire() - Decrements permit count (blocks if zero)
-• release() - Increments permit count
-• Use Cases: Connection pools, rate limiting, resource management
-
-**CountDownLatch:**
-• One-time synchronization barrier
-• Allows threads to wait until operations complete
-• countDown() - Decrements latch count
-• await() - Blocks until count reaches zero
-• Cannot be reset (use CyclicBarrier for reusable barriers)
-
-**Advantages Over Synchronized:**
-• Timeout support for lock acquisition
-• Interruptibility while waiting
-• Fairness guarantees
-• Multiple condition variables
-• Try-lock without blocking`,
-      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ ReentrantLock - more flexible than synchronized
-// ═══════════════════════════════════════════════════════════════════════════
-import java.util.concurrent.locks.*;
-import java.util.concurrent.*;
+      icon: '🔑',
+      color: '#06b6d4',
+      description: 'Advanced synchronization primitives with fine-grained control.',
+      diagram: LocksDiagram,
+      details: [
+        {
+          name: 'ReentrantLock',
+          explanation: 'ReentrantLock provides explicit lock/unlock control with try-finally pattern. Offers tryLock() for non-blocking attempts, tryLock(timeout) for timed waits, and fairness option for FIFO ordering. More flexible than synchronized but requires manual unlock.',
+          codeExample: `import java.util.concurrent.locks.*;
 
 class BankAccount {
     private double balance = 0;
-    private ReentrantLock lock = new ReentrantLock();
+    private final ReentrantLock lock = new ReentrantLock();
 
     public void deposit(double amount) {
-        lock.lock();
+        lock.lock();  // Acquire lock
         try {
             balance += amount;
-            System.out.println("Deposited: " + amount + ", Balance: " + balance);
+            System.out.println("Balance: " + balance);
         } finally {
             lock.unlock();  // Always unlock in finally
         }
     }
 
+    // Non-blocking lock attempt
     public boolean tryDeposit(double amount) {
-        if (lock.tryLock()) {  // Non-blocking attempt
+        if (lock.tryLock()) {
             try {
                 balance += amount;
                 return true;
@@ -1165,506 +1082,571 @@ class BankAccount {
                 lock.unlock();
             }
         }
-        return false;
+        return false;  // Could not acquire lock
+    }
+
+    // Timed lock attempt
+    public boolean timedDeposit(double amount)
+            throws InterruptedException {
+        if (lock.tryLock(1, TimeUnit.SECONDS)) {
+            try {
+                balance += amount;
+                return true;
+            } finally {
+                lock.unlock();
+            }
+        }
+        return false;  // Timeout
     }
 }
 
+// Fair lock - threads acquire in FIFO order
+ReentrantLock fairLock = new ReentrantLock(true);`
+        },
+        {
+          name: 'ReadWriteLock',
+          explanation: 'ReadWriteLock allows multiple concurrent readers OR a single exclusive writer. ReentrantReadWriteLock implementation improves performance in read-heavy scenarios. Writers have exclusive access, readers can share. Useful for caches and configuration data.',
+          codeExample: `import java.util.concurrent.locks.*;
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ ReadWriteLock - multiple readers, single writer
-// ═══════════════════════════════════════════════════════════════════════════
-class Cache {
-    private Map<String, String> data = new HashMap<>();
-    private ReadWriteLock rwLock = new ReentrantReadWriteLock();
+class Cache<K, V> {
+    private final Map<K, V> data = new HashMap<>();
+    private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
+    private final Lock readLock = rwLock.readLock();
+    private final Lock writeLock = rwLock.writeLock();
 
-    public String read(String key) {
-        rwLock.readLock().lock();
+    // Multiple threads can read concurrently
+    public V get(K key) {
+        readLock.lock();
         try {
             return data.get(key);
         } finally {
-            rwLock.readLock().unlock();
+            readLock.unlock();
         }
     }
 
-    public void write(String key, String value) {
-        rwLock.writeLock().lock();
+    // Only one thread can write at a time
+    public void put(K key, V value) {
+        writeLock.lock();
         try {
             data.put(key, value);
-            System.out.println("Written: " + key + " = " + value);
         } finally {
-            rwLock.writeLock().unlock();
+            writeLock.unlock();
         }
     }
-}
 
+    // Read-then-write pattern
+    public V getOrCompute(K key, Function<K, V> compute) {
+        readLock.lock();
+        try {
+            V value = data.get(key);
+            if (value != null) return value;
+        } finally {
+            readLock.unlock();
+        }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Semaphore - limit concurrent access
-// ═══════════════════════════════════════════════════════════════════════════
-Semaphore semaphore = new Semaphore(3);  // Allow 3 concurrent threads
-for (int i = 0; i < 5; i++) {
+        writeLock.lock();
+        try {
+            // Double-check after acquiring write lock
+            V value = data.get(key);
+            if (value == null) {
+                value = compute.apply(key);
+                data.put(key, value);
+            }
+            return value;
+        } finally {
+            writeLock.unlock();
+        }
+    }
+}`
+        },
+        {
+          name: 'Semaphore & Latch',
+          explanation: 'Semaphore controls access to limited resources via permits. acquire() blocks if no permits available, release() returns a permit. CountDownLatch is a one-time barrier where threads wait until count reaches zero. CyclicBarrier is reusable for synchronized phases.',
+          codeExample: `import java.util.concurrent.*;
+
+// Semaphore - limit concurrent access
+Semaphore semaphore = new Semaphore(3);  // 3 permits
+
+for (int i = 0; i < 10; i++) {
     int id = i;
     new Thread(() -> {
         try {
-            semaphore.acquire();
-            System.out.println("Thread " + id + " acquired permit");
+            semaphore.acquire();  // Get permit (blocks if none)
+            System.out.println("Thread " + id + " acquired");
             Thread.sleep(1000);
-            semaphore.release();
-            System.out.println("Thread " + id + " released permit");
+            semaphore.release();  // Return permit
+            System.out.println("Thread " + id + " released");
         } catch (InterruptedException e) {}
     }).start();
 }
-// Output: Only 3 threads execute concurrently
+// Only 3 threads run concurrently
 
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ CountDownLatch - wait for multiple threads
-// ═══════════════════════════════════════════════════════════════════════════
+// CountDownLatch - wait for multiple events
 CountDownLatch latch = new CountDownLatch(3);
+
 for (int i = 0; i < 3; i++) {
+    int id = i;
     new Thread(() -> {
-        System.out.println("Task completed");
-        latch.countDown();
+        System.out.println("Task " + id + " completed");
+        latch.countDown();  // Decrement count
     }).start();
 }
-latch.await();  // Wait for all 3 threads
-System.out.println("All tasks completed!");
-// Output: All tasks completed! (after 3 countDowns)`
+
+latch.await();  // Block until count reaches 0
+System.out.println("All tasks done!");
+
+// CyclicBarrier - reusable synchronization point
+CyclicBarrier barrier = new CyclicBarrier(3, () -> {
+    System.out.println("All threads reached barrier");
+});
+
+for (int i = 0; i < 3; i++) {
+    new Thread(() -> {
+        try {
+            System.out.println(Thread.currentThread().getName() + " waiting");
+            barrier.await();  // Wait for all threads
+            System.out.println(Thread.currentThread().getName() + " continued");
+        } catch (Exception e) {}
+    }).start();
+}`
+        }
+      ]
     },
     {
+      id: 'executor',
       name: 'Executor Framework',
-      icon: '🔹',
-      explanation: `**Core Concept:**
-• High-level API for managing asynchronous tasks (introduced Java 5)
-• Decouples task submission from execution mechanics
-• Uses thread pools to efficiently reuse threads
-• Eliminates overhead of creating new threads for each task
+      icon: '⚙️',
+      color: '#ec4899',
+      description: 'High-level API for managing thread pools and asynchronous task execution.',
+      diagram: ExecutorDiagram,
+      details: [
+        {
+          name: 'Thread Pool Types',
+          explanation: 'Executors factory creates common pool configurations. FixedThreadPool has fixed size with unbounded queue. CachedThreadPool creates threads as needed and reuses idle ones. SingleThreadExecutor ensures sequential execution. ScheduledThreadPool handles delayed/periodic tasks.',
+          codeExample: `import java.util.concurrent.*;
 
-**Key Interfaces:**
-• Executor - Basic execute(Runnable) method
-• ExecutorService - Lifecycle management, task submission, shutdown
-• ScheduledExecutorService - Delayed and periodic task execution
-• ThreadPoolExecutor - Customizable thread pool implementation
+// Fixed thread pool - best for bounded tasks
+ExecutorService fixed = Executors.newFixedThreadPool(4);
+// Uses 4 threads, tasks queue if all busy
 
-**Common Executor Types:**
-• newFixedThreadPool(n) - Fixed number of threads, shared unbounded queue
-• newCachedThreadPool() - Creates threads as needed, reuses idle threads
-• newSingleThreadExecutor() - Single worker thread, sequential execution
-• newScheduledThreadPool(n) - Supports delayed and periodic tasks
-• newWorkStealingPool() - Fork-join based pool (Java 8+)
+// Cached thread pool - best for short-lived tasks
+ExecutorService cached = Executors.newCachedThreadPool();
+// Creates threads as needed, reuses idle threads (60s timeout)
 
-**Task Submission:**
-• Runnable - No return value, void run() method
-• Callable<V> - Returns result via Future<V>, can throw exceptions
-• submit() - Returns Future for result tracking
-• invokeAll() - Executes multiple tasks, waits for all to complete
-• invokeAny() - Executes multiple tasks, returns first successful result
+// Single thread - sequential execution
+ExecutorService single = Executors.newSingleThreadExecutor();
+// One thread, tasks execute in order
 
-**Thread Pool Configuration:**
-• Core Pool Size - Minimum number of threads kept alive
-• Maximum Pool Size - Maximum number of threads allowed
-• Keep-Alive Time - How long excess threads wait before termination
-• Work Queue - Stores tasks before execution (bounded/unbounded)
-• Rejection Policy - Handles tasks when queue is full
+// Scheduled thread pool - delayed/periodic tasks
+ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(2);
 
-**Lifecycle Management:**
-• shutdown() - Graceful shutdown, completes submitted tasks
-• shutdownNow() - Immediate shutdown, attempts to stop running tasks
-• awaitTermination() - Blocks until all tasks complete after shutdown
+// Work-stealing pool (Java 8+) - parallelism
+ExecutorService workStealing = Executors.newWorkStealingPool();
+// Uses all available processors
 
-**Benefits:**
-• Automatic thread lifecycle management
-• Task queuing and scheduling
-• Resource cleanup
-• Better performance and scalability
-• Cleaner, more maintainable code`,
-      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Fixed thread pool
-// ═══════════════════════════════════════════════════════════════════════════
-import java.util.concurrent.*;
+// Custom ThreadPoolExecutor
+ThreadPoolExecutor custom = new ThreadPoolExecutor(
+    2,                      // Core pool size
+    4,                      // Maximum pool size
+    60, TimeUnit.SECONDS,   // Keep-alive time
+    new LinkedBlockingQueue<>(100),  // Work queue
+    new ThreadPoolExecutor.CallerRunsPolicy()  // Rejection policy
+);
+
+// Always shutdown executors
+fixed.shutdown();
+fixed.awaitTermination(5, TimeUnit.SECONDS);`
+        },
+        {
+          name: 'Submitting Tasks',
+          explanation: 'submit() returns Future for tracking task results. Runnable tasks have no return value, Callable tasks return results and can throw exceptions. invokeAll() executes multiple tasks and waits for all. invokeAny() returns first successful result.',
+          codeExample: `import java.util.concurrent.*;
 
 ExecutorService executor = Executors.newFixedThreadPool(3);
-for (int i = 0; i < 5; i++) {
-    int taskId = i;
-    executor.submit(() -> {
-        System.out.println("Task " + taskId + " by " + Thread.currentThread().getName());
-        return taskId * taskId;
-    });
-}
-executor.shutdown();
-// Output: Task 0 by pool-1-thread-1
-// Output: Task 1 by pool-1-thread-2
-// Output: Task 2 by pool-1-thread-3
-// (pool reuses threads for remaining tasks)
 
+// Submit Runnable - no return value
+executor.submit(() -> {
+    System.out.println("Runnable task executed");
+});
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Callable with Future - returns result
-// ═══════════════════════════════════════════════════════════════════════════
-ExecutorService exec = Executors.newSingleThreadExecutor();
-Future<Integer> future = exec.submit(() -> {
+// Submit Callable - returns result
+Future<Integer> future = executor.submit(() -> {
     Thread.sleep(1000);
     return 42;
 });
-System.out.println("Waiting for result...");
-Integer result = future.get();  // Blocks until complete
-System.out.println("Result: " + result);
-// Output: Waiting for result...
-// Output: Result: 42 (after 1 second)
-exec.shutdown();
 
+// Get result (blocks until complete)
+try {
+    Integer result = future.get();  // Blocking
+    Integer timedResult = future.get(2, TimeUnit.SECONDS);  // With timeout
+} catch (ExecutionException | TimeoutException e) {
+    e.printStackTrace();
+}
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ ScheduledExecutorService - delayed/periodic tasks
-// ═══════════════════════════════════════════════════════════════════════════
-ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
-scheduler.schedule(() -> {
-    System.out.println("Executed after 2 seconds");
-}, 2, TimeUnit.SECONDS);
+// Check status
+boolean isDone = future.isDone();
+boolean cancelled = future.cancel(true);  // May interrupt
 
-scheduler.scheduleAtFixedRate(() -> {
-    System.out.println("Periodic task: " + System.currentTimeMillis());
-}, 0, 1, TimeUnit.SECONDS);
-// Output: Periodic task: 1234567890
-// Output: Periodic task: 1234567891 (repeats every second)
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ invokeAll - execute multiple tasks
-// ═══════════════════════════════════════════════════════════════════════════
+// invokeAll - execute multiple tasks, wait for all
 List<Callable<String>> tasks = Arrays.asList(
     () -> "Task 1",
     () -> "Task 2",
     () -> "Task 3"
 );
-ExecutorService pool = Executors.newFixedThreadPool(3);
-List<Future<String>> results = pool.invokeAll(tasks);
+List<Future<String>> results = executor.invokeAll(tasks);
 for (Future<String> f : results) {
     System.out.println(f.get());
 }
-// Output: Task 1
-// Output: Task 2
-// Output: Task 3
-pool.shutdown();`
+
+// invokeAny - return first successful result
+String first = executor.invokeAny(tasks);
+
+executor.shutdown();`
+        },
+        {
+          name: 'Scheduled Execution',
+          explanation: 'ScheduledExecutorService supports delayed and periodic task execution. schedule() runs once after delay. scheduleAtFixedRate() runs periodically from start times. scheduleWithFixedDelay() waits fixed delay between task completions.',
+          codeExample: `import java.util.concurrent.*;
+
+ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+
+// Run once after delay
+scheduler.schedule(() -> {
+    System.out.println("Executed after 2 seconds");
+}, 2, TimeUnit.SECONDS);
+
+// Run periodically at fixed rate
+// If task takes longer than period, next starts immediately after
+ScheduledFuture<?> fixedRate = scheduler.scheduleAtFixedRate(() -> {
+    System.out.println("Fixed rate: " + System.currentTimeMillis());
+}, 0, 1, TimeUnit.SECONDS);
+// initial delay: 0, period: 1 second
+
+// Run with fixed delay between completions
+// Waits fixed time after each completion before next start
+ScheduledFuture<?> fixedDelay = scheduler.scheduleWithFixedDelay(() -> {
+    System.out.println("Fixed delay: " + System.currentTimeMillis());
+    try { Thread.sleep(500); } catch (InterruptedException e) {}
+}, 0, 1, TimeUnit.SECONDS);
+// Actual period = task duration + 1 second
+
+// Cancel scheduled task
+Thread.sleep(5000);
+fixedRate.cancel(false);  // Stop periodic execution
+
+// Scheduled Callable - returns ScheduledFuture
+ScheduledFuture<String> result = scheduler.schedule(
+    () -> "Delayed result",
+    3, TimeUnit.SECONDS
+);
+String value = result.get();  // Blocks until complete
+
+scheduler.shutdown();`
+        }
+      ]
     },
     {
+      id: 'completable-future',
       name: 'CompletableFuture',
-      icon: '🔹',
-      explanation: `**Core Concept:**
-• Powerful asynchronous programming framework (introduced Java 8)
-• Extends Future interface with functional programming capabilities
-• Represents a promise of a value that may not be available yet
-• Enables building complex asynchronous pipelines through method chaining
+      icon: '🔮',
+      color: '#10b981',
+      description: 'Powerful asynchronous programming with chainable operations and error handling.',
+      diagram: CompletableFutureDiagram,
+      details: [
+        {
+          name: 'Creating & Chaining',
+          explanation: 'supplyAsync() runs task asynchronously and returns result. thenApply() transforms result synchronously, thenApplyAsync() transforms in new thread. thenAccept() consumes result without returning. thenRun() executes action after completion. Chain methods for fluent pipelines.',
+          codeExample: `import java.util.concurrent.*;
 
-**Transformation Operations:**
-• thenApply(Function) - Transforms result (synchronous)
-• thenApplyAsync(Function) - Transforms result (asynchronous)
-• thenAccept(Consumer) - Consumes result without returning value
-• thenRun(Runnable) - Executes action after completion
-
-**Composition Operations:**
-• thenCompose(Function) - Sequential composition, flattens nested futures
-• thenCombine(other, BiFunction) - Combines results of two futures in parallel
-• thenAcceptBoth(other, BiConsumer) - Consumes results of two futures
-• runAfterBoth(other, Runnable) - Runs after both futures complete
-
-**Error Handling:**
-• exceptionally(Function) - Handles exceptions, provides fallback value
-• handle(BiFunction) - Handles both success and failure cases
-• whenComplete(BiConsumer) - Executes cleanup actions regardless of outcome
-
-**Coordination Operations:**
-• allOf(futures...) - Completes when all futures complete
-• anyOf(futures...) - Completes when any future completes
-• join() - Blocks until completion (unchecked exceptions)
-• get() - Blocks until completion (checked exceptions)
-
-**Execution Models:**
-• Synchronous - Executes in calling thread
-• Async - Methods ending in "Async" execute in separate thread
-• Custom Executor - Most Async methods accept custom ExecutorService
-
-**Advanced Features:**
-• Timeout Support - orTimeout(), completeOnTimeout()
-• Manual Completion - complete(), completeExceptionally()
-• Dependent Stages - Chain multiple async operations
-• Non-blocking - Avoid blocking threads with callbacks
-
-**Benefits:**
-• Eliminates callback hell with declarative syntax
-• Better error handling than traditional futures
-• More readable and maintainable async code
-• Composable and reusable async workflows
-• Supports both reactive and imperative styles`,
-      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Simple async execution
-// ═══════════════════════════════════════════════════════════════════════════
-import java.util.concurrent.*;
-
+// Create async task
 CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
-    try { Thread.sleep(1000); } catch (InterruptedException e) {}
+    // Runs in ForkJoinPool.commonPool()
     return "Hello";
 });
-System.out.println("Doing other work...");
-System.out.println("Result: " + future.get());
-// Output: Doing other work...
-// Output: Result: Hello (after 1 second)
 
+// Chain transformations
+CompletableFuture<String> result = CompletableFuture
+    .supplyAsync(() -> "Hello")
+    .thenApply(s -> s + " World")        // Transform result
+    .thenApply(String::toUpperCase);     // Chain more transforms
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Chaining operations
-// ═══════════════════════════════════════════════════════════════════════════
-CompletableFuture.supplyAsync(() -> "Hello")
-    .thenApply(s -> s + " World")
-    .thenApply(String::toUpperCase)
-    .thenAccept(System.out::println);
-// Output: HELLO WORLD
+System.out.println(result.get());  // "HELLO WORLD"
 
+// Consume result without returning
+CompletableFuture.supplyAsync(() -> "Message")
+    .thenAccept(System.out::println);    // Consumes, returns void
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Combining multiple futures
-// ═══════════════════════════════════════════════════════════════════════════
-CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> 10);
-CompletableFuture<Integer> future2 = CompletableFuture.supplyAsync(() -> 20);
-CompletableFuture<Integer> combined = future1.thenCombine(future2, (a, b) -> a + b);
-System.out.println("Combined result: " + combined.get());
-// Output: Combined result: 30
+// Run action after completion
+CompletableFuture.supplyAsync(() -> "Done")
+    .thenRun(() -> System.out.println("Task finished"));
 
+// Use custom executor
+ExecutorService executor = Executors.newFixedThreadPool(4);
+CompletableFuture<String> custom = CompletableFuture.supplyAsync(
+    () -> "Custom pool",
+    executor
+);
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Exception handling
-// ═══════════════════════════════════════════════════════════════════════════
-CompletableFuture.supplyAsync(() -> {
-    if (Math.random() > 0.5) throw new RuntimeException("Error!");
-    return "Success";
-})
-.exceptionally(ex -> "Recovered from: " + ex.getMessage())
-.thenAccept(System.out::println);
-// Output: Success OR Recovered from: Error!
+// Async variants - run in different thread
+CompletableFuture<String> async = CompletableFuture
+    .supplyAsync(() -> "Start")
+    .thenApplyAsync(s -> s + " End");  // New thread for transform
 
+executor.shutdown();`
+        },
+        {
+          name: 'Combining Futures',
+          explanation: 'thenCompose() chains dependent async operations (flatMap). thenCombine() runs two futures in parallel and combines results. allOf() waits for all futures, anyOf() completes when first finishes. These enable complex async workflows.',
+          codeExample: `import java.util.concurrent.*;
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ allOf - wait for multiple futures
-// ═══════════════════════════════════════════════════════════════════════════
-CompletableFuture<String> f1 = CompletableFuture.supplyAsync(() -> "Task1");
-CompletableFuture<String> f2 = CompletableFuture.supplyAsync(() -> "Task2");
-CompletableFuture<String> f3 = CompletableFuture.supplyAsync(() -> "Task3");
+// thenCompose - sequential async operations (flatMap)
+CompletableFuture<String> composed = CompletableFuture
+    .supplyAsync(() -> "user123")
+    .thenCompose(userId -> fetchUserData(userId));  // Returns CF
+
+private CompletableFuture<String> fetchUserData(String userId) {
+    return CompletableFuture.supplyAsync(() -> "Data for " + userId);
+}
+
+// thenCombine - parallel execution, combine results
+CompletableFuture<Integer> price = CompletableFuture.supplyAsync(() -> 100);
+CompletableFuture<Integer> quantity = CompletableFuture.supplyAsync(() -> 5);
+
+CompletableFuture<Integer> total = price.thenCombine(
+    quantity,
+    (p, q) -> p * q  // Combine when both complete
+);
+System.out.println(total.get());  // 500
+
+// allOf - wait for all futures
+CompletableFuture<String> f1 = CompletableFuture.supplyAsync(() -> "One");
+CompletableFuture<String> f2 = CompletableFuture.supplyAsync(() -> "Two");
+CompletableFuture<String> f3 = CompletableFuture.supplyAsync(() -> "Three");
+
 CompletableFuture<Void> allDone = CompletableFuture.allOf(f1, f2, f3);
-allDone.join();
-System.out.println("All completed: " + f1.get() + ", " + f2.get() + ", " + f3.get());
-// Output: All completed: Task1, Task2, Task3
+allDone.join();  // Wait for all
 
+// Collect results after allOf
+List<String> results = Stream.of(f1, f2, f3)
+    .map(CompletableFuture::join)
+    .collect(Collectors.toList());
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ anyOf - complete when any future completes
-// ═══════════════════════════════════════════════════════════════════════════
-CompletableFuture<Object> any = CompletableFuture.anyOf(f1, f2, f3);
-System.out.println("First completed: " + any.get());
-// Output: First completed: Task1 (or Task2 or Task3)`
+// anyOf - first to complete
+CompletableFuture<Object> anyDone = CompletableFuture.anyOf(f1, f2, f3);
+System.out.println("First: " + anyDone.get());`
+        },
+        {
+          name: 'Error Handling',
+          explanation: 'exceptionally() handles exceptions and provides fallback value. handle() processes both success and failure cases. whenComplete() executes cleanup regardless of outcome. Exceptions propagate through the chain until handled.',
+          codeExample: `import java.util.concurrent.*;
+
+// exceptionally - handle exceptions with fallback
+CompletableFuture<String> withFallback = CompletableFuture
+    .supplyAsync(() -> {
+        if (Math.random() > 0.5) {
+            throw new RuntimeException("Failed!");
+        }
+        return "Success";
+    })
+    .exceptionally(ex -> {
+        System.out.println("Error: " + ex.getMessage());
+        return "Fallback value";  // Recovery value
+    });
+
+// handle - process success or failure
+CompletableFuture<String> handled = CompletableFuture
+    .supplyAsync(() -> {
+        throw new RuntimeException("Error");
+    })
+    .handle((result, ex) -> {
+        if (ex != null) {
+            return "Handled: " + ex.getMessage();
+        }
+        return result;
+    });
+
+// whenComplete - cleanup action (doesn't change result)
+CompletableFuture<String> withCleanup = CompletableFuture
+    .supplyAsync(() -> "Result")
+    .whenComplete((result, ex) -> {
+        if (ex != null) {
+            System.out.println("Failed: " + ex);
+        } else {
+            System.out.println("Completed: " + result);
+        }
+        // Cleanup resources
+    });
+
+// Timeout handling (Java 9+)
+CompletableFuture<String> withTimeout = CompletableFuture
+    .supplyAsync(() -> {
+        try { Thread.sleep(5000); } catch (InterruptedException e) {}
+        return "Slow result";
+    })
+    .orTimeout(2, TimeUnit.SECONDS)  // Throws TimeoutException
+    .exceptionally(ex -> "Timeout fallback");
+
+// Complete on timeout with default (Java 9+)
+CompletableFuture<String> defaultOnTimeout = CompletableFuture
+    .supplyAsync(() -> slowOperation())
+    .completeOnTimeout("Default", 2, TimeUnit.SECONDS);`
+        }
+      ]
     },
     {
+      id: 'classloading',
       name: 'Class Loading',
-      icon: '🔹',
-      explanation: `**Core Concept:**
-• Fundamental process for dynamically loading Java classes at runtime
-• JVM loads .class files (bytecode) into memory as needed
-• Follows a three-phase mechanism: Loading → Linking → Initialization
-
-**Phase 1: Loading**
-• Locates and reads .class file from various sources
-• Sources: Filesystem, network, JAR files, databases, bytecode generation
-• Creates Class object in memory representing the loaded class
-• Determines fully qualified class name
-
-**Phase 2: Linking**
-• Verification - Ensures bytecode is valid, safe, and follows JVM spec
-• Preparation - Allocates memory for static variables, initializes to defaults
-• Resolution - Converts symbolic references to direct references (optional)
-
-**Phase 3: Initialization**
-• Executes static initializers
-• Runs static initialization blocks
-• Initializes static variables with actual values
-• Happens before first use of the class
-
-**ClassLoader Hierarchy:**
-• Bootstrap ClassLoader - Loads core Java classes (rt.jar), written in native code
-• Platform/Extension ClassLoader - Loads classes from extension directories
-• Application/System ClassLoader - Loads classes from classpath
-• Custom ClassLoaders - User-defined for specialized needs
-
-**Parent Delegation Model:**
-• Child classloader delegates to parent before attempting to load
-• Ensures classes loaded by most appropriate classloader
-• Prevents duplicate class loading
-• Maintains security boundaries
-• Core classes cannot be overridden
-
-**Custom ClassLoader Use Cases:**
-• Hot deployment/redeployment without JVM restart
-• Class isolation for plugin systems
-• Loading classes from non-standard sources (database, network)
-• Implementing custom security policies
-• Dynamic code generation and loading
-
-**Key Methods:**
-• loadClass(String) - Loads class with delegation
-• findClass(String) - Finds class without delegation (override point)
-• defineClass(byte[]) - Converts bytecode to Class object
-• getParent() - Returns parent classloader`,
-      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Custom class loader
-// ═══════════════════════════════════════════════════════════════════════════
-class CustomClassLoader extends ClassLoader {
-    @Override
-    public Class<?> loadClass(String name) throws ClassNotFoundException {
-        System.out.println("Loading class: " + name);
-        return super.loadClass(name);
-    }
-}
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Using custom class loader
-// ═══════════════════════════════════════════════════════════════════════════
-CustomClassLoader loader = new CustomClassLoader();
-try {
-    Class<?> clazz = loader.loadClass("java.lang.String");
-    System.out.println("Loaded: " + clazz.getName());
-} catch (ClassNotFoundException e) {
-    System.out.println("Error: " + e.getMessage());
-}
-// Output: Loading class: java.lang.String
-// Output: Loaded: java.lang.String
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Class loader hierarchy
-// ═══════════════════════════════════════════════════════════════════════════
-ClassLoader appLoader = ClassLoader.getSystemClassLoader();
-ClassLoader extLoader = appLoader.getParent();
-ClassLoader bootLoader = extLoader.getParent();
-
-System.out.println("App ClassLoader: " + appLoader.getClass().getName());
-System.out.println("Platform ClassLoader: " + extLoader.getClass().getName());
-System.out.println("Bootstrap ClassLoader: " + bootLoader);  // null (native)
-// Output: App ClassLoader: jdk.internal.loader.ClassLoaders$AppClassLoader
-// Output: Platform ClassLoader: jdk.internal.loader.ClassLoaders$PlatformClassLoader
-// Output: Bootstrap ClassLoader: null
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Loading class from different loader
-// ═══════════════════════════════════════════════════════════════════════════
-Class<?> stringClass = String.class;
-ClassLoader stringLoader = stringClass.getClassLoader();
-System.out.println("String class loader: " + stringLoader);  // null (bootstrap)
-// Output: String class loader: null
-
-Class<?> myClass = CustomClassLoader.class;
-System.out.println("Custom class loader: " + myClass.getClassLoader());
-// Output: Custom class loader: jdk.internal.loader.ClassLoaders$AppClassLoader
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Class initialization
-// ═══════════════════════════════════════════════════════════════════════════
-class InitDemo {
+      icon: '📂',
+      color: '#f97316',
+      description: 'Dynamic loading of Java classes into JVM memory at runtime.',
+      diagram: ClassLoaderDiagram,
+      details: [
+        {
+          name: 'Loading Process',
+          explanation: 'Class loading has three phases: Loading (read .class file, create Class object), Linking (verify bytecode, allocate static fields, resolve references), and Initialization (execute static initializers). Classes are loaded lazily on first use.',
+          codeExample: `// Class loading triggers
+public class LoadingDemo {
     static {
-        System.out.println("Static block executed");
+        System.out.println("Static initializer executed");
     }
-    static int value = initialize();
 
-    static int initialize() {
-        System.out.println("Static initializer called");
+    static int value = initValue();
+
+    static int initValue() {
+        System.out.println("Static field initialized");
         return 42;
     }
 }
 
-System.out.println("Before class usage");
-int val = InitDemo.value;  // Triggers class initialization
-System.out.println("Value: " + val);
-// Output: Before class usage
-// Output: Static block executed
-// Output: Static initializer called
-// Output: Value: 42
+// Loading triggers:
+// 1. Creating instance
+LoadingDemo demo = new LoadingDemo();
 
+// 2. Accessing static field
+int val = LoadingDemo.value;
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Class.forName() with initialization
-// ═══════════════════════════════════════════════════════════════════════════
-try {
-    Class.forName("InitDemo");  // Initializes class
-    System.out.println("Class loaded and initialized");
-} catch (ClassNotFoundException e) {
-    System.out.println("Error: " + e.getMessage());
-}`
+// 3. Calling static method
+LoadingDemo.staticMethod();
+
+// 4. Class.forName()
+Class<?> clazz = Class.forName("LoadingDemo");
+
+// 5. Subclass initialization loads parent
+class Child extends LoadingDemo {}
+new Child();  // Loads LoadingDemo first
+
+// Does NOT trigger loading:
+// - Referencing Class literal (LoadingDemo.class)
+// - Accessing compile-time constant (static final primitive)
+public static final int CONSTANT = 100;  // Not loading trigger`
+        },
+        {
+          name: 'ClassLoader Hierarchy',
+          explanation: 'Bootstrap ClassLoader (native) loads core Java classes. Platform/Extension ClassLoader loads standard extensions. Application ClassLoader loads classpath classes. Custom ClassLoaders can load from any source. Parent delegation ensures consistent class loading.',
+          codeExample: `// View ClassLoader hierarchy
+ClassLoader appLoader = ClassLoader.getSystemClassLoader();
+ClassLoader platformLoader = appLoader.getParent();
+ClassLoader bootstrapLoader = platformLoader.getParent();
+
+System.out.println("App: " + appLoader);
+// jdk.internal.loader.ClassLoaders$AppClassLoader
+System.out.println("Platform: " + platformLoader);
+// jdk.internal.loader.ClassLoaders$PlatformClassLoader
+System.out.println("Bootstrap: " + bootstrapLoader);
+// null (native implementation)
+
+// Check which loader loaded a class
+ClassLoader stringLoader = String.class.getClassLoader();
+System.out.println("String loader: " + stringLoader);  // null (bootstrap)
+
+ClassLoader myLoader = MyClass.class.getClassLoader();
+System.out.println("MyClass loader: " + myLoader);  // AppClassLoader
+
+// Parent delegation model:
+// 1. AppClassLoader receives loadClass("com.example.MyClass")
+// 2. Delegates to PlatformClassLoader
+// 3. Delegates to BootstrapClassLoader
+// 4. Bootstrap can't find it, returns to Platform
+// 5. Platform can't find it, returns to App
+// 6. App loads the class
+
+// Load class explicitly
+Class<?> loaded = Class.forName("com.example.MyClass");
+Class<?> noInit = Class.forName(
+    "com.example.MyClass",
+    false,  // Don't initialize
+    ClassLoader.getSystemClassLoader()
+);`
+        },
+        {
+          name: 'Custom ClassLoader',
+          explanation: 'Custom ClassLoaders enable loading from non-standard sources (network, database, encrypted). Override findClass() to implement loading logic. Use defineClass() to convert bytecode to Class object. Useful for hot deployment, plugins, and isolation.',
+          codeExample: `// Custom ClassLoader implementation
+class NetworkClassLoader extends ClassLoader {
+    private String baseUrl;
+
+    public NetworkClassLoader(String baseUrl, ClassLoader parent) {
+        super(parent);
+        this.baseUrl = baseUrl;
+    }
+
+    @Override
+    protected Class<?> findClass(String name)
+            throws ClassNotFoundException {
+        try {
+            // Convert class name to path
+            String path = name.replace('.', '/') + ".class";
+            URL url = new URL(baseUrl + path);
+
+            // Read bytecode
+            byte[] classData = readFromNetwork(url);
+
+            // Define the class
+            return defineClass(name, classData, 0, classData.length);
+        } catch (Exception e) {
+            throw new ClassNotFoundException(name, e);
+        }
+    }
+
+    private byte[] readFromNetwork(URL url) throws IOException {
+        try (InputStream is = url.openStream()) {
+            return is.readAllBytes();
+        }
+    }
+}
+
+// Usage
+NetworkClassLoader loader = new NetworkClassLoader(
+    "https://example.com/classes/",
+    getClass().getClassLoader()
+);
+
+Class<?> remoteClass = loader.loadClass("com.example.RemotePlugin");
+Object instance = remoteClass.getDeclaredConstructor().newInstance();
+
+// Hot reloading pattern
+// Create new ClassLoader to reload modified class
+NetworkClassLoader newLoader = new NetworkClassLoader(
+    "https://example.com/classes/",
+    getClass().getClassLoader()
+);
+Class<?> reloadedClass = newLoader.loadClass("com.example.RemotePlugin");
+// newLoader.loadClass returns different Class object`
+        }
+      ]
     },
     {
+      id: 'bytecode',
       name: 'Bytecode',
-      icon: '🔹',
-      explanation: `**Core Concept:**
-• Platform-independent intermediate representation of compiled Java code
-• Stored in .class files, executed by Java Virtual Machine (JVM)
-• Compiled by javac from Java source code
-• Stack-based instruction set with ~200 opcodes
-
-**Bytecode Instruction Categories:**
-• Load/Store - Move values between stack and local variables
-  - iload, aload, lload, fload, dload (load onto stack)
-  - istore, astore, lstore, fstore, dstore (store from stack)
-• Arithmetic - Mathematical operations
-  - iadd, isub, imul, idiv, irem (integer arithmetic)
-  - dadd, dsub, dmul, ddiv (double arithmetic)
-• Control Flow - Program flow control
-  - if_icmpeq, if_icmpne, if_icmplt, if_icmpgt (comparisons)
-  - goto, tableswitch, lookupswitch (jumps)
-• Method Invocation - Calling methods
-  - invokevirtual (instance methods)
-  - invokespecial (constructors, private methods, super calls)
-  - invokestatic (static methods)
-  - invokeinterface (interface methods)
-  - invokedynamic (dynamic language support, lambdas)
-• Object Operations - Object manipulation
-  - new (create object), newarray (create array)
-  - getfield, putfield (access instance fields)
-  - getstatic, putstatic (access static fields)
-
-**Stack-Based Architecture:**
-• Operations push and pop values from operand stack
-• No registers - simpler instruction set
-• More compact bytecode compared to register-based
-• Platform-independent execution model
-
-**Bytecode Verification:**
-• Ensures type safety before execution
-• Prevents stack overflow/underflow
-• Validates method signatures and access permissions
-• Checks proper exception handling
-• Critical for Java's security model
-• Performed during class loading (linking phase)
-
-**Execution Methods:**
-• Interpretation - JVM directly executes bytecode
-• Just-In-Time (JIT) Compilation - Converts hot bytecode to native code
-• Ahead-of-Time (AOT) Compilation - Pre-compiles to native code (Java 9+)
-• Tiered Compilation - Combines interpretation and JIT for optimal performance
-
-**Bytecode Analysis Tools:**
-• javap - Disassembles .class files to view bytecode
-• ASM - Library for bytecode manipulation
-• ByteBuddy - Higher-level bytecode generation
-• Javassist - Simplified bytecode editing
-
-**Practical Applications:**
-• Performance optimization - Identify bottlenecks
-• Debugging - Understand complex runtime behavior
-• Framework development - Generate code at runtime
-• AOP (Aspect-Oriented Programming) - Weave cross-cutting concerns
-• Code instrumentation - Add monitoring/logging without source changes`,
-      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Simple method to demonstrate bytecode
-// ═══════════════════════════════════════════════════════════════════════════
+      icon: '🔢',
+      color: '#6366f1',
+      description: 'Platform-independent intermediate representation executed by JVM.',
+      diagram: BytecodeDiagram,
+      details: [
+        {
+          name: 'Bytecode Basics',
+          explanation: 'Java source compiles to bytecode (.class files) executed by JVM. Stack-based architecture uses operand stack for operations. ~200 opcodes cover load/store, arithmetic, control flow, method calls, and object operations. Platform independence through abstract instruction set.',
+          codeExample: `// Source code
 public class BytecodeDemo {
     public int add(int a, int b) {
         return a + b;
@@ -1677,501 +1659,566 @@ public class BytecodeDemo {
     }
 }
 
-// Bytecode for add method (javap -c BytecodeDemo):
+// Bytecode (javap -c BytecodeDemo):
 /*
 public int add(int, int);
   Code:
-    0: iload_1        // Load first parameter onto stack
-    1: iload_2        // Load second parameter onto stack
-    2: iadd           // Add top two stack values
-    3: ireturn        // Return integer result
+    0: iload_1        // Load int from local var 1 (a) onto stack
+    1: iload_2        // Load int from local var 2 (b) onto stack
+    2: iadd           // Pop two ints, push their sum
+    3: ireturn        // Return int on top of stack
+
+public int calculate(int);
+  Code:
+    0: bipush 10      // Push byte 10 onto stack
+    2: istore_2       // Store to local var 2 (y)
+    3: iload_1        // Load x
+    4: iload_2        // Load y
+    5: iadd           // x + y
+    6: istore_3       // Store to z
+    7: iload_3        // Load z
+    8: iconst_2       // Push constant 2
+    9: imul           // z * 2
+    10: ireturn       // Return result
 */
 
+// View bytecode with javap
+// javap -c -verbose BytecodeDemo.class`
+        },
+        {
+          name: 'Common Instructions',
+          explanation: 'Load instructions (iload, aload) push values onto stack. Store instructions (istore, astore) pop and save. Arithmetic (iadd, imul) operates on stack. Method invocation: invokevirtual (instance), invokestatic, invokeinterface, invokespecial (constructor/super/private).',
+          codeExample: `// Instruction categories with examples
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Analyzing bytecode at runtime
-// ═══════════════════════════════════════════════════════════════════════════
-try {
-    Class<?> clazz = BytecodeDemo.class;
-    System.out.println("Class: " + clazz.getName());
+// LOAD/STORE - stack <-> local variables
+iload_0   // Load int from local var 0
+aload_1   // Load reference from local var 1
+istore_2  // Store int to local var 2
+astore_3  // Store reference to local var 3
 
-    // Get methods
-    for (java.lang.reflect.Method method : clazz.getDeclaredMethods()) {
-        System.out.println("Method: " + method.getName());
-        System.out.println("Parameters: " + method.getParameterCount());
-        System.out.println("Return type: " + method.getReturnType().getName());
-    }
-} catch (Exception e) {
-    System.out.println("Error: " + e.getMessage());
-}
-// Output: Class: BytecodeDemo
-// Output: Method: add
-// Output: Parameters: 2
-// Output: Return type: int
+// CONSTANTS - push values onto stack
+iconst_0  // Push int 0 (-1 to 5 have dedicated opcodes)
+bipush 10 // Push byte as int
+ldc "str" // Load from constant pool
 
+// ARITHMETIC - operate on stack values
+iadd      // int add
+isub      // int subtract
+imul      // int multiply
+idiv      // int divide
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Common bytecode instructions
-// ═══════════════════════════════════════════════════════════════════════════
-// Load instructions:  iload, aload, lload, fload, dload
-// Store instructions: istore, astore, lstore, fstore, dstore
-// Arithmetic:         iadd, isub, imul, idiv
-// Control flow:       if_icmpeq, goto, ifeq, ifne
-// Method invocation:  invokevirtual, invokespecial, invokestatic
-// Object operations:  new, newarray, getfield, putfield
+// COMPARISONS & BRANCHING
+if_icmpeq // if int comparison equals, branch
+if_icmpgt // if greater than
+goto      // unconditional jump
+ifeq      // if top of stack == 0
 
+// METHOD INVOCATION
+invokevirtual   // Instance method (virtual dispatch)
+invokestatic    // Static method
+invokespecial   // Constructor, private, super
+invokeinterface // Interface method
+invokedynamic   // Dynamic (lambdas, method handles)
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Stack-based execution example
-// ═══════════════════════════════════════════════════════════════════════════
-// Bytecode for calculate method (conceptual):
+// OBJECT OPERATIONS
+new           // Create new object
+newarray      // Create array
+getfield      // Get instance field
+putfield      // Set instance field
+getstatic     // Get static field
+
+// Example: object.method(arg)
+aload_1           // Push object reference
+iload_2           // Push int argument
+invokevirtual #4  // Call method (ref in constant pool)`
+        },
+        {
+          name: 'JIT Compilation',
+          explanation: 'JVM interprets bytecode initially, then JIT compiles hot code paths to native machine code. Tiered compilation uses C1 (quick compilation) and C2 (optimized) compilers. Optimizations include inlining, loop unrolling, escape analysis, and dead code elimination.',
+          codeExample: `// JIT compilation flow
 /*
-  0: bipush 10      // Push 10 onto stack
-  2: istore_2       // Store in local variable y
-  3: iload_1        // Load x onto stack
-  4: iload_2        // Load y onto stack
-  5: iadd           // Add: stack now has x+y
-  6: istore_3       // Store in z
-  7: iload_3        // Load z
-  8: iconst_2       // Push 2
-  9: imul           // Multiply: z*2
-  10: ireturn       // Return result
+1. Interpretation phase:
+   - JVM interprets bytecode directly
+   - Profiles execution (method call counts, branch frequencies)
+
+2. C1 Compilation (Client Compiler):
+   - Quick compilation with basic optimizations
+   - Triggered after method reaches threshold (~1500 calls)
+   - Continues profiling for more optimization data
+
+3. C2 Compilation (Server Compiler):
+   - Aggressive optimizations based on profile data
+   - Triggered after ~10000 calls
+   - Inlining, escape analysis, loop optimizations
 */
 
-System.out.println("Result: " + new BytecodeDemo().calculate(5));
-// Output: Result: 30
+// JVM flags to observe JIT
+// -XX:+PrintCompilation       Print compiled methods
+// -XX:+UnlockDiagnosticVMOptions -XX:+PrintInlining
+// -XX:CompileThreshold=10000  Set compilation threshold
 
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Bytecode verification
-// ═══════════════════════════════════════════════════════════════════════════
-// JVM verifies: correct types, no stack overflow/underflow,
-// valid method calls, proper exception handling
-
-class VerificationDemo {
-    public void safeMethod(String str) {
-        if (str != null) {
-            System.out.println(str.length());
-        }
-        // Bytecode verifier ensures null check before dereference
+// JIT optimizations example
+public class JITDemo {
+    // Before JIT - separate allocations, method calls
+    public int compute() {
+        Point p = new Point(10, 20);
+        return p.getX() + p.getY();
     }
-}`
+
+    // After JIT with escape analysis and inlining:
+    // - Point allocation eliminated (scalar replacement)
+    // - getX()/getY() inlined
+    // Effectively becomes: return 10 + 20; -> return 30;
+}
+
+// Warm-up loops for benchmarks
+for (int i = 0; i < 10000; i++) {
+    methodToOptimize();  // Trigger JIT compilation
+}
+// Now measure performance with optimized code
+
+// @Warmup annotation in JMH (Java Microbenchmark Harness)
+// handles warm-up automatically for accurate benchmarks`
+        }
+      ]
     }
   ]
 
+  // =============================================================================
+  // NAVIGATION HANDLERS
+  // =============================================================================
+
+  const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
+
+  const handlePreviousConcept = () => {
+    if (selectedConceptIndex > 0) {
+      setSelectedConceptIndex(selectedConceptIndex - 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  const handleNextConcept = () => {
+    if (selectedConceptIndex < concepts.length - 1) {
+      setSelectedConceptIndex(selectedConceptIndex + 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  // =============================================================================
+  // BREADCRUMB CONFIGURATION
+  // =============================================================================
+
+  const buildBreadcrumbStack = () => {
+    const stack = [
+      { name: 'Java', icon: '☕', page: 'Java' },
+      { name: 'Core Java', icon: '🔧', page: 'Core Java' }
+    ]
+    if (selectedConcept) {
+      stack.push({ name: selectedConcept.name, icon: selectedConcept.icon })
+    }
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index) => {
+    if (index === 0) {
+      onBack()
+    } else if (index === 1 && selectedConcept) {
+      setSelectedConceptIndex(null)
+    }
+  }
+
+  // =============================================================================
+  // KEYBOARD NAVIGATION
+  // =============================================================================
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        if (selectedConcept) {
+          setSelectedConceptIndex(null)
+        } else {
+          onBack()
+        }
+      } else if (e.key === 'ArrowLeft' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handlePreviousConcept()
+      } else if (e.key === 'ArrowRight' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handleNextConcept()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConceptIndex, onBack])
+
+  // =============================================================================
+  // STYLES
+  // =============================================================================
+
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f172a 0%, #78350f 50%, #0f172a 100%)',
+    padding: '2rem',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
+  }
+
+  const headerStyle = {
+    maxWidth: '1400px',
+    margin: '0 auto 2rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '1rem'
+  }
+
+  const titleStyle = {
+    fontSize: '2.5rem',
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    margin: 0
+  }
+
+  const backButtonStyle = {
+    padding: '0.75rem 1.5rem',
+    background: 'rgba(245, 158, 11, 0.2)',
+    border: '1px solid rgba(245, 158, 11, 0.3)',
+    borderRadius: '0.5rem',
+    color: '#fbbf24',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    transition: 'all 0.2s'
+  }
+
+  // =============================================================================
+  // RENDER
+  // =============================================================================
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
-      color: 'white',
-      padding: '1.5rem'
-    }}>
-      <div style={{
-        maxWidth: '80rem',
-        margin: '0 auto'
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '2rem',
-          flexWrap: 'wrap',
-          gap: '1rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+    <div style={containerStyle}>
+      {/* Header with title and navigation buttons */}
+      <div style={headerStyle}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button
+            style={backButtonStyle}
+            onClick={onBack}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = 'rgba(245, 158, 11, 0.3)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = 'rgba(245, 158, 11, 0.2)'
+              e.currentTarget.style.transform = 'translateY(0)'
+            }}
+          >
+            ← Back to Java
+          </button>
+          <h1 style={titleStyle}>Core Java Fundamentals</h1>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {onPrevious && (
             <button
-              onClick={onBack}
+              onClick={onPrevious}
               style={{
-                background: '#f59e0b',
-                color: 'white',
-                padding: '0.75rem 1.5rem',
+                padding: '0.75rem 1.25rem',
+                background: 'rgba(59, 130, 246, 0.2)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
                 borderRadius: '0.5rem',
-                border: 'none',
+                color: '#60a5fa',
                 cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontWeight: '500',
                 fontSize: '1rem',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
                 transition: 'all 0.2s'
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#d97706'
-                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(59, 130, 246, 0.3)'
               }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#f59e0b'
-                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)'
               }}
             >
-              ← Back to Java
+              ← {previousName}
             </button>
-            <h1 style={{
-              fontSize: '2.25rem',
-              fontWeight: 'bold',
-              background: 'linear-gradient(to right, #fbbf24, #f97316)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
-            }}>
-              ☕ Core Java Fundamentals
-            </h1>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            {onPrevious && (
-              <button
-                onClick={onPrevious}
-                style={{
-                  background: '#2563eb',
-                  color: 'white',
-                  padding: '0.75rem 1.25rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid #f59e0b',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  fontSize: '1rem',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#1d4ed8'}
-                onMouseLeave={(e) => e.currentTarget.style.background = '#2563eb'}
-              >
-                ← {previousName}
-              </button>
-            )}
-            {onNext && (
-              <button
-                onClick={onNext}
-                style={{
-                  background: '#2563eb',
-                  color: 'white',
-                  padding: '0.75rem 1.25rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid #f59e0b',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  fontSize: '1rem',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#1d4ed8'}
-                onMouseLeave={(e) => e.currentTarget.style.background = '#2563eb'}
-              >
-                {nextName} →
-              </button>
-            )}
-          </div>
-        </div>
-
-        <Breadcrumb breadcrumb={activeBreadcrumb} />
-
-        <p style={{
-          fontSize: '1.2rem',
-          color: '#d1d5db',
-          textAlign: 'center',
-          marginBottom: '2rem',
-          lineHeight: '1.8'
-        }}>
-          Master the foundational concepts of Java programming including OOP principles, data structures, exception handling, and core APIs.
-        </p>
-
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '1.5rem'
-        }}>
-          {concepts.map((concept, idx) => (
-            <div
-              key={idx}
-              onClick={() => handleConceptClick(concept)}
+          )}
+          {onNext && (
+            <button
+              onClick={onNext}
               style={{
-                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
-                padding: '1.5rem',
-                borderRadius: '0.75rem',
-                border: '2px solid #f59e0b',
+                padding: '0.75rem 1.25rem',
+                background: 'rgba(59, 130, 246, 0.2)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                borderRadius: '0.5rem',
+                color: '#60a5fa',
                 cursor: 'pointer',
-                transition: 'all 0.3s',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                fontSize: '1rem',
+                transition: 'all 0.2s'
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-0.5rem)'
-                e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(245, 158, 11, 0.4)'
-                e.currentTarget.style.borderColor = '#fbbf24'
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(59, 130, 246, 0.3)'
               }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                e.currentTarget.style.borderColor = '#f59e0b'
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)'
               }}
             >
-              <div style={{ fontSize: '3rem', marginBottom: '1rem', textAlign: 'center' }}>
-                {concept.icon || '🔹'}
-              </div>
-              <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                color: '#fbbf24',
-                marginBottom: '0.75rem',
-                textAlign: 'center'
-              }}>
-                {concept.name}
-              </h3>
-              <p style={{
-                fontSize: '0.9rem',
-                color: '#d1d5db',
-                lineHeight: '1.6',
-                textAlign: 'center'
-              }}>
-                {concept.explanation?.substring(0, 150) || ''}...
-              </p>
-            </div>
-          ))}
+              {nextName} →
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Breadcrumb navigation */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          colors={COREJAVA_COLORS}
+        />
+      </div>
+
+      {/* Description */}
+      <p style={{
+        maxWidth: '1400px',
+        margin: '0 auto 2rem',
+        fontSize: '1.1rem',
+        color: '#94a3b8',
+        textAlign: 'center',
+        lineHeight: '1.8'
+      }}>
+        Master the foundational concepts of Java programming including OOP principles,
+        data structures, concurrency, and JVM internals.
+      </p>
+
+      {/* Concept Cards Grid */}
+      <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+        gap: '1.5rem'
+      }}>
+        {concepts.map((concept, index) => (
+          <div
+            key={concept.id}
+            onClick={() => setSelectedConceptIndex(index)}
+            style={{
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              border: `1px solid ${concept.color}40`,
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = `0 20px 40px ${concept.color}20`
+              e.currentTarget.style.borderColor = concept.color
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.borderColor = `${concept.color}40`
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
+              <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
+            </div>
+            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
+            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+              {concept.details.length} topics - Click to explore
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Modal for Selected Concept */}
       {selectedConcept && (
         <div
-          onClick={() => setSelectedConcept(null)}
           style={{
             position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 1000,
-            padding: '2rem',
-            backdropFilter: 'blur(4px)'
+            padding: '2rem'
           }}
+          onClick={() => setSelectedConceptIndex(null)}
         >
           <div
-            onClick={(e) => e.stopPropagation()}
             style={{
-              background: 'linear-gradient(to bottom right, #111827, #1f2937)',
-              borderRadius: '16px',
-              maxWidth: '90vw',
-              maxHeight: '90vh',
-              width: '1200px',
-              overflow: 'hidden',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              border: '2px solid #f59e0b',
-              display: 'flex',
-              flexDirection: 'column'
+              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              maxWidth: '1200px',
+              maxHeight: '92vh',
+              overflow: 'auto',
+              border: `1px solid ${selectedConcept.color}40`,
+              width: '100%'
             }}
+            onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header */}
+            {/* Modal Breadcrumb */}
+            <Breadcrumb
+              breadcrumbStack={buildBreadcrumbStack()}
+              onBreadcrumbClick={handleBreadcrumbClick}
+              colors={COREJAVA_COLORS}
+            />
+
+            {/* Modal Header with Navigation */}
             <div style={{
-              padding: '1.5rem 2rem',
-              borderBottom: '2px solid rgba(245, 158, 11, 0.3)',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              background: 'rgba(245, 158, 11, 0.1)'
+              marginBottom: '1.5rem',
+              paddingBottom: '1rem',
+              borderBottom: '1px solid #334155'
             }}>
               <h2 style={{
-                fontSize: '2rem',
-                fontWeight: '700',
-                color: '#fbbf24',
-                margin: 0
+                color: selectedConcept.color,
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '1.25rem'
               }}>
-                {selectedConcept.icon || '🔹'} {selectedConcept.name}
+                <span>{selectedConcept.icon}</span>
+                {selectedConcept.name}
               </h2>
-              <button
-                onClick={() => setSelectedConcept(null)}
-                style={{
-                  padding: '0.5rem 1rem',
-                  fontSize: '1.5rem',
-                  fontWeight: '600',
-                  backgroundColor: 'transparent',
-                  color: '#d1d5db',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent'
-                }}
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Modal Content */}
-            <div style={{
-              padding: '2rem',
-              overflowY: 'auto',
-              flex: 1
-            }}>
-              <div style={{
-                backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                padding: '1.5rem',
-                borderRadius: '12px',
-                border: '2px solid rgba(245, 158, 11, 0.3)',
-                marginBottom: '2rem'
-              }}>
-                {selectedConcept.explanation.split('\n\n').map((section, idx) => {
-                  // Check if this is a section header (starts with **)
-                  if (section.startsWith('**') && section.includes(':**')) {
-                    const headerMatch = section.match(/\*\*(.*?):\*\*/)
-                    if (headerMatch) {
-                      const header = headerMatch[1]
-                      const content = section.substring(headerMatch[0].length).trim()
-
-                      return (
-                        <div key={idx} style={{ marginBottom: '1.5rem' }}>
-                          <h3 style={{
-                            fontSize: '1.1rem',
-                            fontWeight: '700',
-                            color: '#fbbf24',
-                            marginBottom: '0.75rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem'
-                          }}>
-                            <span style={{
-                              width: '4px',
-                              height: '20px',
-                              backgroundColor: '#10b981',
-                              borderRadius: '2px'
-                            }}></span>
-                            {header}
-                          </h3>
-                          <div style={{
-                            paddingLeft: '1.25rem',
-                            color: '#4b5563',
-                            fontSize: '0.95rem',
-                            lineHeight: '1.8'
-                          }}>
-                            {content.split('\n').map((line, lineIdx) => {
-                              // Handle bullet points
-                              if (line.trim().startsWith('•')) {
-                                const bulletContent = line.trim().substring(1).trim()
-                                // Check if it has a dash separator (e.g., "name - description")
-                                const dashMatch = bulletContent.match(/^(.*?)\s*-\s*(.*)$/)
-
-                                if (dashMatch) {
-                                  return (
-                                    <div key={lineIdx} style={{
-                                      display: 'flex',
-                                      marginBottom: '0.5rem',
-                                      paddingLeft: '0.5rem'
-                                    }}>
-                                      <span style={{
-                                        color: '#10b981',
-                                        marginRight: '0.75rem',
-                                        fontWeight: '600',
-                                        flexShrink: 0
-                                      }}>•</span>
-                                      <span>
-                                        <strong style={{ color: '#1f2937' }}>{dashMatch[1]}</strong>
-                                        <span style={{ color: '#6b7280' }}> - {dashMatch[2]}</span>
-                                      </span>
-                                    </div>
-                                  )
-                                } else {
-                                  return (
-                                    <div key={lineIdx} style={{
-                                      display: 'flex',
-                                      marginBottom: '0.5rem',
-                                      paddingLeft: '0.5rem'
-                                    }}>
-                                      <span style={{
-                                        color: '#10b981',
-                                        marginRight: '0.75rem',
-                                        fontWeight: '600',
-                                        flexShrink: 0
-                                      }}>•</span>
-                                      <span style={{ color: '#d1d5db' }}>{bulletContent}</span>
-                                    </div>
-                                  )
-                                }
-                              }
-                              // Handle sub-bullets (indented with -)
-                              else if (line.trim().startsWith('-')) {
-                                const subBulletContent = line.trim().substring(1).trim()
-                                return (
-                                  <div key={lineIdx} style={{
-                                    display: 'flex',
-                                    marginBottom: '0.4rem',
-                                    paddingLeft: '2rem'
-                                  }}>
-                                    <span style={{
-                                      color: '#6b7280',
-                                      marginRight: '0.75rem',
-                                      fontSize: '0.9rem',
-                                      flexShrink: 0
-                                    }}>◦</span>
-                                    <span style={{ color: '#4b5563', fontSize: '0.9rem' }}>{subBulletContent}</span>
-                                  </div>
-                                )
-                              }
-                              // Regular text
-                              else if (line.trim()) {
-                                return (
-                                  <div key={lineIdx} style={{ marginBottom: '0.5rem', color: '#d1d5db' }}>
-                                    {line}
-                                  </div>
-                                )
-                              }
-                              return null
-                            })}
-                          </div>
-                        </div>
-                      )
-                    }
-                  }
-                  return null
-                })}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button
+                  onClick={handlePreviousConcept}
+                  disabled={selectedConceptIndex === 0}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >←</button>
+                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>
+                  {selectedConceptIndex + 1}/{concepts.length}
+                </span>
+                <button
+                  onClick={handleNextConcept}
+                  disabled={selectedConceptIndex === concepts.length - 1}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >→</button>
+                <button
+                  onClick={() => setSelectedConceptIndex(null)}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: '#f87171',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    marginLeft: '0.5rem'
+                  }}
+                >✕</button>
               </div>
-
-              {selectedConcept.codeExample && (() => {
-                const sections = parseCodeSections(selectedConcept.codeExample)
-                return sections.length > 0 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {sections.map((section, idx) => (
-                      <div key={idx} style={{
-                        backgroundColor: '#1e293b',
-                        borderRadius: '12px',
-                        overflow: 'hidden',
-                        border: '2px solid #334155'
-                      }}>
-                        <div style={{
-                          padding: '1rem 1.5rem',
-                          backgroundColor: '#334155',
-                          color: '#60a5fa',
-                          fontSize: '1rem',
-                          fontWeight: '600',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem'
-                        }}>
-                          <span>💻 {section.title}</span>
-                        </div>
-                        <SyntaxHighlighter code={section.code} />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div style={{
-                    backgroundColor: '#1e293b',
-                    padding: 0,
-                    borderRadius: '12px',
-                    border: '2px solid #334155',
-                    overflow: 'hidden'
-                  }}>
-                    <SyntaxHighlighter code={selectedConcept.codeExample} />
-                  </div>
-                )
-              })()}
             </div>
+
+            {/* Subtopic Tabs */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {selectedConcept.details.map((detail, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedDetailIndex(i)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)',
+                    border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`,
+                    borderRadius: '0.5rem',
+                    color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: selectedDetailIndex === i ? '600' : '400',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {detail.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Selected Subtopic Content */}
+            {(() => {
+              const detail = selectedConcept.details[selectedDetailIndex]
+              const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = selectedConcept.diagram
+              return (
+                <div>
+                  {/* Diagram */}
+                  {DiagramComponent && (
+                    <div style={{
+                      background: 'rgba(15, 23, 42, 0.6)',
+                      borderRadius: '0.75rem',
+                      padding: '1rem',
+                      marginBottom: '1.5rem',
+                      border: '1px solid #334155'
+                    }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
+
+                  {/* Detail Name */}
+                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>
+                    {detail.name}
+                  </h3>
+
+                  {/* Explanation */}
+                  <p style={{
+                    color: '#e2e8f0',
+                    lineHeight: '1.8',
+                    marginBottom: '1rem',
+                    background: colorScheme.bg,
+                    border: `1px solid ${colorScheme.border}`,
+                    borderRadius: '0.5rem',
+                    padding: '1rem',
+                    textAlign: 'left'
+                  }}>
+                    {detail.explanation}
+                  </p>
+
+                  {/* Code Example */}
+                  {detail.codeExample && (
+                    <SyntaxHighlighter
+                      language="java"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        padding: '1rem',
+                        margin: 0,
+                        borderRadius: '0.5rem',
+                        fontSize: '0.8rem',
+                        border: '1px solid #334155',
+                        background: '#0f172a'
+                      }}
+                      codeTagProps={{ style: { background: 'transparent' } }}
+                    >
+                      {detail.codeExample}
+                    </SyntaxHighlighter>
+                  )}
+                </div>
+              )
+            })()}
+
           </div>
         </div>
       )}

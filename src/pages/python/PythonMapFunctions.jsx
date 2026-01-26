@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
 import LanguageToggle from '../../components/LanguageToggle.jsx'
 import DrawingCanvas from '../../components/DrawingCanvas.jsx'
@@ -786,7 +788,20 @@ def combining_map_functions():
             {output && (
               <div style={{ marginTop: '1rem' }}>
                 <h3 style={{ fontSize: '1rem', color: 'white', marginBottom: '0.5rem' }}>Output</h3>
-                <pre style={{ backgroundColor: '#1f2937', padding: '1rem', borderRadius: '8px', border: '1px solid #374151', overflow: 'auto', fontSize: '0.875rem', maxHeight: '150px', color: '#9ca3af' }}>{output}</pre>
+                <SyntaxHighlighter
+                  language="python"
+                  style={vscDarkPlus}
+                  customStyle={{
+                    margin: 0,
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    background: 'none',
+                    backgroundColor: 'transparent',
+                    padding: 0
+                  }}
+                >
+                  {output}
+                </SyntaxHighlighter>
               </div>
             )}
           </div>
@@ -803,7 +818,7 @@ def combining_map_functions():
         </button>
       </div>
 
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+      <div style={{ textAlign: 'left', marginBottom: '3rem' }}>
         <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: 'white', marginBottom: '0.5rem' }}>Python Map Functions</h1>
         <p style={{ fontSize: '1.2rem', color: '#9ca3af' }}>Master Python's functional programming tools: map(), filter(), reduce(), zip(), enumerate(), any(), all(), and more</p>
 

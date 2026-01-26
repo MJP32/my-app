@@ -1,6 +1,798 @@
 import React, { useState } from 'react';
 import Breadcrumb from '../../components/Breadcrumb';
 
+// SVG Diagram Components
+
+// 1. High-Level Architecture Diagram: Upload → Processing → Storage → CDN → Playback
+const YouTubeArchitectureDiagram = () => (
+  <svg viewBox="0 0 900 400" className="w-full h-auto">
+    <defs>
+      <linearGradient id="ytUploadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#22c55e', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#16a34a', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="ytProcessGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="ytStorageGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#2563eb', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="ytCdnGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#ef4444', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#dc2626', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="ytPlayGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#a855f7', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#9333ea', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="ytArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <polygon points="0 0, 10 3, 0 6" fill="#ef4444" />
+      </marker>
+      <filter id="ytShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3" />
+      </filter>
+    </defs>
+
+    {/* Title */}
+    <text x="450" y="30" fontSize="18" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">
+      YouTube High-Level Architecture Flow
+    </text>
+
+    {/* Step 1: Upload */}
+    <g filter="url(#ytShadow)">
+      <rect x="20" y="80" width="140" height="100" rx="12" fill="url(#ytUploadGrad)" stroke="#16a34a" strokeWidth="2" />
+      <text x="90" y="115" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">UPLOAD</text>
+      <text x="90" y="135" fontSize="10" fill="#dcfce7" textAnchor="middle">Chunked Upload</text>
+      <text x="90" y="150" fontSize="10" fill="#dcfce7" textAnchor="middle">Resume Support</text>
+      <text x="90" y="165" fontSize="10" fill="#dcfce7" textAnchor="middle">Virus Scan</text>
+    </g>
+
+    {/* Arrow 1 */}
+    <path d="M 160 130 L 195 130" stroke="#ef4444" strokeWidth="3" markerEnd="url(#ytArrow)" />
+    <text x="177" y="120" fontSize="9" fill="#fca5a5" textAnchor="middle">Raw</text>
+
+    {/* Step 2: Processing */}
+    <g filter="url(#ytShadow)">
+      <rect x="200" y="80" width="140" height="100" rx="12" fill="url(#ytProcessGrad)" stroke="#d97706" strokeWidth="2" />
+      <text x="270" y="115" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">PROCESSING</text>
+      <text x="270" y="135" fontSize="10" fill="#fef3c7" textAnchor="middle">Transcoding</text>
+      <text x="270" y="150" fontSize="10" fill="#fef3c7" textAnchor="middle">8 Resolutions</text>
+      <text x="270" y="165" fontSize="10" fill="#fef3c7" textAnchor="middle">Thumbnails</text>
+    </g>
+
+    {/* Arrow 2 */}
+    <path d="M 340 130 L 375 130" stroke="#ef4444" strokeWidth="3" markerEnd="url(#ytArrow)" />
+    <text x="357" y="120" fontSize="9" fill="#fca5a5" textAnchor="middle">Encoded</text>
+
+    {/* Step 3: Storage */}
+    <g filter="url(#ytShadow)">
+      <rect x="380" y="80" width="140" height="100" rx="12" fill="url(#ytStorageGrad)" stroke="#2563eb" strokeWidth="2" />
+      <text x="450" y="115" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">STORAGE</text>
+      <text x="450" y="135" fontSize="10" fill="#dbeafe" textAnchor="middle">Object Storage</text>
+      <text x="450" y="150" fontSize="10" fill="#dbeafe" textAnchor="middle">S3 / GCS</text>
+      <text x="450" y="165" fontSize="10" fill="#dbeafe" textAnchor="middle">Petabytes</text>
+    </g>
+
+    {/* Arrow 3 */}
+    <path d="M 520 130 L 555 130" stroke="#ef4444" strokeWidth="3" markerEnd="url(#ytArrow)" />
+    <text x="537" y="120" fontSize="9" fill="#fca5a5" textAnchor="middle">Push</text>
+
+    {/* Step 4: CDN */}
+    <g filter="url(#ytShadow)">
+      <rect x="560" y="80" width="140" height="100" rx="12" fill="url(#ytCdnGrad)" stroke="#dc2626" strokeWidth="2" />
+      <text x="630" y="115" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">CDN</text>
+      <text x="630" y="135" fontSize="10" fill="#fecaca" textAnchor="middle">Edge Servers</text>
+      <text x="630" y="150" fontSize="10" fill="#fecaca" textAnchor="middle">200+ PoPs</text>
+      <text x="630" y="165" fontSize="10" fill="#fecaca" textAnchor="middle">95% Cache Hit</text>
+    </g>
+
+    {/* Arrow 4 */}
+    <path d="M 700 130 L 735 130" stroke="#ef4444" strokeWidth="3" markerEnd="url(#ytArrow)" />
+    <text x="717" y="120" fontSize="9" fill="#fca5a5" textAnchor="middle">Stream</text>
+
+    {/* Step 5: Playback */}
+    <g filter="url(#ytShadow)">
+      <rect x="740" y="80" width="140" height="100" rx="12" fill="url(#ytPlayGrad)" stroke="#9333ea" strokeWidth="2" />
+      <text x="810" y="115" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">PLAYBACK</text>
+      <text x="810" y="135" fontSize="10" fill="#e9d5ff" textAnchor="middle">Adaptive Bitrate</text>
+      <text x="810" y="150" fontSize="10" fill="#e9d5ff" textAnchor="middle">HLS / DASH</text>
+      <text x="810" y="165" fontSize="10" fill="#e9d5ff" textAnchor="middle">2B Users</text>
+    </g>
+
+    {/* Bottom Labels */}
+    <g>
+      <rect x="20" y="220" width="140" height="60" rx="8" fill="#1f2937" stroke="#374151" strokeWidth="1" />
+      <text x="90" y="245" fontSize="11" fontWeight="bold" fill="#22c55e" textAnchor="middle">Creator</text>
+      <text x="90" y="262" fontSize="10" fill="#9ca3af" textAnchor="middle">500 hrs/min</text>
+    </g>
+    <g>
+      <rect x="740" y="220" width="140" height="60" rx="8" fill="#1f2937" stroke="#374151" strokeWidth="1" />
+      <text x="810" y="245" fontSize="11" fontWeight="bold" fill="#a855f7" textAnchor="middle">Viewer</text>
+      <text x="810" y="262" fontSize="10" fill="#9ca3af" textAnchor="middle">1B hrs/day</text>
+    </g>
+
+    {/* Connecting lines to labels */}
+    <path d="M 90 180 L 90 220" stroke="#4b5563" strokeWidth="2" strokeDasharray="4,4" />
+    <path d="M 810 180 L 810 220" stroke="#4b5563" strokeWidth="2" strokeDasharray="4,4" />
+
+    {/* Processing Time Labels */}
+    <rect x="200" y="320" width="500" height="50" rx="8" fill="#dc2626" fillOpacity="0.2" stroke="#ef4444" strokeWidth="1" />
+    <text x="450" y="345" fontSize="12" fontWeight="bold" fill="#ef4444" textAnchor="middle">End-to-End Pipeline</text>
+    <text x="450" y="360" fontSize="10" fill="#fca5a5" textAnchor="middle">Upload: 1-5 min | Transcode: 5-30 min | CDN: Instant | Playback: &lt;2s start</text>
+  </svg>
+);
+
+// 2. Video Processing Pipeline Diagram
+const VideoProcessingDiagram = () => (
+  <svg viewBox="0 0 900 450" className="w-full h-auto">
+    <defs>
+      <linearGradient id="vpIngestGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#ef4444', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#dc2626', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="vpTranscodeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#f97316', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#ea580c', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="vpPackageGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#eab308', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#ca8a04', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="vpStoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#22c55e', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#16a34a', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="vpArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <polygon points="0 0, 10 3, 0 6" fill="#f97316" />
+      </marker>
+    </defs>
+
+    {/* Title */}
+    <text x="450" y="25" fontSize="18" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">
+      Video Processing Pipeline
+    </text>
+
+    {/* Ingest Stage */}
+    <g>
+      <rect x="30" y="60" width="150" height="120" rx="10" fill="url(#vpIngestGrad)" stroke="#b91c1c" strokeWidth="2" />
+      <text x="105" y="90" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">INGEST</text>
+      <line x1="45" y1="100" x2="165" y2="100" stroke="white" strokeOpacity="0.3" />
+      <text x="105" y="120" fontSize="10" fill="#fecaca" textAnchor="middle">Receive Chunks</text>
+      <text x="105" y="135" fontSize="10" fill="#fecaca" textAnchor="middle">Reassemble File</text>
+      <text x="105" y="150" fontSize="10" fill="#fecaca" textAnchor="middle">Validate Format</text>
+      <text x="105" y="165" fontSize="10" fill="#fecaca" textAnchor="middle">Extract Metadata</text>
+    </g>
+
+    {/* Arrow to Transcode */}
+    <path d="M 180 120 L 215 120" stroke="#f97316" strokeWidth="3" markerEnd="url(#vpArrow)" />
+
+    {/* Transcode Stage - Multiple Resolutions */}
+    <g>
+      <rect x="220" y="40" width="300" height="180" rx="10" fill="url(#vpTranscodeGrad)" stroke="#c2410c" strokeWidth="2" />
+      <text x="370" y="65" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">TRANSCODE (FFmpeg)</text>
+      <line x1="235" y1="75" x2="505" y2="75" stroke="white" strokeOpacity="0.3" />
+
+      {/* Resolution boxes */}
+      <rect x="235" y="85" width="60" height="28" rx="4" fill="#1f2937" stroke="#374151" />
+      <text x="265" y="104" fontSize="10" fill="#fdba74" textAnchor="middle">2160p</text>
+
+      <rect x="300" y="85" width="60" height="28" rx="4" fill="#1f2937" stroke="#374151" />
+      <text x="330" y="104" fontSize="10" fill="#fdba74" textAnchor="middle">1440p</text>
+
+      <rect x="365" y="85" width="60" height="28" rx="4" fill="#1f2937" stroke="#374151" />
+      <text x="395" y="104" fontSize="10" fill="#fdba74" textAnchor="middle">1080p</text>
+
+      <rect x="430" y="85" width="60" height="28" rx="4" fill="#1f2937" stroke="#374151" />
+      <text x="460" y="104" fontSize="10" fill="#fdba74" textAnchor="middle">720p</text>
+
+      <rect x="235" y="118" width="60" height="28" rx="4" fill="#1f2937" stroke="#374151" />
+      <text x="265" y="137" fontSize="10" fill="#fdba74" textAnchor="middle">480p</text>
+
+      <rect x="300" y="118" width="60" height="28" rx="4" fill="#1f2937" stroke="#374151" />
+      <text x="330" y="137" fontSize="10" fill="#fdba74" textAnchor="middle">360p</text>
+
+      <rect x="365" y="118" width="60" height="28" rx="4" fill="#1f2937" stroke="#374151" />
+      <text x="395" y="137" fontSize="10" fill="#fdba74" textAnchor="middle">240p</text>
+
+      <rect x="430" y="118" width="60" height="28" rx="4" fill="#1f2937" stroke="#374151" />
+      <text x="460" y="137" fontSize="10" fill="#fdba74" textAnchor="middle">144p</text>
+
+      {/* Codecs */}
+      <text x="280" y="175" fontSize="9" fill="#fed7aa" textAnchor="middle">H.264</text>
+      <text x="370" y="175" fontSize="9" fill="#fed7aa" textAnchor="middle">VP9</text>
+      <text x="460" y="175" fontSize="9" fill="#fed7aa" textAnchor="middle">AV1</text>
+
+      {/* Thumbnails */}
+      <text x="370" y="200" fontSize="10" fill="white" textAnchor="middle">+ Thumbnails + Preview Sprites</text>
+    </g>
+
+    {/* Arrow to Package */}
+    <path d="M 520 130 L 555 130" stroke="#f97316" strokeWidth="3" markerEnd="url(#vpArrow)" />
+
+    {/* Package Stage */}
+    <g>
+      <rect x="560" y="60" width="140" height="120" rx="10" fill="url(#vpPackageGrad)" stroke="#a16207" strokeWidth="2" />
+      <text x="630" y="90" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">PACKAGE</text>
+      <line x1="575" y1="100" x2="685" y2="100" stroke="white" strokeOpacity="0.3" />
+      <text x="630" y="120" fontSize="10" fill="#fef9c3" textAnchor="middle">Segment Videos</text>
+      <text x="630" y="135" fontSize="10" fill="#fef9c3" textAnchor="middle">Create Manifests</text>
+      <text x="630" y="150" fontSize="10" fill="#fef9c3" textAnchor="middle">HLS (.m3u8)</text>
+      <text x="630" y="165" fontSize="10" fill="#fef9c3" textAnchor="middle">DASH (.mpd)</text>
+    </g>
+
+    {/* Arrow to Store */}
+    <path d="M 700 120 L 735 120" stroke="#f97316" strokeWidth="3" markerEnd="url(#vpArrow)" />
+
+    {/* Store Stage */}
+    <g>
+      <rect x="740" y="60" width="140" height="120" rx="10" fill="url(#vpStoreGrad)" stroke="#15803d" strokeWidth="2" />
+      <text x="810" y="90" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">STORE</text>
+      <line x1="755" y1="100" x2="865" y2="100" stroke="white" strokeOpacity="0.3" />
+      <text x="810" y="120" fontSize="10" fill="#dcfce7" textAnchor="middle">Object Storage</text>
+      <text x="810" y="135" fontSize="10" fill="#dcfce7" textAnchor="middle">S3 / GCS</text>
+      <text x="810" y="150" fontSize="10" fill="#dcfce7" textAnchor="middle">CDN Origin</text>
+      <text x="810" y="165" fontSize="10" fill="#dcfce7" textAnchor="middle">Replicated</text>
+    </g>
+
+    {/* Bottom: Worker Details */}
+    <rect x="30" y="250" width="850" height="100" rx="10" fill="#1f2937" stroke="#374151" strokeWidth="2" />
+    <text x="455" y="275" fontSize="14" fontWeight="bold" fill="#f97316" textAnchor="middle">Parallel Processing Architecture</text>
+
+    {/* Worker icons */}
+    <g>
+      <rect x="60" y="290" width="100" height="45" rx="6" fill="#ef4444" fillOpacity="0.2" stroke="#ef4444" />
+      <text x="110" y="312" fontSize="10" fontWeight="bold" fill="#ef4444" textAnchor="middle">Kafka Queue</text>
+      <text x="110" y="326" fontSize="9" fill="#fca5a5" textAnchor="middle">Job Distribution</text>
+    </g>
+
+    <g>
+      <rect x="180" y="290" width="100" height="45" rx="6" fill="#f97316" fillOpacity="0.2" stroke="#f97316" />
+      <text x="230" y="312" fontSize="10" fontWeight="bold" fill="#f97316" textAnchor="middle">5,000+ Workers</text>
+      <text x="230" y="326" fontSize="9" fill="#fdba74" textAnchor="middle">GPU Instances</text>
+    </g>
+
+    <g>
+      <rect x="300" y="290" width="100" height="45" rx="6" fill="#eab308" fillOpacity="0.2" stroke="#eab308" />
+      <text x="350" y="312" fontSize="10" fontWeight="bold" fill="#eab308" textAnchor="middle">Segment Split</text>
+      <text x="350" y="326" fontSize="9" fill="#fde047" textAnchor="middle">1-min Chunks</text>
+    </g>
+
+    <g>
+      <rect x="420" y="290" width="100" height="45" rx="6" fill="#22c55e" fillOpacity="0.2" stroke="#22c55e" />
+      <text x="470" y="312" fontSize="10" fontWeight="bold" fill="#22c55e" textAnchor="middle">10x Faster</text>
+      <text x="470" y="326" fontSize="9" fill="#86efac" textAnchor="middle">vs Sequential</text>
+    </g>
+
+    <g>
+      <rect x="540" y="290" width="100" height="45" rx="6" fill="#3b82f6" fillOpacity="0.2" stroke="#3b82f6" />
+      <text x="590" y="312" fontSize="10" fontWeight="bold" fill="#3b82f6" textAnchor="middle">Auto-Scale</text>
+      <text x="590" y="326" fontSize="9" fill="#93c5fd" textAnchor="middle">Based on Queue</text>
+    </g>
+
+    <g>
+      <rect x="660" y="290" width="100" height="45" rx="6" fill="#a855f7" fillOpacity="0.2" stroke="#a855f7" />
+      <text x="710" y="312" fontSize="10" fontWeight="bold" fill="#a855f7" textAnchor="middle">5-30 min</text>
+      <text x="710" y="326" fontSize="9" fill="#d8b4fe" textAnchor="middle">Per Video</text>
+    </g>
+
+    <g>
+      <rect x="780" y="290" width="100" height="45" rx="6" fill="#ec4899" fillOpacity="0.2" stroke="#ec4899" />
+      <text x="830" y="312" fontSize="10" fontWeight="bold" fill="#ec4899" textAnchor="middle">720K hrs/day</text>
+      <text x="830" y="326" fontSize="9" fill="#f9a8d4" textAnchor="middle">Processed</text>
+    </g>
+
+    {/* Bottom Stats Bar */}
+    <rect x="30" y="380" width="850" height="50" rx="8" fill="#dc2626" fillOpacity="0.15" stroke="#ef4444" strokeWidth="1" />
+    <text x="455" y="405" fontSize="11" fill="#fca5a5" textAnchor="middle">
+      Input: MP4, AVI, MOV, MKV, WebM | Output: 8 resolutions x 3 codecs = 24 variants per video
+    </text>
+    <text x="455" y="420" fontSize="10" fill="#f87171" textAnchor="middle">
+      Storage: ~10x original file size after multi-resolution encoding
+    </text>
+  </svg>
+);
+
+// 3. CDN Architecture Diagram
+const CDNArchitectureDiagram = () => (
+  <svg viewBox="0 0 900 500" className="w-full h-auto">
+    <defs>
+      <linearGradient id="cdnOriginGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#2563eb', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="cdnShieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="cdnEdgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#ef4444', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#dc2626', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="cdnUserGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#22c55e', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#16a34a', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="cdnArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <polygon points="0 0, 10 3, 0 6" fill="#ef4444" />
+      </marker>
+      <marker id="cdnArrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <polygon points="0 0, 10 3, 0 6" fill="#22c55e" />
+      </marker>
+    </defs>
+
+    {/* Title */}
+    <text x="450" y="25" fontSize="18" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">
+      YouTube CDN Architecture - Global Video Distribution
+    </text>
+
+    {/* Origin Server */}
+    <g>
+      <rect x="380" y="50" width="140" height="90" rx="10" fill="url(#cdnOriginGrad)" stroke="#1d4ed8" strokeWidth="2" />
+      <text x="450" y="75" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">ORIGIN</text>
+      <text x="450" y="95" fontSize="10" fill="#dbeafe" textAnchor="middle">S3 / GCS</text>
+      <text x="450" y="110" fontSize="10" fill="#dbeafe" textAnchor="middle">Master Storage</text>
+      <text x="450" y="125" fontSize="10" fill="#bfdbfe" textAnchor="middle">Petabytes</text>
+    </g>
+
+    {/* Origin Shield Layer */}
+    <rect x="200" y="170" width="500" height="70" rx="10" fill="url(#cdnShieldGrad)" stroke="#b45309" strokeWidth="2" />
+    <text x="450" y="195" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">ORIGIN SHIELD (Regional Cache)</text>
+    <text x="450" y="215" fontSize="10" fill="#fef3c7" textAnchor="middle">Reduces Origin Load | 6 Global Regions | Cache Miss Buffer</text>
+    <text x="450" y="230" fontSize="9" fill="#fde68a" textAnchor="middle">US-East | US-West | Europe | Asia-Pacific | South America | Middle East</text>
+
+    {/* Arrows from Origin to Shield */}
+    <path d="M 450 140 L 450 170" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#cdnArrow)" />
+
+    {/* Edge Servers Layer */}
+    <text x="450" y="270" fontSize="14" fontWeight="bold" fill="#ef4444" textAnchor="middle">
+      EDGE SERVERS (200+ Points of Presence)
+    </text>
+
+    {/* Edge server boxes - Row 1 */}
+    <g>
+      <rect x="30" y="290" width="110" height="70" rx="8" fill="url(#cdnEdgeGrad)" stroke="#b91c1c" strokeWidth="1" />
+      <text x="85" y="315" fontSize="11" fontWeight="bold" fill="white" textAnchor="middle">New York</text>
+      <text x="85" y="330" fontSize="9" fill="#fecaca" textAnchor="middle">Edge PoP</text>
+      <text x="85" y="345" fontSize="9" fill="#fca5a5" textAnchor="middle">~5ms latency</text>
+    </g>
+    <g>
+      <rect x="155" y="290" width="110" height="70" rx="8" fill="url(#cdnEdgeGrad)" stroke="#b91c1c" strokeWidth="1" />
+      <text x="210" y="315" fontSize="11" fontWeight="bold" fill="white" textAnchor="middle">London</text>
+      <text x="210" y="330" fontSize="9" fill="#fecaca" textAnchor="middle">Edge PoP</text>
+      <text x="210" y="345" fontSize="9" fill="#fca5a5" textAnchor="middle">~8ms latency</text>
+    </g>
+    <g>
+      <rect x="280" y="290" width="110" height="70" rx="8" fill="url(#cdnEdgeGrad)" stroke="#b91c1c" strokeWidth="1" />
+      <text x="335" y="315" fontSize="11" fontWeight="bold" fill="white" textAnchor="middle">Tokyo</text>
+      <text x="335" y="330" fontSize="9" fill="#fecaca" textAnchor="middle">Edge PoP</text>
+      <text x="335" y="345" fontSize="9" fill="#fca5a5" textAnchor="middle">~10ms latency</text>
+    </g>
+    <g>
+      <rect x="405" y="290" width="110" height="70" rx="8" fill="url(#cdnEdgeGrad)" stroke="#b91c1c" strokeWidth="1" />
+      <text x="460" y="315" fontSize="11" fontWeight="bold" fill="white" textAnchor="middle">Sydney</text>
+      <text x="460" y="330" fontSize="9" fill="#fecaca" textAnchor="middle">Edge PoP</text>
+      <text x="460" y="345" fontSize="9" fill="#fca5a5" textAnchor="middle">~15ms latency</text>
+    </g>
+    <g>
+      <rect x="530" y="290" width="110" height="70" rx="8" fill="url(#cdnEdgeGrad)" stroke="#b91c1c" strokeWidth="1" />
+      <text x="585" y="315" fontSize="11" fontWeight="bold" fill="white" textAnchor="middle">Sao Paulo</text>
+      <text x="585" y="330" fontSize="9" fill="#fecaca" textAnchor="middle">Edge PoP</text>
+      <text x="585" y="345" fontSize="9" fill="#fca5a5" textAnchor="middle">~12ms latency</text>
+    </g>
+    <g>
+      <rect x="655" y="290" width="110" height="70" rx="8" fill="url(#cdnEdgeGrad)" stroke="#b91c1c" strokeWidth="1" />
+      <text x="710" y="315" fontSize="11" fontWeight="bold" fill="white" textAnchor="middle">Mumbai</text>
+      <text x="710" y="330" fontSize="9" fill="#fecaca" textAnchor="middle">Edge PoP</text>
+      <text x="710" y="345" fontSize="9" fill="#fca5a5" textAnchor="middle">~20ms latency</text>
+    </g>
+    <g>
+      <rect x="780" y="290" width="100" height="70" rx="8" fill="#374151" stroke="#4b5563" strokeWidth="1" />
+      <text x="830" y="315" fontSize="11" fontWeight="bold" fill="#9ca3af" textAnchor="middle">+194 more</text>
+      <text x="830" y="335" fontSize="9" fill="#6b7280" textAnchor="middle">worldwide</text>
+    </g>
+
+    {/* Arrows from Shield to Edge */}
+    <path d="M 300 240 L 85 290" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="4,2" />
+    <path d="M 350 240 L 210 290" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="4,2" />
+    <path d="M 400 240 L 335 290" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="4,2" />
+    <path d="M 500 240 L 460 290" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="4,2" />
+    <path d="M 550 240 L 585 290" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="4,2" />
+    <path d="M 600 240 L 710 290" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="4,2" />
+
+    {/* Users */}
+    <text x="450" y="395" fontSize="14" fontWeight="bold" fill="#22c55e" textAnchor="middle">
+      VIEWERS (2 Billion Users Globally)
+    </text>
+
+    {/* User icons */}
+    <g>
+      <circle cx="85" cy="440" r="25" fill="url(#cdnUserGrad)" stroke="#15803d" strokeWidth="2" />
+      <text x="85" y="445" fontSize="20" textAnchor="middle">👤</text>
+    </g>
+    <g>
+      <circle cx="210" cy="440" r="25" fill="url(#cdnUserGrad)" stroke="#15803d" strokeWidth="2" />
+      <text x="210" y="445" fontSize="20" textAnchor="middle">👤</text>
+    </g>
+    <g>
+      <circle cx="335" cy="440" r="25" fill="url(#cdnUserGrad)" stroke="#15803d" strokeWidth="2" />
+      <text x="335" y="445" fontSize="20" textAnchor="middle">👤</text>
+    </g>
+    <g>
+      <circle cx="460" cy="440" r="25" fill="url(#cdnUserGrad)" stroke="#15803d" strokeWidth="2" />
+      <text x="460" y="445" fontSize="20" textAnchor="middle">👤</text>
+    </g>
+    <g>
+      <circle cx="585" cy="440" r="25" fill="url(#cdnUserGrad)" stroke="#15803d" strokeWidth="2" />
+      <text x="585" y="445" fontSize="20" textAnchor="middle">👤</text>
+    </g>
+    <g>
+      <circle cx="710" cy="440" r="25" fill="url(#cdnUserGrad)" stroke="#15803d" strokeWidth="2" />
+      <text x="710" y="445" fontSize="20" textAnchor="middle">👤</text>
+    </g>
+    <g>
+      <circle cx="830" cy="440" r="25" fill="#374151" stroke="#4b5563" strokeWidth="2" />
+      <text x="830" y="445" fontSize="14" fill="#9ca3af" textAnchor="middle">...</text>
+    </g>
+
+    {/* Arrows from Edge to Users */}
+    <path d="M 85 360 L 85 415" stroke="#22c55e" strokeWidth="2" markerEnd="url(#cdnArrowGreen)" />
+    <path d="M 210 360 L 210 415" stroke="#22c55e" strokeWidth="2" markerEnd="url(#cdnArrowGreen)" />
+    <path d="M 335 360 L 335 415" stroke="#22c55e" strokeWidth="2" markerEnd="url(#cdnArrowGreen)" />
+    <path d="M 460 360 L 460 415" stroke="#22c55e" strokeWidth="2" markerEnd="url(#cdnArrowGreen)" />
+    <path d="M 585 360 L 585 415" stroke="#22c55e" strokeWidth="2" markerEnd="url(#cdnArrowGreen)" />
+    <path d="M 710 360 L 710 415" stroke="#22c55e" strokeWidth="2" markerEnd="url(#cdnArrowGreen)" />
+
+    {/* Stats at bottom */}
+    <rect x="200" y="475" width="500" height="20" rx="4" fill="#dc2626" fillOpacity="0.2" />
+    <text x="450" y="489" fontSize="10" fill="#fca5a5" textAnchor="middle">
+      Cache Hit Rate: 95% | Bandwidth: 100+ Tbps | Video Start Time: &lt;2s | Pre-warming for Viral Content
+    </text>
+  </svg>
+);
+
+// 4. Recommendation System ML Pipeline Diagram
+const RecommendationSystemDiagram = () => (
+  <svg viewBox="0 0 900 480" className="w-full h-auto">
+    <defs>
+      <linearGradient id="recDataGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#2563eb', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="recFeatureGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#7c3aed', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="recModelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#ef4444', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#dc2626', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="recRankGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="recServeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#22c55e', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#16a34a', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="recArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <polygon points="0 0, 10 3, 0 6" fill="#ef4444" />
+      </marker>
+    </defs>
+
+    {/* Title */}
+    <text x="450" y="25" fontSize="18" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">
+      YouTube Recommendation System - ML Pipeline
+    </text>
+
+    {/* Data Sources */}
+    <text x="100" y="55" fontSize="12" fontWeight="bold" fill="#3b82f6" textAnchor="middle">DATA SOURCES</text>
+
+    <g>
+      <rect x="30" y="70" width="140" height="50" rx="6" fill="url(#recDataGrad)" stroke="#1d4ed8" strokeWidth="1" />
+      <text x="100" y="92" fontSize="10" fontWeight="bold" fill="white" textAnchor="middle">Watch History</text>
+      <text x="100" y="107" fontSize="9" fill="#dbeafe" textAnchor="middle">Views, Duration, Skip</text>
+    </g>
+    <g>
+      <rect x="30" y="130" width="140" height="50" rx="6" fill="url(#recDataGrad)" stroke="#1d4ed8" strokeWidth="1" />
+      <text x="100" y="152" fontSize="10" fontWeight="bold" fill="white" textAnchor="middle">User Interactions</text>
+      <text x="100" y="167" fontSize="9" fill="#dbeafe" textAnchor="middle">Likes, Comments, Shares</text>
+    </g>
+    <g>
+      <rect x="30" y="190" width="140" height="50" rx="6" fill="url(#recDataGrad)" stroke="#1d4ed8" strokeWidth="1" />
+      <text x="100" y="212" fontSize="10" fontWeight="bold" fill="white" textAnchor="middle">Video Metadata</text>
+      <text x="100" y="227" fontSize="9" fill="#dbeafe" textAnchor="middle">Title, Tags, Category</text>
+    </g>
+    <g>
+      <rect x="30" y="250" width="140" height="50" rx="6" fill="url(#recDataGrad)" stroke="#1d4ed8" strokeWidth="1" />
+      <text x="100" y="272" fontSize="10" fontWeight="bold" fill="white" textAnchor="middle">User Profile</text>
+      <text x="100" y="287" fontSize="9" fill="#dbeafe" textAnchor="middle">Demographics, Prefs</text>
+    </g>
+
+    {/* Arrow from Data to Features */}
+    <path d="M 170 180 L 210 180" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#recArrow)" />
+
+    {/* Feature Engineering */}
+    <g>
+      <rect x="220" y="80" width="160" height="200" rx="8" fill="url(#recFeatureGrad)" stroke="#6d28d9" strokeWidth="2" />
+      <text x="300" y="105" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">FEATURE</text>
+      <text x="300" y="120" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">ENGINEERING</text>
+      <line x1="235" y1="130" x2="365" y2="130" stroke="white" strokeOpacity="0.3" />
+      <text x="300" y="150" fontSize="9" fill="#ede9fe" textAnchor="middle">User Embeddings</text>
+      <text x="300" y="168" fontSize="9" fill="#ede9fe" textAnchor="middle">Video Embeddings</text>
+      <text x="300" y="186" fontSize="9" fill="#ede9fe" textAnchor="middle">Context Features</text>
+      <text x="300" y="204" fontSize="9" fill="#ede9fe" textAnchor="middle">Co-watch Patterns</text>
+      <text x="300" y="222" fontSize="9" fill="#ede9fe" textAnchor="middle">Time Decay</text>
+      <text x="300" y="240" fontSize="9" fill="#ede9fe" textAnchor="middle">Device/Location</text>
+      <text x="300" y="260" fontSize="9" fill="#ddd6fe" textAnchor="middle">TensorFlow</text>
+    </g>
+
+    {/* Arrow from Features to Model */}
+    <path d="M 380 180 L 420 180" stroke="#ef4444" strokeWidth="2" markerEnd="url(#recArrow)" />
+
+    {/* ML Model */}
+    <g>
+      <rect x="430" y="60" width="180" height="240" rx="8" fill="url(#recModelGrad)" stroke="#b91c1c" strokeWidth="2" />
+      <text x="520" y="85" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">ML MODEL</text>
+      <line x1="445" y1="95" x2="595" y2="95" stroke="white" strokeOpacity="0.3" />
+
+      <rect x="445" y="105" width="150" height="35" rx="4" fill="#1f2937" stroke="#374151" />
+      <text x="520" y="120" fontSize="9" fontWeight="bold" fill="#fca5a5" textAnchor="middle">Candidate Generation</text>
+      <text x="520" y="133" fontSize="8" fill="#9ca3af" textAnchor="middle">Deep Neural Network</text>
+
+      <path d="M 520 140 L 520 150" stroke="#6b7280" strokeWidth="1" />
+
+      <rect x="445" y="150" width="150" height="35" rx="4" fill="#1f2937" stroke="#374151" />
+      <text x="520" y="165" fontSize="9" fontWeight="bold" fill="#fca5a5" textAnchor="middle">Ranking Model</text>
+      <text x="520" y="178" fontSize="8" fill="#9ca3af" textAnchor="middle">Wide & Deep Learning</text>
+
+      <path d="M 520 185 L 520 195" stroke="#6b7280" strokeWidth="1" />
+
+      <rect x="445" y="195" width="150" height="35" rx="4" fill="#1f2937" stroke="#374151" />
+      <text x="520" y="210" fontSize="9" fontWeight="bold" fill="#fca5a5" textAnchor="middle">Re-ranking Layer</text>
+      <text x="520" y="223" fontSize="8" fill="#9ca3af" textAnchor="middle">Diversity & Freshness</text>
+
+      <text x="520" y="255" fontSize="9" fill="#fecaca" textAnchor="middle">Millions of Parameters</text>
+      <text x="520" y="270" fontSize="9" fill="#fecaca" textAnchor="middle">Billions of Examples</text>
+      <text x="520" y="285" fontSize="9" fill="#fca5a5" textAnchor="middle">TensorFlow Serving</text>
+    </g>
+
+    {/* Arrow from Model to Ranking */}
+    <path d="M 610 180 L 640 180" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#recArrow)" />
+
+    {/* Ranking & Filtering */}
+    <g>
+      <rect x="650" y="100" width="130" height="160" rx="8" fill="url(#recRankGrad)" stroke="#b45309" strokeWidth="2" />
+      <text x="715" y="125" fontSize="11" fontWeight="bold" fill="white" textAnchor="middle">RANKING</text>
+      <line x1="665" y1="135" x2="765" y2="135" stroke="white" strokeOpacity="0.3" />
+      <text x="715" y="155" fontSize="9" fill="#fef3c7" textAnchor="middle">Relevance Score</text>
+      <text x="715" y="172" fontSize="9" fill="#fef3c7" textAnchor="middle">Quality Filters</text>
+      <text x="715" y="189" fontSize="9" fill="#fef3c7" textAnchor="middle">Policy Checks</text>
+      <text x="715" y="206" fontSize="9" fill="#fef3c7" textAnchor="middle">A/B Testing</text>
+      <text x="715" y="223" fontSize="9" fill="#fef3c7" textAnchor="middle">Personalization</text>
+      <text x="715" y="243" fontSize="9" fill="#fde68a" textAnchor="middle">&lt;100ms latency</text>
+    </g>
+
+    {/* Arrow from Ranking to Serve */}
+    <path d="M 780 180 L 810 180" stroke="#22c55e" strokeWidth="2" markerEnd="url(#recArrow)" />
+
+    {/* Serve */}
+    <g>
+      <rect x="820" y="120" width="70" height="120" rx="8" fill="url(#recServeGrad)" stroke="#15803d" strokeWidth="2" />
+      <text x="855" y="150" fontSize="10" fontWeight="bold" fill="white" textAnchor="middle">SERVE</text>
+      <line x1="830" y1="160" x2="880" y2="160" stroke="white" strokeOpacity="0.3" />
+      <text x="855" y="180" fontSize="9" fill="#dcfce7" textAnchor="middle">Home</text>
+      <text x="855" y="195" fontSize="9" fill="#dcfce7" textAnchor="middle">Up Next</text>
+      <text x="855" y="210" fontSize="9" fill="#dcfce7" textAnchor="middle">Search</text>
+      <text x="855" y="225" fontSize="9" fill="#dcfce7" textAnchor="middle">Trending</text>
+    </g>
+
+    {/* Feedback Loop */}
+    <rect x="200" y="330" width="600" height="60" rx="8" fill="#1f2937" stroke="#ef4444" strokeWidth="2" strokeDasharray="6,3" />
+    <text x="500" y="355" fontSize="11" fontWeight="bold" fill="#ef4444" textAnchor="middle">
+      FEEDBACK LOOP - Continuous Learning
+    </text>
+    <text x="500" y="375" fontSize="9" fill="#fca5a5" textAnchor="middle">
+      User clicks, watch time, skips, likes → Real-time feature updates → Model retraining (daily/weekly)
+    </text>
+
+    {/* Arrow for feedback */}
+    <path d="M 855 240 L 855 360 L 800 360" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="4,2" />
+    <path d="M 200 360 L 100 360 L 100 300" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="4,2" />
+
+    {/* Bottom Stats */}
+    <rect x="100" y="420" width="700" height="50" rx="8" fill="#dc2626" fillOpacity="0.15" stroke="#ef4444" />
+    <text x="450" y="442" fontSize="10" fill="#fca5a5" textAnchor="middle">
+      Scale: 2B users | 800M videos indexed | Billions of predictions/day | 70% of watch time from recommendations
+    </text>
+    <text x="450" y="458" fontSize="9" fill="#f87171" textAnchor="middle">
+      Objectives: Maximize watch time + user satisfaction | Minimize harmful content | Balance freshness vs relevance
+    </text>
+  </svg>
+);
+
+// 5. Live Streaming Diagram
+const LiveStreamingDiagram = () => (
+  <svg viewBox="0 0 900 420" className="w-full h-auto">
+    <defs>
+      <linearGradient id="lsCreatorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#ef4444', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#dc2626', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="lsIngestGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#f97316', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#ea580c', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="lsTranscodeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#eab308', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#ca8a04', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="lsPackageGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#22c55e', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#16a34a', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="lsCdnGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#2563eb', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="lsViewerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#a855f7', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#9333ea', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="lsArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <polygon points="0 0, 10 3, 0 6" fill="#ef4444" />
+      </marker>
+    </defs>
+
+    {/* Title */}
+    <text x="450" y="25" fontSize="18" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">
+      YouTube Live Streaming - Real-Time Video Distribution
+    </text>
+
+    {/* Main Pipeline */}
+    <text x="450" y="55" fontSize="12" fill="#9ca3af" textAnchor="middle">
+      Ultra-Low Latency: 3-10 seconds end-to-end
+    </text>
+
+    {/* Creator/Broadcaster */}
+    <g>
+      <rect x="30" y="80" width="120" height="110" rx="10" fill="url(#lsCreatorGrad)" stroke="#b91c1c" strokeWidth="2" />
+      <text x="90" y="105" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">CREATOR</text>
+      <line x1="40" y1="115" x2="140" y2="115" stroke="white" strokeOpacity="0.3" />
+      <text x="90" y="135" fontSize="9" fill="#fecaca" textAnchor="middle">Camera/Encoder</text>
+      <text x="90" y="150" fontSize="9" fill="#fecaca" textAnchor="middle">RTMP Push</text>
+      <text x="90" y="165" fontSize="9" fill="#fecaca" textAnchor="middle">OBS/Wirecast</text>
+      <text x="90" y="180" fontSize="9" fill="#fca5a5" textAnchor="middle">1080p60</text>
+    </g>
+
+    {/* Arrow */}
+    <path d="M 150 135 L 175 135" stroke="#f97316" strokeWidth="3" markerEnd="url(#lsArrow)" />
+    <text x="162" y="125" fontSize="8" fill="#fdba74" textAnchor="middle">RTMP</text>
+
+    {/* Ingest Servers */}
+    <g>
+      <rect x="180" y="80" width="130" height="110" rx="10" fill="url(#lsIngestGrad)" stroke="#c2410c" strokeWidth="2" />
+      <text x="245" y="105" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">INGEST</text>
+      <line x1="190" y1="115" x2="300" y2="115" stroke="white" strokeOpacity="0.3" />
+      <text x="245" y="135" fontSize="9" fill="#fed7aa" textAnchor="middle">RTMP Servers</text>
+      <text x="245" y="150" fontSize="9" fill="#fed7aa" textAnchor="middle">Global PoPs</text>
+      <text x="245" y="165" fontSize="9" fill="#fed7aa" textAnchor="middle">Auth & Validate</text>
+      <text x="245" y="180" fontSize="9" fill="#fdba74" textAnchor="middle">Nearest Edge</text>
+    </g>
+
+    {/* Arrow */}
+    <path d="M 310 135 L 335 135" stroke="#eab308" strokeWidth="3" markerEnd="url(#lsArrow)" />
+
+    {/* Real-Time Transcoding */}
+    <g>
+      <rect x="340" y="80" width="140" height="110" rx="10" fill="url(#lsTranscodeGrad)" stroke="#a16207" strokeWidth="2" />
+      <text x="410" y="105" fontSize="11" fontWeight="bold" fill="white" textAnchor="middle">TRANSCODE</text>
+      <line x1="350" y1="115" x2="470" y2="115" stroke="white" strokeOpacity="0.3" />
+      <text x="410" y="135" fontSize="9" fill="#fef9c3" textAnchor="middle">Real-Time Encode</text>
+      <text x="410" y="150" fontSize="9" fill="#fef9c3" textAnchor="middle">ABR Ladders</text>
+      <text x="410" y="165" fontSize="9" fill="#fef9c3" textAnchor="middle">GPU Accelerated</text>
+      <text x="410" y="180" fontSize="9" fill="#fde047" textAnchor="middle">&lt;1s latency</text>
+    </g>
+
+    {/* Arrow */}
+    <path d="M 480 135 L 505 135" stroke="#22c55e" strokeWidth="3" markerEnd="url(#lsArrow)" />
+
+    {/* Packaging */}
+    <g>
+      <rect x="510" y="80" width="130" height="110" rx="10" fill="url(#lsPackageGrad)" stroke="#15803d" strokeWidth="2" />
+      <text x="575" y="105" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">PACKAGE</text>
+      <line x1="520" y1="115" x2="630" y2="115" stroke="white" strokeOpacity="0.3" />
+      <text x="575" y="135" fontSize="9" fill="#dcfce7" textAnchor="middle">LL-HLS Segments</text>
+      <text x="575" y="150" fontSize="9" fill="#dcfce7" textAnchor="middle">2-4s Chunks</text>
+      <text x="575" y="165" fontSize="9" fill="#dcfce7" textAnchor="middle">Manifest Update</text>
+      <text x="575" y="180" fontSize="9" fill="#86efac" textAnchor="middle">Instant</text>
+    </g>
+
+    {/* Arrow */}
+    <path d="M 640 135 L 665 135" stroke="#3b82f6" strokeWidth="3" markerEnd="url(#lsArrow)" />
+
+    {/* CDN */}
+    <g>
+      <rect x="670" y="80" width="110" height="110" rx="10" fill="url(#lsCdnGrad)" stroke="#1d4ed8" strokeWidth="2" />
+      <text x="725" y="105" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">CDN</text>
+      <line x1="680" y1="115" x2="770" y2="115" stroke="white" strokeOpacity="0.3" />
+      <text x="725" y="135" fontSize="9" fill="#dbeafe" textAnchor="middle">Edge Cache</text>
+      <text x="725" y="150" fontSize="9" fill="#dbeafe" textAnchor="middle">Push Updates</text>
+      <text x="725" y="165" fontSize="9" fill="#dbeafe" textAnchor="middle">Global Fanout</text>
+      <text x="725" y="180" fontSize="9" fill="#93c5fd" textAnchor="middle">200+ PoPs</text>
+    </g>
+
+    {/* Arrow */}
+    <path d="M 780 135 L 805 135" stroke="#a855f7" strokeWidth="3" markerEnd="url(#lsArrow)" />
+
+    {/* Viewers */}
+    <g>
+      <rect x="810" y="80" width="80" height="110" rx="10" fill="url(#lsViewerGrad)" stroke="#7c3aed" strokeWidth="2" />
+      <text x="850" y="105" fontSize="11" fontWeight="bold" fill="white" textAnchor="middle">VIEWERS</text>
+      <line x1="820" y1="115" x2="880" y2="115" stroke="white" strokeOpacity="0.3" />
+      <text x="850" y="135" fontSize="9" fill="#e9d5ff" textAnchor="middle">HLS Player</text>
+      <text x="850" y="150" fontSize="9" fill="#e9d5ff" textAnchor="middle">ABR Switch</text>
+      <text x="850" y="165" fontSize="9" fill="#e9d5ff" textAnchor="middle">Buffer</text>
+      <text x="850" y="180" fontSize="9" fill="#d8b4fe" textAnchor="middle">Millions</text>
+    </g>
+
+    {/* Live Chat Section */}
+    <rect x="30" y="220" width="400" height="90" rx="10" fill="#1f2937" stroke="#ef4444" strokeWidth="2" />
+    <text x="230" y="245" fontSize="12" fontWeight="bold" fill="#ef4444" textAnchor="middle">LIVE CHAT & INTERACTIONS</text>
+    <line x1="45" y1="255" x2="415" y2="255" stroke="#374151" />
+
+    <g>
+      <rect x="50" y="265" width="110" height="35" rx="4" fill="#ef4444" fillOpacity="0.2" stroke="#ef4444" />
+      <text x="105" y="285" fontSize="9" fontWeight="bold" fill="#ef4444" textAnchor="middle">WebSocket</text>
+      <text x="105" y="295" fontSize="8" fill="#fca5a5" textAnchor="middle">Real-time msgs</text>
+    </g>
+    <g>
+      <rect x="170" y="265" width="110" height="35" rx="4" fill="#f59e0b" fillOpacity="0.2" stroke="#f59e0b" />
+      <text x="225" y="285" fontSize="9" fontWeight="bold" fill="#f59e0b" textAnchor="middle">Super Chat</text>
+      <text x="225" y="295" fontSize="8" fill="#fcd34d" textAnchor="middle">Paid highlights</text>
+    </g>
+    <g>
+      <rect x="290" y="265" width="110" height="35" rx="4" fill="#22c55e" fillOpacity="0.2" stroke="#22c55e" />
+      <text x="345" y="285" fontSize="9" fontWeight="bold" fill="#22c55e" textAnchor="middle">Polls/Q&A</text>
+      <text x="345" y="295" fontSize="8" fill="#86efac" textAnchor="middle">Engagement</text>
+    </g>
+
+    {/* DVR/Recording Section */}
+    <rect x="450" y="220" width="440" height="90" rx="10" fill="#1f2937" stroke="#3b82f6" strokeWidth="2" />
+    <text x="670" y="245" fontSize="12" fontWeight="bold" fill="#3b82f6" textAnchor="middle">DVR & RECORDING</text>
+    <line x1="465" y1="255" x2="875" y2="255" stroke="#374151" />
+
+    <g>
+      <rect x="470" y="265" width="120" height="35" rx="4" fill="#3b82f6" fillOpacity="0.2" stroke="#3b82f6" />
+      <text x="530" y="285" fontSize="9" fontWeight="bold" fill="#3b82f6" textAnchor="middle">Live Rewind</text>
+      <text x="530" y="295" fontSize="8" fill="#93c5fd" textAnchor="middle">4-hour buffer</text>
+    </g>
+    <g>
+      <rect x="600" y="265" width="120" height="35" rx="4" fill="#a855f7" fillOpacity="0.2" stroke="#a855f7" />
+      <text x="660" y="285" fontSize="9" fontWeight="bold" fill="#a855f7" textAnchor="middle">VOD Archive</text>
+      <text x="660" y="295" fontSize="8" fill="#d8b4fe" textAnchor="middle">Auto-save</text>
+    </g>
+    <g>
+      <rect x="730" y="265" width="140" height="35" rx="4" fill="#ec4899" fillOpacity="0.2" stroke="#ec4899" />
+      <text x="800" y="285" fontSize="9" fontWeight="bold" fill="#ec4899" textAnchor="middle">Highlights/Clips</text>
+      <text x="800" y="295" fontSize="8" fill="#f9a8d4" textAnchor="middle">Creator tools</text>
+    </g>
+
+    {/* Bottom Stats */}
+    <rect x="30" y="340" width="860" height="70" rx="10" fill="#dc2626" fillOpacity="0.15" stroke="#ef4444" strokeWidth="1" />
+    <text x="450" y="365" fontSize="11" fontWeight="bold" fill="#ef4444" textAnchor="middle">
+      LIVE STREAMING SCALE
+    </text>
+    <text x="225" y="385" fontSize="10" fill="#fca5a5" textAnchor="middle">Peak Concurrent: 10M+ viewers</text>
+    <text x="450" y="385" fontSize="10" fill="#fca5a5" textAnchor="middle">Latency: 3-10s (Ultra-Low)</text>
+    <text x="675" y="385" fontSize="10" fill="#fca5a5" textAnchor="middle">Chat: 100K+ msgs/sec</text>
+    <text x="450" y="400" fontSize="9" fill="#f87171" textAnchor="middle">
+      Protocols: RTMP ingest | LL-HLS/LL-DASH delivery | WebSocket chat | QUIC for optimization
+    </text>
+  </svg>
+);
+
 export default function YouTube({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -350,6 +1142,14 @@ export default function YouTube({ onBack, breadcrumb }) {
                 </svg>
               </div>
             </div>
+
+            {/* Pipeline Flow Diagram */}
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-6">Pipeline Flow: Upload to Playback</h2>
+              <div className="bg-gray-800 rounded-2xl p-6 border-2 border-gray-700 shadow-lg">
+                <YouTubeArchitectureDiagram />
+              </div>
+            </div>
           </div>
         )}
 
@@ -521,6 +1321,22 @@ export default function YouTube({ onBack, breadcrumb }) {
                 </ul>
               </div>
             </div>
+
+            {/* CDN Architecture Diagram */}
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold text-white mb-6">CDN Architecture Visualization</h2>
+              <div className="bg-gray-800 rounded-2xl p-6 border-2 border-gray-700 shadow-lg">
+                <CDNArchitectureDiagram />
+              </div>
+            </div>
+
+            {/* Recommendation System Diagram */}
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold text-white mb-6">Recommendation System ML Pipeline</h2>
+              <div className="bg-gray-800 rounded-2xl p-6 border-2 border-gray-700 shadow-lg">
+                <RecommendationSystemDiagram />
+              </div>
+            </div>
           </div>
         )}
 
@@ -640,6 +1456,22 @@ export default function YouTube({ onBack, breadcrumb }) {
                     Initial Buffering: &lt; 2 seconds · Smooth playback with adaptive quality
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Video Processing Pipeline Diagram */}
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-6">Video Processing Pipeline Visualization</h2>
+              <div className="bg-gray-800 rounded-2xl p-6 border-2 border-gray-700 shadow-lg">
+                <VideoProcessingDiagram />
+              </div>
+            </div>
+
+            {/* Live Streaming Diagram */}
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-6">Live Streaming Architecture</h2>
+              <div className="bg-gray-800 rounded-2xl p-6 border-2 border-gray-700 shadow-lg">
+                <LiveStreamingDiagram />
               </div>
             </div>
           </div>

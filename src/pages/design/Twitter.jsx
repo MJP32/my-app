@@ -1,1031 +1,1705 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import Breadcrumb from '../../components/Breadcrumb';
 
+// =============================================================================
+// COLORS CONFIGURATION
+// =============================================================================
+
+const TOPIC_COLORS = {
+  primary: '#60a5fa',
+  primaryHover: '#93c5fd',
+  bg: 'rgba(59, 130, 246, 0.1)',
+  border: 'rgba(59, 130, 246, 0.3)',
+  arrow: '#3b82f6',
+  hoverBg: 'rgba(59, 130, 246, 0.2)',
+  topicBg: 'rgba(59, 130, 246, 0.2)'
+};
+
+const SUBTOPIC_COLORS = [
+  { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },
+  { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' },
+  { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' },
+  { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)' },
+  { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)' },
+  { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
+];
+
+// =============================================================================
+// DIAGRAM COMPONENTS
+// =============================================================================
+
+const TwitterArchitectureDiagram = () => (
+  <svg viewBox="0 0 800 500" className="w-full h-auto" style={{ maxHeight: '500px' }}>
+    <defs>
+      <linearGradient id="clientGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3B82F6" />
+        <stop offset="100%" stopColor="#1D4ED8" />
+      </linearGradient>
+      <linearGradient id="lbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10B981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="apiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8B5CF6" />
+        <stop offset="100%" stopColor="#6D28D9" />
+      </linearGradient>
+      <linearGradient id="serviceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#F59E0B" />
+        <stop offset="100%" stopColor="#D97706" />
+      </linearGradient>
+      <linearGradient id="dbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#EF4444" />
+        <stop offset="100%" stopColor="#DC2626" />
+      </linearGradient>
+      <linearGradient id="cacheGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#EC4899" />
+        <stop offset="100%" stopColor="#DB2777" />
+      </linearGradient>
+      <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+      </filter>
+    </defs>
+    <rect width="800" height="500" fill="#1F2937" rx="10"/>
+    <text x="400" y="30" textAnchor="middle" fill="#60A5FA" fontSize="18" fontWeight="bold">Twitter System Architecture</text>
+    <g filter="url(#shadow)">
+      <rect x="300" y="50" width="200" height="50" rx="8" fill="url(#clientGrad)"/>
+      <text x="400" y="80" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Clients (Web/iOS/Android)</text>
+    </g>
+    <path d="M400 100 L400 125 L390 115 M400 125 L410 115" stroke="#60A5FA" strokeWidth="2" fill="none"/>
+    <g filter="url(#shadow)">
+      <rect x="300" y="130" width="200" height="45" rx="8" fill="url(#lbGrad)"/>
+      <text x="400" y="158" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Load Balancer (Nginx)</text>
+    </g>
+    <path d="M400 175 L400 200 L390 190 M400 200 L410 190" stroke="#60A5FA" strokeWidth="2" fill="none"/>
+    <g filter="url(#shadow)">
+      <rect x="300" y="205" width="200" height="45" rx="8" fill="url(#apiGrad)"/>
+      <text x="400" y="233" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">API Gateway</text>
+    </g>
+    <path d="M300 250 L100 290" stroke="#60A5FA" strokeWidth="2" fill="none"/>
+    <path d="M350 250 L250 290" stroke="#60A5FA" strokeWidth="2" fill="none"/>
+    <path d="M450 250 L550 290" stroke="#60A5FA" strokeWidth="2" fill="none"/>
+    <path d="M500 250 L700 290" stroke="#60A5FA" strokeWidth="2" fill="none"/>
+    <g filter="url(#shadow)">
+      <rect x="30" y="290" width="140" height="55" rx="8" fill="url(#serviceGrad)"/>
+      <text x="100" y="312" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Tweet Service</text>
+      <text x="100" y="330" textAnchor="middle" fill="white" fontSize="10">CRUD operations</text>
+    </g>
+    <g filter="url(#shadow)">
+      <rect x="180" y="290" width="140" height="55" rx="8" fill="url(#serviceGrad)"/>
+      <text x="250" y="312" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">User Service</text>
+      <text x="250" y="330" textAnchor="middle" fill="white" fontSize="10">Profiles, Auth</text>
+    </g>
+    <g filter="url(#shadow)">
+      <rect x="480" y="290" width="140" height="55" rx="8" fill="url(#serviceGrad)"/>
+      <text x="550" y="312" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Timeline Service</text>
+      <text x="550" y="330" textAnchor="middle" fill="white" fontSize="10">Feed generation</text>
+    </g>
+    <g filter="url(#shadow)">
+      <rect x="630" y="290" width="140" height="55" rx="8" fill="url(#serviceGrad)"/>
+      <text x="700" y="312" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Search Service</text>
+      <text x="700" y="330" textAnchor="middle" fill="white" fontSize="10">Elasticsearch</text>
+    </g>
+    <g filter="url(#shadow)">
+      <rect x="330" y="290" width="140" height="55" rx="8" fill="url(#serviceGrad)"/>
+      <text x="400" y="312" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Follow Service</text>
+      <text x="400" y="330" textAnchor="middle" fill="white" fontSize="10">Social graph</text>
+    </g>
+    <path d="M100 345 L100 390" stroke="#60A5FA" strokeWidth="2" fill="none"/>
+    <path d="M250 345 L250 390" stroke="#60A5FA" strokeWidth="2" fill="none"/>
+    <path d="M400 345 L400 390" stroke="#60A5FA" strokeWidth="2" fill="none"/>
+    <path d="M550 345 L550 390" stroke="#60A5FA" strokeWidth="2" fill="none"/>
+    <path d="M700 345 L700 390" stroke="#60A5FA" strokeWidth="2" fill="none"/>
+    <g filter="url(#shadow)">
+      <rect x="30" y="395" width="140" height="45" rx="8" fill="url(#dbGrad)"/>
+      <text x="100" y="423" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">MySQL (Tweets)</text>
+    </g>
+    <g filter="url(#shadow)">
+      <rect x="180" y="395" width="140" height="45" rx="8" fill="url(#dbGrad)"/>
+      <text x="250" y="423" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">MySQL (Users)</text>
+    </g>
+    <g filter="url(#shadow)">
+      <rect x="330" y="395" width="140" height="45" rx="8" fill="url(#dbGrad)"/>
+      <text x="400" y="423" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Graph DB</text>
+    </g>
+    <g filter="url(#shadow)">
+      <rect x="480" y="395" width="140" height="45" rx="8" fill="url(#cacheGrad)"/>
+      <text x="550" y="423" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Redis Cache</text>
+    </g>
+    <g filter="url(#shadow)">
+      <rect x="630" y="395" width="140" height="45" rx="8" fill="#06B6D4"/>
+      <text x="700" y="423" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Elasticsearch</text>
+    </g>
+    <g filter="url(#shadow)">
+      <rect x="250" y="455" width="300" height="35" rx="8" fill="#8B5CF6"/>
+      <text x="400" y="478" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Kafka Message Queue (Async Processing)</text>
+    </g>
+  </svg>
+);
+
+const FanOutDiagram = () => (
+  <svg viewBox="0 0 800 400" className="w-full h-auto" style={{ maxHeight: '400px' }}>
+    <defs>
+      <linearGradient id="writeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10B981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="readGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3B82F6" />
+        <stop offset="100%" stopColor="#1D4ED8" />
+      </linearGradient>
+      <linearGradient id="hybridGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#F59E0B" />
+        <stop offset="100%" stopColor="#D97706" />
+      </linearGradient>
+    </defs>
+    <rect width="800" height="400" fill="#1F2937" rx="10"/>
+    <text x="400" y="25" textAnchor="middle" fill="#60A5FA" fontSize="16" fontWeight="bold">Fan-out Strategies Comparison</text>
+    <rect x="20" y="40" width="240" height="350" rx="8" fill="#064E3B" fillOpacity="0.3" stroke="#10B981" strokeWidth="2"/>
+    <text x="140" y="65" textAnchor="middle" fill="#10B981" fontSize="14" fontWeight="bold">Fan-out on Write (Push)</text>
+    <rect x="60" y="85" width="160" height="35" rx="6" fill="url(#writeGrad)"/>
+    <text x="140" y="108" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">User Posts Tweet</text>
+    <path d="M140 120 L140 145" stroke="#10B981" strokeWidth="2" fill="none"/>
+    <polygon points="140,150 135,140 145,140" fill="#10B981"/>
+    <rect x="60" y="155" width="160" height="35" rx="6" fill="#8B5CF6"/>
+    <text x="140" y="178" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Kafka Queue</text>
+    <path d="M140 190 L140 215" stroke="#10B981" strokeWidth="2" fill="none"/>
+    <polygon points="140,220 135,210 145,210" fill="#10B981"/>
+    <rect x="60" y="225" width="160" height="35" rx="6" fill="#F59E0B"/>
+    <text x="140" y="248" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Fan-out Worker</text>
+    <path d="M80 260 L50 295" stroke="#10B981" strokeWidth="2" fill="none"/>
+    <path d="M110 260 L100 295" stroke="#10B981" strokeWidth="2" fill="none"/>
+    <path d="M170 260 L180 295" stroke="#10B981" strokeWidth="2" fill="none"/>
+    <path d="M200 260 L230 295" stroke="#10B981" strokeWidth="2" fill="none"/>
+    <rect x="30" y="300" width="50" height="30" rx="4" fill="#EC4899"/>
+    <text x="55" y="320" textAnchor="middle" fill="white" fontSize="8">Cache 1</text>
+    <rect x="85" y="300" width="50" height="30" rx="4" fill="#EC4899"/>
+    <text x="110" y="320" textAnchor="middle" fill="white" fontSize="8">Cache 2</text>
+    <rect x="145" y="300" width="50" height="30" rx="4" fill="#EC4899"/>
+    <text x="170" y="320" textAnchor="middle" fill="white" fontSize="8">Cache N</text>
+    <rect x="200" y="300" width="50" height="30" rx="4" fill="#EC4899"/>
+    <text x="225" y="320" textAnchor="middle" fill="white" fontSize="8">...</text>
+    <text x="140" y="355" textAnchor="middle" fill="#10B981" fontSize="10">Write: O(n) followers</text>
+    <text x="140" y="370" textAnchor="middle" fill="#10B981" fontSize="10">Read: O(1) - instant</text>
+    <rect x="280" y="40" width="240" height="350" rx="8" fill="#1E3A5F" fillOpacity="0.3" stroke="#3B82F6" strokeWidth="2"/>
+    <text x="400" y="65" textAnchor="middle" fill="#3B82F6" fontSize="14" fontWeight="bold">Fan-out on Read (Pull)</text>
+    <rect x="320" y="85" width="160" height="35" rx="6" fill="url(#readGrad)"/>
+    <text x="400" y="108" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Request Timeline</text>
+    <path d="M400 120 L400 145" stroke="#3B82F6" strokeWidth="2" fill="none"/>
+    <polygon points="400,150 395,140 405,140" fill="#3B82F6"/>
+    <rect x="320" y="155" width="160" height="35" rx="6" fill="#F59E0B"/>
+    <text x="400" y="178" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Timeline Service</text>
+    <path d="M340 190 L310 225" stroke="#3B82F6" strokeWidth="2" fill="none"/>
+    <path d="M380 190 L370 225" stroke="#3B82F6" strokeWidth="2" fill="none"/>
+    <path d="M420 190 L430 225" stroke="#3B82F6" strokeWidth="2" fill="none"/>
+    <path d="M460 190 L490 225" stroke="#3B82F6" strokeWidth="2" fill="none"/>
+    <rect x="290" y="230" width="50" height="30" rx="4" fill="#EF4444"/>
+    <text x="315" y="250" textAnchor="middle" fill="white" fontSize="8">User A</text>
+    <rect x="350" y="230" width="50" height="30" rx="4" fill="#EF4444"/>
+    <text x="375" y="250" textAnchor="middle" fill="white" fontSize="8">User B</text>
+    <rect x="410" y="230" width="50" height="30" rx="4" fill="#EF4444"/>
+    <text x="435" y="250" textAnchor="middle" fill="white" fontSize="8">User C</text>
+    <rect x="470" y="230" width="50" height="30" rx="4" fill="#EF4444"/>
+    <text x="495" y="250" textAnchor="middle" fill="white" fontSize="8">...</text>
+    <path d="M315 260 L400 290" stroke="#3B82F6" strokeWidth="2" fill="none"/>
+    <path d="M375 260 L400 290" stroke="#3B82F6" strokeWidth="2" fill="none"/>
+    <path d="M435 260 L400 290" stroke="#3B82F6" strokeWidth="2" fill="none"/>
+    <path d="M495 260 L400 290" stroke="#3B82F6" strokeWidth="2" fill="none"/>
+    <rect x="340" y="295" width="120" height="35" rx="6" fill="#6366F1"/>
+    <text x="400" y="318" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Merge & Sort</text>
+    <text x="400" y="355" textAnchor="middle" fill="#3B82F6" fontSize="10">Write: O(1) - instant</text>
+    <text x="400" y="370" textAnchor="middle" fill="#3B82F6" fontSize="10">Read: O(n) following</text>
+    <rect x="540" y="40" width="240" height="350" rx="8" fill="#78350F" fillOpacity="0.3" stroke="#F59E0B" strokeWidth="2"/>
+    <text x="660" y="65" textAnchor="middle" fill="#F59E0B" fontSize="14" fontWeight="bold">Hybrid (Twitter's Approach)</text>
+    <rect x="560" y="90" width="80" height="60" rx="6" fill="url(#writeGrad)"/>
+    <text x="600" y="115" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Regular User</text>
+    <text x="600" y="130" textAnchor="middle" fill="white" fontSize="8">&lt;10K followers</text>
+    <text x="600" y="142" textAnchor="middle" fill="white" fontSize="8">Push model</text>
+    <rect x="680" y="90" width="80" height="60" rx="6" fill="url(#readGrad)"/>
+    <text x="720" y="115" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Celebrity</text>
+    <text x="720" y="130" textAnchor="middle" fill="white" fontSize="8">&gt;1M followers</text>
+    <text x="720" y="142" textAnchor="middle" fill="white" fontSize="8">Pull model</text>
+    <path d="M600 150 L600 180" stroke="#10B981" strokeWidth="2" fill="none"/>
+    <path d="M720 150 L720 180" stroke="#3B82F6" strokeWidth="2" fill="none"/>
+    <rect x="560" y="185" width="80" height="50" rx="6" fill="#EC4899"/>
+    <text x="600" y="207" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Pre-computed</text>
+    <text x="600" y="222" textAnchor="middle" fill="white" fontSize="9">Timeline Cache</text>
+    <rect x="680" y="185" width="80" height="50" rx="6" fill="#EF4444"/>
+    <text x="720" y="207" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Celebrity</text>
+    <text x="720" y="222" textAnchor="middle" fill="white" fontSize="9">Tweets Store</text>
+    <path d="M600 235 L660 270" stroke="#F59E0B" strokeWidth="2" fill="none"/>
+    <path d="M720 235 L660 270" stroke="#F59E0B" strokeWidth="2" fill="none"/>
+    <rect x="600" y="275" width="120" height="40" rx="6" fill="url(#hybridGrad)"/>
+    <text x="660" y="293" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Merge at</text>
+    <text x="660" y="307" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Read Time</text>
+    <path d="M660 315 L660 340" stroke="#F59E0B" strokeWidth="2" fill="none"/>
+    <polygon points="660,345 655,335 665,335" fill="#F59E0B"/>
+    <rect x="600" y="350" width="120" height="30" rx="6" fill="#6366F1"/>
+    <text x="660" y="370" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">User Timeline</text>
+  </svg>
+);
+
+const SocialGraphDiagram = () => (
+  <svg viewBox="0 0 800 380" className="w-full h-auto" style={{ maxHeight: '380px' }}>
+    <defs>
+      <linearGradient id="userGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3B82F6" />
+        <stop offset="100%" stopColor="#1D4ED8" />
+      </linearGradient>
+      <linearGradient id="celebGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#F59E0B" />
+        <stop offset="100%" stopColor="#D97706" />
+      </linearGradient>
+    </defs>
+    <rect width="800" height="380" fill="#1F2937" rx="10"/>
+    <text x="400" y="25" textAnchor="middle" fill="#60A5FA" fontSize="16" fontWeight="bold">Social Graph Structure (Follower/Following)</text>
+    <rect x="20" y="40" width="380" height="320" rx="8" fill="#111827" stroke="#374151" strokeWidth="2"/>
+    <text x="210" y="65" textAnchor="middle" fill="#60A5FA" fontSize="14" fontWeight="bold">Follow Graph Visualization</text>
+    <circle cx="210" cy="160" r="40" fill="url(#celebGrad)" stroke="#F59E0B" strokeWidth="3"/>
+    <text x="210" y="155" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Celebrity</text>
+    <text x="210" y="172" textAnchor="middle" fill="white" fontSize="10">@elonmusk</text>
+    <circle cx="80" cy="100" r="25" fill="url(#userGrad)"/>
+    <text x="80" y="105" textAnchor="middle" fill="white" fontSize="9">User A</text>
+    <circle cx="80" cy="180" r="25" fill="url(#userGrad)"/>
+    <text x="80" y="185" textAnchor="middle" fill="white" fontSize="9">User B</text>
+    <circle cx="80" cy="260" r="25" fill="url(#userGrad)"/>
+    <text x="80" y="265" textAnchor="middle" fill="white" fontSize="9">User C</text>
+    <circle cx="340" cy="100" r="25" fill="url(#userGrad)"/>
+    <text x="340" y="105" textAnchor="middle" fill="white" fontSize="9">User D</text>
+    <circle cx="340" cy="180" r="25" fill="url(#userGrad)"/>
+    <text x="340" y="185" textAnchor="middle" fill="white" fontSize="9">User E</text>
+    <circle cx="340" cy="260" r="25" fill="url(#userGrad)"/>
+    <text x="340" y="265" textAnchor="middle" fill="white" fontSize="9">User F</text>
+    <circle cx="210" cy="300" r="20" fill="#6B7280"/>
+    <text x="210" y="305" textAnchor="middle" fill="white" fontSize="9">...</text>
+    <path d="M105 100 L170 140" stroke="#10B981" strokeWidth="2" fill="none"/>
+    <polygon points="170,140 158,138 164,148" fill="#10B981"/>
+    <path d="M105 180 L170 165" stroke="#10B981" strokeWidth="2" fill="none"/>
+    <polygon points="170,165 158,167 162,157" fill="#10B981"/>
+    <path d="M105 260 L175 190" stroke="#10B981" strokeWidth="2" fill="none"/>
+    <polygon points="175,190 163,192 167,182" fill="#10B981"/>
+    <path d="M315 100 L250 140" stroke="#10B981" strokeWidth="2" fill="none"/>
+    <polygon points="250,140 252,128 262,134" fill="#10B981"/>
+    <path d="M315 180 L250 165" stroke="#10B981" strokeWidth="2" fill="none"/>
+    <polygon points="250,165 252,153 262,157" fill="#10B981"/>
+    <path d="M315 260 L245 190" stroke="#10B981" strokeWidth="2" fill="none"/>
+    <polygon points="245,190 247,178 257,184" fill="#10B981"/>
+    <text x="210" y="340" textAnchor="middle" fill="#10B981" fontSize="10">Arrows = "follows" relationship</text>
+    <rect x="420" y="40" width="360" height="320" rx="8" fill="#111827" stroke="#374151" strokeWidth="2"/>
+    <text x="600" y="65" textAnchor="middle" fill="#60A5FA" fontSize="14" fontWeight="bold">Graph Storage Strategies</text>
+    <rect x="440" y="85" width="320" height="90" rx="6" fill="#7C3AED" fillOpacity="0.2" stroke="#7C3AED" strokeWidth="1"/>
+    <text x="600" y="105" textAnchor="middle" fill="#A78BFA" fontSize="12" fontWeight="bold">Option 1: Redis Sets (Adjacency List)</text>
+    <rect x="455" y="115" width="145" height="50" rx="4" fill="#EC4899"/>
+    <text x="527" y="135" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">followers:elonmusk</text>
+    <text x="527" y="155" textAnchor="middle" fill="white" fontSize="8">[userA, userB, userC, ...]</text>
+    <rect x="610" y="115" width="145" height="50" rx="4" fill="#3B82F6"/>
+    <text x="682" y="135" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">following:userA</text>
+    <text x="682" y="155" textAnchor="middle" fill="white" fontSize="8">[elonmusk, userB, ...]</text>
+    <rect x="440" y="185" width="320" height="80" rx="6" fill="#10B981" fillOpacity="0.2" stroke="#10B981" strokeWidth="1"/>
+    <text x="600" y="205" textAnchor="middle" fill="#6EE7B7" fontSize="12" fontWeight="bold">Option 2: Graph Database (Neo4j)</text>
+    <text x="600" y="230" textAnchor="middle" fill="#9CA3AF" fontSize="10" fontFamily="monospace">(UserA)-[:FOLLOWS]-&gt;(Celebrity)</text>
+    <text x="600" y="250" textAnchor="middle" fill="#9CA3AF" fontSize="10">Native graph queries, efficient traversal</text>
+    <rect x="440" y="275" width="320" height="75" rx="6" fill="#F59E0B" fillOpacity="0.2" stroke="#F59E0B" strokeWidth="1"/>
+    <text x="600" y="295" textAnchor="middle" fill="#FCD34D" fontSize="12" fontWeight="bold">Option 3: MySQL (Follow Table)</text>
+    <text x="600" y="320" textAnchor="middle" fill="#9CA3AF" fontSize="10" fontFamily="monospace">| follower_id | following_id | created_at |</text>
+    <text x="600" y="340" textAnchor="middle" fill="#9CA3AF" fontSize="9">Indexed on both columns for efficient lookups</text>
+  </svg>
+);
+
+const TrendsDetectionDiagram = () => (
+  <svg viewBox="0 0 800 380" className="w-full h-auto" style={{ maxHeight: '380px' }}>
+    <defs>
+      <linearGradient id="streamGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#3B82F6" />
+        <stop offset="100%" stopColor="#8B5CF6" />
+      </linearGradient>
+      <linearGradient id="hotGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#EF4444" />
+        <stop offset="100%" stopColor="#F97316" />
+      </linearGradient>
+    </defs>
+    <rect width="800" height="380" fill="#1F2937" rx="10"/>
+    <text x="400" y="25" textAnchor="middle" fill="#60A5FA" fontSize="16" fontWeight="bold">Real-time Trending Topics Detection</text>
+    <rect x="30" y="50" width="740" height="60" rx="8" fill="url(#streamGrad)" fillOpacity="0.3" stroke="#3B82F6" strokeWidth="2"/>
+    <text x="400" y="75" textAnchor="middle" fill="#60A5FA" fontSize="14" fontWeight="bold">Incoming Tweet Stream (500M tweets/day)</text>
+    <text x="400" y="95" textAnchor="middle" fill="#9CA3AF" fontSize="11">#bitcoin #AI #SuperBowl #ElonMusk #OpenAI #Tesla #crypto #ChatGPT ...</text>
+    <rect x="60" y="130" width="100" height="50" rx="6" fill="#6366F1"/>
+    <text x="110" y="155" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Kafka</text>
+    <text x="110" y="170" textAnchor="middle" fill="white" fontSize="9">Tweet Events</text>
+    <path d="M160 155 L200 155" stroke="#60A5FA" strokeWidth="2" fill="none"/>
+    <polygon points="205,155 195,150 195,160" fill="#60A5FA"/>
+    <rect x="210" y="130" width="130" height="50" rx="6" fill="#10B981"/>
+    <text x="275" y="152" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Stream Processor</text>
+    <text x="275" y="167" textAnchor="middle" fill="white" fontSize="9">(Flink/Spark)</text>
+    <path d="M340 155 L380 155" stroke="#60A5FA" strokeWidth="2" fill="none"/>
+    <polygon points="385,155 375,150 375,160" fill="#60A5FA"/>
+    <rect x="390" y="130" width="130" height="50" rx="6" fill="#F59E0B"/>
+    <text x="455" y="152" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Hashtag Extractor</text>
+    <text x="455" y="167" textAnchor="middle" fill="white" fontSize="9">Parse & Normalize</text>
+    <path d="M520 155 L560 155" stroke="#60A5FA" strokeWidth="2" fill="none"/>
+    <polygon points="565,155 555,150 555,160" fill="#60A5FA"/>
+    <rect x="570" y="130" width="100" height="50" rx="6" fill="#EC4899"/>
+    <text x="620" y="152" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Count-Min</text>
+    <text x="620" y="167" textAnchor="middle" fill="white" fontSize="9">Sketch</text>
+    <path d="M670 155 L710 155" stroke="#60A5FA" strokeWidth="2" fill="none"/>
+    <polygon points="715,155 705,150 705,160" fill="#60A5FA"/>
+    <rect x="720" y="130" width="60" height="50" rx="6" fill="#EF4444"/>
+    <text x="750" y="160" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Redis</text>
+    <rect x="30" y="200" width="350" height="160" rx="8" fill="#111827" stroke="#374151" strokeWidth="2"/>
+    <text x="205" y="225" textAnchor="middle" fill="#60A5FA" fontSize="13" fontWeight="bold">Sliding Window Algorithm</text>
+    <rect x="50" y="245" width="60" height="30" rx="4" fill="#3B82F6" fillOpacity="0.5" stroke="#3B82F6"/>
+    <text x="80" y="265" textAnchor="middle" fill="white" fontSize="9">T-4h</text>
+    <rect x="115" y="245" width="60" height="30" rx="4" fill="#3B82F6" fillOpacity="0.6" stroke="#3B82F6"/>
+    <text x="145" y="265" textAnchor="middle" fill="white" fontSize="9">T-3h</text>
+    <rect x="180" y="245" width="60" height="30" rx="4" fill="#3B82F6" fillOpacity="0.7" stroke="#3B82F6"/>
+    <text x="210" y="265" textAnchor="middle" fill="white" fontSize="9">T-2h</text>
+    <rect x="245" y="245" width="60" height="30" rx="4" fill="#3B82F6" fillOpacity="0.85" stroke="#3B82F6"/>
+    <text x="275" y="265" textAnchor="middle" fill="white" fontSize="9">T-1h</text>
+    <rect x="310" y="245" width="60" height="30" rx="4" fill="#3B82F6" stroke="#3B82F6" strokeWidth="2"/>
+    <text x="340" y="265" textAnchor="middle" fill="white" fontSize="9">Now</text>
+    <text x="205" y="300" textAnchor="middle" fill="#9CA3AF" fontSize="10">Weighted counts: Recent hours count more</text>
+    <text x="205" y="320" textAnchor="middle" fill="#9CA3AF" fontSize="10">Detect velocity: # mentions / time window</text>
+    <text x="205" y="340" textAnchor="middle" fill="#9CA3AF" fontSize="10">Filter spam: Min unique users threshold</text>
+    <rect x="400" y="200" width="380" height="160" rx="8" fill="#111827" stroke="#374151" strokeWidth="2"/>
+    <text x="590" y="225" textAnchor="middle" fill="#60A5FA" fontSize="13" fontWeight="bold">Trending Topics Output</text>
+    <g>
+      <rect x="420" y="245" width="340" height="28" rx="4" fill="url(#hotGrad)"/>
+      <text x="440" y="264" fill="white" fontSize="11" fontWeight="bold">1. #SuperBowl</text>
+      <text x="720" y="264" textAnchor="end" fill="white" fontSize="10">2.5M tweets</text>
+    </g>
+    <g>
+      <rect x="420" y="278" width="340" height="28" rx="4" fill="#F59E0B"/>
+      <text x="440" y="297" fill="white" fontSize="11" fontWeight="bold">2. #Bitcoin</text>
+      <text x="720" y="297" textAnchor="end" fill="white" fontSize="10">1.8M tweets</text>
+    </g>
+    <g>
+      <rect x="420" y="311" width="340" height="28" rx="4" fill="#EAB308"/>
+      <text x="440" y="330" fill="white" fontSize="11" fontWeight="bold">3. #ChatGPT</text>
+      <text x="720" y="330" textAnchor="end" fill="white" fontSize="10">1.2M tweets</text>
+    </g>
+    <text x="590" y="355" textAnchor="middle" fill="#10B981" fontSize="10">Updated every 5 minutes, cached by region</text>
+  </svg>
+);
+
+const DatabaseSchemaDiagram = () => (
+  <svg viewBox="0 0 800 300" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <rect width="800" height="300" fill="#1F2937" rx="10"/>
+    <text x="400" y="25" textAnchor="middle" fill="#60A5FA" fontSize="16" fontWeight="bold">Core Database Tables</text>
+    <rect x="30" y="50" width="220" height="120" rx="8" fill="#3B82F6" fillOpacity="0.2" stroke="#3B82F6" strokeWidth="2"/>
+    <text x="140" y="75" textAnchor="middle" fill="#60A5FA" fontSize="13" fontWeight="bold">Users Table</text>
+    <text x="50" y="100" fill="#9CA3AF" fontSize="10" fontFamily="monospace">id (PK, bigint)</text>
+    <text x="50" y="118" fill="#9CA3AF" fontSize="10" fontFamily="monospace">username (varchar, unique)</text>
+    <text x="50" y="136" fill="#9CA3AF" fontSize="10" fontFamily="monospace">email (varchar)</text>
+    <text x="50" y="154" fill="#9CA3AF" fontSize="10" fontFamily="monospace">created_at (timestamp)</text>
+    <rect x="290" y="50" width="220" height="140" rx="8" fill="#10B981" fillOpacity="0.2" stroke="#10B981" strokeWidth="2"/>
+    <text x="400" y="75" textAnchor="middle" fill="#6EE7B7" fontSize="13" fontWeight="bold">Tweets Table</text>
+    <text x="310" y="100" fill="#9CA3AF" fontSize="10" fontFamily="monospace">id (PK, bigint)</text>
+    <text x="310" y="118" fill="#9CA3AF" fontSize="10" fontFamily="monospace">user_id (FK, bigint)</text>
+    <text x="310" y="136" fill="#9CA3AF" fontSize="10" fontFamily="monospace">content (varchar 280)</text>
+    <text x="310" y="154" fill="#9CA3AF" fontSize="10" fontFamily="monospace">created_at (timestamp)</text>
+    <text x="310" y="172" fill="#9CA3AF" fontSize="10" fontFamily="monospace">reply_to_id (FK, nullable)</text>
+    <rect x="550" y="50" width="220" height="120" rx="8" fill="#F59E0B" fillOpacity="0.2" stroke="#F59E0B" strokeWidth="2"/>
+    <text x="660" y="75" textAnchor="middle" fill="#FCD34D" fontSize="13" fontWeight="bold">Follows Table</text>
+    <text x="570" y="100" fill="#9CA3AF" fontSize="10" fontFamily="monospace">follower_id (FK, bigint)</text>
+    <text x="570" y="118" fill="#9CA3AF" fontSize="10" fontFamily="monospace">following_id (FK, bigint)</text>
+    <text x="570" y="136" fill="#9CA3AF" fontSize="10" fontFamily="monospace">created_at (timestamp)</text>
+    <text x="570" y="154" fill="#9CA3AF" fontSize="10" fontFamily="monospace">PK: (follower_id, following_id)</text>
+    <rect x="160" y="200" width="220" height="80" rx="8" fill="#EC4899" fillOpacity="0.2" stroke="#EC4899" strokeWidth="2"/>
+    <text x="270" y="225" textAnchor="middle" fill="#F472B6" fontSize="13" fontWeight="bold">Likes Table</text>
+    <text x="180" y="250" fill="#9CA3AF" fontSize="10" fontFamily="monospace">user_id (FK), tweet_id (FK)</text>
+    <text x="180" y="268" fill="#9CA3AF" fontSize="10" fontFamily="monospace">created_at (timestamp)</text>
+    <rect x="420" y="200" width="220" height="80" rx="8" fill="#8B5CF6" fillOpacity="0.2" stroke="#8B5CF6" strokeWidth="2"/>
+    <text x="530" y="225" textAnchor="middle" fill="#A78BFA" fontSize="13" fontWeight="bold">Retweets Table</text>
+    <text x="440" y="250" fill="#9CA3AF" fontSize="10" fontFamily="monospace">user_id (FK), tweet_id (FK)</text>
+    <text x="440" y="268" fill="#9CA3AF" fontSize="10" fontFamily="monospace">created_at (timestamp)</text>
+  </svg>
+);
+
+const CachingStrategyDiagram = () => (
+  <svg viewBox="0 0 800 280" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="cacheArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#60A5FA" />
+      </marker>
+    </defs>
+    <rect width="800" height="280" fill="#1F2937" rx="10"/>
+    <text x="400" y="25" textAnchor="middle" fill="#60A5FA" fontSize="16" fontWeight="bold">Multi-Layer Caching Strategy</text>
+    <rect x="50" y="60" width="140" height="70" rx="8" fill="#3B82F6" fillOpacity="0.3" stroke="#3B82F6" strokeWidth="2"/>
+    <text x="120" y="90" textAnchor="middle" fill="#60A5FA" fontSize="12" fontWeight="bold">Client</text>
+    <text x="120" y="110" textAnchor="middle" fill="#9CA3AF" fontSize="10">Browser Cache</text>
+    <line x1="190" y1="95" x2="250" y2="95" stroke="#60A5FA" strokeWidth="2" markerEnd="url(#cacheArrow)"/>
+    <rect x="260" y="60" width="140" height="70" rx="8" fill="#8B5CF6" fillOpacity="0.3" stroke="#8B5CF6" strokeWidth="2"/>
+    <text x="330" y="90" textAnchor="middle" fill="#A78BFA" fontSize="12" fontWeight="bold">CDN</text>
+    <text x="330" y="110" textAnchor="middle" fill="#9CA3AF" fontSize="10">Edge Cache</text>
+    <line x1="400" y1="95" x2="460" y2="95" stroke="#60A5FA" strokeWidth="2" markerEnd="url(#cacheArrow)"/>
+    <rect x="470" y="60" width="140" height="70" rx="8" fill="#EC4899" fillOpacity="0.3" stroke="#EC4899" strokeWidth="2"/>
+    <text x="540" y="90" textAnchor="middle" fill="#F472B6" fontSize="12" fontWeight="bold">Redis</text>
+    <text x="540" y="110" textAnchor="middle" fill="#9CA3AF" fontSize="10">Timeline Cache</text>
+    <line x1="610" y1="95" x2="670" y2="95" stroke="#60A5FA" strokeWidth="2" markerEnd="url(#cacheArrow)"/>
+    <rect x="680" y="60" width="100" height="70" rx="8" fill="#EF4444" fillOpacity="0.3" stroke="#EF4444" strokeWidth="2"/>
+    <text x="730" y="90" textAnchor="middle" fill="#F87171" fontSize="12" fontWeight="bold">MySQL</text>
+    <text x="730" y="110" textAnchor="middle" fill="#9CA3AF" fontSize="10">Source</text>
+    <rect x="50" y="160" width="700" height="100" rx="8" fill="#111827" stroke="#374151" strokeWidth="2"/>
+    <text x="400" y="185" textAnchor="middle" fill="#60A5FA" fontSize="13" fontWeight="bold">Redis Cache Structure</text>
+    <text x="100" y="210" fill="#10B981" fontSize="10" fontWeight="bold">timeline:{'{userId}'}</text>
+    <text x="100" y="228" fill="#9CA3AF" fontSize="9">Sorted Set: tweet_ids by timestamp</text>
+    <text x="300" y="210" fill="#F59E0B" fontSize="10" fontWeight="bold">user:{'{userId}'}</text>
+    <text x="300" y="228" fill="#9CA3AF" fontSize="9">Hash: profile data, counts</text>
+    <text x="480" y="210" fill="#EC4899" fontSize="10" fontWeight="bold">tweet:{'{tweetId}'}</text>
+    <text x="480" y="228" fill="#9CA3AF" fontSize="9">Hash: tweet content, metrics</text>
+    <text x="660" y="210" fill="#8B5CF6" fontSize="10" fontWeight="bold">trends:{'{region}'}</text>
+    <text x="660" y="228" fill="#9CA3AF" fontSize="9">Sorted Set: hashtags by count</text>
+  </svg>
+);
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
+
 export default function Twitter({ onBack, breadcrumb }) {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [selectedConceptIndex, setSelectedConceptIndex] = useState(null);
+  const [selectedDetailIndex, setSelectedDetailIndex] = useState(0);
+
+  const concepts = [
+    {
+      id: 'requirements',
+      name: 'System Requirements',
+      icon: '📋',
+      color: '#3b82f6',
+      description: 'Functional and non-functional requirements for building a Twitter-scale social platform.',
+      diagram: TwitterArchitectureDiagram,
+      details: [
+        {
+          name: 'Functional Requirements',
+          explanation: 'Core features that Twitter must support: Post tweets (280 chars with media), Follow/unfollow users to build social graph, View home timeline (tweets from followed users), Engagement features (like, retweet, reply, quote), Search for tweets, users, and hashtags, Trending topics (global and local), Real-time notifications (mentions, likes, follows), Direct messaging between users.',
+          codeExample: `// Core Twitter API endpoints
+public interface TwitterAPI {
+    // Tweet operations
+    Tweet postTweet(String userId, String content, List<Media> media);
+    void deleteTweet(String userId, String tweetId);
+    Tweet getTweet(String tweetId);
+
+    // Timeline operations
+    List<Tweet> getHomeTimeline(String userId, String cursor, int limit);
+    List<Tweet> getUserTimeline(String userId, String cursor, int limit);
+
+    // Social operations
+    void follow(String userId, String targetUserId);
+    void unfollow(String userId, String targetUserId);
+    List<User> getFollowers(String userId, String cursor, int limit);
+    List<User> getFollowing(String userId, String cursor, int limit);
+
+    // Engagement
+    void likeTweet(String userId, String tweetId);
+    void retweet(String userId, String tweetId);
+    Tweet reply(String userId, String tweetId, String content);
+}`
+        },
+        {
+          name: 'Non-Functional Requirements',
+          explanation: 'Performance and reliability targets: High availability (99.99% uptime), Low latency (timeline load <200ms, tweet post <100ms), Eventual consistency acceptable for timelines, Strong consistency for writes (tweet creation, follows), Scalability to handle 500M tweets/day and 600K timeline reads/sec, Real-time delivery (tweets appear within seconds), Fault tolerance with graceful degradation.',
+          codeExample: `// Performance SLA Configuration
+public class TwitterSLA {
+    // Latency targets
+    public static final int TIMELINE_READ_P99_MS = 200;
+    public static final int TWEET_POST_P99_MS = 100;
+    public static final int SEARCH_P99_MS = 500;
+
+    // Availability target
+    public static final double AVAILABILITY_TARGET = 0.9999; // 99.99%
+
+    // Throughput requirements
+    public static final long TWEETS_PER_DAY = 500_000_000L;
+    public static final long TWEETS_PER_SECOND_AVG = 6_000L;
+    public static final long TWEETS_PER_SECOND_PEAK = 18_000L;
+    public static final long TIMELINE_READS_PER_SECOND = 600_000L;
+
+    // Consistency model
+    public enum ConsistencyLevel {
+        STRONG,    // For writes (tweets, follows)
+        EVENTUAL   // For reads (timelines, counts)
+    }
+}`
+        },
+        {
+          name: 'Scale Estimates',
+          explanation: 'Capacity planning calculations: 350M+ monthly active users, 200M+ daily active users, 500M+ tweets per day (~6K tweets/sec average, 18K peak), 100:1 read-to-write ratio means 600K timeline reads/sec, Average tweet size ~300 bytes (text + metadata), Daily storage ~150GB for tweets only, 5-year storage with media ~100TB, Timeline cache stores last 800 tweets per user.',
+          codeExample: `// Capacity Planning Calculator
+public class CapacityPlanner {
+    // User metrics
+    private static final long MONTHLY_ACTIVE_USERS = 350_000_000L;
+    private static final long DAILY_ACTIVE_USERS = 200_000_000L;
+
+    // Tweet metrics
+    private static final long TWEETS_PER_DAY = 500_000_000L;
+    private static final int AVG_TWEET_SIZE_BYTES = 300;
+
+    public long calculateDailyStorageGB() {
+        return (TWEETS_PER_DAY * AVG_TWEET_SIZE_BYTES) / (1024 * 1024 * 1024);
+        // Result: ~150 GB/day for tweets
+    }
+
+    public long calculateTimelineReadsPerSecond() {
+        // 100:1 read-to-write ratio
+        long tweetsPerSecond = TWEETS_PER_DAY / 86400;
+        return tweetsPerSecond * 100;
+        // Result: ~600,000 reads/second
+    }
+
+    public long calculateRedisMemoryGB() {
+        // 800 tweet IDs per user, 8 bytes per ID
+        long activeUserTimelines = DAILY_ACTIVE_USERS;
+        long bytesPerTimeline = 800 * 8;
+        return (activeUserTimelines * bytesPerTimeline) / (1024 * 1024 * 1024);
+        // Result: ~1.2 TB for timeline cache
+    }
+}`
+        }
+      ]
+    },
+    {
+      id: 'architecture',
+      name: 'System Architecture',
+      icon: '🏗️',
+      color: '#8b5cf6',
+      description: 'Microservices architecture with dedicated services for tweets, timelines, users, and search.',
+      diagram: TwitterArchitectureDiagram,
+      details: [
+        {
+          name: 'High-Level Architecture',
+          diagram: TwitterArchitectureDiagram,
+          explanation: 'Twitter uses a microservices architecture: Clients (Web, iOS, Android) connect through CDN (CloudFlare) for static assets. Load balancers (Nginx) distribute traffic across API Gateway instances. API Gateway handles authentication, rate limiting, and routing. Core microservices: Tweet Service, User Service, Timeline Service, Follow Service, Search Service, Notification Service. Each service has its own database and communicates via Kafka for async operations.',
+          codeExample: `// API Gateway routing configuration
+@Configuration
+public class ApiGatewayConfig {
+
+    @Bean
+    public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
+        return builder.routes()
+            .route("tweets", r -> r
+                .path("/api/v2/tweets/**")
+                .filters(f -> f
+                    .addRequestHeader("X-Request-Id", UUID.randomUUID().toString())
+                    .circuitBreaker(c -> c.setName("tweetService")))
+                .uri("lb://tweet-service"))
+            .route("timeline", r -> r
+                .path("/api/v2/users/*/timeline")
+                .filters(f -> f.requestRateLimiter(c -> c.setRateLimiter(redisRateLimiter())))
+                .uri("lb://timeline-service"))
+            .route("users", r -> r
+                .path("/api/v2/users/**")
+                .uri("lb://user-service"))
+            .route("search", r -> r
+                .path("/api/v2/search/**")
+                .uri("lb://search-service"))
+            .build();
+    }
+}`
+        },
+        {
+          name: 'Core Microservices',
+          explanation: 'Tweet Service: CRUD operations for tweets, stores in MySQL (sharded by tweet ID), publishes to Kafka. User Service: Profile management, authentication (OAuth 2.0), follower/following counts. Timeline Service: Generates home timelines using fan-out strategy, reads from Redis cache. Follow Service: Manages social graph, stores in Graph DB or Redis adjacency lists. Search Service: Elasticsearch indexing for full-text search on tweets and users. Notification Service: Push notifications via APNs/FCM, WebSockets for real-time.',
+          codeExample: `// Tweet Service implementation
+@Service
+public class TweetService {
+    private final TweetRepository tweetRepository;
+    private final KafkaTemplate<String, TweetEvent> kafkaTemplate;
+    private final RedisTemplate<String, Tweet> redisTemplate;
+
+    @Transactional
+    public Tweet createTweet(String userId, CreateTweetRequest request) {
+        // 1. Validate content (280 char limit, media types)
+        validateTweetContent(request);
+
+        // 2. Create tweet entity
+        Tweet tweet = Tweet.builder()
+            .id(snowflakeIdGenerator.nextId())
+            .userId(userId)
+            .content(request.getContent())
+            .mediaIds(request.getMediaIds())
+            .createdAt(Instant.now())
+            .build();
+
+        // 3. Persist to MySQL (sharded by user_id)
+        tweetRepository.save(tweet);
+
+        // 4. Cache the tweet
+        redisTemplate.opsForValue().set(
+            "tweet:" + tweet.getId(), tweet, Duration.ofHours(24));
+
+        // 5. Publish event for fan-out
+        kafkaTemplate.send("tweet-created",
+            new TweetEvent(tweet.getId(), userId, TweetEventType.CREATED));
+
+        return tweet;
+    }
+}`
+        },
+        {
+          name: 'Message Queue (Kafka)',
+          explanation: 'Kafka serves as the backbone for async communication: tweet-created topic triggers fan-out to followers timelines, search indexing, and analytics. user-followed topic updates social graph caches. notification-events topic for push notification delivery. Topics are partitioned by user_id for ordering guarantees. Consumer groups handle different processing (timeline-fanout-group, search-index-group, analytics-group). At-least-once delivery with idempotent consumers.',
+          codeExample: `// Kafka configuration and consumers
+@Configuration
+public class KafkaConfig {
+    @Bean
+    public Map<String, Object> consumerConfigs() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "timeline-fanout-group");
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+        return props;
+    }
+}
+
+@Service
+public class FanOutConsumer {
+    @KafkaListener(topics = "tweet-created", groupId = "timeline-fanout-group")
+    public void handleTweetCreated(TweetEvent event) {
+        String userId = event.getUserId();
+        String tweetId = event.getTweetId();
+
+        // Get follower list (paginated for large accounts)
+        List<String> followers = followService.getFollowerIds(userId);
+
+        // Fan-out to each follower's timeline cache
+        for (String followerId : followers) {
+            redisTemplate.opsForZSet().add(
+                "timeline:" + followerId,
+                tweetId,
+                event.getTimestamp()
+            );
+            // Trim to keep only last 800 tweets
+            redisTemplate.opsForZSet().removeRange(
+                "timeline:" + followerId, 0, -801);
+        }
+    }
+}`
+        }
+      ]
+    },
+    {
+      id: 'timeline',
+      name: 'Timeline Generation',
+      icon: '📰',
+      color: '#10b981',
+      description: 'Hybrid fan-out strategy combining push for regular users and pull for celebrities.',
+      diagram: FanOutDiagram,
+      details: [
+        {
+          name: 'Fan-out on Write (Push)',
+          diagram: FanOutDiagram,
+          explanation: 'When a user posts a tweet, it is pushed to all followers timeline caches immediately. Process: User posts tweet -> Store in DB -> Publish to Kafka -> Fan-out workers consume event -> Query followers from graph DB -> Push tweet ID to each followers Redis timeline cache (ZADD). Complexity: Write O(n) where n = follower count, Read O(1). Best for: Users with <10K followers. Pros: Instant timeline reads. Cons: Expensive for celebrities.',
+          codeExample: `// Fan-out on Write implementation
+@Service
+public class FanOutService {
+    private final RedisTemplate<String, String> redis;
+    private final FollowService followService;
+
+    public void fanOutTweet(String tweetId, String authorId, long timestamp) {
+        // Skip fan-out for celebrities (>1M followers)
+        long followerCount = followService.getFollowerCount(authorId);
+        if (followerCount > 1_000_000) {
+            return; // Use pull model instead
+        }
+
+        // Get all followers (paginated for large accounts)
+        Pageable pageable = PageRequest.of(0, 1000);
+        Page<String> followers;
+
+        do {
+            followers = followService.getFollowerIds(authorId, pageable);
+
+            // Batch write to Redis pipelines for efficiency
+            redis.executePipelined((RedisCallback<Object>) connection -> {
+                for (String followerId : followers.getContent()) {
+                    byte[] key = ("timeline:" + followerId).getBytes();
+                    connection.zAdd(key, timestamp, tweetId.getBytes());
+                    // Trim old tweets (keep last 800)
+                    connection.zRemRangeByRank(key, 0, -801);
+                }
+                return null;
+            });
+
+            pageable = pageable.next();
+        } while (followers.hasNext());
+    }
+}`
+        },
+        {
+          name: 'Fan-out on Read (Pull)',
+          explanation: 'When a user requests their timeline, tweets are fetched on-demand from followed users. Process: User requests timeline -> Timeline service gets list of following -> Query recent tweets from each followed user -> Merge and sort by timestamp -> Return top N tweets. Complexity: Write O(1), Read O(n) where n = following count. Best for: Reading celebrity tweets. Pros: Fast tweet posting. Cons: Slower timeline reads.',
+          codeExample: `// Fan-out on Read implementation
+@Service
+public class PullTimelineService {
+    private final FollowService followService;
+    private final TweetService tweetService;
+
+    public List<Tweet> getTimeline(String userId, int limit) {
+        // Get list of users this person follows
+        List<String> following = followService.getFollowingIds(userId);
+
+        // Fetch recent tweets from each followed user in parallel
+        List<CompletableFuture<List<Tweet>>> futures = following.stream()
+            .map(followedId -> CompletableFuture.supplyAsync(() ->
+                tweetService.getRecentTweets(followedId, 20)))
+            .collect(Collectors.toList());
+
+        // Collect all tweets
+        List<Tweet> allTweets = futures.stream()
+            .map(CompletableFuture::join)
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
+
+        // Merge sort by timestamp (descending)
+        return allTweets.stream()
+            .sorted(Comparator.comparing(Tweet::getCreatedAt).reversed())
+            .limit(limit)
+            .collect(Collectors.toList());
+    }
+}`
+        },
+        {
+          name: 'Hybrid Approach (Twitter)',
+          explanation: 'Twitter combines both strategies based on user type. Regular users (<10K followers): Use push model - tweets are fanned out to follower caches. Celebrities (>1M followers): Use pull model - tweets stored separately, merged at read time. Timeline generation: 1) Fetch pre-computed timeline from Redis, 2) Identify followed celebrities, 3) Fetch their recent tweets, 4) Merge and sort, 5) Return results. Cache stores last 800 tweet IDs per user with 7-day TTL.',
+          codeExample: `// Hybrid Timeline Service
+@Service
+public class HybridTimelineService {
+    private final RedisTemplate<String, String> redis;
+    private final TweetService tweetService;
+    private final FollowService followService;
+
+    public List<Tweet> getHomeTimeline(String userId, int limit) {
+        // 1. Get pre-computed timeline (regular user tweets)
+        Set<String> cachedTweetIds = redis.opsForZSet()
+            .reverseRange("timeline:" + userId, 0, limit - 1);
+
+        // 2. Find followed celebrities
+        List<String> followedCelebrities = followService.getFollowing(userId)
+            .stream()
+            .filter(u -> u.getFollowerCount() > 1_000_000)
+            .map(User::getId)
+            .collect(Collectors.toList());
+
+        // 3. Fetch celebrity tweets (pull model)
+        List<Tweet> celebrityTweets = followedCelebrities.stream()
+            .flatMap(celeb -> tweetService.getRecentTweets(celeb, 10).stream())
+            .collect(Collectors.toList());
+
+        // 4. Fetch cached tweets
+        List<Tweet> cachedTweets = tweetService.getTweetsByIds(cachedTweetIds);
+
+        // 5. Merge and sort
+        List<Tweet> merged = new ArrayList<>();
+        merged.addAll(cachedTweets);
+        merged.addAll(celebrityTweets);
+
+        return merged.stream()
+            .sorted(Comparator.comparing(Tweet::getCreatedAt).reversed())
+            .limit(limit)
+            .collect(Collectors.toList());
+    }
+}`
+        }
+      ]
+    },
+    {
+      id: 'social-graph',
+      name: 'Social Graph',
+      icon: '🔗',
+      color: '#f59e0b',
+      description: 'Managing follower/following relationships at scale with graph databases and Redis.',
+      diagram: SocialGraphDiagram,
+      details: [
+        {
+          name: 'Graph Structure',
+          diagram: SocialGraphDiagram,
+          explanation: 'The social graph represents follower/following relationships. Nodes are users, edges are "follows" relationships (directed). Key operations: Get followers of a user, Get users that a user follows, Check if user A follows user B, Get mutual followers (intersection). At Twitter scale: billions of edges, must support fast lookups and efficient traversal.',
+          codeExample: `// Follow relationship operations
+@Service
+public class FollowService {
+    private final FollowRepository followRepository;
+    private final RedisTemplate<String, String> redis;
+
+    @Transactional
+    public void follow(String followerId, String followingId) {
+        // 1. Validate users exist and not already following
+        if (isFollowing(followerId, followingId)) {
+            throw new AlreadyFollowingException();
+        }
+
+        // 2. Create follow relationship
+        Follow follow = new Follow(followerId, followingId, Instant.now());
+        followRepository.save(follow);
+
+        // 3. Update Redis adjacency lists
+        redis.opsForSet().add("following:" + followerId, followingId);
+        redis.opsForSet().add("followers:" + followingId, followerId);
+
+        // 4. Update counts (async)
+        redis.opsForHash().increment("user:" + followerId, "following_count", 1);
+        redis.opsForHash().increment("user:" + followingId, "follower_count", 1);
+    }
+
+    public boolean isFollowing(String followerId, String followingId) {
+        // Check Redis first (fast path)
+        Boolean isMember = redis.opsForSet()
+            .isMember("following:" + followerId, followingId);
+        if (isMember != null) return isMember;
+
+        // Fall back to database
+        return followRepository.existsByFollowerIdAndFollowingId(
+            followerId, followingId);
+    }
+}`
+        },
+        {
+          name: 'Storage Options',
+          explanation: 'Option 1: Redis Sets - Store followers:userId and following:userId as sets. O(1) add/remove/check, O(n) to get all. Good for hot data. Option 2: Graph Database (Neo4j) - Native graph storage with Cypher queries. Efficient for traversals (friends of friends). Option 3: MySQL - Follow table with follower_id, following_id, created_at. Indexed on both columns. Twitter uses combination: Redis for hot data/counts, MySQL for persistence.',
+          codeExample: `// Graph Database (Neo4j) option
+@Repository
+public class Neo4jFollowRepository {
+    private final Driver driver;
+
+    public void createFollow(String followerId, String followingId) {
+        try (Session session = driver.session()) {
+            session.writeTransaction(tx -> {
+                tx.run("""
+                    MATCH (follower:User {id: $followerId})
+                    MATCH (following:User {id: $followingId})
+                    CREATE (follower)-[:FOLLOWS {createdAt: datetime()}]->(following)
+                    """,
+                    Map.of("followerId", followerId, "followingId", followingId));
+                return null;
+            });
+        }
+    }
+
+    public List<String> getFollowers(String userId, int limit) {
+        try (Session session = driver.session()) {
+            return session.readTransaction(tx -> {
+                Result result = tx.run("""
+                    MATCH (follower:User)-[:FOLLOWS]->(user:User {id: $userId})
+                    RETURN follower.id
+                    ORDER BY follower.followerCount DESC
+                    LIMIT $limit
+                    """,
+                    Map.of("userId", userId, "limit", limit));
+                return result.list(r -> r.get("follower.id").asString());
+            });
+        }
+    }
+
+    // Find mutual followers (friends of friends)
+    public List<String> getMutualFollowers(String userId1, String userId2) {
+        // Cypher makes this query elegant
+        // ... MATCH (u1)<-[:FOLLOWS]-(mutual)-[:FOLLOWS]->(u2) ...
+    }
+}`
+        },
+        {
+          name: 'Sharding Strategy',
+          explanation: 'The follow relationship must be sharded for scale. Challenge: Need to efficiently query both followers AND following for any user. Solution 1: Store twice - shard followers by following_id, following by follower_id. More storage but O(1) lookups. Solution 2: Consistent hashing with lookup table for cross-shard queries. Twitter approach: Redis for adjacency lists (hot data), MySQL sharded by follower_id with secondary index.',
+          codeExample: `// Dual-write sharding for follow relationships
+@Service
+public class ShardedFollowService {
+    private final List<FollowShard> followerShards;  // Sharded by following_id
+    private final List<FollowShard> followingShards; // Sharded by follower_id
+
+    @Transactional
+    public void follow(String followerId, String followingId) {
+        // Write to both shards for efficient queries in both directions
+
+        // Shard 1: For "get followers of X" queries
+        // Sharded by following_id so all followers of X are co-located
+        FollowShard followerShard = getShardByKey(followingId, followerShards);
+        followerShard.insertFollower(followingId, followerId);
+
+        // Shard 2: For "get following of X" queries
+        // Sharded by follower_id so all users X follows are co-located
+        FollowShard followingShard = getShardByKey(followerId, followingShards);
+        followingShard.insertFollowing(followerId, followingId);
+    }
+
+    private FollowShard getShardByKey(String key, List<FollowShard> shards) {
+        // Consistent hashing for even distribution
+        int hash = Hashing.murmur3_32().hashString(key, UTF_8).asInt();
+        int shardIndex = Math.abs(hash) % shards.size();
+        return shards.get(shardIndex);
+    }
+}`
+        }
+      ]
+    },
+    {
+      id: 'database',
+      name: 'Database Design',
+      icon: '🗄️',
+      color: '#ef4444',
+      description: 'MySQL sharding, schema design, and indexing strategies for Twitter-scale data.',
+      diagram: DatabaseSchemaDiagram,
+      details: [
+        {
+          name: 'Core Schema',
+          diagram: DatabaseSchemaDiagram,
+          explanation: 'Core tables: Users (id, username, email, bio, created_at), Tweets (id, user_id, content, media_ids, created_at, reply_to_id), Follows (follower_id, following_id, created_at), Likes (user_id, tweet_id, created_at), Retweets (user_id, tweet_id, created_at). IDs use Snowflake format (64-bit) for distributed generation. Timestamps enable time-range queries and ordering.',
+          codeExample: `-- Core Twitter schema
+CREATE TABLE users (
+    id BIGINT PRIMARY KEY,           -- Snowflake ID
+    username VARCHAR(15) UNIQUE NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    bio VARCHAR(160),
+    profile_image_url VARCHAR(500),
+    follower_count INT DEFAULT 0,
+    following_count INT DEFAULT 0,
+    tweet_count INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_username (username),
+    INDEX idx_created_at (created_at)
+);
+
+CREATE TABLE tweets (
+    id BIGINT PRIMARY KEY,           -- Snowflake ID (contains timestamp)
+    user_id BIGINT NOT NULL,
+    content VARCHAR(280) NOT NULL,
+    media_ids JSON,                  -- Array of media IDs
+    reply_to_id BIGINT,              -- NULL if not a reply
+    retweet_count INT DEFAULT 0,
+    like_count INT DEFAULT 0,
+    reply_count INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_user_created (user_id, created_at DESC),
+    INDEX idx_reply_to (reply_to_id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);`
+        },
+        {
+          name: 'Sharding Strategy',
+          explanation: 'MySQL cannot handle Twitter scale on a single instance. Sharding approach: Users table: Shard by user_id using consistent hashing. Tweets table: Shard by user_id (not tweet_id) to co-locate user tweets for efficient timeline queries. Follows table: Dual sharding - by follower_id AND following_id for bidirectional lookups. Shard count: Start with 4096 virtual shards, map to physical nodes. Rebalancing: Use virtual shards for easy expansion.',
+          codeExample: `// Database sharding implementation
+@Service
+public class ShardingService {
+    private static final int VIRTUAL_SHARD_COUNT = 4096;
+    private final Map<Integer, DataSource> shardMap;
+
+    public DataSource getShardForUser(long userId) {
+        // Consistent hashing for shard selection
+        int virtualShard = Math.abs(
+            Hashing.murmur3_32().hashLong(userId).asInt()
+        ) % VIRTUAL_SHARD_COUNT;
+
+        return shardMap.get(virtualShard);
+    }
+
+    public List<DataSource> getShardsForQuery(ShardQuery query) {
+        if (query.hasUserId()) {
+            // Single shard lookup
+            return List.of(getShardForUser(query.getUserId()));
+        }
+        // Scatter-gather for cross-shard queries
+        return new ArrayList<>(shardMap.values());
+    }
+}
+
+// Sharded repository
+@Repository
+public class ShardedTweetRepository {
+    private final ShardingService sharding;
+
+    public void save(Tweet tweet) {
+        DataSource shard = sharding.getShardForUser(tweet.getUserId());
+        // Insert into appropriate shard
+    }
+
+    public List<Tweet> getUserTweets(long userId, int limit) {
+        DataSource shard = sharding.getShardForUser(userId);
+        // Query single shard - efficient!
+    }
+}`
+        },
+        {
+          name: 'ID Generation (Snowflake)',
+          explanation: 'Twitter uses Snowflake IDs: 64-bit integers that are time-sortable and globally unique. Structure: 1 bit sign + 41 bits timestamp (ms since epoch) + 10 bits machine ID + 12 bits sequence. Benefits: No central coordination needed, IDs are roughly time-ordered, Can extract creation timestamp from ID, 4096 IDs per millisecond per machine. Used for: tweet IDs, user IDs, DM IDs.',
+          codeExample: `// Snowflake ID generator
+public class SnowflakeIdGenerator {
+    private static final long EPOCH = 1288834974657L; // Twitter epoch
+    private static final int MACHINE_ID_BITS = 10;
+    private static final int SEQUENCE_BITS = 12;
+
+    private final long machineId;
+    private long lastTimestamp = -1L;
+    private long sequence = 0L;
+
+    public SnowflakeIdGenerator(long machineId) {
+        this.machineId = machineId;
+    }
+
+    public synchronized long nextId() {
+        long timestamp = System.currentTimeMillis();
+
+        if (timestamp == lastTimestamp) {
+            sequence = (sequence + 1) & ((1 << SEQUENCE_BITS) - 1);
+            if (sequence == 0) {
+                // Wait for next millisecond
+                timestamp = waitNextMillis(lastTimestamp);
+            }
+        } else {
+            sequence = 0L;
+        }
+
+        lastTimestamp = timestamp;
+
+        // Compose the ID
+        return ((timestamp - EPOCH) << (MACHINE_ID_BITS + SEQUENCE_BITS))
+             | (machineId << SEQUENCE_BITS)
+             | sequence;
+    }
+
+    public static long extractTimestamp(long snowflakeId) {
+        return (snowflakeId >> 22) + EPOCH;
+    }
+}`
+        }
+      ]
+    },
+    {
+      id: 'caching',
+      name: 'Caching Strategy',
+      icon: '⚡',
+      color: '#ec4899',
+      description: 'Multi-layer caching with Redis for timelines, user data, and trending topics.',
+      diagram: CachingStrategyDiagram,
+      details: [
+        {
+          name: 'Cache Layers',
+          diagram: CachingStrategyDiagram,
+          explanation: 'Twitter uses multiple cache layers: 1) Client-side (browser/app cache), 2) CDN (CloudFlare) for static assets and images, 3) Redis cluster for dynamic data (timelines, user profiles, counts), 4) Application-level cache (local LRU). Cache-aside pattern: Read from cache, if miss read from DB and populate cache. Write-through for critical data (tweets), write-behind for counters.',
+          codeExample: `// Multi-layer caching implementation
+@Service
+public class CacheService {
+    private final RedisTemplate<String, Object> redis;
+    private final Cache<String, Object> localCache; // Caffeine
+
+    public <T> T get(String key, Class<T> type, Supplier<T> loader) {
+        // Layer 1: Local cache (fastest, smallest)
+        T value = localCache.getIfPresent(key);
+        if (value != null) return value;
+
+        // Layer 2: Redis cluster
+        value = (T) redis.opsForValue().get(key);
+        if (value != null) {
+            localCache.put(key, value);
+            return value;
+        }
+
+        // Layer 3: Database (slowest)
+        value = loader.get();
+        if (value != null) {
+            // Populate both caches
+            redis.opsForValue().set(key, value, Duration.ofHours(24));
+            localCache.put(key, value);
+        }
+
+        return value;
+    }
+
+    // Write-through for tweets
+    public void cacheTweet(Tweet tweet) {
+        String key = "tweet:" + tweet.getId();
+        redis.opsForValue().set(key, tweet, Duration.ofHours(48));
+        localCache.put(key, tweet);
+    }
+}`
+        },
+        {
+          name: 'Redis Data Structures',
+          explanation: 'Timeline cache: Sorted Set (ZADD) with tweet IDs scored by timestamp. ZREVRANGE for retrieval, ZREMRANGEBYRANK to trim. User profile: Hash with fields (name, bio, follower_count, etc.). Trending topics: Sorted Set with hashtags scored by mention count. Sessions: String with JSON payload, TTL-based expiration. Follower lists: Sets for O(1) membership check.',
+          codeExample: `// Redis data structure usage
+@Service
+public class RedisDataService {
+    private final RedisTemplate<String, String> redis;
+
+    // Timeline: Sorted Set
+    public void addToTimeline(String userId, String tweetId, long timestamp) {
+        String key = "timeline:" + userId;
+        redis.opsForZSet().add(key, tweetId, timestamp);
+        redis.opsForZSet().removeRange(key, 0, -801); // Keep last 800
+    }
+
+    public List<String> getTimeline(String userId, int offset, int limit) {
+        String key = "timeline:" + userId;
+        Set<String> ids = redis.opsForZSet()
+            .reverseRange(key, offset, offset + limit - 1);
+        return new ArrayList<>(ids);
+    }
+
+    // User profile: Hash
+    public void cacheUserProfile(User user) {
+        String key = "user:" + user.getId();
+        Map<String, String> fields = Map.of(
+            "username", user.getUsername(),
+            "name", user.getName(),
+            "bio", user.getBio(),
+            "follower_count", String.valueOf(user.getFollowerCount())
+        );
+        redis.opsForHash().putAll(key, fields);
+        redis.expire(key, Duration.ofHours(1));
+    }
+
+    // Trending: Sorted Set
+    public void incrementTrend(String hashtag, String region) {
+        String key = "trends:" + region;
+        redis.opsForZSet().incrementScore(key, hashtag, 1);
+    }
+}`
+        },
+        {
+          name: 'Cache Invalidation',
+          explanation: 'Cache invalidation strategies: Time-based TTL: User profiles (1 hour), tweets (24 hours), timelines (7 days). Event-driven: Tweet deleted -> remove from author timeline, invalidate tweet cache. Follower list changes -> rebuild affected timelines. Write-through: Counters updated in cache and DB simultaneously. Versioning: Include version in cache key for schema changes.',
+          codeExample: `// Cache invalidation patterns
+@Service
+public class CacheInvalidationService {
+    private final RedisTemplate<String, Object> redis;
+    private final KafkaTemplate<String, CacheEvent> kafka;
+
+    // Event-driven invalidation via Kafka
+    @KafkaListener(topics = "cache-invalidation")
+    public void handleInvalidation(CacheEvent event) {
+        switch (event.getType()) {
+            case TWEET_DELETED -> {
+                redis.delete("tweet:" + event.getTweetId());
+                // Remove from author's timeline
+                redis.opsForZSet().remove(
+                    "timeline:" + event.getUserId(),
+                    event.getTweetId()
+                );
+            }
+            case USER_UPDATED -> {
+                redis.delete("user:" + event.getUserId());
+            }
+            case FOLLOW_CHANGED -> {
+                // Trigger timeline rebuild
+                kafka.send("timeline-rebuild",
+                    new TimelineRebuildEvent(event.getFollowerId()));
+            }
+        }
+    }
+
+    // Publish invalidation events
+    public void onTweetDeleted(String tweetId, String userId) {
+        kafka.send("cache-invalidation",
+            CacheEvent.tweetDeleted(tweetId, userId));
+    }
+}`
+        }
+      ]
+    },
+    {
+      id: 'search-trends',
+      name: 'Search & Trends',
+      icon: '🔍',
+      color: '#06b6d4',
+      description: 'Elasticsearch for full-text search and real-time trending topic detection.',
+      diagram: TrendsDetectionDiagram,
+      details: [
+        {
+          name: 'Search Architecture',
+          explanation: 'Elasticsearch cluster for full-text search: Index tweets in near real-time via Kafka consumer. Search by content, hashtags, mentions, user. Ranking factors: relevance score, recency, engagement (likes, retweets), user authority. Index structure: Separate indices for tweets, users, hashtags. Sharding: Index per time period (rolling indices) for efficient deletion of old data.',
+          codeExample: `// Elasticsearch indexing service
+@Service
+public class SearchIndexService {
+    private final ElasticsearchClient esClient;
+
+    // Index a tweet
+    public void indexTweet(Tweet tweet) {
+        TweetDocument doc = TweetDocument.builder()
+            .id(tweet.getId())
+            .userId(tweet.getUserId())
+            .content(tweet.getContent())
+            .hashtags(extractHashtags(tweet.getContent()))
+            .mentions(extractMentions(tweet.getContent()))
+            .likeCount(tweet.getLikeCount())
+            .retweetCount(tweet.getRetweetCount())
+            .createdAt(tweet.getCreatedAt())
+            .build();
+
+        // Use time-based index for efficient rotation
+        String index = "tweets-" + getIndexSuffix(tweet.getCreatedAt());
+        esClient.index(i -> i
+            .index(index)
+            .id(String.valueOf(tweet.getId()))
+            .document(doc)
+        );
+    }
+
+    // Search tweets
+    public SearchResult searchTweets(String query, int page, int size) {
+        SearchResponse<TweetDocument> response = esClient.search(s -> s
+            .index("tweets-*")
+            .query(q -> q
+                .bool(b -> b
+                    .should(sh -> sh.match(m -> m.field("content").query(query)))
+                    .should(sh -> sh.term(t -> t.field("hashtags").value(query)))
+                ))
+            .sort(so -> so.field(f -> f.field("_score").order(SortOrder.Desc)))
+            .sort(so -> so.field(f -> f.field("createdAt").order(SortOrder.Desc)))
+            .from(page * size)
+            .size(size),
+            TweetDocument.class
+        );
+        return mapToSearchResult(response);
+    }
+}`
+        },
+        {
+          name: 'Trending Detection',
+          diagram: TrendsDetectionDiagram,
+          explanation: 'Real-time trending topic detection pipeline: 1) Stream processor (Flink) consumes tweet events from Kafka, 2) Extract and normalize hashtags, 3) Count using sliding window (1-4 hours), 4) Apply velocity scoring (rapid increase = trending), 5) Filter spam (min unique users threshold), 6) Store in Redis sorted set per region, 7) Update every 5 minutes. Count-Min Sketch for memory-efficient counting.',
+          codeExample: `// Trending topics detection with Flink
+public class TrendingJob {
+    public static void main(String[] args) {
+        StreamExecutionEnvironment env =
+            StreamExecutionEnvironment.getExecutionEnvironment();
+
+        // Consume from Kafka
+        DataStream<Tweet> tweets = env
+            .addSource(new FlinkKafkaConsumer<>("tweets",
+                new TweetSchema(), kafkaProps));
+
+        // Extract hashtags and count in sliding window
+        DataStream<HashtagCount> trends = tweets
+            .flatMap(new HashtagExtractor())
+            .keyBy(hashtag -> hashtag.getTag())
+            .window(SlidingEventTimeWindows.of(
+                Time.hours(1), Time.minutes(5)))
+            .aggregate(new CountAggregator())
+            .filter(count -> count.getUniqueUsers() > 100); // Spam filter
+
+        // Calculate velocity (rate of change)
+        DataStream<TrendingTopic> trending = trends
+            .keyBy(HashtagCount::getTag)
+            .process(new VelocityCalculator());
+
+        // Write to Redis
+        trending.addSink(new RedisSink<>(redisConfig,
+            new TrendingRedisMapper()));
+
+        env.execute("Trending Topics Detection");
+    }
+}
+
+// Velocity calculation
+public class VelocityCalculator extends KeyedProcessFunction<...> {
+    private ValueState<Long> previousCount;
+
+    public void processElement(HashtagCount current, Context ctx,
+                               Collector<TrendingTopic> out) {
+        Long prev = previousCount.value();
+        if (prev != null) {
+            double velocity = (current.getCount() - prev) / (double) prev;
+            if (velocity > 0.5) { // 50% increase = trending
+                out.collect(new TrendingTopic(
+                    current.getTag(), current.getCount(), velocity));
+            }
+        }
+        previousCount.update(current.getCount());
+    }
+}`
+        },
+        {
+          name: 'Geo-based Trends',
+          explanation: 'Trending topics vary by location: Global trends, Country-level trends, City-level trends. Implementation: Tag tweets with user location (from profile or IP geolocation). Maintain separate Redis sorted sets: trends:global, trends:US, trends:US:NYC. Users see trends for their location with global fallback. Challenges: Privacy (opt-in location), Sparse data for small regions, VPN/proxy detection.',
+          codeExample: `// Geo-based trending service
+@Service
+public class GeoTrendingService {
+    private final RedisTemplate<String, String> redis;
+
+    public List<TrendingTopic> getTrends(String userId) {
+        // Get user's location preference
+        UserLocation location = getUserLocation(userId);
+
+        // Try most specific first, fall back to broader regions
+        List<String> keys = List.of(
+            "trends:" + location.getCountry() + ":" + location.getCity(),
+            "trends:" + location.getCountry(),
+            "trends:global"
+        );
+
+        for (String key : keys) {
+            Set<ZSetOperations.TypedTuple<String>> trends =
+                redis.opsForZSet().reverseRangeWithScores(key, 0, 9);
+            if (trends != null && trends.size() >= 5) {
+                return mapToTrendingTopics(trends);
+            }
+        }
+
+        // Fallback to global
+        return getGlobalTrends();
+    }
+
+    // Update trends for all applicable regions
+    public void updateTrend(String hashtag, String country, String city) {
+        long timestamp = System.currentTimeMillis();
+
+        // Increment in all applicable sorted sets
+        redis.opsForZSet().incrementScore("trends:global", hashtag, 1);
+        redis.opsForZSet().incrementScore("trends:" + country, hashtag, 1);
+        redis.opsForZSet().incrementScore(
+            "trends:" + country + ":" + city, hashtag, 1);
+
+        // Set expiration (trends are ephemeral)
+        redis.expire("trends:" + country + ":" + city, Duration.ofHours(24));
+    }
+}`
+        }
+      ]
+    }
+  ];
+
+  const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null;
+
+  const handlePreviousConcept = () => {
+    if (selectedConceptIndex > 0) {
+      setSelectedConceptIndex(selectedConceptIndex - 1);
+      setSelectedDetailIndex(0);
+    }
+  };
+
+  const handleNextConcept = () => {
+    if (selectedConceptIndex < concepts.length - 1) {
+      setSelectedConceptIndex(selectedConceptIndex + 1);
+      setSelectedDetailIndex(0);
+    }
+  };
+
+  const buildBreadcrumbStack = () => {
+    const stack = [
+      { name: 'System Design', icon: '🏛️', page: 'System Design' },
+      { name: 'Twitter/X', icon: '🐦', page: 'Twitter' }
+    ];
+    if (selectedConcept) {
+      stack.push({ name: selectedConcept.name, icon: selectedConcept.icon });
+    }
+    return stack;
+  };
+
+  const handleBreadcrumbClick = (index) => {
+    if (index === 0) {
+      onBack();
+    } else if (index === 1 && selectedConcept) {
+      setSelectedConceptIndex(null);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        if (selectedConcept) {
+          setSelectedConceptIndex(null);
+        } else {
+          onBack();
+        }
+      } else if (e.key === 'ArrowLeft' && selectedConceptIndex !== null) {
+        e.preventDefault();
+        handlePreviousConcept();
+      } else if (e.key === 'ArrowRight' && selectedConceptIndex !== null) {
+        e.preventDefault();
+        handleNextConcept();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [selectedConceptIndex, onBack]);
+
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%)',
+    padding: '2rem',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
+  };
+
+  const headerStyle = {
+    maxWidth: '1400px',
+    margin: '0 auto 2rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '1rem'
+  };
+
+  const titleStyle = {
+    fontSize: '2.5rem',
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #60a5fa, #3b82f6)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    margin: 0
+  };
+
+  const backButtonStyle = {
+    padding: '0.75rem 1.5rem',
+    background: 'rgba(59, 130, 246, 0.2)',
+    border: '1px solid rgba(59, 130, 246, 0.3)',
+    borderRadius: '0.5rem',
+    color: '#60a5fa',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    transition: 'all 0.2s'
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        {onBack && (
-          <button
-            onClick={onBack}
-            style={{
-              marginBottom: '2rem',
-              padding: '0.75rem 1.5rem',
-              fontSize: '1rem',
-              fontWeight: '600',
-              backgroundColor: '#2563eb',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
-          >
-            ← Back
-          </button>
-        )}
-
-        <div className="mb-10">
-          <div className="flex items-center gap-3 mb-3">
-            <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
-              🐦 Twitter/X System Design
-            </h1>
-            <span className="px-3 py-1 bg-blue-900/30 text-blue-400 rounded-lg text-xs font-bold uppercase tracking-wide">
-              Social Media
-            </span>
-          </div>
-          <p className="text-xl text-gray-300 mb-6 font-light">
-            Scalable social media platform · 350M+ users · 500M+ tweets/day · Real-time timelines · Trending topics
-          </p>
-          <div className="flex gap-2 flex-wrap">
-            <span className="px-4 py-2 bg-blue-900/30 text-blue-400 rounded-lg text-sm font-medium border border-blue-700">Fan-out Strategy</span>
-            <span className="px-4 py-2 bg-green-900/30 text-green-400 rounded-lg text-sm font-medium border border-green-700">Real-time Feeds</span>
-            <span className="px-4 py-2 bg-purple-900/30 text-purple-400 rounded-lg text-sm font-medium border border-purple-700">Graph Database</span>
-            <span className="px-4 py-2 bg-orange-900/30 text-orange-400 rounded-lg text-sm font-medium border border-orange-700">Redis Cache</span>
-            <span className="px-4 py-2 bg-pink-900/30 text-pink-400 rounded-lg text-sm font-medium border border-pink-700">Search & Trends</span>
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div style={{
-          display: 'flex',
-          gap: '0.5rem',
-          marginBottom: '2rem',
-          borderBottom: '1px solid #374151',
-          paddingBottom: '0.5rem',
-          overflowX: 'auto'
-        }}>
-          {[
-            { id: 'overview', label: 'Overview' },
-            { id: 'architecture', label: 'Architecture' },
-            { id: 'timeline', label: 'Timeline Generation' },
-            { id: 'features', label: 'Key Features' },
-            { id: 'scalability', label: 'Scalability' },
-            { id: 'api', label: 'API Endpoints' }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                padding: '0.75rem 1.5rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: activeTab === tab.id ? '#374151' : 'transparent',
-                color: activeTab === tab.id ? '#60a5fa' : '#9ca3af',
-                border: 'none',
-                borderRadius: '8px 8px 0 0',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.2s'
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Tab Content */}
-        {activeTab === 'overview' && (
-          <div className="space-y-8">
-            {/* Requirements */}
-            <div className="bg-gradient-to-br from-blue-900/30 to-cyan-900/30 rounded-2xl p-8 border-2 border-blue-700">
-              <h2 className="text-3xl font-bold text-white mb-6">System Requirements</h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-gray-800 p-6 rounded-xl border border-blue-700 shadow-sm">
-                  <h3 className="text-lg font-bold text-blue-400 mb-4">Functional Requirements</h3>
-                  <ul className="space-y-2.5">
-                    <li className="flex items-start gap-2 text-gray-300">
-                      <span className="text-blue-500 font-bold">•</span>
-                      <span><strong>Post Tweets:</strong> Text, images, videos (280 chars)</span>
-                    </li>
-                    <li className="flex items-start gap-2 text-gray-300">
-                      <span className="text-blue-500 font-bold">•</span>
-                      <span><strong>Follow/Unfollow:</strong> Build social graph</span>
-                    </li>
-                    <li className="flex items-start gap-2 text-gray-300">
-                      <span className="text-blue-500 font-bold">•</span>
-                      <span><strong>Timeline:</strong> View tweets from followed users</span>
-                    </li>
-                    <li className="flex items-start gap-2 text-gray-300">
-                      <span className="text-blue-500 font-bold">•</span>
-                      <span><strong>Engagement:</strong> Like, retweet, reply, quote</span>
-                    </li>
-                    <li className="flex items-start gap-2 text-gray-300">
-                      <span className="text-blue-500 font-bold">•</span>
-                      <span><strong>Search:</strong> Find tweets, users, hashtags</span>
-                    </li>
-                    <li className="flex items-start gap-2 text-gray-300">
-                      <span className="text-blue-500 font-bold">•</span>
-                      <span><strong>Trends:</strong> Show trending topics globally/locally</span>
-                    </li>
-                    <li className="flex items-start gap-2 text-gray-300">
-                      <span className="text-blue-500 font-bold">•</span>
-                      <span><strong>Notifications:</strong> Real-time mentions, likes, follows</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-gray-800 p-6 rounded-xl border border-blue-700 shadow-sm">
-                  <h3 className="text-lg font-bold text-blue-400 mb-4">Non-Functional Requirements</h3>
-                  <ul className="space-y-2.5">
-                    <li className="flex items-start gap-2 text-gray-300">
-                      <span className="text-blue-500 font-bold">•</span>
-                      <span><strong>High Availability:</strong> 99.99% uptime</span>
-                    </li>
-                    <li className="flex items-start gap-2 text-gray-300">
-                      <span className="text-blue-500 font-bold">•</span>
-                      <span><strong>Low Latency:</strong> Timeline load &lt;200ms</span>
-                    </li>
-                    <li className="flex items-start gap-2 text-gray-300">
-                      <span className="text-blue-500 font-bold">•</span>
-                      <span><strong>Eventual Consistency:</strong> Acceptable for timelines</span>
-                    </li>
-                    <li className="flex items-start gap-2 text-gray-300">
-                      <span className="text-blue-500 font-bold">•</span>
-                      <span><strong>Scalability:</strong> Handle 500M tweets/day</span>
-                    </li>
-                    <li className="flex items-start gap-2 text-gray-300">
-                      <span className="text-blue-500 font-bold">•</span>
-                      <span><strong>Real-time:</strong> Tweets appear instantly</span>
-                    </li>
-                    <li className="flex items-start gap-2 text-gray-300">
-                      <span className="text-blue-500 font-bold">•</span>
-                      <span><strong>Fault Tolerance:</strong> Graceful degradation</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Scale Estimates */}
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border-2 border-gray-700">
-              <h2 className="text-3xl font-bold text-white mb-6">📊 Scale Estimates</h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-                  <div className="text-blue-400 text-3xl font-bold">350M+</div>
-                  <div className="text-gray-300 text-sm">Active Users</div>
-                </div>
-                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-                  <div className="text-green-400 text-3xl font-bold">500M+</div>
-                  <div className="text-gray-300 text-sm">Tweets per Day</div>
-                </div>
-                <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-                  <div className="text-purple-400 text-3xl font-bold">200M+</div>
-                  <div className="text-gray-300 text-sm">Daily Active Users</div>
-                </div>
-              </div>
-
-              <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
-                <h3 className="text-xl font-bold text-white mb-4">Traffic & Storage Calculations</h3>
-                <div className="space-y-3 text-gray-300">
-                  <div className="flex justify-between items-center py-2 border-b border-gray-700">
-                    <span className="font-semibold">Tweets per second (average):</span>
-                    <span className="text-blue-400 font-mono">~6,000 tweets/sec</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-gray-700">
-                    <span className="font-semibold">Peak traffic (3x average):</span>
-                    <span className="text-blue-400 font-mono">~18,000 tweets/sec</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-gray-700">
-                    <span className="font-semibold">Timeline reads (100:1 read/write):</span>
-                    <span className="text-blue-400 font-mono">~600,000 req/sec</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-gray-700">
-                    <span className="font-semibold">Avg tweet size (text + metadata):</span>
-                    <span className="text-blue-400 font-mono">~300 bytes</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-gray-700">
-                    <span className="font-semibold">Daily storage (tweets only):</span>
-                    <span className="text-green-400 font-mono font-bold">~150 GB/day</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2">
-                    <span className="font-semibold">5-year storage (with media):</span>
-                    <span className="text-yellow-400 font-mono font-bold">~100 TB</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'architecture' && (
-          <div className="space-y-8">
-            {/* High-Level Architecture */}
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border-2 border-gray-700">
-              <h2 className="text-3xl font-bold text-white mb-6">🏗️ High-Level Architecture</h2>
-
-              {/* Modern Visual Diagram */}
-              <div className="space-y-6">
-                {/* Client Layer */}
-                <div className="flex justify-center">
-                  <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 shadow-xl border-2 border-blue-400 max-w-3xl w-full">
-                    <div className="text-white text-center">
-                      <div className="text-2xl font-bold mb-2">📱 Client Applications</div>
-                      <div className="text-sm text-blue-100">Web • iOS • Android • Mobile Web</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-center">
-                  <div className="text-4xl text-gray-500">↓</div>
-                </div>
-
-                {/* CDN Layer */}
-                <div className="flex justify-center">
-                  <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-6 shadow-xl border-2 border-purple-400 max-w-3xl w-full">
-                    <div className="text-white text-center">
-                      <div className="text-2xl font-bold mb-2">☁️ CDN (CloudFlare)</div>
-                      <div className="text-sm text-purple-100">Static assets • Images • Videos • Global edge locations</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-center">
-                  <div className="text-4xl text-gray-500">↓</div>
-                </div>
-
-                {/* Load Balancer */}
-                <div className="flex justify-center">
-                  <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 shadow-xl border-2 border-green-400 max-w-3xl w-full">
-                    <div className="text-white text-center">
-                      <div className="text-2xl font-bold mb-2">⚖️ Load Balancer</div>
-                      <div className="text-sm text-green-100">Nginx • Round-robin • Health checks • SSL termination</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-center">
-                  <div className="text-4xl text-gray-500">↓</div>
-                </div>
-
-                {/* Application Servers */}
-                <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 shadow-xl border-2 border-orange-400">
-                  <div className="text-white">
-                    <div className="text-2xl font-bold mb-4 text-center">⚙️ Application Servers (Microservices)</div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                      <div className="bg-white/20 rounded-lg p-3 text-center backdrop-blur">Tweet Service</div>
-                      <div className="bg-white/20 rounded-lg p-3 text-center backdrop-blur">User Service</div>
-                      <div className="bg-white/20 rounded-lg p-3 text-center backdrop-blur">Timeline Service</div>
-                      <div className="bg-white/20 rounded-lg p-3 text-center backdrop-blur">Search Service</div>
-                      <div className="bg-white/20 rounded-lg p-3 text-center backdrop-blur">Follow Service</div>
-                      <div className="bg-white/20 rounded-lg p-3 text-center backdrop-blur">Trend Service</div>
-                      <div className="bg-white/20 rounded-lg p-3 text-center backdrop-blur">Notification</div>
-                      <div className="bg-white/20 rounded-lg p-3 text-center backdrop-blur">Media Service</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-center">
-                  <div className="text-4xl text-gray-500">↓</div>
-                </div>
-
-                {/* Data Layer */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-xl p-6 shadow-xl border-2 border-red-400">
-                    <div className="text-white">
-                      <div className="text-xl font-bold mb-3 text-center">🗄️ Primary DB</div>
-                      <div className="space-y-2 text-sm">
-                        <div className="bg-white/20 rounded p-2 backdrop-blur">MySQL Cluster</div>
-                        <div className="text-xs text-red-100 text-center">Users, Tweets, Follows</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl p-6 shadow-xl border-2 border-yellow-400">
-                    <div className="text-white">
-                      <div className="text-xl font-bold mb-3 text-center">⚡ Cache Layer</div>
-                      <div className="space-y-2 text-sm">
-                        <div className="bg-white/20 rounded p-2 backdrop-blur">Redis Cluster</div>
-                        <div className="text-xs text-yellow-100 text-center">Timelines, User data</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl p-6 shadow-xl border-2 border-cyan-400">
-                    <div className="text-white">
-                      <div className="text-xl font-bold mb-3 text-center">🔍 Search</div>
-                      <div className="space-y-2 text-sm">
-                        <div className="bg-white/20 rounded p-2 backdrop-blur">Elasticsearch</div>
-                        <div className="text-xs text-cyan-100 text-center">Tweets, Users, Hashtags</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Message Queue */}
-                <div className="bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl p-6 shadow-xl border-2 border-pink-400 mt-4">
-                  <div className="text-white">
-                    <div className="text-2xl font-bold mb-3 text-center">📬 Message Queue (Kafka)</div>
-                    <div className="text-sm text-center text-pink-100">
-                      Async processing • Fan-out writes • Analytics • Notifications
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Key Components */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-gray-800 rounded-xl p-6 border-2 border-blue-700 shadow-lg">
-                <h3 className="text-xl font-bold text-blue-400 mb-4">🎯 Core Services</h3>
-                <ul className="space-y-3 text-gray-300">
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-500 font-bold mt-1">▸</span>
-                    <div>
-                      <strong>Tweet Service:</strong> Create, delete, get tweets
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-500 font-bold mt-1">▸</span>
-                    <div>
-                      <strong>Timeline Service:</strong> Generate home and user timelines
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-500 font-bold mt-1">▸</span>
-                    <div>
-                      <strong>Follow Service:</strong> Follow graph management
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-500 font-bold mt-1">▸</span>
-                    <div>
-                      <strong>Search Service:</strong> Full-text search for tweets/users
-                    </div>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="bg-gray-800 rounded-xl p-6 border-2 border-green-700 shadow-lg">
-                <h3 className="text-xl font-bold text-green-400 mb-4">💾 Data Storage</h3>
-                <ul className="space-y-3 text-gray-300">
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-500 font-bold mt-1">▸</span>
-                    <div>
-                      <strong>MySQL:</strong> User profiles, tweets, relationships (sharded)
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-500 font-bold mt-1">▸</span>
-                    <div>
-                      <strong>Redis:</strong> Timeline cache, user sessions, trending topics
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-500 font-bold mt-1">▸</span>
-                    <div>
-                      <strong>Elasticsearch:</strong> Full-text search indexing
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-500 font-bold mt-1">▸</span>
-                    <div>
-                      <strong>S3:</strong> Media files (images, videos)
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'timeline' && (
-          <div className="space-y-8">
-            {/* Timeline Generation Strategies */}
-            <div className="bg-gradient-to-br from-purple-900 to-indigo-900 rounded-2xl p-8 border-2 border-purple-500">
-              <h2 className="text-3xl font-bold text-white mb-6">📰 Timeline Generation Strategies</h2>
-
-              <p className="text-gray-300 text-lg mb-6">
-                Twitter uses a <strong className="text-purple-400">hybrid approach</strong> combining fan-out-on-write
-                and fan-out-on-read based on user characteristics.
-              </p>
-
-              {/* Fan-out on Write */}
-              <div className="mb-8">
-                <h3 className="text-2xl font-bold text-purple-300 mb-4">Strategy 1: Fan-out on Write (Push)</h3>
-
-                <div className="space-y-6">
-                  <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 shadow-xl border-2 border-blue-400">
-                    <div className="text-white text-center">
-                      <div className="text-xl font-bold mb-2">👤 User posts a tweet</div>
-                      <div className="text-sm text-blue-100">User has 1,000 followers</div>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-center">
-                    <div className="text-4xl text-purple-400">↓</div>
-                  </div>
-
-                  <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 shadow-xl border-2 border-orange-400">
-                    <div className="text-white">
-                      <div className="text-xl font-bold mb-3 text-center">📬 Fan-out Worker (Kafka Consumer)</div>
-                      <ul className="space-y-2 text-sm text-orange-50">
-                        <li>• Fetch all follower IDs from Follow Service</li>
-                        <li>• For each follower, push tweet ID to their timeline cache (Redis)</li>
-                        <li>• 1,000 Redis writes executed asynchronously</li>
-                      </ul>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-center">
-                    <div className="text-4xl text-purple-400">↓</div>
-                  </div>
-
-                  <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 shadow-xl border-2 border-green-400">
-                    <div className="text-white">
-                      <div className="text-xl font-bold mb-3 text-center">⚡ Result: Fast Reads</div>
-                      <ul className="space-y-2 text-sm text-green-50">
-                        <li>✓ Timeline read = single Redis GET operation</li>
-                        <li>✓ &lt;10ms response time</li>
-                        <li>✓ Great for users with &lt;10K followers</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-green-900/50 rounded-lg p-4 mt-4">
-                  <div className="text-green-300 font-semibold mb-2">Pros:</div>
-                  <ul className="text-green-100 text-sm space-y-1">
-                    <li>• Fast timeline reads (pre-computed)</li>
-                    <li>• Low latency for users</li>
-                  </ul>
-                  <div className="text-red-300 font-semibold mt-3 mb-2">Cons:</div>
-                  <ul className="text-red-100 text-sm space-y-1">
-                    <li>• Expensive for celebrities (millions of writes)</li>
-                    <li>• Slow tweet posting for high-follower users</li>
-                  </ul>
-                </div>
-              </div>
-
-              {/* Fan-out on Read */}
-              <div className="mb-8">
-                <h3 className="text-2xl font-bold text-cyan-300 mb-4">Strategy 2: Fan-out on Read (Pull)</h3>
-
-                <div className="space-y-6">
-                  <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 shadow-xl border-2 border-blue-400">
-                    <div className="text-white text-center">
-                      <div className="text-xl font-bold mb-2">👤 User requests timeline</div>
-                      <div className="text-sm text-blue-100">User follows 300 people</div>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-center">
-                    <div className="text-4xl text-purple-400">↓</div>
-                  </div>
-
-                  <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 shadow-xl border-2 border-orange-400">
-                    <div className="text-white">
-                      <div className="text-xl font-bold mb-3 text-center">🔍 Timeline Service</div>
-                      <ul className="space-y-2 text-sm text-orange-50">
-                        <li>• Fetch all following IDs from Follow Service</li>
-                        <li>• Query recent tweets from all 300 users</li>
-                        <li>• Merge and sort by timestamp</li>
-                        <li>• Return top 50 tweets</li>
-                      </ul>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-center">
-                    <div className="text-4xl text-purple-400">↓</div>
-                  </div>
-
-                  <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl p-6 shadow-xl border-2 border-yellow-400">
-                    <div className="text-white">
-                      <div className="text-xl font-bold mb-3 text-center">📊 Result: Heavy Reads</div>
-                      <ul className="space-y-2 text-sm text-yellow-50">
-                        <li>• 300 DB queries + merge sort</li>
-                        <li>• ~200-500ms response time</li>
-                        <li>• Used for celebrity tweets</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-green-900/50 rounded-lg p-4 mt-4">
-                  <div className="text-green-300 font-semibold mb-2">Pros:</div>
-                  <ul className="text-green-100 text-sm space-y-1">
-                    <li>• Fast tweet posting (no fan-out)</li>
-                    <li>• Works well for celebrities</li>
-                  </ul>
-                  <div className="text-red-300 font-semibold mt-3 mb-2">Cons:</div>
-                  <ul className="text-red-100 text-sm space-y-1">
-                    <li>• Slow timeline reads (heavy computation)</li>
-                    <li>• High database load</li>
-                  </ul>
-                </div>
-              </div>
-
-              {/* Hybrid Approach */}
-              <div className="bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl p-6 shadow-xl border-2 border-pink-400">
-                <div className="text-white">
-                  <div className="text-2xl font-bold mb-4 text-center">🎯 Twitter's Hybrid Approach</div>
-                  <ul className="space-y-3">
-                    <li className="flex items-start gap-2">
-                      <span className="text-2xl">✓</span>
-                      <div>
-                        <strong>Regular users (&lt;10K followers):</strong> Fan-out on write to Redis cache
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-2xl">✓</span>
-                      <div>
-                        <strong>Celebrities (&gt;1M followers):</strong> Fan-out on read (pull dynamically)
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-2xl">✓</span>
-                      <div>
-                        <strong>Timeline generation:</strong> Merge pre-computed + celebrity tweets
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-2xl">✓</span>
-                      <div>
-                        <strong>Cache TTL:</strong> Keep last 800 tweets in Redis (7 days)
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'features' && (
-          <div className="space-y-8">
-            {/* Features Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Trending Topics */}
-              <div className="bg-gradient-to-br from-orange-900/30 to-red-900/30 rounded-xl p-6 border-2 border-orange-700">
-                <h3 className="text-xl font-bold text-orange-400 mb-4">🔥 Trending Topics</h3>
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-3">
-                    <span className="text-2xl">📊</span>
-                    <div>
-                      <div className="font-semibold text-white">Real-time Analytics</div>
-                      <div className="text-sm text-gray-400">Count hashtag mentions in sliding window (1 hour)</div>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-2xl">⚡</span>
-                    <div>
-                      <div className="font-semibold text-white">Redis Sorted Sets</div>
-                      <div className="text-sm text-gray-400">Store trending scores, auto-expire after 24h</div>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-2xl">🌍</span>
-                    <div>
-                      <div className="font-semibold text-white">Geo-based Trends</div>
-                      <div className="text-sm text-gray-400">Different trends per country/city</div>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Search */}
-              <div className="bg-gradient-to-br from-blue-900/30 to-cyan-900/30 rounded-xl p-6 border-2 border-blue-700">
-                <h3 className="text-xl font-bold text-blue-400 mb-4">🔍 Search</h3>
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-3">
-                    <span className="text-2xl">📝</span>
-                    <div>
-                      <div className="font-semibold text-white">Elasticsearch Indexing</div>
-                      <div className="text-sm text-gray-400">Full-text search on tweets, users, hashtags</div>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-2xl">⚡</span>
-                    <div>
-                      <div className="font-semibold text-white">Real-time Indexing</div>
-                      <div className="text-sm text-gray-400">Tweets indexed within seconds via Kafka</div>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-2xl">🎯</span>
-                    <div>
-                      <div className="font-semibold text-white">Ranking Algorithm</div>
-                      <div className="text-sm text-gray-400">Sort by relevance, recency, engagement</div>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Notifications */}
-              <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 rounded-xl p-6 border-2 border-green-700">
-                <h3 className="text-xl font-bold text-green-400 mb-4">🔔 Notifications</h3>
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-3">
-                    <span className="text-2xl">📱</span>
-                    <div>
-                      <div className="font-semibold text-white">Push Notifications</div>
-                      <div className="text-sm text-gray-400">APNs (iOS) and FCM (Android)</div>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-2xl">⚡</span>
-                    <div>
-                      <div className="font-semibold text-white">WebSockets</div>
-                      <div className="text-sm text-gray-400">Real-time updates for web clients</div>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-2xl">🎯</span>
-                    <div>
-                      <div className="font-semibold text-white">Smart Batching</div>
-                      <div className="text-sm text-gray-400">Aggregate notifications to reduce noise</div>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Media Upload */}
-              <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-xl p-6 border-2 border-purple-700">
-                <h3 className="text-xl font-bold text-purple-400 mb-4">📸 Media Upload</h3>
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-3">
-                    <span className="text-2xl">☁️</span>
-                    <div>
-                      <div className="font-semibold text-white">S3 Storage</div>
-                      <div className="text-sm text-gray-400">Scalable object storage for images/videos</div>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-2xl">🎬</span>
-                    <div>
-                      <div className="font-semibold text-white">Video Processing</div>
-                      <div className="text-sm text-gray-400">Transcode to multiple formats and resolutions</div>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-2xl">🌐</span>
-                    <div>
-                      <div className="font-semibold text-white">CDN Delivery</div>
-                      <div className="text-sm text-gray-400">CloudFlare for fast global distribution</div>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'scalability' && (
-          <div className="space-y-8">
-            {/* Scaling Strategies */}
-            <div className="bg-gradient-to-br from-blue-900 to-indigo-900 rounded-2xl p-8 border-2 border-blue-500">
-              <h2 className="text-3xl font-bold text-white mb-6">📈 Scalability Strategies</h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-gray-800/50 rounded-xl p-6 border border-blue-500/30">
-                  <h3 className="text-xl font-bold text-blue-300 mb-4">🗄️ Database Sharding</h3>
-                  <ul className="space-y-3 text-gray-300">
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-400 font-bold mt-1">✓</span>
-                      <div>
-                        <strong>User Sharding:</strong> Shard by userId using consistent hashing
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-400 font-bold mt-1">✓</span>
-                      <div>
-                        <strong>Tweet Sharding:</strong> Shard by tweetId for even distribution
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-400 font-bold mt-1">✓</span>
-                      <div>
-                        <strong>Follow Graph:</strong> Store in graph database (Neo4j) or Redis
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-gray-800/50 rounded-xl p-6 border border-green-500/30">
-                  <h3 className="text-xl font-bold text-green-300 mb-4">⚡ Caching Strategy</h3>
-                  <ul className="space-y-3 text-gray-300">
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-400 font-bold mt-1">✓</span>
-                      <div>
-                        <strong>Timeline Cache:</strong> Redis sorted sets (800 tweets per user)
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-400 font-bold mt-1">✓</span>
-                      <div>
-                        <strong>User Cache:</strong> Profile data, follower counts (1 hour TTL)
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-400 font-bold mt-1">✓</span>
-                      <div>
-                        <strong>CDN Cache:</strong> Static assets, profile images
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Performance Metrics */}
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border-2 border-gray-700">
-              <h2 className="text-2xl font-bold text-white mb-6">📊 Performance Targets</h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-                  <div className="text-blue-400 text-3xl font-bold">&lt;200ms</div>
-                  <div className="text-gray-300 text-sm">Timeline Load Time</div>
-                </div>
-                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-                  <div className="text-green-400 text-3xl font-bold">&lt;100ms</div>
-                  <div className="text-gray-300 text-sm">Tweet Post Time</div>
-                </div>
-                <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-                  <div className="text-purple-400 text-3xl font-bold">99.99%</div>
-                  <div className="text-gray-300 text-sm">Availability SLA</div>
-                </div>
-                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-                  <div className="text-yellow-400 text-3xl font-bold">18K/sec</div>
-                  <div className="text-gray-300 text-sm">Peak Tweet Rate</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* API Endpoints Tab */}
-        {activeTab === 'api' && (
-          <div className="space-y-8">
-            {/* API Overview */}
-            <div className="bg-gradient-to-br from-blue-900/30 to-cyan-900/30 rounded-2xl p-8 border-2 border-blue-700">
-              <h2 className="text-3xl font-bold text-white mb-4">API Overview</h2>
-              <p className="text-gray-300 mb-4">
-                RESTful API with OAuth 2.0 authentication. All endpoints return JSON responses and support pagination.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-gray-800 p-4 rounded-xl border border-blue-700">
-                  <div className="font-bold text-blue-400 mb-2">Base URL</div>
-                  <code className="text-sm text-gray-300">https://api.twitter.com/v2</code>
-                </div>
-                <div className="bg-gray-800 p-4 rounded-xl border border-blue-700">
-                  <div className="font-bold text-blue-400 mb-2">Authentication</div>
-                  <code className="text-sm text-gray-300">Bearer Token / OAuth 2.0</code>
-                </div>
-                <div className="bg-gray-800 p-4 rounded-xl border border-blue-700">
-                  <div className="font-bold text-blue-400 mb-2">Rate Limit</div>
-                  <code className="text-sm text-gray-300">300 requests / 15 min</code>
-                </div>
-              </div>
-            </div>
-
-            {/* Tweet Endpoints */}
-            <div className="bg-white rounded-2xl p-8 border-2 border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">📝 Tweet Endpoints</h2>
-
-              <div className="space-y-6">
-                {/* Post Tweet */}
-                <div className="border-l-4 border-green-500 pl-6 py-2">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-lg font-bold text-sm">POST</span>
-                    <code className="text-gray-700 font-mono text-sm">/tweets</code>
-                  </div>
-                  <p className="text-gray-600 mb-3">Create a new tweet</p>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="text-sm font-semibold text-gray-700 mb-2">Request Body:</div>
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
-{`{
-  "text": "Hello World!",
-  "media_ids": ["123456789"],
-  "reply_settings": "everyone"
-}`}
-                    </pre>
-                  </div>
-                </div>
-
-                {/* Get Tweet */}
-                <div className="border-l-4 border-blue-500 pl-6 py-2">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg font-bold text-sm">GET</span>
-                    <code className="text-gray-700 font-mono text-sm">/tweets/:id</code>
-                  </div>
-                  <p className="text-gray-600 mb-3">Retrieve a specific tweet by ID</p>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="text-sm font-semibold text-gray-700 mb-2">Response:</div>
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
-{`{
-  "id": "1234567890",
-  "text": "Hello World!",
-  "author_id": "987654321",
-  "created_at": "2024-01-15T10:30:00Z",
-  "metrics": {
-    "retweet_count": 42,
-    "like_count": 128,
-    "reply_count": 15
-  }
-}`}
-                    </pre>
-                  </div>
-                </div>
-
-                {/* Delete Tweet */}
-                <div className="border-l-4 border-red-500 pl-6 py-2">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="px-3 py-1 bg-red-100 text-red-700 rounded-lg font-bold text-sm">DELETE</span>
-                    <code className="text-gray-700 font-mono text-sm">/tweets/:id</code>
-                  </div>
-                  <p className="text-gray-600">Delete a tweet</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Timeline Endpoints */}
-            <div className="bg-white rounded-2xl p-8 border-2 border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">📰 Timeline Endpoints</h2>
-
-              <div className="space-y-6">
-                {/* Home Timeline */}
-                <div className="border-l-4 border-blue-500 pl-6 py-2">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg font-bold text-sm">GET</span>
-                    <code className="text-gray-700 font-mono text-sm">/users/:id/timeline</code>
-                  </div>
-                  <p className="text-gray-600 mb-3">Get user's home timeline (tweets from followed users)</p>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="text-sm font-semibold text-gray-700 mb-2">Query Parameters:</div>
-                    <pre className="text-xs text-gray-700">
-{`max_results=20
-pagination_token=abc123
-since_id=1234567890`}
-                    </pre>
-                  </div>
-                </div>
-
-                {/* User Tweets */}
-                <div className="border-l-4 border-blue-500 pl-6 py-2">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg font-bold text-sm">GET</span>
-                    <code className="text-gray-700 font-mono text-sm">/users/:id/tweets</code>
-                  </div>
-                  <p className="text-gray-600">Get tweets posted by a specific user</p>
-                </div>
-              </div>
-            </div>
-
-            {/* User Endpoints */}
-            <div className="bg-white rounded-2xl p-8 border-2 border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">👤 User Endpoints</h2>
-
-              <div className="space-y-6">
-                {/* Get User */}
-                <div className="border-l-4 border-blue-500 pl-6 py-2">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg font-bold text-sm">GET</span>
-                    <code className="text-gray-700 font-mono text-sm">/users/:id</code>
-                  </div>
-                  <p className="text-gray-600 mb-3">Get user profile information</p>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="text-sm font-semibold text-gray-700 mb-2">Response:</div>
-                    <pre className="text-xs text-gray-700 overflow-x-auto">
-{`{
-  "id": "987654321",
-  "username": "johndoe",
-  "name": "John Doe",
-  "bio": "Software Engineer",
-  "followers_count": 1500,
-  "following_count": 300,
-  "verified": true
-}`}
-                    </pre>
-                  </div>
-                </div>
-
-                {/* Follow User */}
-                <div className="border-l-4 border-green-500 pl-6 py-2">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-lg font-bold text-sm">POST</span>
-                    <code className="text-gray-700 font-mono text-sm">/users/:id/following</code>
-                  </div>
-                  <p className="text-gray-600">Follow a user</p>
-                </div>
-
-                {/* Unfollow User */}
-                <div className="border-l-4 border-red-500 pl-6 py-2">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="px-3 py-1 bg-red-100 text-red-700 rounded-lg font-bold text-sm">DELETE</span>
-                    <code className="text-gray-700 font-mono text-sm">/users/:id/following/:target_user_id</code>
-                  </div>
-                  <p className="text-gray-600">Unfollow a user</p>
-                </div>
-
-                {/* Get Followers */}
-                <div className="border-l-4 border-blue-500 pl-6 py-2">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg font-bold text-sm">GET</span>
-                    <code className="text-gray-700 font-mono text-sm">/users/:id/followers</code>
-                  </div>
-                  <p className="text-gray-600">Get list of user's followers</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Engagement Endpoints */}
-            <div className="bg-white rounded-2xl p-8 border-2 border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">❤️ Engagement Endpoints</h2>
-
-              <div className="space-y-6">
-                {/* Like Tweet */}
-                <div className="border-l-4 border-green-500 pl-6 py-2">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-lg font-bold text-sm">POST</span>
-                    <code className="text-gray-700 font-mono text-sm">/users/:id/likes</code>
-                  </div>
-                  <p className="text-gray-600">Like a tweet</p>
-                </div>
-
-                {/* Retweet */}
-                <div className="border-l-4 border-green-500 pl-6 py-2">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-lg font-bold text-sm">POST</span>
-                    <code className="text-gray-700 font-mono text-sm">/users/:id/retweets</code>
-                  </div>
-                  <p className="text-gray-600">Retweet a tweet</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Search Endpoints */}
-            <div className="bg-white rounded-2xl p-8 border-2 border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">🔍 Search Endpoints</h2>
-
-              <div className="space-y-6">
-                {/* Search Tweets */}
-                <div className="border-l-4 border-blue-500 pl-6 py-2">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg font-bold text-sm">GET</span>
-                    <code className="text-gray-700 font-mono text-sm">/tweets/search/recent</code>
-                  </div>
-                  <p className="text-gray-600 mb-3">Search recent tweets</p>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="text-sm font-semibold text-gray-700 mb-2">Query Parameters:</div>
-                    <pre className="text-xs text-gray-700">
-{`query=machine learning
-max_results=100
-sort_order=relevancy`}
-                    </pre>
-                  </div>
-                </div>
-
-                {/* Trending Topics */}
-                <div className="border-l-4 border-blue-500 pl-6 py-2">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg font-bold text-sm">GET</span>
-                    <code className="text-gray-700 font-mono text-sm">/trends</code>
-                  </div>
-                  <p className="text-gray-600">Get trending topics</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Response Codes */}
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border-2 border-gray-700">
-              <h2 className="text-2xl font-bold text-white mb-6">📊 HTTP Status Codes</h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-                  <div className="text-green-400 font-bold mb-1">200 OK</div>
-                  <div className="text-gray-300 text-sm">Request successful</div>
-                </div>
-                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-                  <div className="text-green-400 font-bold mb-1">201 Created</div>
-                  <div className="text-gray-300 text-sm">Resource created successfully</div>
-                </div>
-                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-                  <div className="text-yellow-400 font-bold mb-1">400 Bad Request</div>
-                  <div className="text-gray-300 text-sm">Invalid request parameters</div>
-                </div>
-                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-                  <div className="text-yellow-400 font-bold mb-1">401 Unauthorized</div>
-                  <div className="text-gray-300 text-sm">Authentication required</div>
-                </div>
-                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-                  <div className="text-red-400 font-bold mb-1">404 Not Found</div>
-                  <div className="text-gray-300 text-sm">Resource doesn't exist</div>
-                </div>
-                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-                  <div className="text-red-400 font-bold mb-1">429 Too Many Requests</div>
-                  <div className="text-gray-300 text-sm">Rate limit exceeded</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+    <div style={containerStyle}>
+      <div style={headerStyle}>
+        <h1 style={titleStyle}>Twitter/X System Design</h1>
+        <button
+          style={backButtonStyle}
+          onClick={onBack}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.3)';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}
+        >
+          Back to System Design
+        </button>
       </div>
+
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          colors={TOPIC_COLORS}
+        />
+      </div>
+
+      <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gap: '1.5rem'
+      }}>
+        {concepts.map((concept, index) => (
+          <div
+            key={concept.id}
+            onClick={() => setSelectedConceptIndex(index)}
+            style={{
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              border: `1px solid ${concept.color}40`,
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.boxShadow = `0 20px 40px ${concept.color}20`;
+              e.currentTarget.style.borderColor = concept.color;
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'none';
+              e.currentTarget.style.borderColor = `${concept.color}40`;
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
+              <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
+            </div>
+            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
+            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+              {concept.details.length} topics - Click to explore
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {selectedConcept && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '2rem'
+          }}
+          onClick={() => setSelectedConceptIndex(null)}
+        >
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              maxWidth: '1200px',
+              width: '100%',
+              maxHeight: '92vh',
+              overflow: 'auto',
+              border: `1px solid ${selectedConcept.color}40`
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Breadcrumb
+              breadcrumbStack={buildBreadcrumbStack()}
+              onBreadcrumbClick={handleBreadcrumbClick}
+              colors={TOPIC_COLORS}
+            />
+
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1.5rem',
+              paddingBottom: '1rem',
+              borderBottom: '1px solid #334155'
+            }}>
+              <h2 style={{
+                color: selectedConcept.color,
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '1.25rem'
+              }}>
+                <span>{selectedConcept.icon}</span>
+                {selectedConcept.name}
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button
+                  onClick={handlePreviousConcept}
+                  disabled={selectedConceptIndex === 0}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >&larr;</button>
+                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>
+                  {selectedConceptIndex + 1}/{concepts.length}
+                </span>
+                <button
+                  onClick={handleNextConcept}
+                  disabled={selectedConceptIndex === concepts.length - 1}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >&rarr;</button>
+                <button
+                  onClick={() => setSelectedConceptIndex(null)}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: '#f87171',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    marginLeft: '0.5rem'
+                  }}
+                >X</button>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {selectedConcept.details.map((detail, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedDetailIndex(i)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)',
+                    border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`,
+                    borderRadius: '0.5rem',
+                    color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: selectedDetailIndex === i ? '600' : '400',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {detail.name}
+                </button>
+              ))}
+            </div>
+
+            {(() => {
+              const detail = selectedConcept.details[selectedDetailIndex];
+              const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length];
+              const DiagramComponent = detail.diagram || selectedConcept.diagram;
+              return (
+                <div>
+                  {DiagramComponent && (
+                    <div style={{
+                      background: 'rgba(15, 23, 42, 0.6)',
+                      borderRadius: '0.75rem',
+                      padding: '1rem',
+                      marginBottom: '1.5rem',
+                      border: '1px solid #334155'
+                    }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
+
+                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>
+                    {detail.name}
+                  </h3>
+
+                  <p style={{
+                    color: '#e2e8f0',
+                    lineHeight: '1.8',
+                    marginBottom: '1rem',
+                    background: colorScheme.bg,
+                    border: `1px solid ${colorScheme.border}`,
+                    borderRadius: '0.5rem',
+                    padding: '1rem',
+                    textAlign: 'left'
+                  }}>
+                    {detail.explanation}
+                  </p>
+
+                  {detail.codeExample && (
+                    <SyntaxHighlighter
+                      language="java"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        padding: '1rem',
+                        margin: 0,
+                        borderRadius: '0.5rem',
+                        fontSize: '0.8rem',
+                        border: '1px solid #334155',
+                        background: '#0f172a'
+                      }}
+                      codeTagProps={{ style: { background: 'transparent' } }}
+                    >
+                      {detail.codeExample}
+                    </SyntaxHighlighter>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,117 +1,431 @@
+/**
+ * Exception Handling - Java Exception Handling Concepts
+ *
+ * Covers custom exceptions, try-with-resources, multi-catch,
+ * exception chaining, and retry patterns.
+ */
+
 import { useState, useEffect } from 'react'
-import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
-import LanguageToggle from '../../components/LanguageToggle.jsx'
-import DrawingCanvas from '../../components/DrawingCanvas.jsx'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
-import { isProblemCompleted } from '../../services/progressService'
-import { getPreferredLanguage } from '../../services/languageService'
-import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 
-function ExceptionHandling({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb }) {
-  const [selectedQuestion, setSelectedQuestion] = useState(null)
-  const [showSolution, setShowSolution] = useState(false)
-  const [showExplanation, setShowExplanation] = useState(false)
-  const [userCode, setUserCode] = useState('')
-  const [output, setOutput] = useState('')
-  const [isRunning, setIsRunning] = useState(false)
-  const [refreshKey, setRefreshKey] = useState(0)
-  const [language, setLanguage] = useState(getPreferredLanguage())
-  const [showDrawing, setShowDrawing] = useState(false)
-  const [currentDrawing, setCurrentDrawing] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({
-    Easy: true,
-    Medium: true,
-    Hard: true
-  })
+// =============================================================================
+// COLORS CONFIGURATION
+// =============================================================================
 
-  useEffect(() => {
-    const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
-    window.addEventListener('progressUpdate', handleProgressUpdate)
-    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
-  }, [])
+const EXCEPTION_COLORS = {
+  primary: '#ef4444',
+  primaryHover: '#f87171',
+  bg: 'rgba(239, 68, 68, 0.1)',
+  border: 'rgba(239, 68, 68, 0.3)',
+  arrow: '#dc2626',
+  hoverBg: 'rgba(239, 68, 68, 0.2)',
+  topicBg: 'rgba(239, 68, 68, 0.2)'
+}
 
-  useEffect(() => {
-    const handleLanguageChange = (e) => {
-      setLanguage(e.detail)
-      if (selectedQuestion) {
-        setUserCode(selectedQuestion.code[e.detail].starterCode)
-      }
-    }
-    window.addEventListener('languageChange', handleLanguageChange)
-    return () => window.removeEventListener('languageChange', handleLanguageChange)
-  }, [selectedQuestion])
+const SUBTOPIC_COLORS = [
+  { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },
+  { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' },
+  { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' },
+  { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)' },
+  { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)' },
+  { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
+]
 
-  const questions = [
+// =============================================================================
+// DIAGRAM COMPONENTS
+// =============================================================================
+
+const ExceptionHierarchyDiagram = () => (
+  <svg viewBox="0 0 800 320" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Java Exception Hierarchy
+    </text>
+
+    {/* Throwable at top */}
+    <rect x="325" y="45" width="150" height="40" rx="8" fill="#7c3aed" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="400" y="70" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Throwable</text>
+
+    {/* Error and Exception branches */}
+    <line x1="370" y1="85" x2="200" y2="125" stroke="#ef4444" strokeWidth="2"/>
+    <line x1="430" y1="85" x2="600" y2="125" stroke="#ef4444" strokeWidth="2"/>
+
+    <rect x="125" y="125" width="150" height="40" rx="8" fill="#dc2626" stroke="#ef4444" strokeWidth="2"/>
+    <text x="200" y="150" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Error</text>
+
+    <rect x="525" y="125" width="150" height="40" rx="8" fill="#ea580c" stroke="#f97316" strokeWidth="2"/>
+    <text x="600" y="150" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Exception</text>
+
+    {/* Error subtypes */}
+    <line x1="200" y1="165" x2="120" y2="205" stroke="#ef4444" strokeWidth="1.5"/>
+    <line x1="200" y1="165" x2="280" y2="205" stroke="#ef4444" strokeWidth="1.5"/>
+
+    <rect x="45" y="205" width="150" height="35" rx="6" fill="rgba(220, 38, 38, 0.3)" stroke="#dc2626" strokeWidth="1"/>
+    <text x="120" y="227" textAnchor="middle" fill="#fca5a5" fontSize="10">OutOfMemoryError</text>
+
+    <rect x="205" y="205" width="150" height="35" rx="6" fill="rgba(220, 38, 38, 0.3)" stroke="#dc2626" strokeWidth="1"/>
+    <text x="280" y="227" textAnchor="middle" fill="#fca5a5" fontSize="10">StackOverflowError</text>
+
+    {/* Exception subtypes */}
+    <line x1="600" y1="165" x2="480" y2="205" stroke="#ef4444" strokeWidth="1.5"/>
+    <line x1="600" y1="165" x2="720" y2="205" stroke="#ef4444" strokeWidth="1.5"/>
+
+    <rect x="395" y="205" width="170" height="35" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="480" y="227" textAnchor="middle" fill="#86efac" fontSize="10">RuntimeException</text>
+    <text x="480" y="238" textAnchor="middle" fill="#64748b" fontSize="8">(unchecked)</text>
+
+    <rect x="635" y="205" width="170" height="35" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="1"/>
+    <text x="720" y="227" textAnchor="middle" fill="#93c5fd" fontSize="10">IOException, SQLException</text>
+    <text x="720" y="238" textAnchor="middle" fill="#64748b" fontSize="8">(checked)</text>
+
+    {/* RuntimeException subtypes */}
+    <line x1="480" y1="240" x2="430" y2="270" stroke="#22c55e" strokeWidth="1"/>
+    <line x1="480" y1="240" x2="530" y2="270" stroke="#22c55e" strokeWidth="1"/>
+
+    <rect x="360" y="270" width="140" height="30" rx="4" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="430" y="290" textAnchor="middle" fill="#86efac" fontSize="9">NullPointerException</text>
+
+    <rect x="510" y="270" width="140" height="30" rx="4" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="580" y="290" textAnchor="middle" fill="#86efac" fontSize="9">IllegalArgumentException</text>
+  </svg>
+)
+
+const TryCatchFlowDiagram = () => (
+  <svg viewBox="0 0 800 220" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="flowArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#4ade80" />
+      </marker>
+      <marker id="errorArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Try-Catch-Finally Flow
+    </text>
+
+    {/* Try block */}
+    <rect x="50" y="50" width="150" height="60" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="125" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">try { }</text>
+    <text x="125" y="95" textAnchor="middle" fill="#bfdbfe" fontSize="10">Execute code</text>
+
+    {/* Normal flow arrow */}
+    <line x1="200" y1="80" x2="295" y2="80" stroke="#4ade80" strokeWidth="2" markerEnd="url(#flowArrow)"/>
+    <text x="247" y="70" textAnchor="middle" fill="#4ade80" fontSize="9">success</text>
+
+    {/* Exception arrow down */}
+    <line x1="125" y1="110" x2="125" y2="145" stroke="#ef4444" strokeWidth="2" markerEnd="url(#errorArrow)"/>
+    <text x="145" y="135" fill="#ef4444" fontSize="9">exception</text>
+
+    {/* Catch block */}
+    <rect x="50" y="150" width="150" height="60" rx="8" fill="#dc2626" stroke="#ef4444" strokeWidth="2"/>
+    <text x="125" y="175" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">catch { }</text>
+    <text x="125" y="195" textAnchor="middle" fill="#fca5a5" fontSize="10">Handle exception</text>
+
+    {/* Arrow from catch to finally */}
+    <line x1="200" y1="180" x2="295" y2="130" stroke="#4ade80" strokeWidth="2" markerEnd="url(#flowArrow)"/>
+
+    {/* Finally block */}
+    <rect x="300" y="70" width="150" height="70" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="375" y="95" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">finally { }</text>
+    <text x="375" y="115" textAnchor="middle" fill="#c4b5fd" fontSize="10">Always executes</text>
+    <text x="375" y="130" textAnchor="middle" fill="#94a3b8" fontSize="9">cleanup resources</text>
+
+    {/* Continue execution */}
+    <line x1="450" y1="105" x2="545" y2="105" stroke="#4ade80" strokeWidth="2" markerEnd="url(#flowArrow)"/>
+
+    <rect x="550" y="75" width="150" height="60" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="625" y="100" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Continue</text>
+    <text x="625" y="120" textAnchor="middle" fill="#bbf7d0" fontSize="10">Normal execution</text>
+  </svg>
+)
+
+const TryWithResourcesDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="resArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#4ade80" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Try-With-Resources Automatic Cleanup
+    </text>
+
+    {/* Resource creation */}
+    <rect x="50" y="50" width="160" height="50" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="130" y="70" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">try (Resource r = ...)</text>
+    <text x="130" y="88" textAnchor="middle" fill="#bfdbfe" fontSize="9">AutoCloseable</text>
+
+    <line x1="210" y1="75" x2="275" y2="75" stroke="#4ade80" strokeWidth="2" markerEnd="url(#resArrow)"/>
+
+    {/* Use resource */}
+    <rect x="280" y="50" width="140" height="50" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="350" y="70" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Use Resource</text>
+    <text x="350" y="88" textAnchor="middle" fill="#c4b5fd" fontSize="9">work with r</text>
+
+    <line x1="420" y1="75" x2="485" y2="75" stroke="#4ade80" strokeWidth="2" markerEnd="url(#resArrow)"/>
+
+    {/* Auto close */}
+    <rect x="490" y="50" width="140" height="50" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="560" y="70" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Auto close()</text>
+    <text x="560" y="88" textAnchor="middle" fill="#bbf7d0" fontSize="9">guaranteed</text>
+
+    <line x1="630" y1="75" x2="695" y2="75" stroke="#4ade80" strokeWidth="2" markerEnd="url(#resArrow)"/>
+
+    {/* Done */}
+    <rect x="700" y="50" width="80" height="50" rx="8" fill="#059669" stroke="#34d399" strokeWidth="2"/>
+    <text x="740" y="80" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Done</text>
+
+    {/* Exception path */}
+    <line x1="350" y1="100" x2="350" y2="140" stroke="#ef4444" strokeWidth="2" strokeDasharray="5,3"/>
+    <text x="365" y="125" fill="#ef4444" fontSize="9">exception</text>
+
+    <rect x="280" y="145" width="140" height="40" rx="6" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="1"/>
+    <text x="350" y="170" textAnchor="middle" fill="#fca5a5" fontSize="10">close() still called!</text>
+  </svg>
+)
+
+const ExceptionChainingDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="chainArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Exception Chaining - Preserving Root Cause
+    </text>
+
+    {/* Original exception */}
+    <rect x="50" y="60" width="180" height="60" rx="8" fill="#dc2626" stroke="#ef4444" strokeWidth="2"/>
+    <text x="140" y="85" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">SQLException</text>
+    <text x="140" y="105" textAnchor="middle" fill="#fca5a5" fontSize="9">DB connection failed</text>
+
+    <line x1="230" y1="90" x2="295" y2="90" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#chainArrow)"/>
+    <text x="262" y="80" textAnchor="middle" fill="#f59e0b" fontSize="9">wrap</text>
+
+    {/* Wrapper exception */}
+    <rect x="300" y="60" width="200" height="60" rx="8" fill="#ea580c" stroke="#f97316" strokeWidth="2"/>
+    <text x="400" y="85" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">DataAccessException</text>
+    <text x="400" y="105" textAnchor="middle" fill="#fed7aa" fontSize="9">cause: SQLException</text>
+
+    <line x1="500" y1="90" x2="565" y2="90" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#chainArrow)"/>
+    <text x="532" y="80" textAnchor="middle" fill="#f59e0b" fontSize="9">throw</text>
+
+    {/* Caller */}
+    <rect x="570" y="60" width="180" height="60" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="660" y="85" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Caller</text>
+    <text x="660" y="105" textAnchor="middle" fill="#c4b5fd" fontSize="9">e.getCause()</text>
+
+    {/* Benefits */}
+    <rect x="200" y="140" width="400" height="45" rx="6" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="400" y="160" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Both stack traces preserved for debugging</text>
+    <text x="400" y="175" textAnchor="middle" fill="#86efac" fontSize="9">new Exception(msg, cause) or initCause()</text>
+  </svg>
+)
+
+const RetryPatternDiagram = () => (
+  <svg viewBox="0 0 800 220" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="retryArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#4ade80" />
+      </marker>
+      <marker id="failArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Exponential Backoff Retry Pattern
+    </text>
+
+    {/* Attempt 1 */}
+    <rect x="50" y="50" width="120" height="50" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="110" y="70" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Attempt 1</text>
+    <text x="110" y="88" textAnchor="middle" fill="#bfdbfe" fontSize="9">Execute</text>
+
+    <line x1="110" y1="100" x2="110" y2="125" stroke="#ef4444" strokeWidth="2" markerEnd="url(#failArrow)"/>
+
+    {/* Wait 100ms */}
+    <rect x="60" y="130" width="100" height="30" rx="4" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="110" y="150" textAnchor="middle" fill="#fbbf24" fontSize="9">Wait 100ms</text>
+
+    <line x1="160" y1="145" x2="195" y2="145" stroke="#4ade80" strokeWidth="2" markerEnd="url(#retryArrow)"/>
+
+    {/* Attempt 2 */}
+    <rect x="200" y="120" width="120" height="50" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="260" y="140" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Attempt 2</text>
+    <text x="260" y="158" textAnchor="middle" fill="#bfdbfe" fontSize="9">Execute</text>
+
+    <line x1="260" y1="170" x2="260" y2="195" stroke="#ef4444" strokeWidth="2" markerEnd="url(#failArrow)"/>
+
+    {/* Wait 200ms */}
+    <rect x="210" y="195" width="100" height="25" rx="4" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="260" y="212" textAnchor="middle" fill="#fbbf24" fontSize="9">Wait 200ms</text>
+
+    <line x1="310" y1="207" x2="345" y2="175" stroke="#4ade80" strokeWidth="2" markerEnd="url(#retryArrow)"/>
+
+    {/* Attempt 3 */}
+    <rect x="350" y="120" width="120" height="50" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="410" y="140" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Attempt 3</text>
+    <text x="410" y="158" textAnchor="middle" fill="#bfdbfe" fontSize="9">Execute</text>
+
+    {/* Success path */}
+    <line x1="470" y1="145" x2="535" y2="145" stroke="#4ade80" strokeWidth="2" markerEnd="url(#retryArrow)"/>
+    <text x="502" y="135" textAnchor="middle" fill="#4ade80" fontSize="9">success!</text>
+
+    <rect x="540" y="120" width="100" height="50" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="590" y="140" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Return</text>
+    <text x="590" y="158" textAnchor="middle" fill="#bbf7d0" fontSize="9">Result</text>
+
+    {/* Formula */}
+    <rect x="660" y="70" width="130" height="100" rx="6" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="725" y="95" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Backoff Formula</text>
+    <text x="725" y="115" textAnchor="middle" fill="#c4b5fd" fontSize="9">delay = initial * 2^n</text>
+    <text x="725" y="135" textAnchor="middle" fill="#94a3b8" fontSize="8">100ms, 200ms, 400ms...</text>
+    <text x="725" y="155" textAnchor="middle" fill="#94a3b8" fontSize="8">+ optional jitter</text>
+  </svg>
+)
+
+const CustomExceptionDiagram = () => (
+  <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="extArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#22c55e" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Custom Exception Hierarchy Design
+    </text>
+
+    {/* Base Exception */}
+    <rect x="300" y="45" width="200" height="45" rx="8" fill="#7c3aed" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="400" y="65" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Exception (checked)</text>
+    <text x="400" y="82" textAnchor="middle" fill="#c4b5fd" fontSize="9">or RuntimeException (unchecked)</text>
+
+    {/* Extends arrow */}
+    <line x1="400" y1="90" x2="400" y2="115" stroke="#22c55e" strokeWidth="2" markerEnd="url(#extArrow)"/>
+    <text x="430" y="108" fill="#22c55e" fontSize="9">extends</text>
+
+    {/* Domain Exception */}
+    <rect x="275" y="120" width="250" height="50" rx="8" fill="#ea580c" stroke="#f97316" strokeWidth="2"/>
+    <text x="400" y="140" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">BankingException</text>
+    <text x="400" y="158" textAnchor="middle" fill="#fed7aa" fontSize="9">Domain-specific base exception</text>
+
+    {/* Child exceptions */}
+    <line x1="320" y1="170" x2="150" y2="190" stroke="#22c55e" strokeWidth="1.5"/>
+    <line x1="400" y1="170" x2="400" y2="190" stroke="#22c55e" strokeWidth="1.5" strokeDasharray="5,3"/>
+    <line x1="480" y1="170" x2="650" y2="190" stroke="#22c55e" strokeWidth="1.5"/>
+
+    {/* Specific exceptions - hints */}
+    <text x="150" y="200" textAnchor="middle" fill="#94a3b8" fontSize="9">InsufficientFundsException</text>
+    <text x="400" y="200" textAnchor="middle" fill="#64748b" fontSize="9">...</text>
+    <text x="650" y="200" textAnchor="middle" fill="#94a3b8" fontSize="9">AccountNotFoundException</text>
+  </svg>
+)
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
+
+function ExceptionHandling({ onBack }) {
+  const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
+  const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+
+  // =============================================================================
+  // CONCEPTS DATA
+  // =============================================================================
+
+  const concepts = [
     {
-      id: 1,
-      title: 'Custom Exception Hierarchy',
-      difficulty: 'Easy',
-      description: 'Design a custom exception hierarchy for a banking application. Create InsufficientFundsException (checked) with balance info and implement proper exception constructors with messages and causes.',
-      examples: [
-        { input: 'withdraw(500) with balance 300', output: 'InsufficientFundsException: Cannot withdraw 500.00, balance is 300.00' },
-        { input: 'withdraw(200) with balance 300', output: 'Success, new balance: 100.00' }
-      ],
-      code: {
-        java: {
-          starterCode: `// Base exception for banking operations
-class BankingException extends Exception {
-    // TODO: Add constructors with message and cause
-    public BankingException(String message) {
+      id: 'custom-exceptions',
+      name: 'Custom Exceptions',
+      icon: '🏗️',
+      color: '#f59e0b',
+      description: 'Design and implement custom exception hierarchies for domain-specific error handling with meaningful error messages and context.',
+      diagram: CustomExceptionDiagram,
+      details: [
+        {
+          name: 'Exception Hierarchy Design',
+          diagram: ExceptionHierarchyDiagram,
+          explanation: 'Java exceptions form a hierarchy with Throwable at the root. Errors (OutOfMemoryError, StackOverflowError) represent unrecoverable JVM problems. Checked exceptions (IOException, SQLException) must be declared or caught. Unchecked exceptions (RuntimeException subclasses like NullPointerException) indicate programming errors. Choose checked exceptions when callers can meaningfully recover, unchecked for programming bugs.',
+          codeExample: `// Checked exception - extends Exception
+// Caller MUST handle or declare
+public class InsufficientFundsException extends Exception {
+    private final double balance;
+    private final double amount;
 
-    }
-
-    public BankingException(String message, Throwable cause) {
-
-    }
-}
-
-// Checked exception: Insufficient funds
-class InsufficientFundsException extends BankingException {
-    private double balance;
-    private double amount;
-
-    // TODO: Implement constructor that creates meaningful error message
     public InsufficientFundsException(double balance, double amount) {
-
+        super(String.format("Cannot withdraw %.2f, balance is %.2f",
+            amount, balance));
+        this.balance = balance;
+        this.amount = amount;
     }
 
-    public double getBalance() { return balance; }
-    public double getAmount() { return amount; }
-    public double getShortfall() { return amount - balance; }
+    public double getShortfall() {
+        return amount - balance;
+    }
 }
 
-class BankAccount {
-    private double balance;
-
-    public BankAccount(double initialBalance) {
-        this.balance = initialBalance;
-    }
-
-    // TODO: Implement withdraw - throw InsufficientFundsException if amount > balance
-    public void withdraw(double amount) throws InsufficientFundsException {
-
-    }
-
-    public double getBalance() { return balance; }
-}`,
-          solution: `// Base exception for banking operations
-class BankingException extends Exception {
-    public BankingException(String message) {
+// Unchecked exception - extends RuntimeException
+// Indicates programming error
+public class InvalidAccountStateException extends RuntimeException {
+    public InvalidAccountStateException(String message) {
         super(message);
     }
+}`
+        },
+        {
+          name: 'Base Exception Class',
+          diagram: CustomExceptionDiagram,
+          explanation: 'Create a base exception class for your domain to provide common functionality and enable catching all domain exceptions with a single catch block. Include constructors for message-only, message with cause, and cause-only scenarios. Store relevant context data as fields with getters.',
+          codeExample: `// Base exception for banking operations
+public class BankingException extends Exception {
+    private final String transactionId;
+    private final LocalDateTime timestamp;
+
+    public BankingException(String message) {
+        this(message, null, null);
+    }
 
     public BankingException(String message, Throwable cause) {
-        super(message, cause);
+        this(message, cause, null);
     }
-}
 
-// Checked exception: Insufficient funds
-class InsufficientFundsException extends BankingException {
-    private double balance;
-    private double amount;
+    public BankingException(String message, Throwable cause,
+                           String transactionId) {
+        super(message, cause);
+        this.transactionId = transactionId;
+        this.timestamp = LocalDateTime.now();
+    }
+
+    public String getTransactionId() { return transactionId; }
+    public LocalDateTime getTimestamp() { return timestamp; }
+}`
+        },
+        {
+          name: 'Specific Exception Classes',
+          explanation: 'Create specific exception classes that extend your base exception to represent distinct error conditions. Include fields that provide context about the error. Use descriptive class names that clearly indicate the problem. Override getMessage() or use String.format() in constructor for clear error messages.',
+          codeExample: `// Specific exception with context
+public class InsufficientFundsException extends BankingException {
+    private final double balance;
+    private final double amount;
 
     public InsufficientFundsException(double balance, double amount) {
-        super(String.format("Cannot withdraw %.2f, balance is %.2f", amount, balance));
+        super(String.format(
+            "Cannot withdraw %.2f, available balance is %.2f",
+            amount, balance));
         this.balance = balance;
         this.amount = amount;
     }
@@ -121,361 +435,251 @@ class InsufficientFundsException extends BankingException {
     public double getShortfall() { return amount - balance; }
 }
 
-class BankAccount {
-    private double balance;
-
-    public BankAccount(double initialBalance) {
-        this.balance = initialBalance;
+// Usage in business logic
+public void withdraw(double amount) throws InsufficientFundsException {
+    if (amount > balance) {
+        throw new InsufficientFundsException(balance, amount);
     }
-
-    public void withdraw(double amount) throws InsufficientFundsException {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Amount must be positive");
-        }
-
-        if (amount > balance) {
-            throw new InsufficientFundsException(balance, amount);
-        }
-
-        balance -= amount;
-    }
-
-    public double getBalance() { return balance; }
-}`
-        },
-        python: {
-          starterCode: `# Custom exception hierarchy in Python
-class BankingException(Exception):
-    """Base exception for banking operations"""
-    pass
-
-class InsufficientFundsException(BankingException):
-    def __init__(self, balance, amount):
-        # TODO: Store balance and amount, create error message
-        self.balance = balance
-        self.amount = amount
-        # TODO: Call super with formatted message
-
-class BankAccount:
-    def __init__(self, initial_balance):
-        self.balance = initial_balance
-
-    def withdraw(self, amount):
-        # TODO: Implement withdraw with validation
-        pass
-
-    def get_balance(self):
-        return self.balance`,
-          solution: `# Custom exception hierarchy in Python
-class BankingException(Exception):
-    """Base exception for banking operations"""
-    pass
-
-class InsufficientFundsException(BankingException):
-    def __init__(self, balance, amount):
-        self.balance = balance
-        self.amount = amount
-        super().__init__(f"Cannot withdraw {amount:.2f}, balance is {balance:.2f}")
-
-    def get_shortfall(self):
-        return self.amount - self.balance
-
-class BankAccount:
-    def __init__(self, initial_balance):
-        self.balance = initial_balance
-
-    def withdraw(self, amount):
-        if amount <= 0:
-            raise ValueError("Amount must be positive")
-
-        if amount > self.balance:
-            raise InsufficientFundsException(self.balance, amount)
-
-        self.balance -= amount
-
-    def get_balance(self):
-        return self.balance
-
-# Test
-account = BankAccount(500.0)
-try:
-    account.withdraw(200)
-    print(f"Withdrawn 200, balance: {account.get_balance()}")
-    account.withdraw(500)
-except InsufficientFundsException as e:
-    print(f"Error: {e}")
-    print(f"Shortfall: {e.get_shortfall()}")`
-        }
-      },
-      explanation: 'Create custom exception hierarchy extending Exception (checked) or RuntimeException (unchecked). Include constructors for message and cause. Store relevant data in exception fields for caller to inspect. Use String.format() for clear error messages.',
-      timeComplexity: 'O(1)',
-      spaceComplexity: 'O(1)'
-    },
-    {
-      id: 2,
-      title: 'Try-With-Resources Pattern',
-      difficulty: 'Easy',
-      description: 'Create a DatabaseConnection class that implements AutoCloseable. Demonstrate proper resource management using try-with-resources to ensure cleanup even if exceptions occur.',
-      examples: [
-        { input: 'try-with-resources with connection', output: 'Connection opened, query executed, connection closed automatically' },
-        { input: 'Connection without try-with-resources', output: 'Must manually call close() in finally block' }
-      ],
-      code: {
-        java: {
-          starterCode: `class DatabaseConnection implements AutoCloseable {
-    private String url;
-    private boolean connected;
-
-    public DatabaseConnection(String url) throws Exception {
-        this.url = url;
-        this.connected = true;
-        System.out.println("Opening connection to " + url);
-    }
-
-    public void executeQuery(String query) throws Exception {
-        if (!connected) {
-            throw new IllegalStateException("Connection is closed");
-        }
-        System.out.println("Executing query: " + query);
-    }
-
-    // TODO: Implement close() method to clean up resources
-    @Override
-    public void close() throws Exception {
-
-    }
+    balance -= amount;
 }
 
-class Main {
-    public static void main(String[] args) {
-        // TODO: Use try-with-resources to automatically close connection
-        // Create connection to "db://localhost", execute "SELECT * FROM users"
-    }
-}`,
-          solution: `class DatabaseConnection implements AutoCloseable {
-    private String url;
-    private boolean connected;
+// Caller can access exception details
+try {
+    account.withdraw(500);
+} catch (InsufficientFundsException e) {
+    log.warn("Withdrawal failed: shortfall of {}", e.getShortfall());
+    notifyUser("Need " + e.getShortfall() + " more to complete");
+}`
+        }
+      ]
+    },
+    {
+      id: 'try-with-resources',
+      name: 'Try-With-Resources',
+      icon: '🔒',
+      color: '#3b82f6',
+      description: 'Automatic resource management using AutoCloseable interface to ensure cleanup even when exceptions occur.',
+      diagram: TryWithResourcesDiagram,
+      details: [
+        {
+          name: 'AutoCloseable Interface',
+          diagram: TryWithResourcesDiagram,
+          explanation: 'Try-with-resources (Java 7+) automatically calls close() on resources when the try block exits, whether normally or via exception. Resources must implement AutoCloseable interface. Multiple resources are closed in reverse declaration order. This eliminates the need for explicit finally blocks for cleanup.',
+          codeExample: `// Implement AutoCloseable
+public class DatabaseConnection implements AutoCloseable {
+    private final String url;
+    private boolean connected = true;
 
-    public DatabaseConnection(String url) throws Exception {
+    public DatabaseConnection(String url) {
         this.url = url;
-        this.connected = true;
         System.out.println("Opening connection to " + url);
     }
 
-    public void executeQuery(String query) throws Exception {
+    public ResultSet executeQuery(String sql) {
         if (!connected) {
-            throw new IllegalStateException("Connection is closed");
+            throw new IllegalStateException("Connection closed");
         }
-        System.out.println("Executing query: " + query);
+        // Execute query...
+        return null;
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (connected) {
             System.out.println("Closing connection to " + url);
             connected = false;
         }
     }
-}
-
-class Main {
-    public static void main(String[] args) {
-        // Try-with-resources automatically calls close()
-        try (DatabaseConnection conn = new DatabaseConnection("db://localhost")) {
-            conn.executeQuery("SELECT * FROM users");
-            // Connection automatically closed, even if exception occurs
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-    }
 }`
         },
-        python: {
-          starterCode: `# Context manager (Python's try-with-resources)
-class DatabaseConnection:
-    def __init__(self, url):
-        self.url = url
-        self.connected = False
+        {
+          name: 'Basic Usage Pattern',
+          explanation: 'Declare resources in parentheses after try keyword. Resources are automatically closed when the block exits. You can declare multiple resources separated by semicolons. Each resource must be a final or effectively final variable. The close() method is called even if the try block throws an exception.',
+          codeExample: `// Single resource
+try (DatabaseConnection conn = new DatabaseConnection("db://localhost")) {
+    conn.executeQuery("SELECT * FROM users");
+    // Connection automatically closed here
+} catch (Exception e) {
+    System.err.println("Error: " + e.getMessage());
+}
 
-    # TODO: Implement __enter__ to open connection
-    def __enter__(self):
-        pass
+// Multiple resources - closed in reverse order
+try (
+    FileInputStream fis = new FileInputStream("input.txt");
+    FileOutputStream fos = new FileOutputStream("output.txt");
+    BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
+    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos))
+) {
+    String line;
+    while ((line = reader.readLine()) != null) {
+        writer.write(line);
+        writer.newLine();
+    }
+} // All resources closed: writer, reader, fos, fis`
+        },
+        {
+          name: 'Effectively Final Variables (Java 9+)',
+          explanation: 'Java 9 allows using effectively final variables in try-with-resources, not just declarations. This is useful when the resource is created earlier in the code. The variable must not be reassigned after initialization.',
+          codeExample: `// Java 9+ - effectively final variable
+DatabaseConnection conn = new DatabaseConnection("db://localhost");
+BufferedReader reader = new BufferedReader(new FileReader("data.txt"));
 
-    # TODO: Implement __exit__ to close connection
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
+// Can use existing variables if effectively final
+try (conn; reader) {
+    String data = reader.readLine();
+    conn.executeQuery("INSERT INTO data VALUES ('" + data + "')");
+}
+// Both closed automatically
 
-    def execute_query(self, query):
-        if not self.connected:
-            raise Exception("Connection is closed")
-        print(f"Executing query: {query}")
-
-# TODO: Use 'with' statement for automatic cleanup`,
-          solution: `# Context manager (Python's try-with-resources)
-class DatabaseConnection:
-    def __init__(self, url):
-        self.url = url
-        self.connected = False
-
-    def __enter__(self):
-        self.connected = True
-        print(f"Opening connection to {self.url}")
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.connected:
-            print(f"Closing connection to {self.url}")
-            self.connected = False
-        return False  # Don't suppress exceptions
-
-    def execute_query(self, query):
-        if not self.connected:
-            raise Exception("Connection is closed")
-        print(f"Executing query: {query}")
-
-# Use 'with' statement for automatic cleanup
-with DatabaseConnection("db://localhost") as conn:
-    conn.execute_query("SELECT * FROM users")
-    # Connection automatically closed`
+// This would NOT work - variable reassigned
+DatabaseConnection conn2 = new DatabaseConnection("db://primary");
+conn2 = new DatabaseConnection("db://secondary"); // reassigned!
+// try (conn2) { } // Compile error: not effectively final`
         }
-      },
-      explanation: 'Implement AutoCloseable interface and override close() method. Use try-with-resources: try (Resource r = new Resource()) { }. Resource is automatically closed when block exits, even if exception occurs. Can declare multiple resources separated by semicolons.',
-      timeComplexity: 'O(1)',
-      spaceComplexity: 'O(1)'
+      ]
     },
     {
-      id: 3,
-      title: 'Multi-Catch Exception Handling',
-      difficulty: 'Medium',
-      description: 'Implement error handling that catches multiple exception types efficiently using multi-catch blocks (Java 7+). Handle IOException and SQLException with the same handler.',
-      examples: [
-        { input: 'source = "file://data.txt"', output: 'Data access error: File error' },
-        { input: 'source = "db://users"', output: 'Data access error: Database error' }
-      ],
-      code: {
-        java: {
-          starterCode: `import java.io.*;
-import java.sql.*;
-
-class DataProcessor {
-    // TODO: Implement processData with multi-catch to handle both IOException and SQLException
-    public void processData(String source) {
-        try {
-            if (source.startsWith("file://")) {
-                throw new IOException("File error: " + source);
-            } else if (source.startsWith("db://")) {
-                throw new SQLException("Database error: " + source);
-            }
-            System.out.println("Processed: " + source);
-        } catch (/* TODO: Add multi-catch for IOException | SQLException */ Exception e) {
-            // Handle both types the same way
-            System.out.println("Data access error: " + e.getMessage());
+      id: 'multi-catch',
+      name: 'Multi-Catch Handling',
+      icon: '🎯',
+      color: '#8b5cf6',
+      description: 'Handle multiple exception types with the same handler using Java 7+ multi-catch syntax for cleaner code.',
+      diagram: TryCatchFlowDiagram,
+      details: [
+        {
+          name: 'Multi-Catch Syntax',
+          diagram: TryCatchFlowDiagram,
+          explanation: 'Multi-catch (Java 7+) allows handling multiple unrelated exception types with a single catch block using the pipe (|) operator. The exception types cannot be in the same inheritance hierarchy. The caught exception variable is implicitly final and cannot be reassigned.',
+          codeExample: `// Multi-catch - handle multiple types the same way
+public void processData(String source) {
+    try {
+        if (source.startsWith("file://")) {
+            throw new FileNotFoundException("File: " + source);
+        } else if (source.startsWith("db://")) {
+            throw new SQLException("DB: " + source);
+        } else if (source.startsWith("http://")) {
+            throw new MalformedURLException("URL: " + source);
         }
-    }
-}`,
-          solution: `import java.io.*;
-import java.sql.*;
-
-class DataProcessor {
-    public void processData(String source) {
-        try {
-            if (source.startsWith("file://")) {
-                throw new IOException("File error: " + source);
-            } else if (source.startsWith("db://")) {
-                throw new SQLException("Database error: " + source);
-            }
-            System.out.println("Processed: " + source);
-        } catch (IOException | SQLException e) {
-            // Multi-catch: Handle both types the same way
-            System.out.println("Data access error: " + e.getMessage());
-        }
+        process(source);
+    } catch (FileNotFoundException | SQLException | MalformedURLException e) {
+        // Handle all three types the same way
+        log.error("Data access error: {}", e.getMessage());
+        sendAlert("Could not access: " + source);
     }
 }
 
-// Can also use multi-catch with specific handlers
-class AdvancedProcessor {
-    public void process(String source) {
-        try {
-            // operations
-        } catch (FileNotFoundException | EOFException e) {
-            // Handle file-specific exceptions
-        } catch (SQLException | DataAccessException e) {
-            // Handle database exceptions
-        } catch (Exception e) {
-            // Catch-all for other exceptions
-        }
+// The exception variable 'e' is implicitly final
+// e = new Exception(); // Compile error!`
+        },
+        {
+          name: 'Catch Block Ordering',
+          explanation: 'When using multiple catch blocks, order them from most specific to most general. The compiler prevents catching a parent exception before its child. Use multi-catch for unrelated exceptions that need the same handling. Keep separate catch blocks for exceptions requiring different handling.',
+          codeExample: `try {
+    riskyOperation();
+} catch (FileNotFoundException e) {
+    // Most specific - handle file not found
+    log.warn("File missing: {}", e.getMessage());
+    createDefaultFile();
+
+} catch (IOException e) {
+    // More general - other IO errors
+    log.error("IO error: {}", e.getMessage());
+    throw new DataAccessException("IO failed", e);
+
+} catch (SQLException | DataFormatException e) {
+    // Multi-catch for unrelated types with same handling
+    log.error("Data error: {}", e.getMessage());
+    rollbackTransaction();
+
+} catch (Exception e) {
+    // Most general - catch-all for unexpected errors
+    log.error("Unexpected error", e);
+    throw new RuntimeException("Operation failed", e);
+}
+
+// This would be a compile error:
+// catch (IOException e) { }
+// catch (FileNotFoundException e) { } // Error: already caught by IOException`
+        },
+        {
+          name: 'Rethrow with More Specific Type',
+          explanation: 'Java 7+ compiler can determine the specific exception type when rethrowing in a catch block. This enables declaring the method to throw specific types even when catching a general Exception type, as long as all possible exceptions are listed in throws clause.',
+          codeExample: `// Compiler determines specific types being rethrown
+public void processFile(String path)
+        throws FileNotFoundException, ParseException {
+    try {
+        FileReader reader = new FileReader(path);
+        parseContent(reader); // throws ParseException
+    } catch (Exception e) {
+        log.error("Processing failed", e);
+        // Compiler knows 'e' can only be FileNotFoundException
+        // or ParseException based on try block analysis
+        throw e; // Allowed even though catch is general
+    }
+}
+
+// Without rethrow analysis, you'd need:
+public void processFileOldWay(String path) throws Exception {
+    try {
+        FileReader reader = new FileReader(path);
+        parseContent(reader);
+    } catch (Exception e) {
+        log.error("Failed", e);
+        throw e; // Caller must handle generic Exception
     }
 }`
-        },
-        python: {
-          starterCode: `# Multi-exception handling in Python
-class DataProcessor:
-    def process_data(self, source):
-        try:
-            if source.startswith("file://"):
-                raise IOError(f"File error: {source}")
-            elif source.startswith("db://"):
-                raise RuntimeError(f"Database error: {source}")
-            print(f"Processed: {source}")
-        except (/* TODO: Add tuple of exception types */):
-            # Handle both types the same way
-            print(f"Data access error: {e}")`,
-          solution: `# Multi-exception handling in Python
-class DataProcessor:
-    def process_data(self, source):
-        try:
-            if source.startswith("file://"):
-                raise IOError(f"File error: {source}")
-            elif source.startswith("db://"):
-                raise RuntimeError(f"Database error: {source}")
-            print(f"Processed: {source}")
-        except (IOError, RuntimeError) as e:
-            # Handle both types the same way
-            print(f"Data access error: {e}")
-
-# Test
-processor = DataProcessor()
-processor.process_data("file://data.txt")
-processor.process_data("db://users")
-processor.process_data("valid-source")`
         }
-      },
-      explanation: 'Multi-catch syntax: catch (ExceptionType1 | ExceptionType2 e). Exception variable is implicitly final. Use when multiple exception types require same handling. Order matters - catch most specific first. Cannot use multi-catch with exceptions in same inheritance hierarchy.',
-      timeComplexity: 'O(1)',
-      spaceComplexity: 'O(1)'
+      ]
     },
     {
-      id: 4,
-      title: 'Exception Chaining and Suppressed Exceptions',
-      difficulty: 'Medium',
-      description: 'Learn exception chaining (initCause, constructor with cause) and suppressed exceptions in try-with-resources. Understand how to preserve the original exception stack trace.',
-      examples: [
-        { input: 'Chain exceptions with cause', output: 'New exception wraps original, both stack traces preserved' },
-        { input: 'try-with-resources with exception', output: 'Primary exception + suppressed close() exception' }
-      ],
-      code: {
-        java: {
-          starterCode: `class DataService {
-    // Exception chaining
-    public void loadData(String id) throws Exception {
+      id: 'exception-chaining',
+      name: 'Exception Chaining',
+      icon: '🔗',
+      color: '#22c55e',
+      description: 'Preserve original exception information while wrapping in domain-specific exceptions. Understand suppressed exceptions in try-with-resources.',
+      diagram: ExceptionChainingDiagram,
+      details: [
+        {
+          name: 'Chaining with Cause',
+          diagram: ExceptionChainingDiagram,
+          explanation: 'Exception chaining preserves the original exception stack trace while wrapping it in a higher-level, domain-appropriate exception. Use the constructor that accepts a Throwable cause, or call initCause() if the exception class lacks such a constructor. The original exception is accessible via getCause().',
+          codeExample: `public class DataService {
+    public User loadUser(String id) throws DataAccessException {
         try {
-            // Simulate database error
-            throw new SQLException("Database connection failed");
+            return database.query("SELECT * FROM users WHERE id = ?", id);
         } catch (SQLException e) {
-            // TODO: Chain exception - wrap in custom exception with cause
-            throw new Exception("Failed to load data for ID: " + id);
+            // Chain: wrap low-level exception in domain exception
+            throw new DataAccessException(
+                "Failed to load user: " + id,
+                e  // Original exception preserved as cause
+            );
         }
     }
 }
 
-// Suppressed exceptions
-class Resource implements AutoCloseable {
-    private String name;
+// Caller can access the chain
+try {
+    User user = service.loadUser("123");
+} catch (DataAccessException e) {
+    log.error("Data access failed: {}", e.getMessage());
 
-    public Resource(String name) {
-        this.name = name;
+    // Access original cause
+    Throwable cause = e.getCause();
+    if (cause instanceof SQLException) {
+        SQLException sqlEx = (SQLException) cause;
+        log.error("SQL State: {}, Error Code: {}",
+            sqlEx.getSQLState(), sqlEx.getErrorCode());
     }
 
+    // Print full chain
+    e.printStackTrace(); // Shows both exceptions
+}`
+        },
+        {
+          name: 'Suppressed Exceptions',
+          explanation: 'When an exception occurs in a try block AND the close() method also throws, Java saves the close() exception as a "suppressed" exception. The primary exception is thrown, with close() exceptions accessible via getSuppressed(). This prevents losing exception information.',
+          codeExample: `// Resource that throws on close
+public class ProblematicResource implements AutoCloseable {
     public void doWork() throws Exception {
         throw new Exception("Error during work");
     }
@@ -486,178 +690,90 @@ class Resource implements AutoCloseable {
     }
 }
 
-class Main {
-    public static void main(String[] args) {
-        // TODO: Use try-with-resources and catch suppressed exceptions
-    }
-}`,
-          solution: `import java.sql.*;
+// Both exceptions are preserved
+try (ProblematicResource r = new ProblematicResource()) {
+    r.doWork(); // Throws "Error during work"
+} catch (Exception e) {
+    System.out.println("Primary: " + e.getMessage());
+    // Output: Primary: Error during work
 
-class DataService {
-    // Exception chaining
-    public void loadData(String id) throws Exception {
-        try {
-            // Simulate database error
-            throw new SQLException("Database connection failed");
-        } catch (SQLException e) {
-            // Chain exception - preserves original stack trace
-            Exception wrapped = new Exception("Failed to load data for ID: " + id, e);
-            throw wrapped;
-        }
+    // Access suppressed exceptions (from close())
+    for (Throwable suppressed : e.getSuppressed()) {
+        System.out.println("Suppressed: " + suppressed.getMessage());
+        // Output: Suppressed: Error during close
     }
 }
 
-// Suppressed exceptions
-class Resource implements AutoCloseable {
-    private String name;
-
-    public Resource(String name) {
-        this.name = name;
-    }
-
-    public void doWork() throws Exception {
-        throw new Exception("Error during work");
-    }
-
-    @Override
-    public void close() throws Exception {
-        throw new Exception("Error during close");
-    }
-}
-
-class Main {
-    public static void main(String[] args) {
-        // Try-with-resources with multiple exceptions
-        try (Resource r = new Resource("DB")) {
-            r.doWork();  // Throws exception
-            // close() also throws - becomes suppressed
-        } catch (Exception e) {
-            System.out.println("Primary: " + e.getMessage());
-
-            // Get suppressed exceptions
-            for (Throwable suppressed : e.getSuppressed()) {
-                System.out.println("Suppressed: " + suppressed.getMessage());
-            }
-        }
-    }
-}`
+// Manually adding suppressed exceptions
+Exception primary = new Exception("Primary failure");
+Exception secondary = new Exception("Secondary issue");
+primary.addSuppressed(secondary);
+throw primary;`
         },
-        python: {
-          starterCode: `# Exception chaining in Python
-class DataService:
-    def load_data(self, id):
-        try:
-            # Simulate error
-            raise ConnectionError("Database connection failed")
-        except ConnectionError as e:
-            # TODO: Chain exception using 'raise ... from e'
-            raise Exception(f"Failed to load data for ID: {id}")
+        {
+          name: 'Best Practices',
+          explanation: 'Always chain exceptions when wrapping lower-level exceptions to preserve debugging information. Use initCause() when the exception class does not have a cause constructor. Never swallow exceptions silently - at minimum, log them. Consider whether to expose the cause in the exception message or keep it internal.',
+          codeExample: `// Good: Chain preserves original exception
+try {
+    externalService.call();
+} catch (RemoteException e) {
+    throw new ServiceException("Service call failed", e);
+}
 
-# Context manager with multiple exceptions
-class Resource:
-    def __init__(self, name):
-        self.name = name
+// Bad: Original exception lost
+try {
+    externalService.call();
+} catch (RemoteException e) {
+    throw new ServiceException("Service call failed"); // cause lost!
+}
 
-    def __enter__(self):
-        return self
+// Bad: Swallowing exception
+try {
+    externalService.call();
+} catch (RemoteException e) {
+    // Silent swallow - never do this!
+}
 
-    def do_work(self):
-        raise Exception("Error during work")
+// Using initCause() for legacy exceptions
+try {
+    legacyOperation();
+} catch (LegacyException e) {
+    ServiceException wrapped = new ServiceException("Operation failed");
+    wrapped.initCause(e); // Set cause after construction
+    throw wrapped;
+}
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        # TODO: Raise exception in __exit__, see how Python handles it
-        raise Exception("Error during close")`,
-          solution: `# Exception chaining in Python
-class DataService:
-    def load_data(self, id):
-        try:
-            # Simulate error
-            raise ConnectionError("Database connection failed")
-        except ConnectionError as e:
-            # Chain exception using 'raise ... from e'
-            raise Exception(f"Failed to load data for ID: {id}") from e
-
-# Context manager with multiple exceptions
-class Resource:
-    def __init__(self, name):
-        self.name = name
-
-    def __enter__(self):
-        return self
-
-    def do_work(self):
-        raise Exception("Error during work")
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        # Exception in __exit__ suppresses original
-        # Use return False to not suppress
-        raise Exception("Error during close")
-
-# Test
-try:
-    with Resource("DB") as r:
-        r.do_work()
-except Exception as e:
-    print(f"Exception: {e}")
-    print(f"Cause: {e.__cause__}")
-    print(f"Context: {e.__context__}")`
+// Logging and rethrowing
+try {
+    criticalOperation();
+} catch (Exception e) {
+    log.error("Critical operation failed", e); // Log with full stack
+    throw new OperationException("Failed", e); // Rethrow wrapped
+}`
         }
-      },
-      explanation: 'Exception chaining: new Exception(message, cause) or initCause(). Access via getCause(). Suppressed exceptions occur in try-with-resources when both try block and close() throw. Access via getSuppressed(). Preserves all exception information for debugging.',
-      timeComplexity: 'O(1)',
-      spaceComplexity: 'O(n) where n is chain depth'
+      ]
     },
     {
-      id: 5,
-      title: 'Retry with Exponential Backoff',
-      difficulty: 'Hard',
-      description: 'Implement a retry mechanism with exponential backoff for handling transient failures. The operation should retry up to maxRetries times with increasing delays between attempts.',
-      examples: [
-        { input: 'maxRetries=3, delay=100ms', output: 'Retries with delays: 100ms, 200ms, 400ms' },
-        { input: 'Operation succeeds on attempt 2', output: 'Returns result without further retries' }
-      ],
-      code: {
-        java: {
-          starterCode: `import java.util.concurrent.*;
+      id: 'retry-patterns',
+      name: 'Retry Patterns',
+      icon: '🔄',
+      color: '#ef4444',
+      description: 'Implement robust retry mechanisms with exponential backoff for handling transient failures in distributed systems.',
+      diagram: RetryPatternDiagram,
+      details: [
+        {
+          name: 'Exponential Backoff',
+          diagram: RetryPatternDiagram,
+          explanation: 'Exponential backoff increases wait time between retries exponentially (e.g., 100ms, 200ms, 400ms, 800ms). This prevents overwhelming a struggling service and reduces thundering herd problems. The formula is: delay = initialDelay * 2^attemptNumber. Always set a maximum retry count to prevent infinite loops.',
+          codeExample: `public class RetryExecutor {
+    private final int maxRetries;
+    private final long initialDelayMs;
+    private final long maxDelayMs;
 
-class RetryableOperation {
-    private int maxRetries;
-    private long initialDelayMs;
-
-    public RetryableOperation(int maxRetries, long initialDelayMs) {
+    public RetryExecutor(int maxRetries, long initialDelayMs, long maxDelayMs) {
         this.maxRetries = maxRetries;
         this.initialDelayMs = initialDelayMs;
-    }
-
-    // TODO: Implement executeWithRetry with exponential backoff
-    public <T> T executeWithRetry(Callable<T> operation) throws Exception {
-        int attempt = 0;
-        long delay = initialDelayMs;
-
-        while (true) {
-            try {
-                System.out.println("Attempt " + (attempt + 1));
-                // TODO: Call operation.call() and return result
-
-            } catch (Exception e) {
-                attempt++;
-
-                // TODO: Check if max retries exceeded, if so rethrow
-
-                // TODO: Sleep for delay, then double the delay (exponential backoff)
-            }
-        }
-    }
-}`,
-          solution: `import java.util.concurrent.*;
-
-class RetryableOperation {
-    private int maxRetries;
-    private long initialDelayMs;
-
-    public RetryableOperation(int maxRetries, long initialDelayMs) {
-        this.maxRetries = maxRetries;
-        this.initialDelayMs = initialDelayMs;
+        this.maxDelayMs = maxDelayMs;
     }
 
     public <T> T executeWithRetry(Callable<T> operation) throws Exception {
@@ -666,312 +782,547 @@ class RetryableOperation {
 
         while (true) {
             try {
-                System.out.println("Attempt " + (attempt + 1));
                 return operation.call();
-
             } catch (Exception e) {
                 attempt++;
 
                 if (attempt >= maxRetries) {
-                    System.out.println("Max retries exceeded");
-                    throw e;
+                    throw new RetryExhaustedException(
+                        "Max retries exceeded", e, attempt);
                 }
 
-                System.out.println("Retry after " + delay + "ms. Error: " + e.getMessage());
+                // Cap the delay
+                delay = Math.min(delay, maxDelayMs);
+
+                log.warn("Attempt {} failed, retrying in {}ms",
+                    attempt, delay);
+
                 Thread.sleep(delay);
-                delay *= 2;  // Exponential backoff
+                delay *= 2; // Exponential increase
             }
-        }
-    }
-}
-
-class Main {
-    private static int attemptCount = 0;
-
-    public static void main(String[] args) throws Exception {
-        RetryableOperation retry = new RetryableOperation(3, 100);
-
-        try {
-            String result = retry.executeWithRetry(() -> {
-                attemptCount++;
-                if (attemptCount < 3) {
-                    throw new Exception("Temporary failure");
-                }
-                return "Success!";
-            });
-            System.out.println("Result: " + result);
-        } catch (Exception e) {
-            System.out.println("Final error: " + e.getMessage());
         }
     }
 }`
         },
-        python: {
-          starterCode: `import time
+        {
+          name: 'Adding Jitter',
+          explanation: 'Jitter adds randomness to retry delays to prevent synchronized retries from multiple clients hitting the server simultaneously (thundering herd). Full jitter: random(0, delay). Equal jitter: delay/2 + random(0, delay/2). Decorrelated jitter: min(cap, random(base, prev_delay * 3)).',
+          codeExample: `public class RetryWithJitter {
+    private final Random random = new Random();
 
-class RetryableOperation:
-    def __init__(self, max_retries, initial_delay_ms):
-        self.max_retries = max_retries
-        self.initial_delay_ms = initial_delay_ms
+    // Full jitter: 0 to calculated delay
+    private long fullJitter(long delay) {
+        return random.nextLong(delay + 1);
+    }
 
-    def execute_with_retry(self, operation):
-        attempt = 0
-        delay = self.initial_delay_ms / 1000  # Convert to seconds
+    // Equal jitter: half delay + random half
+    private long equalJitter(long delay) {
+        long half = delay / 2;
+        return half + random.nextLong(half + 1);
+    }
 
-        while True:
-            try:
-                print(f"Attempt {attempt + 1}")
-                # TODO: Call operation() and return result
-                pass
-            except Exception as e:
-                attempt += 1
+    public <T> T executeWithJitter(Callable<T> operation) throws Exception {
+        int attempt = 0;
+        long delay = 100; // initial delay ms
 
-                # TODO: Check if max retries exceeded
+        while (attempt < maxRetries) {
+            try {
+                return operation.call();
+            } catch (RetryableException e) {
+                attempt++;
 
-                # TODO: Sleep and double delay (exponential backoff)
-                pass`,
-          solution: `import time
+                // Apply jitter to prevent thundering herd
+                long jitteredDelay = equalJitter(delay);
 
-class RetryableOperation:
-    def __init__(self, max_retries, initial_delay_ms):
-        self.max_retries = max_retries
-        self.initial_delay_ms = initial_delay_ms
+                log.info("Retry {} after {}ms (base: {}ms)",
+                    attempt, jitteredDelay, delay);
 
-    def execute_with_retry(self, operation):
-        attempt = 0
-        delay = self.initial_delay_ms / 1000  # Convert to seconds
-
-        while True:
-            try:
-                print(f"Attempt {attempt + 1}")
-                return operation()
-            except Exception as e:
-                attempt += 1
-
-                if attempt >= self.max_retries:
-                    print("Max retries exceeded")
-                    raise
-
-                print(f"Retry after {delay*1000:.0f}ms. Error: {e}")
-                time.sleep(delay)
-                delay *= 2  # Exponential backoff
-
-# Test
-retry = RetryableOperation(3, 100)
-attempt_count = 0
-
-def flaky_operation():
-    global attempt_count
-    attempt_count += 1
-    if attempt_count < 3:
-        raise Exception("Temporary failure")
-    return "Success!"
-
-result = retry.execute_with_retry(flaky_operation)
-print(f"Result: {result}")`
+                Thread.sleep(jitteredDelay);
+                delay = Math.min(delay * 2, maxDelay);
+            }
         }
-      },
-      explanation: 'Exponential backoff: retry with delays that double each time (100ms, 200ms, 400ms). Use Thread.sleep(delay) then delay *= 2. Limit retries with maxRetries counter. Use Callable<T> for operations that return values. Add jitter (randomness) in production to avoid thundering herd.',
-      timeComplexity: 'O(2^n) total wait time',
-      spaceComplexity: 'O(1)'
+        throw new RetryExhaustedException("All retries failed");
+    }
+}`
+        },
+        {
+          name: 'Selective Retry',
+          explanation: 'Not all exceptions should trigger a retry. Transient failures (network timeout, temporary unavailability) are good candidates. Permanent failures (authentication error, invalid input) should fail immediately. Create a policy to classify exceptions as retryable or non-retryable.',
+          codeExample: `public class SelectiveRetryExecutor {
+    private final Predicate<Exception> isRetryable;
+
+    public SelectiveRetryExecutor(Predicate<Exception> isRetryable) {
+        this.isRetryable = isRetryable;
+    }
+
+    // Default policy: network and timeout errors are retryable
+    public static Predicate<Exception> defaultPolicy() {
+        return e -> {
+            if (e instanceof SocketTimeoutException) return true;
+            if (e instanceof ConnectException) return true;
+            if (e instanceof ServiceUnavailableException) return true;
+            if (e instanceof SQLException) {
+                // Retry on connection issues, not constraint violations
+                String state = ((SQLException) e).getSQLState();
+                return state != null && state.startsWith("08"); // connection
+            }
+            return false;
+        };
+    }
+
+    public <T> T execute(Callable<T> operation) throws Exception {
+        int attempt = 0;
+        Exception lastException = null;
+
+        while (attempt < maxRetries) {
+            try {
+                return operation.call();
+            } catch (Exception e) {
+                if (!isRetryable.test(e)) {
+                    // Non-retryable - fail immediately
+                    throw e;
+                }
+                lastException = e;
+                attempt++;
+                Thread.sleep(calculateDelay(attempt));
+            }
+        }
+        throw new RetryExhaustedException("Retries exhausted", lastException);
+    }
+}`
+        },
+        {
+          name: 'Circuit Breaker Integration',
+          explanation: 'Combine retry logic with a circuit breaker pattern to prevent cascading failures. After too many failures, the circuit "opens" and fails fast without attempting the operation. After a timeout, it allows a test request through. This protects both client and server resources.',
+          codeExample: `public class CircuitBreakerRetry<T> {
+    private enum State { CLOSED, OPEN, HALF_OPEN }
+
+    private State state = State.CLOSED;
+    private int failureCount = 0;
+    private long lastFailureTime = 0;
+
+    private final int failureThreshold = 5;
+    private final long resetTimeoutMs = 30000;
+    private final int maxRetries = 3;
+
+    public T execute(Callable<T> operation) throws Exception {
+        if (state == State.OPEN) {
+            if (System.currentTimeMillis() - lastFailureTime > resetTimeoutMs) {
+                state = State.HALF_OPEN;
+            } else {
+                throw new CircuitOpenException("Circuit is open");
+            }
+        }
+
+        try {
+            T result = executeWithRetry(operation);
+            onSuccess();
+            return result;
+        } catch (Exception e) {
+            onFailure();
+            throw e;
+        }
+    }
+
+    private void onSuccess() {
+        failureCount = 0;
+        state = State.CLOSED;
+    }
+
+    private void onFailure() {
+        failureCount++;
+        lastFailureTime = System.currentTimeMillis();
+        if (failureCount >= failureThreshold) {
+            state = State.OPEN;
+            log.warn("Circuit opened after {} failures", failureCount);
+        }
+    }
+}`
+        }
+      ]
     }
   ]
 
-  // Calculate completion status
-  const getCompletionStats = () => {
-    const completed = questions.filter(q => isProblemCompleted(`ExceptionHandling-${q.id}`)).length
-    return { completed, total: questions.length, percentage: Math.round((completed / questions.length) * 100) }
-  }
+  // =============================================================================
+  // NAVIGATION HANDLERS
+  // =============================================================================
 
-  const stats = getCompletionStats()
+  const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 
-  // Group questions by difficulty
-  const groupedQuestions = {
-    Easy: questions.filter(q => q.difficulty === 'Easy'),
-    Medium: questions.filter(q => q.difficulty === 'Medium'),
-    Hard: questions.filter(q => q.difficulty === 'Hard')
-  }
-
-  const selectQuestion = (question) => {
-    setSelectedQuestion(question)
-    setShowSolution(false)
-    setShowExplanation(false)
-    setUserCode(question.code[language].starterCode)
-    setOutput('')
-    setShowDrawing(false)
-  }
-
-  const toggleSection = (difficulty) => {
-    setExpandedSections(prev => ({ ...prev, [difficulty]: !prev[difficulty] }))
-  }
-
-  const getDifficultyColor = (difficulty) => {
-    switch(difficulty) {
-      case 'Easy': return '#10b981'
-      case 'Medium': return '#f59e0b'
-      case 'Hard': return '#ef4444'
-      default: return '#6b7280'
+  const handlePreviousConcept = () => {
+    if (selectedConceptIndex > 0) {
+      setSelectedConceptIndex(selectedConceptIndex - 1)
+      setSelectedDetailIndex(0)
     }
   }
 
-  if (selectedQuestion) {
-    return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', color: 'white', padding: '1.5rem' }}>
-      <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>
-          <button onClick={() => setSelectedQuestion(null)} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d97706'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f59e0b'}>
-            ← Back to Java
-          </button>
-          <LanguageToggle />
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-          {/* Problem Description */}
-          <div style={{ background: 'linear-gradient(to bottom right, #1f2937, #111827)', padding: '2rem', borderRadius: '12px', border: '2px solid #374151', maxHeight: '85vh', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.75rem', color: '#fbbf24', margin: 0 }}>{selectedQuestion.title}</h2>
-              <span style={{ padding: '0.5rem 1rem', borderRadius: '12px', fontSize: '0.875rem', fontWeight: '600', backgroundColor: getDifficultyColor(selectedQuestion.difficulty) + '20', color: getDifficultyColor(selectedQuestion.difficulty) }}>
-                {selectedQuestion.difficulty}
-              </span>
-            </div>
-
-            <div style={{ marginBottom: '1.5rem' }}>
-              <CompletionCheckbox problemId={`ExceptionHandling-${selectedQuestion.id}`} />
-            </div>
-
-            <div style={{ marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.1rem', color: '#fbbf24', marginBottom: '0.75rem' }}>Description</h3>
-              <p style={{ fontSize: '1rem', color: '#d1d5db', lineHeight: '1.6' }}>{selectedQuestion.description}</p>
-            </div>
-
-            {selectedQuestion.examples && selectedQuestion.examples.length > 0 && (
-              <div style={{ marginBottom: '1.5rem' }}>
-                <h3 style={{ fontSize: '1.1rem', color: '#fbbf24', marginBottom: '0.75rem' }}>Examples</h3>
-                {selectedQuestion.examples.map((example, idx) => (
-                  <div key={idx} style={{ backgroundColor: '#374151', padding: '1rem', borderRadius: '8px', marginBottom: '0.75rem', border: '1px solid #374151', color: '#d1d5db' }}>
-                    <div style={{ marginBottom: '0.5rem' }}>
-                      <strong style={{ color: '#fbbf24' }}>Input:</strong> <code style={{ color: '#d1d5db' }}>{example.input}</code>
-                    </div>
-                    <div>
-                      <strong style={{ color: '#fbbf24' }}>Output:</strong> <code style={{ color: '#d1d5db' }}>{example.output}</code>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {selectedQuestion.explanation && (
-              <div style={{ marginTop: '1.5rem' }}>
-                <h3 style={{ fontSize: '1.1rem', color: '#fbbf24', marginBottom: '0.75rem' }}>Explanation</h3>
-                <p style={{ fontSize: '0.95rem', color: '#d1d5db', lineHeight: '1.6' }}>{selectedQuestion.explanation}</p>
-              </div>
-            )}
-
-            {(selectedQuestion.timeComplexity || selectedQuestion.spaceComplexity) && (
-              <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#374151', borderRadius: '8px', border: '1px solid #374151' }}>
-                <h3 style={{ fontSize: '1rem', color: '#fbbf24', marginBottom: '0.5rem' }}>Complexity</h3>
-                {selectedQuestion.timeComplexity && <div style={{ fontSize: '0.9rem', color: '#d1d5db' }}>Time: {selectedQuestion.timeComplexity}</div>}
-                {selectedQuestion.spaceComplexity && <div style={{ fontSize: '0.9rem', color: '#d1d5db' }}>Space: {selectedQuestion.spaceComplexity}</div>}
-              </div>
-            )}
-          </div>
-
-          {/* Code Editor */}
-          <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '12px', border: '2px solid #e5e7eb', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-              <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedQuestion.code[language].solution) }} style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-                {showSolution ? 'Hide' : 'Show'} Solution
-              </button>
-              <button onClick={() => setUserCode(selectedQuestion.code[language].starterCode)} style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-                Reset Code
-              </button>
-            </div>
-
-            <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'monospace', fontSize: '0.9rem', border: '2px solid #e5e7eb', borderRadius: '8px', resize: 'none', lineHeight: '1.5' }} spellCheck={false} />
-
-            {output && (
-              <div style={{ marginTop: '1rem' }}>
-                <h3 style={{ fontSize: '1rem', color: '#374151', marginBottom: '0.5rem' }}>Output</h3>
-                <pre style={{ backgroundColor: '#f9fafb', padding: '1rem', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'auto', fontSize: '0.875rem', maxHeight: '150px' }}>{output}</pre>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-      </div>
-    )
+  const handleNextConcept = () => {
+    if (selectedConceptIndex < concepts.length - 1) {
+      setSelectedConceptIndex(selectedConceptIndex + 1)
+      setSelectedDetailIndex(0)
+    }
   }
 
+  // =============================================================================
+  // BREADCRUMB CONFIGURATION
+  // =============================================================================
+
+  const buildBreadcrumbStack = () => {
+    const stack = [
+      { name: 'Java', icon: '☕', page: 'Java' },
+      { name: 'Exception Handling', icon: '⚠️', page: 'Exception Handling' }
+    ]
+    if (selectedConcept) {
+      stack.push({ name: selectedConcept.name, icon: selectedConcept.icon })
+    }
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index) => {
+    if (index === 0) {
+      onBack()
+    } else if (index === 1 && selectedConcept) {
+      setSelectedConceptIndex(null)
+    }
+  }
+
+  // =============================================================================
+  // KEYBOARD NAVIGATION
+  // =============================================================================
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        if (selectedConceptIndex !== null) {
+          setSelectedConceptIndex(null)
+        } else {
+          onBack()
+        }
+      } else if (e.key === 'ArrowLeft' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        if (selectedConceptIndex > 0) {
+          setSelectedConceptIndex(selectedConceptIndex - 1)
+          setSelectedDetailIndex(0)
+        }
+      } else if (e.key === 'ArrowRight' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        if (selectedConceptIndex < concepts.length - 1) {
+          setSelectedConceptIndex(selectedConceptIndex + 1)
+          setSelectedDetailIndex(0)
+        }
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConceptIndex, onBack, concepts.length])
+
+  // =============================================================================
+  // STYLES
+  // =============================================================================
+
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f172a 0%, #450a0a 50%, #0f172a 100%)',
+    padding: '2rem',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
+  }
+
+  const headerStyle = {
+    maxWidth: '1400px',
+    margin: '0 auto 2rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '1rem'
+  }
+
+  const titleStyle = {
+    fontSize: '2.5rem',
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #fca5a5, #ef4444)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    margin: 0
+  }
+
+  const backButtonStyle = {
+    padding: '0.75rem 1.5rem',
+    background: 'rgba(239, 68, 68, 0.2)',
+    border: '1px solid rgba(239, 68, 68, 0.3)',
+    borderRadius: '0.5rem',
+    color: '#fca5a5',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    transition: 'all 0.2s'
+  }
+
+  // =============================================================================
+  // RENDER
+  // =============================================================================
+
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
-      <div style={{ marginBottom: '2rem' }}>
-        <button onClick={onBack} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
-          ← Back
+    <div style={containerStyle}>
+      {/* Header with title and back button */}
+      <div style={headerStyle}>
+        <h1 style={titleStyle}>Exception Handling</h1>
+        <button
+          style={backButtonStyle}
+          onClick={onBack}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.3)'
+            e.currentTarget.style.transform = 'translateY(-2px)'
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'
+            e.currentTarget.style.transform = 'translateY(0)'
+          }}
+        >
+          Back to Java
         </button>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
-
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: 'white', marginBottom: '0.5rem' }}>⚠️ Exception Handling</h1>
-        <p style={{ fontSize: '1.2rem', color: '#9ca3af' }}>Master Java exception handling, custom exceptions, and error recovery patterns</p>
-
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1.5rem' }}>
-          <div style={{ padding: '1rem 2rem', backgroundColor: '#1f2937', borderRadius: '12px', border: '2px solid #374151' }}>
-            <div style={{ fontSize: '2rem', fontWeight: '700', color: '#3b82f6' }}>{stats.completed}/{stats.total}</div>
-            <div style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.25rem' }}>Completed</div>
-          </div>
-          <div style={{ padding: '1rem 2rem', backgroundColor: '#1f2937', borderRadius: '12px', border: '2px solid #374151' }}>
-            <div style={{ fontSize: '2rem', fontWeight: '700', color: '#10b981' }}>{stats.percentage}%</div>
-            <div style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.25rem' }}>Progress</div>
-          </div>
-        </div>
+      {/* Breadcrumb navigation */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          colors={EXCEPTION_COLORS}
+        />
       </div>
 
-      {Object.entries(groupedQuestions).map(([difficulty, difficultyQuestions]) => (
-        difficultyQuestions.length > 0 && (
-          <div key={difficulty} style={{ marginBottom: '2rem' }}>
-            <button onClick={() => toggleSection(difficulty)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', backgroundColor: '#1f2937', border: '2px solid #374151', borderRadius: '12px', cursor: 'pointer', marginBottom: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <span style={{ fontSize: '1.5rem', fontWeight: '700', color: getDifficultyColor(difficulty) }}>{difficulty}</span>
-                <span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>({difficultyQuestions.length} problems)</span>
-              </div>
-              <span style={{ fontSize: '1.25rem', color: '#9ca3af' }}>{expandedSections[difficulty] ? '▼' : '▶'}</span>
-            </button>
-
-            {expandedSections[difficulty] && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '1rem' }}>
-                {difficultyQuestions.map((question) => (
-                  <div key={question.id} onClick={() => selectQuestion(question)} style={{ backgroundColor: '#1f2937', padding: '1.5rem', borderRadius: '12px', border: '2px solid #374151', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.3)' }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'white', margin: 0, flex: 1 }}>{question.id}. {question.title}</h3>
-                    </div>
-                    <p style={{ fontSize: '0.875rem', color: '#9ca3af', lineHeight: '1.5', marginBottom: '1rem' }}>{question.description.substring(0, 100)}...</p>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '600', backgroundColor: getDifficultyColor(question.difficulty) + '20', color: getDifficultyColor(question.difficulty) }}>{question.difficulty}</span>
-                      <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ transform: 'scale(0.85)' }}>
-                          <CompletionCheckbox problemId={`ExceptionHandling-${question.id}`} />
-                        </div>
-                        {question.leetcodeUrl && (
-                          <a
-                            href={question.leetcodeUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ padding: '0.25rem 0.75rem', backgroundColor: '#FFA116', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: '0.75rem', fontWeight: '600', display: 'inline-block' }}
-                          >
-                            LeetCode ↗
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+      {/* Concept Cards Grid */}
+      <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gap: '1.5rem'
+      }}>
+        {concepts.map((concept, index) => (
+          <div
+            key={concept.id}
+            onClick={() => setSelectedConceptIndex(index)}
+            style={{
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              border: `1px solid ${concept.color}40`,
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = `0 20px 40px ${concept.color}20`
+              e.currentTarget.style.borderColor = concept.color
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.borderColor = `${concept.color}40`
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
+              <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
+            </div>
+            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
+            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+              {concept.details.length} topics - Click to explore
+            </div>
           </div>
-        )
-      ))}
+        ))}
+      </div>
+
+      {/* Modal for Selected Concept */}
+      {selectedConcept && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '2rem'
+          }}
+          onClick={() => setSelectedConceptIndex(null)}
+        >
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              maxWidth: '1200px',
+              maxHeight: '92vh',
+              overflow: 'auto',
+              border: `1px solid ${selectedConcept.color}40`
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Breadcrumb */}
+            <Breadcrumb
+              breadcrumbStack={buildBreadcrumbStack()}
+              onBreadcrumbClick={handleBreadcrumbClick}
+              colors={EXCEPTION_COLORS}
+            />
+
+            {/* Modal Header with Navigation */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1.5rem',
+              paddingBottom: '1rem',
+              borderBottom: '1px solid #334155'
+            }}>
+              <h2 style={{
+                color: selectedConcept.color,
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '1.25rem'
+              }}>
+                <span>{selectedConcept.icon}</span>
+                {selectedConcept.name}
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button
+                  onClick={handlePreviousConcept}
+                  disabled={selectedConceptIndex === 0}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >&larr;</button>
+                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>
+                  {selectedConceptIndex + 1}/{concepts.length}
+                </span>
+                <button
+                  onClick={handleNextConcept}
+                  disabled={selectedConceptIndex === concepts.length - 1}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >&rarr;</button>
+                <button
+                  onClick={() => setSelectedConceptIndex(null)}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: '#f87171',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    marginLeft: '0.5rem'
+                  }}
+                >&times;</button>
+              </div>
+            </div>
+
+            {/* Subtopic Tabs */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {selectedConcept.details.map((detail, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedDetailIndex(i)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)',
+                    border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`,
+                    borderRadius: '0.5rem',
+                    color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: selectedDetailIndex === i ? '600' : '400',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {detail.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Selected Subtopic Content */}
+            {(() => {
+              const detail = selectedConcept.details[selectedDetailIndex]
+              const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
+              return (
+                <div>
+                  {/* Diagram */}
+                  {DiagramComponent && (
+                    <div style={{
+                      background: 'rgba(15, 23, 42, 0.6)',
+                      borderRadius: '0.75rem',
+                      padding: '1rem',
+                      marginBottom: '1.5rem',
+                      border: '1px solid #334155'
+                    }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
+
+                  {/* Detail Name */}
+                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>
+                    {detail.name}
+                  </h3>
+
+                  {/* Explanation */}
+                  <p style={{
+                    color: '#e2e8f0',
+                    lineHeight: '1.8',
+                    marginBottom: '1rem',
+                    background: colorScheme.bg,
+                    border: `1px solid ${colorScheme.border}`,
+                    borderRadius: '0.5rem',
+                    padding: '1rem',
+                    textAlign: 'left'
+                  }}>
+                    {detail.explanation}
+                  </p>
+
+                  {/* Code Example */}
+                  {detail.codeExample && (
+                    <SyntaxHighlighter
+                      language="java"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        padding: '1rem',
+                        margin: 0,
+                        borderRadius: '0.5rem',
+                        fontSize: '0.8rem',
+                        border: '1px solid #334155',
+                        background: '#0f172a'
+                      }}
+                      codeTagProps={{ style: { background: 'transparent' } }}
+                    >
+                      {detail.codeExample}
+                    </SyntaxHighlighter>
+                  )}
+                </div>
+              )
+            })()}
+
+          </div>
+        </div>
+      )}
     </div>
   )
 }

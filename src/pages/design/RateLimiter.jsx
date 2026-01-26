@@ -1,83 +1,446 @@
 import { useState, useEffect } from 'react'
-import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
-import LanguageToggle from '../../components/LanguageToggle.jsx'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
-import { isProblemCompleted, getUserCode } from '../../services/progressService'
-import { getPreferredLanguage } from '../../services/languageService'
 
-function RateLimiter({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb }) {
-  const [selectedQuestion, setSelectedQuestion] = useState(null)
-  const [showSolution, setShowSolution] = useState(false)
-  const [showExplanation, setShowExplanation] = useState(false)
-  const [userCode, setUserCode] = useState('')
-  const [output, setOutput] = useState('')
-  const [isRunning, setIsRunning] = useState(false)
-  const [refreshKey, setRefreshKey] = useState(0)
-  const [language, setLanguage] = useState(getPreferredLanguage())
+// =============================================================================
+// COLORS CONFIGURATION
+// =============================================================================
 
-  // Listen for completion changes
-  useEffect(() => {
-    const handleProgressUpdate = () => {
-      setRefreshKey(prev => prev + 1)
-    }
+const TOPIC_COLORS = {
+  primary: '#ef4444',
+  primaryHover: '#f87171',
+  bg: 'rgba(239, 68, 68, 0.1)',
+  border: 'rgba(239, 68, 68, 0.3)',
+  arrow: '#ef4444',
+  hoverBg: 'rgba(239, 68, 68, 0.2)',
+  topicBg: 'rgba(239, 68, 68, 0.2)'
+}
 
-    window.addEventListener('progressUpdate', handleProgressUpdate)
-    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
-  }, [])
+const SUBTOPIC_COLORS = [
+  { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },
+  { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' },
+  { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' },
+  { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)' },
+  { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)' },
+  { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
+]
 
-  // Listen for language changes
-  useEffect(() => {
-    const handleLanguageChange = (e) => {
-      const newLanguage = e.detail
-      setLanguage(newLanguage)
-      if (selectedQuestion) {
-        // Check if there's saved code for this language first
-        const problemId = `RateLimiter-${selectedQuestion.id}`
-        const savedCode = getUserCode(problemId, newLanguage)
-        setUserCode(savedCode || selectedQuestion.code[newLanguage].starterCode)
-      }
-    }
-    window.addEventListener('languageChange', handleLanguageChange)
-    return () => window.removeEventListener('languageChange', handleLanguageChange)
-  }, [selectedQuestion])
+// =============================================================================
+// DIAGRAM COMPONENTS
+// =============================================================================
 
-  const questions = [
+const RateLimiterArchitectureDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <linearGradient id="clientGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#6d28d9', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="gatewayGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="rateLimiterGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#ef4444', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#dc2626', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="backendGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="arrowArch" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#60a5fa" />
+      </marker>
+      <marker id="arrowReject" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#ef4444" />
+      </marker>
+    </defs>
+
+    <rect x="30" y="60" width="100" height="80" rx="10" fill="url(#clientGrad)" />
+    <text x="80" y="95" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">Client</text>
+    <text x="80" y="115" fontSize="10" fill="white" opacity="0.8" textAnchor="middle">Requests</text>
+
+    <line x1="130" y1="100" x2="195" y2="100" stroke="#60a5fa" strokeWidth="3" markerEnd="url(#arrowArch)" />
+    <text x="162" y="90" fontSize="9" fill="#9ca3af" textAnchor="middle">HTTP</text>
+
+    <rect x="200" y="60" width="120" height="80" rx="10" fill="url(#gatewayGrad)" />
+    <text x="260" y="90" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">API Gateway</text>
+    <text x="260" y="108" fontSize="9" fill="white" opacity="0.8" textAnchor="middle">Load Balancer</text>
+    <text x="260" y="122" fontSize="9" fill="white" opacity="0.8" textAnchor="middle">Authentication</text>
+
+    <line x1="320" y1="100" x2="395" y2="100" stroke="#60a5fa" strokeWidth="3" markerEnd="url(#arrowArch)" />
+    <text x="357" y="90" fontSize="9" fill="#9ca3af" textAnchor="middle">Check</text>
+
+    <rect x="400" y="40" width="140" height="120" rx="10" fill="url(#rateLimiterGrad)" />
+    <text x="470" y="70" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">Rate Limiter</text>
+    <text x="470" y="90" fontSize="9" fill="white" opacity="0.8" textAnchor="middle">Token Bucket</text>
+    <text x="470" y="105" fontSize="9" fill="white" opacity="0.8" textAnchor="middle">Sliding Window</text>
+    <text x="470" y="120" fontSize="9" fill="white" opacity="0.8" textAnchor="middle">Leaky Bucket</text>
+    <text x="470" y="135" fontSize="9" fill="white" opacity="0.8" textAnchor="middle">Fixed Window</text>
+
+    <line x1="540" y1="80" x2="615" y2="80" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowArch)" />
+    <text x="577" y="70" fontSize="9" fill="#10b981" textAnchor="middle">Allowed</text>
+
+    <rect x="620" y="50" width="120" height="80" rx="10" fill="url(#backendGrad)" />
+    <text x="680" y="85" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">Backend</text>
+    <text x="680" y="103" fontSize="10" fill="white" opacity="0.8" textAnchor="middle">Services</text>
+
+    <path d="M 470 160 L 470 180 L 80 180 L 80 145" fill="none" stroke="#ef4444" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowReject)" />
+    <text x="275" y="175" fontSize="9" fill="#ef4444" textAnchor="middle">429 Too Many Requests</text>
+
+    <text x="400" y="20" fontSize="11" fontWeight="600" fill="#60a5fa" textAnchor="middle">Rate Limiting Architecture</text>
+  </svg>
+)
+
+const TokenBucketDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <linearGradient id="bucketGradTB" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#1d4ed8', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="tokenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#fbbf24', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="arrowTB" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#10b981" />
+      </marker>
+    </defs>
+
+    <text x="350" y="20" fontSize="12" fontWeight="600" fill="#60a5fa" textAnchor="middle">Token Bucket Algorithm</text>
+
+    <rect x="30" y="40" width="100" height="60" rx="8" fill="#1f2937" stroke="#374151" strokeWidth="2" />
+    <text x="80" y="65" fontSize="11" fontWeight="600" fill="#10b981" textAnchor="middle">Refill</text>
+    <text x="80" y="82" fontSize="9" fill="#9ca3af" textAnchor="middle">1 token/sec</text>
+
+    <rect x="200" y="50" width="120" height="110" rx="0" ry="0" fill="url(#bucketGradTB)" stroke="#1d4ed8" strokeWidth="3" />
+    <path d="M 200 50 L 180 50 L 180 160 L 200 160" fill="none" stroke="#1d4ed8" strokeWidth="3" />
+    <path d="M 320 50 L 340 50 L 340 160 L 320 160" fill="none" stroke="#1d4ed8" strokeWidth="3" />
+
+    <circle cx="230" cy="130" r="12" fill="url(#tokenGrad)" />
+    <circle cx="260" cy="130" r="12" fill="url(#tokenGrad)" />
+    <circle cx="290" cy="130" r="12" fill="url(#tokenGrad)" />
+    <circle cx="245" cy="100" r="12" fill="url(#tokenGrad)" />
+    <circle cx="275" cy="100" r="12" fill="url(#tokenGrad)" />
+    <text x="260" y="75" fontSize="10" fill="white" textAnchor="middle">5/10 tokens</text>
+
+    <line x1="130" y1="70" x2="200" y2="90" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowTB)" />
+
+    <rect x="420" y="50" width="100" height="50" rx="6" fill="#374151" />
+    <text x="470" y="72" fontSize="10" fontWeight="600" fill="#10b981" textAnchor="middle">Request</text>
+    <text x="470" y="88" fontSize="9" fill="#9ca3af" textAnchor="middle">-1 token</text>
+
+    <line x1="340" y1="105" x2="420" y2="75" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#arrowTB)" />
+
+    <rect x="550" y="40" width="120" height="50" rx="6" fill="#10b981" />
+    <text x="610" y="70" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">Allowed</text>
+
+    <rect x="550" y="110" width="120" height="50" rx="6" fill="#ef4444" />
+    <text x="610" y="140" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">Rejected</text>
+  </svg>
+)
+
+const LeakyBucketDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <linearGradient id="bucketGradLB" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#06b6d4', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#0891b2', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="waterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 0.8 }} />
+        <stop offset="100%" style={{ stopColor: '#1d4ed8', stopOpacity: 0.8 }} />
+      </linearGradient>
+      <marker id="arrowLB" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#10b981" />
+      </marker>
+    </defs>
+
+    <text x="350" y="20" fontSize="12" fontWeight="600" fill="#60a5fa" textAnchor="middle">Leaky Bucket Algorithm</text>
+
+    <rect x="30" y="40" width="120" height="50" rx="6" fill="#374151" />
+    <text x="90" y="60" fontSize="10" fontWeight="600" fill="#f59e0b" textAnchor="middle">Burst Requests</text>
+    <text x="90" y="75" fontSize="9" fill="#9ca3af" textAnchor="middle">(variable rate)</text>
+
+    <path d="M 230 40 L 210 40 L 210 140 L 230 140" fill="none" stroke="url(#bucketGradLB)" strokeWidth="4" />
+    <path d="M 330 40 L 350 40 L 350 140 L 330 140" fill="none" stroke="url(#bucketGradLB)" strokeWidth="4" />
+    <rect x="230" y="40" width="100" height="100" rx="0" fill="none" stroke="url(#bucketGradLB)" strokeWidth="4" />
+    <rect x="235" y="70" width="90" height="65" rx="2" fill="url(#waterGrad)" />
+    <text x="280" y="105" fontSize="10" fill="white" textAnchor="middle">Queue</text>
+
+    <line x1="150" y1="65" x2="210" y2="65" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#arrowLB)" />
+
+    <circle cx="280" cy="155" r="8" fill="#10b981" />
+    <line x1="280" y1="163" x2="280" y2="175" stroke="#10b981" strokeWidth="3" />
+    <text x="280" y="175" fontSize="8" fill="#10b981" textAnchor="middle" dy="8">leak</text>
+
+    <rect x="420" y="60" width="130" height="50" rx="6" fill="#10b981" />
+    <text x="485" y="80" fontSize="10" fontWeight="600" fill="white" textAnchor="middle">Processed</text>
+    <text x="485" y="95" fontSize="9" fill="white" opacity="0.9" textAnchor="middle">(constant rate)</text>
+
+    <line x1="350" y1="90" x2="420" y2="85" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowLB)" />
+
+    <rect x="570" y="40" width="120" height="100" rx="8" fill="#1f2937" stroke="#374151" strokeWidth="2" />
+    <text x="630" y="65" fontSize="10" fontWeight="600" fill="#06b6d4" textAnchor="middle">Key Properties</text>
+    <text x="580" y="85" fontSize="9" fill="#9ca3af">Smooth output</text>
+    <text x="580" y="102" fontSize="9" fill="#9ca3af">Queue overflow</text>
+    <text x="580" y="119" fontSize="9" fill="#9ca3af">Fixed leak rate</text>
+  </svg>
+)
+
+const FixedWindowDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <linearGradient id="window1Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style={{ stopColor: '#ef4444', stopOpacity: 0.3 }} />
+        <stop offset="100%" style={{ stopColor: '#ef4444', stopOpacity: 0.3 }} />
+      </linearGradient>
+      <linearGradient id="window2Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 0.3 }} />
+        <stop offset="100%" style={{ stopColor: '#10b981', stopOpacity: 0.3 }} />
+      </linearGradient>
+    </defs>
+
+    <text x="350" y="20" fontSize="12" fontWeight="600" fill="#60a5fa" textAnchor="middle">Fixed Window Counter Algorithm</text>
+
+    <line x1="50" y1="120" x2="650" y2="120" stroke="#374151" strokeWidth="2" />
+
+    <rect x="100" y="60" width="200" height="50" rx="4" fill="url(#window1Grad)" stroke="#ef4444" strokeWidth="2" />
+    <text x="200" y="50" fontSize="10" fontWeight="600" fill="#ef4444" textAnchor="middle">Window 1 (12:00-12:01)</text>
+    <text x="200" y="90" fontSize="14" fontWeight="bold" fill="#ef4444" textAnchor="middle">8/10</text>
+
+    <rect x="300" y="60" width="200" height="50" rx="4" fill="url(#window2Grad)" stroke="#10b981" strokeWidth="2" />
+    <text x="400" y="50" fontSize="10" fontWeight="600" fill="#10b981" textAnchor="middle">Window 2 (12:01-12:02)</text>
+    <text x="400" y="90" fontSize="14" fontWeight="bold" fill="#10b981" textAnchor="middle">3/10</text>
+
+    <rect x="500" y="60" width="150" height="50" rx="4" fill="#374151" stroke="#6b7280" strokeWidth="2" strokeDasharray="5,5" />
+    <text x="575" y="90" fontSize="12" fill="#6b7280" textAnchor="middle">Next...</text>
+
+    <line x1="100" y1="115" x2="100" y2="125" stroke="#ef4444" strokeWidth="2" />
+    <line x1="300" y1="115" x2="300" y2="125" stroke="#f59e0b" strokeWidth="2" />
+    <line x1="500" y1="115" x2="500" y2="125" stroke="#6b7280" strokeWidth="2" />
+
+    <text x="100" y="140" fontSize="9" fill="#9ca3af" textAnchor="middle">12:00</text>
+    <text x="300" y="140" fontSize="9" fill="#9ca3af" textAnchor="middle">12:01</text>
+    <text x="500" y="140" fontSize="9" fill="#9ca3af" textAnchor="middle">12:02</text>
+
+    <text x="350" y="165" fontSize="10" fill="#6b7280" textAnchor="middle">Counter resets at window boundary</text>
+  </svg>
+)
+
+const SlidingWindowLogDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <linearGradient id="windowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 0.3 }} />
+        <stop offset="100%" style={{ stopColor: '#8b5cf6', stopOpacity: 0.3 }} />
+      </linearGradient>
+    </defs>
+
+    <text x="350" y="20" fontSize="12" fontWeight="600" fill="#60a5fa" textAnchor="middle">Sliding Window Log Algorithm</text>
+
+    <line x1="50" y1="100" x2="650" y2="100" stroke="#374151" strokeWidth="2" />
+    <text x="350" y="140" fontSize="11" fill="#9ca3af" textAnchor="middle">Timeline (seconds)</text>
+
+    <rect x="250" y="40" width="350" height="50" rx="4" fill="url(#windowGrad)" stroke="#8b5cf6" strokeWidth="2" strokeDasharray="5,5" />
+    <text x="425" y="32" fontSize="10" fontWeight="600" fill="#8b5cf6" textAnchor="middle">Sliding Window (60s)</text>
+
+    <circle cx="100" cy="100" r="8" fill="#6b7280" />
+    <text x="100" y="85" fontSize="9" fill="#6b7280" textAnchor="middle">t-90s</text>
+    <text x="100" y="120" fontSize="8" fill="#6b7280" textAnchor="middle">(expired)</text>
+
+    <circle cx="280" cy="100" r="8" fill="#10b981" />
+    <text x="280" y="70" fontSize="9" fill="#10b981" textAnchor="middle">t-45s</text>
+
+    <circle cx="350" cy="100" r="8" fill="#10b981" />
+    <text x="350" y="70" fontSize="9" fill="#10b981" textAnchor="middle">t-30s</text>
+
+    <circle cx="420" cy="100" r="8" fill="#10b981" />
+    <text x="420" y="70" fontSize="9" fill="#10b981" textAnchor="middle">t-15s</text>
+
+    <circle cx="550" cy="100" r="8" fill="#f59e0b" />
+    <text x="550" y="70" fontSize="9" fill="#f59e0b" textAnchor="middle">NOW</text>
+
+    <text x="350" y="160" fontSize="10" fill="#9ca3af" textAnchor="middle">Count requests in window: 4</text>
+  </svg>
+)
+
+const SlidingWindowCounterDiagram = () => (
+  <svg viewBox="0 0 750 200" style={{ width: '100%', maxWidth: '750px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <linearGradient id="prevWindowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 0.4 }} />
+        <stop offset="100%" style={{ stopColor: '#6366f1', stopOpacity: 0.2 }} />
+      </linearGradient>
+      <linearGradient id="currWindowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 0.3 }} />
+        <stop offset="100%" style={{ stopColor: '#10b981', stopOpacity: 0.5 }} />
+      </linearGradient>
+    </defs>
+
+    <text x="375" y="20" fontSize="12" fontWeight="600" fill="#60a5fa" textAnchor="middle">Sliding Window Counter (Hybrid)</text>
+
+    <line x1="50" y1="130" x2="700" y2="130" stroke="#374151" strokeWidth="2" />
+
+    <rect x="100" y="70" width="200" height="50" rx="4" fill="url(#prevWindowGrad)" stroke="#6366f1" strokeWidth="2" />
+    <text x="200" y="60" fontSize="10" fontWeight="600" fill="#6366f1" textAnchor="middle">Previous Window</text>
+    <text x="200" y="100" fontSize="14" fontWeight="bold" fill="#6366f1" textAnchor="middle">7 requests</text>
+
+    <rect x="300" y="70" width="200" height="50" rx="4" fill="url(#currWindowGrad)" stroke="#10b981" strokeWidth="2" />
+    <text x="400" y="60" fontSize="10" fontWeight="600" fill="#10b981" textAnchor="middle">Current Window</text>
+    <text x="400" y="100" fontSize="14" fontWeight="bold" fill="#10b981" textAnchor="middle">3 requests</text>
+
+    <rect x="225" y="65" width="200" height="60" rx="4" fill="none" stroke="#f59e0b" strokeWidth="3" strokeDasharray="8,4" />
+    <text x="325" y="145" fontSize="10" fontWeight="600" fill="#f59e0b" textAnchor="middle">Sliding Window</text>
+
+    <line x1="100" y1="125" x2="100" y2="135" stroke="#6366f1" strokeWidth="2" />
+    <text x="100" y="148" fontSize="9" fill="#9ca3af" textAnchor="middle">t-120s</text>
+
+    <line x1="300" y1="125" x2="300" y2="135" stroke="#6366f1" strokeWidth="2" />
+    <text x="300" y="148" fontSize="9" fill="#9ca3af" textAnchor="middle">t-60s</text>
+
+    <line x1="500" y1="125" x2="500" y2="135" stroke="#10b981" strokeWidth="2" />
+    <text x="500" y="148" fontSize="9" fill="#9ca3af" textAnchor="middle">NOW</text>
+
+    <rect x="530" y="55" width="200" height="100" rx="8" fill="#1f2937" stroke="#374151" strokeWidth="2" />
+    <text x="630" y="78" fontSize="10" fontWeight="600" fill="#f59e0b" textAnchor="middle">Weighted Count Formula</text>
+    <text x="630" y="98" fontSize="9" fill="#9ca3af" textAnchor="middle">progress = 75% into window</text>
+    <text x="630" y="118" fontSize="9" fill="#e5e7eb" textAnchor="middle">7 x 0.25 + 3 = 4.75</text>
+    <text x="630" y="138" fontSize="9" fill="#10b981" textAnchor="middle">If limit=10: ALLOWED</text>
+  </svg>
+)
+
+const DistributedRateLimiterDiagram = () => (
+  <svg viewBox="0 0 800 280" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <linearGradient id="serverGradDist" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#2563eb', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="redisGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#dc2626', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#b91c1c', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="lbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="arrowDist" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#10b981" />
+      </marker>
+      <marker id="arrowRedis" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#dc2626" />
+      </marker>
+    </defs>
+
+    <text x="400" y="20" fontSize="12" fontWeight="600" fill="#60a5fa" textAnchor="middle">Distributed Rate Limiting with Redis</text>
+
+    <rect x="30" y="100" width="100" height="80" rx="8" fill="url(#lbGrad)" />
+    <text x="80" y="135" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">Load</text>
+    <text x="80" y="150" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">Balancer</text>
+
+    <line x1="130" y1="120" x2="195" y2="70" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowDist)" />
+    <line x1="130" y1="140" x2="195" y2="140" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowDist)" />
+    <line x1="130" y1="160" x2="195" y2="210" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowDist)" />
+
+    <rect x="200" y="40" width="130" height="60" rx="8" fill="url(#serverGradDist)" />
+    <text x="265" y="65" fontSize="10" fontWeight="600" fill="white" textAnchor="middle">API Server 1</text>
+    <text x="265" y="82" fontSize="9" fill="white" opacity="0.8" textAnchor="middle">Rate Limiter Client</text>
+
+    <rect x="200" y="110" width="130" height="60" rx="8" fill="url(#serverGradDist)" />
+    <text x="265" y="135" fontSize="10" fontWeight="600" fill="white" textAnchor="middle">API Server 2</text>
+    <text x="265" y="152" fontSize="9" fill="white" opacity="0.8" textAnchor="middle">Rate Limiter Client</text>
+
+    <rect x="200" y="180" width="130" height="60" rx="8" fill="url(#serverGradDist)" />
+    <text x="265" y="205" fontSize="10" fontWeight="600" fill="white" textAnchor="middle">API Server 3</text>
+    <text x="265" y="222" fontSize="9" fill="white" opacity="0.8" textAnchor="middle">Rate Limiter Client</text>
+
+    <line x1="330" y1="70" x2="420" y2="120" stroke="#dc2626" strokeWidth="2" markerEnd="url(#arrowRedis)" strokeDasharray="4,4" />
+    <line x1="330" y1="140" x2="420" y2="140" stroke="#dc2626" strokeWidth="2" markerEnd="url(#arrowRedis)" strokeDasharray="4,4" />
+    <line x1="330" y1="210" x2="420" y2="160" stroke="#dc2626" strokeWidth="2" markerEnd="url(#arrowRedis)" strokeDasharray="4,4" />
+
+    <rect x="425" y="90" width="150" height="100" rx="10" fill="url(#redisGrad)" />
+    <text x="500" y="120" fontSize="12" fontWeight="700" fill="white" textAnchor="middle">Redis Cluster</text>
+    <text x="500" y="140" fontSize="9" fill="white" opacity="0.9" textAnchor="middle">INCR user:123:count</text>
+    <text x="500" y="155" fontSize="9" fill="white" opacity="0.9" textAnchor="middle">EXPIRE user:123:count 60</text>
+    <text x="500" y="170" fontSize="9" fill="white" opacity="0.9" textAnchor="middle">GET user:123:count</text>
+
+    <rect x="600" y="50" width="180" height="180" rx="8" fill="#1f2937" stroke="#374151" strokeWidth="2" />
+    <text x="690" y="75" fontSize="11" fontWeight="600" fill="#10b981" textAnchor="middle">Benefits</text>
+    <text x="615" y="100" fontSize="9" fill="#9ca3af">Shared state</text>
+    <text x="615" y="118" fontSize="9" fill="#9ca3af">Atomic operations</text>
+    <text x="615" y="136" fontSize="9" fill="#9ca3af">Auto expiration (TTL)</text>
+    <text x="615" y="154" fontSize="9" fill="#9ca3af">High availability</text>
+    <text x="690" y="180" fontSize="11" fontWeight="600" fill="#f59e0b" textAnchor="middle">Lua Scripts</text>
+    <text x="615" y="200" fontSize="9" fill="#9ca3af">EVAL for atomicity</text>
+    <text x="615" y="218" fontSize="9" fill="#9ca3af">Race condition safe</text>
+  </svg>
+)
+
+const ScalingDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowScale" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#4ade80" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Rate Limiter Scaling Strategies</text>
+
+    <rect x="50" y="60" width="150" height="70" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="125" y="90" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Local Limiter</text>
+    <text x="125" y="110" textAnchor="middle" fill="white" fontSize="9" opacity="0.8">In-memory</text>
+
+    <rect x="300" y="60" width="150" height="70" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="375" y="90" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Distributed</text>
+    <text x="375" y="110" textAnchor="middle" fill="white" fontSize="9" opacity="0.8">Redis/Memcached</text>
+
+    <rect x="550" y="60" width="150" height="70" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="625" y="90" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Hybrid</text>
+    <text x="625" y="110" textAnchor="middle" fill="white" fontSize="9" opacity="0.8">Local + Sync</text>
+
+    <line x1="200" y1="95" x2="295" y2="95" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowScale)"/>
+    <line x1="450" y1="95" x2="545" y2="95" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowScale)"/>
+
+    <text x="125" y="155" textAnchor="middle" fill="#9ca3af" fontSize="9">Fast, simple</text>
+    <text x="125" y="170" textAnchor="middle" fill="#9ca3af" fontSize="9">Single server only</text>
+
+    <text x="375" y="155" textAnchor="middle" fill="#9ca3af" fontSize="9">Consistent</text>
+    <text x="375" y="170" textAnchor="middle" fill="#9ca3af" fontSize="9">Network latency</text>
+
+    <text x="625" y="155" textAnchor="middle" fill="#9ca3af" fontSize="9">Best of both</text>
+    <text x="625" y="170" textAnchor="middle" fill="#9ca3af" fontSize="9">Eventual consistency</text>
+  </svg>
+)
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
+
+function RateLimiter({ onBack, breadcrumb }) {
+  const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
+  const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+
+  // =============================================================================
+  // CONCEPTS DATA
+  // =============================================================================
+
+  const concepts = [
     {
-      id: 1,
-      title: 'Token Bucket Algorithm',
-      difficulty: 'Medium',
-      description: 'Implement a rate limiter using the Token Bucket algorithm. Tokens are added at a fixed rate. Each request consumes one token. Requests are allowed only if tokens are available. Support burst traffic up to bucket capacity.',
-      example: `TokenBucket limiter = new TokenBucket(10, 1); // capacity=10, refillRate=1/sec
-limiter.allowRequest(t=0);  // true, tokens: 9
-limiter.allowRequest(t=0);  // true, tokens: 8
-// ... 8 more requests
-limiter.allowRequest(t=0);  // false, tokens: 0
-limiter.allowRequest(t=5);  // true, tokens: 4 (5 tokens refilled)`,
-      code: {
-        java: {
-          starterCode: `class TokenBucket {
-    private int capacity;
-    private int tokens;
-    private double refillRate; // tokens per second
-    private long lastRefillTime;
-
-    public TokenBucket(int capacity, double refillRate) {
-        // TODO: Initialize token bucket
-
-    }
-
-    public boolean allowRequest(long timestamp) {
-        // TODO: Refill tokens and check availability
-
-        return false;
-    }
-
-    private void refill(long timestamp) {
-        // TODO: Add tokens based on elapsed time
-
-    }
-}`,
-          solution: `class TokenBucket {
+      id: 'token-bucket',
+      name: 'Token Bucket Algorithm',
+      icon: '🪙',
+      color: '#f59e0b',
+      description: 'Tokens are added at a fixed rate. Each request consumes one token. Allows burst traffic up to bucket capacity.',
+      diagram: TokenBucketDiagram,
+      details: [
+        {
+          name: 'Core Concept',
+          diagram: TokenBucketDiagram,
+          explanation: 'The Token Bucket algorithm controls request rates by maintaining a bucket of tokens. Tokens are added at a constant refill rate. Each request consumes one token. Requests are allowed only if tokens are available. The bucket has a maximum capacity, limiting burst size. This allows controlled burst traffic while maintaining an average rate limit.',
+          codeExample: `class TokenBucket {
     private int capacity;
     private int tokens;
     private double refillRate; // tokens per second
@@ -97,30 +460,24 @@ limiter.allowRequest(t=5);  // true, tokens: 4 (5 tokens refilled)`,
             tokens--;
             return true;
         }
-
         return false;
     }
 
     private void refill(long timestamp) {
-        long now = timestamp;
-        long timePassed = now - lastRefillTime;
-
-        // Calculate tokens to add
+        long timePassed = timestamp - lastRefillTime;
         int tokensToAdd = (int) (timePassed / 1000.0 * refillRate);
 
         if (tokensToAdd > 0) {
             tokens = Math.min(capacity, tokens + tokensToAdd);
-            lastRefillTime = now;
+            lastRefillTime = timestamp;
         }
     }
-
-    public int getAvailableTokens() {
-        return tokens;
-    }
-}
-
-// With request cost support
-class TokenBucketWithCost {
+}`
+        },
+        {
+          name: 'With Request Cost',
+          explanation: 'Different requests can consume different numbers of tokens based on their cost. For example, a simple read operation might cost 1 token, while a complex write operation costs 5 tokens. This allows for fine-grained rate limiting based on operation complexity.',
+          codeExample: `class TokenBucketWithCost {
     private int capacity;
     private double tokens;
     private double refillRate;
@@ -140,7 +497,6 @@ class TokenBucketWithCost {
             tokens -= cost;
             return true;
         }
-
         return false;
     }
 
@@ -152,15 +508,12 @@ class TokenBucketWithCost {
         tokens = Math.min(capacity, tokens + tokensToAdd);
         lastRefillTime = now;
     }
-
-    public double getAvailableTokens() {
-        refill();
-        return tokens;
-    }
-}
-
-// Per-user token bucket
-class RateLimiterTokenBucket {
+}`
+        },
+        {
+          name: 'Per-User Bucket',
+          explanation: 'In production systems, each user typically has their own token bucket. This isolates users from each other, preventing one user from consuming all available capacity. The implementation uses a ConcurrentHashMap for thread-safe access to user buckets.',
+          codeExample: `class RateLimiterTokenBucket {
     private class Bucket {
         int tokens;
         long lastRefillTime;
@@ -171,15 +524,9 @@ class RateLimiterTokenBucket {
         }
     }
 
-    private Map<String, Bucket> buckets;
+    private Map<String, Bucket> buckets = new ConcurrentHashMap<>();
     private int capacity;
     private double refillRate;
-
-    public RateLimiterTokenBucket(int capacity, double refillRate) {
-        this.buckets = new ConcurrentHashMap<>();
-        this.capacity = capacity;
-        this.refillRate = refillRate;
-    }
 
     public boolean allowRequest(String userId) {
         buckets.putIfAbsent(userId, new Bucket(capacity));
@@ -196,834 +543,140 @@ class RateLimiterTokenBucket {
         }
     }
 
-    private void refill(Bucket bucket) {
-        long now = System.currentTimeMillis();
-        long timePassed = now - bucket.lastRefillTime;
-
-        int tokensToAdd = (int) (timePassed / 1000.0 * refillRate);
-
-        if (tokensToAdd > 0) {
-            bucket.tokens = Math.min(capacity, bucket.tokens + tokensToAdd);
-            bucket.lastRefillTime = now;
+    public void cleanup() {
+        long threshold = System.currentTimeMillis() - 3600000;
+        buckets.entrySet().removeIf(e ->
+            e.getValue().lastRefillTime < threshold);
+    }
+}`
         }
+      ]
+    },
+    {
+      id: 'leaky-bucket',
+      name: 'Leaky Bucket Algorithm',
+      icon: '💧',
+      color: '#06b6d4',
+      description: 'Requests fill a bucket that leaks at a constant rate. Provides smooth output rate and prevents bursts.',
+      diagram: LeakyBucketDiagram,
+      details: [
+        {
+          name: 'Core Concept',
+          diagram: LeakyBucketDiagram,
+          explanation: 'The Leaky Bucket algorithm smooths traffic by processing requests at a constant rate. Incoming requests fill a bucket (queue). The bucket "leaks" at a fixed rate, processing queued requests. If the bucket overflows (queue full), new requests are rejected. This ensures a smooth, predictable output rate regardless of input burstiness.',
+          codeExample: `class LeakyBucket {
+    private Queue<Long> bucket;
+    private int capacity;
+    private double leakRate; // requests per second
+    private long lastLeakTime;
+
+    public LeakyBucket(int capacity, double leakRate) {
+        this.bucket = new LinkedList<>();
+        this.capacity = capacity;
+        this.leakRate = leakRate;
+        this.lastLeakTime = System.currentTimeMillis();
     }
 
-    public void cleanup() {
-        // Remove old buckets (optional)
-        long threshold = System.currentTimeMillis() - 3600000; // 1 hour
-        buckets.entrySet().removeIf(entry ->
-            entry.getValue().lastRefillTime < threshold
-        );
+    public synchronized boolean addRequest(long timestamp) {
+        leak(timestamp);
+
+        if (bucket.size() < capacity) {
+            bucket.offer(timestamp);
+            return true;
+        }
+        return false;
+    }
+
+    private void leak(long timestamp) {
+        long timePassed = timestamp - lastLeakTime;
+        int requestsToLeak = (int) (timePassed / 1000.0 * leakRate);
+
+        for (int i = 0; i < requestsToLeak && !bucket.isEmpty(); i++) {
+            bucket.poll();
+        }
+
+        if (requestsToLeak > 0) {
+            lastLeakTime = timestamp;
+        }
     }
 }`
         },
-        python: {
-          starterCode: `class TokenBucket:
-    def __init__(self, capacity: int, refill_rate: float):
-        # TODO: Initialize token bucket
-        pass
+        {
+          name: 'Water Level Variant',
+          explanation: 'Instead of maintaining a queue of requests, we can track a "water level" that represents current occupancy. This is more memory-efficient (O(1) instead of O(capacity)) and faster for high-throughput systems. The water level increases with each request and decreases over time based on the leak rate.',
+          codeExample: `class LeakyBucketWaterLevel {
+    private double waterLevel;
+    private int capacity;
+    private double leakRate;
+    private long lastLeakTime;
 
-    def allow_request(self, timestamp: int) -> bool:
-        # TODO: Refill tokens and check availability
-        return False
-
-    def _refill(self, timestamp: int):
-        # TODO: Add tokens based on elapsed time
-        pass`,
-          solution: `import time
-
-class TokenBucket:
-    def __init__(self, capacity: int, refill_rate: float):
-        self.capacity = capacity
-        self.tokens = capacity  # Start full
-        self.refill_rate = refill_rate  # tokens per second
-        self.last_refill_time = time.time() * 1000  # milliseconds
-
-    def allow_request(self, timestamp: int) -> bool:
-        self._refill(timestamp)
-
-        if self.tokens > 0:
-            self.tokens -= 1
-            return True
-
-        return False
-
-    def _refill(self, timestamp: int):
-        now = timestamp
-        time_passed = now - self.last_refill_time
-
-        # Calculate tokens to add
-        tokens_to_add = int(time_passed / 1000.0 * self.refill_rate)
-
-        if tokens_to_add > 0:
-            self.tokens = min(self.capacity, self.tokens + tokens_to_add)
-            self.last_refill_time = now
-
-    def get_available_tokens(self) -> int:
-        return self.tokens
-
-
-# With request cost support
-class TokenBucketWithCost:
-    def __init__(self, capacity: int, refill_rate: float):
-        self.capacity = capacity
-        self.tokens = float(capacity)
-        self.refill_rate = refill_rate
-        self.last_refill_time = time.time()
-
-    def allow_request(self, cost: int) -> bool:
-        self._refill()
-
-        if self.tokens >= cost:
-            self.tokens -= cost
-            return True
-
-        return False
-
-    def _refill(self):
-        now = time.time()
-        time_passed = now - self.last_refill_time
-
-        tokens_to_add = time_passed * self.refill_rate
-        self.tokens = min(self.capacity, self.tokens + tokens_to_add)
-        self.last_refill_time = now
-
-    def get_available_tokens(self) -> float:
-        self._refill()
-        return self.tokens
-
-
-# Per-user token bucket
-from threading import Lock
-
-class RateLimiterTokenBucket:
-    class Bucket:
-        def __init__(self, capacity: int):
-            self.tokens = capacity
-            self.last_refill_time = time.time() * 1000
-            self.lock = Lock()
-
-    def __init__(self, capacity: int, refill_rate: float):
-        self.buckets = {}
-        self.capacity = capacity
-        self.refill_rate = refill_rate
-        self.buckets_lock = Lock()
-
-    def allow_request(self, user_id: str) -> bool:
-        with self.buckets_lock:
-            if user_id not in self.buckets:
-                self.buckets[user_id] = self.Bucket(self.capacity)
-
-        bucket = self.buckets[user_id]
-
-        with bucket.lock:
-            self._refill(bucket)
-
-            if bucket.tokens > 0:
-                bucket.tokens -= 1
-                return True
-            return False
-
-    def _refill(self, bucket):
-        now = time.time() * 1000
-        time_passed = now - bucket.last_refill_time
-
-        tokens_to_add = int(time_passed / 1000.0 * self.refill_rate)
-
-        if tokens_to_add > 0:
-            bucket.tokens = min(self.capacity, bucket.tokens + tokens_to_add)
-            bucket.last_refill_time = now
-
-    def cleanup(self):
-        threshold = time.time() * 1000 - 3600000  # 1 hour
-        with self.buckets_lock:
-            self.buckets = {
-                user_id: bucket
-                for user_id, bucket in self.buckets.items()
-                if bucket.last_refill_time >= threshold
-            }`
-        }
-      },
-      testCases: [
-        { input: 'capacity=5, rate=1, requests at t=0,0,0,0,0', output: 'all allowed' },
-        { input: 'capacity=5, rate=1, requests at t=0,0,0,0,0,0', output: 'last denied' },
-        { input: 'capacity=3, rate=1, request at t=0,0,0,5', output: 'all allowed (refilled)' }
-      ],
-      explanation: `**Problem:** Rate limiting using Token Bucket - allows burst traffic while maintaining average rate.
-
-**Key Insight: Bucket + Continuous Refill**
-Tokens added at constant rate. Each request consumes 1 token. Bucket capacity = max burst.
-
-**How It Works:**
-┌────────────────────────────────────┐
-│  Bucket: [🪙🪙🪙🪙🪙] capacity=5   │
-│  Refill: +1 token/second          │
-│  Request: -1 token                 │
-└────────────────────────────────────┘
-
-**Token Refill Formula:**
-tokensToAdd = (currentTime - lastRefillTime) × refillRate
-
-**Example Timeline:**
-t=0: bucket=[🪙🪙🪙🪙🪙] (full, 5 tokens)
-Request → allowed, bucket=[🪙🪙🪙🪙]
-t=3: auto-refill 3 tokens → bucket=[🪙🪙🪙🪙🪙] (capped at 5)
-5 requests at once → all allowed (burst!)
-6th request → denied (no tokens)
-
-**Advantages:**
-✓ Allows burst traffic (up to capacity)
-✓ Smooth average rate limiting
-✓ Simple implementation
-✓ Memory efficient (just counters)
-✓ Good for bursty APIs (video upload, batch processing)
-
-**Disadvantages:**
-✗ Can allow large bursts if bucket is full
-✗ Bucket may fill when idle → sudden burst allowed
-
-**Parameters:**
-- capacity: max tokens (max burst size)
-- refillRate: tokens/second (average rate limit)
-
-**Use Cases:**
-- API rate limiting (AWS API Gateway uses this)
-- Network traffic shaping
-- Request throttling with burst allowance
-
-**Complexity:**
-- allowRequest: O(1) - just math and counter update
-- Space: O(1) per bucket (4 variables)`,
-      pseudocode: `Token Bucket Algorithm:
-----------------------
-// Initialization
-TokenBucket(capacity, refillRate):
-    this.capacity = capacity
-    this.tokens = capacity  // Start full
-    this.refillRate = refillRate  // tokens per second
-    this.lastRefillTime = currentTime()
-
-// Allow Request
-allowRequest(timestamp):
-    refill(timestamp)
-
-    if tokens > 0:
-        tokens--
-        return true  // Allowed
-
-    return false  // Denied
-
-// Refill tokens based on elapsed time
-refill(timestamp):
-    now = timestamp
-    timePassed = now - lastRefillTime  // milliseconds
-
-    // Calculate tokens to add
-    tokensToAdd = (timePassed / 1000.0) * refillRate
-
-    if tokensToAdd > 0:
-        tokens = min(capacity, tokens + tokensToAdd)
-        lastRefillTime = now
-
-Example Trace:
---------------
-TokenBucket(capacity=5, refillRate=2) // 2 tokens/sec
-
-t=0ms: tokens=5, lastRefill=0
-  request() → tokens=4, allowed ✓
-
-t=500ms: tokens=4, lastRefill=0
-  refill: elapsed=500ms → add (0.5s × 2) = 1 token
-  tokens=5 (capped)
-  request() → tokens=4, allowed ✓
-
-t=1000ms: tokens=4, lastRefill=500
-  refill: elapsed=500ms → add 1 token
-  tokens=5
-  5 requests → tokens=0, all allowed ✓
-
-t=1000ms: tokens=0
-  request() → denied ✗ (no tokens)
-
-t=3000ms: tokens=0, lastRefill=1000
-  refill: elapsed=2000ms → add (2s × 2) = 4 tokens
-  tokens=4
-  request() → tokens=3, allowed ✓
-
-Per-User Token Bucket:
-----------------------
-RateLimiter(capacity, refillRate):
-    buckets = HashMap<userId, Bucket>
-
-allowRequest(userId):
-    if userId not in buckets:
-        buckets[userId] = new Bucket(capacity)
-
-    bucket = buckets[userId]
-
-    synchronized(bucket):
-        refill(bucket)
-        if bucket.tokens > 0:
-            bucket.tokens--
-            return true
-        return false
-
-Comparison with other algorithms:
----------------------------------
-Token Bucket vs Leaky Bucket:
-  - Token: allows bursts, processes immediately
-  - Leaky: smooth rate, queues requests
-
-Token Bucket vs Fixed Window:
-  - Token: smooth refill, no boundary issues
-  - Fixed: can have 2× burst at window boundaries`
-    },
-    {
-      id: 2,
-      title: 'Sliding Window Log',
-      difficulty: 'Medium',
-      description: 'Implement a rate limiter using the Sliding Window Log algorithm. Keep a log of all request timestamps within the window. Allow requests only if the count within the sliding window is below the limit.',
-      example: `SlidingWindowLog limiter = new SlidingWindowLog(3, 10); // 3 requests per 10 seconds
-limiter.allowRequest(1);  // true, log: [1]
-limiter.allowRequest(2);  // true, log: [1,2]
-limiter.allowRequest(3);  // true, log: [1,2,3]
-limiter.allowRequest(4);  // false, log: [1,2,3]
-limiter.allowRequest(12); // true, log: [2,3,12] (1 expired)`,
-      code: {
-        java: {
-          starterCode: `class SlidingWindowLog {
-    private Queue<Long> requestLog;
-    private int maxRequests;
-    private long windowSizeMs;
-
-    public SlidingWindowLog(int maxRequests, long windowSizeSeconds) {
-        // TODO: Initialize sliding window log
-
+    public LeakyBucketWaterLevel(int capacity, double leakRate) {
+        this.waterLevel = 0;
+        this.capacity = capacity;
+        this.leakRate = leakRate;
+        this.lastLeakTime = System.currentTimeMillis();
     }
 
-    public boolean allowRequest(long timestamp) {
-        // TODO: Remove expired requests and check limit
+    public synchronized boolean addRequest(long timestamp) {
+        leak(timestamp);
 
-        return false;
-    }
-
-    private void removeExpiredRequests(long timestamp) {
-        // TODO: Remove requests outside window
-
-    }
-}`,
-          solution: `class SlidingWindowLog {
-    private Queue<Long> requestLog;
-    private int maxRequests;
-    private long windowSizeMs;
-
-    public SlidingWindowLog(int maxRequests, long windowSizeSeconds) {
-        this.requestLog = new LinkedList<>();
-        this.maxRequests = maxRequests;
-        this.windowSizeMs = windowSizeSeconds * 1000;
-    }
-
-    public synchronized boolean allowRequest(long timestamp) {
-        removeExpiredRequests(timestamp);
-
-        if (requestLog.size() < maxRequests) {
-            requestLog.offer(timestamp);
+        if (waterLevel < capacity) {
+            waterLevel += 1.0;
             return true;
         }
-
         return false;
     }
 
-    private void removeExpiredRequests(long timestamp) {
-        long windowStart = timestamp - windowSizeMs;
+    private void leak(long timestamp) {
+        long timePassed = timestamp - lastLeakTime;
+        double leaked = (timePassed / 1000.0) * leakRate;
 
-        while (!requestLog.isEmpty() && requestLog.peek() <= windowStart) {
-            requestLog.poll();
-        }
-    }
-
-    public int getCurrentRequestCount() {
-        return requestLog.size();
-    }
-}
-
-// Per-user sliding window log
-class RateLimiterSlidingWindow {
-    private Map<String, Queue<Long>> userLogs;
-    private int maxRequests;
-    private long windowSizeMs;
-
-    public RateLimiterSlidingWindow(int maxRequests, long windowSizeSeconds) {
-        this.userLogs = new ConcurrentHashMap<>();
-        this.maxRequests = maxRequests;
-        this.windowSizeMs = windowSizeSeconds * 1000;
-    }
-
-    public boolean allowRequest(String userId, long timestamp) {
-        userLogs.putIfAbsent(userId, new LinkedList<>());
-        Queue<Long> log = userLogs.get(userId);
-
-        synchronized (log) {
-            removeExpiredRequests(log, timestamp);
-
-            if (log.size() < maxRequests) {
-                log.offer(timestamp);
-                return true;
-            }
-            return false;
-        }
-    }
-
-    private void removeExpiredRequests(Queue<Long> log, long timestamp) {
-        long windowStart = timestamp - windowSizeMs;
-
-        while (!log.isEmpty() && log.peek() <= windowStart) {
-            log.poll();
-        }
-    }
-
-    public void cleanup() {
-        long threshold = System.currentTimeMillis() - windowSizeMs;
-        userLogs.entrySet().removeIf(entry -> {
-            Queue<Long> log = entry.getValue();
-            return log.isEmpty() || log.peek() < threshold;
-        });
-    }
-}
-
-// Using TreeMap for efficient range queries
-class SlidingWindowLogTreeMap {
-    private TreeMap<Long, Integer> requestLog;
-    private int maxRequests;
-    private long windowSizeMs;
-
-    public SlidingWindowLogTreeMap(int maxRequests, long windowSizeSeconds) {
-        this.requestLog = new TreeMap<>();
-        this.maxRequests = maxRequests;
-        this.windowSizeMs = windowSizeSeconds * 1000;
-    }
-
-    public synchronized boolean allowRequest(long timestamp) {
-        removeExpiredRequests(timestamp);
-
-        int currentCount = requestLog.values().stream()
-            .mapToInt(Integer::intValue)
-            .sum();
-
-        if (currentCount < maxRequests) {
-            requestLog.put(timestamp,
-                requestLog.getOrDefault(timestamp, 0) + 1);
-            return true;
-        }
-
-        return false;
-    }
-
-    private void removeExpiredRequests(long timestamp) {
-        long windowStart = timestamp - windowSizeMs;
-        requestLog.headMap(windowStart, true).clear();
-    }
-}
-
-// Space-optimized: using circular buffer
-class SlidingWindowCircular {
-    private long[] timestamps;
-    private int head;
-    private int size;
-    private int maxRequests;
-    private long windowSizeMs;
-
-    public SlidingWindowCircular(int maxRequests, long windowSizeSeconds) {
-        this.timestamps = new long[maxRequests];
-        this.maxRequests = maxRequests;
-        this.windowSizeMs = windowSizeSeconds * 1000;
-        this.head = 0;
-        this.size = 0;
-    }
-
-    public synchronized boolean allowRequest(long timestamp) {
-        // Count valid requests in window
-        int validCount = 0;
-        long windowStart = timestamp - windowSizeMs;
-
-        for (int i = 0; i < size; i++) {
-            int idx = (head + i) % maxRequests;
-            if (timestamps[idx] > windowStart) {
-                validCount++;
-            }
-        }
-
-        if (validCount < maxRequests) {
-            timestamps[(head + size) % maxRequests] = timestamp;
-            if (size < maxRequests) {
-                size++;
-            } else {
-                head = (head + 1) % maxRequests;
-            }
-            return true;
-        }
-
-        return false;
+        waterLevel = Math.max(0, waterLevel - leaked);
+        lastLeakTime = timestamp;
     }
 }`
         },
-        python: {
-          starterCode: `from collections import deque
+        {
+          name: 'Token vs Leaky Comparison',
+          explanation: 'Token Bucket allows bursts (up to capacity) and is ideal for APIs where occasional burst traffic is acceptable. Leaky Bucket provides smooth output rate and is better for traffic shaping where consistent throughput is needed. Token Bucket: refills tokens, burst-friendly. Leaky Bucket: drains at fixed rate, smooth output.',
+          codeExample: `/* Comparison: Token Bucket vs Leaky Bucket
 
-class SlidingWindowLog:
-    def __init__(self, max_requests: int, window_size_seconds: int):
-        # TODO: Initialize sliding window log
-        pass
+Token Bucket:
+- Tokens refill, request consumes
+- Allows bursts up to capacity
+- Good for APIs (AWS, Stripe use this)
+- Example: 10 requests/minute limit
+  Can burst 10 immediately if bucket full
 
-    def allow_request(self, timestamp: int) -> bool:
-        # TODO: Remove expired requests and check limit
-        return False
+Leaky Bucket:
+- Requests queue, leak processes
+- Smooth rate (no bursts at output)
+- Good for traffic shaping (routers)
+- Example: 10 requests/minute limit
+  Processes at 1 every 6 seconds
 
-    def _remove_expired_requests(self, timestamp: int):
-        # TODO: Remove requests outside window
-        pass`,
-          solution: `from collections import deque
-from threading import Lock
-
-class SlidingWindowLog:
-    def __init__(self, max_requests: int, window_size_seconds: int):
-        self.request_log = deque()
-        self.max_requests = max_requests
-        self.window_size_ms = window_size_seconds * 1000
-        self.lock = Lock()
-
-    def allow_request(self, timestamp: int) -> bool:
-        with self.lock:
-            self._remove_expired_requests(timestamp)
-
-            if len(self.request_log) < self.max_requests:
-                self.request_log.append(timestamp)
-                return True
-
-            return False
-
-    def _remove_expired_requests(self, timestamp: int):
-        window_start = timestamp - self.window_size_ms
-
-        while self.request_log and self.request_log[0] <= window_start:
-            self.request_log.popleft()
-
-    def get_current_request_count(self) -> int:
-        return len(self.request_log)
-
-
-# Per-user sliding window log
-class RateLimiterSlidingWindow:
-    def __init__(self, max_requests: int, window_size_seconds: int):
-        self.user_logs = {}
-        self.max_requests = max_requests
-        self.window_size_ms = window_size_seconds * 1000
-        self.locks = {}
-        self.global_lock = Lock()
-
-    def allow_request(self, user_id: str, timestamp: int) -> bool:
-        with self.global_lock:
-            if user_id not in self.user_logs:
-                self.user_logs[user_id] = deque()
-                self.locks[user_id] = Lock()
-
-        log = self.user_logs[user_id]
-        lock = self.locks[user_id]
-
-        with lock:
-            self._remove_expired_requests(log, timestamp)
-
-            if len(log) < self.max_requests:
-                log.append(timestamp)
-                return True
-            return False
-
-    def _remove_expired_requests(self, log: deque, timestamp: int):
-        window_start = timestamp - self.window_size_ms
-
-        while log and log[0] <= window_start:
-            log.popleft()
-
-    def cleanup(self):
-        import time
-        threshold = time.time() * 1000 - self.window_size_ms
-        with self.global_lock:
-            self.user_logs = {
-                user_id: log
-                for user_id, log in self.user_logs.items()
-                if log and log[0] >= threshold
-            }
-
-
-# Using list with binary search for efficient range queries
-import bisect
-
-class SlidingWindowLogBisect:
-    def __init__(self, max_requests: int, window_size_seconds: int):
-        self.request_log = []
-        self.max_requests = max_requests
-        self.window_size_ms = window_size_seconds * 1000
-        self.lock = Lock()
-
-    def allow_request(self, timestamp: int) -> bool:
-        with self.lock:
-            self._remove_expired_requests(timestamp)
-
-            if len(self.request_log) < self.max_requests:
-                bisect.insort(self.request_log, timestamp)
-                return True
-
-            return False
-
-    def _remove_expired_requests(self, timestamp: int):
-        window_start = timestamp - self.window_size_ms
-        # Find first index that should be kept
-        idx = bisect.bisect_right(self.request_log, window_start)
-        self.request_log = self.request_log[idx:]
-
-
-# Space-optimized: using circular buffer
-class SlidingWindowCircular:
-    def __init__(self, max_requests: int, window_size_seconds: int):
-        self.timestamps = [0] * max_requests
-        self.max_requests = max_requests
-        self.window_size_ms = window_size_seconds * 1000
-        self.head = 0
-        self.size = 0
-        self.lock = Lock()
-
-    def allow_request(self, timestamp: int) -> bool:
-        with self.lock:
-            # Count valid requests in window
-            valid_count = 0
-            window_start = timestamp - self.window_size_ms
-
-            for i in range(self.size):
-                idx = (self.head + i) % self.max_requests
-                if self.timestamps[idx] > window_start:
-                    valid_count += 1
-
-            if valid_count < self.max_requests:
-                self.timestamps[(self.head + self.size) % self.max_requests] = timestamp
-                if self.size < self.max_requests:
-                    self.size += 1
-                else:
-                    self.head = (self.head + 1) % self.max_requests
-                return True
-
-            return False`
+Choosing between them:
+- Need burst tolerance? -> Token Bucket
+- Need smooth output? -> Leaky Bucket
+- API rate limiting? -> Token Bucket
+- Network shaping? -> Leaky Bucket
+*/`
         }
-      },
-      testCases: [
-        { input: 'limit=3, window=10s, requests at t=1,2,3,4', output: 't=1,2,3: true, t=4: false' },
-        { input: 'limit=2, window=5s, requests at t=1,2,7', output: 'all true (t=1 expired at t=7)' },
-        { input: 'limit=5, window=1s, 5 requests at t=0, 1 at t=0.5', output: 'last false' }
-      ],
-      explanation: `**Problem:** Rate limiting using Sliding Window Log - accurate tracking by logging all request timestamps.
-
-**Key Insight: Log All Timestamps in Window**
-Keep timestamps of all requests in the last N seconds. Window "slides" continuously with each request.
-
-**How It Works:**
-┌──────────────────────────────────────────┐
-│  Window: 10 seconds                      │
-│  Limit: 3 requests                       │
-│  Log: [t1, t2, t3]  (timestamps)         │
-└──────────────────────────────────────────┘
-
-**Sliding Window:**
-Current time = 25
-Window = [15, 25] (last 10 seconds)
-Log: [12, 17, 20, 23]
-       ↑   ↑   ↑   ↑
-     expired  ← valid requests →
-
-Remove expired (< 15) → Log: [17, 20, 23]
-Count = 3, if limit=3 → deny new request
-
-**Example Timeline:**
-Limit=3, Window=10s
-
-t=1:  log=[1], count=1 → allowed ✓
-t=5:  log=[1,5], count=2 → allowed ✓
-t=8:  log=[1,5,8], count=3 → allowed ✓
-t=9:  log=[1,5,8], count=3 → denied ✗ (at limit)
-t=12: window=[2,12], log=[5,8] (1 expired), count=2 → allowed ✓
-      log=[5,8,12]
-
-**Advantages:**
-✓ Most accurate - no boundary issues
-✓ True sliding window (not fixed buckets)
-✓ Precise rate limiting
-✓ No burst at boundaries like fixed window
-
-**Disadvantages:**
-✗ Memory intensive - O(limit × users) space
-✗ Cleanup overhead for expired timestamps
-✗ Slower than counter-based methods
-
-**Data Structures:**
-1. Queue/Deque - FIFO, fast remove old timestamps
-2. TreeMap - efficient range queries
-3. Circular Buffer - fixed space, overwrite old
-
-**Optimizations:**
-- Use deque for O(1) removal from both ends
-- Lazy cleanup (only when needed)
-- Periodic cleanup of user logs
-- Use TreeMap for binary search
-
-**Complexity:**
-- allowRequest: O(N) where N = requests in window (cleanup)
-  With optimization: O(log N) using TreeMap
-- Space: O(W × U) where W = window limit, U = users
-
-**When to Use:**
-- Need precise rate limiting
-- Small request limits (<1000 per window)
-- Can afford memory overhead
-- Critical applications (payment APIs)`,
-      pseudocode: `Sliding Window Log Algorithm:
-----------------------------
-// Initialization
-SlidingWindowLog(maxRequests, windowSizeSeconds):
-    this.requestLog = new Queue<Long>()
-    this.maxRequests = maxRequests
-    this.windowSizeMs = windowSizeSeconds * 1000
-
-// Allow Request
-allowRequest(timestamp):
-    removeExpiredRequests(timestamp)
-
-    if requestLog.size() < maxRequests:
-        requestLog.add(timestamp)
-        return true  // Allowed
-
-    return false  // Denied
-
-// Remove timestamps outside sliding window
-removeExpiredRequests(timestamp):
-    windowStart = timestamp - windowSizeMs
-
-    // Remove all timestamps before windowStart
-    while requestLog is not empty AND requestLog.peek() <= windowStart:
-        requestLog.remove()
-
-Example Trace:
---------------
-Limit=3, Window=10s
-
-t=1s:
-  log=[], windowStart=-9s
-  count=0 < 3 → allowed, log=[1] ✓
-
-t=5s:
-  log=[1], windowStart=-5s
-  cleanup: 1 > -5 (keep)
-  count=1 < 3 → allowed, log=[1,5] ✓
-
-t=8s:
-  log=[1,5], windowStart=-2s
-  cleanup: all > -2 (keep all)
-  count=2 < 3 → allowed, log=[1,5,8] ✓
-
-t=9s:
-  log=[1,5,8], windowStart=-1s
-  cleanup: all > -1 (keep all)
-  count=3 >= 3 → denied ✗
-
-t=12s:
-  log=[1,5,8], windowStart=2s
-  cleanup: 1 ≤ 2 (remove), 5 > 2 (keep)
-  log=[5,8], count=2 < 3 → allowed, log=[5,8,12] ✓
-
-t=15s:
-  log=[5,8,12], windowStart=5s
-  cleanup: 5 ≤ 5 (remove)
-  log=[8,12], count=2 < 3 → allowed, log=[8,12,15] ✓
-
-Per-User Sliding Window:
-------------------------
-RateLimiter(maxRequests, windowSize):
-    userLogs = HashMap<userId, Queue<Long>>
-
-allowRequest(userId, timestamp):
-    if userId not in userLogs:
-        userLogs[userId] = new Queue()
-
-    log = userLogs[userId]
-
-    synchronized(log):
-        removeExpiredRequests(log, timestamp)
-
-        if log.size() < maxRequests:
-            log.add(timestamp)
-            return true
-        return false
-
-Space-Optimized with Circular Buffer:
--------------------------------------
-// Fixed space, overwrite oldest when full
-SlidingWindowCircular(maxRequests, windowSize):
-    timestamps = array[maxRequests]
-    head = 0
-    size = 0
-
-allowRequest(timestamp):
-    // Count valid requests in window
-    validCount = 0
-    windowStart = timestamp - windowSize
-
-    for i from 0 to size-1:
-        if timestamps[i] > windowStart:
-            validCount++
-
-    if validCount < maxRequests:
-        // Add at next position
-        timestamps[(head + size) % maxRequests] = timestamp
-        if size < maxRequests:
-            size++
-        else:
-            head = (head + 1) % maxRequests
-        return true
-    return false`
+      ]
     },
     {
-      id: 3,
-      title: 'Fixed Window Counter',
-      difficulty: 'Medium',
-      description: 'Implement a rate limiter using the Fixed Window Counter algorithm. Divide time into fixed windows and count requests per window. Reset counter at window boundaries. Simple but can allow bursts at boundaries.',
-      example: `FixedWindowCounter limiter = new FixedWindowCounter(5, 60); // 5 per minute
-limiter.allowRequest(timestamp=10);  // true, count: 1
-limiter.allowRequest(timestamp=20);  // true, count: 2
-// ... 3 more requests
-limiter.allowRequest(timestamp=50);  // false, count: 5
-limiter.allowRequest(timestamp=61);  // true, count: 1 (new window)`,
-      code: {
-        java: {
-          starterCode: `class FixedWindowCounter {
-    private int maxRequests;
-    private long windowSizeMs;
-    private Map<Long, Integer> windows;
-
-    public FixedWindowCounter(int maxRequests, long windowSizeSeconds) {
-        // TODO: Initialize fixed window counter
-
-    }
-
-    public boolean allowRequest(long timestamp) {
-        // TODO: Get current window and check count
-
-        return false;
-    }
-
-    private long getWindowKey(long timestamp) {
-        // TODO: Calculate window key
-
-        return 0;
-    }
-}`,
-          solution: `class FixedWindowCounter {
+      id: 'fixed-window',
+      name: 'Fixed Window Counter',
+      icon: '📊',
+      color: '#ef4444',
+      description: 'Divide time into fixed windows and count requests per window. Simple but has boundary burst problem.',
+      diagram: FixedWindowDiagram,
+      details: [
+        {
+          name: 'Core Concept',
+          diagram: FixedWindowDiagram,
+          explanation: 'Fixed Window Counter divides time into non-overlapping windows (e.g., 1 minute each). Each window maintains a counter of requests. Counter resets at window boundaries. Simple and memory-efficient (O(1) per user). However, it has the "boundary problem" where 2x the limit can pass if requests cluster at window boundaries.',
+          codeExample: `class FixedWindowCounter {
     private int maxRequests;
     private long windowSizeMs;
     private Map<Long, Integer> windows;
@@ -1042,7 +695,6 @@ limiter.allowRequest(timestamp=61);  // true, count: 1 (new window)`,
             windows.put(windowKey, currentCount + 1);
             return true;
         }
-
         return false;
     }
 
@@ -1054,10 +706,55 @@ limiter.allowRequest(timestamp=61);  // true, count: 1 (new window)`,
         long currentWindow = getWindowKey(currentTimestamp);
         windows.keySet().removeIf(key -> key < currentWindow);
     }
-}
+}`
+        },
+        {
+          name: 'Boundary Problem',
+          explanation: 'The main drawback of Fixed Window is the boundary problem. If a user sends all their requests at the end of one window and the start of the next, they can effectively double their rate. Example: With limit=5 per minute, 5 requests at 11:59:59 and 5 more at 12:00:00 = 10 requests in 2 seconds!',
+          codeExample: `/* The Boundary Problem Visualized
 
-// Per-user fixed window counter
-class RateLimiterFixedWindow {
+Limit=5, Window=60s
+
+Fixed Window (BAD):
+  Window 0 [11:59:00-11:59:59]  |  Window 1 [12:00:00-12:00:59]
+  ─────────────────────────────|───────────────────────────────
+                 5 requests at  |  5 requests at
+                 11:59:55-59    |  12:00:00-04
+                               ↑ boundary
+
+  Total: 10 requests in 9 seconds (should be max 5!)
+
+Why this matters:
+- Attacker can exploit this pattern
+- Doubles effective rate limit
+- Causes unexpected load spikes
+
+Solutions:
+1. Sliding Window Log (accurate, more memory)
+2. Sliding Window Counter (approximation, good balance)
+*/
+
+class FixedWindowDemo {
+    public static void demonstrateProblem() {
+        FixedWindowCounter limiter = new FixedWindowCounter(5, 60);
+
+        // End of window 0 (at 59 seconds)
+        for (int i = 0; i < 5; i++) {
+            limiter.allowRequest(59000); // All allowed
+        }
+
+        // Start of window 1 (at 60 seconds)
+        for (int i = 0; i < 5; i++) {
+            limiter.allowRequest(60000); // All allowed!
+        }
+        // 10 requests in 1 second - boundary problem!
+    }
+}`
+        },
+        {
+          name: 'Per-User Implementation',
+          explanation: 'In production, each user needs their own window counter. This implementation uses a ConcurrentHashMap for thread safety. The WindowData class stores both the current window key and count, allowing efficient reset detection when a new window begins.',
+          codeExample: `class RateLimiterFixedWindow {
     private class WindowData {
         long windowKey;
         int count;
@@ -1098,17 +795,57 @@ class RateLimiterFixedWindow {
             return false;
         }
     }
+}`
+        }
+      ]
+    },
+    {
+      id: 'sliding-window',
+      name: 'Sliding Window Algorithms',
+      icon: '📈',
+      color: '#8b5cf6',
+      description: 'True sliding window that moves continuously. Choose between Log (accurate) or Counter (efficient) variants.',
+      diagram: SlidingWindowLogDiagram,
+      details: [
+        {
+          name: 'Sliding Window Log',
+          diagram: SlidingWindowLogDiagram,
+          explanation: 'Sliding Window Log tracks exact timestamps of all requests within the window. When a new request arrives, expired timestamps are removed, and if the count is under the limit, the request is allowed. This provides the most accurate rate limiting but uses more memory (O(limit) per user).',
+          codeExample: `class SlidingWindowLog {
+    private Queue<Long> requestLog;
+    private int maxRequests;
+    private long windowSizeMs;
 
-    public void cleanup() {
-        long currentWindow = System.currentTimeMillis() / windowSizeMs;
-        userWindows.entrySet().removeIf(entry ->
-            entry.getValue().windowKey < currentWindow - 1
-        );
+    public SlidingWindowLog(int maxRequests, long windowSizeSeconds) {
+        this.requestLog = new LinkedList<>();
+        this.maxRequests = maxRequests;
+        this.windowSizeMs = windowSizeSeconds * 1000;
     }
-}
 
-// Sliding Window Counter (hybrid approach)
-class SlidingWindowCounter {
+    public synchronized boolean allowRequest(long timestamp) {
+        removeExpiredRequests(timestamp);
+
+        if (requestLog.size() < maxRequests) {
+            requestLog.offer(timestamp);
+            return true;
+        }
+        return false;
+    }
+
+    private void removeExpiredRequests(long timestamp) {
+        long windowStart = timestamp - windowSizeMs;
+
+        while (!requestLog.isEmpty() && requestLog.peek() <= windowStart) {
+            requestLog.poll();
+        }
+    }
+}`
+        },
+        {
+          name: 'Sliding Window Counter',
+          diagram: SlidingWindowCounterDiagram,
+          explanation: 'Sliding Window Counter approximates the sliding window using weighted averages of two fixed windows. It combines the simplicity of fixed windows with better accuracy. The formula weighs the previous window count based on how much it overlaps with the current sliding window. This is the best balance of accuracy and efficiency.',
+          codeExample: `class SlidingWindowCounter {
     private Map<Long, Integer> windows;
     private int maxRequests;
     private long windowSizeMs;
@@ -1134,1487 +871,760 @@ class SlidingWindowCounter {
             windows.put(currentWindow, currentCount + 1);
             return true;
         }
-
         return false;
-    }
-
-    public void cleanup(long timestamp) {
-        long currentWindow = timestamp / windowSizeMs;
-        windows.keySet().removeIf(key -> key < currentWindow - 1);
-    }
-}
-
-// Using AtomicInteger for thread safety
-class FixedWindowCounterAtomic {
-    private class Window {
-        final long key;
-        final AtomicInteger count;
-
-        Window(long key) {
-            this.key = key;
-            this.count = new AtomicInteger(0);
-        }
-    }
-
-    private ConcurrentHashMap<String, Window> userWindows;
-    private int maxRequests;
-    private long windowSizeMs;
-
-    public FixedWindowCounterAtomic(int maxRequests, long windowSizeSeconds) {
-        this.userWindows = new ConcurrentHashMap<>();
-        this.maxRequests = maxRequests;
-        this.windowSizeMs = windowSizeSeconds * 1000;
-    }
-
-    public boolean allowRequest(String userId, long timestamp) {
-        long windowKey = timestamp / windowSizeMs;
-
-        Window window = userWindows.compute(userId, (k, v) -> {
-            if (v == null || v.key != windowKey) {
-                return new Window(windowKey);
-            }
-            return v;
-        });
-
-        return window.count.incrementAndGet() <= maxRequests;
     }
 }`
         },
-        python: {
-          starterCode: `class FixedWindowCounter:
-    def __init__(self, max_requests: int, window_size_seconds: int):
-        # TODO: Initialize fixed window counter
-        pass
+        {
+          name: 'Algorithm Comparison',
+          explanation: 'Each sliding window approach has tradeoffs: Log is most accurate but uses O(limit) memory per user. Counter uses O(1) memory with ~1% error rate. Choose Log for critical applications (payments) and Counter for high-throughput general rate limiting.',
+          codeExample: `/* Sliding Window Algorithm Comparison
 
-    def allow_request(self, timestamp: int) -> bool:
-        # TODO: Get current window and check count
-        return False
+                    | Accuracy | Memory     | Speed
+--------------------|----------|------------|--------
+Sliding Window Log  | Exact    | O(limit)   | O(limit)
+Sliding Window Ctr  | ~99%     | O(1)       | O(1)
+Fixed Window        | ~50%     | O(1)       | O(1)
 
-    def _get_window_key(self, timestamp: int) -> int:
-        # TODO: Calculate window key
-        return 0`,
-          solution: `from threading import Lock
+When to use each:
 
-class FixedWindowCounter:
-    def __init__(self, max_requests: int, window_size_seconds: int):
-        self.max_requests = max_requests
-        self.window_size_ms = window_size_seconds * 1000
-        self.windows = {}
-        self.lock = Lock()
+1. Sliding Window Log:
+   - Payment APIs (no boundary exploit)
+   - Low request limits (<100/window)
+   - Accuracy is critical
 
-    def allow_request(self, timestamp: int) -> bool:
-        with self.lock:
-            window_key = self._get_window_key(timestamp)
-            current_count = self.windows.get(window_key, 0)
+2. Sliding Window Counter:
+   - General API rate limiting
+   - High throughput systems
+   - Balance of accuracy/efficiency
+   - Most production systems use this
 
-            if current_count < self.max_requests:
-                self.windows[window_key] = current_count + 1
-                return True
+3. Fixed Window:
+   - Simple internal systems
+   - Non-critical rate limits
+   - Lowest overhead needed
 
-            return False
+Formula for Sliding Window Counter:
+estimatedCount = prevCount * (1 - progress) + currCount
 
-    def _get_window_key(self, timestamp: int) -> int:
-        return timestamp // self.window_size_ms
-
-    def cleanup(self, current_timestamp: int):
-        current_window = self._get_window_key(current_timestamp)
-        with self.lock:
-            self.windows = {
-                key: count
-                for key, count in self.windows.items()
-                if key >= current_window
-            }
-
-
-# Per-user fixed window counter
-class RateLimiterFixedWindow:
-    class WindowData:
-        def __init__(self, key: int):
-            self.window_key = key
-            self.count = 0
-            self.lock = Lock()
-
-    def __init__(self, max_requests: int, window_size_seconds: int):
-        self.user_windows = {}
-        self.max_requests = max_requests
-        self.window_size_ms = window_size_seconds * 1000
-        self.global_lock = Lock()
-
-    def allow_request(self, user_id: str, timestamp: int) -> bool:
-        window_key = timestamp // self.window_size_ms
-
-        with self.global_lock:
-            if user_id not in self.user_windows:
-                self.user_windows[user_id] = self.WindowData(window_key)
-
-        data = self.user_windows[user_id]
-
-        with data.lock:
-            # Reset if new window
-            if data.window_key != window_key:
-                data.window_key = window_key
-                data.count = 0
-
-            if data.count < self.max_requests:
-                data.count += 1
-                return True
-            return False
-
-    def cleanup(self):
-        import time
-        current_window = int(time.time() * 1000) // self.window_size_ms
-        with self.global_lock:
-            self.user_windows = {
-                user_id: data
-                for user_id, data in self.user_windows.items()
-                if data.window_key >= current_window - 1
-            }
-
-
-# Sliding Window Counter (hybrid approach)
-class SlidingWindowCounter:
-    def __init__(self, max_requests: int, window_size_seconds: int):
-        self.windows = {}
-        self.max_requests = max_requests
-        self.window_size_ms = window_size_seconds * 1000
-        self.lock = Lock()
-
-    def allow_request(self, timestamp: int) -> bool:
-        with self.lock:
-            current_window = timestamp // self.window_size_ms
-            previous_window = current_window - 1
-
-            previous_count = self.windows.get(previous_window, 0)
-            current_count = self.windows.get(current_window, 0)
-
-            # Calculate weighted count
-            window_progress = (timestamp % self.window_size_ms) / self.window_size_ms
-            estimated_count = previous_count * (1 - window_progress) + current_count
-
-            if estimated_count < self.max_requests:
-                self.windows[current_window] = current_count + 1
-                return True
-
-            return False
-
-    def cleanup(self, timestamp: int):
-        current_window = timestamp // self.window_size_ms
-        with self.lock:
-            self.windows = {
-                key: count
-                for key, count in self.windows.items()
-                if key >= current_window - 1
-            }
-
-
-# Using atomic operations
-from threading import RLock
-
-class FixedWindowCounterAtomic:
-    class Window:
-        def __init__(self, key: int):
-            self.key = key
-            self.count = 0
-            self.lock = RLock()
-
-    def __init__(self, max_requests: int, window_size_seconds: int):
-        self.user_windows = {}
-        self.max_requests = max_requests
-        self.window_size_ms = window_size_seconds * 1000
-        self.global_lock = RLock()
-
-    def allow_request(self, user_id: str, timestamp: int) -> bool:
-        window_key = timestamp // self.window_size_ms
-
-        with self.global_lock:
-            if user_id not in self.user_windows or self.user_windows[user_id].key != window_key:
-                self.user_windows[user_id] = self.Window(window_key)
-
-            window = self.user_windows[user_id]
-
-        with window.lock:
-            window.count += 1
-            return window.count <= self.max_requests`
+Example at 75% into window:
+  prevWindow: 8 requests
+  currWindow: 3 requests
+  progress: 0.75
+  estimate = 8 * 0.25 + 3 = 5 requests
+*/`
         }
-      },
-      testCases: [
-        { input: 'limit=5, window=60s, 5 requests at t=10-50, 1 at t=55', output: 't=55: false' },
-        { input: 'limit=3, window=10s, requests at t=5,8,11', output: 'all true (different windows)' },
-        { input: 'limit=2, window=5s, requests at t=1,2,3', output: 't=1,2: true, t=3: false' }
-      ],
-      explanation: `**Problem:** Rate limiting using Fixed Window Counter - simple counter reset at fixed intervals.
-
-**Key Insight: Fixed Time Windows**
-Divide time into non-overlapping fixed windows. Count requests per window. Reset at boundaries.
-
-**Window Key Calculation:**
-windowKey = timestamp / windowSize
-Example: window=60s
-  t=45s → key=0 (window 0-59)
-  t=75s → key=1 (window 60-119)
-
-**How It Works:**
-┌──────────────────────────────────────┐
-│ Window 0 [0-59s]:  count=3/5         │
-│ Window 1 [60-119s]: count=0/5        │
-│ Window 2 [120-179s]: count=0/5       │
-└──────────────────────────────────────┘
-
-**Example Timeline (limit=5, window=60s):**
-Window 0 [0-59s]:
-  t=10: count=1 → allowed
-  t=20: count=2 → allowed
-  ...
-  t=50: count=5 → allowed
-  t=55: count=5 → denied ✗ (at limit)
-
-Window 1 [60-119s]:
-  t=65: count=1 → allowed ✓ (new window, reset!)
-
-**Advantages:**
-✓ Very simple - just increment counter
-✓ Memory efficient - O(1) per user
-✓ Fast - O(1) lookups and updates
-✓ Easy to implement and understand
-✓ Works well with databases (atomic increment)
-
-**Disadvantages:**
-✗ Boundary Problem: 2× burst at window edges
-  Example: 5 requests at t=58,59, then 5 at t=60,61
-  = 10 requests in 3 seconds! (should be max 5)
-
-✗ Traffic spikes at window reset times
-✗ Not accurate for sliding windows
-
-**The Boundary Problem Visualized:**
-Limit=5, Window=60s
-
-Window 0 ────────────────────► | Window 1 ───────────────────►
-[0-59s]                        | [60-119s]
-              5 requests at 55-59s | 5 requests at 60-64s
-                                  ↑ boundary
-Total: 10 requests in 9 seconds (should be max 5!)
-
-**Sliding Window Counter (Hybrid Fix):**
-Use weighted average of current and previous windows:
-
-estimatedCount = previousCount × (1 - windowProgress) + currentCount
-
-Example: limit=10, window=60s, t=75s (25% into window 1)
-  previousWindow (0) = 8 requests
-  currentWindow (1) = 3 requests
-  estimatedCount = 8 × 0.75 + 3 = 9
-  If estimatedCount < 10 → allowed
-
-**Complexity:**
-- allowRequest: O(1)
-- Space: O(W × U) where W=active windows, U=users
-  With cleanup: O(U) (1 window per user)`,
-      pseudocode: `Fixed Window Counter Algorithm:
--------------------------------
-// Initialization
-FixedWindowCounter(maxRequests, windowSizeSeconds):
-    this.maxRequests = maxRequests
-    this.windowSizeMs = windowSizeSeconds * 1000
-    this.windows = HashMap<Long, Integer>()  // windowKey → count
-
-// Allow Request
-allowRequest(timestamp):
-    windowKey = getWindowKey(timestamp)
-    currentCount = windows.get(windowKey, default=0)
-
-    if currentCount < maxRequests:
-        windows[windowKey] = currentCount + 1
-        return true  // Allowed
-
-    return false  // Denied
-
-// Calculate which window timestamp belongs to
-getWindowKey(timestamp):
-    return timestamp / windowSizeMs  // Integer division
-
-Example Trace:
---------------
-Limit=3, Window=10s (10000ms)
-
-t=5s (5000ms):
-  windowKey = 5000 / 10000 = 0
-  windows[0] = 0, count=1
-  allowed ✓
-
-t=8s (8000ms):
-  windowKey = 8000 / 10000 = 0  // same window
-  windows[0] = 1, count=2
-  allowed ✓
-
-t=9s (9000ms):
-  windowKey = 9000 / 10000 = 0
-  windows[0] = 2, count=3
-  allowed ✓
-
-t=9.5s (9500ms):
-  windowKey = 9500 / 10000 = 0
-  windows[0] = 3 >= 3
-  denied ✗
-
-t=11s (11000ms):
-  windowKey = 11000 / 10000 = 1  // NEW WINDOW!
-  windows[1] = 0, count=1
-  allowed ✓ (reset!)
-
-Per-User Fixed Window:
------------------------
-RateLimiter(maxRequests, windowSize):
-    userWindows = HashMap<userId, WindowData>
-
-    class WindowData:
-        windowKey
-        count
-
-allowRequest(userId, timestamp):
-    windowKey = timestamp / windowSize
-
-    if userId not in userWindows:
-        userWindows[userId] = WindowData(windowKey, 0)
-
-    data = userWindows[userId]
-
-    synchronized(data):
-        // Reset if new window
-        if data.windowKey != windowKey:
-            data.windowKey = windowKey
-            data.count = 0
-
-        if data.count < maxRequests:
-            data.count++
-            return true
-        return false
-
-Sliding Window Counter (Improved):
-----------------------------------
-// Reduces boundary problem using weighted average
-SlidingWindowCounter(maxRequests, windowSize):
-    windows = HashMap<Long, Integer>()
-
-allowRequest(timestamp):
-    currentWindow = timestamp / windowSize
-    previousWindow = currentWindow - 1
-
-    previousCount = windows.get(previousWindow, 0)
-    currentCount = windows.get(currentWindow, 0)
-
-    // Calculate progress in current window (0.0 to 1.0)
-    windowProgress = (timestamp % windowSize) / windowSize
-
-    // Weighted estimate
-    estimatedCount = previousCount × (1 - windowProgress) + currentCount
-
-    if estimatedCount < maxRequests:
-        windows[currentWindow] = currentCount + 1
-        return true
-    return false
-
-Example: Boundary Problem
--------------------------
-Limit=5, Window=60s
-
-Fixed Window (BAD):
-  t=58: window=0, count=5, all allowed
-  t=60: window=1, count=5, all allowed
-  Total: 10 in 2 seconds ✗
-
-Sliding Window Counter (BETTER):
-  t=58: window=0
-    prevCount=0, currCount=5
-    progress=58/60=0.97
-    estimate = 0×0.03 + 5 = 5 → allow last one
-  t=60: window=1
-    prevCount=5, currCount=1
-    progress=0/60=0.0
-    estimate = 5×1.0 + 1 = 6 > 5 → deny! ✓`
+      ]
     },
     {
-      id: 4,
-      title: 'Leaky Bucket',
-      difficulty: 'Medium',
-      description: 'Implement a rate limiter using the Leaky Bucket algorithm. Requests fill a bucket with fixed capacity. The bucket "leaks" at a constant rate, processing requests. If bucket is full, new requests are rejected.',
-      example: `LeakyBucket limiter = new LeakyBucket(10, 1); // capacity=10, leakRate=1/sec
-limiter.addRequest(t=0);  // true, queue: 1
-limiter.addRequest(t=0);  // true, queue: 2
-// ... 8 more requests
-limiter.addRequest(t=0);  // false, queue full (10)
-limiter.addRequest(t=5);  // true, queue: 6 (5 leaked)`,
-      code: {
-        java: {
-          starterCode: `class LeakyBucket {
-    private Queue<Long> bucket;
-    private int capacity;
-    private double leakRate; // requests per second
-    private long lastLeakTime;
+      id: 'distributed',
+      name: 'Distributed Rate Limiting',
+      icon: '🌐',
+      color: '#dc2626',
+      description: 'Scale rate limiting across multiple servers using Redis for shared state and atomic operations.',
+      diagram: DistributedRateLimiterDiagram,
+      details: [
+        {
+          name: 'Redis Implementation',
+          diagram: DistributedRateLimiterDiagram,
+          explanation: 'In distributed systems, rate limit state must be shared across all servers. Redis is the most common choice due to: atomic operations (INCR, EXPIRE), high performance, built-in TTL for automatic cleanup, and Lua scripting for complex atomic operations. Each server acts as a rate limiter client, checking with Redis before allowing requests.',
+          codeExample: `// Redis-based Rate Limiter (using Jedis)
+public class RedisRateLimiter {
+    private JedisPool jedisPool;
+    private int maxRequests;
+    private int windowSeconds;
 
-    public LeakyBucket(int capacity, double leakRate) {
-        // TODO: Initialize leaky bucket
-
+    public RedisRateLimiter(JedisPool pool, int maxRequests, int windowSeconds) {
+        this.jedisPool = pool;
+        this.maxRequests = maxRequests;
+        this.windowSeconds = windowSeconds;
     }
 
-    public boolean addRequest(long timestamp) {
-        // TODO: Leak requests and check capacity
+    public boolean allowRequest(String userId) {
+        String key = "rate_limit:" + userId;
 
-        return false;
-    }
+        try (Jedis jedis = jedisPool.getResource()) {
+            Long count = jedis.incr(key);
 
-    private void leak(long timestamp) {
-        // TODO: Remove leaked requests
-
-    }
-}`,
-          solution: `class LeakyBucket {
-    private Queue<Long> bucket;
-    private int capacity;
-    private double leakRate; // requests per second
-    private long lastLeakTime;
-
-    public LeakyBucket(int capacity, double leakRate) {
-        this.bucket = new LinkedList<>();
-        this.capacity = capacity;
-        this.leakRate = leakRate;
-        this.lastLeakTime = System.currentTimeMillis();
-    }
-
-    public synchronized boolean addRequest(long timestamp) {
-        leak(timestamp);
-
-        if (bucket.size() < capacity) {
-            bucket.offer(timestamp);
-            return true;
-        }
-
-        return false;
-    }
-
-    private void leak(long timestamp) {
-        long timePassed = timestamp - lastLeakTime;
-        int requestsToLeak = (int) (timePassed / 1000.0 * leakRate);
-
-        for (int i = 0; i < requestsToLeak && !bucket.isEmpty(); i++) {
-            bucket.poll();
-        }
-
-        if (requestsToLeak > 0) {
-            lastLeakTime = timestamp;
-        }
-    }
-
-    public int getQueueSize() {
-        return bucket.size();
-    }
-}
-
-// Using water level instead of queue
-class LeakyBucketWaterLevel {
-    private double waterLevel;
-    private int capacity;
-    private double leakRate;
-    private long lastLeakTime;
-
-    public LeakyBucketWaterLevel(int capacity, double leakRate) {
-        this.waterLevel = 0;
-        this.capacity = capacity;
-        this.leakRate = leakRate;
-        this.lastLeakTime = System.currentTimeMillis();
-    }
-
-    public synchronized boolean addRequest(long timestamp) {
-        leak(timestamp);
-
-        if (waterLevel < capacity) {
-            waterLevel += 1.0;
-            return true;
-        }
-
-        return false;
-    }
-
-    private void leak(long timestamp) {
-        long timePassed = timestamp - lastLeakTime;
-        double leaked = (timePassed / 1000.0) * leakRate;
-
-        waterLevel = Math.max(0, waterLevel - leaked);
-        lastLeakTime = timestamp;
-    }
-
-    public double getWaterLevel() {
-        return waterLevel;
-    }
-}
-
-// Per-user leaky bucket
-class RateLimiterLeakyBucket {
-    private class Bucket {
-        double waterLevel;
-        long lastLeakTime;
-
-        Bucket() {
-            this.waterLevel = 0;
-            this.lastLeakTime = System.currentTimeMillis();
-        }
-    }
-
-    private Map<String, Bucket> buckets;
-    private int capacity;
-    private double leakRate;
-
-    public RateLimiterLeakyBucket(int capacity, double leakRate) {
-        this.buckets = new ConcurrentHashMap<>();
-        this.capacity = capacity;
-        this.leakRate = leakRate;
-    }
-
-    public boolean allowRequest(String userId, long timestamp) {
-        buckets.putIfAbsent(userId, new Bucket());
-        Bucket bucket = buckets.get(userId);
-
-        synchronized (bucket) {
-            leak(bucket, timestamp);
-
-            if (bucket.waterLevel < capacity) {
-                bucket.waterLevel += 1.0;
-                return true;
+            if (count == 1) {
+                // First request in window, set expiration
+                jedis.expire(key, windowSeconds);
             }
-            return false;
-        }
-    }
 
-    private void leak(Bucket bucket, long timestamp) {
-        long timePassed = timestamp - bucket.lastLeakTime;
-        double leaked = (timePassed / 1000.0) * leakRate;
-
-        bucket.waterLevel = Math.max(0, bucket.waterLevel - leaked);
-        bucket.lastLeakTime = timestamp;
-    }
-
-    public void cleanup() {
-        long threshold = System.currentTimeMillis() - 3600000; // 1 hour
-        buckets.entrySet().removeIf(entry ->
-            entry.getValue().waterLevel == 0 &&
-            entry.getValue().lastLeakTime < threshold
-        );
-    }
-}
-
-// With priority support
-class LeakyBucketPriority {
-    private class Request implements Comparable<Request> {
-        long timestamp;
-        int priority;
-
-        Request(long t, int p) {
-            timestamp = t;
-            priority = p;
-        }
-
-        @Override
-        public int compareTo(Request other) {
-            // Higher priority first
-            return Integer.compare(other.priority, this.priority);
-        }
-    }
-
-    private PriorityQueue<Request> bucket;
-    private int capacity;
-    private double leakRate;
-    private long lastLeakTime;
-
-    public LeakyBucketPriority(int capacity, double leakRate) {
-        this.bucket = new PriorityQueue<>();
-        this.capacity = capacity;
-        this.leakRate = leakRate;
-        this.lastLeakTime = System.currentTimeMillis();
-    }
-
-    public synchronized boolean addRequest(long timestamp, int priority) {
-        leak(timestamp);
-
-        if (bucket.size() < capacity) {
-            bucket.offer(new Request(timestamp, priority));
-            return true;
-        }
-
-        return false;
-    }
-
-    private void leak(long timestamp) {
-        long timePassed = timestamp - lastLeakTime;
-        int requestsToLeak = (int) (timePassed / 1000.0 * leakRate);
-
-        for (int i = 0; i < requestsToLeak && !bucket.isEmpty(); i++) {
-            bucket.poll();
-        }
-
-        if (requestsToLeak > 0) {
-            lastLeakTime = timestamp;
+            return count <= maxRequests;
         }
     }
 }`
         },
-        python: {
-          starterCode: `from collections import deque
+        {
+          name: 'Lua Script for Atomicity',
+          explanation: 'Basic Redis operations can have race conditions. Lua scripts execute atomically on Redis, ensuring thread-safe rate limiting. This script implements a sliding window counter: it gets current and previous window counts, calculates the weighted estimate, and only increments if under the limit. The entire operation is atomic.',
+          codeExample: `// Atomic Sliding Window using Lua Script
+public class RedisAtomicRateLimiter {
+    private static final String LUA_SCRIPT =
+        "local key = KEYS[1]\\n" +
+        "local prev_key = KEYS[2]\\n" +
+        "local limit = tonumber(ARGV[1])\\n" +
+        "local window = tonumber(ARGV[2])\\n" +
+        "local now = tonumber(ARGV[3])\\n" +
+        "local prev_count = tonumber(redis.call('get', prev_key) or '0')\\n" +
+        "local curr_count = tonumber(redis.call('get', key) or '0')\\n" +
+        "local progress = (now % window) / window\\n" +
+        "local estimate = prev_count * (1 - progress) + curr_count\\n" +
+        "if estimate < limit then\\n" +
+        "  redis.call('incr', key)\\n" +
+        "  redis.call('expire', key, window * 2)\\n" +
+        "  return 1\\n" +
+        "end\\n" +
+        "return 0";
 
-class LeakyBucket:
-    def __init__(self, capacity: int, leak_rate: float):
-        # TODO: Initialize leaky bucket
-        pass
+    public boolean allowRequest(String userId) {
+        long now = System.currentTimeMillis();
+        long windowMs = windowSeconds * 1000L;
+        long currWindow = now / windowMs;
 
-    def add_request(self, timestamp: int) -> bool:
-        # TODO: Leak requests and check capacity
-        return False
+        String currKey = "rl:" + userId + ":" + currWindow;
+        String prevKey = "rl:" + userId + ":" + (currWindow - 1);
 
-    def _leak(self, timestamp: int):
-        # TODO: Remove leaked requests
-        pass`,
-          solution: `from collections import deque
-from threading import Lock
-import time
+        try (Jedis jedis = jedisPool.getResource()) {
+            Object result = jedis.eval(LUA_SCRIPT,
+                Arrays.asList(currKey, prevKey),
+                Arrays.asList(String.valueOf(maxRequests),
+                             String.valueOf(windowMs),
+                             String.valueOf(now)));
+            return ((Long) result) == 1;
+        }
+    }
+}`
+        },
+        {
+          name: 'Race Condition Handling',
+          explanation: 'Without proper atomic operations, race conditions can occur in distributed systems. Two servers might read the same count, both decide to allow the request, and both increment - exceeding the limit. Solutions include: Lua scripts (recommended), WATCH/MULTI/EXEC transactions, or distributed locks (slower).',
+          codeExample: `// Race Condition Example and Solution
 
-class LeakyBucket:
-    def __init__(self, capacity: int, leak_rate: float):
-        self.bucket = deque()
-        self.capacity = capacity
-        self.leak_rate = leak_rate  # requests per second
-        self.last_leak_time = time.time() * 1000
-        self.lock = Lock()
+/* The Problem:
+   Server A: read count=9, allow, incr -> count=10
+   Server B: read count=9, allow, incr -> count=10
 
-    def add_request(self, timestamp: int) -> bool:
-        with self.lock:
-            self._leak(timestamp)
+   Both allowed! But limit was 10, now we have 11 requests.
+*/
 
-            if len(self.bucket) < self.capacity:
-                self.bucket.append(timestamp)
-                return True
+// Solution 1: Lua Script (Best - shown above)
 
-            return False
+// Solution 2: Redis WATCH/MULTI/EXEC
+public boolean allowRequestWithWatch(String userId) {
+    String key = "rate_limit:" + userId;
 
-    def _leak(self, timestamp: int):
-        time_passed = timestamp - self.last_leak_time
-        requests_to_leak = int(time_passed / 1000.0 * self.leak_rate)
+    try (Jedis jedis = jedisPool.getResource()) {
+        while (true) {
+            jedis.watch(key);
 
-        for _ in range(requests_to_leak):
-            if not self.bucket:
-                break
-            self.bucket.popleft()
+            String countStr = jedis.get(key);
+            int count = countStr == null ? 0 : Integer.parseInt(countStr);
 
-        if requests_to_leak > 0:
-            self.last_leak_time = timestamp
-
-    def get_queue_size(self) -> int:
-        return len(self.bucket)
-
-
-# Using water level instead of queue
-class LeakyBucketWaterLevel:
-    def __init__(self, capacity: int, leak_rate: float):
-        self.water_level = 0.0
-        self.capacity = capacity
-        self.leak_rate = leak_rate
-        self.last_leak_time = time.time() * 1000
-        self.lock = Lock()
-
-    def add_request(self, timestamp: int) -> bool:
-        with self.lock:
-            self._leak(timestamp)
-
-            if self.water_level < self.capacity:
-                self.water_level += 1.0
-                return True
-
-            return False
-
-    def _leak(self, timestamp: int):
-        time_passed = timestamp - self.last_leak_time
-        leaked = (time_passed / 1000.0) * self.leak_rate
-
-        self.water_level = max(0, self.water_level - leaked)
-        self.last_leak_time = timestamp
-
-    def get_water_level(self) -> float:
-        return self.water_level
-
-
-# Per-user leaky bucket
-class RateLimiterLeakyBucket:
-    class Bucket:
-        def __init__(self):
-            self.water_level = 0.0
-            self.last_leak_time = time.time() * 1000
-            self.lock = Lock()
-
-    def __init__(self, capacity: int, leak_rate: float):
-        self.buckets = {}
-        self.capacity = capacity
-        self.leak_rate = leak_rate
-        self.global_lock = Lock()
-
-    def allow_request(self, user_id: str, timestamp: int) -> bool:
-        with self.global_lock:
-            if user_id not in self.buckets:
-                self.buckets[user_id] = self.Bucket()
-
-        bucket = self.buckets[user_id]
-
-        with bucket.lock:
-            self._leak(bucket, timestamp)
-
-            if bucket.water_level < self.capacity:
-                bucket.water_level += 1.0
-                return True
-            return False
-
-    def _leak(self, bucket, timestamp: int):
-        time_passed = timestamp - bucket.last_leak_time
-        leaked = (time_passed / 1000.0) * self.leak_rate
-
-        bucket.water_level = max(0, bucket.water_level - leaked)
-        bucket.last_leak_time = timestamp
-
-    def cleanup(self):
-        threshold = time.time() * 1000 - 3600000  # 1 hour
-        with self.global_lock:
-            self.buckets = {
-                user_id: bucket
-                for user_id, bucket in self.buckets.items()
-                if not (bucket.water_level == 0 and bucket.last_leak_time < threshold)
+            if (count >= maxRequests) {
+                jedis.unwatch();
+                return false;
             }
 
+            Transaction tx = jedis.multi();
+            tx.incr(key);
+            tx.expire(key, windowSeconds);
 
-# With priority support
-import heapq
-
-class LeakyBucketPriority:
-    class Request:
-        def __init__(self, timestamp: int, priority: int):
-            self.timestamp = timestamp
-            self.priority = priority
-
-        def __lt__(self, other):
-            # Higher priority first (reverse comparison)
-            return self.priority > other.priority
-
-    def __init__(self, capacity: int, leak_rate: float):
-        self.bucket = []  # Min heap
-        self.capacity = capacity
-        self.leak_rate = leak_rate
-        self.last_leak_time = time.time() * 1000
-        self.lock = Lock()
-
-    def add_request(self, timestamp: int, priority: int) -> bool:
-        with self.lock:
-            self._leak(timestamp)
-
-            if len(self.bucket) < self.capacity:
-                heapq.heappush(self.bucket, self.Request(timestamp, priority))
-                return True
-
-            return False
-
-    def _leak(self, timestamp: int):
-        time_passed = timestamp - self.last_leak_time
-        requests_to_leak = int(time_passed / 1000.0 * self.leak_rate)
-
-        for _ in range(requests_to_leak):
-            if not self.bucket:
-                break
-            heapq.heappop(self.bucket)
-
-        if requests_to_leak > 0:
-            self.last_leak_time = timestamp`
+            List<Object> results = tx.exec();
+            if (results != null) {
+                return true; // Transaction succeeded
+            }
+            // Transaction failed, retry
         }
-      },
-      testCases: [
-        { input: 'capacity=5, rate=1, 5 requests at t=0, 1 at t=0', output: 'last denied' },
-        { input: 'capacity=5, rate=1, 5 requests at t=0, 1 at t=3', output: 'last allowed (3 leaked)' },
-        { input: 'capacity=10, rate=2, 10 requests at t=0, 1 at t=5', output: 'last allowed (10 leaked)' }
-      ],
-      explanation: `**Problem:** Rate limiting using Leaky Bucket - requests fill a bucket, which leaks at constant rate.
+    }
+}
 
-**Key Insight: Queue + Constant Leak Rate**
-Requests add to queue. Queue "leaks" (processes) at constant rate. Full bucket = reject.
+// Solution 3: Distributed Lock (Slowest)
+public boolean allowRequestWithLock(String userId) {
+    String lockKey = "lock:" + userId;
+    String countKey = "rate_limit:" + userId;
 
-**Water Metaphor:**
-┌────────────────────────────────────┐
-│  Bucket: [💧💧💧] water level     │
-│  Incoming: requests add water      │
-│  Leak: -1 request/second (drain)   │
-│  Overflow: reject when full        │
-└────────────────────────────────────┘
+    try (Jedis jedis = jedisPool.getResource()) {
+        // Acquire lock with timeout
+        String lockId = UUID.randomUUID().toString();
+        String result = jedis.set(lockKey, lockId, "NX", "EX", 5);
 
-**How It Works:**
-Capacity=5, LeakRate=1/sec
+        if (!"OK".equals(result)) {
+            return false; // Could not acquire lock
+        }
 
-t=0: Add 5 requests → queue=[R1,R2,R3,R4,R5], full!
-t=0: Try add 6th → denied ✗ (bucket full)
-t=3: Leak 3 requests → queue=[R4,R5], size=2
-t=3: Add new request → queue=[R4,R5,R6] ✓
+        try {
+            Long count = jedis.incr(countKey);
+            if (count == 1) {
+                jedis.expire(countKey, windowSeconds);
+            }
+            return count <= maxRequests;
+        } finally {
+            // Release lock
+            jedis.del(lockKey);
+        }
+    }
+}`
+        }
+      ]
+    },
+    {
+      id: 'scaling',
+      name: 'Scaling & Best Practices',
+      icon: '⚡',
+      color: '#22c55e',
+      description: 'Production considerations: scaling strategies, response headers, and implementation best practices.',
+      diagram: ScalingDiagram,
+      details: [
+        {
+          name: 'Scaling Strategies',
+          diagram: ScalingDiagram,
+          explanation: 'Three main approaches for scaling rate limiters: 1) Local (in-memory): Fast, no network calls, but only works for single-server. 2) Distributed (Redis): Consistent across servers, slight latency overhead. 3) Hybrid: Local rate limiting with periodic sync to central store, best for high-throughput systems that can tolerate eventual consistency.',
+          codeExample: `// Hybrid Rate Limiter: Local + Distributed Sync
+public class HybridRateLimiter {
+    private final LocalRateLimiter local;
+    private final RedisRateLimiter distributed;
+    private final double localRatio; // e.g., 0.8 = 80% local limit
 
-**Two Implementation Approaches:**
+    public HybridRateLimiter(int limit, int windowSec, double localRatio) {
+        int localLimit = (int) (limit * localRatio);
+        int distributedLimit = limit;
 
-1. **Queue-Based:** Store actual requests in queue
-   - queue.size() = current occupancy
-   - Leak = remove from queue
-   - Space: O(capacity)
+        this.local = new LocalRateLimiter(localLimit, windowSec);
+        this.distributed = new RedisRateLimiter(distributedLimit, windowSec);
+        this.localRatio = localRatio;
+    }
 
-2. **Water Level:** Track level as a number
-   - waterLevel += 1 (add request)
-   - waterLevel -= leaked (continuous drain)
-   - Space: O(1)
+    public boolean allowRequest(String userId) {
+        // Fast path: check local limit first
+        if (!local.allowRequest(userId)) {
+            return false;
+        }
 
-**Leak Calculation:**
-leaked = (currentTime - lastLeakTime) × leakRate
-waterLevel = max(0, waterLevel - leaked)
+        // Slow path: check distributed limit
+        // Only reached 20% of the time if well-distributed
+        return distributed.allowRequest(userId);
+    }
+}
 
-**Example Timeline:**
-Capacity=10, LeakRate=2/sec
+// Another approach: Async sync with local limiter
+public class AsyncSyncRateLimiter {
+    private final Map<String, AtomicInteger> localCounts;
+    private final ScheduledExecutorService syncExecutor;
 
-t=0s: level=0
-  Add request → level=1 ✓
+    public AsyncSyncRateLimiter(RedisRateLimiter distributed) {
+        this.localCounts = new ConcurrentHashMap<>();
 
-t=0s: Add 9 more → level=10 (full)
+        // Sync to Redis every second
+        syncExecutor.scheduleAtFixedRate(() -> {
+            localCounts.forEach((userId, count) -> {
+                int delta = count.getAndSet(0);
+                if (delta > 0) {
+                    distributed.addCount(userId, delta);
+                }
+            });
+        }, 1, 1, TimeUnit.SECONDS);
+    }
+}`
+        },
+        {
+          name: 'Response Headers',
+          explanation: 'Standard rate limit response headers help clients adapt to rate limits gracefully. Include: X-RateLimit-Limit (max requests), X-RateLimit-Remaining (requests left), X-RateLimit-Reset (when limit resets), and Retry-After (seconds to wait when limited). This enables clients to implement backoff strategies.',
+          codeExample: `// Rate Limit Response Headers (Spring Boot)
+@Component
+public class RateLimitInterceptor implements HandlerInterceptor {
 
-t=0s: Add another → denied ✗ (at capacity)
+    @Autowired
+    private RateLimiter rateLimiter;
 
-t=3s: Leak = 3s × 2/sec = 6 requests
-  level = 10 - 6 = 4
-  Add request → level=5 ✓
+    @Override
+    public boolean preHandle(HttpServletRequest request,
+                            HttpServletResponse response,
+                            Object handler) {
+        String userId = extractUserId(request);
+        RateLimitResult result = rateLimiter.check(userId);
 
-t=5s: Leak = 2s × 2/sec = 4 requests
-  level = 5 - 4 = 1
-  Add 3 requests → level=4 ✓
+        // Always include rate limit headers
+        response.setHeader("X-RateLimit-Limit",
+            String.valueOf(result.getLimit()));
+        response.setHeader("X-RateLimit-Remaining",
+            String.valueOf(result.getRemaining()));
+        response.setHeader("X-RateLimit-Reset",
+            String.valueOf(result.getResetTimestamp()));
 
-**Advantages:**
-✓ Smooth output rate (constant leak)
-✓ Predictable traffic shaping
-✓ Prevents bursts at output
-✓ Good for network traffic control
-✓ Simple implementation (queue or counter)
+        if (!result.isAllowed()) {
+            response.setStatus(429); // Too Many Requests
+            response.setHeader("Retry-After",
+                String.valueOf(result.getRetryAfterSeconds()));
+            response.getWriter().write(
+                "{\\"error\\": \\"Rate limit exceeded\\", " +
+                "\\"retry_after\\": " + result.getRetryAfterSeconds() + "}");
+            return false;
+        }
 
-**Disadvantages:**
-✗ Queues requests even when idle
-✗ May delay requests unnecessarily
-✗ Requests can be dropped if bucket fills
-✗ Less flexible than Token Bucket
+        return true;
+    }
+}
 
-**Token Bucket vs Leaky Bucket:**
-┌─────────────────┬──────────────────┬──────────────────┐
-│                 │  Token Bucket    │  Leaky Bucket    │
-├─────────────────┼──────────────────┼──────────────────┤
-│ Tokens/Water    │ Allows bursts    │ Smooth output    │
-│ Idle behavior   │ Fills with tokens│ Stays empty      │
-│ Burst handling  │ ✓ Up to capacity │ ✗ Queues/rejects │
-│ Rate limit      │ Average rate     │ Max rate         │
-│ Use case        │ API throttling   │ Traffic shaping  │
-└─────────────────┴──────────────────┴──────────────────┘
+// Result class with all metadata
+public class RateLimitResult {
+    private boolean allowed;
+    private int limit;
+    private int remaining;
+    private long resetTimestamp;
+    private int retryAfterSeconds;
 
-**Complexity:**
-- addRequest: O(1) with water level, O(L) with queue (L = leaked items)
-- Space: O(1) per bucket (water level) or O(capacity) with queue
+    // getters...
+}`
+        },
+        {
+          name: 'Best Practices',
+          explanation: 'Key production considerations: 1) Use tiered limits (free/pro/enterprise), 2) Implement graceful degradation, 3) Monitor rate limit metrics, 4) Consider user-agent and IP as backup identifiers, 5) Allow limit exemptions for internal services, 6) Use circuit breakers for Redis failures.',
+          codeExample: `// Production Rate Limiter with Best Practices
+public class ProductionRateLimiter {
+    private final Map<String, RateLimitConfig> tierConfigs;
+    private final RedisRateLimiter primary;
+    private final LocalRateLimiter fallback;
+    private final CircuitBreaker circuitBreaker;
+    private final MetricsCollector metrics;
 
-**When to Use:**
-- Network packet scheduling
-- Traffic shaping (ensure smooth output)
-- Rate limiting where bursts are unwanted
-- Message queue processing
+    public RateLimitResult check(Request request) {
+        String userId = extractUserId(request);
+        String tier = getUserTier(userId); // free, pro, enterprise
+        RateLimitConfig config = tierConfigs.get(tier);
 
-**Real-World Example:**
-Video streaming server:
-- Capacity=100 chunks
-- LeakRate=10 chunks/second
-- Ensures smooth playback rate
-- Buffers incoming requests
-- Drops excess during spikes`,
-      pseudocode: `Leaky Bucket Algorithm:
------------------------
-// Queue-Based Implementation
-LeakyBucket(capacity, leakRate):
-    this.bucket = new Queue()
-    this.capacity = capacity
-    this.leakRate = leakRate  // requests per second
-    this.lastLeakTime = currentTime()
+        // Exempt internal services
+        if (isInternalService(request)) {
+            return RateLimitResult.allowed(Integer.MAX_VALUE);
+        }
 
-// Add Request
-addRequest(timestamp):
-    leak(timestamp)  // Process leaked requests first
+        try {
+            if (circuitBreaker.isOpen()) {
+                // Fallback to local limiter
+                metrics.increment("rate_limit.fallback");
+                return fallback.check(userId, config);
+            }
 
-    if bucket.size() < capacity:
-        bucket.add(timestamp)
-        return true  // Allowed (added to queue)
+            RateLimitResult result = primary.check(userId, config);
+            metrics.increment(result.isAllowed() ?
+                "rate_limit.allowed" : "rate_limit.denied");
 
-    return false  // Denied (bucket full)
+            return result;
 
-// Leak (remove) requests at constant rate
-leak(timestamp):
-    timePassed = timestamp - lastLeakTime  // milliseconds
-    requestsToLeak = (timePassed / 1000.0) × leakRate
+        } catch (Exception e) {
+            circuitBreaker.recordFailure();
+            metrics.increment("rate_limit.error");
 
-    // Remove leaked requests from queue
-    for i from 1 to requestsToLeak:
-        if bucket is not empty:
-            bucket.remove()
+            // Graceful degradation: allow on error
+            // Or use local fallback for safety
+            return fallback.check(userId, config);
+        }
+    }
+}
 
-    if requestsToLeak > 0:
-        lastLeakTime = timestamp
-
-Example Trace (Queue):
----------------------
-Capacity=5, LeakRate=1/sec
-
-t=0ms: bucket=[], lastLeak=0
-  addRequest() → leak: 0 requests
-  bucket=[R1] ✓
-
-t=0ms: bucket=[R1]
-  5 more requests → bucket=[R1,R2,R3,R4,R5,R6]
-  Wait, only 5 fit!
-  bucket=[R1,R2,R3,R4,R5], 6th denied ✗
-
-t=3000ms: bucket=[R1,R2,R3,R4,R5], lastLeak=0
-  leak: elapsed=3000ms → leak (3s × 1/s) = 3 requests
-  Remove R1, R2, R3 → bucket=[R4,R5]
-  lastLeak=3000
-  addRequest() → bucket=[R4,R5,R7] ✓
-
-t=5000ms: bucket=[R4,R5,R7], lastLeak=3000
-  leak: elapsed=2000ms → leak 2 requests
-  Remove R4, R5 → bucket=[R7]
-  addRequest() → bucket=[R7,R8] ✓
-
-Water Level Implementation:
----------------------------
-// More efficient - no queue storage
-LeakyBucketWaterLevel(capacity, leakRate):
-    this.waterLevel = 0.0  // Current level
-    this.capacity = capacity
-    this.leakRate = leakRate
-    this.lastLeakTime = currentTime()
-
-addRequest(timestamp):
-    leak(timestamp)
-
-    if waterLevel < capacity:
-        waterLevel += 1.0
-        return true
-
-    return false
-
-leak(timestamp):
-    timePassed = timestamp - lastLeakTime
-    leaked = (timePassed / 1000.0) × leakRate
-
-    // Drain water
-    waterLevel = max(0, waterLevel - leaked)
-    lastLeakTime = timestamp
-
-Example Trace (Water Level):
-----------------------------
-Capacity=10, LeakRate=2/sec
-
-t=0ms: level=0, lastLeak=0
-  addRequest() → level=1 ✓
-
-t=0ms: level=1
-  Add 9 more → level=10 ✓ (full!)
-
-t=0ms: level=10
-  addRequest() → denied ✗ (at capacity)
-
-t=3000ms: level=10, lastLeak=0
-  leak: elapsed=3000ms → leaked = (3s × 2/s) = 6.0
-  level = 10 - 6 = 4.0
-  addRequest() → level=5.0 ✓
-
-t=5000ms: level=5, lastLeak=3000
-  leak: elapsed=2000ms → leaked = 4.0
-  level = 5 - 4 = 1.0
-  addRequest() → level=2.0 ✓
-
-t=10000ms: level=2, lastLeak=5000
-  leak: elapsed=5000ms → leaked = 10.0
-  level = max(0, 2 - 10) = 0  // Can't go negative!
-
-Per-User Leaky Bucket:
------------------------
-RateLimiter(capacity, leakRate):
-    buckets = HashMap<userId, Bucket>
-
-    class Bucket:
-        waterLevel
-        lastLeakTime
-
-allowRequest(userId, timestamp):
-    if userId not in buckets:
-        buckets[userId] = new Bucket(0, timestamp)
-
-    bucket = buckets[userId]
-
-    synchronized(bucket):
-        leak(bucket, timestamp)
-
-        if bucket.waterLevel < capacity:
-            bucket.waterLevel += 1
-            return true
-        return false
-
-leak(bucket, timestamp):
-    timePassed = timestamp - bucket.lastLeakTime
-    leaked = (timePassed / 1000.0) × leakRate
-
-    bucket.waterLevel = max(0, bucket.waterLevel - leaked)
-    bucket.lastLeakTime = timestamp
-
-Comparison: Token vs Leaky Bucket:
-----------------------------------
-Token Bucket:
-  - Tokens refill, request consumes
-  - Allows bursts (up to capacity)
-  - Good for APIs (AWS, Stripe use this)
-
-Leaky Bucket:
-  - Requests queue, leak processes
-  - Smooth rate (no bursts at output)
-  - Good for traffic shaping (routers)
-
-Example: 10 requests/minute limit
-  Token: Can burst 10 immediately if bucket full
-  Leaky: Processes at 1 every 6 seconds (smooth)`
+// Tiered configuration
+Map<String, RateLimitConfig> tierConfigs = Map.of(
+    "free", new RateLimitConfig(100, 60),      // 100/min
+    "pro", new RateLimitConfig(1000, 60),      // 1000/min
+    "enterprise", new RateLimitConfig(10000, 60) // 10000/min
+);`
+        }
+      ]
     }
   ]
 
-  const handleQuestionSelect = (question) => {
-    setSelectedQuestion(question)
-    const problemId = `RateLimiter-${question.id}`
-    const savedCode = getUserCode(problemId, language)
-    setUserCode(savedCode || question.code[language].starterCode)
-    setShowSolution(false)
-    setShowExplanation(false)
-    setOutput('')
-  }
+  // =============================================================================
+  // NAVIGATION HANDLERS
+  // =============================================================================
 
-  const handleRunCode = () => {
-    setIsRunning(true)
-    setOutput('Running tests...\n')
+  const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 
-    setTimeout(() => {
-      const results = selectedQuestion.testCases.map((test, idx) =>
-        `Test ${idx + 1}: ${test.input}\nExpected: ${test.output}\n✓ Passed`
-      ).join('\n\n')
-
-      setOutput(results)
-      setIsRunning(false)
-    }, 1000)
-  }
-
-  const handleReset = () => {
-    setUserCode(selectedQuestion.code[language].starterCode)
-    setOutput('')
-    setShowSolution(false)
-  }
-
-  const handleKeyDown = (e) => {
-    // Stop propagation for all keys except Escape to allow typing in textarea
-    if (e.key !== 'Escape') {
-      e.stopPropagation()
-    }
-
-    if (e.key === 'Tab') {
-      e.preventDefault()
-      const start = e.target.selectionStart
-      const end = e.target.selectionEnd
-      const newValue = userCode.substring(0, start) + '    ' + userCode.substring(end)
-      setUserCode(newValue)
-      setTimeout(() => {
-        e.target.selectionStart = e.target.selectionEnd = start + 4
-      }, 0)
+  const handlePreviousConcept = () => {
+    if (selectedConceptIndex > 0) {
+      setSelectedConceptIndex(selectedConceptIndex - 1)
+      setSelectedDetailIndex(0)
     }
   }
 
-  if (!selectedQuestion) {
-    return (
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', minHeight: '100vh', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', color: 'white' }}>
-        <button
-          onClick={onBack}
-          style={{
-            marginBottom: '2rem',
-            padding: '0.5rem 1rem',
-            fontSize: '1rem',
-            backgroundColor: '#3b82f6',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}
-        >
-          ← Back to Practice
-        </button>
-
-        <Breadcrumb breadcrumb={breadcrumb} />
-
-        <h1 style={{ fontSize: '2rem', marginBottom: '1rem', color: 'white' }}>
-          Rate Limiting Algorithms Practice
-        </h1>
-        <p style={{ fontSize: '1.1rem', color: '#9ca3af', marginBottom: '2rem' }}>
-          Master rate limiting: Token Bucket, Sliding Window, Fixed Window, and Leaky Bucket
-        </p>
-
-        <div style={{ display: 'grid', gap: '1rem' }}>
-          {questions.map((q) => {
-            const isCompleted = isProblemCompleted(`RateLimiter-${q.id}`)
-            return (
-              <div
-                key={`${q.id}-${refreshKey}`}
-                onClick={() => handleQuestionSelect(q)}
-                style={{
-                  padding: '1.5rem',
-                  border: isCompleted ? '3px solid #10b981' : '2px solid #374151',
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  backgroundColor: isCompleted ? 'rgba(16, 185, 129, 0.15)' : 'rgba(30, 41, 59, 0.8)',
-                  boxShadow: isCompleted ? '0 2px 12px rgba(16, 185, 129, 0.2)' : 'none',
-                  position: 'relative'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = isCompleted ? '#10b981' : '#3b82f6'
-                  e.currentTarget.style.boxShadow = isCompleted ? '0 4px 16px rgba(16, 185, 129, 0.3)' : '0 4px 12px rgba(59, 130, 246, 0.15)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = isCompleted ? '#10b981' : '#374151'
-                  e.currentTarget.style.boxShadow = isCompleted ? '0 2px 12px rgba(16, 185, 129, 0.2)' : 'none'
-                }}
-              >
-                {isCompleted && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '-10px',
-                    left: '-10px',
-                    backgroundColor: '#10b981',
-                    color: 'white',
-                    borderRadius: '50%',
-                    width: '32px',
-                    height: '32px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1.1rem',
-                    fontWeight: 'bold',
-                    boxShadow: '0 2px 8px rgba(16, 185, 129, 0.5)',
-                    border: '3px solid white',
-                    zIndex: 1
-                  }}>
-                    ✓
-                  </div>
-                )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
-                  <h3 style={{ fontSize: '1.25rem', color: 'white', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    {q.id}. {q.title}
-                    {isCompleted && <span style={{ fontSize: '0.9rem', color: '#10b981' }}>✓</span>}
-                  </h3>
-                  <span style={{
-                    padding: '0.25rem 0.75rem',
-                    backgroundColor: '#fef3c7',
-                    color: '#92400e',
-                    borderRadius: '6px',
-                    fontSize: '0.875rem',
-                    fontWeight: '600'
-                  }}>
-                    {q.difficulty}
-                  </span>
-                </div>
-                <p style={{ color: '#9ca3af', margin: 0 }}>{q.description}</p>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-    )
+  const handleNextConcept = () => {
+    if (selectedConceptIndex < concepts.length - 1) {
+      setSelectedConceptIndex(selectedConceptIndex + 1)
+      setSelectedDetailIndex(0)
+    }
   }
+
+  // =============================================================================
+  // BREADCRUMB CONFIGURATION
+  // =============================================================================
+
+  const buildBreadcrumbStack = () => {
+    const stack = [
+      { name: 'System Design', icon: '🏗️', page: 'System Design' },
+      { name: 'Rate Limiter', icon: '🚦', page: 'Rate Limiter' }
+    ]
+    if (selectedConcept) {
+      stack.push({ name: selectedConcept.name, icon: selectedConcept.icon })
+    }
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index) => {
+    if (index === 0) {
+      onBack()
+    } else if (index === 1 && selectedConcept) {
+      setSelectedConceptIndex(null)
+    }
+  }
+
+  // =============================================================================
+  // KEYBOARD NAVIGATION
+  // =============================================================================
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        if (selectedConcept) {
+          setSelectedConceptIndex(null)
+        } else {
+          onBack()
+        }
+      } else if (e.key === 'ArrowLeft' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handlePreviousConcept()
+      } else if (e.key === 'ArrowRight' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handleNextConcept()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConceptIndex, onBack])
+
+  // =============================================================================
+  // STYLES
+  // =============================================================================
+
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f172a 0%, #7f1d1d 50%, #0f172a 100%)',
+    padding: '2rem',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
+  }
+
+  const headerStyle = {
+    maxWidth: '1400px',
+    margin: '0 auto 2rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '1rem'
+  }
+
+  const titleStyle = {
+    fontSize: '2.5rem',
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #ef4444, #f87171)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    margin: 0
+  }
+
+  const backButtonStyle = {
+    padding: '0.75rem 1.5rem',
+    background: 'rgba(239, 68, 68, 0.2)',
+    border: '1px solid rgba(239, 68, 68, 0.3)',
+    borderRadius: '0.5rem',
+    color: '#f87171',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    transition: 'all 0.2s'
+  }
+
+  // =============================================================================
+  // RENDER
+  // =============================================================================
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
-      <button
-        onClick={() => setSelectedQuestion(null)}
-        style={{
-          marginBottom: '1rem',
-          padding: '0.5rem 1rem',
-          fontSize: '1rem',
-          backgroundColor: '#2563eb',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer'
-        }}
-      >
-        ← Back to Questions
-      </button>
-
-      {/* Problem Description */}
-      <div style={{
-        backgroundColor: '#eff6ff',
-        padding: '1.5rem',
-        borderRadius: '12px',
-        borderLeft: '4px solid #3b82f6',
-        marginBottom: '1.5rem'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1.5rem', margin: 0, color: '#1e40af', fontWeight: '700' }}>
-            {selectedQuestion.title}
-          </h2>
-          <span style={{
-            display: 'inline-block',
-            padding: '0.25rem 0.75rem',
-            backgroundColor: '#fef3c7',
-            color: '#92400e',
-            borderRadius: '6px',
-            fontSize: '0.875rem',
-            fontWeight: '600'
-          }}>
-            {selectedQuestion.difficulty}
-          </span>
-        </div>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#1e40af', fontWeight: '600' }}>Description</h3>
-          <p style={{ color: '#1e40af', lineHeight: '1.6', margin: 0 }}>{selectedQuestion.description}</p>
-        </div>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#1e40af', fontWeight: '600' }}>Example</h3>
-          <pre style={{
-            backgroundColor: '#dbeafe',
-            padding: '1rem',
-            borderRadius: '8px',
-            overflow: 'auto',
-            fontSize: '0.9rem',
-            color: '#1e40af',
-            margin: 0
-          }}>
-            {selectedQuestion.example}
-          </pre>
-        </div>
-
-        <div>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#1e40af', fontWeight: '600' }}>Test Cases</h3>
-          {selectedQuestion.testCases.map((test, idx) => (
-            <div key={idx} style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-              <span style={{ color: '#1e40af', fontWeight: '600' }}>Test {idx + 1}:</span>{' '}
-              <span style={{ color: '#1e40af' }}>{test.input} → {test.output}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Code Editor */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h3 style={{ fontSize: '1.1rem', margin: 0, color: '#1f2937' }}>Code Editor</h3>
-        <LanguageToggle />
-      </div>
-      <div style={{
-        backgroundColor: '#1e293b',
-        borderRadius: '12px',
-        overflow: 'hidden',
-        marginBottom: '1rem'
-      }}>
-        <div style={{
-          backgroundColor: '#0f172a',
-          padding: '0.75rem 1rem',
-          borderBottom: '1px solid #334155',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <span style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: '600' }}>{language === 'java' ? 'Solution.java' : 'solution.py'}</span>
-          <span style={{ color: '#64748b', fontSize: '0.75rem' }}>{language === 'java' ? 'Java' : 'Python'}</span>
-        </div>
-        <textarea
-          value={userCode}
-          onChange={(e) => setUserCode(e.target.value)}
-          onKeyDown={handleKeyDown}
-          spellCheck="false"
-          style={{
-            width: '100%',
-            minHeight: '600px',
-            padding: '1rem',
-            fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
-            fontSize: '0.9rem',
-            lineHeight: '1.6',
-            color: '#e2e8f0',
-            backgroundColor: '#1e293b',
-            border: 'none',
-            outline: 'none',
-            resize: 'vertical'
+    <div style={containerStyle}>
+      {/* Header with title and back button */}
+      <div style={headerStyle}>
+        <h1 style={titleStyle}>Rate Limiter Design</h1>
+        <button
+          style={backButtonStyle}
+          onClick={onBack}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.3)'
+            e.currentTarget.style.transform = 'translateY(-2px)'
           }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'
+            e.currentTarget.style.transform = 'translateY(0)'
+          }}
+        >
+          ← Back to System Design
+        </button>
+      </div>
+
+      {/* Breadcrumb navigation */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          colors={TOPIC_COLORS}
         />
       </div>
 
-      {/* Buttons Row */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-        <button
-          onClick={handleRunCode}
-          disabled={isRunning}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            backgroundColor: isRunning ? '#9ca3af' : '#10b981',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: isRunning ? 'not-allowed' : 'pointer',
-            fontWeight: '600',
-            transition: 'background-color 0.2s'
-          }}
-        >
-          {isRunning ? 'Running...' : '▶️ Run Code'}
-        </button>
-        <button
-          onClick={handleReset}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            backgroundColor: '#2563eb',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: '600',
-            transition: 'background-color 0.2s'
-          }}
-        >
-          🔄 Reset
-        </button>
-        <button
-          onClick={() => setShowSolution(!showSolution)}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            backgroundColor: showSolution ? '#10b981' : '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: '600',
-            transition: 'background-color 0.2s'
-          }}
-        >
-          {showSolution ? '✓ Solution Shown' : '👁️ Show Solution'}
-        </button>
-        <button
-          onClick={() => setShowExplanation(!showExplanation)}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            backgroundColor: showExplanation ? '#8b5cf6' : '#f59e0b',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: '600',
-            transition: 'background-color 0.2s'
-          }}
-        >
-          {showExplanation ? '✓ Explanation Visible' : '📖 Explanation & Pseudocode'}
-        </button>
-        <div style={{ marginLeft: 'auto' }}>
-          <CompletionCheckbox
-            problemId={`RateLimiter-${selectedQuestion.id}`}
-            label="Mark as Completed"
-            onCompletionChange={() => setRefreshKey(prev => prev + 1)}
-          />
+      {/* Architecture Overview */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        <div style={{
+          background: 'rgba(15, 23, 42, 0.8)',
+          borderRadius: '1rem',
+          padding: '1.5rem',
+          border: '1px solid #374151'
+        }}>
+          <h2 style={{ color: '#60a5fa', margin: '0 0 1rem 0', fontSize: '1.25rem' }}>
+            Rate Limiting Architecture Overview
+          </h2>
+          <RateLimiterArchitectureDiagram />
+          <p style={{ color: '#9ca3af', margin: '1rem 0 0 0', textAlign: 'center', fontSize: '0.9rem' }}>
+            Rate limiters control request flow between clients and backend services, protecting against abuse and ensuring fair resource usage.
+          </p>
         </div>
       </div>
 
-      {/* Output Display */}
-      {output && (
-        <div style={{
-          backgroundColor: '#0f172a',
-          padding: '1rem',
-          borderRadius: '8px',
-          marginBottom: '1rem'
-        }}>
-          <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem', fontWeight: '700', color: '#60a5fa' }}>
-            Output:
-          </h3>
-          <pre style={{
-            margin: 0,
-            fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
-            fontSize: '0.85rem',
-            lineHeight: '1.6',
-            color: '#e2e8f0',
-            whiteSpace: 'pre-wrap'
-          }}>
-            {output}
-          </pre>
-        </div>
-      )}
-
-      {/* Explanation & Pseudocode Display */}
-      {showExplanation && selectedQuestion.explanation && selectedQuestion.pseudocode && (
-        <div style={{ marginBottom: '1rem' }}>
-          <div style={{
-            backgroundColor: '#fef3c7',
-            padding: '15px',
-            borderRadius: '6px',
-            border: '2px solid #fbbf24',
-            marginBottom: '1rem'
-          }}>
-            <h3 style={{ margin: '0 0 1rem 0', color: '#78350f', fontSize: '1.1rem', fontWeight: '700' }}>
-              📖 Explanation
-            </h3>
-            <div style={{ color: '#1f2937', lineHeight: '1.7', whiteSpace: 'pre-wrap', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-              {selectedQuestion.explanation}
+      {/* Concept Cards Grid */}
+      <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gap: '1.5rem'
+      }}>
+        {concepts.map((concept, index) => (
+          <div
+            key={concept.id}
+            onClick={() => setSelectedConceptIndex(index)}
+            style={{
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              border: `1px solid ${concept.color}40`,
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = `0 20px 40px ${concept.color}20`
+              e.currentTarget.style.borderColor = concept.color
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.borderColor = `${concept.color}40`
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
+              <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
+            </div>
+            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
+            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+              {concept.details.length} topics - Click to explore
             </div>
           </div>
-          <div style={{
-            backgroundColor: '#1e293b',
-            padding: '15px',
-            borderRadius: '6px',
-            border: '2px solid #374151'
-          }}>
-            <h4 style={{ margin: '0 0 1rem 0', color: '#60a5fa', fontSize: '1.1rem', fontWeight: '700' }}>
-              🔧 Pseudocode
-            </h4>
-            <pre style={{
-              margin: 0,
-              color: '#e5e7eb',
-              whiteSpace: 'pre-wrap',
-              fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
-              fontSize: '0.9rem',
-              lineHeight: '1.6'
-            }}>
-              {selectedQuestion.pseudocode}
-            </pre>
-          </div>
-        </div>
-      )}
+        ))}
+      </div>
 
-      {/* Solution Display */}
-      {showSolution && (
-        <div style={{
-          backgroundColor: '#1e293b',
-          padding: '1.5rem',
-          borderRadius: '8px',
-          border: '2px solid #10b981'
-        }}>
-          <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: '700', color: '#10b981' }}>
-            💡 Solution:
-          </h3>
-          <pre style={{
-            margin: 0,
-            fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
-            fontSize: '0.85rem',
-            lineHeight: '1.6',
-            color: '#e2e8f0',
-            whiteSpace: 'pre',
-            overflowX: 'auto'
-          }}>
-            {selectedQuestion.code[language].solution}
-          </pre>
+      {/* Modal for Selected Concept */}
+      {selectedConcept && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '2rem'
+          }}
+          onClick={() => setSelectedConceptIndex(null)}
+        >
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              maxWidth: '1200px',
+              maxHeight: '92vh',
+              overflow: 'auto',
+              border: `1px solid ${selectedConcept.color}40`,
+              width: '100%'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Breadcrumb */}
+            <Breadcrumb
+              breadcrumbStack={buildBreadcrumbStack()}
+              onBreadcrumbClick={handleBreadcrumbClick}
+              colors={TOPIC_COLORS}
+            />
+
+            {/* Modal Header with Navigation */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1.5rem',
+              paddingBottom: '1rem',
+              borderBottom: '1px solid #334155'
+            }}>
+              <h2 style={{
+                color: selectedConcept.color,
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '1.25rem'
+              }}>
+                <span>{selectedConcept.icon}</span>
+                {selectedConcept.name}
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button
+                  onClick={handlePreviousConcept}
+                  disabled={selectedConceptIndex === 0}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >←</button>
+                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>
+                  {selectedConceptIndex + 1}/{concepts.length}
+                </span>
+                <button
+                  onClick={handleNextConcept}
+                  disabled={selectedConceptIndex === concepts.length - 1}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >→</button>
+                <button
+                  onClick={() => setSelectedConceptIndex(null)}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: '#f87171',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    marginLeft: '0.5rem'
+                  }}
+                >X</button>
+              </div>
+            </div>
+
+            {/* Subtopic Tabs */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {selectedConcept.details.map((detail, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedDetailIndex(i)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)',
+                    border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`,
+                    borderRadius: '0.5rem',
+                    color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: selectedDetailIndex === i ? '600' : '400',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {detail.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Selected Subtopic Content */}
+            {(() => {
+              const detail = selectedConcept.details[selectedDetailIndex]
+              const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
+              return (
+                <div>
+                  {/* Diagram */}
+                  {DiagramComponent && (
+                    <div style={{
+                      background: 'rgba(15, 23, 42, 0.6)',
+                      borderRadius: '0.75rem',
+                      padding: '1rem',
+                      marginBottom: '1.5rem',
+                      border: '1px solid #334155'
+                    }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
+
+                  {/* Detail Name */}
+                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>
+                    {detail.name}
+                  </h3>
+
+                  {/* Explanation */}
+                  <p style={{
+                    color: '#e2e8f0',
+                    lineHeight: '1.8',
+                    marginBottom: '1rem',
+                    background: colorScheme.bg,
+                    border: `1px solid ${colorScheme.border}`,
+                    borderRadius: '0.5rem',
+                    padding: '1rem',
+                    textAlign: 'left'
+                  }}>
+                    {detail.explanation}
+                  </p>
+
+                  {/* Code Example */}
+                  {detail.codeExample && (
+                    <SyntaxHighlighter
+                      language="java"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        padding: '1rem',
+                        margin: 0,
+                        borderRadius: '0.5rem',
+                        fontSize: '0.8rem',
+                        border: '1px solid #334155',
+                        background: '#0f172a'
+                      }}
+                      codeTagProps={{ style: { background: 'transparent' } }}
+                    >
+                      {detail.codeExample}
+                    </SyntaxHighlighter>
+                  )}
+                </div>
+              )
+            })()}
+
+          </div>
         </div>
       )}
     </div>

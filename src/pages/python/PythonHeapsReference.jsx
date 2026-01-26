@@ -3,6 +3,430 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 
+// SVG Diagram Components
+
+// Min-Heap Tree Structure Diagram
+const MinHeapDiagram = () => (
+  <svg viewBox="0 0 500 320" style={{ width: '100%', maxWidth: '500px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="nodeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#1d4ed8" />
+      </linearGradient>
+      <linearGradient id="rootGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#22c55e" />
+        <stop offset="100%" stopColor="#15803d" />
+      </linearGradient>
+      <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+      </filter>
+    </defs>
+
+    {/* Title */}
+    <text x="250" y="25" textAnchor="middle" fill="#93c5fd" fontSize="16" fontWeight="bold">Min-Heap: Parent &lt; Children</text>
+
+    {/* Edges */}
+    <line x1="250" y1="70" x2="150" y2="130" stroke="#4b5563" strokeWidth="3"/>
+    <line x1="250" y1="70" x2="350" y2="130" stroke="#4b5563" strokeWidth="3"/>
+    <line x1="150" y1="160" x2="90" y2="220" stroke="#4b5563" strokeWidth="3"/>
+    <line x1="150" y1="160" x2="210" y2="220" stroke="#4b5563" strokeWidth="3"/>
+    <line x1="350" y1="160" x2="290" y2="220" stroke="#4b5563" strokeWidth="3"/>
+    <line x1="350" y1="160" x2="410" y2="220" stroke="#4b5563" strokeWidth="3"/>
+
+    {/* Root Node (smallest) */}
+    <circle cx="250" cy="55" r="28" fill="url(#rootGradient)" filter="url(#shadow)"/>
+    <text x="250" y="61" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">1</text>
+    <text x="250" y="100" textAnchor="middle" fill="#22c55e" fontSize="11">ROOT (min)</text>
+
+    {/* Level 1 Nodes */}
+    <circle cx="150" cy="145" r="28" fill="url(#nodeGradient)" filter="url(#shadow)"/>
+    <text x="150" y="151" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">3</text>
+
+    <circle cx="350" cy="145" r="28" fill="url(#nodeGradient)" filter="url(#shadow)"/>
+    <text x="350" y="151" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">5</text>
+
+    {/* Level 2 Nodes */}
+    <circle cx="90" cy="235" r="28" fill="url(#nodeGradient)" filter="url(#shadow)"/>
+    <text x="90" y="241" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">7</text>
+
+    <circle cx="210" cy="235" r="28" fill="url(#nodeGradient)" filter="url(#shadow)"/>
+    <text x="210" y="241" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">9</text>
+
+    <circle cx="290" cy="235" r="28" fill="url(#nodeGradient)" filter="url(#shadow)"/>
+    <text x="290" y="241" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">8</text>
+
+    <circle cx="410" cy="235" r="28" fill="url(#nodeGradient)" filter="url(#shadow)"/>
+    <text x="410" y="241" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">6</text>
+
+    {/* Property annotations */}
+    <text x="100" y="295" textAnchor="middle" fill="#fbbf24" fontSize="11">1 &lt; 3</text>
+    <text x="200" y="295" textAnchor="middle" fill="#fbbf24" fontSize="11">1 &lt; 5</text>
+    <text x="300" y="295" textAnchor="middle" fill="#fbbf24" fontSize="11">3 &lt; 7,9</text>
+    <text x="400" y="295" textAnchor="middle" fill="#fbbf24" fontSize="11">5 &lt; 8,6</text>
+  </svg>
+)
+
+// Heap Array Representation Diagram
+const HeapArrayDiagram = () => (
+  <svg viewBox="0 0 560 280" style={{ width: '100%', maxWidth: '560px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="cellGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#1d4ed8" />
+      </linearGradient>
+      <linearGradient id="highlightGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+    </defs>
+
+    {/* Title */}
+    <text x="280" y="25" textAnchor="middle" fill="#93c5fd" fontSize="16" fontWeight="bold">Heap Stored as Array</text>
+
+    {/* Array cells */}
+    {[1, 3, 5, 7, 9, 8, 6].map((val, i) => (
+      <g key={i}>
+        <rect x={60 + i * 65} y="50" width="55" height="50" rx="6" fill={i === 0 ? 'url(#highlightGradient)' : 'url(#cellGradient)'} stroke="#60a5fa" strokeWidth="2"/>
+        <text x={87 + i * 65} y="82" textAnchor="middle" fill="white" fontSize="20" fontWeight="bold">{val}</text>
+        <text x={87 + i * 65} y="120" textAnchor="middle" fill="#9ca3af" fontSize="12">i={i}</text>
+      </g>
+    ))}
+
+    {/* Index formulas */}
+    <rect x="30" y="145" width="500" height="120" rx="8" fill="#1f2937" stroke="#3b82f6" strokeWidth="2"/>
+
+    <text x="280" y="170" textAnchor="middle" fill="#22c55e" fontSize="14" fontWeight="bold">Index Formulas (0-indexed)</text>
+
+    <text x="50" y="200" fill="#93c5fd" fontSize="13">Parent of i:</text>
+    <text x="180" y="200" fill="#fbbf24" fontSize="13" fontFamily="monospace">(i - 1) // 2</text>
+
+    <text x="50" y="225" fill="#93c5fd" fontSize="13">Left child of i:</text>
+    <text x="180" y="225" fill="#fbbf24" fontSize="13" fontFamily="monospace">2 * i + 1</text>
+
+    <text x="50" y="250" fill="#93c5fd" fontSize="13">Right child of i:</text>
+    <text x="180" y="250" fill="#fbbf24" fontSize="13" fontFamily="monospace">2 * i + 2</text>
+
+    {/* Example */}
+    <text x="320" y="200" fill="#9ca3af" fontSize="12">Example: i=1 (value 3)</text>
+    <text x="320" y="220" fill="#d1d5db" fontSize="11">Parent: (1-1)//2 = 0 (value 1)</text>
+    <text x="320" y="240" fill="#d1d5db" fontSize="11">Left: 2*1+1 = 3 (value 7)</text>
+    <text x="320" y="260" fill="#d1d5db" fontSize="11">Right: 2*1+2 = 4 (value 9)</text>
+  </svg>
+)
+
+// Heappush Operation Diagram (Bubble Up)
+const HeappushDiagram = () => (
+  <svg viewBox="0 0 600 350" style={{ width: '100%', maxWidth: '600px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="pushNodeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#1d4ed8" />
+      </linearGradient>
+      <linearGradient id="newNodeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#ef4444" />
+        <stop offset="100%" stopColor="#b91c1c" />
+      </linearGradient>
+      <linearGradient id="swapNodeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#22c55e" />
+        <stop offset="100%" stopColor="#15803d" />
+      </linearGradient>
+      <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24"/>
+      </marker>
+    </defs>
+
+    {/* Title */}
+    <text x="300" y="25" textAnchor="middle" fill="#93c5fd" fontSize="16" fontWeight="bold">heappush: Add 2 (Bubble Up)</text>
+
+    {/* Step 1: Initial state */}
+    <text x="100" y="55" textAnchor="middle" fill="#9ca3af" fontSize="12">Step 1: Add at end</text>
+
+    {/* Mini tree - Step 1 */}
+    <line x1="100" y1="90" x2="60" y2="130" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="100" y1="90" x2="140" y2="130" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="60" y1="155" x2="40" y2="195" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="60" y1="155" x2="80" y2="195" stroke="#ef4444" strokeWidth="2" strokeDasharray="4"/>
+
+    <circle cx="100" cy="75" r="18" fill="url(#pushNodeGradient)"/>
+    <text x="100" y="81" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">1</text>
+
+    <circle cx="60" cy="140" r="18" fill="url(#pushNodeGradient)"/>
+    <text x="60" y="146" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">5</text>
+
+    <circle cx="140" cy="140" r="18" fill="url(#pushNodeGradient)"/>
+    <text x="140" y="146" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">3</text>
+
+    <circle cx="40" cy="210" r="18" fill="url(#pushNodeGradient)"/>
+    <text x="40" y="216" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">7</text>
+
+    <circle cx="80" cy="210" r="18" fill="url(#newNodeGradient)"/>
+    <text x="80" y="216" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">2</text>
+    <text x="80" y="240" textAnchor="middle" fill="#ef4444" fontSize="10">NEW</text>
+
+    {/* Arrow to step 2 */}
+    <line x1="175" y1="140" x2="215" y2="140" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead)"/>
+
+    {/* Step 2: Swap with parent */}
+    <text x="300" y="55" textAnchor="middle" fill="#9ca3af" fontSize="12">Step 2: Swap (2 &lt; 5)</text>
+
+    <line x1="300" y1="90" x2="260" y2="130" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="300" y1="90" x2="340" y2="130" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="260" y1="155" x2="240" y2="195" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="260" y1="155" x2="280" y2="195" stroke="#4b5563" strokeWidth="2"/>
+
+    <circle cx="300" cy="75" r="18" fill="url(#pushNodeGradient)"/>
+    <text x="300" y="81" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">1</text>
+
+    <circle cx="260" cy="140" r="18" fill="url(#swapNodeGradient)"/>
+    <text x="260" y="146" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">2</text>
+
+    <circle cx="340" cy="140" r="18" fill="url(#pushNodeGradient)"/>
+    <text x="340" y="146" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">3</text>
+
+    <circle cx="240" cy="210" r="18" fill="url(#pushNodeGradient)"/>
+    <text x="240" y="216" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">7</text>
+
+    <circle cx="280" cy="210" r="18" fill="url(#pushNodeGradient)"/>
+    <text x="280" y="216" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">5</text>
+
+    {/* Arrow to step 3 */}
+    <line x1="375" y1="140" x2="415" y2="140" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead)"/>
+
+    {/* Step 3: Done (no more swaps needed) */}
+    <text x="500" y="55" textAnchor="middle" fill="#9ca3af" fontSize="12">Step 3: Done (2 &gt; 1)</text>
+
+    <line x1="500" y1="90" x2="460" y2="130" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="500" y1="90" x2="540" y2="130" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="460" y1="155" x2="440" y2="195" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="460" y1="155" x2="480" y2="195" stroke="#4b5563" strokeWidth="2"/>
+
+    <circle cx="500" cy="75" r="18" fill="url(#swapNodeGradient)"/>
+    <text x="500" y="81" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">1</text>
+
+    <circle cx="460" cy="140" r="18" fill="url(#swapNodeGradient)"/>
+    <text x="460" y="146" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">2</text>
+
+    <circle cx="540" cy="140" r="18" fill="url(#pushNodeGradient)"/>
+    <text x="540" y="146" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">3</text>
+
+    <circle cx="440" cy="210" r="18" fill="url(#pushNodeGradient)"/>
+    <text x="440" y="216" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">7</text>
+
+    <circle cx="480" cy="210" r="18" fill="url(#pushNodeGradient)"/>
+    <text x="480" y="216" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">5</text>
+
+    {/* Complexity note */}
+    <rect x="150" y="280" width="300" height="50" rx="8" fill="#1f2937" stroke="#22c55e" strokeWidth="2"/>
+    <text x="300" y="305" textAnchor="middle" fill="#22c55e" fontSize="13" fontWeight="bold">Time: O(log n) - bubbles up at most log n levels</text>
+    <text x="300" y="322" textAnchor="middle" fill="#9ca3af" fontSize="11">Compare with parent, swap if smaller</text>
+  </svg>
+)
+
+// Heappop Operation Diagram (Bubble Down)
+const HeappopDiagram = () => (
+  <svg viewBox="0 0 600 380" style={{ width: '100%', maxWidth: '600px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="popNodeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#1d4ed8" />
+      </linearGradient>
+      <linearGradient id="removeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#ef4444" />
+        <stop offset="100%" stopColor="#b91c1c" />
+      </linearGradient>
+      <linearGradient id="moveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+      <linearGradient id="doneGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#22c55e" />
+        <stop offset="100%" stopColor="#15803d" />
+      </linearGradient>
+      <marker id="popArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24"/>
+      </marker>
+    </defs>
+
+    {/* Title */}
+    <text x="300" y="25" textAnchor="middle" fill="#93c5fd" fontSize="16" fontWeight="bold">heappop: Remove Min (Bubble Down)</text>
+
+    {/* Step 1: Remove root, move last to root */}
+    <text x="100" y="55" textAnchor="middle" fill="#9ca3af" fontSize="11">Step 1: Remove 1, move 6 to root</text>
+
+    <line x1="100" y1="95" x2="60" y2="135" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="100" y1="95" x2="140" y2="135" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="60" y1="160" x2="40" y2="200" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="60" y1="160" x2="80" y2="200" stroke="#4b5563" strokeWidth="2"/>
+
+    <circle cx="100" cy="80" r="18" fill="url(#moveGradient)"/>
+    <text x="100" y="86" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">6</text>
+    <text x="135" y="75" fill="#ef4444" fontSize="10">1 removed</text>
+
+    <circle cx="60" cy="145" r="18" fill="url(#popNodeGradient)"/>
+    <text x="60" y="151" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">3</text>
+
+    <circle cx="140" cy="145" r="18" fill="url(#popNodeGradient)"/>
+    <text x="140" y="151" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">5</text>
+
+    <circle cx="40" cy="215" r="18" fill="url(#popNodeGradient)"/>
+    <text x="40" y="221" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">7</text>
+
+    <circle cx="80" cy="215" r="18" fill="url(#popNodeGradient)"/>
+    <text x="80" y="221" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">9</text>
+
+    {/* Arrow */}
+    <line x1="175" y1="145" x2="215" y2="145" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#popArrow)"/>
+
+    {/* Step 2: Swap with smaller child */}
+    <text x="300" y="55" textAnchor="middle" fill="#9ca3af" fontSize="11">Step 2: Swap 6 with min(3,5)=3</text>
+
+    <line x1="300" y1="95" x2="260" y2="135" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="300" y1="95" x2="340" y2="135" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="260" y1="160" x2="240" y2="200" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="260" y1="160" x2="280" y2="200" stroke="#4b5563" strokeWidth="2"/>
+
+    <circle cx="300" cy="80" r="18" fill="url(#doneGradient)"/>
+    <text x="300" y="86" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">3</text>
+
+    <circle cx="260" cy="145" r="18" fill="url(#moveGradient)"/>
+    <text x="260" y="151" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">6</text>
+
+    <circle cx="340" cy="145" r="18" fill="url(#popNodeGradient)"/>
+    <text x="340" y="151" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">5</text>
+
+    <circle cx="240" cy="215" r="18" fill="url(#popNodeGradient)"/>
+    <text x="240" y="221" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">7</text>
+
+    <circle cx="280" cy="215" r="18" fill="url(#popNodeGradient)"/>
+    <text x="280" y="221" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">9</text>
+
+    {/* Arrow */}
+    <line x1="375" y1="145" x2="415" y2="145" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#popArrow)"/>
+
+    {/* Step 3: Done */}
+    <text x="500" y="55" textAnchor="middle" fill="#9ca3af" fontSize="11">Step 3: Done (6 &lt; 7,9)</text>
+
+    <line x1="500" y1="95" x2="460" y2="135" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="500" y1="95" x2="540" y2="135" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="460" y1="160" x2="440" y2="200" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="460" y1="160" x2="480" y2="200" stroke="#4b5563" strokeWidth="2"/>
+
+    <circle cx="500" cy="80" r="18" fill="url(#doneGradient)"/>
+    <text x="500" y="86" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">3</text>
+
+    <circle cx="460" cy="145" r="18" fill="url(#doneGradient)"/>
+    <text x="460" y="151" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">6</text>
+
+    <circle cx="540" cy="145" r="18" fill="url(#popNodeGradient)"/>
+    <text x="540" y="151" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">5</text>
+
+    <circle cx="440" cy="215" r="18" fill="url(#popNodeGradient)"/>
+    <text x="440" y="221" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">7</text>
+
+    <circle cx="480" cy="215" r="18" fill="url(#popNodeGradient)"/>
+    <text x="480" y="221" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">9</text>
+
+    {/* Result box */}
+    <rect x="100" y="260" width="120" height="40" rx="8" fill="#1f2937" stroke="#ef4444" strokeWidth="2"/>
+    <text x="160" y="283" textAnchor="middle" fill="#ef4444" fontSize="12" fontWeight="bold">Returns: 1</text>
+    <text x="160" y="295" textAnchor="middle" fill="#9ca3af" fontSize="10">(min element)</text>
+
+    {/* Complexity note */}
+    <rect x="250" y="260" width="300" height="50" rx="8" fill="#1f2937" stroke="#22c55e" strokeWidth="2"/>
+    <text x="400" y="285" textAnchor="middle" fill="#22c55e" fontSize="13" fontWeight="bold">Time: O(log n) - bubbles down at most log n levels</text>
+    <text x="400" y="302" textAnchor="middle" fill="#9ca3af" fontSize="11">Swap with smaller child until heap property restored</text>
+  </svg>
+)
+
+// Heapify Operation Diagram
+const HeapifyDiagram = () => (
+  <svg viewBox="0 0 650 380" style={{ width: '100%', maxWidth: '650px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="heapifyNode" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#1d4ed8" />
+      </linearGradient>
+      <linearGradient id="heapifyProcessing" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+      <linearGradient id="heapifyDone" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#22c55e" />
+        <stop offset="100%" stopColor="#15803d" />
+      </linearGradient>
+      <marker id="heapifyArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24"/>
+      </marker>
+    </defs>
+
+    {/* Title */}
+    <text x="325" y="25" textAnchor="middle" fill="#93c5fd" fontSize="16" fontWeight="bold">heapify: Convert List to Heap in O(n)</text>
+
+    {/* Input array */}
+    <text x="100" y="55" textAnchor="middle" fill="#9ca3af" fontSize="12">Input: [5, 3, 8, 1, 2]</text>
+
+    {/* Before - unordered tree */}
+    <text x="160" y="85" textAnchor="middle" fill="#ef4444" fontSize="12" fontWeight="bold">Before (not a heap)</text>
+
+    <line x1="160" y1="115" x2="100" y2="155" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="160" y1="115" x2="220" y2="155" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="100" y1="180" x2="70" y2="220" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="100" y1="180" x2="130" y2="220" stroke="#4b5563" strokeWidth="2"/>
+
+    <circle cx="160" cy="100" r="20" fill="url(#heapifyNode)"/>
+    <text x="160" y="106" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">5</text>
+
+    <circle cx="100" cy="165" r="20" fill="url(#heapifyNode)"/>
+    <text x="100" y="171" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">3</text>
+
+    <circle cx="220" cy="165" r="20" fill="url(#heapifyNode)"/>
+    <text x="220" y="171" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">8</text>
+
+    <circle cx="70" cy="235" r="20" fill="url(#heapifyNode)"/>
+    <text x="70" y="241" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">1</text>
+
+    <circle cx="130" cy="235" r="20" fill="url(#heapifyNode)"/>
+    <text x="130" y="241" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">2</text>
+
+    {/* Arrow */}
+    <line x1="270" y1="160" x2="370" y2="160" stroke="#fbbf24" strokeWidth="3" markerEnd="url(#heapifyArrow)"/>
+    <text x="320" y="145" textAnchor="middle" fill="#fbbf24" fontSize="11">heapify()</text>
+    <text x="320" y="180" textAnchor="middle" fill="#9ca3af" fontSize="10">O(n) time</text>
+
+    {/* After - valid heap */}
+    <text x="490" y="85" textAnchor="middle" fill="#22c55e" fontSize="12" fontWeight="bold">After (valid min-heap)</text>
+
+    <line x1="490" y1="115" x2="430" y2="155" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="490" y1="115" x2="550" y2="155" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="430" y1="180" x2="400" y2="220" stroke="#4b5563" strokeWidth="2"/>
+    <line x1="430" y1="180" x2="460" y2="220" stroke="#4b5563" strokeWidth="2"/>
+
+    <circle cx="490" cy="100" r="20" fill="url(#heapifyDone)"/>
+    <text x="490" y="106" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">1</text>
+
+    <circle cx="430" cy="165" r="20" fill="url(#heapifyDone)"/>
+    <text x="430" y="171" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">2</text>
+
+    <circle cx="550" cy="165" r="20" fill="url(#heapifyDone)"/>
+    <text x="550" y="171" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">8</text>
+
+    <circle cx="400" cy="235" r="20" fill="url(#heapifyDone)"/>
+    <text x="400" y="241" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">5</text>
+
+    <circle cx="460" cy="235" r="20" fill="url(#heapifyDone)"/>
+    <text x="460" y="241" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">3</text>
+
+    {/* Output array */}
+    <text x="490" y="275" textAnchor="middle" fill="#22c55e" fontSize="12">Output: [1, 2, 8, 5, 3]</text>
+
+    {/* Algorithm explanation */}
+    <rect x="50" y="295" width="550" height="70" rx="8" fill="#1f2937" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="325" y="318" textAnchor="middle" fill="#93c5fd" fontSize="13" fontWeight="bold">Algorithm: Bottom-up heapify</text>
+    <text x="325" y="338" textAnchor="middle" fill="#d1d5db" fontSize="11">Start from last non-leaf node (n//2 - 1), sift down each node</text>
+    <text x="325" y="355" textAnchor="middle" fill="#fbbf24" fontSize="11">O(n) because most nodes are near leaves (O(1) work each)</text>
+  </svg>
+)
+
 function PythonHeapsReference({ onBack, breadcrumb }) {
   const [selectedMethod, setSelectedMethod] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -987,11 +1411,12 @@ print(f"Evicted: {evicted}")  # Critical`
               language="python"
               style={vscDarkPlus}
               customStyle={{
-                borderRadius: '8px',
-                padding: '1rem',
-                fontSize: '0.9rem',
-                border: '1px solid #3b82f6',
-                margin: 0
+                margin: 0,
+                borderRadius: '0.375rem',
+                fontSize: '0.875rem',
+                background: 'none',
+                backgroundColor: 'transparent',
+                padding: 0
               }}
             >
               {selectedMethod.signature}
@@ -1095,10 +1520,12 @@ print(f"Evicted: {evicted}")  # Critical`
                       language="python"
                       style={vscDarkPlus}
                       customStyle={{
-                        padding: '1.5rem',
-                        borderRadius: '0.5rem',
-                        fontSize: '0.9rem',
-                        border: '1px solid #3b82f6'
+                        margin: 0,
+                        borderRadius: '0.375rem',
+                        fontSize: '0.875rem',
+                        background: 'none',
+                        backgroundColor: 'transparent',
+                        padding: 0
                       }}
                     >
                       {section.code}
@@ -1205,6 +1632,101 @@ print(f"Evicted: {evicted}")  # Critical`
 
         <Breadcrumb breadcrumb={breadcrumb} />
 
+        {/* Visual Diagrams Section */}
+        <div style={{
+          marginBottom: '2.5rem',
+          background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+          borderRadius: '0.75rem',
+          padding: '1.5rem',
+          border: '2px solid #3b82f6'
+        }}>
+          <h2 style={{
+            margin: '0 0 1.5rem 0',
+            fontSize: '1.5rem',
+            color: '#93c5fd',
+            borderBottom: '2px solid #3b82f6',
+            paddingBottom: '0.75rem'
+          }}>
+            Visual Guide to Heaps
+          </h2>
+
+          {/* Min-Heap Structure and Array Representation */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+            gap: '1.5rem',
+            marginBottom: '2rem'
+          }}>
+            <div style={{
+              background: '#111827',
+              borderRadius: '0.5rem',
+              padding: '1rem',
+              border: '1px solid #374151'
+            }}>
+              <h3 style={{ color: '#22c55e', margin: '0 0 1rem 0', fontSize: '1.1rem' }}>Min-Heap Structure</h3>
+              <MinHeapDiagram />
+            </div>
+            <div style={{
+              background: '#111827',
+              borderRadius: '0.5rem',
+              padding: '1rem',
+              border: '1px solid #374151'
+            }}>
+              <h3 style={{ color: '#fbbf24', margin: '0 0 1rem 0', fontSize: '1.1rem' }}>Array Representation</h3>
+              <HeapArrayDiagram />
+            </div>
+          </div>
+
+          {/* Operations Section */}
+          <h3 style={{
+            color: '#93c5fd',
+            margin: '0 0 1rem 0',
+            fontSize: '1.25rem',
+            borderBottom: '1px solid #374151',
+            paddingBottom: '0.5rem'
+          }}>
+            Heap Operations
+          </h3>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
+            gap: '1.5rem',
+            marginBottom: '1.5rem'
+          }}>
+            <div style={{
+              background: '#111827',
+              borderRadius: '0.5rem',
+              padding: '1rem',
+              border: '1px solid #374151'
+            }}>
+              <h4 style={{ color: '#60a5fa', margin: '0 0 0.75rem 0', fontSize: '1rem' }}>heappush - Insert Element (Bubble Up)</h4>
+              <HeappushDiagram />
+            </div>
+            <div style={{
+              background: '#111827',
+              borderRadius: '0.5rem',
+              padding: '1rem',
+              border: '1px solid #374151'
+            }}>
+              <h4 style={{ color: '#ef4444', margin: '0 0 0.75rem 0', fontSize: '1rem' }}>heappop - Remove Min (Bubble Down)</h4>
+              <HeappopDiagram />
+            </div>
+          </div>
+
+          <div style={{
+            background: '#111827',
+            borderRadius: '0.5rem',
+            padding: '1rem',
+            border: '1px solid #374151'
+          }}>
+            <h4 style={{ color: '#a855f7', margin: '0 0 0.75rem 0', fontSize: '1rem' }}>heapify - Convert List to Heap</h4>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <HeapifyDiagram />
+            </div>
+          </div>
+        </div>
+
         {/* Search Bar */}
         <div style={{ marginBottom: '2rem' }}>
           <input
@@ -1307,7 +1829,7 @@ print(f"Evicted: {evicted}")  # Critical`
 
         {filteredMethods.length === 0 && (
           <div style={{
-            textAlign: 'center',
+            textAlign: 'left',
             padding: '3rem',
             color: '#93c5fd',
             fontSize: '1.1rem'

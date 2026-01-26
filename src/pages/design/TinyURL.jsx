@@ -1,6 +1,749 @@
 import React, { useState } from 'react';
 import Breadcrumb from '../../components/Breadcrumb';
 
+// SVG Diagram Components
+
+// 1. High-level architecture diagram
+const TinyURLArchitectureDiagram = () => (
+  <svg viewBox="0 0 900 500" className="w-full h-auto">
+    <defs>
+      <linearGradient id="archClientGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06b6d4" />
+        <stop offset="100%" stopColor="#0891b2" />
+      </linearGradient>
+      <linearGradient id="archLBGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#7c3aed" />
+      </linearGradient>
+      <linearGradient id="archAPIGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="archCacheGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+      <linearGradient id="archDBGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#2563eb" />
+      </linearGradient>
+      <marker id="archArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#94a3b8" />
+      </marker>
+      <filter id="archShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3" />
+      </filter>
+    </defs>
+
+    {/* Background */}
+    <rect x="0" y="0" width="900" height="500" fill="#1f2937" rx="12" />
+
+    {/* Title */}
+    <text x="450" y="35" textAnchor="middle" fill="#f3f4f6" fontSize="18" fontWeight="bold">High-Level Architecture</text>
+
+    {/* Clients */}
+    <g filter="url(#archShadow)">
+      <rect x="50" y="70" width="100" height="60" rx="8" fill="url(#archClientGrad)" />
+      <text x="100" y="95" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Web Client</text>
+      <text x="100" y="112" textAnchor="middle" fill="#e0f2fe" fontSize="9">Browser</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="170" y="70" width="100" height="60" rx="8" fill="url(#archClientGrad)" />
+      <text x="220" y="95" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Mobile App</text>
+      <text x="220" y="112" textAnchor="middle" fill="#e0f2fe" fontSize="9">iOS/Android</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="290" y="70" width="100" height="60" rx="8" fill="url(#archClientGrad)" />
+      <text x="340" y="95" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">API Client</text>
+      <text x="340" y="112" textAnchor="middle" fill="#e0f2fe" fontSize="9">Third-party</text>
+    </g>
+
+    {/* Arrows from clients */}
+    <line x1="100" y1="130" x2="100" y2="165" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#archArrow)" />
+    <line x1="220" y1="130" x2="220" y2="165" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#archArrow)" />
+    <line x1="340" y1="130" x2="340" y2="165" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#archArrow)" />
+
+    {/* Load Balancer */}
+    <g filter="url(#archShadow)">
+      <rect x="70" y="175" width="300" height="55" rx="8" fill="url(#archLBGrad)" />
+      <text x="220" y="200" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Load Balancer (Nginx)</text>
+      <text x="220" y="218" textAnchor="middle" fill="#e9d5ff" fontSize="10">SSL Termination | Rate Limiting</text>
+    </g>
+
+    {/* Arrow to API Servers */}
+    <line x1="220" y1="230" x2="220" y2="265" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#archArrow)" />
+
+    {/* API Servers */}
+    <g filter="url(#archShadow)">
+      <rect x="50" y="275" width="120" height="70" rx="8" fill="url(#archAPIGrad)" />
+      <text x="110" y="300" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">API Server 1</text>
+      <text x="110" y="318" textAnchor="middle" fill="#d1fae5" fontSize="9">Shortening</text>
+      <text x="110" y="332" textAnchor="middle" fill="#d1fae5" fontSize="9">Redirect</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="190" y="275" width="120" height="70" rx="8" fill="url(#archAPIGrad)" />
+      <text x="250" y="300" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">API Server 2</text>
+      <text x="250" y="318" textAnchor="middle" fill="#d1fae5" fontSize="9">Shortening</text>
+      <text x="250" y="332" textAnchor="middle" fill="#d1fae5" fontSize="9">Redirect</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="330" y="275" width="120" height="70" rx="8" fill="url(#archAPIGrad)" />
+      <text x="390" y="300" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">API Server N</text>
+      <text x="390" y="318" textAnchor="middle" fill="#d1fae5" fontSize="9">Shortening</text>
+      <text x="390" y="332" textAnchor="middle" fill="#d1fae5" fontSize="9">Redirect</text>
+    </g>
+
+    {/* Arrows to Cache */}
+    <line x1="250" y1="345" x2="450" y2="390" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#archArrow)" />
+    <text x="320" y="370" fill="#9ca3af" fontSize="10">Cache First</text>
+
+    {/* Cache Layer */}
+    <g filter="url(#archShadow)">
+      <rect x="470" y="175" width="180" height="70" rx="8" fill="url(#archCacheGrad)" />
+      <text x="560" y="200" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Redis Cluster</text>
+      <text x="560" y="218" textAnchor="middle" fill="#fef3c7" fontSize="10">URL Mapping Cache</text>
+      <text x="560" y="234" textAnchor="middle" fill="#fef3c7" fontSize="10">Hot URLs | Counters</text>
+    </g>
+
+    {/* Arrow from API to Cache */}
+    <line x1="450" y1="310" x2="510" y2="245" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#archArrow)" />
+
+    {/* Database Layer */}
+    <g filter="url(#archShadow)">
+      <rect x="470" y="280" width="180" height="70" rx="8" fill="url(#archDBGrad)" />
+      <text x="560" y="305" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">PostgreSQL</text>
+      <text x="560" y="323" textAnchor="middle" fill="#dbeafe" fontSize="10">Primary Database</text>
+      <text x="560" y="339" textAnchor="middle" fill="#dbeafe" fontSize="10">URLs | Users | Metadata</text>
+    </g>
+
+    {/* Arrow from Cache to DB */}
+    <line x1="560" y1="245" x2="560" y2="270" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#archArrow)" />
+    <text x="590" y="260" fill="#9ca3af" fontSize="9">Cache Miss</text>
+
+    {/* Analytics Pipeline */}
+    <g filter="url(#archShadow)">
+      <rect x="700" y="175" width="160" height="55" rx="8" fill="#ef4444" />
+      <text x="780" y="200" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Kafka</text>
+      <text x="780" y="216" textAnchor="middle" fill="#fecaca" fontSize="9">Click Events</text>
+    </g>
+
+    <g filter="url(#archShadow)">
+      <rect x="700" y="260" width="160" height="55" rx="8" fill="#ec4899" />
+      <text x="780" y="285" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">ClickHouse</text>
+      <text x="780" y="301" textAnchor="middle" fill="#fbcfe8" fontSize="9">Analytics DB</text>
+    </g>
+
+    {/* Arrow from Kafka to ClickHouse */}
+    <line x1="780" y1="230" x2="780" y2="250" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#archArrow)" />
+
+    {/* Arrow from API to Kafka */}
+    <line x1="450" y1="295" x2="690" y2="200" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#archArrow)" strokeDasharray="5,3" />
+    <text x="560" y="235" fill="#9ca3af" fontSize="9">Async Events</text>
+
+    {/* Flow Labels */}
+    <rect x="50" y="400" width="800" height="90" rx="8" fill="#374151" opacity="0.5" />
+    <text x="70" y="425" fill="#22d3ee" fontSize="11" fontWeight="bold">Request Flow:</text>
+    <text x="70" y="445" fill="#d1d5db" fontSize="10">1. Client sends request to Load Balancer</text>
+    <text x="70" y="462" fill="#d1d5db" fontSize="10">2. LB routes to available API Server</text>
+    <text x="70" y="479" fill="#d1d5db" fontSize="10">3. API Server checks Redis cache first</text>
+
+    <text x="350" y="425" fill="#22d3ee" fontSize="11" fontWeight="bold">Data Flow:</text>
+    <text x="350" y="445" fill="#d1d5db" fontSize="10">4. On cache miss, query PostgreSQL</text>
+    <text x="350" y="462" fill="#d1d5db" fontSize="10">5. Update cache with result</text>
+    <text x="350" y="479" fill="#d1d5db" fontSize="10">6. Async publish click events to Kafka</text>
+
+    <text x="620" y="425" fill="#22d3ee" fontSize="11" fontWeight="bold">Analytics:</text>
+    <text x="620" y="445" fill="#d1d5db" fontSize="10">7. Kafka streams to ClickHouse</text>
+    <text x="620" y="462" fill="#d1d5db" fontSize="10">8. Batch aggregation for reports</text>
+    <text x="620" y="479" fill="#d1d5db" fontSize="10">9. Real-time dashboards</text>
+  </svg>
+);
+
+// 2. URL Shortening diagram showing base62 encoding
+const URLShorteningDiagram = () => (
+  <svg viewBox="0 0 900 420" className="w-full h-auto">
+    <defs>
+      <linearGradient id="shortInputGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#1d4ed8" />
+      </linearGradient>
+      <linearGradient id="shortHashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#6d28d9" />
+      </linearGradient>
+      <linearGradient id="shortBase62Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="shortOutputGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+      <marker id="shortArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#94a3b8" />
+      </marker>
+      <filter id="shortShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3" />
+      </filter>
+    </defs>
+
+    {/* Background */}
+    <rect x="0" y="0" width="900" height="420" fill="#1f2937" rx="12" />
+
+    {/* Title */}
+    <text x="450" y="35" textAnchor="middle" fill="#f3f4f6" fontSize="18" fontWeight="bold">URL Shortening Process</text>
+
+    {/* Input URL */}
+    <g filter="url(#shortShadow)">
+      <rect x="30" y="70" width="250" height="60" rx="8" fill="url(#shortInputGrad)" />
+      <text x="155" y="95" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Long URL Input</text>
+      <text x="155" y="115" textAnchor="middle" fill="#dbeafe" fontSize="9">https://example.com/very/long/path...</text>
+    </g>
+
+    {/* Arrow */}
+    <line x1="280" y1="100" x2="320" y2="100" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#shortArrow)" />
+
+    {/* Option A: Hash-based */}
+    <g filter="url(#shortShadow)">
+      <rect x="330" y="55" width="220" height="90" rx="8" fill="url(#shortHashGrad)" />
+      <text x="440" y="80" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Option A: Hash Function</text>
+      <text x="440" y="100" textAnchor="middle" fill="#e9d5ff" fontSize="10">MD5 or SHA256</text>
+      <text x="440" y="120" textAnchor="middle" fill="#e9d5ff" fontSize="9">Take first 43 bits of hash</text>
+      <text x="440" y="135" textAnchor="middle" fill="#fbbf24" fontSize="9">Risk: Collisions possible</text>
+    </g>
+
+    {/* Arrow from Hash */}
+    <line x1="550" y1="100" x2="590" y2="100" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#shortArrow)" />
+
+    {/* Base62 Encoding */}
+    <g filter="url(#shortShadow)">
+      <rect x="600" y="55" width="160" height="90" rx="8" fill="url(#shortBase62Grad)" />
+      <text x="680" y="80" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Base62 Encode</text>
+      <text x="680" y="100" textAnchor="middle" fill="#d1fae5" fontSize="10">[a-z, A-Z, 0-9]</text>
+      <text x="680" y="118" textAnchor="middle" fill="#d1fae5" fontSize="9">62 characters</text>
+      <text x="680" y="135" textAnchor="middle" fill="#d1fae5" fontSize="9">7 chars = 3.5T IDs</text>
+    </g>
+
+    {/* Arrow to Output */}
+    <line x1="760" y1="100" x2="800" y2="100" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#shortArrow)" />
+
+    {/* Output */}
+    <g filter="url(#shortShadow)">
+      <rect x="810" y="70" width="70" height="60" rx="8" fill="url(#shortOutputGrad)" />
+      <text x="845" y="95" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Output</text>
+      <text x="845" y="115" textAnchor="middle" fill="#fef3c7" fontSize="10">aB3xY2z</text>
+    </g>
+
+    {/* Option B: Counter-based (Snowflake) */}
+    <g filter="url(#shortShadow)">
+      <rect x="30" y="180" width="250" height="70" rx="8" fill="#ec4899" />
+      <text x="155" y="205" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Option B: Snowflake ID</text>
+      <text x="155" y="225" textAnchor="middle" fill="#fbcfe8" fontSize="10">Distributed unique ID generator</text>
+      <text x="155" y="242" textAnchor="middle" fill="#10b981" fontSize="9">Guaranteed unique - No collisions</text>
+    </g>
+
+    {/* Arrow from Snowflake */}
+    <line x1="280" y1="215" x2="600" y2="145" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#shortArrow)" />
+
+    {/* Snowflake ID Structure */}
+    <rect x="30" y="270" width="840" height="130" rx="8" fill="#374151" />
+    <text x="450" y="295" textAnchor="middle" fill="#22d3ee" fontSize="14" fontWeight="bold">Snowflake ID Structure (64 bits)</text>
+
+    {/* Bit sections */}
+    <rect x="50" y="315" width="30" height="40" rx="4" fill="#6b7280" />
+    <text x="65" y="340" textAnchor="middle" fill="white" fontSize="10">1</text>
+    <text x="65" y="375" textAnchor="middle" fill="#9ca3af" fontSize="8">Sign</text>
+
+    <rect x="90" y="315" width="280" height="40" rx="4" fill="#3b82f6" />
+    <text x="230" y="340" textAnchor="middle" fill="white" fontSize="11">41 bits - Timestamp (ms since epoch)</text>
+    <text x="230" y="375" textAnchor="middle" fill="#93c5fd" fontSize="9">69 years of unique IDs</text>
+
+    <rect x="380" y="315" width="180" height="40" rx="4" fill="#8b5cf6" />
+    <text x="470" y="340" textAnchor="middle" fill="white" fontSize="11">10 bits - Machine ID</text>
+    <text x="470" y="375" textAnchor="middle" fill="#c4b5fd" fontSize="9">1024 machines</text>
+
+    <rect x="570" y="315" width="180" height="40" rx="4" fill="#10b981" />
+    <text x="660" y="340" textAnchor="middle" fill="white" fontSize="11">12 bits - Sequence</text>
+    <text x="660" y="375" textAnchor="middle" fill="#a7f3d0" fontSize="9">4096 IDs/ms/machine</text>
+
+    <rect x="760" y="315" width="100" height="40" rx="4" fill="#f59e0b" />
+    <text x="810" y="335" textAnchor="middle" fill="white" fontSize="10">Total:</text>
+    <text x="810" y="350" textAnchor="middle" fill="white" fontSize="10">4M IDs/sec</text>
+    <text x="810" y="375" textAnchor="middle" fill="#fde68a" fontSize="9">per machine</text>
+  </svg>
+);
+
+// 3. Redirect flow diagram showing 301/302
+const RedirectFlowDiagram = () => (
+  <svg viewBox="0 0 900 480" className="w-full h-auto">
+    <defs>
+      <linearGradient id="redirClientGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06b6d4" />
+        <stop offset="100%" stopColor="#0891b2" />
+      </linearGradient>
+      <linearGradient id="redirServerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="redirCacheGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+      <linearGradient id="redirDBGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#2563eb" />
+      </linearGradient>
+      <marker id="redirArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#22d3ee" />
+      </marker>
+      <marker id="redirArrowRed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#ef4444" />
+      </marker>
+      <marker id="redirArrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#10b981" />
+      </marker>
+      <filter id="redirShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3" />
+      </filter>
+    </defs>
+
+    {/* Background */}
+    <rect x="0" y="0" width="900" height="480" fill="#1f2937" rx="12" />
+
+    {/* Title */}
+    <text x="450" y="35" textAnchor="middle" fill="#f3f4f6" fontSize="18" fontWeight="bold">URL Redirect Flow</text>
+
+    {/* Step numbers */}
+    <circle cx="70" cy="90" r="18" fill="#22d3ee" />
+    <text x="70" y="95" textAnchor="middle" fill="#1f2937" fontSize="12" fontWeight="bold">1</text>
+
+    {/* Client */}
+    <g filter="url(#redirShadow)">
+      <rect x="100" y="65" width="140" height="55" rx="8" fill="url(#redirClientGrad)" />
+      <text x="170" y="90" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Browser</text>
+      <text x="170" y="108" textAnchor="middle" fill="#e0f2fe" fontSize="9">User clicks short URL</text>
+    </g>
+
+    {/* Arrow: Request */}
+    <line x1="240" y1="92" x2="310" y2="92" stroke="#22d3ee" strokeWidth="2" markerEnd="url(#redirArrow)" />
+    <text x="275" y="82" textAnchor="middle" fill="#22d3ee" fontSize="9">GET /aB3xY2z</text>
+
+    <circle cx="330" cy="90" r="18" fill="#22d3ee" />
+    <text x="330" y="95" textAnchor="middle" fill="#1f2937" fontSize="12" fontWeight="bold">2</text>
+
+    {/* Server */}
+    <g filter="url(#redirShadow)">
+      <rect x="360" y="65" width="160" height="55" rx="8" fill="url(#redirServerGrad)" />
+      <text x="440" y="90" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Redirect Service</text>
+      <text x="440" y="108" textAnchor="middle" fill="#d1fae5" fontSize="9">Extract short code</text>
+    </g>
+
+    {/* Arrow to Cache */}
+    <line x1="440" y1="120" x2="440" y2="160" stroke="#22d3ee" strokeWidth="2" markerEnd="url(#redirArrow)" />
+
+    <circle cx="400" cy="180" r="18" fill="#22d3ee" />
+    <text x="400" y="185" textAnchor="middle" fill="#1f2937" fontSize="12" fontWeight="bold">3</text>
+
+    {/* Cache */}
+    <g filter="url(#redirShadow)">
+      <rect x="430" y="160" width="160" height="55" rx="8" fill="url(#redirCacheGrad)" />
+      <text x="510" y="185" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Redis Cache</text>
+      <text x="510" y="203" textAnchor="middle" fill="#fef3c7" fontSize="9">Lookup: aB3xY2z</text>
+    </g>
+
+    {/* Cache Hit Path */}
+    <line x1="590" y1="188" x2="650" y2="188" stroke="#10b981" strokeWidth="2" markerEnd="url(#redirArrowGreen)" />
+    <text x="620" y="178" textAnchor="middle" fill="#10b981" fontSize="9">HIT (95%)</text>
+
+    <g filter="url(#redirShadow)">
+      <rect x="660" y="160" width="180" height="55" rx="8" fill="#10b981" />
+      <text x="750" y="185" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Cache Hit - Fast Path</text>
+      <text x="750" y="203" textAnchor="middle" fill="#d1fae5" fontSize="9">Return long URL in &lt;5ms</text>
+    </g>
+
+    {/* Cache Miss Path */}
+    <line x1="510" y1="215" x2="510" y2="255" stroke="#ef4444" strokeWidth="2" markerEnd="url(#redirArrowRed)" />
+    <text x="540" y="240" textAnchor="middle" fill="#ef4444" fontSize="9">MISS (5%)</text>
+
+    <circle cx="470" cy="280" r="18" fill="#22d3ee" />
+    <text x="470" y="285" textAnchor="middle" fill="#1f2937" fontSize="12" fontWeight="bold">4</text>
+
+    {/* Database */}
+    <g filter="url(#redirShadow)">
+      <rect x="500" y="260" width="160" height="55" rx="8" fill="url(#redirDBGrad)" />
+      <text x="580" y="285" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">PostgreSQL</text>
+      <text x="580" y="303" textAnchor="middle" fill="#dbeafe" fontSize="9">SELECT long_url WHERE...</text>
+    </g>
+
+    {/* Update Cache */}
+    <path d="M 660 288 Q 700 288 700 215 Q 700 188 660 188" stroke="#f59e0b" strokeWidth="2" fill="none" markerEnd="url(#redirArrow)" strokeDasharray="5,3" />
+    <text x="720" y="240" textAnchor="middle" fill="#f59e0b" fontSize="9">Update Cache</text>
+
+    {/* HTTP Response Options */}
+    <rect x="50" y="340" width="800" height="130" rx="8" fill="#374151" />
+    <text x="450" y="365" textAnchor="middle" fill="#22d3ee" fontSize="14" fontWeight="bold">HTTP Redirect Response Options</text>
+
+    {/* 301 */}
+    <g filter="url(#redirShadow)">
+      <rect x="70" y="385" width="350" height="70" rx="8" fill="#10b981" />
+      <text x="245" y="410" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">HTTP 301 - Permanent Redirect</text>
+      <text x="245" y="430" textAnchor="middle" fill="#d1fae5" fontSize="10">Browser caches redirect - faster subsequent clicks</text>
+      <text x="245" y="447" textAnchor="middle" fill="#fbbf24" fontSize="9">Drawback: Cannot track analytics (bypasses server)</text>
+    </g>
+
+    {/* 302 */}
+    <g filter="url(#redirShadow)">
+      <rect x="480" y="385" width="350" height="70" rx="8" fill="#f59e0b" />
+      <text x="655" y="410" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">HTTP 302 - Temporary Redirect</text>
+      <text x="655" y="430" textAnchor="middle" fill="#fef3c7" fontSize="10">Every click hits server - enables analytics tracking</text>
+      <text x="655" y="447" textAnchor="middle" fill="#10b981" fontSize="9">Recommended for URL shorteners</text>
+    </g>
+  </svg>
+);
+
+// 4. Multi-layer caching strategy diagram
+const CachingStrategyDiagram = () => (
+  <svg viewBox="0 0 900 520" className="w-full h-auto">
+    <defs>
+      <linearGradient id="cacheBrowserGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06b6d4" />
+        <stop offset="100%" stopColor="#0891b2" />
+      </linearGradient>
+      <linearGradient id="cacheCDNGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#7c3aed" />
+      </linearGradient>
+      <linearGradient id="cacheAppGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+      <linearGradient id="cacheDBGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#2563eb" />
+      </linearGradient>
+      <marker id="cacheArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#94a3b8" />
+      </marker>
+      <filter id="cacheShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3" />
+      </filter>
+    </defs>
+
+    {/* Background */}
+    <rect x="0" y="0" width="900" height="520" fill="#1f2937" rx="12" />
+
+    {/* Title */}
+    <text x="450" y="35" textAnchor="middle" fill="#f3f4f6" fontSize="18" fontWeight="bold">Multi-Layer Caching Strategy</text>
+
+    {/* Layer Labels */}
+    <text x="70" y="75" fill="#9ca3af" fontSize="12">Layer 1</text>
+    <text x="70" y="165" fill="#9ca3af" fontSize="12">Layer 2</text>
+    <text x="70" y="265" fill="#9ca3af" fontSize="12">Layer 3</text>
+    <text x="70" y="365" fill="#9ca3af" fontSize="12">Layer 4</text>
+
+    {/* Browser Cache */}
+    <g filter="url(#cacheShadow)">
+      <rect x="130" y="55" width="200" height="70" rx="8" fill="url(#cacheBrowserGrad)" />
+      <text x="230" y="85" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Browser Cache</text>
+      <text x="230" y="105" textAnchor="middle" fill="#e0f2fe" fontSize="10">Cache-Control: max-age</text>
+      <text x="230" y="120" textAnchor="middle" fill="#e0f2fe" fontSize="9">Local to each user</text>
+    </g>
+
+    {/* Browser Cache Stats */}
+    <g filter="url(#cacheShadow)">
+      <rect x="370" y="55" width="180" height="70" rx="8" fill="#374151" />
+      <text x="460" y="80" textAnchor="middle" fill="#22d3ee" fontSize="11" fontWeight="bold">Stats</text>
+      <text x="460" y="98" textAnchor="middle" fill="#d1d5db" fontSize="10">TTL: User-controlled</text>
+      <text x="460" y="115" textAnchor="middle" fill="#10b981" fontSize="10">Latency: 0ms (local)</text>
+    </g>
+
+    {/* Browser benefits */}
+    <g filter="url(#cacheShadow)">
+      <rect x="590" y="55" width="260" height="70" rx="8" fill="#1e3a5f" />
+      <text x="720" y="78" textAnchor="middle" fill="#60a5fa" fontSize="11" fontWeight="bold">Benefits</text>
+      <text x="720" y="95" textAnchor="middle" fill="#d1d5db" fontSize="9">No network request needed</text>
+      <text x="720" y="110" textAnchor="middle" fill="#d1d5db" fontSize="9">Instant redirect for repeat visits</text>
+      <text x="720" y="125" textAnchor="middle" fill="#fbbf24" fontSize="9">Only with HTTP 301</text>
+    </g>
+
+    {/* Arrow */}
+    <line x1="230" y1="125" x2="230" y2="145" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#cacheArrow)" />
+    <text x="260" y="140" fill="#ef4444" fontSize="9">Miss</text>
+
+    {/* CDN Cache */}
+    <g filter="url(#cacheShadow)">
+      <rect x="130" y="150" width="200" height="70" rx="8" fill="url(#cacheCDNGrad)" />
+      <text x="230" y="180" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">CDN Edge Cache</text>
+      <text x="230" y="200" textAnchor="middle" fill="#e9d5ff" fontSize="10">CloudFront / Fastly</text>
+      <text x="230" y="215" textAnchor="middle" fill="#e9d5ff" fontSize="9">300+ edge locations</text>
+    </g>
+
+    {/* CDN Cache Stats */}
+    <g filter="url(#cacheShadow)">
+      <rect x="370" y="150" width="180" height="70" rx="8" fill="#374151" />
+      <text x="460" y="175" textAnchor="middle" fill="#22d3ee" fontSize="11" fontWeight="bold">Stats</text>
+      <text x="460" y="193" textAnchor="middle" fill="#d1d5db" fontSize="10">TTL: 1 hour</text>
+      <text x="460" y="210" textAnchor="middle" fill="#10b981" fontSize="10">Latency: 5-20ms</text>
+    </g>
+
+    {/* CDN benefits */}
+    <g filter="url(#cacheShadow)">
+      <rect x="590" y="150" width="260" height="70" rx="8" fill="#1e3a5f" />
+      <text x="720" y="173" textAnchor="middle" fill="#60a5fa" fontSize="11" fontWeight="bold">Benefits</text>
+      <text x="720" y="190" textAnchor="middle" fill="#d1d5db" fontSize="9">Geographically distributed</text>
+      <text x="720" y="205" textAnchor="middle" fill="#d1d5db" fontSize="9">Reduces origin server load by 40-50%</text>
+      <text x="720" y="220" textAnchor="middle" fill="#d1d5db" fontSize="9">DDoS protection</text>
+    </g>
+
+    {/* Arrow */}
+    <line x1="230" y1="220" x2="230" y2="245" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#cacheArrow)" />
+    <text x="260" y="240" fill="#ef4444" fontSize="9">Miss</text>
+
+    {/* Application Cache */}
+    <g filter="url(#cacheShadow)">
+      <rect x="130" y="250" width="200" height="70" rx="8" fill="url(#cacheAppGrad)" />
+      <text x="230" y="280" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Redis Cluster</text>
+      <text x="230" y="300" textAnchor="middle" fill="#fef3c7" fontSize="10">Application Cache</text>
+      <text x="230" y="315" textAnchor="middle" fill="#fef3c7" fontSize="9">6 nodes (3 masters)</text>
+    </g>
+
+    {/* Redis Stats */}
+    <g filter="url(#cacheShadow)">
+      <rect x="370" y="250" width="180" height="70" rx="8" fill="#374151" />
+      <text x="460" y="275" textAnchor="middle" fill="#22d3ee" fontSize="11" fontWeight="bold">Stats</text>
+      <text x="460" y="293" textAnchor="middle" fill="#d1d5db" fontSize="10">TTL: 24 hours</text>
+      <text x="460" y="310" textAnchor="middle" fill="#10b981" fontSize="10">Latency: 1-5ms</text>
+    </g>
+
+    {/* Redis benefits */}
+    <g filter="url(#cacheShadow)">
+      <rect x="590" y="250" width="260" height="70" rx="8" fill="#1e3a5f" />
+      <text x="720" y="273" textAnchor="middle" fill="#60a5fa" fontSize="11" fontWeight="bold">Benefits</text>
+      <text x="720" y="290" textAnchor="middle" fill="#d1d5db" fontSize="9">In-memory, ultra-fast lookups</text>
+      <text x="720" y="305" textAnchor="middle" fill="#d1d5db" fontSize="9">95%+ cache hit rate target</text>
+      <text x="720" y="320" textAnchor="middle" fill="#d1d5db" fontSize="9">Stores URL mappings + counters</text>
+    </g>
+
+    {/* Arrow */}
+    <line x1="230" y1="320" x2="230" y2="345" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#cacheArrow)" />
+    <text x="260" y="340" fill="#ef4444" fontSize="9">Miss</text>
+
+    {/* Database */}
+    <g filter="url(#cacheShadow)">
+      <rect x="130" y="350" width="200" height="70" rx="8" fill="url(#cacheDBGrad)" />
+      <text x="230" y="380" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">PostgreSQL</text>
+      <text x="230" y="400" textAnchor="middle" fill="#dbeafe" fontSize="10">Primary Database</text>
+      <text x="230" y="415" textAnchor="middle" fill="#dbeafe" fontSize="9">Source of truth</text>
+    </g>
+
+    {/* DB Stats */}
+    <g filter="url(#cacheShadow)">
+      <rect x="370" y="350" width="180" height="70" rx="8" fill="#374151" />
+      <text x="460" y="375" textAnchor="middle" fill="#22d3ee" fontSize="11" fontWeight="bold">Stats</text>
+      <text x="460" y="393" textAnchor="middle" fill="#d1d5db" fontSize="10">Persistent storage</text>
+      <text x="460" y="410" textAnchor="middle" fill="#f59e0b" fontSize="10">Latency: 10-50ms</text>
+    </g>
+
+    {/* DB benefits */}
+    <g filter="url(#cacheShadow)">
+      <rect x="590" y="350" width="260" height="70" rx="8" fill="#1e3a5f" />
+      <text x="720" y="373" textAnchor="middle" fill="#60a5fa" fontSize="11" fontWeight="bold">Benefits</text>
+      <text x="720" y="390" textAnchor="middle" fill="#d1d5db" fontSize="9">ACID compliance, data integrity</text>
+      <text x="720" y="405" textAnchor="middle" fill="#d1d5db" fontSize="9">Query cache + connection pooling</text>
+      <text x="720" y="420" textAnchor="middle" fill="#d1d5db" fontSize="9">Sharded for horizontal scale</text>
+    </g>
+
+    {/* Cache Invalidation Note */}
+    <rect x="130" y="440" width="720" height="65" rx="8" fill="#7f1d1d" opacity="0.3" />
+    <text x="490" y="465" textAnchor="middle" fill="#fca5a5" fontSize="12" fontWeight="bold">Cache Invalidation Strategy</text>
+    <text x="490" y="485" textAnchor="middle" fill="#d1d5db" fontSize="10">Write-through on create | Cache-aside on read | Immediate invalidation on update/delete | Lazy expiration check</text>
+  </svg>
+);
+
+// 5. Analytics and click tracking diagram
+const AnalyticsDiagram = () => (
+  <svg viewBox="0 0 900 500" className="w-full h-auto">
+    <defs>
+      <linearGradient id="analClickGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06b6d4" />
+        <stop offset="100%" stopColor="#0891b2" />
+      </linearGradient>
+      <linearGradient id="analKafkaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ef4444" />
+        <stop offset="100%" stopColor="#dc2626" />
+      </linearGradient>
+      <linearGradient id="analFlinkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#7c3aed" />
+      </linearGradient>
+      <linearGradient id="analClickHouseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ec4899" />
+        <stop offset="100%" stopColor="#db2777" />
+      </linearGradient>
+      <linearGradient id="analRedisGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+      <marker id="analArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#94a3b8" />
+      </marker>
+      <filter id="analShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3" />
+      </filter>
+    </defs>
+
+    {/* Background */}
+    <rect x="0" y="0" width="900" height="500" fill="#1f2937" rx="12" />
+
+    {/* Title */}
+    <text x="450" y="35" textAnchor="middle" fill="#f3f4f6" fontSize="18" fontWeight="bold">Analytics & Click Tracking Pipeline</text>
+
+    {/* Click Event */}
+    <g filter="url(#analShadow)">
+      <rect x="50" y="70" width="150" height="80" rx="8" fill="url(#analClickGrad)" />
+      <text x="125" y="100" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Click Event</text>
+      <text x="125" y="118" textAnchor="middle" fill="#e0f2fe" fontSize="9">User clicks short URL</text>
+      <text x="125" y="135" textAnchor="middle" fill="#e0f2fe" fontSize="9">Captured at redirect</text>
+    </g>
+
+    {/* Event Data Box */}
+    <g filter="url(#analShadow)">
+      <rect x="50" y="170" width="150" height="120" rx="8" fill="#374151" />
+      <text x="125" y="195" textAnchor="middle" fill="#22d3ee" fontSize="11" fontWeight="bold">Event Data</text>
+      <text x="65" y="215" fill="#d1d5db" fontSize="9">short_url: aB3xY2z</text>
+      <text x="65" y="230" fill="#d1d5db" fontSize="9">IP: 192.168.1.1</text>
+      <text x="65" y="245" fill="#d1d5db" fontSize="9">user_agent: Chrome...</text>
+      <text x="65" y="260" fill="#d1d5db" fontSize="9">referrer: twitter.com</text>
+      <text x="65" y="275" fill="#d1d5db" fontSize="9">timestamp: 16783...</text>
+    </g>
+
+    {/* Arrow to Kafka */}
+    <line x1="200" y1="110" x2="270" y2="110" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#analArrow)" />
+    <text x="235" y="100" textAnchor="middle" fill="#9ca3af" fontSize="9">Async</text>
+
+    {/* Kafka */}
+    <g filter="url(#analShadow)">
+      <rect x="280" y="70" width="180" height="80" rx="8" fill="url(#analKafkaGrad)" />
+      <text x="370" y="100" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Apache Kafka</text>
+      <text x="370" y="120" textAnchor="middle" fill="#fecaca" fontSize="10">Topic: click_events</text>
+      <text x="370" y="137" textAnchor="middle" fill="#fecaca" fontSize="9">Partitioned by short_url</text>
+    </g>
+
+    {/* Split paths */}
+    <path d="M 460 110 L 500 110 L 500 80 L 540 80" stroke="#94a3b8" strokeWidth="2" fill="none" markerEnd="url(#analArrow)" />
+    <path d="M 460 110 L 500 110 L 500 180 L 540 180" stroke="#94a3b8" strokeWidth="2" fill="none" markerEnd="url(#analArrow)" />
+
+    <text x="480" y="60" fill="#10b981" fontSize="10">Real-time</text>
+    <text x="480" y="200" fill="#8b5cf6" fontSize="10">Batch</text>
+
+    {/* Real-time path: Redis */}
+    <g filter="url(#analShadow)">
+      <rect x="550" y="50" width="160" height="70" rx="8" fill="url(#analRedisGrad)" />
+      <text x="630" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Redis Counters</text>
+      <text x="630" y="95" textAnchor="middle" fill="#fef3c7" fontSize="10">INCR clicks:aB3xY2z</text>
+      <text x="630" y="110" textAnchor="middle" fill="#fef3c7" fontSize="9">HyperLogLog for uniques</text>
+    </g>
+
+    {/* Arrow to Dashboard */}
+    <line x1="710" y1="85" x2="750" y2="85" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#analArrow)" />
+
+    {/* Real-time Dashboard */}
+    <g filter="url(#analShadow)">
+      <rect x="760" y="50" width="120" height="70" rx="8" fill="#10b981" />
+      <text x="820" y="75" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Live Dashboard</text>
+      <text x="820" y="95" textAnchor="middle" fill="#d1fae5" fontSize="9">WebSocket push</text>
+      <text x="820" y="110" textAnchor="middle" fill="#d1fae5" fontSize="9">Real-time counter</text>
+    </g>
+
+    {/* Batch path: Flink */}
+    <g filter="url(#analShadow)">
+      <rect x="550" y="150" width="160" height="70" rx="8" fill="url(#analFlinkGrad)" />
+      <text x="630" y="175" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Apache Flink</text>
+      <text x="630" y="195" textAnchor="middle" fill="#e9d5ff" fontSize="10">Stream Processing</text>
+      <text x="630" y="210" textAnchor="middle" fill="#e9d5ff" fontSize="9">Aggregate every 10s</text>
+    </g>
+
+    {/* Arrow to ClickHouse */}
+    <line x1="710" y1="185" x2="750" y2="185" stroke="#94a3b8" strokeWidth="2" markerEnd="url(#analArrow)" />
+
+    {/* ClickHouse */}
+    <g filter="url(#analShadow)">
+      <rect x="760" y="150" width="120" height="70" rx="8" fill="url(#analClickHouseGrad)" />
+      <text x="820" y="175" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">ClickHouse</text>
+      <text x="820" y="195" textAnchor="middle" fill="#fbcfe8" fontSize="9">Columnar OLAP</text>
+      <text x="820" y="210" textAnchor="middle" fill="#fbcfe8" fontSize="9">Batch inserts</text>
+    </g>
+
+    {/* Enrichment Section */}
+    <rect x="50" y="310" width="400" height="170" rx="8" fill="#374151" />
+    <text x="250" y="335" textAnchor="middle" fill="#22d3ee" fontSize="14" fontWeight="bold">Data Enrichment</text>
+
+    {/* GeoIP */}
+    <g filter="url(#analShadow)">
+      <rect x="70" y="355" width="170" height="55" rx="6" fill="#3b82f6" />
+      <text x="155" y="377" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">GeoIP Lookup</text>
+      <text x="155" y="395" textAnchor="middle" fill="#dbeafe" fontSize="9">MaxMind database</text>
+      <text x="155" y="408" textAnchor="middle" fill="#dbeafe" fontSize="8">IP → Country, City, Coords</text>
+    </g>
+
+    {/* User Agent Parser */}
+    <g filter="url(#analShadow)">
+      <rect x="260" y="355" width="170" height="55" rx="6" fill="#8b5cf6" />
+      <text x="345" y="377" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">User Agent Parser</text>
+      <text x="345" y="395" textAnchor="middle" fill="#e9d5ff" fontSize="9">Device detection</text>
+      <text x="345" y="408" textAnchor="middle" fill="#e9d5ff" fontSize="8">Browser, OS, Device type</text>
+    </g>
+
+    {/* Enriched data */}
+    <g filter="url(#analShadow)">
+      <rect x="70" y="420" width="360" height="45" rx="6" fill="#1e3a5f" />
+      <text x="250" y="440" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Enriched Click Record</text>
+      <text x="250" y="455" textAnchor="middle" fill="#d1d5db" fontSize="8">short_url + long_url + country + city + browser + os + device + referrer + timestamp</text>
+    </g>
+
+    {/* Analytics Dashboard Section */}
+    <rect x="480" y="250" width="400" height="230" rx="8" fill="#374151" />
+    <text x="680" y="275" textAnchor="middle" fill="#22d3ee" fontSize="14" fontWeight="bold">Analytics Dashboard</text>
+
+    {/* Dashboard components */}
+    <g filter="url(#analShadow)">
+      <rect x="500" y="295" width="115" height="50" rx="6" fill="#10b981" />
+      <text x="557" y="315" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Total Clicks</text>
+      <text x="557" y="332" textAnchor="middle" fill="#d1fae5" fontSize="9">Real-time counter</text>
+    </g>
+
+    <g filter="url(#analShadow)">
+      <rect x="625" y="295" width="115" height="50" rx="6" fill="#f59e0b" />
+      <text x="682" y="315" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Unique Visitors</text>
+      <text x="682" y="332" textAnchor="middle" fill="#fef3c7" fontSize="9">HyperLogLog</text>
+    </g>
+
+    <g filter="url(#analShadow)">
+      <rect x="750" y="295" width="115" height="50" rx="6" fill="#8b5cf6" />
+      <text x="807" y="315" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Top Referrers</text>
+      <text x="807" y="332" textAnchor="middle" fill="#e9d5ff" fontSize="9">Pie chart</text>
+    </g>
+
+    <g filter="url(#analShadow)">
+      <rect x="500" y="355" width="175" height="50" rx="6" fill="#ef4444" />
+      <text x="587" y="375" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Geographic Heat Map</text>
+      <text x="587" y="392" textAnchor="middle" fill="#fecaca" fontSize="9">Clicks by country/city</text>
+    </g>
+
+    <g filter="url(#analShadow)">
+      <rect x="685" y="355" width="180" height="50" rx="6" fill="#06b6d4" />
+      <text x="775" y="375" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Device Breakdown</text>
+      <text x="775" y="392" textAnchor="middle" fill="#e0f2fe" fontSize="9">Mobile / Desktop / Tablet</text>
+    </g>
+
+    <g filter="url(#analShadow)">
+      <rect x="500" y="415" width="365" height="50" rx="6" fill="#ec4899" />
+      <text x="682" y="435" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Click Timeline Chart</text>
+      <text x="682" y="452" textAnchor="middle" fill="#fbcfe8" fontSize="9">Hourly / Daily / Monthly aggregations from ClickHouse</text>
+    </g>
+  </svg>
+);
+
 export default function TinyURL({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -157,6 +900,10 @@ export default function TinyURL({ onBack, breadcrumb }) {
                 <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
                   <span className="text-teal-400">High-Level Architecture</span>
                 </h2>
+
+                <div className="bg-gradient-to-br from-teal-900/30 to-cyan-900/30 p-4 rounded-xl border-2 border-teal-700 mb-6">
+                  <TinyURLArchitectureDiagram />
+                </div>
 
                 <div className="bg-gradient-to-br from-teal-900/30 to-cyan-900/30 p-8 rounded-xl border-2 border-teal-700">
                   <svg viewBox="0 0 1200 800" className="w-full h-auto">
@@ -386,6 +1133,16 @@ export default function TinyURL({ onBack, breadcrumb }) {
 
           {activeTab === 'components' && (
             <div className="space-y-6">
+              {/* URL Shortening Process Diagram */}
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-t-4 border-green-500">
+                <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                  <span className="text-green-400">URL Shortening Process (Base62 Encoding)</span>
+                </h2>
+                <div className="bg-gradient-to-br from-green-900/20 to-emerald-900/20 p-4 rounded-xl border-2 border-green-700">
+                  <URLShorteningDiagram />
+                </div>
+              </div>
+
               <div className="grid md:grid-cols-2 gap-6">
                 {/* URL Shortening Service */}
                 <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-shadow">
@@ -447,7 +1204,19 @@ export default function TinyURL({ onBack, breadcrumb }) {
                     </div>
                   </div>
                 </div>
+              </div>
 
+              {/* Redirect Flow Diagram */}
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-t-4 border-orange-500">
+                <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                  <span className="text-orange-400">URL Redirect Flow (301 vs 302)</span>
+                </h2>
+                <div className="bg-gradient-to-br from-orange-900/20 to-amber-900/20 p-4 rounded-xl border-2 border-orange-700">
+                  <RedirectFlowDiagram />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
                 {/* Analytics Service */}
                 <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl transition-shadow">
                   <h3 className="text-2xl font-bold text-blue-400 mb-4 flex items-center gap-2">
@@ -574,6 +1343,16 @@ export default function TinyURL({ onBack, breadcrumb }) {
                       <div className="text-sm">• <strong>Replication:</strong> Master-slave (1 master, 2 replicas)</div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Analytics Pipeline Diagram */}
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-t-4 border-blue-500">
+                <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                  <span className="text-blue-400">Analytics & Click Tracking Pipeline</span>
+                </h2>
+                <div className="bg-gradient-to-br from-blue-900/20 to-indigo-900/20 p-4 rounded-xl border-2 border-blue-700">
+                  <AnalyticsDiagram />
                 </div>
               </div>
             </div>
@@ -772,6 +1551,10 @@ export default function TinyURL({ onBack, breadcrumb }) {
                 <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
                   <span className="text-cyan-400">Multi-Layer Caching</span>
                 </h2>
+
+                <div className="bg-gradient-to-br from-cyan-900/20 to-teal-900/20 p-4 rounded-xl border-2 border-cyan-700 mb-6">
+                  <CachingStrategyDiagram />
+                </div>
 
                 <div className="space-y-4">
                   <div className="bg-cyan-900/30 p-6 rounded-xl border-l-4 border-cyan-500">

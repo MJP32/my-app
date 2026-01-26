@@ -535,10 +535,12 @@ sorted(data, key=lambda x: (x is None, x or 0))  # OK`
                       language="python"
                       style={vscDarkPlus}
                       customStyle={{
-                        padding: '1.5rem',
-                        borderRadius: '0.5rem',
-                        fontSize: '0.9rem',
-                        border: '1px solid #3b82f6'
+                        margin: 0,
+                        borderRadius: '0.375rem',
+                        fontSize: '0.875rem',
+                        background: 'none',
+                        backgroundColor: 'transparent',
+                        padding: 0
                       }}
                     >
                       {section.code}
@@ -618,7 +620,7 @@ sorted(data, key=lambda x: (x is None, x or 0))  # OK`
 
         <Breadcrumb breadcrumb={activeBreadcrumb} />
 
-        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <div style={{ textAlign: 'left', marginBottom: '3rem' }}>
           <p style={{
             fontSize: '1.2rem',
             color: '#d1d5db',
@@ -668,7 +670,7 @@ sorted(data, key=lambda x: (x is None, x or 0))  # OK`
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: 'bold',
-                textAlign: 'center',
+                textAlign: 'left',
                 marginBottom: '0.75rem',
                 color: '#93c5fd'
               }}>
@@ -676,7 +678,7 @@ sorted(data, key=lambda x: (x is None, x or 0))  # OK`
               </h3>
               <p style={{
                 color: '#d1d5db',
-                textAlign: 'center',
+                textAlign: 'left',
                 fontSize: '0.875rem'
               }}>
                 {concept.description}

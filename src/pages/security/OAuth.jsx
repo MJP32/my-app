@@ -1,6 +1,36 @@
 import { useState } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
 
+// OAuth 1.0 Flow Diagram
+const OAuthFlowDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">OAuth 1.0 Three-Legged Flow</text>
+
+    <rect x="30" y="50" width="100" height="50" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="80" y="80" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Consumer</text>
+
+    <rect x="200" y="50" width="130" height="50" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="265" y="72" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">1. Request Token</text>
+    <text x="265" y="88" textAnchor="middle" fill="#fcd34d" fontSize="8">oauth_callback</text>
+
+    <rect x="400" y="50" width="130" height="50" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="465" y="72" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">2. User Authorizes</text>
+    <text x="465" y="88" textAnchor="middle" fill="#c4b5fd" fontSize="8">oauth_verifier</text>
+
+    <rect x="600" y="50" width="130" height="50" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="665" y="72" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">3. Access Token</text>
+    <text x="665" y="88" textAnchor="middle" fill="#86efac" fontSize="8">oauth_token</text>
+
+    <path d="M 130 75 L 195 75" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+    <path d="M 330 75 L 395 75" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+    <path d="M 530 75 L 595 75" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+
+    <rect x="150" y="120" width="500" height="60" rx="6" fill="rgba(100, 116, 139, 0.1)" stroke="#64748b" strokeWidth="1"/>
+    <text x="400" y="142" textAnchor="middle" fill="#94a3b8" fontSize="10" fontWeight="bold">Signature: HMAC-SHA1 / RSA-SHA1</text>
+    <text x="400" y="160" textAnchor="middle" fill="#64748b" fontSize="8">Each request signed with consumer secret + token secret | Nonce prevents replay</text>
+  </svg>
+)
+
 export default function OAuth({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview')
 
@@ -62,6 +92,10 @@ export default function OAuth({ onBack, breadcrumb }) {
         <div className="mb-8">
           {activeTab === 'overview' && (
             <div className="space-y-8">
+              {/* OAuth Flow Diagram */}
+              <div className="bg-gray-800 rounded-xl shadow-md p-6 border-l-4 border-blue-600">
+                <OAuthFlowDiagram />
+              </div>
               {/* What is OAuth 1.0 */}
               <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-blue-600">
                 <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">

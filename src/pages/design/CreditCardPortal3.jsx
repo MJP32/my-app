@@ -1,6272 +1,1994 @@
-import React, { useState } from 'react';
-import {
-  ChevronDown, ChevronRight, Database, Cloud, Lock, AlertCircle, Check, Users,
-  CreditCard, TrendingUp, Zap, Server, Globe, Shield, Activity, Layers,
-  GitBranch, Box, FileText, BarChart, Network, Cpu, HardDrive, ArrowRight
-} from 'lucide-react';
-import Breadcrumb from '../../components/Breadcrumb';
+/**
+ * Credit Card Portal System Design
+ *
+ * Comprehensive system design for a credit card portal serving 10M users
+ * with 30M transactions/day using CQRS, Event Sourcing, and Saga patterns.
+ */
 
-export default function CreditCardPortal3({ onBack, breadcrumb }) {
-  const [activeTab, setActiveTab] = useState('main');
-  const [expandedLayers, setExpandedLayers] = useState({});
-  const [selectedFlow, setSelectedFlow] = useState(null);
-  const [selectedCQRSComponent, setSelectedCQRSComponent] = useState(null);
-  const [isDbDiagramExpanded, setIsDbDiagramExpanded] = useState(false);
+import { useState, useEffect } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import Breadcrumb from '../../components/Breadcrumb'
 
-  const toggleLayer = (layer) => {
-    setExpandedLayers(prev => ({
-      ...prev,
-      [layer]: !prev[layer]
-    }));
-  };
+// =============================================================================
+// COLORS CONFIGURATION
+// =============================================================================
 
-  // Helper function to get complete Tailwind classes (Tailwind JIT requires complete class names)
-  const getLayerBadgeClasses = (color) => {
-    const colorMap = {
-      'blue': 'px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-xs font-semibold',
-      'purple': 'px-2 py-0.5 bg-purple-100 text-purple-800 rounded text-xs font-semibold',
-      'green': 'px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs font-semibold',
-      'orange': 'px-2 py-0.5 bg-orange-100 text-orange-800 rounded text-xs font-semibold',
-      'pink': 'px-2 py-0.5 bg-pink-100 text-pink-800 rounded text-xs font-semibold',
-      'amber': 'px-2 py-0.5 bg-amber-100 text-amber-800 rounded text-xs font-semibold',
-      'indigo': 'px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded text-xs font-semibold',
-      'red': 'px-2 py-0.5 bg-red-100 text-red-800 rounded text-xs font-semibold',
-      'slate': 'px-2 py-0.5 bg-slate-100 text-slate-800 rounded text-xs font-semibold'
-    };
-    return colorMap[color] || 'px-2 py-0.5 bg-gray-100 text-gray-800 rounded text-xs font-semibold';
-  };
+const TOPIC_COLORS = {
+  primary: '#8b5cf6',
+  primaryHover: '#a78bfa',
+  bg: 'rgba(139, 92, 246, 0.1)',
+  border: 'rgba(139, 92, 246, 0.3)',
+  arrow: '#8b5cf6',
+  hoverBg: 'rgba(139, 92, 246, 0.2)',
+  topicBg: 'rgba(139, 92, 246, 0.2)'
+}
 
-  // CQRS Component Details for Interactive Diagram
-  const cqrsComponentDetails = {
-    'bfflayer': {
-      name: 'BFF Layer (Backend for Frontend)',
-      type: 'Presentation Layer',
-      description: 'Backend for Frontend pattern providing customized APIs for each client type. Aggregates microservice calls and transforms data for optimal client consumption.',
-      technologies: ['React Web App', 'iOS (Swift)', 'Android (Kotlin)', 'Admin Dashboard', 'REST APIs'],
-      responsibilities: [
-        'Client-specific API aggregation and transformation',
-        'Request routing to appropriate microservices',
-        'Response formatting optimized for each platform',
-        'Client-side caching and state management',
-        'Integration with 3rd party APIs'
-      ],
-      metrics: '30M+ requests/day across all client types'
-    },
-    'apigateway': {
-      name: 'API Gateway',
-      type: 'Gateway Layer',
-      description: 'Kong API Gateway serving as the single entry point for all client requests. Handles authentication, rate limiting, load balancing, and security.',
-      technologies: ['Kong Gateway', 'WAF (Web Application Firewall)', 'OAuth 2.0', 'JWT', 'Redis (Rate Limiting)'],
-      responsibilities: [
-        'OAuth 2.0 + JWT authentication and authorization',
-        'Rate limiting using Redis (1000 req/min per user)',
-        'DDoS protection and WAF filtering',
-        'Load balancing across microservice instances',
-        'Request/response logging and monitoring',
-        'SSL/TLS termination'
-      ],
-      metrics: '30M+ req/day, <5ms gateway latency'
-    },
-    'commandservices': {
-      name: 'Command Services',
-      type: 'Write Side - Business Logic',
-      description: 'Microservices handling write operations (POST/PUT/DELETE). Implements Saga Orchestration for distributed transactions and ensures idempotency.',
-      technologies: ['Spring Boot', 'Saga Orchestrator', 'Spring Data JPA', 'Redis (Idempotency)', 'Resilience4j'],
-      responsibilities: [
-        'Card Application processing with Saga pattern',
-        'Account Service operations (create, update, close)',
-        'Payment Processing with idempotency keys (24h TTL)',
-        'Business rule validation and enforcement',
-        'Distributed transaction coordination',
-        'Command validation and authorization'
-      ],
-      metrics: '347 txn/sec average, 1735 txn/sec peak'
-    },
-    'txprocessor': {
-      name: 'Transaction Processor',
-      type: 'Write Side - Core Engine',
-      description: 'Real-time transaction processing engine with integrated XGBoost ML fraud detection. Implements Event Sourcing for complete audit trail.',
-      technologies: ['Spring Boot', 'XGBoost ML', 'Event Sourcing', 'Python (ML Model)', 'Redis Cache'],
-      responsibilities: [
-        'Real-time transaction authorization',
-        'XGBoost ML fraud detection (<100ms scoring)',
-        'Event Sourcing for immutable transaction log',
-        'Balance calculations and updates',
-        'Fraud score calculation (0-100 risk score)',
-        'Transaction state management'
-      ],
-      metrics: '<100ms transaction latency, 98% fraud detection accuracy'
-    },
-    'writedb': {
-      name: 'Write Databases',
-      type: 'Data Layer - Write Optimized',
-      description: 'Database cluster optimized for write operations. Uses PostgreSQL for ACID transactions and MongoDB for high-volume document storage.',
-      technologies: ['PostgreSQL (Primary + 2 Replicas)', 'MongoDB Atlas (5 Shards)', 'Database per Service', 'ACID Transactions'],
-      responsibilities: [
-        'ACID transaction guarantees for financial operations',
-        'Normalized schema for data integrity',
-        'Write-optimized indexing strategy',
-        'Sharding for horizontal scalability (MongoDB)',
-        'Replication for high availability',
-        'Database per microservice pattern'
-      ],
-      metrics: '30M txn/day writes, <50ms write latency (p95)'
-    },
-    'queryservices': {
-      name: 'Query Services',
-      type: 'Read Side - Query Handlers',
-      description: 'Microservices handling read operations (GET). Optimized for fast queries using caching and specialized read databases.',
-      technologies: ['Spring Boot', 'Spring WebFlux (Reactive)', 'Redis (L1 Cache)', 'Caffeine (L2 Cache)', 'Circuit Breaker'],
-      responsibilities: [
-        'Account balance retrieval (<1ms via Redis)',
-        'Transaction history queries (Elasticsearch)',
-        'Rewards and points calculation (cached)',
-        'Statement generation and PDF export',
-        'Search functionality across transaction history',
-        'Real-time dashboard data aggregation'
-      ],
-      metrics: '10M reads/day, <10ms query latency (p99)'
-    },
-    'analytics': {
-      name: 'Analytics & Reporting',
-      type: 'Read Side - Analytics Engine',
-      description: 'Real-time analytics and reporting system using Kafka Streams for stream processing and InfluxDB for time-series data.',
-      technologies: ['Kafka Streams', 'InfluxDB', 'Grafana', 'Apache Spark (Batch)', 'Tableau'],
-      responsibilities: [
-        'Real-time spending analytics and trends',
-        'Kafka Streams aggregations (windowed)',
-        'Time-series metrics storage (InfluxDB)',
-        'Report generation (daily, monthly, yearly)',
-        'Dashboard data for Grafana visualization',
-        'Predictive analytics for spending patterns'
-      ],
-      metrics: 'Real-time processing, 15-min lag for analytics'
-    },
-    'readdb': {
-      name: 'Read Databases',
-      type: 'Data Layer - Read Optimized',
-      description: 'Database cluster optimized for read operations. Uses Elasticsearch for search, InfluxDB for time-series, and Redis for ultra-fast caching.',
-      technologies: ['Elasticsearch (Search)', 'InfluxDB (Time-series)', 'Redis Enterprise (Cache)', 'PostgreSQL Replicas'],
-      responsibilities: [
-        'Elasticsearch for full-text search (transaction history)',
-        'InfluxDB for real-time metrics and time-series data',
-        'Redis cache for hot data (<1ms latency)',
-        'Denormalized schemas for query optimization',
-        'Read replicas for load distribution',
-        'Query result caching and invalidation'
-      ],
-      metrics: '10M reads/day, 90% cache hit rate, <1ms cache reads'
-    },
-    'eventbus': {
-      name: 'Event Bus (Apache Kafka)',
-      type: 'Messaging Infrastructure',
-      description: '3-node Kafka cluster enabling event-driven architecture. Decouples write and read sides with publish-subscribe pattern.',
-      technologies: ['Apache Kafka', 'Kafka Streams', 'Schema Registry (Avro)', 'Zookeeper', 'Consumer Groups'],
-      responsibilities: [
-        'Event publishing from command side (30M events/day)',
-        'Event distribution to multiple consumers',
-        'Topics: ApplicationCreated, TransactionPosted, PaymentProcessed, FraudAlert, BalanceUpdated',
-        'Message ordering and delivery guarantees',
-        'Consumer group management (Data Pipeline, Notification, Analytics)',
-        'Event schema evolution via Schema Registry'
-      ],
-      metrics: '30M events/day, Replication Factor: 3, <10ms publish latency'
-    },
-    'eventstore': {
-      name: 'Event Store',
-      type: 'Data Layer - Immutable Log',
-      description: 'Append-only event log storing all system events. Enables event replay, audit trail, and temporal queries for compliance.',
-      technologies: ['PostgreSQL (Append-only)', 'Event Sourcing', 'Partitioning (by year)', 'JSONB Storage'],
-      responsibilities: [
-        'Immutable storage of all domain events',
-        'Event replay for rebuilding application state',
-        'Audit trail for regulatory compliance (PCI DSS)',
-        'Temporal queries (state at time T)',
-        'Disaster recovery via event replay',
-        'Debugging and troubleshooting support'
-      ],
-      metrics: '30M events/day stored, Never UPDATE or DELETE'
-    },
-    'notifications': {
-      name: 'Notification Service',
-      type: 'Supporting Service',
-      description: 'Real-time notification system delivering alerts via Email, SMS, and Push notifications. Subscribes to Kafka events for trigger-based messaging.',
-      technologies: ['Spring Boot', 'Twilio (SMS)', 'SendGrid (Email)', 'Firebase (Push)', 'Redis (Deduplication)'],
-      responsibilities: [
-        'Real-time transaction alerts (Email/SMS/Push)',
-        'Fraud detection alerts (<1 min notification)',
-        'Payment confirmations and receipts',
-        'Statement availability notifications',
-        'Promotional and marketing messages',
-        'Notification deduplication via Redis'
-      ],
-      metrics: '5M notifications/day, <1 min delivery for fraud alerts'
-    },
-    'projections': {
-      name: 'Projections (Denormalizer)',
-      type: 'Read Side - Event Handlers',
-      description: 'Event handlers that subscribe to Kafka events and update read-optimized databases. Implements eventual consistency between write and read sides.',
-      technologies: ['Spring Boot', 'Kafka Consumer', 'Spring Data Elasticsearch', 'Spring Data Redis', 'Spring Data InfluxDB'],
-      responsibilities: [
-        'Subscribe to Kafka events (Consumer Groups)',
-        'Denormalize data for read-optimized schemas',
-        'Update Elasticsearch indices for search',
-        'Update InfluxDB for time-series metrics',
-        'Update Redis cache with latest data',
-        'Handle event ordering and idempotency'
-      ],
-      metrics: '30M events/day processed, 5-15 min eventual consistency lag'
-    }
-  };
+const SUBTOPIC_COLORS = [
+  { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },
+  { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' },
+  { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' },
+  { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)' },
+  { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)' },
+  { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
+]
 
-  // System Design Layers - High Level
-  const architectureLayers = [
+// =============================================================================
+// DIAGRAM COMPONENTS
+// =============================================================================
+
+const ArchitectureOverviewDiagram = () => (
+  <svg viewBox="0 0 800 300" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowPurple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#8b5cf6" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">9-Layer Architecture - Credit Card Portal</text>
+
+    {/* Client Layer */}
+    <rect x="20" y="50" width="100" height="45" rx="6" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="70" y="70" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Client Apps</text>
+    <text x="70" y="82" textAnchor="middle" fill="#bfdbfe" fontSize="7">Web/Mobile</text>
+
+    {/* API Gateway */}
+    <rect x="140" y="50" width="100" height="45" rx="6" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="190" y="70" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">API Gateway</text>
+    <text x="190" y="82" textAnchor="middle" fill="#ddd6fe" fontSize="7">Kong + Auth</text>
+
+    {/* Core Services */}
+    <rect x="260" y="50" width="100" height="45" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="310" y="70" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Core Services</text>
+    <text x="310" y="82" textAnchor="middle" fill="#bbf7d0" fontSize="7">Saga Pattern</text>
+
+    {/* Transaction Services */}
+    <rect x="380" y="50" width="100" height="45" rx="6" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="430" y="70" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Transaction</text>
+    <text x="430" y="82" textAnchor="middle" fill="#fef3c7" fontSize="7">Event Sourcing</text>
+
+    {/* Event Bus */}
+    <rect x="500" y="50" width="100" height="45" rx="6" fill="#ec4899" stroke="#f472b6" strokeWidth="2"/>
+    <text x="550" y="70" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Kafka</text>
+    <text x="550" y="82" textAnchor="middle" fill="#fbcfe8" fontSize="7">30M events/day</text>
+
+    {/* Databases */}
+    <rect x="620" y="50" width="100" height="45" rx="6" fill="#6366f1" stroke="#818cf8" strokeWidth="2"/>
+    <text x="670" y="70" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">8 Databases</text>
+    <text x="670" y="82" textAnchor="middle" fill="#c7d2fe" fontSize="7">Polyglot</text>
+
+    {/* Arrows */}
+    <line x1="120" y1="72" x2="135" y2="72" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrowPurple)"/>
+    <line x1="240" y1="72" x2="255" y2="72" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrowPurple)"/>
+    <line x1="360" y1="72" x2="375" y2="72" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrowPurple)"/>
+    <line x1="480" y1="72" x2="495" y2="72" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrowPurple)"/>
+    <line x1="600" y1="72" x2="615" y2="72" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrowPurple)"/>
+
+    {/* Metrics */}
+    <rect x="100" y="130" width="600" height="50" rx="8" fill="rgba(139, 92, 246, 0.1)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="400" y="155" textAnchor="middle" fill="#94a3b8" fontSize="11">
+      10M Users | 30M Txn/Day | 347 TPS Avg | 1735 TPS Peak | 99.9% Uptime
+    </text>
+
+    {/* Design Patterns */}
+    <rect x="100" y="200" width="140" height="30" rx="6" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="170" y="220" textAnchor="middle" fill="#4ade80" fontSize="10">CQRS Pattern</text>
+
+    <rect x="260" y="200" width="140" height="30" rx="6" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="330" y="220" textAnchor="middle" fill="#fbbf24" fontSize="10">Event Sourcing</text>
+
+    <rect x="420" y="200" width="140" height="30" rx="6" fill="rgba(236, 72, 153, 0.2)" stroke="#ec4899" strokeWidth="1"/>
+    <text x="490" y="220" textAnchor="middle" fill="#f472b6" fontSize="10">Saga Pattern</text>
+
+    <rect x="580" y="200" width="140" height="30" rx="6" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="1"/>
+    <text x="650" y="220" textAnchor="middle" fill="#f87171" fontSize="10">Circuit Breaker</text>
+  </svg>
+)
+
+const CQRSDiagram = () => (
+  <svg viewBox="0 0 800 350" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowGreen" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#22c55e" />
+      </marker>
+      <marker id="arrowPink" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#ec4899" />
+      </marker>
+      <marker id="arrowOrange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">CQRS Architecture - Read/Write Separation</text>
+
+    {/* Command Side */}
+    <rect x="50" y="50" width="300" height="120" rx="8" fill="rgba(34, 197, 94, 0.1)" stroke="#22c55e" strokeWidth="2" strokeDasharray="5,5"/>
+    <text x="200" y="75" textAnchor="middle" fill="#22c55e" fontSize="12" fontWeight="bold">COMMAND SIDE (Write)</text>
+
+    <rect x="70" y="90" width="120" height="60" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="130" y="115" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Command</text>
+    <text x="130" y="130" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Services</text>
+    <text x="130" y="142" textAnchor="middle" fill="#bbf7d0" fontSize="8">POST/PUT/DELETE</text>
+
+    <rect x="210" y="90" width="120" height="60" rx="6" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="270" y="115" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Write DBs</text>
+    <text x="270" y="130" textAnchor="middle" fill="#ddd6fe" fontSize="8">PostgreSQL</text>
+    <text x="270" y="142" textAnchor="middle" fill="#ddd6fe" fontSize="8">MongoDB</text>
+
+    {/* Query Side */}
+    <rect x="450" y="50" width="300" height="120" rx="8" fill="rgba(236, 72, 153, 0.1)" stroke="#ec4899" strokeWidth="2" strokeDasharray="5,5"/>
+    <text x="600" y="75" textAnchor="middle" fill="#ec4899" fontSize="12" fontWeight="bold">QUERY SIDE (Read)</text>
+
+    <rect x="470" y="90" width="120" height="60" rx="6" fill="#ec4899" stroke="#f472b6" strokeWidth="2"/>
+    <text x="530" y="115" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Query</text>
+    <text x="530" y="130" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Services</text>
+    <text x="530" y="142" textAnchor="middle" fill="#fbcfe8" fontSize="8">GET Requests</text>
+
+    <rect x="610" y="90" width="120" height="60" rx="6" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="670" y="115" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Read DBs</text>
+    <text x="670" y="130" textAnchor="middle" fill="#ddd6fe" fontSize="8">Elasticsearch</text>
+    <text x="670" y="142" textAnchor="middle" fill="#ddd6fe" fontSize="8">Redis Cache</text>
+
+    {/* Event Bus */}
+    <rect x="300" y="200" width="200" height="60" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="400" y="225" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Apache Kafka</text>
+    <text x="400" y="245" textAnchor="middle" fill="#fef3c7" fontSize="9">30M events/day</text>
+
+    {/* Arrows */}
+    <line x1="190" y1="120" x2="205" y2="120" stroke="#22c55e" strokeWidth="2" markerEnd="url(#arrowGreen)"/>
+    <line x1="590" y1="120" x2="605" y2="120" stroke="#ec4899" strokeWidth="2" markerEnd="url(#arrowPink)"/>
+
+    <path d="M 270 155 L 270 185 L 300 200" stroke="#f59e0b" strokeWidth="2" fill="none" markerEnd="url(#arrowOrange)"/>
+    <path d="M 500 200 L 530 185 L 530 155" stroke="#f59e0b" strokeWidth="2" fill="none" markerEnd="url(#arrowOrange)"/>
+
+    {/* Labels */}
+    <text x="280" y="180" fill="#f59e0b" fontSize="9">Publish</text>
+    <text x="480" y="180" fill="#f59e0b" fontSize="9">Subscribe</text>
+
+    {/* Eventual Consistency Note */}
+    <rect x="280" y="280" width="240" height="40" rx="6" fill="rgba(245, 158, 11, 0.1)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="400" y="305" textAnchor="middle" fill="#fbbf24" fontSize="10">Eventual Consistency: 5-15 min lag</text>
+  </svg>
+)
+
+const EventSourcingDiagram = () => (
+  <svg viewBox="0 0 800 280" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Event Sourcing - Immutable Event Log</text>
+
+    {/* Events Timeline */}
+    <line x1="50" y1="100" x2="750" y2="100" stroke="#475569" strokeWidth="3"/>
+
+    {/* Event 1 */}
+    <rect x="80" y="60" width="120" height="50" rx="6" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="140" y="85" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Application</text>
+    <text x="140" y="100" textAnchor="middle" fill="#bfdbfe" fontSize="8">Created</text>
+    <circle cx="140" cy="100" r="8" fill="#3b82f6" stroke="white" strokeWidth="2"/>
+
+    {/* Event 2 */}
+    <rect x="230" y="60" width="120" height="50" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="290" y="85" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Credit Check</text>
+    <text x="290" y="100" textAnchor="middle" fill="#bbf7d0" fontSize="8">Passed</text>
+    <circle cx="290" cy="100" r="8" fill="#22c55e" stroke="white" strokeWidth="2"/>
+
+    {/* Event 3 */}
+    <rect x="380" y="60" width="120" height="50" rx="6" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="440" y="85" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Account</text>
+    <text x="440" y="100" textAnchor="middle" fill="#ddd6fe" fontSize="8">Created</text>
+    <circle cx="440" cy="100" r="8" fill="#8b5cf6" stroke="white" strokeWidth="2"/>
+
+    {/* Event 4 */}
+    <rect x="530" y="60" width="120" height="50" rx="6" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="590" y="85" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Transaction</text>
+    <text x="590" y="100" textAnchor="middle" fill="#fef3c7" fontSize="8">Posted</text>
+    <circle cx="590" cy="100" r="8" fill="#f59e0b" stroke="white" strokeWidth="2"/>
+
+    {/* Event 5 */}
+    <rect x="680" y="60" width="100" height="50" rx="6" fill="#ec4899" stroke="#f472b6" strokeWidth="2"/>
+    <text x="730" y="85" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Balance</text>
+    <text x="730" y="100" textAnchor="middle" fill="#fbcfe8" fontSize="8">Updated</text>
+    <circle cx="730" cy="100" r="8" fill="#ec4899" stroke="white" strokeWidth="2"/>
+
+    {/* Event Store */}
+    <rect x="250" y="160" width="300" height="80" rx="8" fill="rgba(99, 102, 241, 0.1)" stroke="#6366f1" strokeWidth="2"/>
+    <text x="400" y="190" textAnchor="middle" fill="#818cf8" fontSize="12" fontWeight="bold">PostgreSQL Event Store</text>
+    <text x="400" y="210" textAnchor="middle" fill="#94a3b8" fontSize="10">Append-Only | Immutable | 30M events/day</text>
+    <text x="400" y="225" textAnchor="middle" fill="#94a3b8" fontSize="9">Never UPDATE or DELETE - only INSERT</text>
+
+    {/* Arrow to Event Store */}
+    <line x1="400" y1="115" x2="400" y2="155" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrowBlue)"/>
+  </svg>
+)
+
+const SagaDiagram = () => (
+  <svg viewBox="0 0 800 300" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="sagaArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b" />
+      </marker>
+      <marker id="compensateArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Saga Pattern - Card Application Flow</text>
+
+    {/* Saga Orchestrator */}
+    <rect x="320" y="50" width="160" height="50" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="400" y="75" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Saga Orchestrator</text>
+    <text x="400" y="90" textAnchor="middle" fill="#fef3c7" fontSize="9">Coordinates Steps</text>
+
+    {/* Step 1 */}
+    <rect x="50" y="140" width="140" height="60" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="120" y="165" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">1. Validate App</text>
+    <text x="120" y="180" textAnchor="middle" fill="#bbf7d0" fontSize="8">App Service</text>
+    <text x="120" y="195" textAnchor="middle" fill="#86efac" fontSize="7">Comp: Mark Invalid</text>
+
+    {/* Step 2 */}
+    <rect x="220" y="140" width="140" height="60" rx="6" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="290" y="165" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">2. Credit Check</text>
+    <text x="290" y="180" textAnchor="middle" fill="#bfdbfe" fontSize="8">Bureau API</text>
+    <text x="290" y="195" textAnchor="middle" fill="#93c5fd" fontSize="7">Comp: Cancel Inquiry</text>
+
+    {/* Step 3 */}
+    <rect x="390" y="140" width="140" height="60" rx="6" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="460" y="165" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">3. Create Acct</text>
+    <text x="460" y="180" textAnchor="middle" fill="#ddd6fe" fontSize="8">Account Service</text>
+    <text x="460" y="195" textAnchor="middle" fill="#c4b5fd" fontSize="7">Comp: Delete Acct</text>
+
+    {/* Step 4 */}
+    <rect x="560" y="140" width="140" height="60" rx="6" fill="#ec4899" stroke="#f472b6" strokeWidth="2"/>
+    <text x="630" y="165" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">4. Issue Card</text>
+    <text x="630" y="180" textAnchor="middle" fill="#fbcfe8" fontSize="8">Card Service</text>
+    <text x="630" y="195" textAnchor="middle" fill="#f9a8d4" fontSize="7">Comp: Cancel Card</text>
+
+    {/* Forward arrows */}
+    <line x1="190" y1="170" x2="215" y2="170" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#sagaArrow)"/>
+    <line x1="360" y1="170" x2="385" y2="170" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#sagaArrow)"/>
+    <line x1="530" y1="170" x2="555" y2="170" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#sagaArrow)"/>
+
+    {/* Compensating transaction arrow */}
+    <path d="M 630 205 L 630 240 L 120 240 L 120 205" stroke="#ef4444" strokeWidth="2" fill="none" strokeDasharray="5,5" markerEnd="url(#compensateArrow)"/>
+    <text x="400" y="255" textAnchor="middle" fill="#ef4444" fontSize="9">On Failure: Execute Compensating Transactions</text>
+
+    {/* Orchestrator connections */}
+    <line x1="350" y1="100" x2="120" y2="135" stroke="#f59e0b" strokeWidth="1" strokeDasharray="3,3"/>
+    <line x1="380" y1="100" x2="290" y2="135" stroke="#f59e0b" strokeWidth="1" strokeDasharray="3,3"/>
+    <line x1="420" y1="100" x2="460" y2="135" stroke="#f59e0b" strokeWidth="1" strokeDasharray="3,3"/>
+    <line x1="450" y1="100" x2="630" y2="135" stroke="#f59e0b" strokeWidth="1" strokeDasharray="3,3"/>
+  </svg>
+)
+
+const DatabaseDiagram = () => (
+  <svg viewBox="0 0 800 320" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">8 Database Technologies - Polyglot Persistence</text>
+
+    {/* Write Side DBs */}
+    <rect x="30" y="50" width="360" height="120" rx="8" fill="rgba(34, 197, 94, 0.1)" stroke="#22c55e" strokeWidth="2" strokeDasharray="5,5"/>
+    <text x="210" y="75" textAnchor="middle" fill="#22c55e" fontSize="11" fontWeight="bold">WRITE SIDE (4 Databases)</text>
+
+    <rect x="45" y="90" width="80" height="65" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="85" y="110" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">MongoDB</text>
+    <text x="85" y="123" textAnchor="middle" fill="#bbf7d0" fontSize="7">Transactions</text>
+    <text x="85" y="145" textAnchor="middle" fill="#86efac" fontSize="7">5 Shards</text>
+
+    <rect x="135" y="90" width="80" height="65" rx="6" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="175" y="110" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">PostgreSQL</text>
+    <text x="175" y="123" textAnchor="middle" fill="#bfdbfe" fontSize="7">Accounts</text>
+    <text x="175" y="145" textAnchor="middle" fill="#93c5fd" fontSize="7">1P + 2R</text>
+
+    <rect x="225" y="90" width="80" height="65" rx="6" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="265" y="110" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Event Store</text>
+    <text x="265" y="123" textAnchor="middle" fill="#ddd6fe" fontSize="7">PostgreSQL</text>
+    <text x="265" y="145" textAnchor="middle" fill="#c4b5fd" fontSize="7">Append-only</text>
+
+    <rect x="315" y="90" width="65" height="65" rx="6" fill="#ef4444" stroke="#f87171" strokeWidth="2"/>
+    <text x="347" y="110" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Redis</text>
+    <text x="347" y="123" textAnchor="middle" fill="#fecaca" fontSize="7">Idempotency</text>
+    <text x="347" y="145" textAnchor="middle" fill="#fca5a5" fontSize="7">24h TTL</text>
+
+    {/* Read Side DBs */}
+    <rect x="410" y="50" width="360" height="120" rx="8" fill="rgba(236, 72, 153, 0.1)" stroke="#ec4899" strokeWidth="2" strokeDasharray="5,5"/>
+    <text x="590" y="75" textAnchor="middle" fill="#ec4899" fontSize="11" fontWeight="bold">READ SIDE (4 Databases)</text>
+
+    <rect x="425" y="90" width="80" height="65" rx="6" fill="#ef4444" stroke="#f87171" strokeWidth="2"/>
+    <text x="465" y="110" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Redis</text>
+    <text x="465" y="123" textAnchor="middle" fill="#fecaca" fontSize="7">Cache</text>
+    <text x="465" y="145" textAnchor="middle" fill="#fca5a5" fontSize="7">92% hit</text>
+
+    <rect x="515" y="90" width="80" height="65" rx="6" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="555" y="110" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Elastic</text>
+    <text x="555" y="123" textAnchor="middle" fill="#fef3c7" fontSize="7">Search</text>
+    <text x="555" y="145" textAnchor="middle" fill="#fde68a" fontSize="7">3 nodes</text>
+
+    <rect x="605" y="90" width="80" height="65" rx="6" fill="#6366f1" stroke="#818cf8" strokeWidth="2"/>
+    <text x="645" y="110" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">InfluxDB</text>
+    <text x="645" y="123" textAnchor="middle" fill="#c7d2fe" fontSize="7">Time-series</text>
+    <text x="645" y="145" textAnchor="middle" fill="#a5b4fc" fontSize="7">90-day</text>
+
+    <rect x="695" y="90" width="65" height="65" rx="6" fill="#06b6d4" stroke="#22d3ee" strokeWidth="2"/>
+    <text x="727" y="110" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Snowflake</text>
+    <text x="727" y="123" textAnchor="middle" fill="#cffafe" fontSize="7">Warehouse</text>
+    <text x="727" y="145" textAnchor="middle" fill="#a5f3fc" fontSize="7">Multi-TB</text>
+
+    {/* Kafka in the middle */}
+    <rect x="320" y="200" width="160" height="50" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="400" y="225" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Apache Kafka</text>
+    <text x="400" y="242" textAnchor="middle" fill="#fef3c7" fontSize="9">Connects Write to Read</text>
+
+    {/* Arrows */}
+    <path d="M 210 175 L 210 210 L 315 220" stroke="#f59e0b" strokeWidth="2" fill="none"/>
+    <path d="M 485 220 L 590 210 L 590 175" stroke="#f59e0b" strokeWidth="2" fill="none"/>
+
+    {/* Legend */}
+    <text x="400" y="290" textAnchor="middle" fill="#64748b" fontSize="9">Eventual Consistency: 5-15 min lag between Write and Read sides</text>
+  </svg>
+)
+
+const FlowDiagram = () => (
+  <svg viewBox="0 0 800 280" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="flowArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#8b5cf6" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Transaction Flow - End to End</text>
+
+    {/* Step 1: Client */}
+    <rect x="30" y="60" width="100" height="60" rx="6" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="80" y="85" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">1. Client</text>
+    <text x="80" y="100" textAnchor="middle" fill="#bfdbfe" fontSize="8">POST /txn</text>
+    <text x="80" y="112" textAnchor="middle" fill="#93c5fd" fontSize="7">HTTPS</text>
+
+    {/* Step 2: Gateway */}
+    <rect x="150" y="60" width="100" height="60" rx="6" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="200" y="85" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">2. Gateway</text>
+    <text x="200" y="100" textAnchor="middle" fill="#ddd6fe" fontSize="8">Auth + Rate</text>
+    <text x="200" y="112" textAnchor="middle" fill="#c4b5fd" fontSize="7">JWT Valid</text>
+
+    {/* Step 3: Command */}
+    <rect x="270" y="60" width="100" height="60" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="320" y="85" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">3. Command</text>
+    <text x="320" y="100" textAnchor="middle" fill="#bbf7d0" fontSize="8">Validate</text>
+    <text x="320" y="112" textAnchor="middle" fill="#86efac" fontSize="7">Idempotent</text>
+
+    {/* Step 4: Fraud */}
+    <rect x="390" y="60" width="100" height="60" rx="6" fill="#ef4444" stroke="#f87171" strokeWidth="2"/>
+    <text x="440" y="85" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">4. Fraud ML</text>
+    <text x="440" y="100" textAnchor="middle" fill="#fecaca" fontSize="8">XGBoost</text>
+    <text x="440" y="112" textAnchor="middle" fill="#fca5a5" fontSize="7">&lt;100ms</text>
+
+    {/* Step 5: Write */}
+    <rect x="510" y="60" width="100" height="60" rx="6" fill="#6366f1" stroke="#818cf8" strokeWidth="2"/>
+    <text x="560" y="85" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">5. Write</text>
+    <text x="560" y="100" textAnchor="middle" fill="#c7d2fe" fontSize="8">MongoDB</text>
+    <text x="560" y="112" textAnchor="middle" fill="#a5b4fc" fontSize="7">Event Store</text>
+
+    {/* Step 6: Kafka */}
+    <rect x="630" y="60" width="100" height="60" rx="6" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="680" y="85" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">6. Kafka</text>
+    <text x="680" y="100" textAnchor="middle" fill="#fef3c7" fontSize="8">Publish</text>
+    <text x="680" y="112" textAnchor="middle" fill="#fde68a" fontSize="7">Event</text>
+
+    {/* Arrows */}
+    <line x1="130" y1="90" x2="145" y2="90" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#flowArrow)"/>
+    <line x1="250" y1="90" x2="265" y2="90" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#flowArrow)"/>
+    <line x1="370" y1="90" x2="385" y2="90" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#flowArrow)"/>
+    <line x1="490" y1="90" x2="505" y2="90" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#flowArrow)"/>
+    <line x1="610" y1="90" x2="625" y2="90" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#flowArrow)"/>
+
+    {/* Async consumers */}
+    <rect x="200" y="170" width="120" height="50" rx="6" fill="#ec4899" stroke="#f472b6" strokeWidth="2"/>
+    <text x="260" y="195" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Projections</text>
+    <text x="260" y="210" textAnchor="middle" fill="#fbcfe8" fontSize="8">Update Read DBs</text>
+
+    <rect x="340" y="170" width="120" height="50" rx="6" fill="#06b6d4" stroke="#22d3ee" strokeWidth="2"/>
+    <text x="400" y="195" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Notifications</text>
+    <text x="400" y="210" textAnchor="middle" fill="#cffafe" fontSize="8">Email/SMS/Push</text>
+
+    <rect x="480" y="170" width="120" height="50" rx="6" fill="#10b981" stroke="#34d399" strokeWidth="2"/>
+    <text x="540" y="195" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Analytics</text>
+    <text x="540" y="210" textAnchor="middle" fill="#a7f3d0" fontSize="8">InfluxDB Stats</text>
+
+    {/* Kafka to consumers */}
+    <path d="M 680 125 L 680 145 L 260 145 L 260 165" stroke="#f59e0b" strokeWidth="1.5" fill="none" strokeDasharray="4,4"/>
+    <path d="M 680 145 L 400 145 L 400 165" stroke="#f59e0b" strokeWidth="1.5" fill="none" strokeDasharray="4,4"/>
+    <path d="M 680 145 L 540 145 L 540 165" stroke="#f59e0b" strokeWidth="1.5" fill="none" strokeDasharray="4,4"/>
+
+    <text x="400" y="255" textAnchor="middle" fill="#64748b" fontSize="9">Async Processing via Kafka Consumer Groups</text>
+  </svg>
+)
+
+const GatewayDiagram = () => (
+  <svg viewBox="0 0 800 250" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">API Gateway - Security Layer</text>
+
+    {/* Gateway components */}
+    <rect x="50" y="60" width="700" height="150" rx="12" fill="rgba(139, 92, 246, 0.1)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="400" y="85" textAnchor="middle" fill="#8b5cf6" fontSize="12" fontWeight="bold">Kong API Gateway</text>
+
+    <rect x="80" y="110" width="120" height="70" rx="6" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="140" y="135" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Load Balancer</text>
+    <text x="140" y="150" textAnchor="middle" fill="#bfdbfe" fontSize="8">NGINX/ALB</text>
+    <text x="140" y="165" textAnchor="middle" fill="#93c5fd" fontSize="7">30M req/day</text>
+
+    <rect x="220" y="110" width="120" height="70" rx="6" fill="#ef4444" stroke="#f87171" strokeWidth="2"/>
+    <text x="280" y="135" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">WAF</text>
+    <text x="280" y="150" textAnchor="middle" fill="#fecaca" fontSize="8">SQL/XSS/DDoS</text>
+    <text x="280" y="165" textAnchor="middle" fill="#fca5a5" fontSize="7">Layer 7</text>
+
+    <rect x="360" y="110" width="120" height="70" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="420" y="135" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Auth Service</text>
+    <text x="420" y="150" textAnchor="middle" fill="#bbf7d0" fontSize="8">OAuth 2.0 + JWT</text>
+    <text x="420" y="165" textAnchor="middle" fill="#86efac" fontSize="7">15min expiry</text>
+
+    <rect x="500" y="110" width="120" height="70" rx="6" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="560" y="135" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Rate Limiter</text>
+    <text x="560" y="150" textAnchor="middle" fill="#fef3c7" fontSize="8">Token Bucket</text>
+    <text x="560" y="165" textAnchor="middle" fill="#fde68a" fontSize="7">1000/min</text>
+
+    <rect x="640" y="110" width="90" height="70" rx="6" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="685" y="135" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Router</text>
+    <text x="685" y="150" textAnchor="middle" fill="#ddd6fe" fontSize="8">Service</text>
+    <text x="685" y="165" textAnchor="middle" fill="#c4b5fd" fontSize="7">Discovery</text>
+  </svg>
+)
+
+const ObservabilityDiagram = () => (
+  <svg viewBox="0 0 800 220" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Observability Stack - Monitoring & Tracing</text>
+
+    {/* Components */}
+    <rect x="50" y="60" width="160" height="80" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="130" y="90" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Prometheus</text>
+    <text x="130" y="108" textAnchor="middle" fill="#fef3c7" fontSize="9">Metrics Collection</text>
+    <text x="130" y="125" textAnchor="middle" fill="#fde68a" fontSize="8">15s scrape interval</text>
+
+    <rect x="230" y="60" width="160" height="80" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="310" y="90" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Grafana</text>
+    <text x="310" y="108" textAnchor="middle" fill="#bbf7d0" fontSize="9">Visualization</text>
+    <text x="310" y="125" textAnchor="middle" fill="#86efac" fontSize="8">Real-time Dashboards</text>
+
+    <rect x="410" y="60" width="160" height="80" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="490" y="90" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">ELK Stack</text>
+    <text x="490" y="108" textAnchor="middle" fill="#bfdbfe" fontSize="9">Centralized Logging</text>
+    <text x="490" y="125" textAnchor="middle" fill="#93c5fd" fontSize="8">100GB logs/day</text>
+
+    <rect x="590" y="60" width="160" height="80" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="670" y="90" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Jaeger</text>
+    <text x="670" y="108" textAnchor="middle" fill="#ddd6fe" fontSize="9">Distributed Tracing</text>
+    <text x="670" y="125" textAnchor="middle" fill="#c4b5fd" fontSize="8">End-to-end traces</text>
+
+    {/* Alerts */}
+    <rect x="200" y="160" width="400" height="40" rx="6" fill="rgba(239, 68, 68, 0.1)" stroke="#ef4444" strokeWidth="1"/>
+    <text x="400" y="185" textAnchor="middle" fill="#f87171" fontSize="10">Alerts: Latency &gt;500ms | Error Rate &gt;1% | CPU &gt;80% | PagerDuty Integration</text>
+  </svg>
+)
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
+
+function CreditCardPortal3({ onBack, breadcrumb }) {
+  const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
+  const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+
+  const concepts = [
     {
-      id: 'client',
-      name: '1. Client Applications Layer',
-      color: 'from-blue-500 to-blue-600',
-      icon: Globe,
-      pattern: 'BFF Pattern (Backend for Frontend)',
-      components: [
-        'Web Application (React/Angular)',
-        'Mobile Apps (iOS/Android - Native)',
-        '3rd Party Integration APIs',
-        'Admin Dashboard'
-      ],
-      keyPoints: [
-        'BFF Pattern: Separate backend for web vs mobile (different data needs)',
-        'Web: Full feature set, desktop optimized',
-        'Mobile: Optimized payload, offline-first, biometric auth',
-        '3rd Party: OAuth 2.0, rate-limited APIs'
+      id: 'architecture',
+      name: 'System Architecture',
+      icon: '🏗️',
+      color: '#8b5cf6',
+      description: '9-layer microservices architecture handling 10M users, 30M transactions/day with 99.9% uptime SLA.',
+      diagram: ArchitectureOverviewDiagram,
+      details: [
+        {
+          name: 'Architecture Layers',
+          diagram: ArchitectureOverviewDiagram,
+          explanation: 'The Credit Card Portal uses a 9-layer architecture: (1) Client Apps (Web/Mobile), (2) API Gateway (Kong), (3) Core Services (Card, Account, Payment), (4) Transaction Services (Processor, Fraud Detection), (5) Analytics Services (Data Pipeline, Reporting), (6) Event Bus (Kafka), (7) Data Layer (8 databases), (8) Observability (Prometheus, Grafana, Jaeger), (9) External Services (Payment Gateway, Credit Bureau). Each layer has clear responsibilities with well-defined interfaces between them.',
+          codeExample: `// Service Layer Example - Account Service
+@RestController
+@RequestMapping("/api/accounts")
+public class AccountController {
+
+    private final AccountService accountService;
+    private final EventPublisher eventPublisher;
+
+    @PostMapping
+    public ResponseEntity<Account> createAccount(
+            @RequestBody @Valid CreateAccountRequest request,
+            @RequestHeader("Idempotency-Key") String idempotencyKey) {
+
+        // Check idempotency to prevent duplicate account creation
+        if (idempotencyStore.exists(idempotencyKey)) {
+            return ResponseEntity.ok(idempotencyStore.get(idempotencyKey));
+        }
+
+        Account account = accountService.create(request);
+
+        // Publish event to Kafka for CQRS sync
+        eventPublisher.publish(new AccountCreatedEvent(account));
+
+        // Store for idempotency (24h TTL)
+        idempotencyStore.put(idempotencyKey, account, Duration.ofHours(24));
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(account);
+    }
+}`
+        },
+        {
+          name: 'Capacity Planning',
+          explanation: 'The system is designed to handle: 10M active users, 30M transactions/day (347 TPS avg, 1735 TPS peak), 10M account views/day (116 views/sec, 1160 peak). Storage: 30GB/day transactions (10.95TB/year). Kafka handles 60GB/day (694KB/sec). Redis caches 10% hot data (10GB for 1M active users). MongoDB uses 5 shards with 2M users per shard. PostgreSQL uses 1 primary + 2 read replicas for account data.',
+          codeExample: `// Capacity Calculations for 10M Users
+
+// Transactions
+transactions_per_day = 10M users × 3 txn/user = 30M txn/day
+tps_average = 30M / 86,400 sec = 347 TPS
+tps_peak = 347 × 5 = 1,735 TPS (5x peak factor)
+
+// Storage (Transactions)
+storage_per_day = 30M txn × 1KB = 30GB/day
+storage_per_year = 30GB × 365 = 10.95TB/year
+storage_per_shard = 10.95TB / 5 shards = 2.19TB/shard/year
+
+// MongoDB Sharding
+users_per_shard = 10M / 5 = 2M users/shard
+writes_per_shard = 30M / 5 = 6M writes/day/shard
+
+// Redis Cache Memory
+active_users = 10M × 10% = 1M users (hot data)
+cache_memory = 1M × 10KB = 10GB
+cluster_size = 3 masters × 8GB = 24GB (2.4x overhead)
+
+// Kafka Throughput
+events_per_day = 30M events × 2KB = 60GB/day
+throughput = 60GB / 86,400 sec = 694KB/sec
+cluster_capacity = 3 brokers × 100MB/sec = 300MB/sec ✓`
+        },
+        {
+          name: 'Design Patterns',
+          explanation: 'The architecture implements several key patterns: CQRS (Command Query Responsibility Segregation) for read/write separation, Event Sourcing for immutable audit logs, Saga Pattern for distributed transactions, Circuit Breaker for fault tolerance, Database-per-Service for data isolation, Cache-Aside for performance, and API Gateway for centralized security. Each pattern addresses specific challenges in distributed systems.',
+          codeExample: `// Key Design Patterns Summary
+
+1. CQRS Pattern
+   - Write: POST/PUT/DELETE → Command Services → Write DBs
+   - Read: GET → Query Services → Read DBs (cached)
+   - Sync: Kafka events update read models (5-15 min lag)
+
+2. Event Sourcing
+   - Every state change stored as immutable event
+   - Event Store: PostgreSQL append-only table
+   - Replay capability for debugging/recovery
+
+3. Saga Pattern (Orchestration)
+   Step 1: Validate Application → App Service
+   Step 2: Credit Check → Bureau API (Circuit Breaker)
+   Step 3: Create Account → Account Service
+   Step 4: Issue Card → Card Service
+   On Failure: Execute compensating transactions
+
+4. Circuit Breaker (Resilience4j)
+   - Closed: Normal operation
+   - Open: After 5 failures in 10 seconds
+   - Half-Open: Allow 1 request to test recovery
+   - Fallback: Queue for manual review
+
+5. Cache-Aside Pattern
+   Read: Check Redis → If miss, query DB → Cache result
+   Write: Update DB → Invalidate cache
+   TTL: 5 min for balances, 1 min for transactions`
+        }
+      ]
+    },
+    {
+      id: 'cqrs',
+      name: 'CQRS Pattern',
+      icon: '⚡',
+      color: '#22c55e',
+      description: 'Command Query Responsibility Segregation separates read and write operations for optimal performance and scalability.',
+      diagram: CQRSDiagram,
+      details: [
+        {
+          name: 'Command Side (Write)',
+          diagram: CQRSDiagram,
+          explanation: 'The Command Side handles all write operations (POST, PUT, DELETE). Command Services validate requests, check idempotency keys in Redis, execute business logic, write to optimized databases (PostgreSQL for ACID, MongoDB for high throughput), and publish events to Kafka. The write path is optimized for consistency and durability with normalized schemas. Key metrics: 347 TPS average, <50ms write latency (p95).',
+          codeExample: `// Command Side - Payment Processing
+@Service
+public class PaymentCommandService {
+
+    private final RedisTemplate<String, String> redis;
+    private final AccountRepository accountRepo;
+    private final EventStore eventStore;
+    private final KafkaTemplate<String, PaymentEvent> kafka;
+
+    @Transactional
+    public Payment processPayment(PaymentCommand cmd) {
+        // 1. Check idempotency (prevent duplicate charges)
+        String key = "idempotency:" + cmd.getIdempotencyKey();
+        if (redis.hasKey(key)) {
+            return redis.opsForValue().get(key);
+        }
+
+        // 2. Validate and execute
+        Account account = accountRepo.findById(cmd.getAccountId());
+        Payment payment = account.processPayment(cmd.getAmount());
+
+        // 3. Store event (Event Sourcing)
+        PaymentProcessedEvent event = new PaymentProcessedEvent(
+            payment.getId(),
+            cmd.getAccountId(),
+            cmd.getAmount(),
+            Instant.now()
+        );
+        eventStore.append(event);  // Immutable log
+
+        // 4. Publish to Kafka (async read model sync)
+        kafka.send("payments", event);
+
+        // 5. Store for idempotency (24h TTL)
+        redis.opsForValue().set(key, payment, Duration.ofHours(24));
+
+        return payment;
+    }
+}`
+        },
+        {
+          name: 'Query Side (Read)',
+          explanation: 'The Query Side handles all read operations (GET). Query Services check Redis cache first (<1ms), then query denormalized read databases (Elasticsearch for search, InfluxDB for time-series, PostgreSQL replicas). The read path is optimized for speed with 92% cache hit rate. Read models are updated asynchronously via Kafka projections with 5-15 minute eventual consistency lag. Key metrics: 10M reads/day, <10ms query latency (p99).',
+          codeExample: `// Query Side - Account Balance Query
+@Service
+public class AccountQueryService {
+
+    private final RedisTemplate<String, AccountView> cache;
+    private final AccountReadRepository readRepo;
+
+    public AccountView getAccountBalance(String accountId) {
+        // 1. Check cache first (92% hit rate, <1ms)
+        String cacheKey = "account:" + accountId;
+        AccountView cached = cache.opsForValue().get(cacheKey);
+        if (cached != null) {
+            return cached;  // Cache hit!
+        }
+
+        // 2. Query read replica (cache miss)
+        AccountView account = readRepo.findById(accountId);
+
+        // 3. Cache for next request (5 min TTL)
+        cache.opsForValue().set(cacheKey, account, Duration.ofMinutes(5));
+
+        return account;
+    }
+
+    // Kafka consumer updates cache when write events arrive
+    @KafkaListener(topics = "account-events")
+    public void handleAccountEvent(AccountEvent event) {
+        // Invalidate cache to ensure consistency
+        String cacheKey = "account:" + event.getAccountId();
+        cache.delete(cacheKey);
+
+        // Update read model (Elasticsearch, etc.)
+        AccountView view = AccountView.fromEvent(event);
+        readRepo.save(view);
+    }
+}`
+        },
+        {
+          name: 'Eventual Consistency',
+          explanation: 'CQRS introduces eventual consistency between write and read models. Writes go to the Command Side immediately, while the Query Side updates asynchronously via Kafka (5-15 min lag). This trade-off enables independent scaling: add read replicas without affecting write throughput. For critical reads (balance checks), we can query the write database directly. The system clearly communicates data freshness to users.',
+          codeExample: `// Handling Eventual Consistency
+
+// Trade-offs:
+// - Write Side: Strong consistency (ACID)
+// - Read Side: Eventual consistency (5-15 min lag)
+
+// Strategy 1: Query write DB for critical data
+@GetMapping("/accounts/{id}/balance")
+public Balance getBalance(@PathVariable String accountId,
+                          @RequestParam(defaultValue = "false") boolean realtime) {
+    if (realtime) {
+        // Query write DB directly (slower but consistent)
+        return writeRepo.getBalance(accountId);
+    }
+    // Query read model (faster but may be stale)
+    return readRepo.getBalance(accountId);
+}
+
+// Strategy 2: Include freshness indicator
+@GetMapping("/accounts/{id}/transactions")
+public TransactionResponse getTransactions(@PathVariable String accountId) {
+    TransactionView view = readRepo.findTransactions(accountId);
+    return TransactionResponse.builder()
+        .transactions(view.getTransactions())
+        .lastUpdated(view.getLastUpdated())  // Show data age
+        .isStale(view.isOlderThan(Duration.ofMinutes(5)))
+        .build();
+}
+
+// Strategy 3: Optimistic UI with confirmation
+// Client shows pending transaction immediately
+// Background poll confirms when read model catches up`
+        }
+      ]
+    },
+    {
+      id: 'event-sourcing',
+      name: 'Event Sourcing',
+      icon: '📝',
+      color: '#f59e0b',
+      description: 'Immutable event log storing all state changes for audit trail, debugging, and compliance (PCI DSS).',
+      diagram: EventSourcingDiagram,
+      details: [
+        {
+          name: 'Event Store',
+          diagram: EventSourcingDiagram,
+          explanation: 'Every state change is stored as an immutable event in PostgreSQL. Events are never updated or deleted - only appended. The Event Store provides: complete audit trail for PCI DSS compliance, ability to replay events to rebuild state, temporal queries (state at any point in time), and debugging support. Events are partitioned by timestamp and indexed by eventId/aggregateId. Stores 30M events/day.',
+          codeExample: `// Event Store Schema (PostgreSQL)
+CREATE TABLE events (
+    event_id        UUID PRIMARY KEY,
+    aggregate_id    UUID NOT NULL,
+    aggregate_type  VARCHAR(100) NOT NULL,
+    event_type      VARCHAR(100) NOT NULL,
+    event_data      JSONB NOT NULL,
+    metadata        JSONB,
+    created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    version         BIGINT NOT NULL
+) PARTITION BY RANGE (created_at);
+
+-- Partitioned by month for performance
+CREATE TABLE events_2024_01 PARTITION OF events
+    FOR VALUES FROM ('2024-01-01') TO ('2024-02-01');
+
+-- Indexes for query patterns
+CREATE INDEX idx_events_aggregate ON events (aggregate_id, version);
+CREATE INDEX idx_events_type ON events (event_type, created_at);
+
+-- NEVER UPDATE OR DELETE - append only!
+-- Old partitions archived to S3 for compliance
+
+// Event Types
+ApplicationCreated { applicationId, userId, creditScore, timestamp }
+CreditCheckPassed  { applicationId, bureauId, score, timestamp }
+AccountCreated     { accountId, userId, creditLimit, timestamp }
+TransactionPosted  { txnId, accountId, amount, merchant, timestamp }
+PaymentProcessed   { paymentId, accountId, amount, timestamp }
+FraudAlertRaised   { alertId, txnId, riskScore, timestamp }`
+        },
+        {
+          name: 'Event Replay',
+          explanation: 'Events can be replayed to rebuild application state, recover from corruption, or create new projections. Replay is used for: disaster recovery (rebuild read models from events), debugging (see exact sequence of state changes), new feature development (backfill new read models with historical data), and compliance audits (prove transaction history). The process is idempotent - replaying the same events produces the same state.',
+          codeExample: `// Event Replay for Recovery
+@Service
+public class EventReplayService {
+
+    private final EventStore eventStore;
+    private final ProjectionRegistry projections;
+
+    // Rebuild a specific aggregate from events
+    public Account rebuildAccount(String accountId) {
+        List<DomainEvent> events = eventStore.getEvents(accountId);
+
+        Account account = new Account();
+        for (DomainEvent event : events) {
+            account.apply(event);  // Replay each event
+        }
+        return account;  // Reconstructed state
+    }
+
+    // Rebuild entire read model from Event Store
+    public void rebuildReadModel(String projectionName) {
+        Projection projection = projections.get(projectionName);
+        projection.reset();  // Clear existing data
+
+        // Stream all events and replay
+        eventStore.streamAll()
+            .filter(projection::handles)
+            .forEach(event -> {
+                projection.project(event);
+                checkpoint(event.getEventId());
+            });
+    }
+
+    // Create new projection from historical events
+    public void backfillNewProjection(String projectionName,
+                                       Instant fromDate) {
+        Projection projection = projections.get(projectionName);
+
+        eventStore.streamFrom(fromDate)
+            .filter(projection::handles)
+            .forEach(projection::project);
+    }
+}`
+        },
+        {
+          name: 'Kafka Integration',
+          explanation: 'Events flow from the Event Store to Apache Kafka for distribution to multiple consumers. Kafka provides: publish-subscribe messaging (30M events/day), consumer groups for parallel processing, at-least-once delivery guarantees, and message ordering within partitions. Topics include ApplicationCreated, TransactionPosted, PaymentProcessed, FraudAlert, and BalanceUpdated. Consumers include Data Pipeline, Notification Service, and Analytics.',
+          codeExample: `// Kafka Event Publishing
+@Component
+public class EventPublisher {
+
+    private final KafkaTemplate<String, DomainEvent> kafka;
+    private final EventStore eventStore;
+
+    @TransactionalEventListener
+    public void publishEvent(DomainEvent event) {
+        // 1. Store in Event Store first (source of truth)
+        eventStore.append(event);
+
+        // 2. Publish to Kafka for distribution
+        String topic = event.getClass().getSimpleName();
+        String key = event.getAggregateId();  // Partition key
+
+        kafka.send(topic, key, event)
+            .whenComplete((result, ex) -> {
+                if (ex != null) {
+                    // Kafka publish failed - will retry
+                    log.error("Failed to publish event", ex);
+                    retryQueue.add(event);
+                }
+            });
+    }
+}
+
+// Consumer Groups (parallel processing)
+// Group: data-pipeline (updates Elasticsearch, InfluxDB)
+// Group: notifications (sends Email, SMS, Push)
+// Group: analytics (aggregates for reports)
+
+@KafkaListener(
+    topics = "TransactionPosted",
+    groupId = "data-pipeline"
+)
+public void handleTransaction(TransactionPostedEvent event) {
+    // Update Elasticsearch index
+    elasticClient.index(event);
+
+    // Update InfluxDB metrics
+    influxClient.write(event.toMetric());
+
+    // Invalidate Redis cache
+    redis.delete("account:" + event.getAccountId());
+}`
+        }
+      ]
+    },
+    {
+      id: 'saga',
+      name: 'Saga Pattern',
+      icon: '🔄',
+      color: '#ec4899',
+      description: 'Distributed transaction management using orchestration with compensating transactions for rollback.',
+      diagram: SagaDiagram,
+      details: [
+        {
+          name: 'Saga Orchestration',
+          diagram: SagaDiagram,
+          explanation: 'The Saga pattern manages distributed transactions across microservices without 2-phase commit. An Orchestrator coordinates the saga steps, executing each local transaction in sequence. If any step fails, the Orchestrator triggers compensating transactions to undo changes. This maintains data consistency while allowing each service to have its own database. Used for card applications spanning multiple services.',
+          codeExample: `// Saga Orchestrator - Card Application
+@Component
+public class CardApplicationSaga {
+
+    private final ApplicationService appService;
+    private final CreditBureauClient bureauClient;
+    private final AccountService accountService;
+    private final CardService cardService;
+
+    @Transactional
+    public SagaResult execute(ApplicationRequest request) {
+        SagaContext context = new SagaContext();
+
+        try {
+            // Step 1: Validate Application
+            Application app = appService.validate(request);
+            context.setApplication(app);
+
+            // Step 2: Credit Check (external API)
+            CreditReport report = bureauClient.check(request.getSsn());
+            if (report.getScore() < 650) {
+                throw new CreditCheckFailedException();
+            }
+            context.setCreditReport(report);
+
+            // Step 3: Create Account
+            Account account = accountService.create(app, report);
+            context.setAccount(account);
+
+            // Step 4: Issue Card
+            Card card = cardService.issue(account);
+            context.setCard(card);
+
+            return SagaResult.success(context);
+
+        } catch (Exception e) {
+            // Execute compensating transactions in reverse order
+            compensate(context);
+            return SagaResult.failure(e.getMessage());
+        }
+    }
+
+    private void compensate(SagaContext context) {
+        if (context.getCard() != null) {
+            cardService.cancelCard(context.getCard().getId());
+        }
+        if (context.getAccount() != null) {
+            accountService.closeAccount(context.getAccount().getId());
+        }
+        if (context.getCreditReport() != null) {
+            bureauClient.cancelInquiry(context.getCreditReport().getId());
+        }
+        if (context.getApplication() != null) {
+            appService.markInvalid(context.getApplication().getId());
+        }
+    }
+}`
+        },
+        {
+          name: 'Compensating Transactions',
+          explanation: 'Each saga step has a compensating transaction that undoes its effects. Compensations are executed in reverse order when a step fails. They must be idempotent (safe to execute multiple times) since they may be retried. Examples: CreateAccount compensates with DeleteAccount, IssueCard compensates with CancelCard, DebitBalance compensates with CreditBalance.',
+          codeExample: `// Compensating Transaction Examples
+
+// Original: Create Account
+@Transactional
+public Account createAccount(Application app, CreditReport report) {
+    Account account = Account.builder()
+        .userId(app.getUserId())
+        .creditLimit(calculateLimit(report))
+        .status(AccountStatus.ACTIVE)
+        .build();
+    return accountRepository.save(account);
+}
+
+// Compensation: Close Account (idempotent)
+@Transactional
+public void closeAccount(String accountId) {
+    Account account = accountRepository.findById(accountId);
+    if (account != null && account.getStatus() != AccountStatus.CLOSED) {
+        account.setStatus(AccountStatus.CLOSED);
+        account.setClosedAt(Instant.now());
+        account.setCloseReason("SAGA_COMPENSATION");
+        accountRepository.save(account);
+
+        // Publish event for downstream cleanup
+        eventPublisher.publish(new AccountClosedEvent(accountId));
+    }
+    // Idempotent: no error if already closed
+}
+
+// Compensation must handle:
+// 1. Already compensated (idempotent)
+// 2. Partial state (graceful handling)
+// 3. Concurrent compensations (locking)
+// 4. Network failures (retry with backoff)`
+        },
+        {
+          name: 'Circuit Breaker Integration',
+          explanation: 'External service calls (Credit Bureau) use Circuit Breaker pattern for resilience. States: Closed (normal), Open (failing - reject fast), Half-Open (testing recovery). After 5 failures in 10 seconds, circuit opens and requests fail fast with fallback. This prevents cascade failures and allows external services to recover. Implemented with Resilience4j.',
+          codeExample: `// Circuit Breaker for External API Calls
+@Component
+public class CreditBureauClient {
+
+    private final WebClient webClient;
+    private final CircuitBreakerRegistry registry;
+
+    @CircuitBreaker(name = "creditBureau", fallbackMethod = "fallback")
+    @Retry(name = "creditBureau", maxAttempts = 3)
+    @TimeLimiter(name = "creditBureau", timeoutDuration = 3s)
+    public CreditReport check(String ssn) {
+        return webClient.post()
+            .uri("/credit-check")
+            .bodyValue(new CreditCheckRequest(ssn))
+            .retrieve()
+            .bodyToMono(CreditReport.class)
+            .block();
+    }
+
+    // Fallback when circuit is open
+    public CreditReport fallback(String ssn, Exception e) {
+        log.warn("Credit check failed, queueing for manual review", e);
+
+        // Queue for manual review instead of failing
+        manualReviewQueue.add(new ManualReviewRequest(ssn));
+
+        throw new CircuitOpenException("Credit Bureau unavailable");
+    }
+}
+
+// Circuit Breaker Configuration (application.yml)
+resilience4j:
+  circuitbreaker:
+    instances:
+      creditBureau:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 3
+  retry:
+    instances:
+      creditBureau:
+        maxAttempts: 3
+        waitDuration: 500ms
+        exponentialBackoffMultiplier: 2`
+        }
+      ]
+    },
+    {
+      id: 'databases',
+      name: 'Database Architecture',
+      icon: '💾',
+      color: '#6366f1',
+      description: '8 database technologies implementing polyglot persistence optimized for different access patterns.',
+      diagram: DatabaseDiagram,
+      details: [
+        {
+          name: 'Write Side Databases',
+          diagram: DatabaseDiagram,
+          explanation: 'Write databases are optimized for consistency and durability: MongoDB (5 shards, 2M users/shard) for high-throughput transactions, PostgreSQL (1 Primary + 2 Replicas) for ACID account operations, PostgreSQL Event Store for immutable audit logs, and Redis for idempotency keys (24h TTL) and rate limiting. All use normalized schemas with strong consistency guarantees.',
+          codeExample: `// Write Side Database Configuration
+
+// 1. MongoDB (Transactions) - High Write Throughput
+{
+  "cluster": "atlas-cluster",
+  "shards": 5,
+  "shardKey": { "userId": "hashed" },
+  "usersPerShard": "2M",
+  "writeConcern": "majority",
+  "readConcern": "linearizable"
+}
+
+// 2. PostgreSQL (Accounts) - ACID Transactions
+-- Primary for writes, 2 replicas for reads
+CREATE TABLE accounts (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL,
+    balance DECIMAL(15,2) NOT NULL,
+    credit_limit DECIMAL(15,2) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE,
+    updated_at TIMESTAMP WITH TIME ZONE,
+    version BIGINT NOT NULL  -- Optimistic locking
+);
+
+-- Sync replication to 1 replica (consistency)
+-- Async replication to 2nd replica (availability)
+
+// 3. Redis (Idempotency + Rate Limiting)
+// Idempotency: SETEX key value 86400 (24h TTL)
+// Rate Limit: INCR user:rate:123 + EXPIRE 60`
+        },
+        {
+          name: 'Read Side Databases',
+          diagram: DatabaseDiagram,
+          explanation: 'Read databases are optimized for query speed with denormalized data: Redis Cache (92% hit rate, <1ms) for hot data, Elasticsearch (3-node cluster) for full-text search, InfluxDB for real-time time-series metrics (1-sec granularity, 90-day retention), and Snowflake for historical analytics (multi-TB, nightly ETL). Updated asynchronously via Kafka with 5-15 min eventual consistency.',
+          codeExample: `// Read Side Database Configuration
+
+// 1. Redis Cache - Ultra-Fast Reads
+{
+  "cluster": "3 masters + 3 replicas",
+  "hashSlots": 16384,
+  "evictionPolicy": "allkeys-lru",
+  "maxMemory": "24GB",
+  "hitRate": "92%",
+  "latency": "<1ms"
+}
+
+// Cache patterns:
+SET account:{id} {json} EX 300  // 5 min TTL
+SET transactions:{id} {json} EX 60  // 1 min TTL
+
+// 2. Elasticsearch - Full-Text Search
+{
+  "cluster": "3 nodes",
+  "indices": "transactions-{YYYY-MM}",  // Monthly rollover
+  "shardsPerIndex": 5,
+  "replicasPerShard": 1,
+  "refreshInterval": "5s"
+}
+
+// 3. InfluxDB - Time-Series Metrics
+CREATE DATABASE metrics
+  WITH DURATION 90d  // 90-day retention
+  REPLICATION 2
+  SHARD DURATION 7d  // Weekly shards
+
+// 4. Snowflake - Historical Analytics
+-- Nightly batch ETL from MongoDB
+-- Multi-TB storage, 5+ year retention
+-- Separate compute warehouses for BI`
+        },
+        {
+          name: 'Kafka Event Bus',
+          explanation: 'Apache Kafka connects write and read databases as the event bus. Configuration: 3-node cluster, replication factor 3, 10 partitions per topic, 30M events/day. Topics: ApplicationCreated, TransactionPosted, PaymentProcessed, FraudAlert, BalanceUpdated. Consumer groups enable parallel processing: data-pipeline (updates read DBs), notifications (sends alerts), analytics (aggregates metrics).',
+          codeExample: `// Kafka Configuration
+
+// Cluster Setup
+brokers: 3
+replicationFactor: 3
+minInSyncReplicas: 2
+partitions: 10 per topic
+
+// Topics and Throughput
+topics:
+  ApplicationCreated: 100K events/day
+  TransactionPosted: 30M events/day
+  PaymentProcessed: 5M events/day
+  FraudAlert: 10K events/day
+  BalanceUpdated: 30M events/day
+
+// Consumer Groups
+consumer-groups:
+  data-pipeline:
+    topics: [TransactionPosted, PaymentProcessed, BalanceUpdated]
+    consumers: 10
+    action: Update Elasticsearch, InfluxDB, Redis
+    lag: 5-15 minutes (acceptable)
+
+  notifications:
+    topics: [TransactionPosted, FraudAlert]
+    consumers: 5
+    action: Send Email, SMS, Push
+    lag: <1 minute (critical for fraud)
+
+  analytics:
+    topics: [TransactionPosted, PaymentProcessed]
+    consumers: 3
+    action: Aggregate for InfluxDB dashboards
+    lag: 15 minutes (acceptable)
+
+// Schema Registry (Avro)
+schemas:
+  TransactionPosted:
+    fields: [txnId, accountId, amount, merchant, timestamp]
+    compatibility: BACKWARD`
+        }
+      ]
+    },
+    {
+      id: 'flows',
+      name: 'Feature Flows',
+      icon: '🔀',
+      color: '#3b82f6',
+      description: 'End-to-end request flows for card applications, transactions, payments, and analytics.',
+      diagram: FlowDiagram,
+      details: [
+        {
+          name: 'Transaction Flow',
+          diagram: FlowDiagram,
+          explanation: 'Transaction flow (<100ms): (1) Client POST → (2) API Gateway validates JWT, checks rate limit → (3) Command Service validates, checks idempotency → (4) Fraud Detection ML scores (XGBoost, <50ms) → (5) Write to MongoDB (transaction) and Event Store → (6) Publish to Kafka → (7) Async: Projections update Elasticsearch/Redis, Notifications send alerts, Analytics update InfluxDB.',
+          codeExample: `// Transaction Flow - Step by Step
+
+// 1. Client Request
+POST /api/transactions
+Authorization: Bearer <jwt>
+Idempotency-Key: uuid-123
+{
+  "accountId": "acc-456",
+  "amount": 2450.00,
+  "merchantId": "airline-789",
+  "category": "travel"
+}
+
+// 2. API Gateway (Kong)
+- Validate JWT (15 min expiry)
+- Check rate limit (1000 req/min)
+- Log request to ELK
+- Route to Transaction Service
+
+// 3. Command Service
+- Check idempotency key in Redis
+- Validate account exists and active
+- Check sufficient credit limit
+
+// 4. Fraud Detection (XGBoost ML)
+{
+  "riskScore": 12,  // 0-100
+  "decision": "APPROVE",
+  "features": {
+    "amountDeviation": 1.2,
+    "locationRisk": "LOW",
+    "merchantRisk": "LOW",
+    "velocityScore": 0.3
+  },
+  "latency": "47ms"
+}
+
+// 5. Write to Databases
+MongoDB: Insert transaction document
+Event Store: Append TransactionPosted event
+
+// 6. Publish to Kafka
+Topic: TransactionPosted
+Partition: hash(accountId) % 10
+
+// 7. Async Consumers
+- Elasticsearch: Index for search
+- Redis: Invalidate account cache
+- Notifications: SMS confirmation
+- InfluxDB: Update spending metrics`
+        },
+        {
+          name: 'Application Flow',
+          explanation: 'Card application flow (5-10 seconds) uses Saga pattern: (1) Client submits application → (2) Gateway validates, rate limits (10 apps/day) → (3) Saga Orchestrator coordinates → (4) Step 1: Validate application data → (5) Step 2: Call Credit Bureau API (Circuit Breaker, 3s timeout) → (6) Step 3: Create account in PostgreSQL → (7) Step 4: Issue card → (8) Publish ApplicationCreated to Kafka → (9) Send confirmation email.',
+          codeExample: `// Card Application Saga Flow
+
+// Timeline: 5-10 seconds total
+// Pattern: Saga Orchestration with Compensating Transactions
+
+Step 1: Validate Application (50ms)
+  Service: Application Service
+  Action: Validate personal info, check duplicates
+  Compensate: Mark application as invalid
+
+Step 2: Credit Check (2-3s)
+  Service: Credit Bureau API (external)
+  Action: Pull credit report, get score
+  Circuit Breaker: 3s timeout, 3 retries
+  Fallback: Queue for manual review
+  Compensate: Cancel credit inquiry
+
+Step 3: Create Account (100ms)
+  Service: Account Service
+  Action: Create account in PostgreSQL
+  Credit Limit: Based on credit score
+  Compensate: Close and delete account
+
+Step 4: Issue Card (500ms)
+  Service: Card Service
+  Action: Generate card number, set PIN
+  Compensate: Cancel card issuance
+
+// On Success:
+Publish: ApplicationCreated event to Kafka
+Email: Send approval confirmation
+SMS: Send card arrival ETA
+
+// On Failure (any step):
+Execute compensations in reverse order
+Email: Send rejection with reason
+Log: Full saga trace for debugging`
+        },
+        {
+          name: 'Analytics Flow',
+          explanation: 'Analytics flow (real-time to 15-min lag): (1) Kafka Streams consumes TransactionPosted events → (2) Windowed aggregations (1-min, 5-min, 1-hour) → (3) Write to InfluxDB (1-sec granularity) → (4) Grafana dashboards query InfluxDB → (5) For historical analytics, nightly ETL to Snowflake (2 AM, 2-hour window) → (6) Tableau/BI tools query Snowflake for reports.',
+          codeExample: `// Real-Time Analytics Pipeline
+
+// Kafka Streams Topology
+StreamsBuilder builder = new StreamsBuilder();
+
+KStream<String, TransactionEvent> transactions =
+    builder.stream("TransactionPosted");
+
+// Windowed aggregation: spending by category
+KTable<Windowed<String>, SpendingStats> categoryStats =
+    transactions
+        .groupBy((key, txn) -> txn.getCategory())
+        .windowedBy(TimeWindows.of(Duration.ofMinutes(5)))
+        .aggregate(
+            SpendingStats::new,
+            (key, txn, stats) -> stats.add(txn.getAmount()),
+            Materialized.as("category-stats-store")
+        );
+
+// Write to InfluxDB
+categoryStats.toStream()
+    .foreach((window, stats) -> {
+        Point point = Point.measurement("spending_by_category")
+            .tag("category", window.key())
+            .addField("total", stats.getTotal())
+            .addField("count", stats.getCount())
+            .addField("average", stats.getAverage())
+            .time(window.window().end(), WritePrecision.MS);
+        influxDB.write(point);
+    });
+
+// Grafana Dashboard Query (InfluxQL)
+SELECT mean("total") FROM "spending_by_category"
+WHERE time > now() - 24h
+GROUP BY time(1h), "category"
+
+// Nightly ETL to Snowflake
+-- Runs at 2 AM, 2-hour window
+COPY INTO snowflake.transactions
+FROM @mongodb_stage/transactions/
+FILE_FORMAT = (TYPE = 'JSON');`
+        }
       ]
     },
     {
       id: 'gateway',
-      name: '2. API Gateway & Security Layer',
-      color: 'from-purple-500 to-purple-600',
-      icon: Lock,
-      pattern: 'API Gateway Pattern',
-      components: [
-        'Load Balancer (AWS ALB / NGINX)',
-        'Web Application Firewall (WAF)',
-        'API Gateway (Kong / AWS API Gateway)',
-        'Rate Limiter (Token Bucket - Redis)',
-        'Request Router',
-        'Auth Service (OAuth 2.0 + JWT)'
-      ],
-      keyPoints: [
-        'Load Balancer: Distributes 30M+ requests/day across gateway instances',
-        'WAF: Protects against SQL injection, XSS, DDoS (Layer 7)',
-        'Rate Limiter: Token bucket algorithm, 1000 req/min per user',
-        'Auth: JWT tokens (15 min expiry), refresh tokens (7 days)',
-        'Interview tip: Explain how gateway reduces coupling between clients and services'
-      ]
-    },
-    {
-      id: 'core',
-      name: '3. Core Business Services',
-      color: 'from-green-500 to-green-600',
-      icon: CreditCard,
-      pattern: 'API Composition + Saga Pattern',
-      components: [
-        'Card Application Service (Saga Orchestrator)',
-        'Account Service (CQRS)',
-        'Payment Processing Service (Idempotent)'
-      ],
-      keyPoints: [
-        'API Composition: Gateway calls multiple services, aggregates responses',
-        'Saga Pattern: Distributed transaction across Card App → Credit Bureau → Account',
-        'Each service has its own database (Database per Service pattern)',
-        'Idempotency: Prevents duplicate charges (idempotency key in Redis, 24h TTL)',
-        'Interview tip: Emphasize how Saga handles failures with compensating transactions'
-      ]
-    },
-    {
-      id: 'transaction',
-      name: '4. Transaction Services',
-      color: 'from-orange-500 to-orange-600',
-      icon: Zap,
-      pattern: 'Event Sourcing Pattern',
-      components: [
-        'Transaction Processor',
-        'Fraud Detection Engine (Real-time)',
-        'History Manager',
-        'Event Store (Immutable Log - PostgreSQL)'
-      ],
-      keyPoints: [
-        'Event Sourcing: Every transaction is an immutable event',
-        'Event Store: Append-only table, can replay to rebuild state',
-        'Fraud Detection: ML model (XGBoost) scores each transaction &lt;100ms',
-        '30M transactions/day = 347 txns/sec (peak 5x = 1735 txns/sec)',
-        'Interview tip: Explain how Event Sourcing provides audit trail for compliance'
-      ]
-    },
-    {
-      id: 'analytics',
-      name: '5. Analytics & Reporting Services',
-      color: 'from-pink-500 to-pink-600',
-      icon: BarChart,
-      pattern: 'CQRS Pattern (Read/Write Separation)',
-      components: [
-        'Data Pipeline (Kafka Streams)',
-        'Aggregator (Real-time Stats)',
-        'Report Generator'
-      ],
-      keyPoints: [
-        'CQRS: Write to MongoDB/PostgreSQL, Read from Elasticsearch/InfluxDB',
-        'Write Model: Optimized for transactions (MongoDB sharded)',
-        'Read Model: Optimized for queries (Elasticsearch for search, InfluxDB for stats)',
-        'Eventual Consistency: 5-15 min lag acceptable for analytics',
-        'Interview tip: Explain trade-off between consistency and performance'
-      ]
-    },
-    {
-      id: 'eventbus',
-      name: '6. Event Bus & Messaging',
-      color: 'from-amber-500 to-amber-600',
-      icon: GitBranch,
-      pattern: 'Event-Driven Architecture',
-      components: [
-        'Apache Kafka (3-node cluster)',
-        'Topics: ApplicationCreated, TransactionPosted, PaymentProcessed, FraudAlert',
-        'Consumer Groups (Data Pipeline, Notification, Analytics)',
-        'Notification Service (Email/SMS/Push)'
-      ],
-      keyPoints: [
-        'Kafka: 30M events/day, 3 brokers, replication factor 3',
-        'Partitioning: 10 partitions per topic (parallelism)',
-        'Consumer Groups: Multiple consumers process events in parallel',
-        'Guarantees: At-least-once delivery, idempotent consumers',
-        'Interview tip: Explain how Kafka decouples services and enables scalability'
-      ]
-    },
-    {
-      id: 'data',
-      name: '7. Data Layer (Polyglot Persistence)',
-      color: 'from-indigo-500 to-indigo-600',
-      icon: Database,
-      pattern: 'Database per Service + Polyglot Persistence',
-      components: [
-        'Transaction DB: MongoDB (Sharded ×5)',
-        'Account DB: PostgreSQL (Primary + 2 Read Replicas)',
-        'Application DB: PostgreSQL (Partitioned by status)',
-        'Analytics DB: InfluxDB (Time-series)',
-        'Cache: Redis Cluster (3M + 3R)',
-        'Warehouse: Snowflake (Multi-TB)',
-        'Search: Elasticsearch (3-node)'
-      ],
-      keyPoints: [
-        'MongoDB: 10M users / 5 shards = 2M per shard, 6M writes/day per shard',
-        'PostgreSQL: Strong consistency for account balances (ACID)',
-        'Redis: &lt;1ms latency, 100K ops/sec, LRU eviction',
-        'Sharding strategy: Hash on user_id (even distribution)',
-        'Interview tip: Justify each database choice based on use case'
-      ]
-    },
-    {
-      id: 'observability',
-      name: '8. Observability & Monitoring',
-      color: 'from-slate-500 to-slate-600',
-      icon: Activity,
-      pattern: 'Observability Pattern',
-      components: [
-        'Metrics: Prometheus + Grafana',
-        'Logging: ELK Stack (Elasticsearch, Logstash, Kibana)',
-        'Tracing: Jaeger (Distributed Tracing)',
-        'Alerting: PagerDuty'
-      ],
-      keyPoints: [
-        'Prometheus: Scrapes metrics every 15s, 30-day retention',
-        'Distributed Tracing: Traces requests across 10+ services',
-        'Centralized Logging: 100GB logs/day, 7-day retention hot, 90-day cold',
-        'Alerts: Latency >500ms, Error rate >1%, CPU >80%',
-        'Interview tip: Emphasize importance for debugging distributed systems'
-      ]
-    },
-    {
-      id: 'external',
-      name: '9. External Services',
-      color: 'from-red-500 to-red-600',
-      icon: Cloud,
-      pattern: 'Circuit Breaker Pattern',
-      components: [
-        'Payment Gateway (Stripe/Square)',
-        'Credit Bureau API (Equifax/Experian)',
-        'Circuit Breaker (Hystrix/Resilience4j)'
-      ],
-      keyPoints: [
-        'Circuit Breaker: Prevents cascade failures when external service is down',
-        'States: Closed (normal) → Open (failing) → Half-Open (testing)',
-        'Fallback: Credit check fails → Manual review queue',
-        'Timeout: 3s max for external calls, 3 retries with exponential backoff',
-        'Interview tip: Explain how this improves system resilience'
-      ]
-    }
-  ];
-
-  // Detailed Component Connections
-  const detailedConnections = [
-    {
-      from: 'Web/Mobile',
-      to: 'Load Balancer',
-      description: 'HTTPS requests',
-      color: 'blue'
-    },
-    {
-      from: 'Load Balancer',
-      to: 'API Gateway',
-      description: 'Distributed load',
-      color: 'purple'
-    },
-    {
-      from: 'API Gateway',
-      to: 'Core Services',
-      description: 'Authenticated requests',
-      color: 'green'
-    },
-    {
-      from: 'Core Services',
-      to: 'Event Bus',
-      description: 'Publish events',
-      color: 'amber'
-    },
-    {
-      from: 'Event Bus',
-      to: 'Analytics Services',
-      description: 'Consume events',
-      color: 'pink'
-    }
-  ];
-
-  // Feature Flows with detailed steps
-  const featureFlows = [
-    {
-      id: 'application',
-      name: '1. Credit Card Application Flow',
-      color: 'bg-blue-50 border-l-4 border-blue-500',
-      icon: CreditCard,
-      estimatedTime: '5-10 seconds',
-      steps: [
+      name: 'API Gateway',
+      icon: '🚪',
+      color: '#8b5cf6',
+      description: 'Kong API Gateway providing authentication, rate limiting, routing, and security (WAF, DDoS protection).',
+      diagram: GatewayDiagram,
+      details: [
         {
-          layer: 'Client',
-          step: 'User submits application via web/mobile',
-          details: 'Form validation on client side, HTTPS POST to /api/applications',
-          color: 'blue'
-        },
-        {
-          layer: 'Gateway',
-          step: 'API Gateway validates JWT token, rate limits',
-          details: 'Check: Token valid? User within rate limit (10 apps/day)?',
-          color: 'purple'
-        },
-        {
-          layer: 'Core Services',
-          step: 'Card Application Service receives request (Saga Orchestrator)',
-          details: 'Initiates distributed Saga transaction',
-          color: 'green'
-        },
-        {
-          layer: 'Core Services',
-          step: 'Saga Step 1: Call Credit Bureau API (with Circuit Breaker)',
-          details: 'External API call, 3s timeout, 3 retries. If fails → compensate',
-          color: 'green'
-        },
-        {
-          layer: 'Core Services',
-          step: 'Saga Step 2: Account Service creates account',
-          details: 'Write to PostgreSQL (Account DB)',
-          color: 'green'
-        },
-        {
-          layer: 'Transaction Services',
-          step: 'Event Store: ApplicationCreated event written (Event Sourcing)',
-          details: 'Immutable event log in PostgreSQL append-only table',
-          color: 'orange'
-        },
-        {
-          layer: 'Event Bus',
-          step: 'Publish ApplicationCreated to Kafka',
-          details: 'Topic: applications, Partition: hash(user_id)',
-          color: 'amber'
-        },
-        {
-          layer: 'Event Bus',
-          step: 'Consumers process event: Notification Service sends email',
-          details: 'Asynchronous, decoupled from main flow',
-          color: 'amber'
-        },
-        {
-          layer: 'Observability',
-          step: 'Jaeger traces entire flow, Prometheus records latency',
-          details: 'Distributed trace ID propagated through all services',
-          color: 'slate'
-        }
-      ],
-      patterns: ['Saga Pattern', 'Event Sourcing', 'Circuit Breaker', 'CQRS'],
-      interviewTips: [
-        'Emphasize Saga Pattern for distributed transactions without 2PC',
-        'Explain compensating transactions if Credit Bureau fails (delete account)',
-        'Highlight Circuit Breaker preventing cascade failures',
-        'Mention idempotency: duplicate submissions detected via request ID'
-      ]
-    },
-    {
-      id: 'transaction',
-      name: '2. Post Transaction Flow',
-      color: 'bg-green-50 border-l-4 border-green-500',
-      icon: Zap,
-      estimatedTime: '&lt;100ms',
-      steps: [
-        {
-          layer: 'External',
-          step: 'Transaction arrives from payment network (Visa/Mastercard)',
-          details: 'Merchant swipes card → Payment network → Our API',
-          color: 'red'
-        },
-        {
-          layer: 'Gateway',
-          step: 'API Gateway receives POST /api/transactions',
-          details: 'Rate limiting bypassed for payment network (trusted source)',
-          color: 'purple'
-        },
-        {
-          layer: 'Transaction Services',
-          step: 'Transaction Processor validates transaction',
-          details: 'Check: Card active? Sufficient balance? Duplicate?',
-          color: 'orange'
-        },
-        {
-          layer: 'Transaction Services',
-          step: 'Parallel: Fraud Detection Engine scores transaction',
-          details: 'ML model (XGBoost) inference &lt;50ms, returns risk score 0-100',
-          color: 'orange'
-        },
-        {
-          layer: 'Data Layer',
-          step: 'Write to MongoDB (Transaction DB) - sharded by user_id',
-          details: 'Shard selection: hash(user_id) % 5, write acknowledged',
-          color: 'indigo'
-        },
-        {
-          layer: 'Transaction Services',
-          step: 'Event Store: TransactionPosted event written',
-          details: 'Event Sourcing: Immutable record of state change',
-          color: 'orange'
-        },
-        {
-          layer: 'Event Bus',
-          step: 'Publish TransactionPosted + FraudAlert (if risky) to Kafka',
-          details: 'Topics: transactions, fraud-alerts',
-          color: 'amber'
-        },
-        {
-          layer: 'Analytics Services',
-          step: 'Consumers update read models asynchronously',
-          details: 'Data Pipeline → Elasticsearch, Aggregator → InfluxDB',
-          color: 'pink'
-        },
-        {
-          layer: 'Core Services',
-          step: 'Account Service updates balance (eventual consistency)',
-          details: 'CQRS: Write model updated asynchronously',
-          color: 'green'
-        },
-        {
-          layer: 'Data Layer',
-          step: 'Redis cache invalidated for user account',
-          details: 'Cache-aside pattern: delete key, next read will cache-miss',
-          color: 'indigo'
-        }
-      ],
-      patterns: ['Event Sourcing', 'CQRS', 'Sharding', 'Cache-Aside'],
-      interviewTips: [
-        'Highlight &lt;100ms latency requirement for transaction posting',
-        'Explain parallel fraud detection (non-blocking)',
-        'Emphasize MongoDB sharding for horizontal scaling (10M users)',
-        'Discuss eventual consistency trade-off (balance updates async)',
-        'Mention Event Sourcing provides complete audit trail'
-      ]
-    },
-    {
-      id: 'payment',
-      name: '3. Payment Processing & View Balance Flow',
-      color: 'bg-purple-50 border-l-4 border-purple-500',
-      icon: CreditCard,
-      estimatedTime: '2-5 seconds',
-      steps: [
-        {
-          layer: 'Client',
-          step: 'User initiates payment via web/mobile',
-          details: 'POST /api/payments with amount, card_id, idempotency_key',
-          color: 'blue'
-        },
-        {
-          layer: 'Core Services',
-          step: 'Payment Service checks idempotency key in Redis',
-          details: 'If exists: return cached response (prevents double-charge)',
-          color: 'green'
-        },
-        {
-          layer: 'Core Services',
-          step: 'Payment Service calls external Payment Gateway (Circuit Breaker)',
-          details: 'Stripe API: Create charge, 5s timeout, retry with backoff',
-          color: 'green'
-        },
-        {
-          layer: 'External',
-          step: 'Payment Gateway processes payment',
-          details: 'External service, PCI compliance handled by Stripe',
-          color: 'red'
-        },
-        {
-          layer: 'Transaction Services',
-          step: 'Event Store: PaymentProcessed event written',
-          details: 'Event Sourcing: Immutable record',
-          color: 'orange'
-        },
-        {
-          layer: 'Event Bus',
-          step: 'Publish PaymentProcessed to Kafka',
-          details: 'Consumed by Account Service, Notification Service, Analytics',
-          color: 'amber'
-        },
-        {
-          layer: 'Core Services',
-          step: 'User views balance: Account Service (CQRS Read path)',
-          details: 'GET /api/accounts/{id}/balance',
-          color: 'green'
-        },
-        {
-          layer: 'Data Layer',
-          step: 'Check Redis cache first (Cache-Aside)',
-          details: 'Cache hit: return &lt;1ms. Cache miss: query PostgreSQL',
-          color: 'indigo'
-        },
-        {
-          layer: 'Data Layer',
-          step: 'If cache miss: Query PostgreSQL Read Replica',
-          details: 'Read replica: No impact on write performance',
-          color: 'indigo'
-        },
-        {
-          layer: 'Data Layer',
-          step: 'Cache result in Redis (TTL: 5 min)',
-          details: 'Next read will be &lt;1ms from cache',
-          color: 'indigo'
-        }
-      ],
-      patterns: ['Idempotency', 'Circuit Breaker', 'CQRS', 'Cache-Aside'],
-      interviewTips: [
-        'Emphasize idempotency key (UUID) prevents duplicate charges',
-        'Explain Circuit Breaker protects against Stripe outages',
-        'Highlight CQRS: Separate read/write paths for performance',
-        'Discuss cache-aside pattern: &lt;1ms for cached reads',
-        'Mention read replicas: Scale read traffic independently'
-      ]
-    },
-    {
-      id: 'stats',
-      name: '4. View Daily/Weekly/Monthly Stats Flow',
-      color: 'bg-pink-50 border-l-4 border-pink-500',
-      icon: BarChart,
-      estimatedTime: '&lt;200ms',
-      steps: [
-        {
-          layer: 'Client',
-          step: 'User requests stats dashboard',
-          details: 'GET /api/analytics/stats?period=daily|weekly|monthly',
-          color: 'blue'
-        },
-        {
-          layer: 'Gateway',
-          step: 'API Gateway routes to Analytics Service',
-          details: 'Read-only request, no authentication of write operations',
-          color: 'purple'
-        },
-        {
-          layer: 'Analytics Services',
-          step: 'Aggregator service receives request',
-          details: 'CQRS Read Model: Queries pre-aggregated data',
-          color: 'pink'
-        },
-        {
-          layer: 'Data Layer',
-          step: 'Query InfluxDB (Time-series DB) for stats',
-          details: 'Optimized for time-range queries, windowed aggregations',
-          color: 'indigo'
-        },
-        {
-          layer: 'Analytics Services',
-          step: 'Data Pipeline continuously updates InfluxDB',
-          details: 'Kafka Streams: Real-time ETL from transactions topic',
-          color: 'pink'
-        },
-        {
-          layer: 'Data Layer',
-          step: 'For historical data: Query Snowflake',
-          details: 'Multi-TB warehouse, queries 2+ years of data',
-          color: 'indigo'
-        },
-        {
-          layer: 'Analytics Services',
-          step: 'Return aggregated stats to client',
-          details: 'JSON response: {daily: {...}, weekly: {...}, monthly: {...}}',
-          color: 'pink'
-        }
-      ],
-      patterns: ['CQRS', 'Time-series DB', 'Stream Processing', 'Data Warehouse'],
-      interviewTips: [
-        'Emphasize CQRS: Stats queries don\'t impact transaction processing',
-        'Explain InfluxDB choice: Optimized for time-series aggregations',
-        'Highlight Kafka Streams: Real-time ETL (5-15 min eventual consistency)',
-        'Discuss Snowflake: Handles historical analytics (2+ years)',
-        'Mention pre-aggregation: Calculate stats in background, serve cached'
-      ]
-    }
-  ];
-
-  // Tech Stack by Layer with Interview Points
-  const techStack = [
-    {
-      layer: 'Client Layer',
-      technologies: [
-        {
-          name: 'React/Angular',
-          reason: 'Component-based, virtual DOM, rich ecosystem',
-          interviewPoint: 'Mention SPA benefits: Fast interactions, better UX'
-        },
-        {
-          name: 'React Native',
-          reason: 'Cross-platform mobile, code reuse, native performance',
-          interviewPoint: 'Explain trade-off: Faster development vs pure native'
-        }
-      ]
-    },
-    {
-      layer: 'API Gateway',
-      technologies: [
-        {
-          name: 'Kong / AWS API Gateway',
-          reason: 'Built-in rate limiting, auth plugins, routing, minimal config',
-          interviewPoint: 'Highlight how it centralizes cross-cutting concerns'
-        },
-        {
-          name: 'NGINX',
-          reason: 'High-performance load balancer, 10K+ concurrent connections',
-          interviewPoint: 'Mention Layer 4 (TCP) vs Layer 7 (HTTP) load balancing'
-        },
-        {
-          name: 'Redis (Rate Limiting)',
-          reason: 'Atomic INCR operation, &lt;1ms latency, Token Bucket algorithm',
-          interviewPoint: 'Explain Token Bucket: Allows bursts, fair over time'
-        }
-      ]
-    },
-    {
-      layer: 'Core Services',
-      technologies: [
-        {
-          name: 'Spring Boot (Java)',
-          reason: 'Microservices framework, easy deployment, extensive ecosystem',
-          interviewPoint: 'Mention Spring Cloud for service discovery, config'
-        },
-        {
-          name: 'FastAPI (Python)',
-          reason: 'High performance, async support, auto API docs',
-          interviewPoint: 'Good for ML services (fraud detection)'
-        }
-      ]
-    },
-    {
-      layer: 'Event Bus',
-      technologies: [
-        {
-          name: 'Apache Kafka',
-          reason: 'High throughput (30M events/day), durability, replay capability',
-          interviewPoint: 'Highlight: Partitioning for parallelism, consumer groups'
-        }
-      ]
-    },
-    {
-      layer: 'Transaction DB',
-      technologies: [
-        {
-          name: 'MongoDB (Sharded)',
-          reason: 'High write throughput (6M/shard/day), auto-sharding, flexible schema',
-          interviewPoint: 'Discuss sharding strategy: Hash on user_id for even distribution'
-        }
-      ]
-    },
-    {
-      layer: 'Account DB',
-      technologies: [
-        {
-          name: 'PostgreSQL',
-          reason: 'ACID compliance, strong consistency for balances, read replicas',
-          interviewPoint: 'Explain why ACID needed for financial data (balances)'
-        }
-      ]
-    },
-    {
-      layer: 'Cache',
-      technologies: [
-        {
-          name: 'Redis Cluster',
-          reason: '&lt;1ms latency, atomic ops, pub/sub, LRU eviction',
-          interviewPoint: 'Mention cache-aside pattern, TTL strategy'
-        }
-      ]
-    },
-    {
-      layer: 'Analytics',
-      technologies: [
-        {
-          name: 'InfluxDB',
-          reason: 'Time-series optimized, windowed aggregations, fast queries',
-          interviewPoint: 'Perfect for daily/weekly/monthly stats use case'
-        },
-        {
-          name: 'Snowflake',
-          reason: 'Multi-TB scale, auto-scaling, separates compute from storage',
-          interviewPoint: 'Discuss: Don\'t impact production DB with analytics queries'
-        },
-        {
-          name: 'Elasticsearch',
-          reason: 'Full-text search, faceted search, sub-second queries',
-          interviewPoint: 'Explain inverted index, great for transaction search'
-        }
-      ]
-    }
-  ];
-
-  // Capacity Estimates for Interview
-  const capacityEstimates = {
-    title: 'Capacity Planning (10M Users)',
-    calculations: [
-      {
-        metric: 'Transactions per day',
-        calculation: '10M users × 3 txns/day = 30M txns/day',
-        perSecond: '30M / 86400s ≈ 347 txns/sec',
-        peak: 'Peak (5x) = 1,735 txns/sec',
-        infrastructure: 'MongoDB: 5 shards × 6M txns/day = handle 347 txns/sec easily'
-      },
-      {
-        metric: 'Account views per day',
-        calculation: '10M users × 1 view/day = 10M views/day',
-        perSecond: '10M / 86400s ≈ 116 views/sec',
-        peak: 'Peak (10x) = 1,160 views/sec',
-        infrastructure: 'PostgreSQL: 2 read replicas + Redis cache = handle 1K+ reads/sec'
-      },
-      {
-        metric: 'Storage (Transactions)',
-        calculation: '30M txns/day × 1KB per txn = 30GB/day',
-        yearly: '30GB × 365 = 10.95TB/year',
-        sharding: 'Per shard: 10.95TB / 5 = 2.19TB/shard/year (manageable)',
-        infrastructure: 'MongoDB: Each shard handles 2TB comfortably'
-      },
-      {
-        metric: 'Kafka Throughput',
-        calculation: '30M events/day × 2KB per event = 60GB/day',
-        perSecond: '60GB / 86400s ≈ 694KB/sec',
-        infrastructure: 'Kafka: 3 brokers can handle 100MB/sec easily'
-      },
-      {
-        metric: 'Cache Memory (Redis)',
-        calculation: 'Hot data: 10% of users active = 1M users',
-        memory: '1M users × 10KB (account + recent txns) = 10GB',
-        infrastructure: 'Redis Cluster: 3 masters × 8GB = 24GB (2.4x overhead for safety)'
-      }
-    ]
-  };
-
-  // Security & Compliance Points
-  const securityCompliance = [
-    {
-      aspect: 'PCI DSS Compliance',
-      points: [
-        'Tokenization: Credit card numbers never stored, use tokens from Stripe',
-        'Encryption: AES-256 at rest, TLS 1.3 in transit',
-        'Network segmentation: DMZ for API Gateway, private subnet for services',
-        'Access control: Least privilege, role-based access (RBAC)',
-        'Audit trail: Event Sourcing provides immutable log of all state changes'
-      ]
-    },
-    {
-      aspect: 'Data Privacy (GDPR)',
-      points: [
-        'Right to be forgotten: Soft delete + anonymize events in Event Store',
-        'Data minimization: Only collect necessary data',
-        'Encryption: Personal data encrypted at rest and in transit',
-        'Access logs: Track who accessed what data (compliance audits)'
-      ]
-    },
-    {
-      aspect: 'Authentication & Authorization',
-      points: [
-        'OAuth 2.0 + OpenID Connect for authentication',
-        'JWT tokens: Short-lived (15 min), refresh tokens (7 days)',
-        'MFA: Two-factor authentication for high-value operations',
-        'API keys: For 3rd party integrations, scoped permissions',
-        'Rate limiting: Prevent brute-force attacks'
-      ]
-    },
-    {
-      aspect: 'Fraud Prevention',
-      points: [
-        'Real-time ML scoring: XGBoost model, &lt;100ms inference',
-        'Velocity checks: Max 10 txns/hour per card',
-        'Geolocation: Flag transactions from unusual locations',
-        'Device fingerprinting: Track device IDs',
-        'Manual review queue: Flagged transactions reviewed by humans'
-      ]
-    }
-  ];
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        {onBack && (
-          <button
-            onClick={onBack}
-            style={{
-              marginBottom: '2rem',
-              padding: '0.75rem 1.5rem',
-              fontSize: '1rem',
-              fontWeight: '600',
-              backgroundColor: '#2563eb',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
-          >
-            ← Back
-          </button>
-        )}
-
-        <div className="mb-10">
-          <div className="flex items-center gap-3 mb-3">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">Credit Card Portal</h1>
-            <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold uppercase tracking-wide">Interview Ready</span>
-          </div>
-          <p className="text-xl text-gray-600 mb-6 font-light">
-            System design for 10M users · 30M transactions/day · CQRS · Event Sourcing · Saga patterns
-          </p>
-          <div className="flex gap-2 flex-wrap">
-            <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium border border-blue-100">CQRS Pattern</span>
-            <span className="px-4 py-2 bg-green-50 text-green-700 rounded-lg text-sm font-medium border border-green-100">Event Sourcing</span>
-            <span className="px-4 py-2 bg-purple-50 text-purple-700 rounded-lg text-sm font-medium border border-purple-100">Saga Pattern</span>
-            <span className="px-4 py-2 bg-orange-50 text-orange-700 rounded-lg text-sm font-medium border border-orange-100">Circuit Breaker</span>
-            <span className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium border border-indigo-100">Database Sharding</span>
-          </div>
-        </div>
-
-        <Breadcrumb breadcrumb={breadcrumb} />
-
-        {/* Tabs */}
-        <div style={{
-          display: 'flex',
-          gap: '0.5rem',
-          marginBottom: '2rem',
-          borderBottom: '1px solid #e5e7eb',
-          paddingBottom: '0.5rem',
-          overflowX: 'auto'
-        }}>
-          {[
-            { id: 'main', label: 'Architecture' },
-            { id: 'diagram', label: 'Component Diagram' },
-            { id: 'detailed', label: 'Detailed Design' },
-            { id: 'flows', label: 'Feature Flows' },
-            { id: 'cqrs', label: 'CQRS Pattern' },
-            { id: 'databases', label: 'Database Architecture' },
-            { id: 'patterns', label: 'Architectural Patterns' },
-            { id: 'techstack', label: 'Tech Stack' },
-            { id: 'dataflow', label: 'Data Flow' },
-            { id: 'api', label: 'API Endpoints' }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                padding: '0.75rem 1.5rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: activeTab === tab.id ? '#eff6ff' : 'transparent',
-                color: activeTab === tab.id ? '#2563eb' : '#6b7280',
-                border: 'none',
-                borderRadius: '8px 8px 0 0',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.2s'
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Tab Content */}
-        {activeTab === 'main' && (
-          <div className="space-y-8">
-            {/* System Overview */}
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 border border-gray-200 shadow-sm">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Layers className="w-6 h-6 text-blue-600" />
-                </div>
-                System Overview
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-xl border border-blue-100 shadow-sm">
-                  <h3 className="text-lg font-bold text-blue-700 mb-4">Requirements</h3>
-                  <ul className="space-y-2.5">
-                    <li className="flex items-start gap-2 text-gray-700"><span className="text-blue-500 font-bold">•</span><span>10,000,000 active users</span></li>
-                    <li className="flex items-start gap-2 text-gray-700"><span className="text-blue-500 font-bold">•</span><span>3 transactions per user per day</span></li>
-                    <li className="flex items-start gap-2 text-gray-700"><span className="text-blue-500 font-bold">•</span><span>1 account view per user per day</span></li>
-                    <li className="flex items-start gap-2 text-gray-700"><span className="text-blue-500 font-bold">•</span><span>Credit card applications</span></li>
-                    <li className="flex items-start gap-2 text-gray-700"><span className="text-blue-500 font-bold">•</span><span>Payment processing</span></li>
-                    <li className="flex items-start gap-2 text-gray-700"><span className="text-blue-500 font-bold">•</span><span>Daily/Weekly/Monthly statistics</span></li>
-                  </ul>
-                </div>
-                <div className="bg-white p-6 rounded-xl border border-green-100 shadow-sm">
-                  <h3 className="text-lg font-bold text-green-700 mb-4">Design Patterns</h3>
-                  <ul className="space-y-2.5">
-                    <li className="flex items-start gap-2 text-gray-700"><span className="text-green-500 font-bold">•</span><span>CQRS: Read/Write separation</span></li>
-                    <li className="flex items-start gap-2 text-gray-700"><span className="text-green-500 font-bold">•</span><span>Event Sourcing: Immutable event log</span></li>
-                    <li className="flex items-start gap-2 text-gray-700"><span className="text-green-500 font-bold">•</span><span>Saga: Distributed transactions</span></li>
-                    <li className="flex items-start gap-2 text-gray-700"><span className="text-green-500 font-bold">•</span><span>Circuit Breaker: Fault tolerance</span></li>
-                    <li className="flex items-start gap-2 text-gray-700"><span className="text-green-500 font-bold">•</span><span>Database Sharding: Horizontal scaling</span></li>
-                    <li className="flex items-start gap-2 text-gray-700"><span className="text-green-500 font-bold">•</span><span>Cache-Aside: Performance optimization</span></li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Architecture Layers */}
-            <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">
-                9-Layer Architecture
-              </h2>
-              <p className="text-gray-600 mb-8">
-                Click each layer to view detailed components and interview talking points
-              </p>
-
-              <div className="space-y-4">
-                {architectureLayers.map((layer) => {
-                  const Icon = layer.icon;
-                  return (
-                    <div key={layer.id}>
-                      <button
-                        onClick={() => toggleLayer(layer.id)}
-                        className={`w-full p-5 rounded-xl bg-gradient-to-r ${layer.color} text-white font-semibold flex items-center gap-4 hover:shadow-lg transition-all border border-white/20`}
-                      >
-                        <div className="p-2 bg-white/20 rounded-lg">
-                          <Icon size={22} />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <div className="font-bold text-lg">{layer.name}</div>
-                          <div className="text-sm opacity-90 font-normal">Pattern: {layer.pattern}</div>
-                        </div>
-                        {expandedLayers[layer.id] ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
-                        <span className="text-xs bg-white/20 px-2 py-1 rounded-lg">{layer.components.length} components</span>
-                      </button>
-
-                      {expandedLayers[layer.id] && (
-                        <div className="bg-gray-50 mt-3 p-6 rounded-xl border border-gray-200 ml-0 md:ml-6">
-                          {/* Components */}
-                          <h4 className="text-gray-900 font-bold mb-4 flex items-center gap-2">
-                            <Box className="w-5 h-5 text-blue-600" />
-                            Components
-                          </h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-                            {layer.components.map((comp, i) => (
-                              <div key={i} className="flex items-start gap-2 text-gray-700 text-sm bg-white p-3 rounded-lg border border-gray-100">
-                                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5 flex-shrink-0" />
-                                <span>{comp}</span>
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Key Interview Points */}
-                          <h4 className="text-gray-900 font-bold mb-4 mt-8 flex items-center gap-2">
-                            <AlertCircle className="w-5 h-5 text-amber-600" />
-                            Interview Talking Points
-                          </h4>
-                          <div className="space-y-3">
-                            {layer.keyPoints.map((point, i) => (
-                              <div key={i} className="flex gap-3 bg-white p-4 rounded-lg border border-amber-100">
-                                <Check className="text-green-600 flex-shrink-0 mt-0.5" size={20} />
-                                <p className="text-gray-700 text-sm leading-relaxed">{point}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Capacity Planning */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-200 shadow-sm">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                <div className="p-2 bg-blue-600 rounded-lg">
-                  <Cpu className="w-6 h-6 text-white" />
-                </div>
-                {capacityEstimates.title}
-              </h2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {capacityEstimates.calculations.map((calc, i) => (
-                  <div key={i} className="bg-white p-6 rounded-xl border border-blue-100 shadow-sm">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4">{calc.metric}</h3>
-                    <div className="space-y-2.5">
-                      <p className="text-sm text-gray-700"><span className="font-semibold text-gray-900">Calculation:</span> {calc.calculation}</p>
-                      <p className="text-sm text-gray-700"><span className="font-semibold text-gray-900">Per second:</span> {calc.perSecond}</p>
-                      <p className="text-sm text-gray-700"><span className="font-semibold text-gray-900">Peak load:</span> {calc.peak}</p>
-                      {calc.yearly && <p className="text-sm text-gray-700"><span className="font-semibold text-gray-900">Yearly:</span> {calc.yearly}</p>}
-                      {calc.sharding && <p className="text-sm text-gray-700"><span className="font-semibold text-gray-900">Per shard:</span> {calc.sharding}</p>}
-                      {calc.memory && <p className="text-sm text-gray-700"><span className="font-semibold text-gray-900">Memory:</span> {calc.memory}</p>}
-                      <div className="pt-3 mt-3 border-t border-gray-100">
-                        <p className="text-sm text-green-700 font-medium flex items-start gap-2">
-                          <Check size={18} className="flex-shrink-0 mt-0.5" />
-                          <span>{calc.infrastructure}</span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'diagram' && (
-          <div className="space-y-6">
-            {/* Component Diagram Overview */}
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-8 border border-slate-200 shadow-sm">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-                <div className="p-2 bg-indigo-600 rounded-lg">
-                  <Network className="w-7 h-7 text-white" />
-                </div>
-                Component Relationship Diagram
-              </h2>
-              <p className="text-lg text-gray-600 mb-6">
-                Visual representation showing how all components interact with each other. Follow the arrows to understand data flow and dependencies.
-              </p>
-            </div>
-
-            {/* Legend */}
-            <div className="bg-white rounded-xl p-6 border-2 border-gray-200 shadow-sm">
-              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <FileText className="w-5 h-5 text-indigo-600" />
-                Diagram Legend
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-blue-500 rounded"></div>
-                  <span className="text-sm text-gray-700">Client Layer</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-purple-500 rounded"></div>
-                  <span className="text-sm text-gray-700">Gateway Layer</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-green-500 rounded"></div>
-                  <span className="text-sm text-gray-700">Services Layer</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-orange-500 rounded"></div>
-                  <span className="text-sm text-gray-700">Transaction Layer</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-pink-500 rounded"></div>
-                  <span className="text-sm text-gray-700">Analytics Layer</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-amber-500 rounded"></div>
-                  <span className="text-sm text-gray-700">Event Bus</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-indigo-500 rounded"></div>
-                  <span className="text-sm text-gray-700">Data Layer</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-red-500 rounded"></div>
-                  <span className="text-sm text-gray-700">External Services</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Main Diagram */}
-            <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 shadow-lg overflow-x-auto">
-              <div className="min-w-[1000px]">
-                {/* Layer 1: Client Layer */}
-                <div className="mb-8">
-                  <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-t-lg font-bold text-lg flex items-center gap-2">
-                    <Globe className="w-5 h-5" />
-                    Layer 1: Client Applications
-                  </div>
-                  <div className="grid grid-cols-4 gap-4 p-6 bg-blue-50 rounded-b-lg border-2 border-blue-200">
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-blue-300">
-                      <div className="font-semibold text-blue-900 mb-2">Web App</div>
-                      <div className="text-xs text-gray-600">React/Angular</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-blue-300">
-                      <div className="font-semibold text-blue-900 mb-2">Mobile App</div>
-                      <div className="text-xs text-gray-600">iOS/Android</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-blue-300">
-                      <div className="font-semibold text-blue-900 mb-2">3rd Party API</div>
-                      <div className="text-xs text-gray-600">OAuth 2.0</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-blue-300">
-                      <div className="font-semibold text-blue-900 mb-2">Admin Dashboard</div>
-                      <div className="text-xs text-gray-600">Internal Tools</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Arrow Down */}
-                <div className="flex justify-center mb-8">
-                  <div className="flex flex-col items-center">
-                    <ChevronDown className="w-8 h-8 text-gray-400" />
-                    <span className="text-sm text-gray-500 font-medium">HTTPS Requests</span>
-                    <ChevronDown className="w-8 h-8 text-gray-400" />
-                  </div>
-                </div>
-
-                {/* Layer 2: Gateway Layer */}
-                <div className="mb-8">
-                  <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-t-lg font-bold text-lg flex items-center gap-2">
-                    <Lock className="w-5 h-5" />
-                    Layer 2: API Gateway & Security
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 p-6 bg-purple-50 rounded-b-lg border-2 border-purple-200">
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-purple-300">
-                      <div className="font-semibold text-purple-900 mb-2">Load Balancer</div>
-                      <div className="text-xs text-gray-600">NGINX / AWS ALB</div>
-                      <div className="text-xs text-purple-700 mt-1">→ Distributes Traffic</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-purple-300">
-                      <div className="font-semibold text-purple-900 mb-2">API Gateway</div>
-                      <div className="text-xs text-gray-600">Kong / AWS Gateway</div>
-                      <div className="text-xs text-purple-700 mt-1">→ Routes Requests</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-purple-300">
-                      <div className="font-semibold text-purple-900 mb-2">Auth Service</div>
-                      <div className="text-xs text-gray-600">OAuth 2.0 + JWT</div>
-                      <div className="text-xs text-purple-700 mt-1">→ Validates Tokens</div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 p-6 bg-purple-50 rounded-b-lg border-2 border-t-0 border-purple-200">
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-purple-300">
-                      <div className="font-semibold text-purple-900 mb-2">Rate Limiter</div>
-                      <div className="text-xs text-gray-600">Redis + Token Bucket</div>
-                      <div className="text-xs text-purple-700 mt-1">→ 1000 req/min/user</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-purple-300">
-                      <div className="font-semibold text-purple-900 mb-2">WAF</div>
-                      <div className="text-xs text-gray-600">Web Application Firewall</div>
-                      <div className="text-xs text-purple-700 mt-1">→ Blocks Attacks</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Arrow Down */}
-                <div className="flex justify-center mb-8">
-                  <div className="flex flex-col items-center">
-                    <ChevronDown className="w-8 h-8 text-gray-400" />
-                    <span className="text-sm text-gray-500 font-medium">Authenticated Requests</span>
-                    <ChevronDown className="w-8 h-8 text-gray-400" />
-                  </div>
-                </div>
-
-                {/* Layer 3 & 4: Core Services + Transaction Services (Side by Side) */}
-                <div className="grid grid-cols-2 gap-6 mb-8">
-                  {/* Core Services */}
-                  <div>
-                    <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-t-lg font-bold text-lg flex items-center gap-2">
-                      <CreditCard className="w-5 h-5" />
-                      Layer 3: Core Services
-                    </div>
-                    <div className="space-y-4 p-6 bg-green-50 rounded-b-lg border-2 border-green-200">
-                      <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-green-300">
-                        <div className="font-semibold text-green-900 mb-2">Card Application Service</div>
-                        <div className="text-xs text-gray-600">Saga Orchestrator</div>
-                        <div className="text-xs text-green-700 mt-1">→ Manages Applications</div>
-                      </div>
-                      <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-green-300">
-                        <div className="font-semibold text-green-900 mb-2">Account Service</div>
-                        <div className="text-xs text-gray-600">CQRS Pattern</div>
-                        <div className="text-xs text-green-700 mt-1">→ Manages Accounts</div>
-                      </div>
-                      <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-green-300">
-                        <div className="font-semibold text-green-900 mb-2">Payment Service</div>
-                        <div className="text-xs text-gray-600">Idempotent API</div>
-                        <div className="text-xs text-green-700 mt-1">→ Processes Payments</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Transaction Services */}
-                  <div>
-                    <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-t-lg font-bold text-lg flex items-center gap-2">
-                      <Zap className="w-5 h-5" />
-                      Layer 4: Transaction Services
-                    </div>
-                    <div className="space-y-4 p-6 bg-orange-50 rounded-b-lg border-2 border-orange-200">
-                      <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-orange-300">
-                        <div className="font-semibold text-orange-900 mb-2">Transaction Processor</div>
-                        <div className="text-xs text-gray-600">Validates Transactions</div>
-                        <div className="text-xs text-orange-700 mt-1">→ 347 txn/sec avg</div>
-                      </div>
-                      <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-orange-300">
-                        <div className="font-semibold text-orange-900 mb-2">Fraud Detection</div>
-                        <div className="text-xs text-gray-600">ML Model (XGBoost)</div>
-                        <div className="text-xs text-orange-700 mt-1">→ &lt;100ms scoring</div>
-                      </div>
-                      <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-orange-300">
-                        <div className="font-semibold text-orange-900 mb-2">Event Store</div>
-                        <div className="text-xs text-gray-600">PostgreSQL Append-Only</div>
-                        <div className="text-xs text-orange-700 mt-1">→ Immutable Events</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bidirectional Arrows */}
-                <div className="flex justify-around mb-8">
-                  <div className="flex flex-col items-center">
-                    <ChevronDown className="w-8 h-8 text-gray-400" />
-                    <span className="text-sm text-gray-500 font-medium text-center">Writes to<br/>Databases</span>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <ChevronDown className="w-8 h-8 text-gray-400" />
-                    <span className="text-sm text-gray-500 font-medium text-center">Publishes<br/>Events</span>
-                    <ChevronDown className="w-8 h-8 text-gray-400" />
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <ChevronDown className="w-8 h-8 text-gray-400" />
-                    <span className="text-sm text-gray-500 font-medium text-center">Reads from<br/>Cache/DB</span>
-                  </div>
-                </div>
-
-                {/* Layer 5 & 6: Analytics + Event Bus (Side by Side) */}
-                <div className="grid grid-cols-2 gap-6 mb-8">
-                  {/* Analytics Services */}
-                  <div>
-                    <div className="bg-gradient-to-r from-pink-500 to-pink-600 text-white px-4 py-2 rounded-t-lg font-bold text-lg flex items-center gap-2">
-                      <BarChart className="w-5 h-5" />
-                      Layer 5: Analytics
-                    </div>
-                    <div className="space-y-4 p-6 bg-pink-50 rounded-b-lg border-2 border-pink-200">
-                      <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-pink-300">
-                        <div className="font-semibold text-pink-900 mb-2">Data Pipeline</div>
-                        <div className="text-xs text-gray-600">Kafka Streams ETL</div>
-                        <div className="text-xs text-pink-700 mt-1">→ Real-time Processing</div>
-                      </div>
-                      <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-pink-300">
-                        <div className="font-semibold text-pink-900 mb-2">Aggregator</div>
-                        <div className="text-xs text-gray-600">Real-time Stats</div>
-                        <div className="text-xs text-pink-700 mt-1">→ Pre-aggregation</div>
-                      </div>
-                      <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-pink-300">
-                        <div className="font-semibold text-pink-900 mb-2">Report Generator</div>
-                        <div className="text-xs text-gray-600">Daily/Weekly/Monthly</div>
-                        <div className="text-xs text-pink-700 mt-1">→ Business Intelligence</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Event Bus */}
-                  <div>
-                    <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-4 py-2 rounded-t-lg font-bold text-lg flex items-center gap-2">
-                      <GitBranch className="w-5 h-5" />
-                      Layer 6: Event Bus
-                    </div>
-                    <div className="space-y-4 p-6 bg-amber-50 rounded-b-lg border-2 border-amber-200">
-                      <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-amber-300">
-                        <div className="font-semibold text-amber-900 mb-2">Apache Kafka</div>
-                        <div className="text-xs text-gray-600">3-node Cluster</div>
-                        <div className="text-xs text-amber-700 mt-1">→ 30M events/day</div>
-                      </div>
-                      <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-amber-300">
-                        <div className="font-semibold text-amber-900 mb-2">Topics</div>
-                        <div className="text-xs text-gray-600">ApplicationCreated</div>
-                        <div className="text-xs text-gray-600">TransactionPosted</div>
-                        <div className="text-xs text-gray-600">PaymentProcessed</div>
-                      </div>
-                      <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-amber-300">
-                        <div className="font-semibold text-amber-900 mb-2">Consumer Groups</div>
-                        <div className="text-xs text-gray-600">Data Pipeline</div>
-                        <div className="text-xs text-gray-600">Notification Service</div>
-                        <div className="text-xs text-gray-600">Analytics</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Arrow Down */}
-                <div className="flex justify-center mb-8">
-                  <div className="flex flex-col items-center">
-                    <ChevronDown className="w-8 h-8 text-gray-400" />
-                    <span className="text-sm text-gray-500 font-medium">Stores Data</span>
-                    <ChevronDown className="w-8 h-8 text-gray-400" />
-                  </div>
-                </div>
-
-                {/* Layer 7: Data Layer */}
-                <div className="mb-8">
-                  <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-4 py-2 rounded-t-lg font-bold text-lg flex items-center gap-2">
-                    <Database className="w-5 h-5" />
-                    Layer 7: Data Layer (Polyglot Persistence)
-                  </div>
-                  <div className="grid grid-cols-4 gap-4 p-6 bg-indigo-50 rounded-b-lg border-2 border-indigo-200">
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-indigo-300">
-                      <div className="font-semibold text-indigo-900 mb-2">MongoDB</div>
-                      <div className="text-xs text-gray-600">Transaction DB</div>
-                      <div className="text-xs text-indigo-700 mt-1">5 Shards</div>
-                      <div className="text-xs text-indigo-700">2M users/shard</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-indigo-300">
-                      <div className="font-semibold text-indigo-900 mb-2">PostgreSQL</div>
-                      <div className="text-xs text-gray-600">Account DB</div>
-                      <div className="text-xs text-indigo-700 mt-1">1 Primary</div>
-                      <div className="text-xs text-indigo-700">2 Read Replicas</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-indigo-300">
-                      <div className="font-semibold text-indigo-900 mb-2">Redis Cluster</div>
-                      <div className="text-xs text-gray-600">Cache Layer</div>
-                      <div className="text-xs text-indigo-700 mt-1">3 Masters</div>
-                      <div className="text-xs text-indigo-700">3 Replicas</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-indigo-300">
-                      <div className="font-semibold text-indigo-900 mb-2">InfluxDB</div>
-                      <div className="text-xs text-gray-600">Analytics DB</div>
-                      <div className="text-xs text-indigo-700 mt-1">Time-series</div>
-                      <div className="text-xs text-indigo-700">Real-time stats</div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 p-6 bg-indigo-50 rounded-b-lg border-2 border-t-0 border-indigo-200">
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-indigo-300">
-                      <div className="font-semibold text-indigo-900 mb-2">Elasticsearch</div>
-                      <div className="text-xs text-gray-600">Search Engine</div>
-                      <div className="text-xs text-indigo-700 mt-1">3-node cluster</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-indigo-300">
-                      <div className="font-semibold text-indigo-900 mb-2">Snowflake</div>
-                      <div className="text-xs text-gray-600">Data Warehouse</div>
-                      <div className="text-xs text-indigo-700 mt-1">Multi-TB storage</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-indigo-300">
-                      <div className="font-semibold text-indigo-900 mb-2">PostgreSQL</div>
-                      <div className="text-xs text-gray-600">Event Store</div>
-                      <div className="text-xs text-indigo-700 mt-1">Append-only log</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Layer 8: External Services */}
-                <div className="mb-8">
-                  <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-t-lg font-bold text-lg flex items-center gap-2">
-                    <Cloud className="w-5 h-5" />
-                    Layer 8: External Services (with Circuit Breaker)
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 p-6 bg-red-50 rounded-b-lg border-2 border-red-200">
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-red-300">
-                      <div className="font-semibold text-red-900 mb-2">Payment Gateway</div>
-                      <div className="text-xs text-gray-600">Stripe / Square</div>
-                      <div className="text-xs text-red-700 mt-1">→ PCI Compliance</div>
-                      <div className="text-xs text-red-700">→ 5s timeout</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-red-300">
-                      <div className="font-semibold text-red-900 mb-2">Credit Bureau</div>
-                      <div className="text-xs text-gray-600">Equifax / Experian</div>
-                      <div className="text-xs text-red-700 mt-1">→ Credit Checks</div>
-                      <div className="text-xs text-red-700">→ 3s timeout</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-red-300">
-                      <div className="font-semibold text-red-900 mb-2">Circuit Breaker</div>
-                      <div className="text-xs text-gray-600">Resilience4j</div>
-                      <div className="text-xs text-red-700 mt-1">→ Prevents Cascade</div>
-                      <div className="text-xs text-red-700">→ Fallback Logic</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Layer 9: Observability (Spans Across All) */}
-                <div>
-                  <div className="bg-gradient-to-r from-slate-500 to-slate-600 text-white px-4 py-2 rounded-t-lg font-bold text-lg flex items-center gap-2">
-                    <Activity className="w-5 h-5" />
-                    Layer 9: Observability (Cross-Cutting Concern)
-                  </div>
-                  <div className="grid grid-cols-4 gap-4 p-6 bg-slate-50 rounded-b-lg border-2 border-slate-200">
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-slate-300">
-                      <div className="font-semibold text-slate-900 mb-2">Prometheus</div>
-                      <div className="text-xs text-gray-600">Metrics Collection</div>
-                      <div className="text-xs text-slate-700 mt-1">→ 15s scrape interval</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-slate-300">
-                      <div className="font-semibold text-slate-900 mb-2">Grafana</div>
-                      <div className="text-xs text-gray-600">Visualization</div>
-                      <div className="text-xs text-slate-700 mt-1">→ Real-time dashboards</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-slate-300">
-                      <div className="font-semibold text-slate-900 mb-2">ELK Stack</div>
-                      <div className="text-xs text-gray-600">Centralized Logging</div>
-                      <div className="text-xs text-slate-700 mt-1">→ 100GB logs/day</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-slate-300">
-                      <div className="font-semibold text-slate-900 mb-2">Jaeger</div>
-                      <div className="text-xs text-gray-600">Distributed Tracing</div>
-                      <div className="text-xs text-slate-700 mt-1">→ End-to-end traces</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Component Relationships */}
-            <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 shadow-sm">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <Network className="w-6 h-6 text-indigo-600" />
-                Key Component Relationships
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border-2 border-blue-200">
-                  <h4 className="font-bold text-blue-900 mb-4 text-lg">Synchronous Communication</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <ArrowRight className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                      <div className="text-sm text-gray-700">
-                        <span className="font-semibold">Client → API Gateway:</span> HTTPS REST calls
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <ArrowRight className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                      <div className="text-sm text-gray-700">
-                        <span className="font-semibold">API Gateway → Services:</span> Internal HTTP/gRPC
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <ArrowRight className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                      <div className="text-sm text-gray-700">
-                        <span className="font-semibold">Services → Databases:</span> Connection pooling (100 conns/service)
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <ArrowRight className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                      <div className="text-sm text-gray-700">
-                        <span className="font-semibold">Services → External APIs:</span> Circuit breaker protected
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-6 rounded-xl border-2 border-amber-200">
-                  <h4 className="font-bold text-amber-900 mb-4 text-lg">Asynchronous Communication</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <ArrowRight className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                      <div className="text-sm text-gray-700">
-                        <span className="font-semibold">Services → Kafka:</span> Publish events (at-least-once)
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <ArrowRight className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                      <div className="text-sm text-gray-700">
-                        <span className="font-semibold">Kafka → Consumers:</span> Consumer groups with parallel processing
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <ArrowRight className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                      <div className="text-sm text-gray-700">
-                        <span className="font-semibold">Data Pipeline → Read DBs:</span> CQRS eventual consistency (5-15 min)
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <ArrowRight className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                      <div className="text-sm text-gray-700">
-                        <span className="font-semibold">Event Store → Kafka:</span> Event sourcing → event bus
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Data Flow Patterns */}
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-8 border-2 border-indigo-200 shadow-sm">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <GitBranch className="w-6 h-6 text-indigo-600" />
-                Critical Data Flow Patterns
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white p-6 rounded-xl border-2 border-green-200 shadow-sm">
-                  <h4 className="font-bold text-green-900 mb-3 flex items-center gap-2">
-                    <Check className="w-5 h-5" />
-                    Write Path (CQRS)
-                  </h4>
-                  <div className="space-y-2 text-sm text-gray-700">
-                    <div>1. Client sends command</div>
-                    <div>2. Service validates & writes to DB</div>
-                    <div>3. Event published to Kafka</div>
-                    <div>4. Consumers update read models</div>
-                    <div className="text-green-700 font-semibold mt-2">→ Optimized for throughput</div>
-                  </div>
-                </div>
-
-                <div className="bg-white p-6 rounded-xl border-2 border-blue-200 shadow-sm">
-                  <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
-                    <Check className="w-5 h-5" />
-                    Read Path (CQRS)
-                  </h4>
-                  <div className="space-y-2 text-sm text-gray-700">
-                    <div>1. Client sends query</div>
-                    <div>2. Check Redis cache (L1)</div>
-                    <div>3. If miss: Query read replica (L2)</div>
-                    <div>4. Cache result with TTL</div>
-                    <div className="text-blue-700 font-semibold mt-2">→ Optimized for speed</div>
-                  </div>
-                </div>
-
-                <div className="bg-white p-6 rounded-xl border-2 border-orange-200 shadow-sm">
-                  <h4 className="font-bold text-orange-900 mb-3 flex items-center gap-2">
-                    <Check className="w-5 h-5" />
-                    Event Flow
-                  </h4>
-                  <div className="space-y-2 text-sm text-gray-700">
-                    <div>1. Service creates event</div>
-                    <div>2. Stores in Event Store</div>
-                    <div>3. Publishes to Kafka topic</div>
-                    <div>4. Multiple consumers process</div>
-                    <div className="text-orange-700 font-semibold mt-2">→ Decoupled services</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Flow Diagram with Patterns */}
-            <div className="bg-gradient-to-br from-indigo-900 to-purple-900 rounded-2xl p-8 border-2 border-indigo-300 shadow-lg">
-              <h3 className="text-3xl font-bold text-white mb-4 flex items-center gap-3">
-                <Network className="w-8 h-8 text-indigo-300" />
-                Component Flow Diagram with Patterns
-              </h3>
-              <p className="text-indigo-200 mb-8 text-lg">
-                Follow the arrows to see how requests flow through the system. Each arrow is labeled with the design pattern being used.
-              </p>
-
-              <div className="bg-white rounded-xl p-8 overflow-x-auto">
-                <div className="min-w-[1200px]">
-                  {/* Row 1: Client to Gateway */}
-                  <div className="mb-12">
-                    <div className="flex items-center justify-center gap-6">
-                      {/* Client */}
-                      <div className="bg-blue-500 text-white p-6 rounded-xl shadow-lg w-48 text-center">
-                        <Globe className="w-8 h-8 mx-auto mb-2" />
-                        <div className="font-bold text-lg">Client Apps</div>
-                        <div className="text-xs mt-1">Web/Mobile/API</div>
-                      </div>
-
-                      {/* Arrow with Pattern */}
-                      <div className="flex-1 relative">
-                        <div className="border-t-4 border-purple-500 relative">
-                          <div className="absolute right-0 top-0 transform -translate-y-1/2">
-                            <div className="w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-8 border-l-purple-500"></div>
-                          </div>
-                        </div>
-                        <div className="bg-purple-100 border-2 border-purple-500 rounded-lg px-4 py-2 text-center mt-2">
-                          <div className="font-bold text-purple-900 text-sm">API Gateway Pattern</div>
-                          <div className="text-xs text-purple-700">Single entry point</div>
-                          <div className="text-xs text-purple-700">HTTPS / TLS 1.3</div>
-                        </div>
-                      </div>
-
-                      {/* Gateway */}
-                      <div className="bg-purple-500 text-white p-6 rounded-xl shadow-lg w-48 text-center">
-                        <Lock className="w-8 h-8 mx-auto mb-2" />
-                        <div className="font-bold text-lg">API Gateway</div>
-                        <div className="text-xs mt-1">Auth + Rate Limit</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Row 2: Gateway to Services (Fork) */}
-                  <div className="mb-12">
-                    <div className="flex justify-center mb-8">
-                      <div className="text-center">
-                        <ChevronDown className="w-12 h-12 text-gray-400 mx-auto" />
-                        <div className="bg-green-100 border-2 border-green-500 rounded-lg px-4 py-2 mt-2">
-                          <div className="font-bold text-green-900 text-sm">API Composition</div>
-                          <div className="text-xs text-green-700">Routes to microservices</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-6">
-                      {/* Card Service */}
-                      <div>
-                        <div className="bg-green-500 text-white p-6 rounded-xl shadow-lg text-center">
-                          <CreditCard className="w-8 h-8 mx-auto mb-2" />
-                          <div className="font-bold">Card Service</div>
-                          <div className="text-xs mt-1">Saga Orchestrator</div>
-                        </div>
-                        <div className="bg-green-100 border-2 border-green-500 rounded-lg px-3 py-2 mt-3 text-center">
-                          <div className="font-bold text-green-900 text-xs">Saga Pattern</div>
-                          <div className="text-xs text-green-700">Distributed TX</div>
-                        </div>
-                      </div>
-
-                      {/* Account Service */}
-                      <div>
-                        <div className="bg-green-500 text-white p-6 rounded-xl shadow-lg text-center">
-                          <Users className="w-8 h-8 mx-auto mb-2" />
-                          <div className="font-bold">Account Service</div>
-                          <div className="text-xs mt-1">CQRS Pattern</div>
-                        </div>
-                        <div className="bg-green-100 border-2 border-green-500 rounded-lg px-3 py-2 mt-3 text-center">
-                          <div className="font-bold text-green-900 text-xs">CQRS Pattern</div>
-                          <div className="text-xs text-green-700">Read/Write Split</div>
-                        </div>
-                      </div>
-
-                      {/* Transaction Service */}
-                      <div>
-                        <div className="bg-orange-500 text-white p-6 rounded-xl shadow-lg text-center">
-                          <Zap className="w-8 h-8 mx-auto mb-2" />
-                          <div className="font-bold">Transaction Service</div>
-                          <div className="text-xs mt-1">Event Sourcing</div>
-                        </div>
-                        <div className="bg-orange-100 border-2 border-orange-500 rounded-lg px-3 py-2 mt-3 text-center">
-                          <div className="font-bold text-orange-900 text-xs">Event Sourcing</div>
-                          <div className="text-xs text-orange-700">Immutable Log</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Row 3: Services to Data/Events (Split) */}
-                  <div className="mb-12">
-                    <div className="grid grid-cols-2 gap-12">
-                      {/* Left: Database Path */}
-                      <div>
-                        <div className="flex justify-center mb-6">
-                          <div className="text-center">
-                            <ChevronDown className="w-12 h-12 text-gray-400 mx-auto" />
-                            <div className="bg-indigo-100 border-2 border-indigo-500 rounded-lg px-4 py-2 mt-2">
-                              <div className="font-bold text-indigo-900 text-sm">Database per Service</div>
-                              <div className="text-xs text-indigo-700">No shared DB</div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="bg-indigo-500 text-white p-4 rounded-lg shadow-lg text-center">
-                            <Database className="w-6 h-6 mx-auto mb-2" />
-                            <div className="font-bold text-sm">MongoDB</div>
-                            <div className="text-xs">Transactions</div>
-                          </div>
-                          <div className="bg-indigo-500 text-white p-4 rounded-lg shadow-lg text-center">
-                            <Database className="w-6 h-6 mx-auto mb-2" />
-                            <div className="font-bold text-sm">PostgreSQL</div>
-                            <div className="text-xs">Accounts</div>
-                          </div>
-                        </div>
-
-                        <div className="bg-indigo-100 border-2 border-indigo-500 rounded-lg px-3 py-2 mt-3 text-center">
-                          <div className="font-bold text-indigo-900 text-xs">Polyglot Persistence</div>
-                          <div className="text-xs text-indigo-700">Right tool for job</div>
-                        </div>
-                      </div>
-
-                      {/* Right: Event Bus Path */}
-                      <div>
-                        <div className="flex justify-center mb-6">
-                          <div className="text-center">
-                            <ChevronDown className="w-12 h-12 text-gray-400 mx-auto" />
-                            <div className="bg-amber-100 border-2 border-amber-500 rounded-lg px-4 py-2 mt-2">
-                              <div className="font-bold text-amber-900 text-sm">Publish-Subscribe</div>
-                              <div className="text-xs text-amber-700">Async Events</div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="bg-amber-500 text-white p-6 rounded-xl shadow-lg text-center">
-                          <GitBranch className="w-8 h-8 mx-auto mb-2" />
-                          <div className="font-bold text-lg">Apache Kafka</div>
-                          <div className="text-xs mt-1">Event Bus</div>
-                        </div>
-
-                        <div className="bg-amber-100 border-2 border-amber-500 rounded-lg px-3 py-2 mt-3 text-center">
-                          <div className="font-bold text-amber-900 text-xs">Event-Driven Architecture</div>
-                          <div className="text-xs text-amber-700">Decoupled services</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Row 4: Kafka to Consumers */}
-                  <div className="mb-12">
-                    <div className="flex justify-center mb-6">
-                      <div className="text-center">
-                        <ChevronDown className="w-12 h-12 text-gray-400 mx-auto" />
-                        <div className="bg-pink-100 border-2 border-pink-500 rounded-lg px-4 py-2 mt-2">
-                          <div className="font-bold text-pink-900 text-sm">Consumer Groups</div>
-                          <div className="text-xs text-pink-700">Parallel processing</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-6">
-                      {/* Analytics Consumer */}
-                      <div>
-                        <div className="bg-pink-500 text-white p-5 rounded-xl shadow-lg text-center">
-                          <BarChart className="w-7 h-7 mx-auto mb-2" />
-                          <div className="font-bold">Analytics</div>
-                          <div className="text-xs mt-1">Data Pipeline</div>
-                        </div>
-                        <div className="flex justify-center mt-4">
-                          <ChevronDown className="w-8 h-8 text-gray-400" />
-                        </div>
-                        <div className="bg-indigo-500 text-white p-4 rounded-lg shadow-lg text-center mt-2">
-                          <div className="font-bold text-sm">InfluxDB</div>
-                          <div className="text-xs">Time-series</div>
-                        </div>
-                        <div className="bg-pink-100 border-2 border-pink-500 rounded-lg px-3 py-2 mt-2 text-center">
-                          <div className="font-bold text-pink-900 text-xs">Materialized View</div>
-                        </div>
-                      </div>
-
-                      {/* Notification Consumer */}
-                      <div>
-                        <div className="bg-pink-500 text-white p-5 rounded-xl shadow-lg text-center">
-                          <Server className="w-7 h-7 mx-auto mb-2" />
-                          <div className="font-bold">Notification</div>
-                          <div className="text-xs mt-1">Email/SMS/Push</div>
-                        </div>
-                        <div className="flex justify-center mt-4">
-                          <ChevronDown className="w-8 h-8 text-gray-400" />
-                        </div>
-                        <div className="bg-red-500 text-white p-4 rounded-lg shadow-lg text-center mt-2">
-                          <div className="font-bold text-sm">External APIs</div>
-                          <div className="text-xs">SendGrid/Twilio</div>
-                        </div>
-                        <div className="bg-red-100 border-2 border-red-500 rounded-lg px-3 py-2 mt-2 text-center">
-                          <div className="font-bold text-red-900 text-xs">Circuit Breaker</div>
-                        </div>
-                      </div>
-
-                      {/* Account Update Consumer */}
-                      <div>
-                        <div className="bg-pink-500 text-white p-5 rounded-xl shadow-lg text-center">
-                          <Activity className="w-7 h-7 mx-auto mb-2" />
-                          <div className="font-bold">Account Updater</div>
-                          <div className="text-xs mt-1">Balance sync</div>
-                        </div>
-                        <div className="flex justify-center mt-4">
-                          <ChevronDown className="w-8 h-8 text-gray-400" />
-                        </div>
-                        <div className="bg-indigo-500 text-white p-4 rounded-lg shadow-lg text-center mt-2">
-                          <div className="font-bold text-sm">PostgreSQL</div>
-                          <div className="text-xs">Account DB</div>
-                        </div>
-                        <div className="bg-pink-100 border-2 border-pink-500 rounded-lg px-3 py-2 mt-2 text-center">
-                          <div className="font-bold text-pink-900 text-xs">Eventual Consistency</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Row 5: Caching Layer */}
-                  <div className="mb-8">
-                    <div className="border-t-4 border-gray-300 pt-8">
-                      <div className="text-center mb-6">
-                        <h4 className="font-bold text-gray-900 text-xl mb-2">Read Path (Queries)</h4>
-                        <p className="text-gray-600 text-sm">Optimized for low latency</p>
-                      </div>
-
-                      <div className="flex items-center justify-center gap-6">
-                        {/* Client Query */}
-                        <div className="bg-blue-500 text-white p-4 rounded-lg shadow-lg w-32 text-center">
-                          <div className="font-bold text-sm">Client Query</div>
-                          <div className="text-xs mt-1">GET Request</div>
-                        </div>
-
-                        <ArrowRight className="w-8 h-8 text-gray-400" />
-
-                        {/* Gateway */}
-                        <div className="bg-purple-500 text-white p-4 rounded-lg shadow-lg w-32 text-center">
-                          <div className="font-bold text-sm">Gateway</div>
-                        </div>
-
-                        <ArrowRight className="w-8 h-8 text-gray-400" />
-
-                        {/* Account Service */}
-                        <div className="bg-green-500 text-white p-4 rounded-lg shadow-lg w-32 text-center">
-                          <div className="font-bold text-sm">Service</div>
-                        </div>
-
-                        <ArrowRight className="w-8 h-8 text-gray-400" />
-
-                        {/* Redis Cache */}
-                        <div className="bg-red-400 text-white p-4 rounded-lg shadow-lg w-32 text-center">
-                          <div className="font-bold text-sm">Redis</div>
-                          <div className="text-xs mt-1">&lt;1ms</div>
-                        </div>
-
-                        <div className="text-center">
-                          <div className="text-gray-500 font-bold mb-2">If miss ↓</div>
-                          <div className="bg-indigo-500 text-white p-4 rounded-lg shadow-lg w-32 text-center">
-                            <div className="font-bold text-sm">PostgreSQL</div>
-                            <div className="text-xs mt-1">Read Replica</div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="bg-blue-100 border-2 border-blue-500 rounded-lg px-6 py-3 mt-6 text-center max-w-md mx-auto">
-                        <div className="font-bold text-blue-900 text-sm">Cache-Aside Pattern</div>
-                        <div className="text-xs text-blue-700 mt-1">Check cache first, fallback to DB</div>
-                        <div className="text-xs text-blue-700">90% cache hit rate = 10x speedup</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Pattern Summary */}
-            <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 shadow-sm">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <FileText className="w-6 h-6 text-indigo-600" />
-                Design Patterns Used (Flow Summary)
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Pattern 1 */}
-                <div className="bg-purple-50 p-6 rounded-xl border-2 border-purple-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center text-white font-bold">1</div>
-                    <h4 className="font-bold text-purple-900">API Gateway</h4>
-                  </div>
-                  <p className="text-sm text-gray-700 mb-2">Single entry point for all clients</p>
-                  <div className="text-xs text-purple-700">
-                    <div>✓ Auth, rate limiting, routing</div>
-                    <div>✓ Decouples clients from services</div>
-                  </div>
-                </div>
-
-                {/* Pattern 2 */}
-                <div className="bg-green-50 p-6 rounded-xl border-2 border-green-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center text-white font-bold">2</div>
-                    <h4 className="font-bold text-green-900">Saga Pattern</h4>
-                  </div>
-                  <p className="text-sm text-gray-700 mb-2">Distributed transactions</p>
-                  <div className="text-xs text-green-700">
-                    <div>✓ Compensating transactions</div>
-                    <div>✓ No 2-phase commit needed</div>
-                  </div>
-                </div>
-
-                {/* Pattern 3 */}
-                <div className="bg-green-50 p-6 rounded-xl border-2 border-green-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center text-white font-bold">3</div>
-                    <h4 className="font-bold text-green-900">CQRS</h4>
-                  </div>
-                  <p className="text-sm text-gray-700 mb-2">Read/Write separation</p>
-                  <div className="text-xs text-green-700">
-                    <div>✓ Optimized for different workloads</div>
-                    <div>✓ Scale reads independently</div>
-                  </div>
-                </div>
-
-                {/* Pattern 4 */}
-                <div className="bg-orange-50 p-6 rounded-xl border-2 border-orange-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold">4</div>
-                    <h4 className="font-bold text-orange-900">Event Sourcing</h4>
-                  </div>
-                  <p className="text-sm text-gray-700 mb-2">Immutable event log</p>
-                  <div className="text-xs text-orange-700">
-                    <div>✓ Complete audit trail</div>
-                    <div>✓ Replay events to rebuild state</div>
-                  </div>
-                </div>
-
-                {/* Pattern 5 */}
-                <div className="bg-indigo-50 p-6 rounded-xl border-2 border-indigo-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-indigo-500 rounded-lg flex items-center justify-center text-white font-bold">5</div>
-                    <h4 className="font-bold text-indigo-900">Database per Service</h4>
-                  </div>
-                  <p className="text-sm text-gray-700 mb-2">No shared databases</p>
-                  <div className="text-xs text-indigo-700">
-                    <div>✓ Independent scaling</div>
-                    <div>✓ Polyglot persistence</div>
-                  </div>
-                </div>
-
-                {/* Pattern 6 */}
-                <div className="bg-amber-50 p-6 rounded-xl border-2 border-amber-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-white font-bold">6</div>
-                    <h4 className="font-bold text-amber-900">Event-Driven</h4>
-                  </div>
-                  <p className="text-sm text-gray-700 mb-2">Pub/Sub messaging</p>
-                  <div className="text-xs text-amber-700">
-                    <div>✓ Services decoupled</div>
-                    <div>✓ Async processing</div>
-                  </div>
-                </div>
-
-                {/* Pattern 7 */}
-                <div className="bg-blue-50 p-6 rounded-xl border-2 border-blue-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-white font-bold">7</div>
-                    <h4 className="font-bold text-blue-900">Cache-Aside</h4>
-                  </div>
-                  <p className="text-sm text-gray-700 mb-2">Read-through caching</p>
-                  <div className="text-xs text-blue-700">
-                    <div>✓ Check cache first</div>
-                    <div>✓ Fallback to database</div>
-                  </div>
-                </div>
-
-                {/* Pattern 8 */}
-                <div className="bg-red-50 p-6 rounded-xl border-2 border-red-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center text-white font-bold">8</div>
-                    <h4 className="font-bold text-red-900">Circuit Breaker</h4>
-                  </div>
-                  <p className="text-sm text-gray-700 mb-2">Fault tolerance</p>
-                  <div className="text-xs text-red-700">
-                    <div>✓ Prevents cascade failures</div>
-                    <div>✓ Graceful degradation</div>
-                  </div>
-                </div>
-
-                {/* Pattern 9 */}
-                <div className="bg-pink-50 p-6 rounded-xl border-2 border-pink-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-pink-500 rounded-lg flex items-center justify-center text-white font-bold">9</div>
-                    <h4 className="font-bold text-pink-900">Materialized View</h4>
-                  </div>
-                  <p className="text-sm text-gray-700 mb-2">Pre-computed results</p>
-                  <div className="text-xs text-pink-700">
-                    <div>✓ Fast analytics queries</div>
-                    <div>✓ Eventual consistency OK</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Interview Talking Points */}
-            <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-2xl p-8 border-2 border-yellow-300 shadow-sm">
-              <h3 className="text-2xl font-bold text-yellow-900 mb-6 flex items-center gap-2">
-                <AlertCircle className="w-6 h-6" />
-                Key Points to Emphasize in Interviews
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-semibold text-yellow-900 mb-3">Component Interactions:</h4>
-                  <ul className="space-y-2 text-sm text-gray-700">
-                    <li className="flex gap-2"><span className="text-yellow-600">•</span><span>Each layer has clear responsibilities (separation of concerns)</span></li>
-                    <li className="flex gap-2"><span className="text-yellow-600">•</span><span>Services communicate via well-defined interfaces</span></li>
-                    <li className="flex gap-2"><span className="text-yellow-600">•</span><span>Event bus decouples services (async communication)</span></li>
-                    <li className="flex gap-2"><span className="text-yellow-600">•</span><span>Database per service pattern (no shared databases)</span></li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-yellow-900 mb-3">Scalability & Resilience:</h4>
-                  <ul className="space-y-2 text-sm text-gray-700">
-                    <li className="flex gap-2"><span className="text-yellow-600">•</span><span>Horizontal scaling at every layer (stateless services)</span></li>
-                    <li className="flex gap-2"><span className="text-yellow-600">•</span><span>Circuit breaker prevents cascade failures</span></li>
-                    <li className="flex gap-2"><span className="text-yellow-600">•</span><span>Redis cache reduces DB load by 90%</span></li>
-                    <li className="flex gap-2"><span className="text-yellow-600">•</span><span>Read replicas scale read traffic independently</span></li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'detailed' && (
-          <div className="space-y-6">
-            {/* CQRS Detailed Explanation */}
-            <div className="bg-slate-800/50 rounded-lg p-6 border border-cyan-500/30 backdrop-blur-sm">
-              <h2 className="text-2xl font-bold text-white mb-4">📊 CQRS Pattern - Detailed Architecture</h2>
-              <p className="text-gray-400 mb-6">
-                Command Query Responsibility Segregation: Separate models for reading and writing data
-              </p>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {/* Write Model */}
-                <div className="bg-gradient-to-br from-red-900/50 to-red-800/50 p-6 rounded-lg border border-red-500/30">
-                  <h3 className="text-red-200 font-bold text-lg mb-4 flex items-center gap-2">
-                    <Server className="w-5 h-5" />
-                    Write Model (Commands)
-                  </h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2 text-gray-300">
-                      <ArrowRight className="w-4 h-4 text-red-400" />
-                      <span>Clients send commands (POST/PUT/DELETE)</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-300">
-                      <ArrowRight className="w-4 h-4 text-red-400" />
-                      <span>Command Handlers validate and execute</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-300">
-                      <ArrowRight className="w-4 h-4 text-red-400" />
-                      <span>Write to optimized DBs (MongoDB, PostgreSQL)</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-300">
-                      <ArrowRight className="w-4 h-4 text-red-400" />
-                      <span>Publish events to Kafka</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-300">
-                      <ArrowRight className="w-4 h-4 text-red-400" />
-                      <span>Event subscribers update Read Model async</span>
-                    </div>
-                  </div>
-                  <div className="mt-4 p-3 bg-red-950/50 rounded border border-red-500/20">
-                    <p className="text-xs text-gray-300">
-                      <strong className="text-red-300">Interview Tip:</strong> Explain that writes are optimized for throughput,
-                      not query performance. MongoDB sharding handles 30M writes/day easily.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Read Model */}
-                <div className="bg-gradient-to-br from-blue-900/50 to-blue-800/50 p-6 rounded-lg border border-blue-500/30">
-                  <h3 className="text-blue-200 font-bold text-lg mb-4 flex items-center gap-2">
-                    <Database className="w-5 h-5" />
-                    Read Model (Queries)
-                  </h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2 text-gray-300">
-                      <ArrowRight className="w-4 h-4 text-blue-400" />
-                      <span>Clients send queries (GET)</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-300">
-                      <ArrowRight className="w-4 h-4 text-blue-400" />
-                      <span>Query Handlers read from optimized DBs</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-300">
-                      <ArrowRight className="w-4 h-4 text-blue-400" />
-                      <span>Redis cache (L1) → PostgreSQL replicas (L2)</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-300">
-                      <ArrowRight className="w-4 h-4 text-blue-400" />
-                      <span>Elasticsearch for search, InfluxDB for stats</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-300">
-                      <ArrowRight className="w-4 h-4 text-blue-400" />
-                      <span>Zero impact on write performance</span>
-                    </div>
-                  </div>
-                  <div className="mt-4 p-3 bg-blue-950/50 rounded border border-blue-500/20">
-                    <p className="text-xs text-gray-300">
-                      <strong className="text-blue-300">Interview Tip:</strong> Highlight eventual consistency (5-15 min lag acceptable).
-                      Reads scale independently via replicas and caching.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Event Flow */}
-              <div className="mt-6 bg-amber-900/30 p-4 rounded-lg border border-amber-500/30">
-                <h4 className="text-amber-300 font-semibold mb-3 flex items-center gap-2">
-                  <GitBranch className="w-4 h-4" />
-                  Event Flow (Write → Read Synchronization)
-                </h4>
-                <div className="flex items-center gap-2 text-sm text-gray-300 overflow-x-auto pb-2">
-                  <span className="bg-red-900/50 px-3 py-1 rounded">Command</span>
-                  <ArrowRight className="w-4 h-4" />
-                  <span className="bg-orange-900/50 px-3 py-1 rounded">Write DB</span>
-                  <ArrowRight className="w-4 h-4" />
-                  <span className="bg-orange-900/50 px-3 py-1 rounded">Event Store</span>
-                  <ArrowRight className="w-4 h-4" />
-                  <span className="bg-amber-900/50 px-3 py-1 rounded">Kafka</span>
-                  <ArrowRight className="w-4 h-4" />
-                  <span className="bg-blue-900/50 px-3 py-1 rounded">Event Subscribers</span>
-                  <ArrowRight className="w-4 h-4" />
-                  <span className="bg-blue-900/50 px-3 py-1 rounded">Read DBs</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Event Sourcing Explanation */}
-            <div className="bg-slate-800/50 rounded-lg p-6 border border-cyan-500/30 backdrop-blur-sm">
-              <h2 className="text-2xl font-bold text-white mb-4">📝 Event Sourcing Pattern - Immutable Event Log</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-green-900/30 p-4 rounded-lg border border-green-500/20">
-                  <h3 className="text-green-300 font-semibold mb-2">Benefits</h3>
-                  <ul className="text-gray-300 text-sm space-y-1">
-                    <li>✓ Complete audit trail</li>
-                    <li>✓ Can replay events to rebuild state</li>
-                    <li>✓ Temporal queries (state at time T)</li>
-                    <li>✓ Easy debugging (event history)</li>
-                    <li>✓ Compliance (PCI DSS, GDPR)</li>
-                  </ul>
-                </div>
-                <div className="bg-orange-900/30 p-4 rounded-lg border border-orange-500/20">
-                  <h3 className="text-orange-300 font-semibold mb-2">Implementation</h3>
-                  <ul className="text-gray-300 text-sm space-y-1">
-                    <li>• PostgreSQL append-only table</li>
-                    <li>• Events: ApplicationCreated, TransactionPosted, PaymentProcessed</li>
-                    <li>• Never UPDATE or DELETE, only INSERT</li>
-                    <li>• Partition by year for performance</li>
-                  </ul>
-                </div>
-                <div className="bg-purple-900/30 p-4 rounded-lg border border-purple-500/20">
-                  <h3 className="text-purple-300 font-semibold mb-2">Interview Points</h3>
-                  <ul className="text-gray-300 text-sm space-y-1">
-                    <li>• Immutability ensures data integrity</li>
-                    <li>• Replay events for disaster recovery</li>
-                    <li>• Build new projections anytime</li>
-                    <li>• Trade-off: Storage vs auditability</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Security & Compliance */}
-            <div className="bg-slate-800/50 rounded-lg p-6 border border-cyan-500/30 backdrop-blur-sm">
-              <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                <Shield className="w-6 h-6 text-cyan-400" />
-                Security & Compliance
-              </h2>
-              <div className="space-y-4">
-                {securityCompliance.map((sec, i) => (
-                  <div key={i} className="bg-slate-700/50 p-4 rounded-lg border border-cyan-500/20">
-                    <h3 className="text-cyan-300 font-semibold mb-3">{sec.aspect}</h3>
-                    <div className="space-y-2">
-                      {sec.points.map((point, j) => (
-                        <div key={j} className="flex gap-2 text-gray-300 text-sm">
-                          <Check className="text-green-400 flex-shrink-0 mt-0.5" size={16} />
-                          <span>{point}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'flows' && (
-          <div className="space-y-6">
-            <div className="bg-slate-800/50 rounded-lg p-6 border border-cyan-500/30 backdrop-blur-sm">
-              <h2 className="text-2xl font-bold text-white mb-4">🔄 Feature Flows - Step-by-Step</h2>
-              <p className="text-gray-400 mb-6">
-                Detailed flows for the 4 main features. Each step shows the layer, action, and technical details.
-                Perfect for explaining during your interview.
-              </p>
-
-              {featureFlows.map((flow, idx) => {
-                const FlowIcon = flow.icon;
-                return (
-                  <div key={flow.id} className={`rounded-lg p-6 ${flow.color} mb-6`}>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white/10 rounded-lg">
-                          <FlowIcon className="w-6 h-6 text-slate-700" />
-                        </div>
-                        <div>
-                          <h3 className="text-2xl font-bold text-slate-900">{flow.name}</h3>
-                          <p className="text-slate-600 text-sm">Estimated time: {flow.estimatedTime}</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => setSelectedFlow(selectedFlow === flow.id ? null : flow.id)}
-                        className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors flex items-center gap-2"
-                      >
-                        {selectedFlow === flow.id ? (
-                          <>
-                            <ChevronDown className="w-4 h-4" />
-                            Collapse
-                          </>
-                        ) : (
-                          <>
-                            <ChevronRight className="w-4 h-4" />
-                            Expand Flow
-                          </>
-                        )}
-                      </button>
-                    </div>
-
-                    {selectedFlow === flow.id && (
-                      <>
-                        {/* Flow Steps */}
-                        <div className="bg-white/80 rounded-lg p-4 mb-4">
-                          <h4 className="font-semibold text-slate-800 mb-3">Flow Steps</h4>
-                          <div className="space-y-3">
-                            {flow.steps.map((step, i) => (
-                              <div key={i} className="flex gap-3">
-                                <div className="flex-shrink-0 w-8 h-8 bg-slate-700 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                                  {i + 1}
-                                </div>
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <span className={getLayerBadgeClasses(step.color)}>
-                                      {step.layer}
-                                    </span>
-                                    <span className="text-slate-800 font-semibold">{step.step}</span>
-                                  </div>
-                                  <p className="text-slate-600 text-sm">{step.details}</p>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Patterns Used */}
-                        <div className="mb-4">
-                          <h4 className="font-semibold text-slate-800 mb-2">Design Patterns Used</h4>
-                          <div className="flex flex-wrap gap-2">
-                            {flow.patterns.map((pattern, i) => (
-                              <span key={i} className="px-3 py-1 bg-slate-800 text-white rounded-full text-sm font-semibold">
-                                {pattern}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Interview Tips */}
-                        <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
-                          <h4 className="font-semibold text-yellow-900 mb-2 flex items-center gap-2">
-                            <AlertCircle className="w-4 h-4" />
-                            Interview Tips
-                          </h4>
-                          <ul className="space-y-1">
-                            {flow.interviewTips.map((tip, i) => (
-                              <li key={i} className="text-yellow-800 text-sm flex gap-2">
-                                <span className="text-yellow-600">•</span>
-                                <span>{tip}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'cqrs' && (
-          <div className="space-y-6">
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 border border-gray-200 shadow-sm">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Zap className="w-6 h-6 text-blue-600" />
-                </div>
-                CQRS Pattern Implementation
-              </h2>
-              <p className="text-gray-700 mb-6 leading-relaxed">
-                Command Query Responsibility Segregation (CQRS) separates read and write operations for optimal performance,
-                scalability, and data consistency. The Credit Card Portal 3 uses CQRS with Event Sourcing to handle 30M transactions/day
-                (347 txns/sec average, 1735 txns/sec peak) across 10M active users.
-              </p>
-
-              {/* CQRS Architecture Diagram */}
-              <div className="bg-white rounded-xl p-8 border-2 border-blue-200 mb-6 shadow-md">
-                <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">CQRS Architecture Flow - Portal 3</h3>
-
-                <svg viewBox="0 0 1400 900" className="w-full h-auto">
-                  <defs>
-                    {/* Gradients */}
-                    <linearGradient id="p3ClientGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
-                      <stop offset="100%" style={{ stopColor: '#1d4ed8', stopOpacity: 1 }} />
-                    </linearGradient>
-                    <linearGradient id="p3CommandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
-                      <stop offset="100%" style={{ stopColor: '#047857', stopOpacity: 1 }} />
-                    </linearGradient>
-                    <linearGradient id="p3QueryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#ec4899', stopOpacity: 1 }} />
-                      <stop offset="100%" style={{ stopColor: '#be185d', stopOpacity: 1 }} />
-                    </linearGradient>
-                    <linearGradient id="p3EventGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
-                      <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
-                    </linearGradient>
-                    <linearGradient id="p3DbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
-                      <stop offset="100%" style={{ stopColor: '#6d28d9', stopOpacity: 1 }} />
-                    </linearGradient>
-
-                    {/* Arrow markers */}
-                    <marker id="p3ArrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                      <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6" />
-                    </marker>
-                    <marker id="p3ArrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                      <path d="M0,0 L0,6 L9,3 z" fill="#10b981" />
-                    </marker>
-                    <marker id="p3ArrowPink" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                      <path d="M0,0 L0,6 L9,3 z" fill="#ec4899" />
-                    </marker>
-                    <marker id="p3ArrowOrange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                      <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b" />
-                    </marker>
-                    <marker id="p3ArrowPurple" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                      <path d="M0,0 L0,6 L9,3 z" fill="#8b5cf6" />
-                    </marker>
-                    <marker id="p3ArrowCyan" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                      <path d="M0,0 L0,6 L9,3 z" fill="#06b6d4" />
-                    </marker>
-                  </defs>
-
-                  {/* BFF Layer - CLICKABLE */}
-                  <g onClick={() => setSelectedCQRSComponent('bfflayer')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="20" y="80" width="180" height="120" rx="8"
-                      fill="url(#p3ClientGrad)"
-                      stroke={selectedCQRSComponent === 'bfflayer' ? '#60a5fa' : '#60a5fa'}
-                      strokeWidth={selectedCQRSComponent === 'bfflayer' ? '4' : '2'}
-                      style={{ opacity: selectedCQRSComponent === 'bfflayer' ? 1 : 0.9 }}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="110" y="110" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle" style={{ pointerEvents: 'none' }}>📱 BFF Layer</text>
-                    <text x="110" y="130" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>Web App (React)</text>
-                    <text x="110" y="145" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>Mobile (iOS/Android)</text>
-                    <text x="110" y="160" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>Admin Dashboard</text>
-                    <text x="110" y="175" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>3rd Party APIs</text>
-                  </g>
-
-                  {/* API Gateway - CLICKABLE */}
-                  <g onClick={() => setSelectedCQRSComponent('apigateway')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="20" y="240" width="180" height="140" rx="8"
-                      fill="url(#p3ClientGrad)"
-                      stroke={selectedCQRSComponent === 'apigateway' ? '#60a5fa' : '#60a5fa'}
-                      strokeWidth={selectedCQRSComponent === 'apigateway' ? '4' : '2'}
-                      style={{ opacity: selectedCQRSComponent === 'apigateway' ? 1 : 0.9 }}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="110" y="270" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle" style={{ pointerEvents: 'none' }}>🚪 API Gateway</text>
-                    <text x="110" y="290" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>Kong Gateway</text>
-                    <text x="110" y="305" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>WAF + DDoS</text>
-                    <text x="110" y="320" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>OAuth 2.0 + JWT</text>
-                    <text x="110" y="335" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>Rate Limiter (Redis)</text>
-                    <text x="110" y="350" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>30M+ req/day</text>
-                    <text x="110" y="365" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>Load Balancing</text>
-                  </g>
-
-                  {/* Arrow: BFF to Gateway */}
-                  <path d="M 110 200 L 110 240" stroke="#3b82f6" strokeWidth="3" fill="none" markerEnd="url(#p3ArrowBlue)" />
-                  <text x="130" y="225" fontSize="10" fill="#3b82f6" fontWeight="bold">HTTPS</text>
-
-                  {/* COMMAND SIDE */}
-                  <rect x="260" y="40" width="420" height="380" rx="12" fill="rgba(16, 185, 129, 0.05)" stroke="#10b981" strokeWidth="2" strokeDasharray="5,5" />
-                  <text x="470" y="70" fontSize="16" fontWeight="bold" fill="#10b981" textAnchor="middle">COMMAND SIDE (Write)</text>
-
-                  {/* Command Services - CLICKABLE */}
-                  <g onClick={() => setSelectedCQRSComponent('commandservices')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="290" y="100" width="180" height="140" rx="8"
-                      fill="url(#p3CommandGrad)"
-                      stroke={selectedCQRSComponent === 'commandservices' ? '#34d399' : '#34d399'}
-                      strokeWidth={selectedCQRSComponent === 'commandservices' ? '4' : '2'}
-                      style={{ opacity: selectedCQRSComponent === 'commandservices' ? 1 : 0.9 }}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="380" y="125" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle" style={{ pointerEvents: 'none' }}>⚡ Command Services</text>
-                    <text x="380" y="145" fontSize="10" fill="#d1fae5" textAnchor="middle" style={{ pointerEvents: 'none' }}>Card Application</text>
-                    <text x="380" y="160" fontSize="10" fill="#d1fae5" textAnchor="middle" style={{ pointerEvents: 'none' }}>(Saga Orchestrator)</text>
-                    <text x="380" y="180" fontSize="10" fill="#d1fae5" textAnchor="middle" style={{ pointerEvents: 'none' }}>Account Service</text>
-                    <text x="380" y="195" fontSize="10" fill="#d1fae5" textAnchor="middle" style={{ pointerEvents: 'none' }}>Payment Processing</text>
-                    <text x="380" y="210" fontSize="10" fill="#d1fae5" textAnchor="middle" style={{ pointerEvents: 'none' }}>(Idempotent)</text>
-                    <text x="380" y="225" fontSize="10" fill="#d1fae5" textAnchor="middle" style={{ pointerEvents: 'none' }}>347 txn/sec avg</text>
-                  </g>
-
-                  {/* Transaction Processor - CLICKABLE */}
-                  <g onClick={() => setSelectedCQRSComponent('txprocessor')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="490" y="100" width="170" height="120" rx="8"
-                      fill="url(#p3CommandGrad)"
-                      stroke={selectedCQRSComponent === 'txprocessor' ? '#34d399' : '#34d399'}
-                      strokeWidth={selectedCQRSComponent === 'txprocessor' ? '4' : '2'}
-                      style={{ opacity: selectedCQRSComponent === 'txprocessor' ? 1 : 0.9 }}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="575" y="125" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle" style={{ pointerEvents: 'none' }}>⚙️ Transaction</text>
-                    <text x="575" y="140" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle" style={{ pointerEvents: 'none' }}>Processor</text>
-                    <text x="575" y="160" fontSize="10" fill="#d1fae5" textAnchor="middle" style={{ pointerEvents: 'none' }}>Event Sourcing</text>
-                    <text x="575" y="175" fontSize="10" fill="#d1fae5" textAnchor="middle" style={{ pointerEvents: 'none' }}>Fraud Detection</text>
-                    <text x="575" y="190" fontSize="10" fill="#d1fae5" textAnchor="middle" style={{ pointerEvents: 'none' }}>(XGBoost ML)</text>
-                    <text x="575" y="205" fontSize="10" fill="#d1fae5" textAnchor="middle" style={{ pointerEvents: 'none' }}>&lt;100ms latency</text>
-                  </g>
-
-                  {/* Write Databases - CLICKABLE */}
-                  <g onClick={() => setSelectedCQRSComponent('writedb')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="290" y="270" width="370" height="135" rx="8"
-                      fill="url(#p3DbGrad)"
-                      stroke={selectedCQRSComponent === 'writedb' ? '#a78bfa' : '#a78bfa'}
-                      strokeWidth={selectedCQRSComponent === 'writedb' ? '4' : '2'}
-                      style={{ opacity: selectedCQRSComponent === 'writedb' ? 1 : 0.9 }}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="475" y="295" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle" style={{ pointerEvents: 'none' }}>💾 Write Side - 4 Databases</text>
-                    <text x="475" y="315" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>🟢 MongoDB Transaction DB (5 shards, 2M users/shard)</text>
-                    <text x="475" y="330" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>🔵 PostgreSQL Account DB (1 Primary + 2 Replicas)</text>
-                    <text x="475" y="345" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>🟣 PostgreSQL Event Store (Append-only)</text>
-                    <text x="475" y="360" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>🔴 Redis (Idempotency Keys + Rate Limiting)</text>
-                    <text x="475" y="380" fontSize="9" fill="#10b981" fontWeight="bold" fontStyle="italic" style={{ pointerEvents: 'none' }}>Optimized for Consistency & Durability</text>
-                    <text x="475" y="395" fontSize="9" fill="#c4b5fd" fontStyle="italic" style={{ pointerEvents: 'none' }}>Normalized Schema • ACID Transactions</text>
-                  </g>
-
-                  {/* Arrow: Gateway to Command Services */}
-                  <path d="M 200 280 L 260 200 L 290 160" stroke="#10b981" strokeWidth="3" fill="none" markerEnd="url(#p3ArrowGreen)" />
-                  <text x="215" y="235" fontSize="10" fill="#10b981" fontWeight="bold">POST/PUT</text>
-                  <text x="215" y="250" fontSize="10" fill="#10b981">DELETE</text>
-
-                  {/* Arrow: Command Services to DB */}
-                  <path d="M 380 240 L 380 270" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#p3ArrowPurple)" />
-                  <text x="400" y="260" fontSize="10" fill="#8b5cf6" fontWeight="bold">Write</text>
-
-                  {/* Arrow: Transaction Processor to DB */}
-                  <path d="M 575 220 L 575 270" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#p3ArrowPurple)" />
-                  <text x="595" y="250" fontSize="10" fill="#8b5cf6" fontWeight="bold">Store</text>
-
-                  {/* QUERY SIDE */}
-                  <rect x="260" y="480" width="420" height="380" rx="12" fill="rgba(236, 72, 153, 0.05)" stroke="#ec4899" strokeWidth="2" strokeDasharray="5,5" />
-                  <text x="470" y="510" fontSize="16" fontWeight="bold" fill="#ec4899" textAnchor="middle">QUERY SIDE (Read)</text>
-
-                  {/* Query Services - CLICKABLE */}
-                  <g onClick={() => setSelectedCQRSComponent('queryservices')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="290" y="540" width="180" height="140" rx="8"
-                      fill="url(#p3QueryGrad)"
-                      stroke={selectedCQRSComponent === 'queryservices' ? '#f9a8d4' : '#f9a8d4'}
-                      strokeWidth={selectedCQRSComponent === 'queryservices' ? '4' : '2'}
-                      style={{ opacity: selectedCQRSComponent === 'queryservices' ? 1 : 0.9 }}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="380" y="565" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle" style={{ pointerEvents: 'none' }}>🔍 Query Services</text>
-                    <text x="380" y="585" fontSize="10" fill="#fce7f3" textAnchor="middle" style={{ pointerEvents: 'none' }}>GetAccountBalance</text>
-                    <text x="380" y="600" fontSize="10" fill="#fce7f3" textAnchor="middle" style={{ pointerEvents: 'none' }}>GetTransactions</text>
-                    <text x="380" y="615" fontSize="10" fill="#fce7f3" textAnchor="middle" style={{ pointerEvents: 'none' }}>SearchHistory</text>
-                    <text x="380" y="630" fontSize="10" fill="#fce7f3" textAnchor="middle" style={{ pointerEvents: 'none' }}>GetRewards</text>
-                    <text x="380" y="645" fontSize="10" fill="#fce7f3" textAnchor="middle" style={{ pointerEvents: 'none' }}>GenerateReport</text>
-                    <text x="380" y="660" fontSize="10" fill="#fce7f3" textAnchor="middle" style={{ pointerEvents: 'none' }}>10M reads/day</text>
-                  </g>
-
-                  {/* Analytics & Reporting - CLICKABLE */}
-                  <g onClick={() => setSelectedCQRSComponent('analytics')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="490" y="540" width="170" height="120" rx="8"
-                      fill="url(#p3QueryGrad)"
-                      stroke={selectedCQRSComponent === 'analytics' ? '#f9a8d4' : '#f9a8d4'}
-                      strokeWidth={selectedCQRSComponent === 'analytics' ? '4' : '2'}
-                      style={{ opacity: selectedCQRSComponent === 'analytics' ? 1 : 0.9 }}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="575" y="565" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle" style={{ pointerEvents: 'none' }}>📊 Analytics</text>
-                    <text x="575" y="580" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle" style={{ pointerEvents: 'none' }}>& Reporting</text>
-                    <text x="575" y="600" fontSize="10" fill="#fce7f3" textAnchor="middle" style={{ pointerEvents: 'none' }}>Data Pipeline</text>
-                    <text x="575" y="615" fontSize="10" fill="#fce7f3" textAnchor="middle" style={{ pointerEvents: 'none' }}>(Kafka Streams)</text>
-                    <text x="575" y="630" fontSize="10" fill="#fce7f3" textAnchor="middle" style={{ pointerEvents: 'none' }}>Real-time Stats</text>
-                    <text x="575" y="645" fontSize="10" fill="#fce7f3" textAnchor="middle" style={{ pointerEvents: 'none' }}>Report Generator</text>
-                  </g>
-
-                  {/* Read Databases - CLICKABLE */}
-                  <g onClick={() => setSelectedCQRSComponent('readdb')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="290" y="710" width="370" height="135" rx="8"
-                      fill="url(#p3DbGrad)"
-                      stroke={selectedCQRSComponent === 'readdb' ? '#a78bfa' : '#a78bfa'}
-                      strokeWidth={selectedCQRSComponent === 'readdb' ? '4' : '2'}
-                      style={{ opacity: selectedCQRSComponent === 'readdb' ? 1 : 0.9 }}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="475" y="735" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle" style={{ pointerEvents: 'none' }}>📊 Read Side - 4 Databases</text>
-                    <text x="475" y="755" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>🔴 Redis Cache (10% hot data, 92% hit rate)</text>
-                    <text x="475" y="770" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>🟡 Elasticsearch (3-node cluster, full-text search)</text>
-                    <text x="475" y="785" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>🟣 InfluxDB (Time-series, 1-sec granularity)</text>
-                    <text x="475" y="800" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>🔵 Snowflake (Multi-TB warehouse, nightly ETL)</text>
-                    <text x="475" y="820" fontSize="9" fill="#ec4899" fontWeight="bold" fontStyle="italic" style={{ pointerEvents: 'none' }}>Optimized for Query Speed & Denormalization</text>
-                    <text x="475" y="835" fontSize="9" fill="#c4b5fd" fontStyle="italic" style={{ pointerEvents: 'none' }}>Eventual Consistency • 5-15 min lag acceptable</text>
-                  </g>
-
-                  {/* Arrow: Gateway to Query Services */}
-                  <path d="M 200 340 L 260 520 L 290 610" stroke="#ec4899" strokeWidth="3" fill="none" markerEnd="url(#p3ArrowPink)" />
-                  <text x="215" y="430" fontSize="10" fill="#ec4899" fontWeight="bold">GET</text>
-                  <text x="215" y="445" fontSize="10" fill="#ec4899">Queries</text>
-
-                  {/* Arrow: Query Services to Read DB */}
-                  <path d="M 380 680 L 380 710" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#p3ArrowPurple)" />
-                  <text x="400" y="700" fontSize="10" fill="#8b5cf6" fontWeight="bold">Read</text>
-
-                  {/* Arrow: Analytics to Read DB */}
-                  <path d="M 575 660 L 575 710" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#p3ArrowPurple)" />
-                  <text x="595" y="690" fontSize="10" fill="#8b5cf6" fontWeight="bold">Query</text>
-
-                  {/* EVENT BUS - CLICKABLE */}
-                  <g onClick={() => setSelectedCQRSComponent('eventbus')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="760" y="350" width="240" height="240" rx="8"
-                      fill="url(#p3EventGrad)"
-                      stroke={selectedCQRSComponent === 'eventbus' ? '#fbbf24' : '#fbbf24'}
-                      strokeWidth={selectedCQRSComponent === 'eventbus' ? '5' : '3'}
-                      style={{ opacity: selectedCQRSComponent === 'eventbus' ? 1 : 0.9 }}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="880" y="385" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle" style={{ pointerEvents: 'none' }}>📡 Event Bus</text>
-                    <text x="880" y="405" fontSize="13" fill="white" textAnchor="middle" style={{ pointerEvents: 'none' }}>Apache Kafka</text>
-                    <text x="880" y="425" fontSize="11" fill="#fef3c7" textAnchor="middle" style={{ pointerEvents: 'none' }}>(3-node cluster)</text>
-                    <text x="880" y="455" fontSize="10" fill="#fef3c7" fontWeight="bold" textAnchor="middle" style={{ pointerEvents: 'none' }}>Topics (30M events/day):</text>
-                    <text x="880" y="475" fontSize="10" fill="#fef3c7" textAnchor="middle" style={{ pointerEvents: 'none' }}>• ApplicationCreated</text>
-                    <text x="880" y="490" fontSize="10" fill="#fef3c7" textAnchor="middle" style={{ pointerEvents: 'none' }}>• TransactionPosted</text>
-                    <text x="880" y="505" fontSize="10" fill="#fef3c7" textAnchor="middle" style={{ pointerEvents: 'none' }}>• PaymentProcessed</text>
-                    <text x="880" y="520" fontSize="10" fill="#fef3c7" textAnchor="middle" style={{ pointerEvents: 'none' }}>• FraudAlert</text>
-                    <text x="880" y="535" fontSize="10" fill="#fef3c7" textAnchor="middle" style={{ pointerEvents: 'none' }}>• BalanceUpdated</text>
-                    <text x="880" y="555" fontSize="9" fill="#fde68a" textAnchor="middle" fontStyle="italic" style={{ pointerEvents: 'none' }}>Consumer Groups:</text>
-                    <text x="880" y="570" fontSize="9" fill="#fde68a" textAnchor="middle" fontStyle="italic" style={{ pointerEvents: 'none' }}>Data Pipeline, Notification, Analytics</text>
-                  </g>
-
-                  {/* Arrow: Command to Event Bus */}
-                  <path d="M 680 240 L 760 420" stroke="#f59e0b" strokeWidth="3" fill="none" markerEnd="url(#p3ArrowOrange)" />
-                  <text x="700" y="320" fontSize="10" fill="#f59e0b" fontWeight="bold">Publish</text>
-                  <text x="700" y="335" fontSize="10" fill="#f59e0b">Events</text>
-
-                  {/* Arrow: Event Bus to Query Side */}
-                  <path d="M 760 530 L 680 610" stroke="#f59e0b" strokeWidth="3" fill="none" markerEnd="url(#p3ArrowOrange)" />
-                  <text x="705" y="565" fontSize="10" fill="#f59e0b" fontWeight="bold">Subscribe</text>
-                  <text x="705" y="580" fontSize="10" fill="#f59e0b">& Update</text>
-
-                  {/* Event Store - CLICKABLE */}
-                  <g onClick={() => setSelectedCQRSComponent('eventstore')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="1070" y="200" width="180" height="110" rx="8"
-                      fill="url(#p3DbGrad)"
-                      stroke={selectedCQRSComponent === 'eventstore' ? '#a78bfa' : '#a78bfa'}
-                      strokeWidth={selectedCQRSComponent === 'eventstore' ? '4' : '2'}
-                      style={{ opacity: selectedCQRSComponent === 'eventstore' ? 1 : 0.9 }}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="1160" y="230" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle" style={{ pointerEvents: 'none' }}>📝 Event Store</text>
-                    <text x="1160" y="250" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>PostgreSQL</text>
-                    <text x="1160" y="265" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>Immutable Log</text>
-                    <text x="1160" y="280" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>Append-only Table</text>
-                    <text x="1160" y="295" fontSize="10" fill="#ddd" textAnchor="middle" style={{ pointerEvents: 'none' }}>Event Replay</text>
-                  </g>
-
-                  {/* Arrow: Event Bus to Event Store */}
-                  <path d="M 1000 380 L 1070 270" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#p3ArrowPurple)" />
-                  <text x="1020" y="320" fontSize="10" fill="#8b5cf6" fontWeight="bold">Store</text>
-
-                  {/* Notification Service - CLICKABLE */}
-                  <g onClick={() => setSelectedCQRSComponent('notifications')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="1070" y="410" width="180" height="90" rx="8"
-                      fill="rgba(6, 182, 212, 0.3)"
-                      stroke={selectedCQRSComponent === 'notifications' ? '#06b6d4' : '#06b6d4'}
-                      strokeWidth={selectedCQRSComponent === 'notifications' ? '4' : '2'}
-                      style={{ opacity: selectedCQRSComponent === 'notifications' ? 1 : 0.9 }}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="1160" y="440" fontSize="12" fontWeight="bold" fill="#06b6d4" textAnchor="middle" style={{ pointerEvents: 'none' }}>🔔 Notifications</text>
-                    <text x="1160" y="460" fontSize="10" fill="#cffafe" textAnchor="middle" style={{ pointerEvents: 'none' }}>Email / SMS / Push</text>
-                    <text x="1160" y="475" fontSize="10" fill="#cffafe" textAnchor="middle" style={{ pointerEvents: 'none' }}>Real-time Alerts</text>
-                    <text x="1160" y="490" fontSize="10" fill="#cffafe" textAnchor="middle" style={{ pointerEvents: 'none' }}>Fraud Alerts</text>
-                  </g>
-
-                  {/* Arrow: Event Bus to Notifications */}
-                  <path d="M 1000 470 L 1070 460" stroke="#06b6d4" strokeWidth="2" fill="none" markerEnd="url(#p3ArrowCyan)" strokeDasharray="5,5" />
-
-                  {/* Projections/Denormalizer - CLICKABLE */}
-                  <g onClick={() => setSelectedCQRSComponent('projections')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="1070" y="570" width="180" height="90" rx="8"
-                      fill="rgba(236, 72, 153, 0.3)"
-                      stroke={selectedCQRSComponent === 'projections' ? '#ec4899' : '#ec4899'}
-                      strokeWidth={selectedCQRSComponent === 'projections' ? '4' : '2'}
-                      style={{ opacity: selectedCQRSComponent === 'projections' ? 1 : 0.9 }}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="1160" y="600" fontSize="12" fontWeight="bold" fill="#ec4899" textAnchor="middle" style={{ pointerEvents: 'none' }}>🔄 Projections</text>
-                    <text x="1160" y="620" fontSize="10" fill="#fce7f3" textAnchor="middle" style={{ pointerEvents: 'none' }}>Event Handlers</text>
-                    <text x="1160" y="635" fontSize="10" fill="#fce7f3" textAnchor="middle" style={{ pointerEvents: 'none' }}>Denormalize Data</text>
-                    <text x="1160" y="650" fontSize="10" fill="#fce7f3" textAnchor="middle" style={{ pointerEvents: 'none' }}>Update Read Models</text>
-                  </g>
-
-                  {/* Arrow: Event Bus to Projections */}
-                  <path d="M 1000 530 L 1070 615" stroke="#ec4899" strokeWidth="3" fill="none" markerEnd="url(#p3ArrowPink)" />
-
-                  {/* Arrow: Projections to Read DB */}
-                  <path d="M 1070 650 L 800 750 L 660 770" stroke="#ec4899" strokeWidth="2" fill="none" markerEnd="url(#p3ArrowPink)" strokeDasharray="5,5" />
-                  <text x="850" y="705" fontSize="10" fill="#ec4899" fontWeight="bold">Update</text>
-
-                  {/* Labels */}
-                  <text x="700" y="30" fontSize="18" fontWeight="bold" fill="#f59e0b" textAnchor="middle">⚡ EVENTUAL CONSISTENCY</text>
-                  <text x="700" y="880" fontSize="12" fill="#6b7280" textAnchor="middle">30M txn/day • 347 txn/sec avg • 1735 txn/sec peak • 10M active users</text>
-                </svg>
-              </div>
-
-              {/* Component Details Panel */}
-              {selectedCQRSComponent && cqrsComponentDetails[selectedCQRSComponent] && (
-                <div className="mt-6 bg-gradient-to-br from-purple-900/40 to-purple-800/40 rounded-xl p-6 border-2 border-purple-400 animate-fade-in">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h4 className="text-2xl font-bold text-white mb-1">
-                        {cqrsComponentDetails[selectedCQRSComponent].name}
-                      </h4>
-                      <span className="px-3 py-1 bg-purple-600 text-white rounded-full text-xs font-semibold">
-                        {cqrsComponentDetails[selectedCQRSComponent].type}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => setSelectedCQRSComponent(null)}
-                      className="text-gray-300 hover:text-white transition-colors"
-                    >
-                      <span className="text-2xl">×</span>
-                    </button>
-                  </div>
-
-                  <p className="text-gray-300 mb-4 leading-relaxed">
-                    {cqrsComponentDetails[selectedCQRSComponent].description}
-                  </p>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <h5 className="text-purple-400 font-bold mb-2 flex items-center gap-2">
-                        <span>🔧</span> Technologies
-                      </h5>
-                      <div className="flex flex-wrap gap-2">
-                        {cqrsComponentDetails[selectedCQRSComponent].technologies.map((tech, i) => (
-                          <span key={i} className="px-2 py-1 bg-purple-700/50 text-purple-200 rounded text-sm">
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div>
-                      <h5 className="text-cyan-400 font-bold mb-2 flex items-center gap-2">
-                        <span>📊</span> Metrics
-                      </h5>
-                      <p className="text-gray-300 text-sm bg-cyan-900/30 px-3 py-2 rounded border border-cyan-700/30">
-                        {cqrsComponentDetails[selectedCQRSComponent].metrics}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h5 className="text-green-400 font-bold mb-2 flex items-center gap-2">
-                      <span>✓</span> Responsibilities
-                    </h5>
-                    <ul className="space-y-1">
-                      {cqrsComponentDetails[selectedCQRSComponent].responsibilities.map((resp, i) => (
-                        <li key={i} className="text-gray-300 text-sm flex items-start gap-2">
-                          <span className="text-green-400 mt-1">→</span>
-                          <span>{resp}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="mt-4 pt-4 border-t border-purple-500/30">
-                    <p className="text-gray-400 text-xs italic">
-                      💡 Click on other components in the diagram to view their details
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Key Benefits */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
-                  <h4 className="text-gray-900 font-bold mb-3 flex items-center gap-2 text-lg">
-                    <ArrowRight className="w-5 h-5 text-green-600" />
-                    Command Side (Write) Benefits
-                  </h4>
-                  <ul className="text-gray-700 space-y-2 text-sm">
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-600 font-bold">•</span>
-                      <span><strong>ACID Transactions:</strong> PostgreSQL ensures data consistency for financial operations</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-600 font-bold">•</span>
-                      <span><strong>Saga Pattern:</strong> Distributed transactions across Card App → Credit Bureau → Account</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-600 font-bold">•</span>
-                      <span><strong>Idempotency:</strong> Redis-based idempotency keys prevent duplicate charges (24h TTL)</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-600 font-bold">•</span>
-                      <span><strong>Event Sourcing:</strong> Immutable event log provides complete audit trail for compliance</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-600 font-bold">•</span>
-                      <span><strong>Fraud Detection:</strong> XGBoost ML model scores transactions in &lt;100ms</span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-6 border border-pink-200">
-                  <h4 className="text-gray-900 font-bold mb-3 flex items-center gap-2 text-lg">
-                    <ArrowRight className="w-5 h-5 text-pink-600" />
-                    Query Side (Read) Benefits
-                  </h4>
-                  <ul className="text-gray-700 space-y-2 text-sm">
-                    <li className="flex items-start gap-2">
-                      <span className="text-pink-600 font-bold">•</span>
-                      <span><strong>Optimized for Reads:</strong> Denormalized data in Elasticsearch, InfluxDB, Redis</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-pink-600 font-bold">•</span>
-                      <span><strong>Redis Cache:</strong> Ultra-fast queries with &lt;1ms latency for recent transactions</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-pink-600 font-bold">•</span>
-                      <span><strong>Elasticsearch:</strong> Full-text search and complex queries across transaction history</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-pink-600 font-bold">•</span>
-                      <span><strong>InfluxDB:</strong> Time-series data for real-time analytics and reporting</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-pink-600 font-bold">•</span>
-                      <span><strong>Eventual Consistency:</strong> 5-15 min lag acceptable for analytics (not critical path)</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              {/* Example Flow */}
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl p-6 border border-blue-200">
-                <h4 className="text-gray-900 font-bold mb-4 flex items-center gap-2 text-lg">
-                  <Activity className="w-5 h-5 text-blue-600" />
-                  Example Flow: Credit Card Payment ($2,450 - Business Class Flight)
-                </h4>
-                <div className="space-y-3 text-gray-700 text-sm font-mono bg-white p-4 rounded-lg border border-gray-200">
-                  <div className="flex items-start gap-3">
-                    <span className="text-green-600 font-bold whitespace-nowrap">1. COMMAND:</span>
-                    <span>User submits payment of $2,450.00 → API Gateway (JWT auth) → Payment Processing Service validates amount → Fraud Detection (XGBoost) scores transaction (98% safe, &lt;100ms) → Write to PostgreSQL → Publish "PaymentProcessed" event to Kafka</span>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="text-orange-500 font-bold whitespace-nowrap">2. EVENT BUS:</span>
-                    <span>Kafka receives event → (a) Event Store saves immutable log, (b) Notification Service sends SMS confirmation, (c) Projections triggered for read models</span>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="text-pink-600 font-bold whitespace-nowrap">3. PROJECTION:</span>
-                    <span>Projection handlers denormalize transaction data → Update Elasticsearch (searchable history), InfluxDB (real-time stats), Redis cache (fast access for recent txn)</span>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="text-pink-600 font-bold whitespace-nowrap">4. QUERY:</span>
-                    <span>User refreshes dashboard (GET request) → API Gateway → Query Service → Redis cache hit (&lt;1ms) → Returns updated balance ($8,905.50) and recent transactions including $2,450 payment</span>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="text-blue-600 font-bold whitespace-nowrap">5. ANALYTICS:</span>
-                    <span>Kafka Streams aggregates spending data → InfluxDB stores metrics → Real-time dashboard shows: Travel spending +$2,450, Monthly total $11,855.45, Fraud score 98%</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Technology Stack */}
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm">
-                  <h5 className="text-gray-900 font-bold mb-3 flex items-center gap-2">
-                    <CreditCard className="w-5 h-5 text-green-600" />
-                    Command Side
-                  </h5>
-                  <div className="space-y-2 text-gray-700 text-sm">
-                    <div className="flex items-start gap-2">
-                      <span className="text-green-600">→</span>
-                      <span>Spring Boot Microservices</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-green-600">→</span>
-                      <span>PostgreSQL (Primary + Replicas)</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-green-600">→</span>
-                      <span>MongoDB Atlas (Sharded)</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-green-600">→</span>
-                      <span>Spring Data JPA</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-green-600">→</span>
-                      <span>Saga Pattern (Orchestration)</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-green-600">→</span>
-                      <span>XGBoost ML (Fraud Detection)</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm">
-                  <h5 className="text-gray-900 font-bold mb-3 flex items-center gap-2">
-                    <GitBranch className="w-5 h-5 text-orange-600" />
-                    Event Bus
-                  </h5>
-                  <div className="space-y-2 text-gray-700 text-sm">
-                    <div className="flex items-start gap-2">
-                      <span className="text-orange-600">→</span>
-                      <span>Apache Kafka (3-node cluster)</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-orange-600">→</span>
-                      <span>30M events/day</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-orange-600">→</span>
-                      <span>Replication Factor: 3</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-orange-600">→</span>
-                      <span>Kafka Streams (Processing)</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-orange-600">→</span>
-                      <span>Schema Registry (Avro)</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-orange-600">→</span>
-                      <span>Consumer Groups</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm">
-                  <h5 className="text-gray-900 font-bold mb-3 flex items-center gap-2">
-                    <BarChart className="w-5 h-5 text-pink-600" />
-                    Query Side
-                  </h5>
-                  <div className="space-y-2 text-gray-700 text-sm">
-                    <div className="flex items-start gap-2">
-                      <span className="text-pink-600">→</span>
-                      <span>Elasticsearch (Search)</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-pink-600">→</span>
-                      <span>InfluxDB (Time-series)</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-pink-600">→</span>
-                      <span>Redis Enterprise (Cache)</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-pink-600">→</span>
-                      <span>Kafka Streams (Aggregation)</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-pink-600">→</span>
-                      <span>Projections (Event Handlers)</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-pink-600">→</span>
-                      <span>Denormalized Data Models</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Interview Tips */}
-              <div className="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
-                <h4 className="text-gray-900 font-bold mb-4 flex items-center gap-2 text-lg">
-                  <Check className="w-5 h-5 text-blue-600" />
-                  Interview Talking Points
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-white rounded-lg p-4 border border-blue-100">
-                    <h5 className="text-blue-700 font-semibold mb-2">Why CQRS?</h5>
-                    <p className="text-gray-700 text-sm">
-                      "We chose CQRS because reads and writes have different optimization requirements.
-                      Writes need ACID transactions for financial integrity, while reads need speed and
-                      flexible querying. Separating them allows independent scaling—we can add read replicas
-                      without affecting write throughput."
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-lg p-4 border border-blue-100">
-                    <h5 className="text-blue-700 font-semibold mb-2">Trade-offs</h5>
-                    <p className="text-gray-700 text-sm">
-                      "The main trade-off is eventual consistency. Analytics may lag 5-15 minutes behind
-                      real-time transactions. We mitigate this with Redis caching for recent data (&lt;1ms)
-                      and clear UX indicators when data is being updated. For critical reads like balance
-                      checks, we query the write database directly."
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-lg p-4 border border-blue-100">
-                    <h5 className="text-blue-700 font-semibold mb-2">Event Sourcing</h5>
-                    <p className="text-gray-700 text-sm">
-                      "Event Sourcing provides an immutable audit log—crucial for financial compliance.
-                      Every transaction is an event we can replay to rebuild state. If our read model gets
-                      corrupted, we replay events from the Event Store. This also enables time-travel
-                      debugging and compliance audits."
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-lg p-4 border border-blue-100">
-                    <h5 className="text-blue-700 font-semibold mb-2">Scalability</h5>
-                    <p className="text-gray-700 text-sm">
-                      "We handle 347 txn/sec average, 1735 txn/sec peak. Command side uses MongoDB sharding
-                      for horizontal scaling. Query side uses Elasticsearch clusters and Redis caching.
-                      Kafka decouples the two sides—we can scale each independently based on load patterns.
-                      Read-heavy? Add more Elasticsearch nodes. Write-heavy? Scale MongoDB shards."
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Database Mapping to CQRS */}
-              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-8 border-2 border-indigo-200 mt-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                  <Database className="w-7 h-7 text-indigo-600" />
-                  7-Database Architecture Mapped to CQRS Pattern
-                </h3>
-                <p className="text-gray-700 mb-6 leading-relaxed">
-                  The Credit Card Portal uses <span className="font-semibold text-indigo-600">polyglot persistence</span> with 7 specialized databases mapped to the CQRS pattern.
-                  Each database serves specific access patterns in either the <span className="font-semibold text-green-600">Command (Write) Side</span> or <span className="font-semibold text-pink-600">Query (Read) Side</span>.
-                </p>
-
-                {/* Write Side Databases */}
-                <div className="mb-8">
-                  <h4 className="text-xl font-bold text-green-700 mb-4 flex items-center gap-2">
-                    <span className="text-2xl">✍️</span>
-                    Command Side (Write) Databases
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* MongoDB Transaction DB */}
-                    <div className="bg-white rounded-lg p-5 border-2 border-green-300 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex items-center gap-2 mb-3">
-                        <HardDrive className="w-5 h-5 text-green-600" />
-                        <h5 className="text-lg font-bold text-gray-900">MongoDB Transaction DB</h5>
-                      </div>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex items-start gap-2">
-                          <span className="text-green-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">Role:</span> Primary write store for all transactions</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-green-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">Config:</span> 5 shards, 2M users/shard, userId sharding key</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-green-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">CQRS:</span> Receives writes from Command Services, publishes events to Kafka</span>
-                        </div>
-                        <div className="bg-green-50 px-3 py-2 rounded border border-green-200 mt-2">
-                          <span className="text-green-700 font-semibold text-xs">Write: 8ms latency • 1,735 txn/sec peak</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* PostgreSQL Account DB */}
-                    <div className="bg-white rounded-lg p-5 border-2 border-blue-300 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Database className="w-5 h-5 text-blue-600" />
-                        <h5 className="text-lg font-bold text-gray-900">PostgreSQL Account DB</h5>
-                      </div>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex items-start gap-2">
-                          <span className="text-blue-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">Role:</span> ACID transactions for account balances & limits</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-blue-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">Config:</span> 1 Primary + 2 Read Replicas (sync + async replication)</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-blue-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">CQRS:</span> Command Services write to Primary, Query Services read from Replicas</span>
-                        </div>
-                        <div className="bg-blue-50 px-3 py-2 rounded border border-blue-200 mt-2">
-                          <span className="text-blue-700 font-semibold text-xs">Write: 12ms (primary) • Read: 3ms (replicas)</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* PostgreSQL Event Store */}
-                    <div className="bg-white rounded-lg p-5 border-2 border-indigo-300 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex items-center gap-2 mb-3">
-                        <FileText className="w-5 h-5 text-indigo-600" />
-                        <h5 className="text-lg font-bold text-gray-900">PostgreSQL Event Store</h5>
-                      </div>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex items-start gap-2">
-                          <span className="text-indigo-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">Role:</span> Immutable append-only log of all domain events</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-indigo-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">Config:</span> Partitioned by timestamp, indexed by eventId/aggregateId</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-indigo-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">CQRS:</span> Event Sourcing - Command Side appends events, Query Side replays for projections</span>
-                        </div>
-                        <div className="bg-indigo-50 px-3 py-2 rounded border border-indigo-200 mt-2">
-                          <span className="text-indigo-700 font-semibold text-xs">Write: 5ms • Infinite retention (archival to S3)</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Redis Cache */}
-                    <div className="bg-white rounded-lg p-5 border-2 border-red-300 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Zap className="w-5 h-5 text-red-600" />
-                        <h5 className="text-lg font-bold text-gray-900">Redis Cluster (Write Path)</h5>
-                      </div>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex items-start gap-2">
-                          <span className="text-red-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">Role:</span> Idempotency keys & rate limiting (write validation)</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-red-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">Config:</span> 3 Masters + 3 Replicas, 16,384 hash slots</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-red-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">CQRS:</span> Command Side checks idempotency (24h TTL) before writes</span>
-                        </div>
-                        <div className="bg-red-50 px-3 py-2 rounded border border-red-200 mt-2">
-                          <span className="text-red-700 font-semibold text-xs">&lt;1ms latency • 100K ops/sec per node</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Read Side Databases */}
-                <div>
-                  <h4 className="text-xl font-bold text-pink-700 mb-4 flex items-center gap-2">
-                    <span className="text-2xl">📖</span>
-                    Query Side (Read) Databases
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Redis Cache (Read) */}
-                    <div className="bg-white rounded-lg p-5 border-2 border-pink-300 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Zap className="w-5 h-5 text-pink-600" />
-                        <h5 className="text-lg font-bold text-gray-900">Redis Cluster (Read Path)</h5>
-                      </div>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex items-start gap-2">
-                          <span className="text-pink-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">Role:</span> Ultra-fast cache for hot data (sessions, balances, recent txns)</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-pink-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">Data:</span> 10% hot data, 5min TTL (balances), 1min TTL (transactions)</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-pink-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">CQRS:</span> Query Services hit cache first, cache invalidated by Kafka events</span>
-                        </div>
-                        <div className="bg-pink-50 px-3 py-2 rounded border border-pink-200 mt-2">
-                          <span className="text-pink-700 font-semibold text-xs">&lt;1ms reads • 92% cache hit rate</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Elasticsearch */}
-                    <div className="bg-white rounded-lg p-5 border-2 border-yellow-300 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Network className="w-5 h-5 text-yellow-600" />
-                        <h5 className="text-lg font-bold text-gray-900">Elasticsearch</h5>
-                      </div>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex items-start gap-2">
-                          <span className="text-yellow-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">Role:</span> Full-text search across transaction history & merchants</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-yellow-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">Config:</span> 3-node cluster, 5 shards per index, rolling monthly indices</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-yellow-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">CQRS:</span> Async indexing from Kafka events (5-10s lag), denormalized docs</span>
-                        </div>
-                        <div className="bg-yellow-50 px-3 py-2 rounded border border-yellow-200 mt-2">
-                          <span className="text-yellow-700 font-semibold text-xs">Search: 20ms (p50) • Index: 5K docs/sec</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* InfluxDB */}
-                    <div className="bg-white rounded-lg p-5 border-2 border-purple-300 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Activity className="w-5 h-5 text-purple-600" />
-                        <h5 className="text-lg font-bold text-gray-900">InfluxDB Analytics</h5>
-                      </div>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex items-start gap-2">
-                          <span className="text-purple-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">Role:</span> Real-time time-series metrics & KPIs</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-purple-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">Config:</span> 1-second granularity, 90-day retention (raw), continuous queries for aggregation</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-purple-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">CQRS:</span> Async writes from Kafka (1s lag), powers Grafana dashboards</span>
-                        </div>
-                        <div className="bg-purple-50 px-3 py-2 rounded border border-purple-200 mt-2">
-                          <span className="text-purple-700 font-semibold text-xs">Write: 250K points/sec • Query: 50ms</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Snowflake */}
-                    <div className="bg-white rounded-lg p-5 border-2 border-cyan-300 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Box className="w-5 h-5 text-cyan-600" />
-                        <h5 className="text-lg font-bold text-gray-900">Snowflake Warehouse</h5>
-                      </div>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex items-start gap-2">
-                          <span className="text-cyan-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">Role:</span> Historical analytics, BI reports, ML training data</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-cyan-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">Config:</span> Multi-TB storage, 5+ years retention, separate virtual warehouses</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-cyan-600 font-bold mt-0.5">•</span>
-                          <span className="text-gray-700"><span className="font-semibold">CQRS:</span> Nightly batch ETL from MongoDB (2 AM, 2-hour window), NOT real-time</span>
-                        </div>
-                        <div className="bg-cyan-50 px-3 py-2 rounded border border-cyan-200 mt-2">
-                          <span className="text-cyan-700 font-semibold text-xs">Query: 5-30s • ETL: Nightly batch</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* CQRS Flow Summary */}
-                <div className="bg-gradient-to-r from-green-100 via-orange-100 to-pink-100 rounded-xl p-6 border-2 border-gray-300 mt-8">
-                  <h4 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <ArrowRight className="w-5 h-5 text-gray-700" />
-                    CQRS Data Flow: Write → Event Bus → Read
-                  </h4>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-start gap-3">
-                      <span className="bg-green-600 text-white px-2 py-1 rounded font-bold text-xs whitespace-nowrap">STEP 1</span>
-                      <span className="text-gray-800"><span className="font-bold text-green-700">Command Side Writes:</span> POST /payment → Command Service validates → Writes to PostgreSQL Account (balance) + MongoDB Transaction (txn record) + Event Store (domain event) + Redis (idempotency)</span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <span className="bg-orange-600 text-white px-2 py-1 rounded font-bold text-xs whitespace-nowrap">STEP 2</span>
-                      <span className="text-gray-800"><span className="font-bold text-orange-700">Event Bus (Kafka):</span> TransactionAuthorized event published to Kafka topic → Multiple consumers subscribe (Query Side projections, Notification Service, Analytics)</span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <span className="bg-pink-600 text-white px-2 py-1 rounded font-bold text-xs whitespace-nowrap">STEP 3</span>
-                      <span className="text-gray-800"><span className="font-bold text-pink-700">Query Side Projections:</span> Kafka consumers update read models → Elasticsearch (search index, 5-10s lag) + InfluxDB (metrics, 1s lag) + Redis cache (invalidate + update) + Snowflake (nightly batch ETL)</span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <span className="bg-blue-600 text-white px-2 py-1 rounded font-bold text-xs whitespace-nowrap">STEP 4</span>
-                      <span className="text-gray-800"><span className="font-bold text-blue-700">Query Side Reads:</span> GET /transactions → Query Service → Check Redis cache (92% hit rate) → If miss: Query Elasticsearch or PostgreSQL replica → Return denormalized data to client</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Key Insight */}
-                <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-6 mt-6 text-white">
-                  <h4 className="text-xl font-bold mb-3 flex items-center gap-2">
-                    <span>💡</span> Key CQRS Insight
-                  </h4>
-                  <p className="text-indigo-100 leading-relaxed">
-                    <strong className="text-white">Why 7 databases in CQRS?</strong> Each database is optimized for its access pattern. Write databases (MongoDB, PostgreSQL) prioritize
-                    <span className="text-yellow-300 font-semibold"> consistency and durability</span>. Read databases (Elasticsearch, InfluxDB, Redis) prioritize
-                    <span className="text-yellow-300 font-semibold"> query speed and denormalization</span>. Event Store provides the <span className="text-yellow-300 font-semibold">immutable audit trail</span> connecting both sides.
-                    Kafka decouples writes from reads, enabling <span className="text-yellow-300 font-semibold">independent scaling</span> and <span className="text-yellow-300 font-semibold">eventual consistency</span> (5-15 min lag acceptable for analytics).
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'databases' && (
-          <div className="space-y-6">
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 border border-gray-200 shadow-sm">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Database className="w-6 h-6 text-purple-600" />
-                </div>
-                Database Architecture - CQRS with Polyglot Persistence
-              </h2>
-              <p className="text-gray-700 mb-6 leading-relaxed">
-                The Credit Card Portal 3 uses <span className="font-bold text-purple-600">8 different database technologies</span> across the CQRS pattern,
-                implementing polyglot persistence to optimize for different workloads. Write-side databases prioritize ACID transactions and consistency,
-                while read-side databases optimize for query speed with denormalization and caching.
-              </p>
-
-              {/* Enlarged CQRS Architecture Diagram with Database Details */}
-              <div className="bg-white rounded-xl p-6 border-2 border-purple-200 mb-6 shadow-lg">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-bold text-gray-900">CQRS Architecture with Database Layer Details</h3>
-                  <button
-                    onClick={() => setIsDbDiagramExpanded(true)}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-semibold transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                    </svg>
-                    Expand Fullscreen
-                  </button>
-                </div>
-                <p className="text-sm text-gray-600 mb-6 text-center">Click on any component to see detailed database specifications</p>
-
-                <svg viewBox="0 0 1600 1100" className="w-full h-auto">
-                  <defs>
-                    {/* Gradients */}
-                    <linearGradient id="dbClientGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
-                      <stop offset="100%" style={{ stopColor: '#1d4ed8', stopOpacity: 1 }} />
-                    </linearGradient>
-                    <linearGradient id="dbCommandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
-                      <stop offset="100%" style={{ stopColor: '#047857', stopOpacity: 1 }} />
-                    </linearGradient>
-                    <linearGradient id="dbQueryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#ec4899', stopOpacity: 1 }} />
-                      <stop offset="100%" style={{ stopColor: '#be185d', stopOpacity: 1 }} />
-                    </linearGradient>
-                    <linearGradient id="dbEventGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
-                      <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
-                    </linearGradient>
-                    <linearGradient id="dbDatabaseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
-                      <stop offset="100%" style={{ stopColor: '#6d28d9', stopOpacity: 1 }} />
-                    </linearGradient>
-
-                    {/* Arrow markers */}
-                    <marker id="dbArrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                      <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6" />
-                    </marker>
-                    <marker id="dbArrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                      <path d="M0,0 L0,6 L9,3 z" fill="#10b981" />
-                    </marker>
-                    <marker id="dbArrowPink" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                      <path d="M0,0 L0,6 L9,3 z" fill="#ec4899" />
-                    </marker>
-                    <marker id="dbArrowOrange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                      <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b" />
-                    </marker>
-                    <marker id="dbArrowPurple" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                      <path d="M0,0 L0,6 L9,3 z" fill="#8b5cf6" />
-                    </marker>
-                  </defs>
-
-                  {/* BFF Layer & API Gateway */}
-                  <g onClick={() => setSelectedCQRSComponent('bfflayer')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="40" y="50" width="200" height="100" rx="8"
-                      fill="url(#dbClientGrad)"
-                      stroke={selectedCQRSComponent === 'bfflayer' ? '#60a5fa' : '#60a5fa'}
-                      strokeWidth={selectedCQRSComponent === 'bfflayer' ? '4' : '2'}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="140" y="80" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">📱 BFF Layer</text>
-                    <text x="140" y="100" fontSize="11" fill="#ddd" textAnchor="middle">React / iOS / Android</text>
-                    <text x="140" y="115" fontSize="11" fill="#ddd" textAnchor="middle">Admin Dashboard</text>
-                    <text x="140" y="135" fontSize="11" fill="#ddd" textAnchor="middle">30M+ requests/day</text>
-                  </g>
-
-                  <g onClick={() => setSelectedCQRSComponent('apigateway')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="40" y="180" width="200" height="130" rx="8"
-                      fill="url(#dbClientGrad)"
-                      stroke={selectedCQRSComponent === 'apigateway' ? '#60a5fa' : '#60a5fa'}
-                      strokeWidth={selectedCQRSComponent === 'apigateway' ? '4' : '2'}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="140" y="210" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">🚪 API Gateway</text>
-                    <text x="140" y="230" fontSize="11" fill="#ddd" textAnchor="middle">Kong + OAuth 2.0</text>
-                    <text x="140" y="245" fontSize="11" fill="#ddd" textAnchor="middle">Load Balancing</text>
-                    <text x="140" y="260" fontSize="11" fill="#ddd" textAnchor="middle">30M+ req/day</text>
-                    <text x="140" y="280" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Database Used:</text>
-                    <text x="140" y="295" fontSize="9" fill="#fcd34d" textAnchor="middle">Redis (Rate Limiting)</text>
-                  </g>
-
-                  <path d="M 140 150 L 140 180" stroke="#3b82f6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowBlue)" />
-
-                  {/* COMMAND SIDE */}
-                  <rect x="290" y="30" width="520" height="450" rx="12" fill="rgba(16, 185, 129, 0.05)" stroke="#10b981" strokeWidth="3" strokeDasharray="5,5" />
-                  <text x="550" y="65" fontSize="18" fontWeight="bold" fill="#10b981" textAnchor="middle">⚡ COMMAND SIDE (Write Operations)</text>
-
-                  {/* Command Services */}
-                  <g onClick={() => setSelectedCQRSComponent('commandservices')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="320" y="90" width="220" height="140" rx="8"
-                      fill="url(#dbCommandGrad)"
-                      stroke={selectedCQRSComponent === 'commandservices' ? '#34d399' : '#34d399'}
-                      strokeWidth={selectedCQRSComponent === 'commandservices' ? '4' : '2'}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="430" y="115" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">⚡ Command Services</text>
-                    <text x="430" y="135" fontSize="11" fill="#d1fae5" textAnchor="middle">Card Application (Saga)</text>
-                    <text x="430" y="150" fontSize="11" fill="#d1fae5" textAnchor="middle">Account Service</text>
-                    <text x="430" y="165" fontSize="11" fill="#d1fae5" textAnchor="middle">Payment Processing</text>
-                    <text x="430" y="185" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Databases Used:</text>
-                    <text x="430" y="200" fontSize="9" fill="#fcd34d" textAnchor="middle">PostgreSQL (Account DB)</text>
-                    <text x="430" y="213" fontSize="9" fill="#fcd34d" textAnchor="middle">Redis (Idempotency Keys)</text>
-                  </g>
-
-                  {/* Transaction Processor */}
-                  <g onClick={() => setSelectedCQRSComponent('txprocessor')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="560" y="90" width="220" height="140" rx="8"
-                      fill="url(#dbCommandGrad)"
-                      stroke={selectedCQRSComponent === 'txprocessor' ? '#34d399' : '#34d399'}
-                      strokeWidth={selectedCQRSComponent === 'txprocessor' ? '4' : '2'}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="670" y="115" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">⚙️ Transaction Processor</text>
-                    <text x="670" y="135" fontSize="11" fill="#d1fae5" textAnchor="middle">Event Sourcing</text>
-                    <text x="670" y="150" fontSize="11" fill="#d1fae5" textAnchor="middle">Fraud Detection (ML)</text>
-                    <text x="670" y="165" fontSize="11" fill="#d1fae5" textAnchor="middle">&lt;100ms latency</text>
-                    <text x="670" y="185" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Databases Used:</text>
-                    <text x="670" y="200" fontSize="9" fill="#fcd34d" textAnchor="middle">MongoDB (Transaction DB)</text>
-                    <text x="670" y="213" fontSize="9" fill="#fcd34d" textAnchor="middle">PostgreSQL (Event Store)</text>
-                  </g>
-
-                  {/* Write Side - Individual Databases */}
-
-                  {/* PostgreSQL - Account DB */}
-                  <g onClick={() => setSelectedCQRSComponent('writedb')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="290" y="270" width="180" height="85" rx="8"
-                      fill="url(#dbDatabaseGrad)"
-                      stroke={selectedCQRSComponent === 'writedb' ? '#a78bfa' : '#a78bfa'}
-                      strokeWidth={selectedCQRSComponent === 'writedb' ? '4' : '2'}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="380" y="295" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">💾 PostgreSQL</text>
-                    <text x="380" y="313" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Account Database</text>
-                    <text x="380" y="330" fontSize="9" fill="#c4b5fd" textAnchor="middle">1 Primary + 2 Replicas</text>
-                    <text x="380" y="343" fontSize="9" fill="#c4b5fd" textAnchor="middle">ACID • Strong Consistency</text>
-                  </g>
-
-                  {/* Redis - Idempotency */}
-                  <g onClick={() => setSelectedCQRSComponent('writedb')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="490" y="270" width="180" height="85" rx="8"
-                      fill="url(#dbDatabaseGrad)"
-                      stroke={selectedCQRSComponent === 'writedb' ? '#a78bfa' : '#a78bfa'}
-                      strokeWidth={selectedCQRSComponent === 'writedb' ? '4' : '2'}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="580" y="295" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">💾 Redis</text>
-                    <text x="580" y="313" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Idempotency Store</text>
-                    <text x="580" y="330" fontSize="9" fill="#c4b5fd" textAnchor="middle">24h TTL • &lt;1ms latency</text>
-                    <text x="580" y="343" fontSize="9" fill="#c4b5fd" textAnchor="middle">Rate Limiting</text>
-                  </g>
-
-                  {/* MongoDB - Transaction DB */}
-                  <g onClick={() => setSelectedCQRSComponent('writedb')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="290" y="375" width="180" height="85" rx="8"
-                      fill="url(#dbDatabaseGrad)"
-                      stroke={selectedCQRSComponent === 'writedb' ? '#a78bfa' : '#a78bfa'}
-                      strokeWidth={selectedCQRSComponent === 'writedb' ? '4' : '2'}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="380" y="400" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">💾 MongoDB</text>
-                    <text x="380" y="418" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Transaction Database</text>
-                    <text x="380" y="435" fontSize="9" fill="#c4b5fd" textAnchor="middle">5 shards (2M users/shard)</text>
-                    <text x="380" y="448" fontSize="9" fill="#c4b5fd" textAnchor="middle">High write throughput</text>
-                  </g>
-
-                  {/* PostgreSQL - Event Store */}
-                  <g onClick={() => setSelectedCQRSComponent('eventstore')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="490" y="375" width="180" height="85" rx="8"
-                      fill="url(#dbDatabaseGrad)"
-                      stroke={selectedCQRSComponent === 'eventstore' ? '#a78bfa' : '#a78bfa'}
-                      strokeWidth={selectedCQRSComponent === 'eventstore' ? '4' : '2'}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="580" y="400" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">💾 PostgreSQL</text>
-                    <text x="580" y="418" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Event Store</text>
-                    <text x="580" y="435" fontSize="9" fill="#c4b5fd" textAnchor="middle">Append-only • Immutable</text>
-                    <text x="580" y="448" fontSize="9" fill="#c4b5fd" textAnchor="middle">PCI DSS Audit Trail</text>
-                  </g>
-
-                  {/* Gateway to Command Services */}
-                  <path d="M 240 230 L 290 180 L 320 155" stroke="#10b981" strokeWidth="3" fill="none" markerEnd="url(#dbArrowGreen)" />
-                  <text x="260" y="200" fontSize="11" fill="#10b981" fontWeight="bold">POST/PUT/DELETE</text>
-
-                  {/* Command Services to PostgreSQL Account DB */}
-                  <path d="M 380 230 L 380 270" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurple)" />
-                  <text x="395" y="255" fontSize="9" fill="#8b5cf6" fontWeight="bold">Write Accounts</text>
-
-                  {/* Command Services to Redis */}
-                  <path d="M 480 230 L 530 270" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurple)" />
-                  <text x="500" y="255" fontSize="9" fill="#8b5cf6" fontWeight="bold">Idempotency</text>
-
-                  {/* Transaction Processor to MongoDB */}
-                  <path d="M 620 230 L 430 375" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurple)" />
-                  <text x="510" y="310" fontSize="9" fill="#8b5cf6" fontWeight="bold">Write Txns</text>
-
-                  {/* Transaction Processor to Event Store */}
-                  <path d="M 720 230 L 630 375" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurple)" />
-                  <text x="670" y="310" fontSize="9" fill="#8b5cf6" fontWeight="bold">Store Events</text>
-
-                  {/* QUERY SIDE */}
-                  <rect x="290" y="560" width="520" height="500" rx="12" fill="rgba(236, 72, 153, 0.05)" stroke="#ec4899" strokeWidth="3" strokeDasharray="5,5" />
-                  <text x="550" y="595" fontSize="18" fontWeight="bold" fill="#ec4899" textAnchor="middle">🔍 QUERY SIDE (Read Operations)</text>
-
-                  {/* Query Services */}
-                  <g onClick={() => setSelectedCQRSComponent('queryservices')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="320" y="620" width="220" height="140" rx="8"
-                      fill="url(#dbQueryGrad)"
-                      stroke={selectedCQRSComponent === 'queryservices' ? '#f9a8d4' : '#f9a8d4'}
-                      strokeWidth={selectedCQRSComponent === 'queryservices' ? '4' : '2'}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="430" y="645" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">🔍 Query Services</text>
-                    <text x="430" y="665" fontSize="11" fill="#fce7f3" textAnchor="middle">GetAccountBalance</text>
-                    <text x="430" y="680" fontSize="11" fill="#fce7f3" textAnchor="middle">GetTransactions</text>
-                    <text x="430" y="695" fontSize="11" fill="#fce7f3" textAnchor="middle">SearchHistory</text>
-                    <text x="430" y="715" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Databases Used:</text>
-                    <text x="430" y="730" fontSize="9" fill="#fcd34d" textAnchor="middle">Redis Cache (Hot Data)</text>
-                    <text x="430" y="743" fontSize="9" fill="#fcd34d" textAnchor="middle">Elasticsearch (Search)</text>
-                  </g>
-
-                  {/* Analytics */}
-                  <g onClick={() => setSelectedCQRSComponent('analytics')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="560" y="620" width="220" height="140" rx="8"
-                      fill="url(#dbQueryGrad)"
-                      stroke={selectedCQRSComponent === 'analytics' ? '#f9a8d4' : '#f9a8d4'}
-                      strokeWidth={selectedCQRSComponent === 'analytics' ? '4' : '2'}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="670" y="645" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">📊 Analytics</text>
-                    <text x="670" y="665" fontSize="11" fill="#fce7f3" textAnchor="middle">Data Pipeline (Kafka)</text>
-                    <text x="670" y="680" fontSize="11" fill="#fce7f3" textAnchor="middle">Real-time Stats</text>
-                    <text x="670" y="695" fontSize="11" fill="#fce7f3" textAnchor="middle">Report Generator</text>
-                    <text x="670" y="715" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Databases Used:</text>
-                    <text x="670" y="730" fontSize="9" fill="#fcd34d" textAnchor="middle">InfluxDB (Time-Series)</text>
-                    <text x="670" y="743" fontSize="9" fill="#fcd34d" textAnchor="middle">Snowflake (Warehouse)</text>
-                  </g>
-
-                  {/* Read Side - Individual Databases */}
-
-                  {/* Redis Cache */}
-                  <g onClick={() => setSelectedCQRSComponent('readdb')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="290" y="800" width="180" height="85" rx="8"
-                      fill="url(#dbDatabaseGrad)"
-                      stroke={selectedCQRSComponent === 'readdb' ? '#a78bfa' : '#a78bfa'}
-                      strokeWidth={selectedCQRSComponent === 'readdb' ? '4' : '2'}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="380" y="825" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">📊 Redis Cache</text>
-                    <text x="380" y="843" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Hot Data Store</text>
-                    <text x="380" y="860" fontSize="9" fill="#c4b5fd" textAnchor="middle">92% hit rate • &lt;1ms</text>
-                    <text x="380" y="873" fontSize="9" fill="#c4b5fd" textAnchor="middle">100K ops/sec</text>
-                  </g>
-
-                  {/* Elasticsearch */}
-                  <g onClick={() => setSelectedCQRSComponent('readdb')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="490" y="800" width="180" height="85" rx="8"
-                      fill="url(#dbDatabaseGrad)"
-                      stroke={selectedCQRSComponent === 'readdb' ? '#a78bfa' : '#a78bfa'}
-                      strokeWidth={selectedCQRSComponent === 'readdb' ? '4' : '2'}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="580" y="825" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">📊 Elasticsearch</text>
-                    <text x="580" y="843" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Search Engine</text>
-                    <text x="580" y="860" fontSize="9" fill="#c4b5fd" textAnchor="middle">3-node cluster</text>
-                    <text x="580" y="873" fontSize="9" fill="#c4b5fd" textAnchor="middle">Full-text search</text>
-                  </g>
-
-                  {/* InfluxDB */}
-                  <g onClick={() => setSelectedCQRSComponent('readdb')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="290" y="905" width="180" height="85" rx="8"
-                      fill="url(#dbDatabaseGrad)"
-                      stroke={selectedCQRSComponent === 'readdb' ? '#a78bfa' : '#a78bfa'}
-                      strokeWidth={selectedCQRSComponent === 'readdb' ? '4' : '2'}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="380" y="930" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">📊 InfluxDB</text>
-                    <text x="380" y="948" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Time-Series DB</text>
-                    <text x="380" y="965" fontSize="9" fill="#c4b5fd" textAnchor="middle">1-sec granularity</text>
-                    <text x="380" y="978" fontSize="9" fill="#c4b5fd" textAnchor="middle">90-day retention</text>
-                  </g>
-
-                  {/* Snowflake */}
-                  <g onClick={() => setSelectedCQRSComponent('readdb')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="490" y="905" width="180" height="85" rx="8"
-                      fill="url(#dbDatabaseGrad)"
-                      stroke={selectedCQRSComponent === 'readdb' ? '#a78bfa' : '#a78bfa'}
-                      strokeWidth={selectedCQRSComponent === 'readdb' ? '4' : '2'}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="580" y="930" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">📊 Snowflake</text>
-                    <text x="580" y="948" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Data Warehouse</text>
-                    <text x="580" y="965" fontSize="9" fill="#c4b5fd" textAnchor="middle">Multi-TB storage</text>
-                    <text x="580" y="978" fontSize="9" fill="#c4b5fd" textAnchor="middle">Nightly ETL</text>
-                  </g>
-
-                  {/* Gateway to Query Services */}
-                  <path d="M 240 260 L 290 510 L 320 680" stroke="#ec4899" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPink)" />
-                  <text x="260" y="490" fontSize="11" fill="#ec4899" fontWeight="bold">GET Queries</text>
-
-                  {/* Query Services to Redis Cache */}
-                  <path d="M 380 760 L 380 800" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurple)" />
-                  <text x="395" y="785" fontSize="9" fill="#8b5cf6" fontWeight="bold">Read Cache</text>
-
-                  {/* Query Services to Elasticsearch */}
-                  <path d="M 480 760 L 530 800" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurple)" />
-                  <text x="500" y="785" fontSize="9" fill="#8b5cf6" fontWeight="bold">Search</text>
-
-                  {/* Analytics to InfluxDB */}
-                  <path d="M 620 760 L 430 905" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurple)" />
-                  <text x="510" y="840" fontSize="9" fill="#8b5cf6" fontWeight="bold">Time-Series</text>
-
-                  {/* Analytics to Snowflake */}
-                  <path d="M 720 760 L 630 905" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurple)" />
-                  <text x="670" y="840" fontSize="9" fill="#8b5cf6" fontWeight="bold">Analytics</text>
-
-                  {/* EVENT BUS */}
-                  <g onClick={() => setSelectedCQRSComponent('eventbus')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="890" y="380" width="280" height="280" rx="8"
-                      fill="url(#dbEventGrad)"
-                      stroke={selectedCQRSComponent === 'eventbus' ? '#fbbf24' : '#fbbf24'}
-                      strokeWidth={selectedCQRSComponent === 'eventbus' ? '5' : '3'}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="1030" y="420" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">📡 Event Bus</text>
-                    <text x="1030" y="445" fontSize="15" fill="white" textAnchor="middle">Apache Kafka</text>
-                    <text x="1030" y="465" fontSize="12" fill="#fef3c7" textAnchor="middle">(3-node cluster)</text>
-
-                    <text x="1030" y="495" fontSize="11" fill="#fef3c7" fontWeight="bold" textAnchor="middle">Database Support:</text>
-                    <text x="1030" y="515" fontSize="10" fill="#fef3c7" textAnchor="middle">• Connects Write → Read DBs</text>
-                    <text x="1030" y="530" fontSize="10" fill="#fef3c7" textAnchor="middle">• 30M events/day</text>
-                    <text x="1030" y="545" fontSize="10" fill="#fef3c7" textAnchor="middle">• Replication factor: 3</text>
-
-                    <text x="1030" y="575" fontSize="11" fill="#fef3c7" fontWeight="bold" textAnchor="middle">Topics:</text>
-                    <text x="1030" y="593" fontSize="10" fill="#fde68a" textAnchor="middle">ApplicationCreated</text>
-                    <text x="1030" y="608" fontSize="10" fill="#fde68a" textAnchor="middle">TransactionPosted</text>
-                    <text x="1030" y="623" fontSize="10" fill="#fde68a" textAnchor="middle">PaymentProcessed</text>
-                    <text x="1030" y="638" fontSize="10" fill="#fde68a" textAnchor="middle">FraudAlert • BalanceUpdated</text>
-                  </g>
-
-                  {/* Event Store */}
-                  <g onClick={() => setSelectedCQRSComponent('eventstore')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="1230" y="150" width="240" height="140" rx="8"
-                      fill="url(#dbDatabaseGrad)"
-                      stroke={selectedCQRSComponent === 'eventstore' ? '#a78bfa' : '#a78bfa'}
-                      strokeWidth={selectedCQRSComponent === 'eventstore' ? '4' : '2'}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="1350" y="185" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">📝 Event Store Database</text>
-                    <text x="1350" y="210" fontSize="12" fill="#ddd" fontWeight="bold" textAnchor="middle">PostgreSQL</text>
-                    <text x="1350" y="227" fontSize="10" fill="#c4b5fd" textAnchor="middle">• Append-only table</text>
-                    <text x="1350" y="242" fontSize="10" fill="#c4b5fd" textAnchor="middle">• Immutable event log</text>
-                    <text x="1350" y="257" fontSize="10" fill="#c4b5fd" textAnchor="middle">• Event replay capability</text>
-                    <text x="1350" y="272" fontSize="10" fill="#c4b5fd" textAnchor="middle">• 30M events/day</text>
-                  </g>
-
-                  {/* Projections */}
-                  <g onClick={() => setSelectedCQRSComponent('projections')} style={{ cursor: 'pointer' }}>
-                    <rect
-                      x="1230" y="730" width="240" height="120" rx="8"
-                      fill="rgba(236, 72, 153, 0.3)"
-                      stroke={selectedCQRSComponent === 'projections' ? '#ec4899' : '#ec4899'}
-                      strokeWidth={selectedCQRSComponent === 'projections' ? '4' : '2'}
-                      className="hover:opacity-100 transition-all"
-                    />
-                    <text x="1350" y="760" fontSize="14" fontWeight="bold" fill="#ec4899" textAnchor="middle">🔄 Projections</text>
-                    <text x="1350" y="780" fontSize="11" fill="#fce7f3" textAnchor="middle">Event Handlers</text>
-                    <text x="1350" y="800" fontSize="11" fill="#fce7f3" textAnchor="middle">Denormalize Data</text>
-                    <text x="1350" y="820" fontSize="11" fill="#fce7f3" textAnchor="middle">Update Read Databases</text>
-                    <text x="1350" y="835" fontSize="9" fill="#f9a8d4" textAnchor="middle">(Elasticsearch, InfluxDB, Redis)</text>
-                  </g>
-
-                  {/* Arrows */}
-                  <path d="M 810 240 L 890 480" stroke="#f59e0b" strokeWidth="4" fill="none" markerEnd="url(#dbArrowOrange)" />
-                  <text x="835" y="350" fontSize="11" fill="#f59e0b" fontWeight="bold">Publish Events</text>
-
-                  <path d="M 890 580 L 810 730" stroke="#f59e0b" strokeWidth="4" fill="none" markerEnd="url(#dbArrowOrange)" />
-                  <text x="835" y="650" fontSize="11" fill="#f59e0b" fontWeight="bold">Subscribe</text>
-
-                  <path d="M 1170 450 L 1230 260" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurple)" />
-                  <text x="1180" y="350" fontSize="11" fill="#8b5cf6" fontWeight="bold">Store All Events</text>
-
-                  <path d="M 1170 570 L 1230 780" stroke="#ec4899" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPink)" />
-                  <text x="1180" y="670" fontSize="11" fill="#ec4899" fontWeight="bold">Process Events</text>
-
-                  <path d="M 1230 830 L 900 900 L 780 920" stroke="#ec4899" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPink)" strokeDasharray="5,5" />
-                  <text x="1000" y="870" fontSize="11" fill="#ec4899" fontWeight="bold">Update Read DBs</text>
-
-                  {/* Title and metrics */}
-                  <text x="800" y="30" fontSize="20" fontWeight="bold" fill="#f59e0b" textAnchor="middle">⚡ EVENTUAL CONSISTENCY (5-15 min lag)</text>
-                  <text x="800" y="1080" fontSize="13" fill="#6b7280" textAnchor="middle">8 Database Technologies • 30M txn/day • 10M active users • 347 txn/sec average</text>
-                </svg>
-              </div>
-
-              {/* Component Details Panel */}
-              {selectedCQRSComponent && cqrsComponentDetails[selectedCQRSComponent] && (
-                <div className="mt-6 bg-gradient-to-br from-purple-900/40 to-purple-800/40 rounded-xl p-6 border-2 border-purple-400 animate-fade-in">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h4 className="text-2xl font-bold text-white mb-1">
-                        {cqrsComponentDetails[selectedCQRSComponent].name}
-                      </h4>
-                      <span className="px-3 py-1 bg-purple-600 text-white rounded-full text-xs font-semibold">
-                        {cqrsComponentDetails[selectedCQRSComponent].type}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => setSelectedCQRSComponent(null)}
-                      className="text-gray-300 hover:text-white transition-colors"
-                    >
-                      <span className="text-2xl">×</span>
-                    </button>
-                  </div>
-
-                  <p className="text-gray-300 mb-4 leading-relaxed">
-                    {cqrsComponentDetails[selectedCQRSComponent].description}
-                  </p>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <h5 className="text-purple-400 font-bold mb-2 flex items-center gap-2">
-                        <span>🔧</span> Technologies
-                      </h5>
-                      <div className="flex flex-wrap gap-2">
-                        {cqrsComponentDetails[selectedCQRSComponent].technologies.map((tech, i) => (
-                          <span key={i} className="px-2 py-1 bg-purple-700/50 text-purple-200 rounded text-sm">
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div>
-                      <h5 className="text-cyan-400 font-bold mb-2 flex items-center gap-2">
-                        <span>📊</span> Metrics
-                      </h5>
-                      <p className="text-gray-300 text-sm bg-cyan-900/30 px-3 py-2 rounded border border-cyan-700/30">
-                        {cqrsComponentDetails[selectedCQRSComponent].metrics}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h5 className="text-green-400 font-bold mb-2 flex items-center gap-2">
-                      <span>⚡</span> Key Responsibilities
-                    </h5>
-                    <ul className="space-y-1">
-                      {cqrsComponentDetails[selectedCQRSComponent].responsibilities.map((resp, i) => (
-                        <li key={i} className="text-gray-300 text-sm flex items-start gap-2">
-                          <span className="text-green-400 mt-1">•</span>
-                          <span>{resp}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              )}
-
-              {/* Database Summary Table */}
-              <div className="mt-8 bg-white rounded-xl p-6 border-2 border-gray-200 shadow-md">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Database Technology Summary</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b-2 border-gray-300">
-                        <th className="text-left py-3 px-4 font-bold text-gray-900">Database</th>
-                        <th className="text-left py-3 px-4 font-bold text-gray-900">Type</th>
-                        <th className="text-left py-3 px-4 font-bold text-gray-900">Primary Use Case</th>
-                        <th className="text-left py-3 px-4 font-bold text-gray-900">Key Features</th>
-                        <th className="text-left py-3 px-4 font-bold text-gray-900">Side</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-b border-gray-200 hover:bg-gray-50">
-                        <td className="py-3 px-4 font-semibold text-green-700">MongoDB</td>
-                        <td className="py-3 px-4 text-gray-700">Document Store</td>
-                        <td className="py-3 px-4 text-gray-700">Transaction records</td>
-                        <td className="py-3 px-4 text-gray-600 text-xs">5 shards, 2M users/shard, High write throughput</td>
-                        <td className="py-3 px-4"><span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">Write</span></td>
-                      </tr>
-                      <tr className="border-b border-gray-200 hover:bg-gray-50">
-                        <td className="py-3 px-4 font-semibold text-green-700">PostgreSQL (Account)</td>
-                        <td className="py-3 px-4 text-gray-700">Relational DBMS</td>
-                        <td className="py-3 px-4 text-gray-700">Account data</td>
-                        <td className="py-3 px-4 text-gray-600 text-xs">Primary + 2 replicas, ACID, Strong consistency</td>
-                        <td className="py-3 px-4"><span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">Write</span></td>
-                      </tr>
-                      <tr className="border-b border-gray-200 hover:bg-gray-50">
-                        <td className="py-3 px-4 font-semibold text-green-700">PostgreSQL (Event Store)</td>
-                        <td className="py-3 px-4 text-gray-700">Event Store</td>
-                        <td className="py-3 px-4 text-gray-700">Immutable event log</td>
-                        <td className="py-3 px-4 text-gray-600 text-xs">Append-only, Event sourcing, Audit trail</td>
-                        <td className="py-3 px-4"><span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">Write</span></td>
-                      </tr>
-                      <tr className="border-b border-gray-200 hover:bg-gray-50">
-                        <td className="py-3 px-4 font-semibold text-blue-700">Redis</td>
-                        <td className="py-3 px-4 text-gray-700">In-Memory Cache</td>
-                        <td className="py-3 px-4 text-gray-700">Caching, Idempotency, Rate limiting</td>
-                        <td className="py-3 px-4 text-gray-600 text-xs">&lt;1ms latency, 92% hit rate, 24h TTL</td>
-                        <td className="py-3 px-4"><span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">Both</span></td>
-                      </tr>
-                      <tr className="border-b border-gray-200 hover:bg-gray-50">
-                        <td className="py-3 px-4 font-semibold text-pink-700">Elasticsearch</td>
-                        <td className="py-3 px-4 text-gray-700">Search Engine</td>
-                        <td className="py-3 px-4 text-gray-700">Full-text search</td>
-                        <td className="py-3 px-4 text-gray-600 text-xs">3-node cluster, Transaction history, Denormalized</td>
-                        <td className="py-3 px-4"><span className="px-2 py-1 bg-pink-100 text-pink-800 rounded text-xs font-semibold">Read</span></td>
-                      </tr>
-                      <tr className="border-b border-gray-200 hover:bg-gray-50">
-                        <td className="py-3 px-4 font-semibold text-pink-700">InfluxDB</td>
-                        <td className="py-3 px-4 text-gray-700">Time-Series DB</td>
-                        <td className="py-3 px-4 text-gray-700">Real-time metrics</td>
-                        <td className="py-3 px-4 text-gray-600 text-xs">1-sec granularity, 90-day retention</td>
-                        <td className="py-3 px-4"><span className="px-2 py-1 bg-pink-100 text-pink-800 rounded text-xs font-semibold">Read</span></td>
-                      </tr>
-                      <tr className="border-b border-gray-200 hover:bg-gray-50">
-                        <td className="py-3 px-4 font-semibold text-pink-700">Snowflake</td>
-                        <td className="py-3 px-4 text-gray-700">Data Warehouse</td>
-                        <td className="py-3 px-4 text-gray-700">Historical analytics</td>
-                        <td className="py-3 px-4 text-gray-600 text-xs">Multi-TB storage, Nightly ETL, BI reports</td>
-                        <td className="py-3 px-4"><span className="px-2 py-1 bg-pink-100 text-pink-800 rounded text-xs font-semibold">Read</span></td>
-                      </tr>
-                      <tr className="border-b border-gray-200 hover:bg-gray-50">
-                        <td className="py-3 px-4 font-semibold text-amber-700">Apache Kafka</td>
-                        <td className="py-3 px-4 text-gray-700">Event Streaming</td>
-                        <td className="py-3 px-4 text-gray-700">Event bus</td>
-                        <td className="py-3 px-4 text-gray-600 text-xs">3-node cluster, 30M events/day, RF=3</td>
-                        <td className="py-3 px-4"><span className="px-2 py-1 bg-amber-100 text-amber-800 rounded text-xs font-semibold">Messaging</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Key Insights */}
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-green-50 rounded-xl p-5 border-2 border-green-200">
-                  <h4 className="text-lg font-bold text-green-900 mb-2 flex items-center gap-2">
-                    <span>⚡</span> Write Side (4 DBs)
-                  </h4>
-                  <p className="text-green-800 text-sm mb-2">Optimized for consistency and durability</p>
-                  <ul className="text-green-700 text-xs space-y-1">
-                    <li>• ACID transactions</li>
-                    <li>• Normalized schemas</li>
-                    <li>• Strong consistency</li>
-                    <li>• Idempotency support</li>
-                  </ul>
-                </div>
-
-                <div className="bg-pink-50 rounded-xl p-5 border-2 border-pink-200">
-                  <h4 className="text-lg font-bold text-pink-900 mb-2 flex items-center gap-2">
-                    <span>🔍</span> Read Side (4 DBs)
-                  </h4>
-                  <p className="text-pink-800 text-sm mb-2">Optimized for query speed</p>
-                  <ul className="text-pink-700 text-xs space-y-1">
-                    <li>• Denormalized data</li>
-                    <li>• Eventual consistency</li>
-                    <li>• Multiple specialized stores</li>
-                    <li>• Heavy caching</li>
-                  </ul>
-                </div>
-
-                <div className="bg-amber-50 rounded-xl p-5 border-2 border-amber-200">
-                  <h4 className="text-lg font-bold text-amber-900 mb-2 flex items-center gap-2">
-                    <span>🔗</span> Event Bus (Kafka)
-                  </h4>
-                  <p className="text-amber-800 text-sm mb-2">Decouples write from read</p>
-                  <ul className="text-amber-700 text-xs space-y-1">
-                    <li>• 30M events/day</li>
-                    <li>• Eventual consistency (5-15 min)</li>
-                    <li>• Independent scaling</li>
-                    <li>• Event sourcing support</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Fullscreen Diagram Modal */}
-            {isDbDiagramExpanded && (
-              <div
-                className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
-                onClick={() => setIsDbDiagramExpanded(false)}
-              >
-                <div className="relative w-full h-full max-w-[95vw] max-h-[95vh] bg-white rounded-xl shadow-2xl overflow-auto">
-                  <div className="sticky top-0 bg-white border-b-2 border-purple-200 px-6 py-4 flex justify-between items-center z-10">
-                    <h3 className="text-2xl font-bold text-gray-900">CQRS Architecture with Database Layer Details</h3>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsDbDiagramExpanded(false);
-                      }}
-                      className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg text-sm font-semibold transition-all flex items-center gap-2"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                      Close
-                    </button>
-                  </div>
-
-                  <div className="p-6" onClick={(e) => e.stopPropagation()}>
-                    <p className="text-sm text-gray-600 mb-6 text-center">Click on any component to see detailed database specifications</p>
-
-                    <svg viewBox="0 0 1600 1100" className="w-full h-auto min-h-[800px]">
-                      <defs>
-                        {/* Gradients */}
-                        <linearGradient id="dbClientGradExpanded" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
-                          <stop offset="100%" style={{ stopColor: '#1d4ed8', stopOpacity: 1 }} />
-                        </linearGradient>
-                        <linearGradient id="dbCommandGradExpanded" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
-                          <stop offset="100%" style={{ stopColor: '#047857', stopOpacity: 1 }} />
-                        </linearGradient>
-                        <linearGradient id="dbQueryGradExpanded" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" style={{ stopColor: '#ec4899', stopOpacity: 1 }} />
-                          <stop offset="100%" style={{ stopColor: '#be185d', stopOpacity: 1 }} />
-                        </linearGradient>
-                        <linearGradient id="dbEventGradExpanded" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
-                          <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
-                        </linearGradient>
-                        <linearGradient id="dbDatabaseGradExpanded" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
-                          <stop offset="100%" style={{ stopColor: '#6d28d9', stopOpacity: 1 }} />
-                        </linearGradient>
-
-                        {/* Arrow markers */}
-                        <marker id="dbArrowBlueExpanded" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                          <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6" />
-                        </marker>
-                        <marker id="dbArrowGreenExpanded" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                          <path d="M0,0 L0,6 L9,3 z" fill="#10b981" />
-                        </marker>
-                        <marker id="dbArrowPinkExpanded" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                          <path d="M0,0 L0,6 L9,3 z" fill="#ec4899" />
-                        </marker>
-                        <marker id="dbArrowOrangeExpanded" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                          <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b" />
-                        </marker>
-                        <marker id="dbArrowPurpleExpanded" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                          <path d="M0,0 L0,6 L9,3 z" fill="#8b5cf6" />
-                        </marker>
-                      </defs>
-
-                      {/* BFF Layer & API Gateway */}
-                      <g onClick={() => setSelectedCQRSComponent('bfflayer')} style={{ cursor: 'pointer' }}>
-                        <rect
-                          x="40" y="50" width="200" height="100" rx="8"
-                          fill="url(#dbClientGradExpanded)"
-                          stroke={selectedCQRSComponent === 'bfflayer' ? '#60a5fa' : '#60a5fa'}
-                          strokeWidth={selectedCQRSComponent === 'bfflayer' ? '4' : '2'}
-                          className="hover:opacity-100 transition-all"
-                        />
-                        <text x="140" y="80" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">📱 BFF Layer</text>
-                        <text x="140" y="100" fontSize="11" fill="#ddd" textAnchor="middle">React / iOS / Android</text>
-                        <text x="140" y="115" fontSize="11" fill="#ddd" textAnchor="middle">Admin Dashboard</text>
-                        <text x="140" y="135" fontSize="11" fill="#ddd" textAnchor="middle">30M+ requests/day</text>
-                      </g>
-
-                      <g onClick={() => setSelectedCQRSComponent('apigateway')} style={{ cursor: 'pointer' }}>
-                        <rect
-                          x="40" y="180" width="200" height="130" rx="8"
-                          fill="url(#dbClientGradExpanded)"
-                          stroke={selectedCQRSComponent === 'apigateway' ? '#60a5fa' : '#60a5fa'}
-                          strokeWidth={selectedCQRSComponent === 'apigateway' ? '4' : '2'}
-                          className="hover:opacity-100 transition-all"
-                        />
-                        <text x="140" y="210" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">🚪 API Gateway</text>
-                        <text x="140" y="230" fontSize="11" fill="#ddd" textAnchor="middle">Kong + OAuth 2.0</text>
-                        <text x="140" y="245" fontSize="11" fill="#ddd" textAnchor="middle">Load Balancing</text>
-                        <text x="140" y="260" fontSize="11" fill="#ddd" textAnchor="middle">30M+ req/day</text>
-                        <text x="140" y="280" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Database Used:</text>
-                        <text x="140" y="295" fontSize="9" fill="#fcd34d" textAnchor="middle">Redis (Rate Limiting)</text>
-                      </g>
-
-                      <path d="M 140 150 L 140 180" stroke="#3b82f6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowBlueExpanded)" />
-
-                      {/* COMMAND SIDE */}
-                      <rect x="290" y="30" width="520" height="450" rx="12" fill="rgba(16, 185, 129, 0.05)" stroke="#10b981" strokeWidth="3" strokeDasharray="5,5" />
-                      <text x="550" y="65" fontSize="18" fontWeight="bold" fill="#10b981" textAnchor="middle">⚡ COMMAND SIDE (Write Operations)</text>
-
-                      {/* Command Services */}
-                      <g onClick={() => setSelectedCQRSComponent('commandservices')} style={{ cursor: 'pointer' }}>
-                        <rect
-                          x="320" y="90" width="220" height="140" rx="8"
-                          fill="url(#dbCommandGradExpanded)"
-                          stroke={selectedCQRSComponent === 'commandservices' ? '#34d399' : '#34d399'}
-                          strokeWidth={selectedCQRSComponent === 'commandservices' ? '4' : '2'}
-                          className="hover:opacity-100 transition-all"
-                        />
-                        <text x="430" y="115" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">⚡ Command Services</text>
-                        <text x="430" y="135" fontSize="11" fill="#d1fae5" textAnchor="middle">Card Application (Saga)</text>
-                        <text x="430" y="150" fontSize="11" fill="#d1fae5" textAnchor="middle">Account Service</text>
-                        <text x="430" y="165" fontSize="11" fill="#d1fae5" textAnchor="middle">Payment Processing</text>
-                        <text x="430" y="185" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Databases Used:</text>
-                        <text x="430" y="200" fontSize="9" fill="#fcd34d" textAnchor="middle">PostgreSQL (Account DB)</text>
-                        <text x="430" y="213" fontSize="9" fill="#fcd34d" textAnchor="middle">Redis (Idempotency Keys)</text>
-                      </g>
-
-                      {/* Transaction Processor */}
-                      <g onClick={() => setSelectedCQRSComponent('txprocessor')} style={{ cursor: 'pointer' }}>
-                        <rect
-                          x="560" y="90" width="220" height="140" rx="8"
-                          fill="url(#dbCommandGradExpanded)"
-                          stroke={selectedCQRSComponent === 'txprocessor' ? '#34d399' : '#34d399'}
-                          strokeWidth={selectedCQRSComponent === 'txprocessor' ? '4' : '2'}
-                          className="hover:opacity-100 transition-all"
-                        />
-                        <text x="670" y="115" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">⚙️ Transaction Processor</text>
-                        <text x="670" y="135" fontSize="11" fill="#d1fae5" textAnchor="middle">Event Sourcing</text>
-                        <text x="670" y="150" fontSize="11" fill="#d1fae5" textAnchor="middle">Fraud Detection (ML)</text>
-                        <text x="670" y="165" fontSize="11" fill="#d1fae5" textAnchor="middle">&lt;100ms latency</text>
-                        <text x="670" y="185" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Databases Used:</text>
-                        <text x="670" y="200" fontSize="9" fill="#fcd34d" textAnchor="middle">MongoDB (Transaction DB)</text>
-                        <text x="670" y="213" fontSize="9" fill="#fcd34d" textAnchor="middle">PostgreSQL (Event Store)</text>
-                      </g>
-
-                      {/* Write Side - Individual Databases (Expanded) */}
-
-                      {/* PostgreSQL - Account DB */}
-                      <g onClick={() => setSelectedCQRSComponent('writedb')} style={{ cursor: 'pointer' }}>
-                        <rect
-                          x="290" y="270" width="180" height="85" rx="8"
-                          fill="url(#dbDatabaseGradExpanded)"
-                          stroke={selectedCQRSComponent === 'writedb' ? '#a78bfa' : '#a78bfa'}
-                          strokeWidth={selectedCQRSComponent === 'writedb' ? '4' : '2'}
-                          className="hover:opacity-100 transition-all"
-                        />
-                        <text x="380" y="295" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">💾 PostgreSQL</text>
-                        <text x="380" y="313" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Account Database</text>
-                        <text x="380" y="330" fontSize="9" fill="#c4b5fd" textAnchor="middle">1 Primary + 2 Replicas</text>
-                        <text x="380" y="343" fontSize="9" fill="#c4b5fd" textAnchor="middle">ACID • Strong Consistency</text>
-                      </g>
-
-                      {/* Redis - Idempotency */}
-                      <g onClick={() => setSelectedCQRSComponent('writedb')} style={{ cursor: 'pointer' }}>
-                        <rect
-                          x="490" y="270" width="180" height="85" rx="8"
-                          fill="url(#dbDatabaseGradExpanded)"
-                          stroke={selectedCQRSComponent === 'writedb' ? '#a78bfa' : '#a78bfa'}
-                          strokeWidth={selectedCQRSComponent === 'writedb' ? '4' : '2'}
-                          className="hover:opacity-100 transition-all"
-                        />
-                        <text x="580" y="295" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">💾 Redis</text>
-                        <text x="580" y="313" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Idempotency Store</text>
-                        <text x="580" y="330" fontSize="9" fill="#c4b5fd" textAnchor="middle">24h TTL • &lt;1ms latency</text>
-                        <text x="580" y="343" fontSize="9" fill="#c4b5fd" textAnchor="middle">Rate Limiting</text>
-                      </g>
-
-                      {/* MongoDB - Transaction DB */}
-                      <g onClick={() => setSelectedCQRSComponent('writedb')} style={{ cursor: 'pointer' }}>
-                        <rect
-                          x="290" y="375" width="180" height="85" rx="8"
-                          fill="url(#dbDatabaseGradExpanded)"
-                          stroke={selectedCQRSComponent === 'writedb' ? '#a78bfa' : '#a78bfa'}
-                          strokeWidth={selectedCQRSComponent === 'writedb' ? '4' : '2'}
-                          className="hover:opacity-100 transition-all"
-                        />
-                        <text x="380" y="400" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">💾 MongoDB</text>
-                        <text x="380" y="418" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Transaction Database</text>
-                        <text x="380" y="435" fontSize="9" fill="#c4b5fd" textAnchor="middle">5 shards (2M users/shard)</text>
-                        <text x="380" y="448" fontSize="9" fill="#c4b5fd" textAnchor="middle">High write throughput</text>
-                      </g>
-
-                      {/* PostgreSQL - Event Store */}
-                      <g onClick={() => setSelectedCQRSComponent('eventstore')} style={{ cursor: 'pointer' }}>
-                        <rect
-                          x="490" y="375" width="180" height="85" rx="8"
-                          fill="url(#dbDatabaseGradExpanded)"
-                          stroke={selectedCQRSComponent === 'eventstore' ? '#a78bfa' : '#a78bfa'}
-                          strokeWidth={selectedCQRSComponent === 'eventstore' ? '4' : '2'}
-                          className="hover:opacity-100 transition-all"
-                        />
-                        <text x="580" y="400" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">💾 PostgreSQL</text>
-                        <text x="580" y="418" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Event Store</text>
-                        <text x="580" y="435" fontSize="9" fill="#c4b5fd" textAnchor="middle">Append-only • Immutable</text>
-                        <text x="580" y="448" fontSize="9" fill="#c4b5fd" textAnchor="middle">PCI DSS Audit Trail</text>
-                      </g>
-
-                      {/* Gateway to Command Services */}
-                      <path d="M 240 230 L 290 180 L 320 155" stroke="#10b981" strokeWidth="3" fill="none" markerEnd="url(#dbArrowGreenExpanded)" />
-                      <text x="260" y="200" fontSize="11" fill="#10b981" fontWeight="bold">POST/PUT/DELETE</text>
-
-                      {/* Command Services to PostgreSQL Account DB */}
-                      <path d="M 380 230 L 380 270" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurpleExpanded)" />
-                      <text x="395" y="255" fontSize="9" fill="#8b5cf6" fontWeight="bold">Write Accounts</text>
-
-                      {/* Command Services to Redis */}
-                      <path d="M 480 230 L 530 270" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurpleExpanded)" />
-                      <text x="500" y="255" fontSize="9" fill="#8b5cf6" fontWeight="bold">Idempotency</text>
-
-                      {/* Transaction Processor to MongoDB */}
-                      <path d="M 620 230 L 430 375" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurpleExpanded)" />
-                      <text x="510" y="310" fontSize="9" fill="#8b5cf6" fontWeight="bold">Write Txns</text>
-
-                      {/* Transaction Processor to Event Store */}
-                      <path d="M 720 230 L 630 375" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurpleExpanded)" />
-                      <text x="670" y="310" fontSize="9" fill="#8b5cf6" fontWeight="bold">Store Events</text>
-
-                      {/* QUERY SIDE */}
-                      <rect x="290" y="560" width="520" height="500" rx="12" fill="rgba(236, 72, 153, 0.05)" stroke="#ec4899" strokeWidth="3" strokeDasharray="5,5" />
-                      <text x="550" y="595" fontSize="18" fontWeight="bold" fill="#ec4899" textAnchor="middle">🔍 QUERY SIDE (Read Operations)</text>
-
-                      {/* Query Services */}
-                      <g onClick={() => setSelectedCQRSComponent('queryservices')} style={{ cursor: 'pointer' }}>
-                        <rect
-                          x="320" y="620" width="220" height="140" rx="8"
-                          fill="url(#dbQueryGradExpanded)"
-                          stroke={selectedCQRSComponent === 'queryservices' ? '#f9a8d4' : '#f9a8d4'}
-                          strokeWidth={selectedCQRSComponent === 'queryservices' ? '4' : '2'}
-                          className="hover:opacity-100 transition-all"
-                        />
-                        <text x="430" y="645" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">🔍 Query Services</text>
-                        <text x="430" y="665" fontSize="11" fill="#fce7f3" textAnchor="middle">GetAccountBalance</text>
-                        <text x="430" y="680" fontSize="11" fill="#fce7f3" textAnchor="middle">GetTransactions</text>
-                        <text x="430" y="695" fontSize="11" fill="#fce7f3" textAnchor="middle">SearchHistory</text>
-                        <text x="430" y="715" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Databases Used:</text>
-                        <text x="430" y="730" fontSize="9" fill="#fcd34d" textAnchor="middle">Redis Cache (Hot Data)</text>
-                        <text x="430" y="743" fontSize="9" fill="#fcd34d" textAnchor="middle">Elasticsearch (Search)</text>
-                      </g>
-
-                      {/* Analytics */}
-                      <g onClick={() => setSelectedCQRSComponent('analytics')} style={{ cursor: 'pointer' }}>
-                        <rect
-                          x="560" y="620" width="220" height="140" rx="8"
-                          fill="url(#dbQueryGradExpanded)"
-                          stroke={selectedCQRSComponent === 'analytics' ? '#f9a8d4' : '#f9a8d4'}
-                          strokeWidth={selectedCQRSComponent === 'analytics' ? '4' : '2'}
-                          className="hover:opacity-100 transition-all"
-                        />
-                        <text x="670" y="645" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">📊 Analytics</text>
-                        <text x="670" y="665" fontSize="11" fill="#fce7f3" textAnchor="middle">Data Pipeline (Kafka)</text>
-                        <text x="670" y="680" fontSize="11" fill="#fce7f3" textAnchor="middle">Real-time Stats</text>
-                        <text x="670" y="695" fontSize="11" fill="#fce7f3" textAnchor="middle">Report Generator</text>
-                        <text x="670" y="715" fontSize="10" fontWeight="bold" fill="#fbbf24" textAnchor="middle">📊 Databases Used:</text>
-                        <text x="670" y="730" fontSize="9" fill="#fcd34d" textAnchor="middle">InfluxDB (Time-Series)</text>
-                        <text x="670" y="743" fontSize="9" fill="#fcd34d" textAnchor="middle">Snowflake (Warehouse)</text>
-                      </g>
-
-                      {/* Read Side - Individual Databases (Expanded) */}
-
-                      {/* Redis Cache */}
-                      <g onClick={() => setSelectedCQRSComponent('readdb')} style={{ cursor: 'pointer' }}>
-                        <rect
-                          x="290" y="800" width="180" height="85" rx="8"
-                          fill="url(#dbDatabaseGradExpanded)"
-                          stroke={selectedCQRSComponent === 'readdb' ? '#a78bfa' : '#a78bfa'}
-                          strokeWidth={selectedCQRSComponent === 'readdb' ? '4' : '2'}
-                          className="hover:opacity-100 transition-all"
-                        />
-                        <text x="380" y="825" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">📊 Redis Cache</text>
-                        <text x="380" y="843" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Hot Data Store</text>
-                        <text x="380" y="860" fontSize="9" fill="#c4b5fd" textAnchor="middle">92% hit rate • &lt;1ms</text>
-                        <text x="380" y="873" fontSize="9" fill="#c4b5fd" textAnchor="middle">100K ops/sec</text>
-                      </g>
-
-                      {/* Elasticsearch */}
-                      <g onClick={() => setSelectedCQRSComponent('readdb')} style={{ cursor: 'pointer' }}>
-                        <rect
-                          x="490" y="800" width="180" height="85" rx="8"
-                          fill="url(#dbDatabaseGradExpanded)"
-                          stroke={selectedCQRSComponent === 'readdb' ? '#a78bfa' : '#a78bfa'}
-                          strokeWidth={selectedCQRSComponent === 'readdb' ? '4' : '2'}
-                          className="hover:opacity-100 transition-all"
-                        />
-                        <text x="580" y="825" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">📊 Elasticsearch</text>
-                        <text x="580" y="843" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Search Engine</text>
-                        <text x="580" y="860" fontSize="9" fill="#c4b5fd" textAnchor="middle">3-node cluster</text>
-                        <text x="580" y="873" fontSize="9" fill="#c4b5fd" textAnchor="middle">Full-text search</text>
-                      </g>
-
-                      {/* InfluxDB */}
-                      <g onClick={() => setSelectedCQRSComponent('readdb')} style={{ cursor: 'pointer' }}>
-                        <rect
-                          x="290" y="905" width="180" height="85" rx="8"
-                          fill="url(#dbDatabaseGradExpanded)"
-                          stroke={selectedCQRSComponent === 'readdb' ? '#a78bfa' : '#a78bfa'}
-                          strokeWidth={selectedCQRSComponent === 'readdb' ? '4' : '2'}
-                          className="hover:opacity-100 transition-all"
-                        />
-                        <text x="380" y="930" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">📊 InfluxDB</text>
-                        <text x="380" y="948" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Time-Series DB</text>
-                        <text x="380" y="965" fontSize="9" fill="#c4b5fd" textAnchor="middle">1-sec granularity</text>
-                        <text x="380" y="978" fontSize="9" fill="#c4b5fd" textAnchor="middle">90-day retention</text>
-                      </g>
-
-                      {/* Snowflake */}
-                      <g onClick={() => setSelectedCQRSComponent('readdb')} style={{ cursor: 'pointer' }}>
-                        <rect
-                          x="490" y="905" width="180" height="85" rx="8"
-                          fill="url(#dbDatabaseGradExpanded)"
-                          stroke={selectedCQRSComponent === 'readdb' ? '#a78bfa' : '#a78bfa'}
-                          strokeWidth={selectedCQRSComponent === 'readdb' ? '4' : '2'}
-                          className="hover:opacity-100 transition-all"
-                        />
-                        <text x="580" y="930" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">📊 Snowflake</text>
-                        <text x="580" y="948" fontSize="11" fill="#ddd" fontWeight="bold" textAnchor="middle">Data Warehouse</text>
-                        <text x="580" y="965" fontSize="9" fill="#c4b5fd" textAnchor="middle">Multi-TB storage</text>
-                        <text x="580" y="978" fontSize="9" fill="#c4b5fd" textAnchor="middle">Nightly ETL</text>
-                      </g>
-
-                      {/* Gateway to Query Services */}
-                      <path d="M 240 260 L 290 510 L 320 680" stroke="#ec4899" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPinkExpanded)" />
-                      <text x="260" y="490" fontSize="11" fill="#ec4899" fontWeight="bold">GET Queries</text>
-
-                      {/* Query Services to Redis Cache */}
-                      <path d="M 380 760 L 380 800" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurpleExpanded)" />
-                      <text x="395" y="785" fontSize="9" fill="#8b5cf6" fontWeight="bold">Read Cache</text>
-
-                      {/* Query Services to Elasticsearch */}
-                      <path d="M 480 760 L 530 800" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurpleExpanded)" />
-                      <text x="500" y="785" fontSize="9" fill="#8b5cf6" fontWeight="bold">Search</text>
-
-                      {/* Analytics to InfluxDB */}
-                      <path d="M 620 760 L 430 905" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurpleExpanded)" />
-                      <text x="510" y="840" fontSize="9" fill="#8b5cf6" fontWeight="bold">Time-Series</text>
-
-                      {/* Analytics to Snowflake */}
-                      <path d="M 720 760 L 630 905" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurpleExpanded)" />
-                      <text x="670" y="840" fontSize="9" fill="#8b5cf6" fontWeight="bold">Analytics</text>
-
-                      {/* EVENT BUS */}
-                      <g onClick={() => setSelectedCQRSComponent('eventbus')} style={{ cursor: 'pointer' }}>
-                        <rect
-                          x="890" y="380" width="280" height="280" rx="8"
-                          fill="url(#dbEventGradExpanded)"
-                          stroke={selectedCQRSComponent === 'eventbus' ? '#fbbf24' : '#fbbf24'}
-                          strokeWidth={selectedCQRSComponent === 'eventbus' ? '5' : '3'}
-                          className="hover:opacity-100 transition-all"
-                        />
-                        <text x="1030" y="420" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">📡 Event Bus</text>
-                        <text x="1030" y="445" fontSize="15" fill="white" textAnchor="middle">Apache Kafka</text>
-                        <text x="1030" y="465" fontSize="12" fill="#fef3c7" textAnchor="middle">(3-node cluster)</text>
-
-                        <text x="1030" y="495" fontSize="11" fill="#fef3c7" fontWeight="bold" textAnchor="middle">Database Support:</text>
-                        <text x="1030" y="515" fontSize="10" fill="#fef3c7" textAnchor="middle">• Connects Write → Read DBs</text>
-                        <text x="1030" y="530" fontSize="10" fill="#fef3c7" textAnchor="middle">• 30M events/day</text>
-                        <text x="1030" y="545" fontSize="10" fill="#fef3c7" textAnchor="middle">• Replication factor: 3</text>
-
-                        <text x="1030" y="575" fontSize="11" fill="#fef3c7" fontWeight="bold" textAnchor="middle">Topics:</text>
-                        <text x="1030" y="593" fontSize="10" fill="#fde68a" textAnchor="middle">ApplicationCreated</text>
-                        <text x="1030" y="608" fontSize="10" fill="#fde68a" textAnchor="middle">TransactionPosted</text>
-                        <text x="1030" y="623" fontSize="10" fill="#fde68a" textAnchor="middle">PaymentProcessed</text>
-                        <text x="1030" y="638" fontSize="10" fill="#fde68a" textAnchor="middle">FraudAlert • BalanceUpdated</text>
-                      </g>
-
-                      {/* Event Store */}
-                      <g onClick={() => setSelectedCQRSComponent('eventstore')} style={{ cursor: 'pointer' }}>
-                        <rect
-                          x="1230" y="150" width="240" height="140" rx="8"
-                          fill="url(#dbDatabaseGradExpanded)"
-                          stroke={selectedCQRSComponent === 'eventstore' ? '#a78bfa' : '#a78bfa'}
-                          strokeWidth={selectedCQRSComponent === 'eventstore' ? '4' : '2'}
-                          className="hover:opacity-100 transition-all"
-                        />
-                        <text x="1350" y="185" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">📝 Event Store Database</text>
-                        <text x="1350" y="210" fontSize="12" fill="#ddd" fontWeight="bold" textAnchor="middle">PostgreSQL</text>
-                        <text x="1350" y="227" fontSize="10" fill="#c4b5fd" textAnchor="middle">• Append-only table</text>
-                        <text x="1350" y="242" fontSize="10" fill="#c4b5fd" textAnchor="middle">• Immutable event log</text>
-                        <text x="1350" y="257" fontSize="10" fill="#c4b5fd" textAnchor="middle">• Event replay capability</text>
-                        <text x="1350" y="272" fontSize="10" fill="#c4b5fd" textAnchor="middle">• 30M events/day</text>
-                      </g>
-
-                      {/* Projections */}
-                      <g onClick={() => setSelectedCQRSComponent('projections')} style={{ cursor: 'pointer' }}>
-                        <rect
-                          x="1230" y="730" width="240" height="120" rx="8"
-                          fill="rgba(236, 72, 153, 0.3)"
-                          stroke={selectedCQRSComponent === 'projections' ? '#ec4899' : '#ec4899'}
-                          strokeWidth={selectedCQRSComponent === 'projections' ? '4' : '2'}
-                          className="hover:opacity-100 transition-all"
-                        />
-                        <text x="1350" y="760" fontSize="14" fontWeight="bold" fill="#ec4899" textAnchor="middle">🔄 Projections</text>
-                        <text x="1350" y="780" fontSize="11" fill="#fce7f3" textAnchor="middle">Event Handlers</text>
-                        <text x="1350" y="800" fontSize="11" fill="#fce7f3" textAnchor="middle">Denormalize Data</text>
-                        <text x="1350" y="820" fontSize="11" fill="#fce7f3" textAnchor="middle">Update Read Databases</text>
-                        <text x="1350" y="835" fontSize="9" fill="#f9a8d4" textAnchor="middle">(Elasticsearch, InfluxDB, Redis)</text>
-                      </g>
-
-                      {/* Arrows */}
-                      <path d="M 810 240 L 890 480" stroke="#f59e0b" strokeWidth="4" fill="none" markerEnd="url(#dbArrowOrangeExpanded)" />
-                      <text x="835" y="350" fontSize="11" fill="#f59e0b" fontWeight="bold">Publish Events</text>
-
-                      <path d="M 890 580 L 810 730" stroke="#f59e0b" strokeWidth="4" fill="none" markerEnd="url(#dbArrowOrangeExpanded)" />
-                      <text x="835" y="650" fontSize="11" fill="#f59e0b" fontWeight="bold">Subscribe</text>
-
-                      <path d="M 1170 450 L 1230 260" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPurpleExpanded)" />
-                      <text x="1180" y="350" fontSize="11" fill="#8b5cf6" fontWeight="bold">Store All Events</text>
-
-                      <path d="M 1170 570 L 1230 780" stroke="#ec4899" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPinkExpanded)" />
-                      <text x="1180" y="670" fontSize="11" fill="#ec4899" fontWeight="bold">Process Events</text>
-
-                      <path d="M 1230 830 L 900 900 L 780 920" stroke="#ec4899" strokeWidth="3" fill="none" markerEnd="url(#dbArrowPinkExpanded)" strokeDasharray="5,5" />
-                      <text x="1000" y="870" fontSize="11" fill="#ec4899" fontWeight="bold">Update Read DBs</text>
-
-                      {/* Title and metrics */}
-                      <text x="800" y="30" fontSize="20" fontWeight="bold" fill="#f59e0b" textAnchor="middle">⚡ EVENTUAL CONSISTENCY (5-15 min lag)</text>
-                      <text x="800" y="1080" fontSize="13" fill="#6b7280" textAnchor="middle">8 Database Technologies • 30M txn/day • 10M active users • 347 txn/sec average</text>
-                    </svg>
-
-                    {/* Component Details Panel in Modal */}
-                    {selectedCQRSComponent && cqrsComponentDetails[selectedCQRSComponent] && (
-                      <div className="mt-6 bg-gradient-to-br from-purple-900/40 to-purple-800/40 rounded-xl p-6 border-2 border-purple-400">
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <h4 className="text-2xl font-bold text-white mb-1">
-                              {cqrsComponentDetails[selectedCQRSComponent].name}
-                            </h4>
-                            <span className="px-3 py-1 bg-purple-600 text-white rounded-full text-xs font-semibold">
-                              {cqrsComponentDetails[selectedCQRSComponent].type}
-                            </span>
-                          </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedCQRSComponent(null);
-                            }}
-                            className="text-gray-300 hover:text-white transition-colors"
-                          >
-                            <span className="text-2xl">×</span>
-                          </button>
-                        </div>
-
-                        <p className="text-gray-300 mb-4 leading-relaxed">
-                          {cqrsComponentDetails[selectedCQRSComponent].description}
-                        </p>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                          <div>
-                            <h5 className="text-purple-400 font-bold mb-2 flex items-center gap-2">
-                              <span>🔧</span> Technologies
-                            </h5>
-                            <div className="flex flex-wrap gap-2">
-                              {cqrsComponentDetails[selectedCQRSComponent].technologies.map((tech, i) => (
-                                <span key={i} className="px-2 py-1 bg-purple-700/50 text-purple-200 rounded text-sm">
-                                  {tech}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div>
-                            <h5 className="text-cyan-400 font-bold mb-2 flex items-center gap-2">
-                              <span>📊</span> Metrics
-                            </h5>
-                            <p className="text-gray-300 text-sm bg-cyan-900/30 px-3 py-2 rounded border border-cyan-700/30">
-                              {cqrsComponentDetails[selectedCQRSComponent].metrics}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h5 className="text-green-400 font-bold mb-2 flex items-center gap-2">
-                            <span>⚡</span> Key Responsibilities
-                          </h5>
-                          <ul className="space-y-1">
-                            {cqrsComponentDetails[selectedCQRSComponent].responsibilities.map((resp, i) => (
-                              <li key={i} className="text-gray-300 text-sm flex items-start gap-2">
-                                <span className="text-green-400 mt-1">•</span>
-                                <span>{resp}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'patterns' && (
-          <div className="space-y-8">
-            {/* Header */}
-            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-8 border border-purple-200 shadow-sm">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Network className="w-8 h-8 text-purple-600" />
-                </div>
-                Advanced Architectural Patterns & Components
-              </h2>
-              <p className="text-gray-700 text-lg">
-                Complex patterns and components that handle distributed transactions, fault tolerance, resilience, and data consistency in our microservices architecture
-              </p>
-            </div>
-
-            {/* Saga Pattern - Distributed Transactions */}
-            <div className="bg-white rounded-xl p-8 shadow-lg border-2 border-orange-200">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-orange-100 rounded-lg">
-                  <GitBranch className="w-7 h-7 text-orange-600" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900">Saga Pattern (Orchestration)</h3>
-                  <p className="text-gray-600">Distributed Transaction Management</p>
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
-                <div className="bg-orange-50 rounded-lg p-6 border border-orange-200">
-                  <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <span className="text-orange-600">📝</span> What is Saga Pattern?
-                  </h4>
-                  <p className="text-gray-700 mb-3">
-                    A sequence of local transactions where each transaction updates data within a single service and publishes an event to trigger the next transaction step.
-                  </p>
-                  <p className="text-gray-700">
-                    If a step fails, Saga executes compensating transactions to undo the changes made by preceding transactions.
-                  </p>
-                </div>
-
-                <div className="bg-orange-50 rounded-lg p-6 border border-orange-200">
-                  <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <span className="text-orange-600">🎯</span> Why We Need It
-                  </h4>
-                  <ul className="space-y-2 text-gray-700">
-                    <li className="flex items-start gap-2">
-                      <Check className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
-                      <span>No distributed 2PC (Two-Phase Commit) - each service has its own database</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
-                      <span>Maintain data consistency across microservices</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
-                      <span>Handle partial failures gracefully with compensations</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              {/* Saga Flow Example */}
-              <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                <h4 className="font-bold text-gray-900 mb-4 text-lg">Card Application Saga Flow Example</h4>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">1</div>
-                    <div className="flex-1 bg-white rounded-lg p-4 border-2 border-green-200">
-                      <div className="font-semibold text-gray-900">Validate Application</div>
-                      <div className="text-sm text-gray-600">Service: Application Service</div>
-                      <div className="text-sm text-gray-500 mt-1">Compensating: Mark application as invalid</div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <div className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">2</div>
-                    <div className="flex-1 bg-white rounded-lg p-4 border-2 border-green-200">
-                      <div className="font-semibold text-gray-900">Run Credit Check</div>
-                      <div className="text-sm text-gray-600">Service: Credit Bureau Service</div>
-                      <div className="text-sm text-gray-500 mt-1">Compensating: Reverse credit inquiry</div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <div className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">3</div>
-                    <div className="flex-1 bg-white rounded-lg p-4 border-2 border-green-200">
-                      <div className="font-semibold text-gray-900">Create Account</div>
-                      <div className="text-sm text-gray-600">Service: Account Service</div>
-                      <div className="text-sm text-gray-500 mt-1">Compensating: Delete account & rollback DB</div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <div className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">4</div>
-                    <div className="flex-1 bg-white rounded-lg p-4 border-2 border-green-200">
-                      <div className="font-semibold text-gray-900">Issue Card</div>
-                      <div className="text-sm text-gray-600">Service: Card Service</div>
-                      <div className="text-sm text-gray-500 mt-1">Compensating: Cancel card issuance</div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <div className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">5</div>
-                    <div className="flex-1 bg-white rounded-lg p-4 border-2 border-green-200">
-                      <div className="font-semibold text-gray-900">Send Welcome Email</div>
-                      <div className="text-sm text-gray-600">Service: Notification Service</div>
-                      <div className="text-sm text-gray-500 mt-1">Compensating: Send cancellation email</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 p-4 bg-red-50 rounded-lg border-2 border-red-200">
-                  <div className="font-semibold text-red-900 mb-2 flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5" />
-                    Failure Scenario - Step 4 Fails
-                  </div>
-                  <p className="text-red-800 text-sm">
-                    If card issuance fails at Step 4, Saga Orchestrator triggers compensating transactions in reverse:
-                    <br />→ Delete Account (Step 3 compensation) → Reverse Credit Check (Step 2) → Mark Application Invalid (Step 1)
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6 grid md:grid-cols-3 gap-4">
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                  <div className="font-semibold text-blue-900 mb-2">Implementation</div>
-                  <div className="text-sm text-blue-800">Spring Boot + State Machine</div>
-                  <div className="text-xs text-blue-600 mt-1">Saga Orchestrator Service</div>
-                </div>
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                  <div className="font-semibold text-blue-900 mb-2">State Storage</div>
-                  <div className="text-sm text-blue-800">PostgreSQL Event Store</div>
-                  <div className="text-xs text-blue-600 mt-1">Saga execution history & state</div>
-                </div>
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                  <div className="font-semibold text-blue-900 mb-2">Communication</div>
-                  <div className="text-sm text-blue-800">Kafka Events</div>
-                  <div className="text-xs text-blue-600 mt-1">Async command/response pattern</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Circuit Breaker Pattern */}
-            <div className="bg-white rounded-xl p-8 shadow-lg border-2 border-red-200">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-red-100 rounded-lg">
-                  <Zap className="w-7 h-7 text-red-600" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900">Circuit Breaker Pattern</h3>
-                  <p className="text-gray-600">Fault Tolerance & Resilience</p>
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
-                <div className="bg-red-50 rounded-lg p-6 border border-red-200">
-                  <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <span className="text-red-600">⚡</span> What is Circuit Breaker?
-                  </h4>
-                  <p className="text-gray-700 mb-3">
-                    Prevents cascading failures by detecting failures and encapsulating logic to prevent the application from repeatedly trying to execute an operation that's likely to fail.
-                  </p>
-                  <p className="text-gray-700 text-sm">
-                    Works like an electrical circuit breaker - trips open when failures exceed threshold, preventing further calls.
-                  </p>
-                </div>
-
-                <div className="bg-red-50 rounded-lg p-6 border border-red-200">
-                  <h4 className="font-bold text-gray-900 mb-3">Three States</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-2">
-                      <span className="bg-green-500 rounded-full w-6 h-6 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">✓</span>
-                      <div>
-                        <div className="font-semibold text-green-900">CLOSED (Normal)</div>
-                        <div className="text-sm text-gray-600">Requests pass through, failures tracked</div>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="bg-red-500 rounded-full w-6 h-6 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">×</span>
-                      <div>
-                        <div className="font-semibold text-red-900">OPEN (Tripped)</div>
-                        <div className="text-sm text-gray-600">Requests fail immediately, no calls made</div>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="bg-yellow-500 rounded-full w-6 h-6 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">?</span>
-                      <div>
-                        <div className="font-semibold text-yellow-900">HALF-OPEN (Testing)</div>
-                        <div className="text-sm text-gray-600">Limited requests to test recovery</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Circuit Breaker Configuration */}
-              <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                <h4 className="font-bold text-gray-900 mb-4 text-lg">Our Configuration (Resilience4j)</h4>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center p-3 bg-white rounded border border-gray-200">
-                      <span className="text-gray-700 font-medium">Failure Rate Threshold</span>
-                      <span className="text-red-600 font-bold">50%</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-white rounded border border-gray-200">
-                      <span className="text-gray-700 font-medium">Wait Duration (Open)</span>
-                      <span className="text-red-600 font-bold">60 seconds</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-white rounded border border-gray-200">
-                      <span className="text-gray-700 font-medium">Ring Buffer Size</span>
-                      <span className="text-red-600 font-bold">100 calls</span>
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center p-3 bg-white rounded border border-gray-200">
-                      <span className="text-gray-700 font-medium">Slow Call Threshold</span>
-                      <span className="text-red-600 font-bold">5 seconds</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-white rounded border border-gray-200">
-                      <span className="text-gray-700 font-medium">Permitted Calls (Half-Open)</span>
-                      <span className="text-yellow-600 font-bold">10 calls</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-white rounded border border-gray-200">
-                      <span className="text-gray-700 font-medium">Automatic Transition</span>
-                      <span className="text-green-600 font-bold">Enabled</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="font-semibold text-blue-900 mb-2">Applied To:</div>
-                  <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">External Credit Bureau API</span>
-                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Payment Gateway Calls</span>
-                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Fraud Detection Service</span>
-                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Third-party Card Networks</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 p-4 bg-yellow-50 rounded-lg border-2 border-yellow-300">
-                <div className="font-semibold text-yellow-900 mb-2 flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5" />
-                  Fallback Strategy
-                </div>
-                <p className="text-yellow-800 text-sm">
-                  When circuit is open: Return cached data, use secondary provider, or graceful degradation with reduced functionality
-                </p>
-              </div>
-            </div>
-
-            {/* Event Sourcing */}
-            <div className="bg-white rounded-xl p-8 shadow-lg border-2 border-purple-200">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-purple-100 rounded-lg">
-                  <FileText className="w-7 h-7 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900">Event Sourcing</h3>
-                  <p className="text-gray-600">Immutable Event Log & State Reconstruction</p>
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
-                <div className="bg-purple-50 rounded-lg p-6 border border-purple-200">
-                  <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <span className="text-purple-600">📚</span> Concept
-                  </h4>
-                  <p className="text-gray-700 mb-3">
-                    Instead of storing current state, we store the sequence of state-changing events. Current state is derived by replaying events.
-                  </p>
-                  <div className="mt-4 p-3 bg-white rounded border border-purple-200">
-                    <div className="text-sm font-semibold text-purple-900 mb-2">Traditional Approach:</div>
-                    <code className="text-xs text-gray-600">balance = 5000</code>
-                    <div className="text-sm font-semibold text-purple-900 mt-3 mb-2">Event Sourcing:</div>
-                    <code className="text-xs text-gray-600">
-                      [AccountOpened: +10000]<br />
-                      [Purchase: -500]<br />
-                      [Payment: +2000]<br />
-                      [Purchase: -6500]<br />
-                      → balance = 5000
-                    </code>
-                  </div>
-                </div>
-
-                <div className="bg-purple-50 rounded-lg p-6 border border-purple-200">
-                  <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <span className="text-purple-600">✨</span> Benefits
-                  </h4>
-                  <ul className="space-y-2 text-gray-700">
-                    <li className="flex items-start gap-2">
-                      <Check className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                      <span><strong>Complete Audit Trail:</strong> Every state change recorded</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                      <span><strong>Time Travel:</strong> Rebuild state at any point in time</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                      <span><strong>Event Replay:</strong> Fix bugs by replaying with corrected logic</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                      <span><strong>Analysis:</strong> Business intelligence from event stream</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                <h4 className="font-bold text-gray-900 mb-4 text-lg">Transaction Events We Store</h4>
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="bg-white rounded-lg p-4 border-2 border-purple-200">
-                    <div className="font-semibold text-purple-900 mb-2">TransactionAuthorized</div>
-                    <div className="text-sm text-gray-600">amount, merchant, timestamp, fraud_score</div>
-                  </div>
-                  <div className="bg-white rounded-lg p-4 border-2 border-purple-200">
-                    <div className="font-semibold text-purple-900 mb-2">TransactionSettled</div>
-                    <div className="text-sm text-gray-600">final_amount, settlement_date, fees</div>
-                  </div>
-                  <div className="bg-white rounded-lg p-4 border-2 border-purple-200">
-                    <div className="font-semibold text-purple-900 mb-2">TransactionRefunded</div>
-                    <div className="text-sm text-gray-600">refund_amount, reason, timestamp</div>
-                  </div>
-                  <div className="bg-white rounded-lg p-4 border-2 border-purple-200">
-                    <div className="font-semibold text-purple-900 mb-2">DisputeOpened</div>
-                    <div className="text-sm text-gray-600">dispute_reason, customer_claim</div>
-                  </div>
-                  <div className="bg-white rounded-lg p-4 border-2 border-purple-200">
-                    <div className="font-semibold text-purple-900 mb-2">DisputeResolved</div>
-                    <div className="text-sm text-gray-600">resolution, winner, amount_adjusted</div>
-                  </div>
-                  <div className="bg-white rounded-lg p-4 border-2 border-purple-200">
-                    <div className="font-semibold text-purple-900 mb-2">FraudFlagged</div>
-                    <div className="text-sm text-gray-600">fraud_type, ml_confidence, action</div>
-                  </div>
-                </div>
-
-                <div className="mt-4 grid md:grid-cols-2 gap-4">
-                  <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
-                    <div className="font-semibold text-purple-900 mb-2">Event Store</div>
-                    <div className="text-sm text-gray-700">PostgreSQL (append-only, partitioned by month)</div>
-                  </div>
-                  <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
-                    <div className="font-semibold text-purple-900 mb-2">Retention</div>
-                    <div className="text-sm text-gray-700">7 years (regulatory compliance)</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Idempotency */}
-            <div className="bg-white rounded-xl p-8 shadow-lg border-2 border-teal-200">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-teal-100 rounded-lg">
-                  <Shield className="w-7 h-7 text-teal-600" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900">Idempotency Keys</h3>
-                  <p className="text-gray-600">Preventing Duplicate Transactions</p>
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
-                <div className="bg-teal-50 rounded-lg p-6 border border-teal-200">
-                  <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <span className="text-teal-600">🔑</span> What is Idempotency?
-                  </h4>
-                  <p className="text-gray-700 mb-3">
-                    An operation is idempotent if performing it multiple times has the same effect as performing it once.
-                  </p>
-                  <p className="text-gray-700 text-sm font-medium">
-                    Critical for payment processing: Network retries shouldn't charge customer twice!
-                  </p>
-                </div>
-
-                <div className="bg-teal-50 rounded-lg p-6 border border-teal-200">
-                  <h4 className="font-bold text-gray-900 mb-3">How We Implement It</h4>
-                  <div className="space-y-2 text-sm text-gray-700">
-                    <div className="flex items-start gap-2">
-                      <div className="bg-teal-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0">1</div>
-                      <span>Client generates UUID idempotency key per request</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <div className="bg-teal-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0">2</div>
-                      <span>Server checks Redis cache for existing key</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <div className="bg-teal-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0">3</div>
-                      <span>If found: return cached response immediately</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <div className="bg-teal-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0">4</div>
-                      <span>If not found: process request & cache result (24h TTL)</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                <h4 className="font-bold text-gray-900 mb-4">Example: Payment Processing</h4>
-                <div className="space-y-3">
-                  <div className="p-4 bg-white rounded-lg border-2 border-teal-200">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-2xl">1️⃣</span>
-                      <span className="font-semibold text-gray-900">Initial Request</span>
-                    </div>
-                    <code className="text-xs text-gray-600 block">
-                      POST /api/payments<br />
-                      Idempotency-Key: 550e8400-e29b-41d4-a716-446655440000<br />
-                      {'{'} amount: 100.00, merchant: "Amazon" {'}'}
-                    </code>
-                    <div className="mt-2 text-sm text-green-700 font-medium">✓ Processed successfully, response cached</div>
-                  </div>
-
-                  <div className="p-4 bg-white rounded-lg border-2 border-yellow-200">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-2xl">2️⃣</span>
-                      <span className="font-semibold text-gray-900">Retry (Network Issue)</span>
-                    </div>
-                    <code className="text-xs text-gray-600 block">
-                      POST /api/payments<br />
-                      Idempotency-Key: 550e8400-e29b-41d4-a716-446655440000<br />
-                      {'{'} amount: 100.00, merchant: "Amazon" {'}'}
-                    </code>
-                    <div className="mt-2 text-sm text-blue-700 font-medium">✓ Idempotency key found in Redis → Return cached response (no reprocessing!)</div>
-                  </div>
-                </div>
-
-                <div className="mt-4 grid md:grid-cols-3 gap-4">
-                  <div className="bg-teal-50 rounded-lg p-3 border border-teal-200">
-                    <div className="font-semibold text-teal-900 text-sm mb-1">Storage</div>
-                    <div className="text-xs text-teal-700">Redis (in-memory)</div>
-                  </div>
-                  <div className="bg-teal-50 rounded-lg p-3 border border-teal-200">
-                    <div className="font-semibold text-teal-900 text-sm mb-1">TTL</div>
-                    <div className="text-xs text-teal-700">24 hours</div>
-                  </div>
-                  <div className="bg-teal-50 rounded-lg p-3 border border-teal-200">
-                    <div className="font-semibold text-teal-900 text-sm mb-1">Key Format</div>
-                    <div className="text-xs text-teal-700">UUID v4</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Rate Limiting */}
-            <div className="bg-white rounded-xl p-8 shadow-lg border-2 border-blue-200">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-blue-100 rounded-lg">
-                  <Activity className="w-7 h-7 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900">Rate Limiting (Token Bucket)</h3>
-                  <p className="text-gray-600">API Throttling & DDoS Protection</p>
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
-                <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
-                  <h4 className="font-bold text-gray-900 mb-3">Token Bucket Algorithm</h4>
-                  <ul className="space-y-2 text-sm text-gray-700">
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-600 font-bold">•</span>
-                      <span>Bucket starts with N tokens (capacity)</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-600 font-bold">•</span>
-                      <span>Each request consumes 1 token</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-600 font-bold">•</span>
-                      <span>Tokens refill at rate R per second</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-600 font-bold">•</span>
-                      <span>If bucket empty → request rejected (429 status)</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
-                  <h4 className="font-bold text-gray-900 mb-3">Our Rate Limits</h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center p-2 bg-white rounded text-sm">
-                      <span className="text-gray-700">Public API</span>
-                      <span className="font-bold text-blue-600">100 req/min</span>
-                    </div>
-                    <div className="flex justify-between items-center p-2 bg-white rounded text-sm">
-                      <span className="text-gray-700">Authenticated User</span>
-                      <span className="font-bold text-blue-600">1000 req/min</span>
-                    </div>
-                    <div className="flex justify-between items-center p-2 bg-white rounded text-sm">
-                      <span className="text-gray-700">Premium Tier</span>
-                      <span className="font-bold text-blue-600">5000 req/min</span>
-                    </div>
-                    <div className="flex justify-between items-center p-2 bg-white rounded text-sm">
-                      <span className="text-gray-700">Transaction Endpoint</span>
-                      <span className="font-bold text-blue-600">10 req/sec</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                <h4 className="font-bold text-gray-900 mb-4">Implementation</h4>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="bg-white rounded-lg p-4 border-2 border-blue-200">
-                    <div className="font-semibold text-blue-900 mb-2">Technology</div>
-                    <div className="text-sm text-gray-700">Kong API Gateway + Redis</div>
-                    <div className="text-xs text-gray-500 mt-1">Redis stores token counts per user/IP</div>
-                  </div>
-                  <div className="bg-white rounded-lg p-4 border-2 border-blue-200">
-                    <div className="font-semibold text-blue-900 mb-2">Response Headers</div>
-                    <code className="text-xs text-gray-600 block">
-                      X-RateLimit-Limit: 1000<br />
-                      X-RateLimit-Remaining: 847<br />
-                      X-RateLimit-Reset: 1635724800
-                    </code>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Caching Strategy */}
-            <div className="bg-white rounded-xl p-8 shadow-lg border-2 border-cyan-200">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-cyan-100 rounded-lg">
-                  <HardDrive className="w-7 h-7 text-cyan-600" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900">Multi-Level Caching</h3>
-                  <p className="text-gray-600">Cache-Aside Pattern with Read-Through</p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="bg-cyan-50 rounded-lg p-6 border border-cyan-200">
-                  <h4 className="font-bold text-gray-900 mb-4">Caching Layers</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-4">
-                      <div className="bg-cyan-600 text-white rounded-lg p-3 font-bold text-lg">L1</div>
-                      <div className="flex-1 bg-white rounded-lg p-4 border-2 border-cyan-200">
-                        <div className="font-semibold text-gray-900">Application Cache (Caffeine)</div>
-                        <div className="text-sm text-gray-600">In-memory, per-service instance, &lt;10ms latency</div>
-                        <div className="text-xs text-gray-500 mt-1">User sessions, config data, small reference data</div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                      <div className="bg-cyan-600 text-white rounded-lg p-3 font-bold text-lg">L2</div>
-                      <div className="flex-1 bg-white rounded-lg p-4 border-2 border-cyan-200">
-                        <div className="font-semibold text-gray-900">Distributed Cache (Redis)</div>
-                        <div className="text-sm text-gray-600">Shared across all instances, &lt;5ms latency</div>
-                        <div className="text-xs text-gray-500 mt-1">Account data, recent transactions, fraud scores</div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                      <div className="bg-cyan-600 text-white rounded-lg p-3 font-bold text-lg">L3</div>
-                      <div className="flex-1 bg-white rounded-lg p-4 border-2 border-cyan-200">
-                        <div className="font-semibold text-gray-900">Database Read Replicas</div>
-                        <div className="text-sm text-gray-600">Read-only PostgreSQL replicas, &lt;20ms latency</div>
-                        <div className="text-xs text-gray-500 mt-1">Complex queries, reporting, historical data</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                    <div className="font-semibold text-green-900 mb-2">Cache Hit Ratio</div>
-                    <div className="text-3xl font-bold text-green-600">94.7%</div>
-                    <div className="text-xs text-gray-600 mt-1">Redis cache effectiveness</div>
-                  </div>
-                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                    <div className="font-semibold text-green-900 mb-2">Avg Latency</div>
-                    <div className="text-3xl font-bold text-green-600">3.2ms</div>
-                    <div className="text-xs text-gray-600 mt-1">Redis cache response time</div>
-                  </div>
-                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                    <div className="font-semibold text-green-900 mb-2">Eviction Policy</div>
-                    <div className="text-lg font-bold text-green-600">LRU</div>
-                    <div className="text-xs text-gray-600 mt-1">Least Recently Used</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        )}
-
-        {activeTab === 'techstack' && (
-          <div className="space-y-6">
-            {/* Tech Stack by Layer */}
-            <div className="bg-slate-800/50 rounded-lg p-6 border border-cyan-500/30 backdrop-blur-sm">
-              <h2 className="text-2xl font-bold text-white mb-4">🛠️ Technology Stack by Layer</h2>
-              <p className="text-gray-400 mb-6">
-                Technologies chosen for each layer with rationale and interview talking points
-              </p>
-
-              <div className="space-y-4">
-                {techStack.map((layer, i) => (
-                  <div key={i} className="bg-slate-700/50 p-4 rounded-lg border border-cyan-500/20">
-                    <h3 className="text-cyan-300 font-bold text-lg mb-3">{layer.layer}</h3>
-                    <div className="space-y-3">
-                      {layer.technologies.map((tech, j) => (
-                        <div key={j} className="bg-slate-800/50 p-3 rounded border border-cyan-500/10">
-                          <div className="flex items-start justify-between mb-2">
-                            <h4 className="text-white font-semibold">{tech.name}</h4>
-                          </div>
-                          <p className="text-gray-400 text-sm mb-2">
-                            <span className="text-gray-500">Why:</span> {tech.reason}
-                          </p>
-                          <div className="bg-green-900/30 px-3 py-2 rounded border border-green-500/20">
-                            <p className="text-green-300 text-sm">
-                              <span className="font-semibold">Interview Point:</span> {tech.interviewPoint}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Scaling Strategy */}
-            <div className="bg-slate-800/50 rounded-lg p-6 border border-cyan-500/30 backdrop-blur-sm">
-              <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                <Network className="w-6 h-6 text-cyan-400" />
-                Scaling Strategy
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-gradient-to-br from-blue-900/50 to-blue-800/50 p-4 rounded-lg border border-blue-500/30">
-                  <h3 className="text-blue-300 font-semibold mb-3">Horizontal Scaling</h3>
-                  <ul className="text-gray-300 text-sm space-y-2">
-                    <li className="flex gap-2">
-                      <Check className="text-green-400 flex-shrink-0 mt-0.5" size={16} />
-                      <span>API Gateway: 5+ instances behind load balancer</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="text-green-400 flex-shrink-0 mt-0.5" size={16} />
-                      <span>Microservices: 3-5 instances per service (auto-scaling)</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="text-green-400 flex-shrink-0 mt-0.5" size={16} />
-                      <span>MongoDB: 5 shards, each with 3 replicas</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="text-green-400 flex-shrink-0 mt-0.5" size={16} />
-                      <span>PostgreSQL: 1 primary + 2 read replicas per service</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="text-green-400 flex-shrink-0 mt-0.5" size={16} />
-                      <span>Redis: 3 master + 3 replica cluster</span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="bg-gradient-to-br from-green-900/50 to-green-800/50 p-4 rounded-lg border border-green-500/30">
-                  <h3 className="text-green-300 font-semibold mb-3">Performance Optimizations</h3>
-                  <ul className="text-gray-300 text-sm space-y-2">
-                    <li className="flex gap-2">
-                      <Check className="text-green-400 flex-shrink-0 mt-0.5" size={16} />
-                      <span>Redis caching: &lt;1ms reads, 90% cache hit rate</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="text-green-400 flex-shrink-0 mt-0.5" size={16} />
-                      <span>Database indexing: 99% queries &lt;100ms</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="text-green-400 flex-shrink-0 mt-0.5" size={16} />
-                      <span>Connection pooling: 100 connections per service</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="text-green-400 flex-shrink-0 mt-0.5" size={16} />
-                      <span>Async processing: Kafka for non-blocking operations</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="text-green-400 flex-shrink-0 mt-0.5" size={16} />
-                      <span>CDN: Static assets served from edge locations</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Interview Cheat Sheet */}
-            <div className="bg-gradient-to-r from-yellow-900/50 to-yellow-800/50 rounded-lg p-6 border border-yellow-500/30">
-              <h2 className="text-2xl font-bold text-yellow-200 mb-4 flex items-center gap-2">
-                <FileText className="w-6 h-6" />
-                Quick Interview Cheat Sheet
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="text-yellow-300 font-semibold mb-2">Key Numbers to Remember</h3>
-                  <ul className="text-gray-200 text-sm space-y-1">
-                    <li>• 10M users, 30M txns/day = 347 txns/sec</li>
-                    <li>• Peak load: 5x = 1,735 txns/sec</li>
-                    <li>• MongoDB: 5 shards × 2M users/shard</li>
-                    <li>• Storage: 30GB/day, 11TB/year</li>
-                    <li>• Cache: 10GB Redis for 10% hot data</li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="text-yellow-300 font-semibold mb-2">Must-Mention Patterns</h3>
-                  <ul className="text-gray-200 text-sm space-y-1">
-                    <li>• CQRS: Read/Write separation</li>
-                    <li>• Event Sourcing: Audit trail</li>
-                    <li>• Saga: Distributed transactions</li>
-                    <li>• Circuit Breaker: Fault tolerance</li>
-                    <li>• Database Sharding: Horizontal scale</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'dataflow' && (
-          <div className="space-y-8">
-            {/* Database Architecture Overview */}
-            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 border border-cyan-500 shadow-2xl">
-              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
-                <Database className="w-8 h-8 text-cyan-400" />
-                Multi-Database Architecture & Data Flow
-              </h2>
-              <p className="text-gray-300 text-lg mb-6">
-                The Credit Card Portal uses a <span className="text-cyan-400 font-semibold">polyglot persistence</span> strategy with 7 specialized databases,
-                each optimized for specific access patterns. This architecture supports <span className="text-yellow-300 font-semibold">10M users</span> across
-                multiple countries with <span className="text-green-400 font-semibold">30M+ requests/day</span>.
-              </p>
-
-              {/* Key Metrics */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4">
-                  <div className="text-cyan-400 text-3xl font-bold">10M+</div>
-                  <div className="text-gray-300 text-sm">Total Users</div>
-                </div>
-                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-                  <div className="text-green-400 text-3xl font-bold">347/sec</div>
-                  <div className="text-gray-300 text-sm">Avg Transactions</div>
-                </div>
-                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-                  <div className="text-yellow-400 text-3xl font-bold">99.99%</div>
-                  <div className="text-gray-300 text-sm">Availability SLA</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Database Details - All 7 Databases */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* MongoDB Transaction DB */}
-              <div className="bg-gradient-to-br from-green-900/40 to-green-800/40 rounded-xl p-6 border border-green-500/50 hover:border-green-400 transition-all">
-                <div className="flex items-center gap-3 mb-4">
-                  <HardDrive className="w-6 h-6 text-green-400" />
-                  <h3 className="text-2xl font-bold text-green-300">MongoDB Transaction DB</h3>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 bg-green-500/20 text-green-300 rounded-lg text-sm font-semibold">Sharded Cluster</span>
-                    <span className="px-3 py-1 bg-green-500/20 text-green-300 rounded-lg text-sm font-semibold">Write-Heavy</span>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-green-500/20">
-                    <h4 className="text-green-300 font-semibold mb-2">Configuration</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• <span className="text-green-400">5 Shards</span> for horizontal scaling</li>
-                      <li>• <span className="text-green-400">2M users/shard</span> (10M total capacity)</li>
-                      <li>• Sharding key: <code className="text-cyan-300">userId</code></li>
-                      <li>• 3-node replica set per shard (1 primary, 2 secondaries)</li>
-                    </ul>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-green-500/20">
-                    <h4 className="text-green-300 font-semibold mb-2">Stores</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• <span className="font-semibold text-white">Transaction records</span> (purchases, payments, refunds)</li>
-                      <li>• <span className="font-semibold text-white">Fraud scores</span> (XGBoost ML model outputs)</li>
-                      <li>• <span className="font-semibold text-white">Transaction metadata</span> (merchant, location, timestamp)</li>
-                      <li>• Indexed by: userId, transactionId, timestamp</li>
-                    </ul>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-green-500/20">
-                    <h4 className="text-green-300 font-semibold mb-2">Performance</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• Avg write latency: <span className="text-green-400">8ms</span></li>
-                      <li>• Peak throughput: <span className="text-green-400">1,735 txn/sec</span></li>
-                      <li>• Storage: ~500GB per shard</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* PostgreSQL Account DB */}
-              <div className="bg-gradient-to-br from-blue-900/40 to-blue-800/40 rounded-xl p-6 border border-blue-500/50 hover:border-blue-400 transition-all">
-                <div className="flex items-center gap-3 mb-4">
-                  <Database className="w-6 h-6 text-blue-400" />
-                  <h3 className="text-2xl font-bold text-blue-300">PostgreSQL Account DB</h3>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-lg text-sm font-semibold">Primary-Replica</span>
-                    <span className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-lg text-sm font-semibold">ACID</span>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-blue-500/20">
-                    <h4 className="text-blue-300 font-semibold mb-2">Configuration</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• <span className="text-blue-400">1 Primary</span> (all writes)</li>
-                      <li>• <span className="text-blue-400">2 Read Replicas</span> (load balanced reads)</li>
-                      <li>• Synchronous replication to replica 1</li>
-                      <li>• Asynchronous replication to replica 2</li>
-                      <li>• Auto-failover with Patroni + etcd</li>
-                    </ul>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-blue-500/20">
-                    <h4 className="text-blue-300 font-semibold mb-2">Stores</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• <span className="font-semibold text-white">User accounts</span> (10M users)</li>
-                      <li>• <span className="font-semibold text-white">Credit card details</span> (encrypted)</li>
-                      <li>• <span className="font-semibold text-white">Account balances</span> (real-time)</li>
-                      <li>• <span className="font-semibold text-white">Credit limits</span> and available credit</li>
-                      <li>• Strong consistency for financial data</li>
-                    </ul>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-blue-500/20">
-                    <h4 className="text-blue-300 font-semibold mb-2">Performance</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• Read latency: <span className="text-blue-400">3ms</span> (replicas)</li>
-                      <li>• Write latency: <span className="text-blue-400">12ms</span> (primary)</li>
-                      <li>• 70% reads served by replicas</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* Redis Cluster Cache Layer */}
-              <div className="bg-gradient-to-br from-red-900/40 to-red-800/40 rounded-xl p-6 border border-red-500/50 hover:border-red-400 transition-all">
-                <div className="flex items-center gap-3 mb-4">
-                  <Zap className="w-6 h-6 text-red-400" />
-                  <h3 className="text-2xl font-bold text-red-300">Redis Cluster Cache</h3>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 bg-red-500/20 text-red-300 rounded-lg text-sm font-semibold">In-Memory</span>
-                    <span className="px-3 py-1 bg-red-500/20 text-red-300 rounded-lg text-sm font-semibold">Sub-ms</span>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-red-500/20">
-                    <h4 className="text-red-300 font-semibold mb-2">Configuration</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• <span className="text-red-400">3 Master nodes</span> (hash slots)</li>
-                      <li>• <span className="text-red-400">3 Replica nodes</span> (1 per master)</li>
-                      <li>• 16,384 hash slots distributed across masters</li>
-                      <li>• Automatic failover with Redis Sentinel</li>
-                      <li>• Persistent snapshots + AOF (Append-Only File)</li>
-                    </ul>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-red-500/20">
-                    <h4 className="text-red-300 font-semibold mb-2">Caches</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• <span className="font-semibold text-white">User sessions</span> (JWT tokens, 24h TTL)</li>
-                      <li>• <span className="font-semibold text-white">Account data</span> (hot 10%, 5min TTL)</li>
-                      <li>• <span className="font-semibold text-white">Recent transactions</span> (last 10, 1min TTL)</li>
-                      <li>• <span className="font-semibold text-white">Rate limiting counters</span> (1000 req/min per user)</li>
-                      <li>• <span className="font-semibold text-white">Idempotency keys</span> (24h TTL)</li>
-                    </ul>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-red-500/20">
-                    <h4 className="text-red-300 font-semibold mb-2">Performance</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• Latency: <span className="text-red-400">&lt;1ms</span></li>
-                      <li>• Cache hit rate: <span className="text-red-400">92%</span></li>
-                      <li>• Throughput: 100K ops/sec per node</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* InfluxDB Analytics DB */}
-              <div className="bg-gradient-to-br from-purple-900/40 to-purple-800/40 rounded-xl p-6 border border-purple-500/50 hover:border-purple-400 transition-all">
-                <div className="flex items-center gap-3 mb-4">
-                  <Activity className="w-6 h-6 text-purple-400" />
-                  <h3 className="text-2xl font-bold text-purple-300">InfluxDB Analytics</h3>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-lg text-sm font-semibold">Time-Series</span>
-                    <span className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-lg text-sm font-semibold">Real-time</span>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-purple-500/20">
-                    <h4 className="text-purple-300 font-semibold mb-2">Configuration</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• <span className="text-purple-400">Single node</span> (optimized for time-series)</li>
-                      <li>• Retention policy: 90 days raw data</li>
-                      <li>• Continuous queries for downsampling</li>
-                      <li>• Aggregated data retained for 2 years</li>
-                    </ul>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-purple-500/20">
-                    <h4 className="text-purple-300 font-semibold mb-2">Stores</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• <span className="font-semibold text-white">Transaction metrics</span> (volume, latency, errors)</li>
-                      <li>• <span className="font-semibold text-white">System performance</span> (CPU, memory, I/O)</li>
-                      <li>• <span className="font-semibold text-white">Business KPIs</span> (approval rate, fraud rate)</li>
-                      <li>• <span className="font-semibold text-white">User activity</span> (logins, API calls)</li>
-                      <li>• Granularity: 1-second intervals</li>
-                    </ul>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-purple-500/20">
-                    <h4 className="text-purple-300 font-semibold mb-2">Performance</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• Write throughput: <span className="text-purple-400">250K points/sec</span></li>
-                      <li>• Query latency: <span className="text-purple-400">50ms</span> (avg)</li>
-                      <li>• Real-time dashboards with Grafana</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* Elasticsearch Search Engine */}
-              <div className="bg-gradient-to-br from-yellow-900/40 to-yellow-800/40 rounded-xl p-6 border border-yellow-500/50 hover:border-yellow-400 transition-all">
-                <div className="flex items-center gap-3 mb-4">
-                  <Network className="w-6 h-6 text-yellow-400" />
-                  <h3 className="text-2xl font-bold text-yellow-300">Elasticsearch</h3>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 bg-yellow-500/20 text-yellow-300 rounded-lg text-sm font-semibold">3-Node Cluster</span>
-                    <span className="px-3 py-1 bg-yellow-500/20 text-yellow-300 rounded-lg text-sm font-semibold">Full-Text</span>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-yellow-500/20">
-                    <h4 className="text-yellow-300 font-semibold mb-2">Configuration</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• <span className="text-yellow-400">3 data nodes</span> (master-eligible)</li>
-                      <li>• 5 shards per index, 1 replica per shard</li>
-                      <li>• Rolling indices: 1 per month</li>
-                      <li>• Index Lifecycle Management (ILM)</li>
-                    </ul>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-yellow-500/20">
-                    <h4 className="text-yellow-300 font-semibold mb-2">Stores</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• <span className="font-semibold text-white">Transaction search index</span> (last 12 months)</li>
-                      <li>• <span className="font-semibold text-white">Merchant directory</span> (full-text search)</li>
-                      <li>• <span className="font-semibold text-white">User query logs</span> (audit trail)</li>
-                      <li>• <span className="font-semibold text-white">Fraud investigation data</span></li>
-                      <li>• Fields: merchant, category, amount, date, description</li>
-                    </ul>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-yellow-500/20">
-                    <h4 className="text-yellow-300 font-semibold mb-2">Performance</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• Search latency: <span className="text-yellow-400">20ms</span> (p50)</li>
-                      <li>• Index rate: <span className="text-yellow-400">5K docs/sec</span></li>
-                      <li>• Autocomplete latency: &lt;10ms</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* Snowflake Data Warehouse */}
-              <div className="bg-gradient-to-br from-cyan-900/40 to-cyan-800/40 rounded-xl p-6 border border-cyan-500/50 hover:border-cyan-400 transition-all">
-                <div className="flex items-center gap-3 mb-4">
-                  <Box className="w-6 h-6 text-cyan-400" />
-                  <h3 className="text-2xl font-bold text-cyan-300">Snowflake Warehouse</h3>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-lg text-sm font-semibold">Cloud DW</span>
-                    <span className="px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-lg text-sm font-semibold">Multi-TB</span>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-cyan-500/20">
-                    <h4 className="text-cyan-300 font-semibold mb-2">Configuration</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• <span className="text-cyan-400">Multi-cluster warehouse</span> (auto-scaling)</li>
-                      <li>• Separate virtual warehouses for ETL, BI, ML</li>
-                      <li>• Storage: Multi-TB (5+ years historical data)</li>
-                      <li>• Time Travel: 90 days</li>
-                      <li>• Zero-copy cloning for dev/test</li>
-                    </ul>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-cyan-500/20">
-                    <h4 className="text-cyan-300 font-semibold mb-2">Stores</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• <span className="font-semibold text-white">Historical transactions</span> (5+ years)</li>
-                      <li>• <span className="font-semibold text-white">User behavior data</span> (clicks, sessions)</li>
-                      <li>• <span className="font-semibold text-white">Aggregated analytics</span> (daily/monthly rollups)</li>
-                      <li>• <span className="font-semibold text-white">ML training datasets</span> (fraud models)</li>
-                      <li>• <span className="font-semibold text-white">Compliance reports</span> (regulatory data)</li>
-                    </ul>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-cyan-500/20">
-                    <h4 className="text-cyan-300 font-semibold mb-2">Performance</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• ETL: <span className="text-cyan-400">Nightly batch</span> (2-hour window)</li>
-                      <li>• Query latency: <span className="text-cyan-400">5-30s</span> (complex aggregations)</li>
-                      <li>• Concurrent users: 50+ analysts</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* PostgreSQL Event Store */}
-              <div className="bg-gradient-to-br from-indigo-900/40 to-indigo-800/40 rounded-xl p-6 border border-indigo-500/50 hover:border-indigo-400 transition-all">
-                <div className="flex items-center gap-3 mb-4">
-                  <FileText className="w-6 h-6 text-indigo-400" />
-                  <h3 className="text-2xl font-bold text-indigo-300">PostgreSQL Event Store</h3>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-lg text-sm font-semibold">Append-Only</span>
-                    <span className="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-lg text-sm font-semibold">Event Sourcing</span>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-indigo-500/20">
-                    <h4 className="text-indigo-300 font-semibold mb-2">Configuration</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• <span className="text-indigo-400">Append-only log</span> (immutable events)</li>
-                      <li>• Single primary with streaming replication</li>
-                      <li>• Partitioned by timestamp (monthly partitions)</li>
-                      <li>• Indexed by: eventId, aggregateId, timestamp</li>
-                      <li>• Write-Ahead Log (WAL) for durability</li>
-                    </ul>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-indigo-500/20">
-                    <h4 className="text-indigo-300 font-semibold mb-2">Stores</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• <span className="font-semibold text-white">Domain events</span> (CardApplied, TransactionAuthorized)</li>
-                      <li>• <span className="font-semibold text-white">Command audit log</span> (who/what/when)</li>
-                      <li>• <span className="font-semibold text-white">State transitions</span> (account lifecycle)</li>
-                      <li>• <span className="font-semibold text-white">Saga state</span> (distributed transaction status)</li>
-                      <li>• Never updated or deleted (compliance requirement)</li>
-                    </ul>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4 border border-indigo-500/20">
-                    <h4 className="text-indigo-300 font-semibold mb-2">Performance</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• Write latency: <span className="text-indigo-400">5ms</span></li>
-                      <li>• Event replay: Rebuild aggregates from events</li>
-                      <li>• Retention: Indefinite (archival to S3 after 3 years)</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Data Flow Diagram */}
-            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 border border-purple-500 shadow-2xl">
-              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
-                <ArrowRight className="w-8 h-8 text-purple-400" />
-                End-to-End Data Flow
-              </h2>
-
-              {/* Purchase Transaction Flow */}
-              <div className="mb-8">
-                <h3 className="text-2xl font-bold text-purple-300 mb-4">Scenario: User Makes a Purchase</h3>
-                <div className="space-y-4">
-                  {[
-                    {
-                      step: '1',
-                      title: 'Transaction Request',
-                      desc: 'User swipes card at merchant POS',
-                      details: 'API Gateway receives authorization request with card details, amount, merchant info',
-                      color: 'blue'
-                    },
-                    {
-                      step: '2',
-                      title: 'Cache Check (Redis)',
-                      desc: 'Check Redis for user session, recent transactions, rate limits',
-                      details: 'If cached: <1ms response. Cache miss: Continue to PostgreSQL Account DB',
-                      color: 'red'
-                    },
-                    {
-                      step: '3',
-                      title: 'Account Verification (PostgreSQL)',
-                      desc: 'Query Account DB for user balance, credit limit, account status',
-                      details: 'Read from replica (70% of reads). Check available credit = credit_limit - current_balance',
-                      color: 'blue'
-                    },
-                    {
-                      step: '4',
-                      title: 'Fraud Detection',
-                      desc: 'XGBoost ML model scores transaction for fraud risk',
-                      details: 'Input: amount, merchant, location, time, user history. Output: Risk score 0-100',
-                      color: 'orange'
-                    },
-                    {
-                      step: '5',
-                      title: 'Authorization Decision',
-                      desc: 'Approve or decline based on balance + fraud score',
-                      details: 'If approved: Continue to step 6. If declined: Return error, log to Event Store',
-                      color: 'green'
-                    },
-                    {
-                      step: '6',
-                      title: 'Write Transaction (MongoDB)',
-                      desc: 'Insert transaction record to MongoDB shard based on userId',
-                      details: 'Shard key: userId. Document includes: txnId, amount, merchant, timestamp, fraudScore',
-                      color: 'green'
-                    },
-                    {
-                      step: '7',
-                      title: 'Update Balance (PostgreSQL)',
-                      desc: 'Deduct amount from available credit in Account DB (primary)',
-                      details: 'ACID transaction: UPDATE accounts SET balance = balance + amount WHERE userId = ?',
-                      color: 'blue'
-                    },
-                    {
-                      step: '8',
-                      title: 'Event Sourcing (Event Store)',
-                      desc: 'Append TransactionAuthorized event to Event Store',
-                      details: 'Immutable log entry with eventId, aggregateId (userId), payload, timestamp',
-                      color: 'indigo'
-                    },
-                    {
-                      step: '9',
-                      title: 'Cache Update (Redis)',
-                      desc: 'Invalidate old balance cache, cache new transaction',
-                      details: 'Set TTL: balance (5min), recent_txns (1min). Update rate limit counter',
-                      color: 'red'
-                    },
-                    {
-                      step: '10',
-                      title: 'Index for Search (Elasticsearch)',
-                      desc: 'Async job indexes transaction to Elasticsearch',
-                      details: 'User can search transactions by merchant, date, amount within seconds',
-                      color: 'yellow'
-                    },
-                    {
-                      step: '11',
-                      title: 'Real-time Metrics (InfluxDB)',
-                      desc: 'Write transaction metrics for dashboards',
-                      details: 'Metrics: transaction_count, approval_rate, avg_amount, latency_p99',
-                      color: 'purple'
-                    },
-                    {
-                      step: '12',
-                      title: 'Nightly ETL (Snowflake)',
-                      desc: 'Batch ETL copies transactions to Snowflake',
-                      details: 'Runs at 2 AM. Copy last 24 hours from MongoDB → Snowflake. Used for BI reports, ML training',
-                      color: 'cyan'
-                    }
-                  ].map((flow, idx) => (
-                    <div key={idx} className={`flex gap-4 items-start bg-slate-800/50 rounded-lg p-4 border border-${flow.color}-500/30`}>
-                      <div className={`flex-shrink-0 w-10 h-10 rounded-full bg-${flow.color}-500/20 border-2 border-${flow.color}-500 flex items-center justify-center text-${flow.color}-300 font-bold`}>
-                        {flow.step}
-                      </div>
-                      <div className="flex-1">
-                        <h4 className={`text-lg font-bold text-${flow.color}-300 mb-1`}>{flow.title}</h4>
-                        <p className="text-gray-300 text-sm mb-2">{flow.desc}</p>
-                        <p className="text-gray-400 text-xs italic">{flow.details}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Data Flow Summary */}
-              <div className="bg-gradient-to-r from-purple-900/40 to-indigo-900/40 rounded-xl p-6 border border-purple-500/50">
-                <h3 className="text-xl font-bold text-purple-300 mb-4">Data Flow Summary</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <h4 className="text-purple-300 font-semibold mb-2">Write Path (Hot)</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>1. PostgreSQL Account DB → Balance check</li>
-                      <li>2. MongoDB Transaction DB → Store transaction</li>
-                      <li>3. PostgreSQL Event Store → Audit log</li>
-                      <li>4. Redis Cache → Invalidate + update</li>
-                      <li><span className="text-green-400 font-semibold">Total latency: ~100ms</span></li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="text-purple-300 font-semibold mb-2">Async Path (Cold)</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>5. Elasticsearch → Search indexing (5-10s delay)</li>
-                      <li>6. InfluxDB → Real-time metrics (1s delay)</li>
-                      <li>7. Snowflake → Batch ETL (nightly, 2-hour window)</li>
-                      <li><span className="text-cyan-400 font-semibold">Non-blocking, eventual consistency</span></li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* Why 7 Databases? */}
-              <div className="bg-gradient-to-r from-yellow-900/40 to-orange-900/40 rounded-xl p-6 border border-yellow-500/50 mt-6">
-                <h3 className="text-xl font-bold text-yellow-300 mb-4">🤔 Why Use 7 Different Databases?</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <h4 className="text-yellow-300 font-semibold mb-2">Polyglot Persistence Benefits</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• <span className="font-semibold">Optimized for access patterns</span>: Each DB excels at its workload</li>
-                      <li>• <span className="font-semibold">Scalability</span>: Scale write-heavy vs read-heavy DBs independently</li>
-                      <li>• <span className="font-semibold">Performance</span>: Redis sub-ms, MongoDB 8ms writes, Snowflake complex analytics</li>
-                      <li>• <span className="font-semibold">Compliance</span>: Event Store provides immutable audit trail</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="text-orange-300 font-semibold mb-2">Trade-offs</h4>
-                    <ul className="text-gray-300 text-sm space-y-1">
-                      <li>• <span className="text-red-400">Complexity</span>: More moving parts, operational overhead</li>
-                      <li>• <span className="text-red-400">Consistency</span>: Eventual consistency across databases</li>
-                      <li>• <span className="text-red-400">Data sync</span>: ETL pipelines, CDC (Change Data Capture) required</li>
-                      <li>• <span className="text-green-400">Worth it</span> for 10M users, 30M+ req/day, 99.99% SLA</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Database Comparison Table */}
-            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 border border-blue-500 shadow-2xl">
-              <h2 className="text-3xl font-bold text-white mb-6">Database Comparison Matrix</h2>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b-2 border-blue-500">
-                      <th className="text-left py-3 px-4 text-blue-300 font-semibold">Database</th>
-                      <th className="text-left py-3 px-4 text-blue-300 font-semibold">Type</th>
-                      <th className="text-left py-3 px-4 text-blue-300 font-semibold">Primary Use Case</th>
-                      <th className="text-left py-3 px-4 text-blue-300 font-semibold">Consistency</th>
-                      <th className="text-left py-3 px-4 text-blue-300 font-semibold">Latency</th>
-                      <th className="text-left py-3 px-4 text-blue-300 font-semibold">Scale</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-gray-300">
-                    <tr className="border-b border-gray-700 hover:bg-green-900/20">
-                      <td className="py-3 px-4 font-semibold text-green-300">MongoDB</td>
-                      <td className="py-3 px-4">Document (NoSQL)</td>
-                      <td className="py-3 px-4">Transaction records</td>
-                      <td className="py-3 px-4">Eventual</td>
-                      <td className="py-3 px-4 text-green-400">8ms</td>
-                      <td className="py-3 px-4">Horizontal (Sharding)</td>
-                    </tr>
-                    <tr className="border-b border-gray-700 hover:bg-blue-900/20">
-                      <td className="py-3 px-4 font-semibold text-blue-300">PostgreSQL (Account)</td>
-                      <td className="py-3 px-4">Relational (SQL)</td>
-                      <td className="py-3 px-4">User accounts, balances</td>
-                      <td className="py-3 px-4 text-green-400">Strong (ACID)</td>
-                      <td className="py-3 px-4 text-blue-400">3-12ms</td>
-                      <td className="py-3 px-4">Vertical + Replicas</td>
-                    </tr>
-                    <tr className="border-b border-gray-700 hover:bg-red-900/20">
-                      <td className="py-3 px-4 font-semibold text-red-300">Redis</td>
-                      <td className="py-3 px-4">In-Memory (KV)</td>
-                      <td className="py-3 px-4">Cache, sessions</td>
-                      <td className="py-3 px-4">Eventual</td>
-                      <td className="py-3 px-4 text-green-400">&lt;1ms</td>
-                      <td className="py-3 px-4">Horizontal (Cluster)</td>
-                    </tr>
-                    <tr className="border-b border-gray-700 hover:bg-purple-900/20">
-                      <td className="py-3 px-4 font-semibold text-purple-300">InfluxDB</td>
-                      <td className="py-3 px-4">Time-Series</td>
-                      <td className="py-3 px-4">Metrics, monitoring</td>
-                      <td className="py-3 px-4">Eventual</td>
-                      <td className="py-3 px-4 text-purple-400">50ms</td>
-                      <td className="py-3 px-4">Vertical</td>
-                    </tr>
-                    <tr className="border-b border-gray-700 hover:bg-yellow-900/20">
-                      <td className="py-3 px-4 font-semibold text-yellow-300">Elasticsearch</td>
-                      <td className="py-3 px-4">Search Engine</td>
-                      <td className="py-3 px-4">Full-text search</td>
-                      <td className="py-3 px-4">Eventual</td>
-                      <td className="py-3 px-4 text-yellow-400">20ms</td>
-                      <td className="py-3 px-4">Horizontal (Shards)</td>
-                    </tr>
-                    <tr className="border-b border-gray-700 hover:bg-cyan-900/20">
-                      <td className="py-3 px-4 font-semibold text-cyan-300">Snowflake</td>
-                      <td className="py-3 px-4">Data Warehouse</td>
-                      <td className="py-3 px-4">Analytics, BI, ML</td>
-                      <td className="py-3 px-4">Eventual</td>
-                      <td className="py-3 px-4 text-cyan-400">5-30s</td>
-                      <td className="py-3 px-4">Auto-scaling (Cloud)</td>
-                    </tr>
-                    <tr className="border-b border-gray-700 hover:bg-indigo-900/20">
-                      <td className="py-3 px-4 font-semibold text-indigo-300">PostgreSQL (Event)</td>
-                      <td className="py-3 px-4">Relational (SQL)</td>
-                      <td className="py-3 px-4">Event sourcing, audit</td>
-                      <td className="py-3 px-4 text-green-400">Strong (ACID)</td>
-                      <td className="py-3 px-4 text-indigo-400">5ms</td>
-                      <td className="py-3 px-4">Vertical (Append-only)</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* API Endpoints Tab */}
-        {activeTab === 'api' && (
-          <div className="space-y-8">
-            {/* API Overview */}
-            <div className="bg-gradient-to-br from-blue-900 to-indigo-900 rounded-2xl p-8 border border-blue-500 shadow-2xl">
-              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
-                <Globe className="w-8 h-8 text-blue-400" />
-                RESTful API Endpoints
-              </h2>
-              <p className="text-gray-300 text-lg mb-6">
-                The Credit Card Portal exposes a comprehensive REST API organized by domain. All endpoints follow REST conventions,
-                use OAuth 2.0 + JWT authentication, and return JSON responses. Rate limiting: <span className="text-yellow-300 font-semibold">1000 req/min per user</span>.
-              </p>
-
-              {/* API Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-                  <div className="text-blue-400 text-3xl font-bold">30M+</div>
-                  <div className="text-gray-300 text-sm">Requests/Day</div>
-                </div>
-                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-                  <div className="text-green-400 text-3xl font-bold">&lt;50ms</div>
-                  <div className="text-gray-300 text-sm">Avg Response Time</div>
-                </div>
-                <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-                  <div className="text-purple-400 text-3xl font-bold">99.95%</div>
-                  <div className="text-gray-300 text-sm">Success Rate</div>
-                </div>
-                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-                  <div className="text-yellow-400 text-3xl font-bold">OAuth 2.0</div>
-                  <div className="text-gray-300 text-sm">+ JWT Auth</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Account Management APIs */}
-            <div className="bg-white rounded-xl p-6 border-2 border-blue-200 shadow-lg">
-              <div className="flex items-center gap-3 mb-6">
-                <Users className="w-7 h-7 text-blue-600" />
-                <h3 className="text-2xl font-bold text-gray-900">Account Management</h3>
-              </div>
-
-              <div className="space-y-4">
-                {/* GET Account Details */}
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 bg-green-100 text-green-700 rounded font-bold text-sm">GET</span>
-                      <code className="text-sm font-mono text-gray-800">/api/v1/accounts/{`{accountId}`}</code>
-                    </div>
-                    <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-semibold">Read Side</span>
-                  </div>
-                  <p className="text-gray-600 text-sm mb-3">Retrieve account details including balance, credit limit, and status.</p>
-                  <div className="bg-white rounded p-3 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Response (200 OK):</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto"><code>{`{
-  "accountId": "ACC-1234567890",
-  "userId": "USR-9876543210",
-  "status": "ACTIVE",
-  "creditLimit": 10000.00,
-  "availableCredit": 7500.00,
-  "currentBalance": 2500.00,
-  "lastStatementDate": "2024-01-01",
-  "paymentDueDate": "2024-01-25",
-  "minPaymentDue": 50.00
-}`}</code></pre>
-                  </div>
-                </div>
-
-                {/* POST Create Account */}
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded font-bold text-sm">POST</span>
-                      <code className="text-sm font-mono text-gray-800">/api/v1/accounts</code>
-                    </div>
-                    <span className="px-2 py-1 bg-purple-50 text-purple-700 rounded text-xs font-semibold">Write Side</span>
-                  </div>
-                  <p className="text-gray-600 text-sm mb-3">Create a new credit card account (triggers Saga orchestration).</p>
-                  <div className="bg-white rounded p-3 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Request Body:</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto mb-3"><code>{`{
-  "userId": "USR-9876543210",
-  "productType": "PLATINUM",
-  "requestedCreditLimit": 15000.00,
-  "employmentStatus": "EMPLOYED",
-  "annualIncome": 75000.00
-}`}</code></pre>
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Response (202 Accepted):</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto"><code>{`{
-  "applicationId": "APP-1234567890",
-  "status": "PENDING_APPROVAL",
-  "message": "Application submitted for review"
-}`}</code></pre>
-                  </div>
-                </div>
-
-                {/* PATCH Update Account */}
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded font-bold text-sm">PATCH</span>
-                      <code className="text-sm font-mono text-gray-800">/api/v1/accounts/{`{accountId}`}</code>
-                    </div>
-                    <span className="px-2 py-1 bg-purple-50 text-purple-700 rounded text-xs font-semibold">Write Side</span>
-                  </div>
-                  <p className="text-gray-600 text-sm mb-3">Update account settings (address, phone, email).</p>
-                  <div className="bg-white rounded p-3 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Request Body:</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto"><code>{`{
-  "email": "newemail@example.com",
-  "phone": "+1-555-0123",
-  "address": {
-    "street": "123 Main St",
-    "city": "New York",
-    "state": "NY",
-    "zipCode": "10001"
-  }
-}`}</code></pre>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Transaction APIs */}
-            <div className="bg-white rounded-xl p-6 border-2 border-green-200 shadow-lg">
-              <div className="flex items-center gap-3 mb-6">
-                <CreditCard className="w-7 h-7 text-green-600" />
-                <h3 className="text-2xl font-bold text-gray-900">Transactions</h3>
-              </div>
-
-              <div className="space-y-4">
-                {/* POST Process Transaction */}
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded font-bold text-sm">POST</span>
-                      <code className="text-sm font-mono text-gray-800">/api/v1/transactions</code>
-                    </div>
-                    <span className="px-2 py-1 bg-purple-50 text-purple-700 rounded text-xs font-semibold">Write Side</span>
-                  </div>
-                  <p className="text-gray-600 text-sm mb-3">Process a credit card transaction with fraud detection (&lt;100ms).</p>
-                  <div className="bg-white rounded p-3 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Request Body:</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto mb-3"><code>{`{
-  "accountId": "ACC-1234567890",
-  "amount": 125.50,
-  "currency": "USD",
-  "merchantId": "MER-9876543210",
-  "merchantName": "Amazon.com",
-  "merchantCategory": "RETAIL",
-  "transactionType": "PURCHASE",
-  "idempotencyKey": "TXN-UUID-12345"
-}`}</code></pre>
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Response (200 OK):</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto"><code>{`{
-  "transactionId": "TXN-1234567890",
-  "status": "APPROVED",
-  "authorizationCode": "AUTH-987654",
-  "fraudScore": 12,
-  "fraudReason": null,
-  "availableCredit": 7374.50,
-  "processedAt": "2024-01-15T10:30:00Z"
-}`}</code></pre>
-                  </div>
-                </div>
-
-                {/* GET Transaction History */}
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 bg-green-100 text-green-700 rounded font-bold text-sm">GET</span>
-                      <code className="text-sm font-mono text-gray-800">/api/v1/accounts/{`{accountId}`}/transactions</code>
-                    </div>
-                    <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-semibold">Read Side</span>
-                  </div>
-                  <p className="text-gray-600 text-sm mb-3">Retrieve paginated transaction history with filters.</p>
-                  <div className="bg-white rounded p-3 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Query Parameters:</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto mb-3"><code>{`?startDate=2024-01-01&endDate=2024-01-31&page=0&size=20&sort=date,desc`}</code></pre>
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Response (200 OK):</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto"><code>{`{
-  "transactions": [
-    {
-      "transactionId": "TXN-1234567890",
-      "date": "2024-01-15T10:30:00Z",
-      "merchantName": "Amazon.com",
-      "amount": 125.50,
-      "status": "POSTED",
-      "category": "RETAIL"
-    }
-  ],
-  "page": 0,
-  "size": 20,
-  "totalElements": 45,
-  "totalPages": 3
-}`}</code></pre>
-                  </div>
-                </div>
-
-                {/* POST Dispute Transaction */}
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded font-bold text-sm">POST</span>
-                      <code className="text-sm font-mono text-gray-800">/api/v1/transactions/{`{transactionId}`}/dispute</code>
-                    </div>
-                    <span className="px-2 py-1 bg-purple-50 text-purple-700 rounded text-xs font-semibold">Write Side</span>
-                  </div>
-                  <p className="text-gray-600 text-sm mb-3">Initiate a dispute for a transaction.</p>
-                  <div className="bg-white rounded p-3 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Request Body:</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto"><code>{`{
-  "reason": "FRAUDULENT",
-  "description": "I did not authorize this transaction",
-  "contactPhone": "+1-555-0123"
-}`}</code></pre>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Payment APIs */}
-            <div className="bg-white rounded-xl p-6 border-2 border-purple-200 shadow-lg">
-              <div className="flex items-center gap-3 mb-6">
-                <TrendingUp className="w-7 h-7 text-purple-600" />
-                <h3 className="text-2xl font-bold text-gray-900">Payments</h3>
-              </div>
-
-              <div className="space-y-4">
-                {/* POST Make Payment */}
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded font-bold text-sm">POST</span>
-                      <code className="text-sm font-mono text-gray-800">/api/v1/payments</code>
-                    </div>
-                    <span className="px-2 py-1 bg-purple-50 text-purple-700 rounded text-xs font-semibold">Write Side</span>
-                  </div>
-                  <p className="text-gray-600 text-sm mb-3">Make a payment towards credit card balance (with idempotency).</p>
-                  <div className="bg-white rounded p-3 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Request Body:</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto mb-3"><code>{`{
-  "accountId": "ACC-1234567890",
-  "amount": 500.00,
-  "paymentMethod": "BANK_ACCOUNT",
-  "bankAccountId": "BA-1234567890",
-  "paymentType": "STATEMENT_BALANCE",
-  "scheduledDate": "2024-01-25",
-  "idempotencyKey": "PAY-UUID-12345"
-}`}</code></pre>
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Response (201 Created):</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto"><code>{`{
-  "paymentId": "PAY-1234567890",
-  "status": "SCHEDULED",
-  "confirmationNumber": "CONF-987654",
-  "scheduledDate": "2024-01-25",
-  "estimatedPosting": "2024-01-26"
-}`}</code></pre>
-                  </div>
-                </div>
-
-                {/* GET Payment History */}
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 bg-green-100 text-green-700 rounded font-bold text-sm">GET</span>
-                      <code className="text-sm font-mono text-gray-800">/api/v1/accounts/{`{accountId}`}/payments</code>
-                    </div>
-                    <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-semibold">Read Side</span>
-                  </div>
-                  <p className="text-gray-600 text-sm mb-3">Retrieve payment history for an account.</p>
-                  <div className="bg-white rounded p-3 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Response (200 OK):</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto"><code>{`{
-  "payments": [
-    {
-      "paymentId": "PAY-1234567890",
-      "amount": 500.00,
-      "status": "POSTED",
-      "paymentDate": "2024-01-26",
-      "paymentMethod": "BANK_ACCOUNT"
-    }
-  ]
-}`}</code></pre>
-                  </div>
-                </div>
-
-                {/* DELETE Cancel Payment */}
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 bg-red-100 text-red-700 rounded font-bold text-sm">DELETE</span>
-                      <code className="text-sm font-mono text-gray-800">/api/v1/payments/{`{paymentId}`}</code>
-                    </div>
-                    <span className="px-2 py-1 bg-purple-50 text-purple-700 rounded text-xs font-semibold">Write Side</span>
-                  </div>
-                  <p className="text-gray-600 text-sm mb-3">Cancel a scheduled payment (only if status is SCHEDULED).</p>
-                  <div className="bg-white rounded p-3 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Response (200 OK):</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto"><code>{`{
-  "paymentId": "PAY-1234567890",
-  "status": "CANCELLED",
-  "message": "Payment cancelled successfully"
-}`}</code></pre>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Rewards APIs */}
-            <div className="bg-white rounded-xl p-6 border-2 border-yellow-200 shadow-lg">
-              <div className="flex items-center gap-3 mb-6">
-                <Zap className="w-7 h-7 text-yellow-600" />
-                <h3 className="text-2xl font-bold text-gray-900">Rewards & Offers</h3>
-              </div>
-
-              <div className="space-y-4">
-                {/* GET Rewards Balance */}
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 bg-green-100 text-green-700 rounded font-bold text-sm">GET</span>
-                      <code className="text-sm font-mono text-gray-800">/api/v1/accounts/{`{accountId}`}/rewards</code>
-                    </div>
-                    <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-semibold">Read Side</span>
-                  </div>
-                  <p className="text-gray-600 text-sm mb-3">Get current rewards balance and redemption options.</p>
-                  <div className="bg-white rounded p-3 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Response (200 OK):</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto"><code>{`{
-  "totalPoints": 15750,
-  "cashValue": 157.50,
-  "pointsEarned30Days": 2500,
-  "pointsRedeemed30Days": 0,
-  "tier": "PLATINUM",
-  "tierBenefits": ["5x points on travel", "Airport lounge access"]
-}`}</code></pre>
-                  </div>
-                </div>
-
-                {/* POST Redeem Rewards */}
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded font-bold text-sm">POST</span>
-                      <code className="text-sm font-mono text-gray-800">/api/v1/rewards/redeem</code>
-                    </div>
-                    <span className="px-2 py-1 bg-purple-50 text-purple-700 rounded text-xs font-semibold">Write Side</span>
-                  </div>
-                  <p className="text-gray-600 text-sm mb-3">Redeem rewards points for cash back or statement credit.</p>
-                  <div className="bg-white rounded p-3 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Request Body:</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto"><code>{`{
-  "accountId": "ACC-1234567890",
-  "points": 10000,
-  "redemptionType": "STATEMENT_CREDIT"
-}`}</code></pre>
-                  </div>
-                </div>
-
-                {/* GET Available Offers */}
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 bg-green-100 text-green-700 rounded font-bold text-sm">GET</span>
-                      <code className="text-sm font-mono text-gray-800">/api/v1/offers</code>
-                    </div>
-                    <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-semibold">Read Side</span>
-                  </div>
-                  <p className="text-gray-600 text-sm mb-3">Get personalized offers and promotions.</p>
-                  <div className="bg-white rounded p-3 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Response (200 OK):</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto"><code>{`{
-  "offers": [
-    {
-      "offerId": "OFF-1234567890",
-      "title": "10% back at Amazon",
-      "description": "Earn 10% cashback on Amazon purchases",
-      "expiryDate": "2024-02-28",
-      "category": "RETAIL"
-    }
-  ]
-}`}</code></pre>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Analytics APIs */}
-            <div className="bg-white rounded-xl p-6 border-2 border-cyan-200 shadow-lg">
-              <div className="flex items-center gap-3 mb-6">
-                <BarChart className="w-7 h-7 text-cyan-600" />
-                <h3 className="text-2xl font-bold text-gray-900">Analytics & Reporting</h3>
-              </div>
-
-              <div className="space-y-4">
-                {/* GET Spending Analytics */}
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 bg-green-100 text-green-700 rounded font-bold text-sm">GET</span>
-                      <code className="text-sm font-mono text-gray-800">/api/v1/accounts/{`{accountId}`}/analytics/spending</code>
-                    </div>
-                    <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-semibold">Read Side</span>
-                  </div>
-                  <p className="text-gray-600 text-sm mb-3">Get spending analytics by category and time period.</p>
-                  <div className="bg-white rounded p-3 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Query Parameters:</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto mb-3"><code>{`?period=MONTHLY&year=2024&month=1`}</code></pre>
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Response (200 OK):</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto"><code>{`{
-  "period": "2024-01",
-  "totalSpending": 2500.00,
-  "categoryBreakdown": [
-    {"category": "RETAIL", "amount": 1200.00, "percentage": 48},
-    {"category": "DINING", "amount": 600.00, "percentage": 24},
-    {"category": "TRAVEL", "amount": 400.00, "percentage": 16},
-    {"category": "OTHER", "amount": 300.00, "percentage": 12}
-  ],
-  "topMerchants": [
-    {"name": "Amazon.com", "amount": 800.00, "transactions": 12},
-    {"name": "Uber", "amount": 250.00, "transactions": 8}
-  ]
-}`}</code></pre>
-                  </div>
-                </div>
-
-                {/* GET Statement */}
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 bg-green-100 text-green-700 rounded font-bold text-sm">GET</span>
-                      <code className="text-sm font-mono text-gray-800">/api/v1/accounts/{`{accountId}`}/statements/{`{statementId}`}</code>
-                    </div>
-                    <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-semibold">Read Side</span>
-                  </div>
-                  <p className="text-gray-600 text-sm mb-3">Download monthly statement as PDF.</p>
-                  <div className="bg-white rounded p-3 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Response (200 OK):</p>
-                    <pre className="text-xs text-gray-700 overflow-x-auto"><code>{`Content-Type: application/pdf
-Content-Disposition: attachment; filename="statement-2024-01.pdf"`}</code></pre>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Error Handling */}
-            <div className="bg-gradient-to-br from-red-900 to-pink-900 rounded-2xl p-8 border border-red-500 shadow-2xl">
-              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
-                <AlertCircle className="w-8 h-8 text-red-400" />
-                Error Handling
-              </h2>
-
-              <div className="space-y-4">
-                {/* Standard Error Response */}
-                <div className="bg-slate-900/50 rounded-lg p-4 border border-red-500/30">
-                  <h4 className="text-red-300 font-semibold mb-3">Standard Error Response Format</h4>
-                  <pre className="text-sm text-gray-300 overflow-x-auto"><code>{`{
-  "timestamp": "2024-01-15T10:30:00Z",
-  "status": 400,
-  "error": "Bad Request",
-  "message": "Invalid account ID format",
-  "path": "/api/v1/accounts/invalid-id",
-  "requestId": "REQ-UUID-12345"
-}`}</code></pre>
-                </div>
-
-                {/* Common Error Codes */}
-                <div className="bg-slate-900/50 rounded-lg p-4 border border-red-500/30">
-                  <h4 className="text-red-300 font-semibold mb-3">Common HTTP Status Codes</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="bg-slate-800/50 rounded p-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="px-2 py-1 bg-red-500/20 text-red-300 rounded text-xs font-bold">400</span>
-                        <span className="text-white font-semibold">Bad Request</span>
-                      </div>
-                      <p className="text-gray-400 text-xs">Invalid request parameters or body</p>
-                    </div>
-                    <div className="bg-slate-800/50 rounded p-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="px-2 py-1 bg-red-500/20 text-red-300 rounded text-xs font-bold">401</span>
-                        <span className="text-white font-semibold">Unauthorized</span>
-                      </div>
-                      <p className="text-gray-400 text-xs">Missing or invalid authentication</p>
-                    </div>
-                    <div className="bg-slate-800/50 rounded p-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 rounded text-xs font-bold">403</span>
-                        <span className="text-white font-semibold">Forbidden</span>
-                      </div>
-                      <p className="text-gray-400 text-xs">Insufficient permissions</p>
-                    </div>
-                    <div className="bg-slate-800/50 rounded p-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded text-xs font-bold">404</span>
-                        <span className="text-white font-semibold">Not Found</span>
-                      </div>
-                      <p className="text-gray-400 text-xs">Resource does not exist</p>
-                    </div>
-                    <div className="bg-slate-800/50 rounded p-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="px-2 py-1 bg-orange-500/20 text-orange-300 rounded text-xs font-bold">429</span>
-                        <span className="text-white font-semibold">Too Many Requests</span>
-                      </div>
-                      <p className="text-gray-400 text-xs">Rate limit exceeded (1000 req/min)</p>
-                    </div>
-                    <div className="bg-slate-800/50 rounded p-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-xs font-bold">500</span>
-                        <span className="text-white font-semibold">Internal Server Error</span>
-                      </div>
-                      <p className="text-gray-400 text-xs">Server-side error occurred</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Rate Limiting */}
-                <div className="bg-slate-900/50 rounded-lg p-4 border border-yellow-500/30">
-                  <h4 className="text-yellow-300 font-semibold mb-3">Rate Limiting Headers</h4>
-                  <pre className="text-sm text-gray-300 overflow-x-auto"><code>{`X-RateLimit-Limit: 1000
-X-RateLimit-Remaining: 847
-X-RateLimit-Reset: 1705320000`}</code></pre>
-                </div>
-              </div>
-            </div>
-
-            {/* Authentication */}
-            <div className="bg-gradient-to-br from-indigo-900 to-purple-900 rounded-2xl p-8 border border-indigo-500 shadow-2xl">
-              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
-                <Lock className="w-8 h-8 text-indigo-400" />
-                Authentication & Authorization
-              </h2>
-
-              <div className="space-y-4">
-                {/* OAuth 2.0 Flow */}
-                <div className="bg-slate-900/50 rounded-lg p-4 border border-indigo-500/30">
-                  <h4 className="text-indigo-300 font-semibold mb-3">OAuth 2.0 + JWT Flow</h4>
-                  <ol className="text-gray-300 text-sm space-y-2 list-decimal list-inside">
-                    <li>Client requests authorization from user</li>
-                    <li>User grants permission, client receives authorization code</li>
-                    <li>Client exchanges code for access token (JWT) + refresh token</li>
-                    <li>Client includes JWT in Authorization header for API requests</li>
-                    <li>API Gateway validates JWT signature and expiry</li>
-                    <li>Use refresh token to get new access token when expired</li>
-                  </ol>
-                </div>
-
-                {/* JWT Token Structure */}
-                <div className="bg-slate-900/50 rounded-lg p-4 border border-indigo-500/30">
-                  <h4 className="text-indigo-300 font-semibold mb-3">JWT Token Structure</h4>
-                  <pre className="text-sm text-gray-300 overflow-x-auto mb-3"><code>{`{
+          name: 'Authentication & Authorization',
+          diagram: GatewayDiagram,
+          explanation: 'Authentication uses OAuth 2.0 with JWT tokens. Access tokens expire in 15 minutes, refresh tokens in 7 days. JWT contains userId, roles, and permissions. The gateway validates tokens on every request without hitting the auth service (signature verification). MFA required for high-value operations. API keys used for 3rd party integrations with scoped permissions.',
+          codeExample: `// JWT Token Structure
+{
   "header": {
     "alg": "RS256",
     "typ": "JWT"
   },
   "payload": {
-    "sub": "USR-9876543210",
-    "accountId": "ACC-1234567890",
-    "roles": ["CUSTOMER"],
-    "iss": "https://auth.creditcard.com",
-    "exp": 1705320000,
-    "iat": 1705316400
-  }
-}`}</code></pre>
-                </div>
+    "sub": "user-123",
+    "iss": "creditcard-portal",
+    "iat": 1704067200,
+    "exp": 1704068100,  // 15 min expiry
+    "roles": ["customer"],
+    "permissions": ["read:account", "write:transaction"],
+    "mfa_verified": true
+  },
+  "signature": "..."
+}
 
-                {/* Authorization Header */}
-                <div className="bg-slate-900/50 rounded-lg p-4 border border-indigo-500/30">
-                  <h4 className="text-indigo-300 font-semibold mb-3">API Request with JWT</h4>
-                  <pre className="text-sm text-gray-300 overflow-x-auto"><code>{`GET /api/v1/accounts/ACC-1234567890 HTTP/1.1
-Host: api.creditcard.com
-Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
-Content-Type: application/json`}</code></pre>
-                </div>
-              </div>
+// Kong JWT Plugin Configuration
+plugins:
+  - name: jwt
+    config:
+      secret_is_base64: false
+      claims_to_verify:
+        - exp  # Expiration
+        - iss  # Issuer
+      run_on_preflight: true
+
+// Refresh Token Flow
+POST /oauth/token
+{
+  "grant_type": "refresh_token",
+  "refresh_token": "rt_xxxxx",
+  "client_id": "mobile-app"
+}
+
+// Response
+{
+  "access_token": "eyJhbG...",
+  "token_type": "Bearer",
+  "expires_in": 900,  // 15 min
+  "refresh_token": "rt_yyyyy"  // Rotated
+}`
+        },
+        {
+          name: 'Rate Limiting',
+          explanation: 'Rate limiting uses Token Bucket algorithm implemented in Redis. Default: 1000 requests/minute per user. Burst: 100 requests allowed instantly. Premium users get higher limits. Trusted sources (payment networks) bypass rate limiting. Response includes X-RateLimit headers showing remaining quota. 429 Too Many Requests returned when exceeded.',
+          codeExample: `// Rate Limiting with Token Bucket (Redis)
+
+// Kong Rate Limiting Plugin
+plugins:
+  - name: rate-limiting
+    config:
+      second: null
+      minute: 1000  # 1000 req/min per user
+      hour: null
+      policy: redis
+      redis_host: redis-cluster
+      redis_port: 6379
+      identifier: consumer  # Per user
+
+// Token Bucket Algorithm (Lua in Kong)
+local function check_rate_limit(user_id, limit, window)
+    local key = "rate:" .. user_id
+    local current = redis.call("INCR", key)
+
+    if current == 1 then
+        redis.call("EXPIRE", key, window)
+    end
+
+    if current > limit then
+        return false, limit - current  -- Exceeded
+    end
+
+    return true, limit - current  -- Allowed
+end
+
+// Response Headers
+HTTP/1.1 200 OK
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 847
+X-RateLimit-Reset: 1704067260
+
+// When Exceeded
+HTTP/1.1 429 Too Many Requests
+Retry-After: 45
+{
+  "error": "rate_limit_exceeded",
+  "message": "Too many requests. Retry after 45 seconds."
+}`
+        },
+        {
+          name: 'Security (WAF & DDoS)',
+          explanation: 'Web Application Firewall (WAF) protects against SQL injection, XSS, and OWASP Top 10. DDoS protection at Layer 7 with anomaly detection. All traffic is TLS 1.3. IP reputation checking blocks known bad actors. Geo-blocking for regions not served. Request/response logging for security audits (100GB logs/day, 7-day hot, 90-day cold storage).',
+          codeExample: `// WAF Configuration (ModSecurity rules)
+
+# SQL Injection Prevention
+SecRule ARGS "@detectSQLi" \\
+    "id:942100,\\
+    phase:2,\\
+    block,\\
+    msg:'SQL Injection Attack Detected',\\
+    logdata:'Matched Data: %{TX.0}'"
+
+# XSS Prevention
+SecRule ARGS "@detectXSS" \\
+    "id:941100,\\
+    phase:2,\\
+    block,\\
+    msg:'XSS Attack Detected'"
+
+# DDoS Protection Rules
+SecRule IP:REQUESTS_PER_SECOND "@gt 100" \\
+    "id:900001,\\
+    phase:1,\\
+    block,\\
+    msg:'DDoS - Request rate too high'"
+
+// TLS Configuration
+ssl_protocols TLSv1.3;
+ssl_ciphers 'TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256';
+ssl_prefer_server_ciphers on;
+ssl_session_timeout 1d;
+ssl_session_cache shared:SSL:50m;
+
+// IP Reputation Check
+- name: ip-restriction
+  config:
+    deny:
+      - known_bad_ips.txt
+    allow:
+      - trusted_partners.txt`
+        }
+      ]
+    },
+    {
+      id: 'observability',
+      name: 'Observability',
+      icon: '📊',
+      color: '#10b981',
+      description: 'Prometheus metrics, Grafana dashboards, ELK logging, and Jaeger distributed tracing.',
+      diagram: ObservabilityDiagram,
+      details: [
+        {
+          name: 'Metrics (Prometheus + Grafana)',
+          diagram: ObservabilityDiagram,
+          explanation: 'Prometheus scrapes metrics from all services every 15 seconds. Key metrics: request latency (p50, p95, p99), error rate, throughput, CPU/memory usage, database connection pool, Kafka consumer lag. Grafana dashboards visualize real-time data. Alerts trigger when: latency >500ms, error rate >1%, CPU >80%. 30-day retention for metrics.',
+          codeExample: `// Prometheus Metrics Instrumentation (Spring Boot)
+
+@Component
+public class MetricsConfig {
+
+    private final MeterRegistry registry;
+
+    // Request latency histogram
+    private final Timer requestLatency = Timer.builder("http_request_duration")
+        .publishPercentiles(0.5, 0.95, 0.99)
+        .register(registry);
+
+    // Transaction counter
+    private final Counter transactionCounter = Counter.builder("transactions_total")
+        .tag("status", "success")
+        .register(registry);
+
+    // Kafka consumer lag gauge
+    private final AtomicLong consumerLag = registry.gauge(
+        "kafka_consumer_lag",
+        new AtomicLong(0)
+    );
+}
+
+// Prometheus scrape config
+scrape_configs:
+  - job_name: 'credit-card-portal'
+    scrape_interval: 15s
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        regex: credit-card-.*
+        action: keep
+
+// Alert Rules
+groups:
+  - name: credit-card-alerts
+    rules:
+      - alert: HighLatency
+        expr: http_request_duration_seconds{quantile="0.99"} > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High latency detected"
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.01
+        for: 2m
+        labels:
+          severity: critical`
+        },
+        {
+          name: 'Logging (ELK Stack)',
+          explanation: 'Centralized logging with Elasticsearch, Logstash, Kibana (ELK). All services log in JSON format with correlation IDs for tracing. 100GB logs/day ingested. Hot storage: 7 days (fast queries). Cold storage: 90 days (compliance). Log levels: ERROR (always), WARN (important), INFO (requests), DEBUG (development). PII masked in logs.',
+          codeExample: `// Structured JSON Logging (Logback)
+
+<appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+        <includeMdcKeyName>correlationId</includeMdcKeyName>
+        <includeMdcKeyName>userId</includeMdcKeyName>
+        <includeMdcKeyName>requestId</includeMdcKeyName>
+    </encoder>
+</appender>
+
+// Log Output (JSON)
+{
+  "@timestamp": "2024-01-01T12:00:00.000Z",
+  "level": "INFO",
+  "logger": "TransactionService",
+  "message": "Transaction processed",
+  "correlationId": "abc-123",
+  "userId": "user-456",
+  "requestId": "req-789",
+  "transactionId": "txn-012",
+  "amount": "***MASKED***",  // PII masked
+  "duration_ms": 47,
+  "service": "transaction-service",
+  "pod": "txn-service-pod-abc"
+}
+
+// Kibana Query Examples
+// Find all errors for a user
+userId: "user-456" AND level: "ERROR"
+
+// Trace a request across services
+correlationId: "abc-123"
+
+// Slow transactions
+duration_ms: >500 AND message: "Transaction processed"`
+        },
+        {
+          name: 'Distributed Tracing (Jaeger)',
+          explanation: 'Jaeger traces requests across all microservices. Each request gets a trace ID propagated via headers. Spans show timing for each service call, database query, and external API. Used to debug latency issues and understand request flow. Sampling rate: 1% for normal traffic, 100% for errors. Trace retention: 7 days.',
+          codeExample: `// OpenTelemetry Tracing Configuration
+
+@Configuration
+public class TracingConfig {
+
+    @Bean
+    public Tracer jaegerTracer() {
+        return new JaegerTracer.Builder("transaction-service")
+            .withSampler(new ProbabilisticSampler(0.01))  // 1% sampling
+            .withReporter(new RemoteReporter.Builder()
+                .withSender(new HttpSender("http://jaeger:14268/api/traces"))
+                .build())
+            .build();
+    }
+}
+
+// Trace Propagation Headers
+traceparent: 00-abc123-def456-01
+tracestate: jaeger=abc123
+
+// Creating Spans
+@Traced
+public Payment processPayment(PaymentRequest request) {
+    Span span = tracer.buildSpan("process-payment").start();
+    try (Scope scope = tracer.activateSpan(span)) {
+        span.setTag("account.id", request.getAccountId());
+        span.setTag("amount", request.getAmount());
+
+        // Child span for fraud check
+        Span fraudSpan = tracer.buildSpan("fraud-check").start();
+        FraudResult result = fraudService.check(request);
+        fraudSpan.setTag("risk.score", result.getScore());
+        fraudSpan.finish();
+
+        // Continue with payment...
+        return payment;
+    } finally {
+        span.finish();
+    }
+}
+
+// Jaeger UI shows:
+// transaction-service (parent span, 150ms)
+//   ├── fraud-check (47ms)
+//   ├── mongodb-write (23ms)
+//   ├── event-store-append (15ms)
+//   └── kafka-publish (8ms)`
+        }
+      ]
+    }
+  ]
+
+  // Navigation handlers
+  const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
+
+  const handlePreviousConcept = () => {
+    if (selectedConceptIndex > 0) {
+      setSelectedConceptIndex(selectedConceptIndex - 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  const handleNextConcept = () => {
+    if (selectedConceptIndex < concepts.length - 1) {
+      setSelectedConceptIndex(selectedConceptIndex + 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  // Breadcrumb configuration
+  const buildBreadcrumbStack = () => {
+    const stack = [
+      { name: 'System Design', icon: '🏗️', page: 'design' },
+      { name: 'Credit Card Portal', icon: '💳', page: 'CreditCardPortal3' }
+    ]
+    if (selectedConcept) {
+      stack.push({ name: selectedConcept.name, icon: selectedConcept.icon })
+    }
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index) => {
+    if (index === 0) {
+      onBack()
+    } else if (index === 1 && selectedConcept) {
+      setSelectedConceptIndex(null)
+    }
+  }
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        if (selectedConcept) {
+          setSelectedConceptIndex(null)
+        } else {
+          onBack()
+        }
+      } else if (e.key === 'ArrowLeft' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handlePreviousConcept()
+      } else if (e.key === 'ArrowRight' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handleNextConcept()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConceptIndex, onBack])
+
+  // Styles
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f172a 0%, #4c1d95 50%, #0f172a 100%)',
+    padding: '2rem',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
+  }
+
+  const headerStyle = {
+    maxWidth: '1400px',
+    margin: '0 auto 2rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '1rem'
+  }
+
+  const titleStyle = {
+    fontSize: '2.5rem',
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #a78bfa, #8b5cf6)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    margin: 0
+  }
+
+  const backButtonStyle = {
+    padding: '0.75rem 1.5rem',
+    background: 'rgba(139, 92, 246, 0.2)',
+    border: '1px solid rgba(139, 92, 246, 0.3)',
+    borderRadius: '0.5rem',
+    color: '#a78bfa',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    transition: 'all 0.2s'
+  }
+
+  return (
+    <div style={containerStyle}>
+      {/* Header */}
+      <div style={headerStyle}>
+        <div>
+          <h1 style={titleStyle}>Credit Card Portal</h1>
+          <p style={{ color: '#94a3b8', marginTop: '0.5rem', fontSize: '1rem' }}>
+            System Design for 10M Users | 30M Transactions/Day | CQRS + Event Sourcing
+          </p>
+        </div>
+        <button
+          style={backButtonStyle}
+          onClick={onBack}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = 'rgba(139, 92, 246, 0.3)'
+            e.currentTarget.style.transform = 'translateY(-2px)'
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'rgba(139, 92, 246, 0.2)'
+            e.currentTarget.style.transform = 'translateY(0)'
+          }}
+        >
+          Back to Design
+        </button>
+      </div>
+
+      {/* Breadcrumb */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          colors={TOPIC_COLORS}
+        />
+      </div>
+
+      {/* Concept Cards Grid */}
+      <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+        gap: '1.5rem'
+      }}>
+        {concepts.map((concept, index) => (
+          <div
+            key={concept.id}
+            onClick={() => setSelectedConceptIndex(index)}
+            style={{
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              border: `1px solid ${concept.color}40`,
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = `0 20px 40px ${concept.color}20`
+              e.currentTarget.style.borderColor = concept.color
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.borderColor = `${concept.color}40`
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
+              <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
+            </div>
+            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
+            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+              {concept.details.length} topics - Click to explore
             </div>
           </div>
-        )}
+        ))}
       </div>
+
+      {/* Modal */}
+      {selectedConcept && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '2rem'
+          }}
+          onClick={() => setSelectedConceptIndex(null)}
+        >
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              maxWidth: '1200px',
+              width: '100%',
+              maxHeight: '92vh',
+              overflow: 'auto',
+              border: `1px solid ${selectedConcept.color}40`
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Breadcrumb */}
+            <Breadcrumb
+              breadcrumbStack={buildBreadcrumbStack()}
+              onBreadcrumbClick={handleBreadcrumbClick}
+              colors={TOPIC_COLORS}
+            />
+
+            {/* Modal Header */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1.5rem',
+              paddingBottom: '1rem',
+              borderBottom: '1px solid #334155'
+            }}>
+              <h2 style={{
+                color: selectedConcept.color,
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '1.25rem'
+              }}>
+                <span>{selectedConcept.icon}</span>
+                {selectedConcept.name}
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button
+                  onClick={handlePreviousConcept}
+                  disabled={selectedConceptIndex === 0}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >Prev</button>
+                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>
+                  {selectedConceptIndex + 1}/{concepts.length}
+                </span>
+                <button
+                  onClick={handleNextConcept}
+                  disabled={selectedConceptIndex === concepts.length - 1}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >Next</button>
+                <button
+                  onClick={() => setSelectedConceptIndex(null)}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: '#f87171',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    marginLeft: '0.5rem'
+                  }}
+                >Close</button>
+              </div>
+            </div>
+
+            {/* Detail Tabs */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {selectedConcept.details.map((detail, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedDetailIndex(i)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)',
+                    border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`,
+                    borderRadius: '0.5rem',
+                    color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: selectedDetailIndex === i ? '600' : '400',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {detail.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Detail Content */}
+            {(() => {
+              const detail = selectedConcept.details[selectedDetailIndex]
+              const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
+              return (
+                <div>
+                  {/* Diagram */}
+                  {DiagramComponent && (
+                    <div style={{
+                      background: 'rgba(15, 23, 42, 0.6)',
+                      borderRadius: '0.75rem',
+                      padding: '1rem',
+                      marginBottom: '1.5rem',
+                      border: '1px solid #334155'
+                    }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
+
+                  {/* Detail Name */}
+                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>
+                    {detail.name}
+                  </h3>
+
+                  {/* Explanation */}
+                  <p style={{
+                    color: '#e2e8f0',
+                    lineHeight: '1.8',
+                    marginBottom: '1rem',
+                    background: colorScheme.bg,
+                    border: `1px solid ${colorScheme.border}`,
+                    borderRadius: '0.5rem',
+                    padding: '1rem',
+                    textAlign: 'left'
+                  }}>
+                    {detail.explanation}
+                  </p>
+
+                  {/* Code Example */}
+                  {detail.codeExample && (
+                    <SyntaxHighlighter
+                      language="java"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        padding: '1rem',
+                        margin: 0,
+                        borderRadius: '0.5rem',
+                        fontSize: '0.8rem',
+                        border: '1px solid #334155',
+                        background: '#0f172a'
+                      }}
+                      codeTagProps={{ style: { background: 'transparent' } }}
+                    >
+                      {detail.codeExample}
+                    </SyntaxHighlighter>
+                  )}
+                </div>
+              )
+            })()}
+          </div>
+        </div>
+      )}
     </div>
-  );
+  )
 }
+
+export default CreditCardPortal3

@@ -1,6 +1,50 @@
 import { useState } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
 
+// OAuth 2.0 Authorization Code Flow Diagram
+const OAuth2FlowDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">OAuth 2.0 Authorization Code Flow</text>
+
+    <rect x="30" y="45" width="90" height="45" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="75" y="72" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Client App</text>
+
+    <rect x="150" y="45" width="120" height="45" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="210" y="65" textAnchor="middle" fill="#fbbf24" fontSize="8" fontWeight="bold">1. Auth Request</text>
+    <text x="210" y="80" textAnchor="middle" fill="#fcd34d" fontSize="7">redirect_uri, scope</text>
+
+    <rect x="300" y="45" width="100" height="45" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="350" y="65" textAnchor="middle" fill="#a78bfa" fontSize="8" fontWeight="bold">2. User Login</text>
+    <text x="350" y="80" textAnchor="middle" fill="#c4b5fd" fontSize="7">Consent</text>
+
+    <rect x="430" y="45" width="110" height="45" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="485" y="65" textAnchor="middle" fill="#4ade80" fontSize="8" fontWeight="bold">3. Auth Code</text>
+    <text x="485" y="80" textAnchor="middle" fill="#86efac" fontSize="7">code=xyz</text>
+
+    <rect x="570" y="45" width="100" height="45" rx="6" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="620" y="65" textAnchor="middle" fill="#f472b6" fontSize="8" fontWeight="bold">4. Exchange</text>
+    <text x="620" y="80" textAnchor="middle" fill="#fbcfe8" fontSize="7">code + secret</text>
+
+    <rect x="700" y="45" width="80" height="45" rx="6" fill="rgba(6, 182, 212, 0.3)" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="740" y="65" textAnchor="middle" fill="#22d3ee" fontSize="8" fontWeight="bold">5. Tokens</text>
+    <text x="740" y="80" textAnchor="middle" fill="#a5f3fc" fontSize="7">access+refresh</text>
+
+    <path d="M 120 67 L 145 67" stroke="#64748b" strokeWidth="1.5"/>
+    <path d="M 270 67 L 295 67" stroke="#64748b" strokeWidth="1.5"/>
+    <path d="M 400 67 L 425 67" stroke="#64748b" strokeWidth="1.5"/>
+    <path d="M 540 67 L 565 67" stroke="#64748b" strokeWidth="1.5"/>
+    <path d="M 670 67 L 695 67" stroke="#64748b" strokeWidth="1.5"/>
+
+    <rect x="100" y="110" width="600" height="70" rx="6" fill="rgba(100, 116, 139, 0.1)" stroke="#64748b" strokeWidth="1"/>
+    <text x="400" y="130" textAnchor="middle" fill="#94a3b8" fontSize="10" fontWeight="bold">Grant Types</text>
+    <text x="180" y="150" textAnchor="middle" fill="#60a5fa" fontSize="8">Authorization Code</text>
+    <text x="320" y="150" textAnchor="middle" fill="#4ade80" fontSize="8">Client Credentials</text>
+    <text x="460" y="150" textAnchor="middle" fill="#fbbf24" fontSize="8">PKCE (mobile/SPA)</text>
+    <text x="600" y="150" textAnchor="middle" fill="#f472b6" fontSize="8">Refresh Token</text>
+    <text x="400" y="170" textAnchor="middle" fill="#64748b" fontSize="8">Implicit & Password grants deprecated in OAuth 2.1</text>
+  </svg>
+)
+
 export default function OAuth2({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview')
 
@@ -62,6 +106,10 @@ export default function OAuth2({ onBack, breadcrumb }) {
         <div className="mb-8">
           {activeTab === 'overview' && (
             <div className="space-y-8">
+              {/* OAuth 2.0 Flow Diagram */}
+              <div className="bg-gray-800 rounded-xl shadow-md p-6 border-l-4 border-green-600">
+                <OAuth2FlowDiagram />
+              </div>
               {/* What is OAuth 2.0 */}
               <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-green-600">
                 <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">

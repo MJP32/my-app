@@ -1060,7 +1060,7 @@ print(f"Autocomplete 'app': {trie.autocomplete('app')}")`
         <p style={{
           fontSize: '1.2rem',
           color: '#d1d5db',
-          textAlign: 'center',
+          textAlign: 'left',
           marginBottom: '2rem',
           lineHeight: '1.8'
         }}>
@@ -2067,10 +2067,12 @@ print(f"Autocomplete 'app': {trie.autocomplete('app')}")`
                           language="python"
                           style={customTheme}
                           customStyle={{
-                            padding: '1.5rem',
-                            borderRadius: '0.5rem',
-                            fontSize: '0.9rem',
-                            border: '1px solid #3b82f6'
+                            margin: 0,
+                            borderRadius: '0.375rem',
+                            fontSize: '0.875rem',
+                            background: 'none',
+                            backgroundColor: 'transparent',
+                            padding: 0
                           }}
                         >
                           {section.code}
@@ -2097,7 +2099,7 @@ print(f"Autocomplete 'app': {trie.autocomplete('app')}")`
         <h3 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#d1d5db', marginBottom: '0.5rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
           <span>📊</span> Algorithm Comparison
         </h3>
-        <p style={{ textAlign: 'center', color: '#9ca3af', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+        <p style={{ textAlign: 'left', color: '#9ca3af', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
           Choose the right algorithm based on your use case
         </p>
         <div style={{ overflowX: 'auto' }}>

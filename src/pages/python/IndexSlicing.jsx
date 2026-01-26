@@ -646,7 +646,7 @@ print(f"Deep copy: {deep_copy}")            # [[99, 2], [3, 4]]`
                 </h3>
                 <p style={{
                   color: '#d1d5db',
-                  textAlign: 'center',
+                  textAlign: 'left',
                   fontSize: '0.875rem'
                 }}>
                   Click to explore indexing and slicing techniques
@@ -853,9 +853,12 @@ print(f"Deep copy: {deep_copy}")            # [[99, 2], [3, 4]]`
                               language="python"
                               style={vscDarkPlus}
                               customStyle={{
-                                borderRadius: '8px',
-                                padding: '1rem',
-                                fontSize: '0.9rem'
+                                margin: 0,
+                                borderRadius: '0.375rem',
+                                fontSize: '0.875rem',
+                                background: 'none',
+                                backgroundColor: 'transparent',
+                                padding: 0
                               }}
                             >
                               {section.code}
@@ -875,9 +878,12 @@ print(f"Deep copy: {deep_copy}")            # [[99, 2], [3, 4]]`
                         language="python"
                         style={vscDarkPlus}
                         customStyle={{
-                          borderRadius: '8px',
-                          padding: '1rem',
-                          fontSize: '0.9rem'
+                          margin: 0,
+                          borderRadius: '0.375rem',
+                          fontSize: '0.875rem',
+                          background: 'none',
+                          backgroundColor: 'transparent',
+                          padding: 0
                         }}
                       >
                         {selectedConcept.codeExample}

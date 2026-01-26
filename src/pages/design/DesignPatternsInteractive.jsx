@@ -1,69 +1,465 @@
+/**
+ * Design Patterns Interactive Page
+ *
+ * Converted to tab_template format with concept cards and modal details.
+ * Covers Creational, Behavioral patterns: Singleton, Factory, Observer, Strategy
+ */
+
 import { useState, useEffect } from 'react'
-import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
-import LanguageToggle from '../../components/LanguageToggle.jsx'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
-import { isProblemCompleted } from '../../services/progressService'
-import { getPreferredLanguage } from '../../services/languageService'
 
-function DesignPatternsInteractive({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb }) {
-  const [selectedQuestion, setSelectedQuestion] = useState(null)
-  const [showSolution, setShowSolution] = useState(false)
-  const [showExplanation, setShowExplanation] = useState(false)
-  const [userCode, setUserCode] = useState('')
-  const [output, setOutput] = useState('')
-  const [isRunning, setIsRunning] = useState(false)
-  const [refreshKey, setRefreshKey] = useState(0)
-  const [language, setLanguage] = useState(getPreferredLanguage())
+// =============================================================================
+// COLORS CONFIGURATION
+// =============================================================================
 
-  // Listen for completion changes
-  useEffect(() => {
-    const handleProgressUpdate = () => {
-      setRefreshKey(prev => prev + 1)
-    }
+const TOPIC_COLORS = {
+  primary: '#8b5cf6',
+  primaryHover: '#a78bfa',
+  bg: 'rgba(139, 92, 246, 0.1)',
+  border: 'rgba(139, 92, 246, 0.3)',
+  arrow: '#8b5cf6',
+  hoverBg: 'rgba(139, 92, 246, 0.2)',
+  topicBg: 'rgba(139, 92, 246, 0.2)'
+}
 
-    window.addEventListener('progressUpdate', handleProgressUpdate)
-    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
-  }, [])
+const SUBTOPIC_COLORS = [
+  { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },
+  { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' },
+  { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' },
+  { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)' },
+  { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)' },
+  { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
+]
 
-  // Listen for language changes
-  useEffect(() => {
-    const handleLanguageChange = (e) => {
-      setLanguage(e.detail)
-    }
-    window.addEventListener('languageChange', handleLanguageChange)
-    return () => window.removeEventListener('languageChange', handleLanguageChange)
-  }, [])
+// =============================================================================
+// DIAGRAM COMPONENTS
+// =============================================================================
 
-  const questions = [
+// Singleton Pattern Diagram
+const SingletonPatternDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="singletonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#7c3aed', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="clientGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#2563eb', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="arrowSingleton" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#10b981" />
+      </marker>
+    </defs>
+    <rect x="30" y="30" width="100" height="50" rx="8" fill="url(#clientGrad)" />
+    <text x="80" y="60" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">Client 1</text>
+    <rect x="30" y="100" width="100" height="50" rx="8" fill="url(#clientGrad)" />
+    <text x="80" y="130" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">Client 2</text>
+    <rect x="280" y="50" width="140" height="70" rx="10" fill="url(#singletonGrad)" stroke="#7c3aed" strokeWidth="2" />
+    <text x="350" y="80" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">getInstance()</text>
+    <text x="350" y="100" fontSize="10" fill="white" opacity="0.8" textAnchor="middle">Thread-Safe</text>
+    <rect x="500" y="40" width="160" height="90" rx="10" fill="#fbbf24" stroke="#f59e0b" strokeWidth="3" />
+    <text x="580" y="70" fontSize="14" fontWeight="bold" fill="#78350f" textAnchor="middle">Single Instance</text>
+    <text x="580" y="90" fontSize="11" fill="#78350f" textAnchor="middle">DatabaseConnection</text>
+    <text x="580" y="110" fontSize="10" fill="#78350f" opacity="0.8" textAnchor="middle">(Only One Exists)</text>
+    <line x1="130" y1="55" x2="280" y2="75" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowSingleton)" />
+    <line x1="130" y1="125" x2="280" y2="95" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowSingleton)" />
+    <line x1="420" y1="85" x2="500" y2="85" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowSingleton)" />
+  </svg>
+)
+
+// Double-Checked Locking Diagram
+const DoubleCheckedLockingDiagram = () => (
+  <svg viewBox="0 0 800 220" style={{ width: '100%', maxWidth: '800px', height: 'auto' }}>
+    <defs>
+      <marker id="arrowDCL" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#4ade80" />
+      </marker>
+    </defs>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Double-Checked Locking Flow
+    </text>
+    <rect x="50" y="50" width="140" height="50" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="120" y="80" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">First Check</text>
+    <text x="120" y="95" textAnchor="middle" fill="white" fontSize="9">(No Lock)</text>
+    <rect x="250" y="50" width="140" height="50" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="320" y="80" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Synchronized</text>
+    <text x="320" y="95" textAnchor="middle" fill="white" fontSize="9">(Acquire Lock)</text>
+    <rect x="450" y="50" width="140" height="50" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="520" y="80" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Second Check</text>
+    <text x="520" y="95" textAnchor="middle" fill="white" fontSize="9">(With Lock)</text>
+    <rect x="650" y="50" width="100" height="50" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="700" y="80" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Create</text>
+    <line x1="190" y1="75" x2="245" y2="75" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowDCL)"/>
+    <line x1="390" y1="75" x2="445" y2="75" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowDCL)"/>
+    <line x1="590" y1="75" x2="645" y2="75" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowDCL)"/>
+    <text x="217" y="65" textAnchor="middle" fill="#94a3b8" fontSize="9">null?</text>
+    <text x="417" y="65" textAnchor="middle" fill="#94a3b8" fontSize="9">locked</text>
+    <text x="617" y="65" textAnchor="middle" fill="#94a3b8" fontSize="9">null?</text>
+    <rect x="200" y="140" width="400" height="60" rx="8" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="400" y="165" textAnchor="middle" fill="#c4b5fd" fontSize="11" fontWeight="bold">volatile keyword ensures visibility</text>
+    <text x="400" y="185" textAnchor="middle" fill="#94a3b8" fontSize="10">Prevents instruction reordering and ensures all threads see the update</text>
+  </svg>
+)
+
+// Bill Pugh Singleton Diagram
+const BillPughDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto' }}>
+    <defs>
+      <marker id="arrowBP" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#4ade80" />
+      </marker>
+    </defs>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Bill Pugh Singleton (Inner Static Class)
+    </text>
+    <rect x="50" y="50" width="200" height="100" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="150" y="80" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">DatabaseConnection</text>
+    <text x="150" y="100" textAnchor="middle" fill="white" fontSize="10">private constructor()</text>
+    <text x="150" y="120" textAnchor="middle" fill="white" fontSize="10">getInstance() method</text>
+    <rect x="350" y="50" width="200" height="100" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="450" y="80" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">SingletonHelper</text>
+    <text x="450" y="100" textAnchor="middle" fill="white" fontSize="10">(Inner Static Class)</text>
+    <text x="450" y="120" textAnchor="middle" fill="white" fontSize="10">static final INSTANCE</text>
+    <rect x="620" y="65" width="130" height="70" rx="8" fill="#fbbf24" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="685" y="95" textAnchor="middle" fill="#78350f" fontSize="11" fontWeight="bold">Instance</text>
+    <text x="685" y="115" textAnchor="middle" fill="#78350f" fontSize="10">(Created Lazily)</text>
+    <line x1="250" y1="100" x2="345" y2="100" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowBP)"/>
+    <line x1="550" y1="100" x2="615" y2="100" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowBP)"/>
+    <text x="297" y="90" textAnchor="middle" fill="#94a3b8" fontSize="9">accesses</text>
+    <text x="582" y="90" textAnchor="middle" fill="#94a3b8" fontSize="9">holds</text>
+    <text x="400" y="180" textAnchor="middle" fill="#94a3b8" fontSize="11">Inner class only loaded when getInstance() is called - JVM guarantees thread safety</text>
+  </svg>
+)
+
+// Enum Singleton Diagram
+const EnumSingletonDiagram = () => (
+  <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto' }}>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Enum Singleton (Most Robust)
+    </text>
+    <rect x="250" y="50" width="300" height="100" rx="10" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="3"/>
+    <text x="400" y="80" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">enum DatabaseConnection</text>
+    <text x="400" y="105" textAnchor="middle" fill="white" fontSize="11">INSTANCE</text>
+    <text x="400" y="125" textAnchor="middle" fill="white" fontSize="10">connect(), query(), close()</text>
+    <rect x="50" y="70" width="140" height="40" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="120" y="95" textAnchor="middle" fill="#4ade80" fontSize="10">Reflection Safe</text>
+    <rect x="610" y="70" width="140" height="40" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="680" y="95" textAnchor="middle" fill="#4ade80" fontSize="10">Serialization Safe</text>
+    <text x="400" y="170" textAnchor="middle" fill="#94a3b8" fontSize="11">JVM guarantees exactly one instance - handles all edge cases automatically</text>
+  </svg>
+)
+
+// Factory Pattern Diagram
+const FactoryPatternDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="factoryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="productGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="arrowFactory" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#6366f1" />
+      </marker>
+    </defs>
+    <rect x="30" y="55" width="120" height="60" rx="8" fill="#3b82f6" />
+    <text x="90" y="82" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">Client</text>
+    <text x="90" y="98" fontSize="10" fill="white" opacity="0.8" textAnchor="middle">createNotification()</text>
+    <rect x="220" y="40" width="160" height="90" rx="12" fill="url(#factoryGrad)" stroke="#d97706" strokeWidth="3" />
+    <text x="300" y="70" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">Factory</text>
+    <text x="300" y="90" fontSize="10" fill="white" opacity="0.9" textAnchor="middle">NotificationFactory</text>
+    <text x="300" y="108" fontSize="9" fill="white" opacity="0.7" textAnchor="middle">Encapsulates Creation</text>
+    <rect x="480" y="15" width="120" height="40" rx="6" fill="url(#productGrad)" />
+    <text x="540" y="40" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">EmailNotification</text>
+    <rect x="480" y="65" width="120" height="40" rx="6" fill="url(#productGrad)" />
+    <text x="540" y="90" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">SMSNotification</text>
+    <rect x="480" y="115" width="120" height="40" rx="6" fill="url(#productGrad)" />
+    <text x="540" y="140" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">PushNotification</text>
+    <line x1="150" y1="85" x2="220" y2="85" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrowFactory)" />
+    <line x1="380" y1="65" x2="480" y2="35" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrowFactory)" />
+    <line x1="380" y1="85" x2="480" y2="85" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrowFactory)" />
+    <line x1="380" y1="105" x2="480" y2="135" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrowFactory)" />
+  </svg>
+)
+
+// Simple Factory Diagram
+const SimpleFactoryDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto' }}>
+    <defs>
+      <marker id="arrowSF" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#4ade80" />
+      </marker>
+    </defs>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Simple Factory Pattern
+    </text>
+    <rect x="50" y="60" width="150" height="70" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="125" y="90" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Client Code</text>
+    <text x="125" y="110" textAnchor="middle" fill="white" fontSize="9">Factory.create(type)</text>
+    <rect x="280" y="50" width="200" height="90" rx="10" fill="#f59e0b" stroke="#fbbf24" strokeWidth="3"/>
+    <text x="380" y="80" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">NotificationFactory</text>
+    <text x="380" y="100" textAnchor="middle" fill="white" fontSize="10">static createNotification(type)</text>
+    <text x="380" y="118" textAnchor="middle" fill="white" fontSize="9">switch(type) ...</text>
+    <rect x="560" y="50" width="180" height="90" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="650" y="75" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">Products</text>
+    <text x="650" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">EmailNotification</text>
+    <text x="650" y="110" textAnchor="middle" fill="#94a3b8" fontSize="10">SMSNotification</text>
+    <text x="650" y="125" textAnchor="middle" fill="#94a3b8" fontSize="10">PushNotification</text>
+    <line x1="200" y1="95" x2="275" y2="95" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowSF)"/>
+    <line x1="480" y1="95" x2="555" y2="95" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowSF)"/>
+    <text x="237" y="85" textAnchor="middle" fill="#94a3b8" fontSize="9">request</text>
+    <text x="517" y="85" textAnchor="middle" fill="#94a3b8" fontSize="9">returns</text>
+    <text x="400" y="175" textAnchor="middle" fill="#94a3b8" fontSize="11">Centralized creation logic - client decoupled from concrete classes</text>
+  </svg>
+)
+
+// Factory Method Pattern Diagram
+const FactoryMethodDiagram = () => (
+  <svg viewBox="0 0 800 250" style={{ width: '100%', maxWidth: '800px', height: 'auto' }}>
+    <defs>
+      <marker id="arrowFM" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#4ade80" />
+      </marker>
+    </defs>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Factory Method Pattern (GoF)
+    </text>
+    <rect x="250" y="50" width="300" height="60" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="400" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Abstract NotificationCreator</text>
+    <text x="400" y="95" textAnchor="middle" fill="white" fontSize="10">abstract createNotification()</text>
+    <rect x="50" y="150" width="150" height="50" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="125" y="180" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">EmailCreator</text>
+    <rect x="250" y="150" width="150" height="50" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="325" y="180" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">SMSCreator</text>
+    <rect x="500" y="150" width="150" height="50" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="575" y="180" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">PushCreator</text>
+    <line x1="125" y1="150" x2="125" y2="130" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="125" y1="130" x2="250" y2="110" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="325" y1="150" x2="325" y2="130" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="325" y1="130" x2="400" y2="110" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="575" y1="150" x2="575" y2="130" stroke="#4ade80" strokeWidth="2"/>
+    <line x1="575" y1="130" x2="550" y2="110" stroke="#4ade80" strokeWidth="2"/>
+    <text x="400" y="230" textAnchor="middle" fill="#94a3b8" fontSize="11">Subclasses decide which class to instantiate - Open/Closed compliant</text>
+  </svg>
+)
+
+// Observer Pattern Diagram
+const ObserverPatternDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="subjectGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#ec4899', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#db2777', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="observerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#06b6d4', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#0891b2', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="arrowObserver" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b" />
+      </marker>
+    </defs>
+    <rect x="30" y="40" width="150" height="90" rx="10" fill="url(#subjectGrad)" stroke="#db2777" strokeWidth="3" />
+    <text x="105" y="70" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">Subject</text>
+    <text x="105" y="90" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Stock (AAPL)</text>
+    <text x="105" y="110" fontSize="10" fill="white" opacity="0.8" textAnchor="middle">price = $155.00</text>
+    <text x="290" y="85" fontSize="12" fontWeight="600" fill="#f59e0b" textAnchor="middle">notify()</text>
+    <rect x="420" y="15" width="140" height="40" rx="6" fill="url(#observerGrad)" />
+    <text x="490" y="40" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">Investor (John)</text>
+    <rect x="420" y="65" width="140" height="40" rx="6" fill="url(#observerGrad)" />
+    <text x="490" y="90" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">Investor (Sarah)</text>
+    <rect x="420" y="115" width="140" height="40" rx="6" fill="url(#observerGrad)" />
+    <text x="490" y="140" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">Analytics Service</text>
+    <line x1="180" y1="60" x2="420" y2="35" stroke="#f59e0b" strokeWidth="2" strokeDasharray="5,3" markerEnd="url(#arrowObserver)" />
+    <line x1="180" y1="85" x2="420" y2="85" stroke="#f59e0b" strokeWidth="2" strokeDasharray="5,3" markerEnd="url(#arrowObserver)" />
+    <line x1="180" y1="110" x2="420" y2="135" stroke="#f59e0b" strokeWidth="2" strokeDasharray="5,3" markerEnd="url(#arrowObserver)" />
+  </svg>
+)
+
+// Push vs Pull Model Diagram
+const PushPullDiagram = () => (
+  <svg viewBox="0 0 800 220" style={{ width: '100%', maxWidth: '800px', height: 'auto' }}>
+    <defs>
+      <marker id="arrowPP" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#4ade80" />
+      </marker>
+      <marker id="arrowPPBack" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b" />
+      </marker>
+    </defs>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Push vs Pull Notification Models
+    </text>
+    <text x="200" y="55" textAnchor="middle" fill="#4ade80" fontSize="12" fontWeight="bold">Push Model</text>
+    <rect x="50" y="70" width="120" height="50" rx="6" fill="#ec4899" stroke="#f472b6" strokeWidth="2"/>
+    <text x="110" y="100" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Subject</text>
+    <rect x="230" y="70" width="120" height="50" rx="6" fill="#06b6d4" stroke="#22d3ee" strokeWidth="2"/>
+    <text x="290" y="100" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Observer</text>
+    <line x1="170" y1="95" x2="225" y2="95" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowPP)"/>
+    <text x="197" y="85" textAnchor="middle" fill="#94a3b8" fontSize="9">all data</text>
+    <text x="600" y="55" textAnchor="middle" fill="#f59e0b" fontSize="12" fontWeight="bold">Pull Model</text>
+    <rect x="450" y="70" width="120" height="50" rx="6" fill="#ec4899" stroke="#f472b6" strokeWidth="2"/>
+    <text x="510" y="100" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Subject</text>
+    <rect x="630" y="70" width="120" height="50" rx="6" fill="#06b6d4" stroke="#22d3ee" strokeWidth="2"/>
+    <text x="690" y="100" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Observer</text>
+    <line x1="570" y1="88" x2="625" y2="88" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowPP)"/>
+    <line x1="625" y1="102" x2="570" y2="102" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#arrowPPBack)"/>
+    <text x="597" y="80" textAnchor="middle" fill="#94a3b8" fontSize="9">notify</text>
+    <text x="597" y="115" textAnchor="middle" fill="#94a3b8" fontSize="9">query</text>
+    <rect x="50" y="145" width="300" height="50" rx="6" fill="rgba(34, 197, 94, 0.15)" stroke="rgba(34, 197, 94, 0.3)" strokeWidth="1"/>
+    <text x="200" y="165" textAnchor="middle" fill="#4ade80" fontSize="10">Subject pushes ALL data to observers</text>
+    <text x="200" y="180" textAnchor="middle" fill="#94a3b8" fontSize="9">Simple but inflexible</text>
+    <rect x="450" y="145" width="300" height="50" rx="6" fill="rgba(245, 158, 11, 0.15)" stroke="rgba(245, 158, 11, 0.3)" strokeWidth="1"/>
+    <text x="600" y="165" textAnchor="middle" fill="#fbbf24" fontSize="10">Observers PULL needed data from subject</text>
+    <text x="600" y="180" textAnchor="middle" fill="#94a3b8" fontSize="9">Flexible but more coupled</text>
+  </svg>
+)
+
+// Observer Lifecycle Diagram
+const ObserverLifecycleDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto' }}>
+    <defs>
+      <marker id="arrowOL" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#4ade80" />
+      </marker>
+    </defs>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Observer Lifecycle
+    </text>
+    <rect x="50" y="60" width="130" height="50" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="115" y="90" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">addObserver()</text>
+    <rect x="230" y="60" width="130" height="50" rx="8" fill="#ec4899" stroke="#f472b6" strokeWidth="2"/>
+    <text x="295" y="90" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">State Change</text>
+    <rect x="410" y="60" width="130" height="50" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="475" y="90" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">notifyAll()</text>
+    <rect x="590" y="60" width="150" height="50" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="665" y="90" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">removeObserver()</text>
+    <line x1="180" y1="85" x2="225" y2="85" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowOL)"/>
+    <line x1="360" y1="85" x2="405" y2="85" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowOL)"/>
+    <line x1="540" y1="85" x2="585" y2="85" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowOL)"/>
+    <rect x="150" y="140" width="500" height="40" rx="6" fill="rgba(239, 68, 68, 0.15)" stroke="rgba(239, 68, 68, 0.3)" strokeWidth="1"/>
+    <text x="400" y="165" textAnchor="middle" fill="#f87171" fontSize="11">Memory Leak Risk: Always remove observers when no longer needed!</text>
+  </svg>
+)
+
+// Strategy Pattern Diagram
+const StrategyPatternDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="contextGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#4f46e5', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="strategyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#14b8a6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#0d9488', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="arrowStrategy" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#8b5cf6" />
+      </marker>
+    </defs>
+    <rect x="30" y="50" width="160" height="70" rx="10" fill="url(#contextGrad)" stroke="#4f46e5" strokeWidth="3" />
+    <text x="110" y="80" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">PaymentProcessor</text>
+    <text x="110" y="100" fontSize="10" fill="white" opacity="0.8" textAnchor="middle">setStrategy()</text>
+    <rect x="270" y="50" width="130" height="70" rx="8" fill="#fbbf24" stroke="#f59e0b" strokeWidth="2" />
+    <text x="335" y="75" fontSize="11" fontWeight="bold" fill="#78350f" textAnchor="middle">PaymentStrategy</text>
+    <text x="335" y="93" fontSize="10" fill="#78350f" textAnchor="middle">(Interface)</text>
+    <text x="335" y="108" fontSize="9" fill="#78350f" opacity="0.8" textAnchor="middle">pay(amount)</text>
+    <rect x="480" y="15" width="130" height="35" rx="6" fill="url(#strategyGrad)" />
+    <text x="545" y="38" fontSize="10" fontWeight="600" fill="white" textAnchor="middle">CreditCardStrategy</text>
+    <rect x="480" y="60" width="130" height="35" rx="6" fill="url(#strategyGrad)" />
+    <text x="545" y="83" fontSize="10" fontWeight="600" fill="white" textAnchor="middle">PayPalStrategy</text>
+    <rect x="480" y="105" width="130" height="35" rx="6" fill="url(#strategyGrad)" />
+    <text x="545" y="128" fontSize="10" fontWeight="600" fill="white" textAnchor="middle">CryptoStrategy</text>
+    <line x1="190" y1="85" x2="270" y2="85" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrowStrategy)" />
+    <line x1="400" y1="65" x2="480" y2="32" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrowStrategy)" />
+    <line x1="400" y1="85" x2="480" y2="77" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrowStrategy)" />
+    <line x1="400" y1="105" x2="480" y2="122" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrowStrategy)" />
+  </svg>
+)
+
+// Strategy vs State Diagram
+const StrategyVsStateDiagram = () => (
+  <svg viewBox="0 0 800 220" style={{ width: '100%', maxWidth: '800px', height: 'auto' }}>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Strategy Pattern vs State Pattern
+    </text>
+    <rect x="50" y="50" width="300" height="140" rx="10" fill="rgba(99, 102, 241, 0.2)" stroke="#6366f1" strokeWidth="2"/>
+    <text x="200" y="75" textAnchor="middle" fill="#818cf8" fontSize="13" fontWeight="bold">Strategy Pattern</text>
+    <text x="200" y="100" textAnchor="middle" fill="#94a3b8" fontSize="10">Client chooses strategy</text>
+    <text x="200" y="120" textAnchor="middle" fill="#94a3b8" fontSize="10">Strategies are independent</text>
+    <text x="200" y="140" textAnchor="middle" fill="#94a3b8" fontSize="10">Focus: Different algorithms</text>
+    <text x="200" y="165" textAnchor="middle" fill="#4ade80" fontSize="10">Example: Payment methods</text>
+    <rect x="450" y="50" width="300" height="140" rx="10" fill="rgba(236, 72, 153, 0.2)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="600" y="75" textAnchor="middle" fill="#f472b6" fontSize="13" fontWeight="bold">State Pattern</text>
+    <text x="600" y="100" textAnchor="middle" fill="#94a3b8" fontSize="10">Context manages transitions</text>
+    <text x="600" y="120" textAnchor="middle" fill="#94a3b8" fontSize="10">States aware of each other</text>
+    <text x="600" y="140" textAnchor="middle" fill="#94a3b8" fontSize="10">Focus: State-based behavior</text>
+    <text x="600" y="165" textAnchor="middle" fill="#4ade80" fontSize="10">Example: Order status</text>
+  </svg>
+)
+
+// Runtime Strategy Switch Diagram
+const RuntimeStrategySwitchDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto' }}>
+    <defs>
+      <marker id="arrowRSS" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#4ade80" />
+      </marker>
+    </defs>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Runtime Strategy Switching
+    </text>
+    <rect x="50" y="50" width="180" height="60" rx="8" fill="#6366f1" stroke="#818cf8" strokeWidth="2"/>
+    <text x="140" y="75" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">PaymentProcessor</text>
+    <text x="140" y="95" textAnchor="middle" fill="white" fontSize="10">setStrategy(strategy)</text>
+    <rect x="300" y="50" width="140" height="40" rx="6" fill="#14b8a6" stroke="#2dd4bf" strokeWidth="2"/>
+    <text x="370" y="75" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">CreditCard</text>
+    <rect x="300" y="100" width="140" height="40" rx="6" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="370" y="125" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">PayPal</text>
+    <rect x="520" y="70" width="230" height="60" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="635" y="95" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">Switch at runtime!</text>
+    <text x="635" y="115" textAnchor="middle" fill="#94a3b8" fontSize="10">No code modification needed</text>
+    <line x1="230" y1="75" x2="295" y2="70" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowRSS)"/>
+    <line x1="230" y1="85" x2="295" y2="120" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowRSS)"/>
+    <line x1="440" y1="95" x2="515" y2="95" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowRSS)"/>
+    <text x="400" y="175" textAnchor="middle" fill="#94a3b8" fontSize="11">Client can dynamically change algorithm without modifying context</text>
+  </svg>
+)
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
+
+function DesignPatternsInteractive({ onBack }) {
+  const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
+  const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+
+  // =============================================================================
+  // CONCEPTS DATA
+  // =============================================================================
+
+  const concepts = [
     {
-      id: 1,
-      title: 'Implement Singleton Pattern',
-      difficulty: 'Medium',
-      description: 'Implement a thread-safe Singleton pattern that ensures only one instance of a class exists. Handle lazy initialization and prevent multiple instances in multithreaded environments.',
-      example: `Input:
-  DatabaseConnection db1 = DatabaseConnection.getInstance();
-  DatabaseConnection db2 = DatabaseConnection.getInstance();
-Output:
-  db1 == db2 → true
-  Only one instance created`,
-      starterCode: `public class DatabaseConnection {
-    // TODO: Implement thread-safe Singleton pattern
-
-    private DatabaseConnection() {
-        System.out.println("Creating database connection...");
-    }
-
-    public static DatabaseConnection getInstance() {
-        // TODO: Implement lazy initialization with thread safety
-
-    }
-
-    public void connect() {
-        System.out.println("Connected to database");
-    }
-}`,
-      solution: `// Approach 1: Double-Checked Locking (Recommended)
-public class DatabaseConnection {
+      id: 'singleton',
+      name: 'Singleton Pattern',
+      icon: '1️⃣',
+      color: '#8b5cf6',
+      description: 'Ensure only ONE instance of a class exists throughout the application lifecycle. Thread-safe implementations for database connections, loggers, and configuration managers.',
+      diagram: SingletonPatternDiagram,
+      details: [
+        {
+          name: 'Double-Checked Locking',
+          diagram: DoubleCheckedLockingDiagram,
+          explanation: `The most common thread-safe Singleton implementation. It uses two null checks: first without synchronization for performance, then with synchronization to ensure thread safety. The 'volatile' keyword is crucial - it prevents instruction reordering and ensures visibility across threads. Without it, a partially constructed object might be visible to other threads.`,
+          codeExample: `public class DatabaseConnection {
+    // volatile ensures visibility across threads
     private static volatile DatabaseConnection instance;
 
     private DatabaseConnection() {
@@ -71,9 +467,9 @@ public class DatabaseConnection {
     }
 
     public static DatabaseConnection getInstance() {
-        if (instance == null) {
+        if (instance == null) {                    // First check (no lock)
             synchronized (DatabaseConnection.class) {
-                if (instance == null) {
+                if (instance == null) {            // Second check (with lock)
                     instance = new DatabaseConnection();
                 }
             }
@@ -84,244 +480,115 @@ public class DatabaseConnection {
     public void connect() {
         System.out.println("Connected to database");
     }
-}
-
-// Approach 2: Bill Pugh Singleton (Best Practice)
-public class DatabaseConnectionBillPugh {
-    private DatabaseConnectionBillPugh() {
+}`
+        },
+        {
+          name: 'Bill Pugh Singleton',
+          diagram: BillPughDiagram,
+          explanation: `The best practice Singleton implementation. It leverages the Java class loading mechanism - the inner static class is not loaded until getInstance() is called. The JVM guarantees thread-safe class initialization, so no explicit synchronization is needed. This provides lazy initialization with excellent performance and guaranteed thread safety.`,
+          codeExample: `public class DatabaseConnection {
+    // Private constructor prevents instantiation
+    private DatabaseConnection() {
         System.out.println("Creating database connection...");
     }
 
-    // Inner static helper class
+    // Inner static helper class - only loaded when accessed
     private static class SingletonHelper {
-        private static final DatabaseConnectionBillPugh INSTANCE =
-            new DatabaseConnectionBillPugh();
+        // JVM guarantees thread-safe initialization
+        private static final DatabaseConnection INSTANCE =
+            new DatabaseConnection();
     }
 
-    public static DatabaseConnectionBillPugh getInstance() {
+    public static DatabaseConnection getInstance() {
+        // Inner class loaded here - lazy initialization!
         return SingletonHelper.INSTANCE;
     }
 
     public void connect() {
         System.out.println("Connected to database");
     }
-}
+}`
+        },
+        {
+          name: 'Enum Singleton',
+          diagram: EnumSingletonDiagram,
+          explanation: `The most robust Singleton implementation, recommended by Joshua Bloch in "Effective Java". Enums are inherently thread-safe and serialization-safe. They're immune to reflection attacks (JVM prevents instantiating enum values via reflection). The only downside is that it cannot extend other classes, but this is rarely needed.`,
+          codeExample: `// The most robust Singleton - recommended by Joshua Bloch
+public enum DatabaseConnection {
+    INSTANCE;  // The single instance
 
-// Approach 3: Enum Singleton (Most Robust)
-public enum DatabaseConnectionEnum {
-    INSTANCE;
-
-    DatabaseConnectionEnum() {
+    // Constructor called once by JVM
+    DatabaseConnection() {
         System.out.println("Creating database connection...");
     }
 
     public void connect() {
         System.out.println("Connected to database");
     }
+
+    public void query(String sql) {
+        System.out.println("Executing: " + sql);
+    }
 }
 
 // Usage:
-// DatabaseConnectionEnum.INSTANCE.connect();
+// DatabaseConnection.INSTANCE.connect();
+// DatabaseConnection.INSTANCE.query("SELECT * FROM users");`
+        },
+        {
+          name: 'Protection Techniques',
+          diagram: SingletonPatternDiagram,
+          explanation: `Class-based Singletons need protection against various attacks: cloning (override clone()), serialization (implement readResolve()), and reflection (check in constructor). Enum Singletons handle all these automatically. Real-world use cases include database connection pools, configuration managers, logger instances, and cache managers.`,
+          codeExample: `public class SecureSingleton implements Serializable, Cloneable {
+    private static volatile SecureSingleton instance;
 
-// Approach 4: Eager Initialization
-public class DatabaseConnectionEager {
-    private static final DatabaseConnectionEager instance =
-        new DatabaseConnectionEager();
-
-    private DatabaseConnectionEager() {
-        System.out.println("Creating database connection...");
+    private SecureSingleton() {
+        // Prevent reflection attack
+        if (instance != null) {
+            throw new RuntimeException("Use getInstance()!");
+        }
+        System.out.println("Creating instance...");
     }
 
-    public static DatabaseConnectionEager getInstance() {
+    public static SecureSingleton getInstance() {
+        if (instance == null) {
+            synchronized (SecureSingleton.class) {
+                if (instance == null) {
+                    instance = new SecureSingleton();
+                }
+            }
+        }
         return instance;
     }
-}`,
-      testCases: [
-        { input: 'getInstance() called twice', output: 'Same instance returned' },
-        { input: 'Concurrent access from 10 threads', output: 'Only 1 instance created' },
-        { input: 'Serialization/Deserialization', output: 'Same instance maintained' }
-      ],
-      explanation: `**Problem:** Ensure only ONE instance of a class exists throughout the application lifecycle.
 
-**Key Insight: Lazy Initialization + Thread Safety**
-Private constructor prevents external instantiation.
-Static getInstance() controls creation.
-Thread safety ensures no race conditions in multithreaded environments.
+    // Prevent cloning
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Singleton cannot be cloned!");
+    }
 
-**The Challenge:**
-┌────────────────────────────────────────────┐
-│  Thread 1: getInstance()                   │
-│  Thread 2: getInstance()   (SAME TIME!)    │
-│  ❌ Without sync: 2 instances created      │
-│  ✅ With sync: 1 instance created          │
-└────────────────────────────────────────────┘
-
-**4 Implementation Approaches:**
-
-**1. Double-Checked Locking (Most Common)**
-✅ Thread-safe, lazy initialization, good performance
-⚠️ Requires 'volatile' keyword
-
-**2. Bill Pugh Singleton (Best Practice)**
-✅ Thread-safe by JVM class loading
-✅ Lazy initialization via inner static class
-✅ No synchronization overhead
-
-**3. Enum Singleton (Most Robust)**
-✅ Prevents reflection attacks
-✅ Serialization-safe by default
-✅ Thread-safe guaranteed by JVM
-
-**4. Eager Initialization (Simple)**
-✅ Thread-safe, simple
-❌ Not lazy (created at class loading)
-
-**Real-World Use Cases:**
-- Database connection pools
-- Configuration managers
-- Logger instances
-- Cache managers
-- Hardware interface access (printer spooler)
-
-**Common Pitfalls:**
-1. Forgetting 'volatile' in double-checked locking
-2. Serialization breaking singleton (need readResolve())
-3. Reflection attacks (enum solves this)
-4. Cloning attacks (override clone() to throw exception)`,
-      pseudocode: `Singleton Pattern - 4 Implementations:
-────────────────────────────────────────────
-
-═══════════════════════════════════════════
-1. DOUBLE-CHECKED LOCKING (Recommended)
-═══════════════════════════════════════════
-
-class DatabaseConnection:
-    private static volatile instance = null
-
-    // Private constructor
-    private DatabaseConnection():
-        print("Creating DB connection...")
-
-    public static getInstance():
-        if instance == null:                    // First check (no lock)
-            synchronized(DatabaseConnection):   // Lock only if null
-                if instance == null:            // Second check (with lock)
-                    instance = new DatabaseConnection()
-        return instance
-
-Why volatile?
-- Prevents instruction reordering
-- Ensures visibility across threads
-- Without it: partial initialization visible to other threads
-
-═══════════════════════════════════════════
-2. BILL PUGH SINGLETON (Best Practice)
-═══════════════════════════════════════════
-
-class DatabaseConnection:
-    private DatabaseConnection():
-        print("Creating DB connection...")
-
-    // Inner static helper class
-    private static class SingletonHelper:
-        static final INSTANCE = new DatabaseConnection()
-
-    public static getInstance():
-        return SingletonHelper.INSTANCE
-
-How it works:
-1. Inner class NOT loaded until getInstance() called (lazy!)
-2. JVM guarantees thread-safe class initialization
-3. No synchronization needed
-4. Best performance + lazy + thread-safe
-
-═══════════════════════════════════════════
-3. ENUM SINGLETON (Most Robust)
-═══════════════════════════════════════════
-
-enum DatabaseConnection:
-    INSTANCE
-
-    DatabaseConnection():
-        print("Creating DB connection...")
-
-    public void connect():
-        print("Connected to database")
-
-// Usage: DatabaseConnection.INSTANCE.connect()
-
-Why enum is best:
-- JVM guarantees single instance
-- Immune to reflection attacks
-- Serialization-safe by default
-- Thread-safe guaranteed
-
-═══════════════════════════════════════════
-4. EAGER INITIALIZATION (Simple)
-═══════════════════════════════════════════
-
-class DatabaseConnection:
-    private static final instance = new DatabaseConnection()
-
-    private DatabaseConnection():
-        print("Creating DB connection...")
-
-    public static getInstance():
-        return instance
-
-Pros: Simple, thread-safe
-Cons: Created at class loading (not lazy)
-
-═══════════════════════════════════════════
-EXAMPLE TIMELINE (Double-Checked Locking):
-═══════════════════════════════════════════
-
-Time  Thread 1              Thread 2              State
-────────────────────────────────────────────────────────
-t=0   getInstance()         -                     instance=null
-t=1   Check: instance==null -                     instance=null
-t=2   Enter synchronized    getInstance()         instance=null
-t=3   Check: instance==null Check: instance==null instance=null
-t=4   Create new instance   Wait for lock...      instance=null
-t=5   instance = new()      Wait for lock...      instance=<obj>
-t=6   Exit synchronized     Enter synchronized    instance=<obj>
-t=7   Return instance       Check: instance!=null instance=<obj>
-t=8   -                     Exit synchronized     instance=<obj>
-t=9   -                     Return SAME instance  instance=<obj>
-
-Result: Only ONE instance created!
-
-═══════════════════════════════════════════
-PROTECTION AGAINST ATTACKS:
-═══════════════════════════════════════════
-
-// Prevent cloning
-@Override
-protected Object clone() throws CloneNotSupportedException:
-    throw new CloneNotSupportedException("Singleton!")
-
-// Prevent serialization attack
-protected Object readResolve():
-    return getInstance()
-
-// Prevent reflection (for enum, automatic)
-// For class-based: check if instance exists in constructor
-private DatabaseConnection():
-    if instance != null:
-        throw new RuntimeException("Use getInstance()")
-
-Complexity: O(1) time, O(1) space`
+    // Prevent serialization attack
+    protected Object readResolve() {
+        return getInstance();
+    }
+}`
+        }
+      ]
     },
     {
-      id: 2,
-      title: 'Implement Factory Pattern',
-      difficulty: 'Medium',
-      description: 'Create a Factory pattern to generate different types of notifications (Email, SMS, Push). The factory should encapsulate object creation logic and return the appropriate notification type.',
-      example: `Input: NotificationFactory.createNotification("EMAIL")
-Output: EmailNotification instance
-Input: NotificationFactory.createNotification("SMS")
-Output: SMSNotification instance`,
-      starterCode: `interface Notification {
+      id: 'factory',
+      name: 'Factory Pattern',
+      icon: '🏭',
+      color: '#f59e0b',
+      description: 'Encapsulate object creation logic to avoid tight coupling with concrete classes. Follows Open/Closed Principle - open for extension, closed for modification.',
+      diagram: FactoryPatternDiagram,
+      details: [
+        {
+          name: 'Simple Factory',
+          diagram: SimpleFactoryDiagram,
+          explanation: `The Simple Factory is the most common implementation. A static method takes a type parameter and returns the appropriate concrete class. The client code is decoupled from concrete classes - it only knows about the interface. The downside is that adding new types requires modifying the factory's switch statement, violating Open/Closed Principle.`,
+          codeExample: `// Interface - client depends only on this
+interface Notification {
     void send(String message);
 }
 
@@ -346,67 +613,44 @@ class PushNotification implements Notification {
     }
 }
 
-class NotificationFactory {
-    // TODO: Implement factory method
-    public static Notification createNotification(String type) {
-
-    }
-}`,
-      solution: `interface Notification {
-    void send(String message);
-}
-
-class EmailNotification implements Notification {
-    @Override
-    public void send(String message) {
-        System.out.println("Email: " + message);
-    }
-}
-
-class SMSNotification implements Notification {
-    @Override
-    public void send(String message) {
-        System.out.println("SMS: " + message);
-    }
-}
-
-class PushNotification implements Notification {
-    @Override
-    public void send(String message) {
-        System.out.println("Push: " + message);
-    }
-}
-
-// Simple Factory
+// Simple Factory - centralized creation
 class NotificationFactory {
     public static Notification createNotification(String type) {
         if (type == null || type.isEmpty()) {
-            throw new IllegalArgumentException("Notification type cannot be null");
+            throw new IllegalArgumentException("Type cannot be null");
         }
 
         switch (type.toUpperCase()) {
-            case "EMAIL":
-                return new EmailNotification();
-            case "SMS":
-                return new SMSNotification();
-            case "PUSH":
-                return new PushNotification();
+            case "EMAIL": return new EmailNotification();
+            case "SMS":   return new SMSNotification();
+            case "PUSH":  return new PushNotification();
             default:
-                throw new IllegalArgumentException("Unknown notification type: " + type);
+                throw new IllegalArgumentException("Unknown: " + type);
         }
     }
 }
 
-// Factory Method Pattern (More Extensible)
+// Usage:
+// Notification notif = NotificationFactory.createNotification("EMAIL");
+// notif.send("Hello World");`
+        },
+        {
+          name: 'Factory Method Pattern',
+          diagram: FactoryMethodDiagram,
+          explanation: `The Factory Method Pattern (GoF) uses an abstract creator class with an abstract factory method. Subclasses decide which class to instantiate. This fully complies with Open/Closed Principle - adding new types only requires adding new subclasses, no existing code is modified. More classes, but more extensible.`,
+          codeExample: `// Abstract Creator
 abstract class NotificationCreator {
+    // Factory method - subclasses implement
     public abstract Notification createNotification();
 
+    // Template method using factory method
     public void sendNotification(String message) {
         Notification notification = createNotification();
         notification.send(message);
     }
 }
 
+// Concrete Creators
 class EmailNotificationCreator extends NotificationCreator {
     @Override
     public Notification createNotification() {
@@ -428,290 +672,89 @@ class PushNotificationCreator extends NotificationCreator {
     }
 }
 
-// Usage:
-// Notification email = NotificationFactory.createNotification("EMAIL");
-// email.send("Hello World");
-//
-// NotificationCreator creator = new EmailNotificationCreator();
-// creator.sendNotification("Hello via Factory Method");`,
-      testCases: [
-        { input: 'createNotification("EMAIL")', output: 'EmailNotification instance' },
-        { input: 'createNotification("SMS")', output: 'SMSNotification instance' },
-        { input: 'createNotification("INVALID")', output: 'IllegalArgumentException thrown' }
-      ],
-      explanation: `**Problem:** Encapsulate object creation logic to avoid tight coupling with concrete classes.
-
-**Key Insight: Delegate Object Creation**
-Client code doesn't use 'new' directly.
-Factory method decides WHICH concrete class to instantiate.
-Follows Open/Closed Principle: open for extension, closed for modification.
-
-**Two Variants:**
-
-**1. Simple Factory (Factory Method)**
-Static method that returns interface/base type.
-Centralized creation logic.
-
-**2. Factory Method Pattern (GoF)**
-Abstract creator class with abstract factory method.
-Subclasses decide which class to instantiate.
-
-**Class Hierarchy:**
-┌─────────────────────────────────────────┐
-│  Interface: Notification                │
-│  + send(message: String)                │
-└─────────────────────────────────────────┘
-           ▲         ▲         ▲
-           │         │         │
-    ┌──────┴───┐ ┌──┴────┐ ┌──┴─────┐
-    │ Email    │ │ SMS   │ │ Push   │
-    │Notification│Notification│Notification│
-    └──────────┘ └───────┘ └────────┘
-
-**Simple Factory:**
-┌─────────────────────────────────────────┐
-│  NotificationFactory (static)           │
-│  + createNotification(type: String)     │
-│      → returns Notification             │
-└─────────────────────────────────────────┘
-
-**Factory Method Pattern:**
-┌─────────────────────────────────────────┐
-│  Abstract NotificationCreator           │
-│  + abstract createNotification()        │
-│  + sendNotification(message)            │
-└─────────────────────────────────────────┘
-           ▲         ▲         ▲
-           │         │         │
-    ┌──────┴─────┐ ┌┴────┐ ┌──┴──────┐
-    │EmailCreator│ │SMS   │ │Push     │
-    │            │ │Creator│ │Creator │
-    └────────────┘ └──────┘ └─────────┘
-
-**Advantages:**
-✅ Loose coupling (client depends on interface)
-✅ Single Responsibility (creation logic in one place)
-✅ Open/Closed Principle (add new types without modifying factory)
-✅ Testability (easy to mock)
-
-**Disadvantages:**
-❌ More classes (complexity increases)
-❌ Simple Factory violates Open/Closed (need to modify switch/if)
-
-**Real-World Examples:**
-- Document creation (PDF, Word, Excel)
-- Database connections (MySQL, PostgreSQL, Oracle)
-- UI components (Button, TextField based on OS)
-- Logging frameworks (Console, File, Network logger)
-- Payment gateways (PayPal, Stripe, Square)`,
-      pseudocode: `Factory Pattern - Two Implementations:
-─────────────────────────────────────────
-
-═══════════════════════════════════════════
-1. SIMPLE FACTORY (Most Common)
-═══════════════════════════════════════════
-
-// Interface
-interface Notification:
-    void send(String message)
-
-// Concrete implementations
-class EmailNotification implements Notification:
-    void send(String message):
-        print("Email: " + message)
-
-class SMSNotification implements Notification:
-    void send(String message):
-        print("SMS: " + message)
-
-class PushNotification implements Notification:
-    void send(String message):
-        print("Push: " + message)
-
-// Simple Factory
-class NotificationFactory:
-    public static Notification createNotification(String type):
-        if type == null or type.isEmpty():
-            throw IllegalArgumentException("Type cannot be null")
-
-        switch type.toUpperCase():
-            case "EMAIL":
-                return new EmailNotification()
-            case "SMS":
-                return new SMSNotification()
-            case "PUSH":
-                return new PushNotification()
-            default:
-                throw IllegalArgumentException("Unknown type: " + type)
-
-// Usage
-Notification notif = NotificationFactory.createNotification("EMAIL")
-notif.send("Hello World")
-
-═══════════════════════════════════════════
-2. FACTORY METHOD PATTERN (GoF - More Extensible)
-═══════════════════════════════════════════
-
-// Abstract Creator
-abstract class NotificationCreator:
-    // Factory method (abstract)
-    public abstract Notification createNotification()
-
-    // Template method using factory method
-    public void sendNotification(String message):
-        Notification notification = createNotification()
-        notification.send(message)
-
-// Concrete Creators
-class EmailNotificationCreator extends NotificationCreator:
-    @Override
-    public Notification createNotification():
-        return new EmailNotification()
-
-class SMSNotificationCreator extends NotificationCreator:
-    @Override
-    public Notification createNotification():
-        return new SMSNotification()
-
-class PushNotificationCreator extends NotificationCreator:
-    @Override
-    public Notification createNotification():
-        return new PushNotification()
-
-// Usage
-NotificationCreator creator = new EmailNotificationCreator()
-creator.sendNotification("Hello via Factory Method")
+// Usage - no modification needed to add new types
+NotificationCreator creator = new EmailNotificationCreator();
+creator.sendNotification("Hello via Factory Method");
 
 // Switch at runtime
-creator = new SMSNotificationCreator()
-creator.sendNotification("Different notification type")
+creator = new SMSNotificationCreator();
+creator.sendNotification("Different notification type");`
+        },
+        {
+          name: 'When to Use Which',
+          diagram: FactoryPatternDiagram,
+          explanation: `Use Simple Factory when: you have a fixed set of products that rarely changes, simplicity is preferred, or you're building a small application. Use Factory Method when: you need extensibility, building plugin architectures, or following strict SOLID principles. Real-world examples include document creation (PDF, Word), database connections (MySQL, PostgreSQL), UI components, and logging frameworks.`,
+          codeExample: `// Simple Factory: Fixed types, modify switch for new types
+// Good for: Small apps, fixed product set
+class DocumentFactory {
+    public static Document create(String type) {
+        switch (type) {
+            case "PDF":  return new PDFDocument();
+            case "WORD": return new WordDocument();
+            default: throw new IllegalArgumentException("Unknown");
+        }
+    }
+}
 
-═══════════════════════════════════════════
-EXAMPLE TRACE:
-═══════════════════════════════════════════
+// Factory Method: Add new types without modification
+// Good for: Plugin architectures, extensibility
+abstract class DocumentCreator {
+    public abstract Document createDocument();
+}
 
-// Simple Factory Usage:
-Step 1: Client calls createNotification("EMAIL")
-Step 2: Factory checks type → "EMAIL"
-Step 3: Factory returns new EmailNotification()
-Step 4: Client calls send("Hello")
-Step 5: Output: "Email: Hello"
+class PDFCreator extends DocumentCreator {
+    public Document createDocument() { return new PDFDocument(); }
+}
 
-// Factory Method Usage:
-Step 1: Create EmailNotificationCreator
-Step 2: Call sendNotification("Hello")
-Step 3: sendNotification() calls createNotification()
-Step 4: EmailNotificationCreator.createNotification() returns EmailNotification
-Step 5: sendNotification() calls notification.send("Hello")
-Step 6: Output: "Email: Hello"
+// Adding new type - NO existing code modified!
+class ExcelCreator extends DocumentCreator {
+    public Document createDocument() { return new ExcelDocument(); }
+}
 
-═══════════════════════════════════════════
-COMPARISON:
-═══════════════════════════════════════════
+// Registration-based factory (best of both worlds)
+class PluggableFactory {
+    private Map<String, Supplier<Document>> creators = new HashMap<>();
 
-Simple Factory:
-✅ Pros: Simple, centralized, easy to understand
-❌ Cons: Violates Open/Closed (modify switch for new types)
+    public void register(String type, Supplier<Document> creator) {
+        creators.put(type, creator);
+    }
 
-Factory Method Pattern:
-✅ Pros: Open/Closed compliant, extensible
-❌ Cons: More classes, more complexity
-
-When to use which:
-- Simple Factory: Fixed set of products, rarely changes
-- Factory Method: Extensibility needed, plugin architecture
-
-═══════════════════════════════════════════
-ADDING NEW NOTIFICATION TYPE:
-═══════════════════════════════════════════
-
-// Simple Factory: MODIFY existing code
-Add case in switch:
-    case "SLACK":
-        return new SlackNotification()
-
-// Factory Method: ADD new code (no modification)
-class SlackNotificationCreator extends NotificationCreator:
-    public Notification createNotification():
-        return new SlackNotification()
-
-Complexity: O(1) time, O(1) space`
+    public Document create(String type) {
+        return creators.get(type).get();
+    }
+}
+// factory.register("PDF", PDFDocument::new);
+// factory.register("WORD", WordDocument::new);`
+        }
+      ]
     },
     {
-      id: 3,
-      title: 'Implement Observer Pattern',
-      difficulty: 'Medium',
-      description: 'Create an Observer pattern for a stock price monitoring system. When stock prices change, all registered observers (investors) should be notified automatically.',
-      example: `Input:
-  Stock apple = new Stock("AAPL", 150.0);
-  Investor inv1 = new Investor("John");
-  apple.addObserver(inv1);
-  apple.setPrice(155.0);
-Output:
-  John notified: AAPL price changed to 155.0`,
-      starterCode: `import java.util.*;
+      id: 'observer',
+      name: 'Observer Pattern',
+      icon: '👁️',
+      color: '#ec4899',
+      description: 'Automatically notify multiple objects when one object state changes. Also known as Publish-Subscribe pattern. Enables loose coupling between subjects and observers.',
+      diagram: ObserverPatternDiagram,
+      details: [
+        {
+          name: 'Core Implementation',
+          diagram: ObserverPatternDiagram,
+          explanation: `The Observer pattern establishes a one-to-many dependency. When the Subject (Observable) changes state, all registered Observers are notified automatically. The Subject maintains a list of observers and provides attach/detach methods. This enables broadcast communication with loose coupling - the subject doesn't know concrete observer types.`,
+          codeExample: `import java.util.*;
 
+// Observer interface
 interface Observer {
     void update(String stockSymbol, double price);
 }
 
-class Investor implements Observer {
-    private String name;
-
-    public Investor(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public void update(String stockSymbol, double price) {
-        // TODO: Print notification
-
-    }
-}
-
-class Stock {
-    private String symbol;
-    private double price;
-    private List<Observer> observers = new ArrayList<>();
-
-    public Stock(String symbol, double price) {
-        this.symbol = symbol;
-        this.price = price;
-    }
-
-    public void addObserver(Observer observer) {
-        // TODO: Add observer to list
-
-    }
-
-    public void removeObserver(Observer observer) {
-        // TODO: Remove observer from list
-
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-        // TODO: Notify all observers
-
-    }
-
-    private void notifyObservers() {
-        // TODO: Notify all registered observers
-
-    }
-}`,
-      solution: `import java.util.*;
-
-interface Observer {
-    void update(String stockSymbol, double price);
-}
-
+// Subject interface
 interface Subject {
     void addObserver(Observer observer);
     void removeObserver(Observer observer);
     void notifyObservers();
 }
 
+// Concrete Observer
 class Investor implements Observer {
     private String name;
 
@@ -726,6 +769,7 @@ class Investor implements Observer {
     }
 }
 
+// Concrete Subject
 class Stock implements Subject {
     private String symbol;
     private double price;
@@ -761,459 +805,247 @@ class Stock implements Subject {
             observer.update(symbol, price);
         }
     }
+}`
+        },
+        {
+          name: 'Push vs Pull Model',
+          diagram: PushPullDiagram,
+          explanation: `In the Push Model, the subject sends all relevant data to observers in the update() method. Simple but inflexible - observers get data they may not need. In the Pull Model, the subject sends itself as a reference, and observers query the data they need. More flexible but creates tighter coupling between observer and subject.`,
+          codeExample: `// PUSH MODEL - Subject sends all data
+interface PushObserver {
+    void update(String symbol, double price, long volume, Date timestamp);
+}
 
-    public String getSymbol() {
-        return symbol;
-    }
-
-    public double getPrice() {
-        return price;
+class PushStock {
+    public void notifyObservers() {
+        for (PushObserver obs : observers) {
+            // Push ALL data to every observer
+            obs.update(symbol, price, volume, timestamp);
+        }
     }
 }
 
-// Usage Example:
-class Main {
-    public static void main(String[] args) {
-        Stock apple = new Stock("AAPL", 150.0);
-        Stock google = new Stock("GOOGL", 2800.0);
+// PULL MODEL - Observer queries needed data
+interface PullObserver {
+    void update(Subject subject);  // Pass subject reference
+}
 
-        Investor john = new Investor("John");
-        Investor jane = new Investor("Jane");
-
-        apple.addObserver(john);
-        apple.addObserver(jane);
-        google.addObserver(john);
-
-        apple.setPrice(155.0);  // Both John and Jane notified
-        google.setPrice(2850.0); // Only John notified
-
-        apple.removeObserver(jane);
-        apple.setPrice(160.0);  // Only John notified
+class PullInvestor implements PullObserver {
+    @Override
+    public void update(Subject subject) {
+        PullStock stock = (PullStock) subject;
+        // Pull only what we need
+        String sym = stock.getSymbol();
+        double price = stock.getPrice();
+        // Don't need volume or timestamp
+        System.out.println(sym + ": $" + price);
     }
-}`,
-      testCases: [
-        { input: 'setPrice(155.0) with 2 observers', output: '2 observers notified' },
-        { input: 'removeObserver() then setPrice()', output: 'Removed observer not notified' },
-        { input: 'setPrice(same value)', output: 'No notification (price unchanged)' }
-      ],
-      explanation: `**Problem:** Automatically notify multiple objects when one object's state changes.
+}
 
-**Key Insight: One-to-Many Dependency**
-When Subject changes → all Observers are notified automatically.
-Loose coupling: Subject doesn't know concrete observer types.
-Also known as: Publish-Subscribe pattern.
+class PullStock implements Subject {
+    public void notifyObservers() {
+        for (PullObserver obs : observers) {
+            obs.update(this);  // Pass reference to self
+        }
+    }
 
-**Participants:**
-
-**1. Subject (Observable)**
-- Maintains list of observers
-- Provides methods to attach/detach observers
-- Notifies observers when state changes
-
-**2. Observer**
-- Defines update interface
-- Receives notifications from subject
-
-**Structure:**
-┌────────────────────────────────────────┐
-│  Subject (Stock)                       │
-│  - observers: List<Observer>           │
-│  + addObserver(obs: Observer)          │
-│  + removeObserver(obs: Observer)       │
-│  + notifyObservers()                   │
-└────────────────────────────────────────┘
-                    │
-                    │ notifies
-                    ↓
-┌────────────────────────────────────────┐
-│  Observer Interface                    │
-│  + update(symbol: String, price: double)│
-└────────────────────────────────────────┘
-        ▲           ▲           ▲
-        │           │           │
-   ┌────┴───┐  ┌───┴────┐  ┌──┴────┐
-   │Investor│  │Display │  │Logger │
-   │        │  │Panel   │  │       │
-   └────────┘  └────────┘  └───────┘
-
-**Example Flow:**
-┌─────────────────────────────────────────────┐
-│  Stock apple = new Stock("AAPL", 150.0)    │
-│                                             │
-│  Step 1: Create observers                  │
-│  Investor john = new Investor("John")      │
-│  Investor jane = new Investor("Jane")      │
-│                                             │
-│  Step 2: Attach observers                  │
-│  apple.addObserver(john)                   │
-│  apple.addObserver(jane)                   │
-│                                             │
-│  Step 3: State change triggers notification│
-│  apple.setPrice(155.0)                     │
-│     → john.update("AAPL", 155.0)          │
-│     → jane.update("AAPL", 155.0)          │
-│                                             │
-│  Output:                                    │
-│  John notified: AAPL price changed to $155.0│
-│  Jane notified: AAPL price changed to $155.0│
-└─────────────────────────────────────────────┘
-
-**Advantages:**
-✅ Loose coupling (subject/observers independent)
-✅ Open/Closed Principle (add observers without modifying subject)
-✅ Dynamic relationships (attach/detach at runtime)
-✅ Broadcast communication
-
-**Disadvantages:**
-❌ Memory leaks if observers not properly removed
-❌ Unexpected updates (observers don't know order)
-❌ Performance issues with many observers
-
-**Push vs Pull Model:**
-
-**Push:** Subject pushes all data to observers
-- observer.update(symbol, price, volume, timestamp)
-- Simple but inflexible
-
-**Pull:** Observers pull needed data from subject
-- observer.update(subject)
-- observer queries subject.getPrice(), subject.getVolume()
-- More flexible but couples observer to subject
-
-**Real-World Examples:**
-- Event handling systems (GUI buttons)
-- Model-View-Controller (MVC)
-- Pub/Sub messaging systems
-- Social media notifications
-- Stock market tickers
-- Weather monitoring systems`,
-      pseudocode: `Observer Pattern Implementation:
-─────────────────────────────────────────
-
-═══════════════════════════════════════════
-INTERFACES:
-═══════════════════════════════════════════
-
-interface Observer:
-    void update(String stockSymbol, double price)
-
-interface Subject:
-    void addObserver(Observer observer)
-    void removeObserver(Observer observer)
-    void notifyObservers()
-
-═══════════════════════════════════════════
-CONCRETE OBSERVER:
-═══════════════════════════════════════════
-
-class Investor implements Observer:
-    private String name
-
-    Investor(String name):
-        this.name = name
-
-    @Override
-    void update(String stockSymbol, double price):
-        print(name + " notified: " + stockSymbol +
-              " price changed to $" + price)
-
-═══════════════════════════════════════════
-CONCRETE SUBJECT:
-═══════════════════════════════════════════
-
-class Stock implements Subject:
-    private String symbol
-    private double price
-    private List<Observer> observers = new ArrayList()
-
-    Stock(String symbol, double price):
-        this.symbol = symbol
-        this.price = price
-
-    @Override
-    void addObserver(Observer observer):
-        if not observers.contains(observer):
-            observers.add(observer)
-
-    @Override
-    void removeObserver(Observer observer):
-        observers.remove(observer)
-
-    void setPrice(double price):
-        if this.price != price:              // Only if changed
-            this.price = price
-            notifyObservers()                // Trigger notification
-
-    @Override
-    void notifyObservers():
-        for each observer in observers:
-            observer.update(symbol, price)   // Push model
-
-    double getPrice():
-        return price
-
-    String getSymbol():
-        return symbol
-
-═══════════════════════════════════════════
-EXAMPLE TRACE:
-═══════════════════════════════════════════
-
-// Setup
-Stock apple = new Stock("AAPL", 150.0)
-Stock google = new Stock("GOOGL", 2800.0)
-
-Investor john = new Investor("John")
-Investor jane = new Investor("Jane")
-
-// Attach observers
-apple.addObserver(john)
-apple.addObserver(jane)
-google.addObserver(john)
-
-State:
-apple.observers = [john, jane]
-google.observers = [john]
-
-// Price change 1
-apple.setPrice(155.0)
-
-Flow:
-1. setPrice(155.0) called
-2. Check: 155.0 != 150.0 → true
-3. Update: price = 155.0
-4. Call notifyObservers()
-5. Loop through observers:
-   - john.update("AAPL", 155.0)
-     Output: "John notified: AAPL price changed to $155.0"
-   - jane.update("AAPL", 155.0)
-     Output: "Jane notified: AAPL price changed to $155.0"
-
-// Price change 2
-google.setPrice(2850.0)
-
-Flow:
-1. setPrice(2850.0) called
-2. Check: 2850.0 != 2800.0 → true
-3. Update: price = 2850.0
-4. Call notifyObservers()
-5. Loop through observers:
-   - john.update("GOOGL", 2850.0)
-     Output: "John notified: GOOGL price changed to $2850.0"
-
-// Remove observer
-apple.removeObserver(jane)
-apple.observers = [john]  // jane removed
-
-// Price change 3
-apple.setPrice(160.0)
-
-Flow:
-1. setPrice(160.0) called
-2. Check: 160.0 != 155.0 → true
-3. Update: price = 160.0
-4. Call notifyObservers()
-5. Loop through observers:
-   - john.update("AAPL", 160.0)
-     Output: "John notified: AAPL price changed to $160.0"
-   (Jane NOT notified - removed!)
-
-═══════════════════════════════════════════
-PULL MODEL VARIANT:
-═══════════════════════════════════════════
-
-interface Observer:
-    void update(Subject subject)  // Pass subject reference
-
-class Investor implements Observer:
-    void update(Subject subject):
-        Stock stock = (Stock) subject
-        print(name + " notified: " + stock.getSymbol() +
-              " price changed to $" + stock.getPrice())
-
-class Stock:
-    void notifyObservers():
-        for each observer in observers:
-            observer.update(this)  // Pass 'this' reference
-
-Advantage: Observers query only needed data
-Disadvantage: Observers coupled to concrete subject type
-
-═══════════════════════════════════════════
-THREAD SAFETY:
-═══════════════════════════════════════════
-
-class Stock:
+    // Getters for observers to pull data
+    public String getSymbol() { return symbol; }
+    public double getPrice() { return price; }
+    public long getVolume() { return volume; }
+}`
+        },
+        {
+          name: 'Lifecycle & Thread Safety',
+          diagram: ObserverLifecycleDiagram,
+          explanation: `Key lifecycle: addObserver() registers, state change triggers notifyObservers(), removeObserver() unregisters. Memory leaks are a major risk - always remove observers when done. For thread safety, use synchronized lists and create snapshots before iterating to avoid ConcurrentModificationException.`,
+          codeExample: `class ThreadSafeStock implements Subject {
+    private String symbol;
+    private volatile double price;  // Ensure visibility
+    // Thread-safe list
     private List<Observer> observers =
-        Collections.synchronizedList(new ArrayList())
+        Collections.synchronizedList(new ArrayList<>());
 
-    synchronized void notifyObservers():
+    @Override
+    public void addObserver(Observer observer) {
+        synchronized (observers) {
+            if (!observers.contains(observer)) {
+                observers.add(observer);
+            }
+        }
+    }
+
+    @Override
+    public void removeObserver(Observer observer) {
+        synchronized (observers) {
+            observers.remove(observer);
+        }
+    }
+
+    @Override
+    public void notifyObservers() {
         // Create snapshot to avoid ConcurrentModificationException
-        List<Observer> snapshot = new ArrayList(observers)
-        for each observer in snapshot:
-            observer.update(symbol, price)
+        List<Observer> snapshot;
+        synchronized (observers) {
+            snapshot = new ArrayList<>(observers);
+        }
+        // Notify outside synchronized block
+        for (Observer observer : snapshot) {
+            observer.update(symbol, price);
+        }
+    }
 
-Complexity: O(N) time for notify, O(1) add/remove, O(N) space`
+    public void setPrice(double price) {
+        if (this.price != price) {
+            this.price = price;
+            notifyObservers();
+        }
+    }
+}
+
+// Usage - always clean up!
+Stock apple = new Stock("AAPL", 150.0);
+Investor john = new Investor("John");
+apple.addObserver(john);
+// ... use observer ...
+apple.removeObserver(john);  // IMPORTANT: Prevent memory leak!`
+        },
+        {
+          name: 'Real-World Examples',
+          diagram: ObserverPatternDiagram,
+          explanation: `Observer pattern is everywhere: GUI event handling (button clicks), Model-View-Controller (model notifies views), pub/sub messaging systems, social media notifications, stock market tickers, and weather monitoring. Java provides built-in support with java.util.Observer (deprecated) and PropertyChangeListener.`,
+          codeExample: `// Java PropertyChangeSupport (modern approach)
+import java.beans.*;
+
+class Stock {
+    private PropertyChangeSupport support =
+        new PropertyChangeSupport(this);
+    private double price;
+
+    public void addPropertyChangeListener(PropertyChangeListener l) {
+        support.addPropertyChangeListener(l);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener l) {
+        support.removePropertyChangeListener(l);
+    }
+
+    public void setPrice(double newPrice) {
+        double oldPrice = this.price;
+        this.price = newPrice;
+        // Automatically notifies all listeners
+        support.firePropertyChange("price", oldPrice, newPrice);
+    }
+}
+
+// Observer using lambda (Java 8+)
+Stock apple = new Stock();
+apple.addPropertyChangeListener(event -> {
+    System.out.println("Property: " + event.getPropertyName());
+    System.out.println("Old: " + event.getOldValue());
+    System.out.println("New: " + event.getNewValue());
+});
+
+apple.setPrice(155.0);
+// Output:
+// Property: price
+// Old: 0.0
+// New: 155.0`
+        }
+      ]
     },
     {
-      id: 4,
-      title: 'Implement Strategy Pattern',
-      difficulty: 'Medium',
-      description: 'Create a Strategy pattern for a payment processing system. Support multiple payment strategies (Credit Card, PayPal, Cryptocurrency) that can be switched at runtime.',
-      example: `Input:
-  PaymentProcessor processor = new PaymentProcessor(new CreditCardStrategy());
-  processor.processPayment(100.0);
-Output:
-  Processing $100.0 via Credit Card`,
-      starterCode: `interface PaymentStrategy {
-    void pay(double amount);
-}
-
-class CreditCardStrategy implements PaymentStrategy {
-    private String cardNumber;
-
-    public CreditCardStrategy(String cardNumber) {
-        this.cardNumber = cardNumber;
-    }
-
-    @Override
-    public void pay(double amount) {
-        // TODO: Implement credit card payment
-
-    }
-}
-
-class PayPalStrategy implements PaymentStrategy {
-    private String email;
-
-    public PayPalStrategy(String email) {
-        this.email = email;
-    }
-
-    @Override
-    public void pay(double amount) {
-        // TODO: Implement PayPal payment
-
-    }
-}
-
-class CryptoStrategy implements PaymentStrategy {
-    private String walletAddress;
-
-    public CryptoStrategy(String walletAddress) {
-        this.walletAddress = walletAddress;
-    }
-
-    @Override
-    public void pay(double amount) {
-        // TODO: Implement crypto payment
-
-    }
-}
-
-class PaymentProcessor {
-    private PaymentStrategy strategy;
-
-    public PaymentProcessor(PaymentStrategy strategy) {
-        this.strategy = strategy;
-    }
-
-    public void setStrategy(PaymentStrategy strategy) {
-        // TODO: Set new strategy
-
-    }
-
-    public void processPayment(double amount) {
-        // TODO: Delegate to strategy
-
-    }
-}`,
-      solution: `interface PaymentStrategy {
+      id: 'strategy',
+      name: 'Strategy Pattern',
+      icon: '🎯',
+      color: '#14b8a6',
+      description: 'Enable selecting algorithm behavior at runtime without modifying client code. Encapsulate interchangeable algorithms and eliminate conditional logic with polymorphism.',
+      diagram: StrategyPatternDiagram,
+      details: [
+        {
+          name: 'Core Implementation',
+          diagram: StrategyPatternDiagram,
+          explanation: `The Strategy pattern defines a family of algorithms, encapsulates each one, and makes them interchangeable. The Context holds a reference to a Strategy and delegates the algorithm execution. Clients can switch strategies at runtime without changing the context. This replaces conditional logic (if/switch) with polymorphism.`,
+          codeExample: `// Strategy interface
+interface PaymentStrategy {
     void pay(double amount);
     String getPaymentMethod();
 }
 
+// Concrete Strategies
 class CreditCardStrategy implements PaymentStrategy {
     private String cardNumber;
-    private String cvv;
 
     public CreditCardStrategy(String cardNumber) {
         this.cardNumber = cardNumber;
-        this.cvv = "***"; // Masked for security
     }
 
     @Override
     public void pay(double amount) {
         System.out.println("Processing $" + amount + " via Credit Card");
-        System.out.println("Card: ****" + cardNumber.substring(cardNumber.length() - 4));
-        // Actual payment processing logic here
+        System.out.println("Card: ****" +
+            cardNumber.substring(cardNumber.length() - 4));
     }
 
     @Override
-    public String getPaymentMethod() {
-        return "Credit Card";
-    }
+    public String getPaymentMethod() { return "Credit Card"; }
 }
 
 class PayPalStrategy implements PaymentStrategy {
     private String email;
 
-    public PayPalStrategy(String email) {
-        this.email = email;
-    }
+    public PayPalStrategy(String email) { this.email = email; }
 
     @Override
     public void pay(double amount) {
         System.out.println("Processing $" + amount + " via PayPal");
         System.out.println("Account: " + email);
-        // Actual PayPal API call here
     }
 
     @Override
-    public String getPaymentMethod() {
-        return "PayPal";
-    }
+    public String getPaymentMethod() { return "PayPal"; }
 }
 
 class CryptoStrategy implements PaymentStrategy {
-    private String walletAddress;
+    private String wallet;
     private String currency;
 
-    public CryptoStrategy(String walletAddress, String currency) {
-        this.walletAddress = walletAddress;
+    public CryptoStrategy(String wallet, String currency) {
+        this.wallet = wallet;
         this.currency = currency;
-    }
-
-    public CryptoStrategy(String walletAddress) {
-        this(walletAddress, "BTC");
     }
 
     @Override
     public void pay(double amount) {
         System.out.println("Processing $" + amount + " via " + currency);
-        System.out.println("Wallet: " + walletAddress);
-        // Blockchain transaction logic here
+        System.out.println("Wallet: " + wallet);
     }
 
     @Override
     public String getPaymentMethod() {
-        return "Cryptocurrency (" + currency + ")";
+        return "Crypto (" + currency + ")";
     }
-}
-
+}`
+        },
+        {
+          name: 'Context Class',
+          diagram: RuntimeStrategySwitchDiagram,
+          explanation: `The Context class holds a strategy reference and delegates algorithm execution. It can accept strategy via constructor or setter (for runtime switching). The context is decoupled from concrete strategies - it only knows the interface. This enables runtime flexibility and easy testing with mock strategies.`,
+          codeExample: `// Context - holds and uses strategy
 class PaymentProcessor {
     private PaymentStrategy strategy;
 
     public PaymentProcessor(PaymentStrategy strategy) {
         if (strategy == null) {
-            throw new IllegalArgumentException("Payment strategy cannot be null");
+            throw new IllegalArgumentException("Strategy required");
         }
         this.strategy = strategy;
     }
 
+    // Allow runtime strategy switching
     public void setStrategy(PaymentStrategy strategy) {
         if (strategy == null) {
-            throw new IllegalArgumentException("Payment strategy cannot be null");
+            throw new IllegalArgumentException("Strategy required");
         }
         this.strategy = strategy;
     }
@@ -1222,834 +1054,515 @@ class PaymentProcessor {
         if (amount <= 0) {
             throw new IllegalArgumentException("Amount must be positive");
         }
-
         System.out.println("=== Payment Processing ===");
         System.out.println("Method: " + strategy.getPaymentMethod());
-        strategy.pay(amount);
-        System.out.println("Payment completed successfully");
+        strategy.pay(amount);  // Delegate to strategy
+        System.out.println("Payment completed!");
     }
 }
 
-// Usage Example:
-class Main {
-    public static void main(String[] args) {
-        // Start with credit card
-        PaymentProcessor processor = new PaymentProcessor(
-            new CreditCardStrategy("1234567890123456")
-        );
-        processor.processPayment(100.0);
-
-        // Switch to PayPal at runtime
-        processor.setStrategy(new PayPalStrategy("user@example.com"));
-        processor.processPayment(250.0);
-
-        // Switch to Crypto
-        processor.setStrategy(new CryptoStrategy("1A2B3C4D5E6F", "ETH"));
-        processor.processPayment(500.0);
-    }
-}`,
-      testCases: [
-        { input: 'processPayment(100) with CreditCardStrategy', output: 'Credit card payment processed' },
-        { input: 'setStrategy() then processPayment()', output: 'New strategy used' },
-        { input: 'processPayment(-100)', output: 'IllegalArgumentException thrown' }
-      ],
-      explanation: `**Problem:** Enable selecting algorithm behavior at runtime without modifying client code.
-
-**Key Insight: Encapsulate Algorithms**
-Define family of algorithms (strategies).
-Make them interchangeable.
-Client can switch strategies at runtime.
-
-**Intent:**
-- Replace conditional logic (if/switch) with polymorphism
-- Follow Open/Closed Principle
-- Eliminate duplicate code across similar algorithms
-
-**Structure:**
-┌────────────────────────────────────────┐
-│  Context (PaymentProcessor)            │
-│  - strategy: PaymentStrategy           │
-│  + setStrategy(strategy)               │
-│  + processPayment(amount)              │
-│    → delegates to strategy.pay()       │
-└────────────────────────────────────────┘
-                    │
-                    │ uses
-                    ↓
-┌────────────────────────────────────────┐
-│  Strategy Interface                    │
-│  + pay(amount: double)                 │
-└────────────────────────────────────────┘
-        ▲           ▲           ▲
-        │           │           │
-   ┌────┴───────┐ ┌┴──────┐ ┌──┴────┐
-   │CreditCard  │ │PayPal │ │Crypto │
-   │Strategy    │ │Strategy│ │Strategy│
-   └────────────┘ └───────┘ └───────┘
-
-**Example Flow:**
-┌─────────────────────────────────────────────┐
-│  Step 1: Create context with initial strategy│
-│  processor = new PaymentProcessor(          │
-│      new CreditCardStrategy("1234...")      │
-│  )                                          │
-│                                             │
-│  Step 2: Process payment                   │
-│  processor.processPayment(100.0)           │
-│     → delegates to strategy.pay(100.0)     │
-│     → Output: "Processing $100 via Credit Card"│
-│                                             │
-│  Step 3: Switch strategy at runtime        │
-│  processor.setStrategy(                    │
-│      new PayPalStrategy("user@example.com")│
-│  )                                          │
-│                                             │
-│  Step 4: Process with new strategy         │
-│  processor.processPayment(250.0)           │
-│     → delegates to strategy.pay(250.0)     │
-│     → Output: "Processing $250 via PayPal" │
-└─────────────────────────────────────────────┘
-
-**Strategy vs State Pattern:**
-
-**Strategy Pattern:**
-- Client chooses/knows the strategy
-- Strategies independent of each other
-- Focus: Different algorithms for same task
-
-**State Pattern:**
-- Context manages state transitions
-- States aware of each other
-- Focus: Different behaviors based on state
-
-**Advantages:**
-✅ Open/Closed Principle (add strategies without modifying context)
-✅ Runtime flexibility (switch algorithms dynamically)
-✅ Eliminates conditional logic
-✅ Testability (test each strategy independently)
-✅ Single Responsibility (each strategy encapsulates one algorithm)
-
-**Disadvantages:**
-❌ More classes (one per strategy)
-❌ Client must know about different strategies
-❌ Communication overhead (context↔strategy)
-
-**Real-World Examples:**
-- Sorting algorithms (QuickSort, MergeSort, BubbleSort)
-- Compression algorithms (ZIP, RAR, TAR)
-- Payment gateways (Credit Card, PayPal, Crypto)
-- Route calculation (Fastest, Shortest, Scenic)
-- Validation strategies (Email, Phone, SSN)
-- Pricing strategies (Regular, Discount, Seasonal)`,
-      pseudocode: `Strategy Pattern Implementation:
-─────────────────────────────────────────
-
-═══════════════════════════════════════════
-STRATEGY INTERFACE:
-═══════════════════════════════════════════
-
-interface PaymentStrategy:
-    void pay(double amount)
-    String getPaymentMethod()
-
-═══════════════════════════════════════════
-CONCRETE STRATEGIES:
-═══════════════════════════════════════════
-
-class CreditCardStrategy implements PaymentStrategy:
-    private String cardNumber
-    private String cvv
-
-    CreditCardStrategy(String cardNumber):
-        this.cardNumber = cardNumber
-        this.cvv = "***"  // Masked
-
-    @Override
-    void pay(double amount):
-        print("Processing $" + amount + " via Credit Card")
-        print("Card: ****" + cardNumber.substring(length - 4))
-        // Actual credit card processing...
-
-    @Override
-    String getPaymentMethod():
-        return "Credit Card"
-
-class PayPalStrategy implements PaymentStrategy:
-    private String email
-
-    PayPalStrategy(String email):
-        this.email = email
-
-    @Override
-    void pay(double amount):
-        print("Processing $" + amount + " via PayPal")
-        print("Account: " + email)
-        // PayPal API call...
-
-    @Override
-    String getPaymentMethod():
-        return "PayPal"
-
-class CryptoStrategy implements PaymentStrategy:
-    private String walletAddress
-    private String currency
-
-    CryptoStrategy(String walletAddress, String currency):
-        this.walletAddress = walletAddress
-        this.currency = currency
-
-    CryptoStrategy(String walletAddress):
-        this(walletAddress, "BTC")  // Default
-
-    @Override
-    void pay(double amount):
-        print("Processing $" + amount + " via " + currency)
-        print("Wallet: " + walletAddress)
-        // Blockchain transaction...
-
-    @Override
-    String getPaymentMethod():
-        return "Cryptocurrency (" + currency + ")"
-
-═══════════════════════════════════════════
-CONTEXT:
-═══════════════════════════════════════════
-
-class PaymentProcessor:
-    private PaymentStrategy strategy
-
-    PaymentProcessor(PaymentStrategy strategy):
-        if strategy == null:
-            throw IllegalArgumentException("Strategy cannot be null")
-        this.strategy = strategy
-
-    void setStrategy(PaymentStrategy strategy):
-        if strategy == null:
-            throw IllegalArgumentException("Strategy cannot be null")
-        this.strategy = strategy
-
-    void processPayment(double amount):
-        if amount <= 0:
-            throw IllegalArgumentException("Amount must be positive")
-
-        print("=== Payment Processing ===")
-        print("Method: " + strategy.getPaymentMethod())
-        strategy.pay(amount)                    // Delegate to strategy
-        print("Payment completed successfully")
-
-═══════════════════════════════════════════
-EXAMPLE TRACE:
-═══════════════════════════════════════════
-
-// Step 1: Create processor with Credit Card strategy
-processor = new PaymentProcessor(
+// Usage - runtime strategy switching
+PaymentProcessor processor = new PaymentProcessor(
     new CreditCardStrategy("1234567890123456")
-)
+);
+processor.processPayment(100.0);
 
-State: processor.strategy = CreditCardStrategy instance
+// Switch to PayPal at runtime
+processor.setStrategy(new PayPalStrategy("user@example.com"));
+processor.processPayment(250.0);
 
-// Step 2: Process payment
-processor.processPayment(100.0)
+// Switch to Crypto
+processor.setStrategy(new CryptoStrategy("0x1A2B3C...", "ETH"));
+processor.processPayment(500.0);`
+        },
+        {
+          name: 'Strategy vs State',
+          diagram: StrategyVsStateDiagram,
+          explanation: `Strategy and State patterns look similar but have different intents. Strategy: client chooses/knows the strategy, strategies are independent, focus is on different algorithms for the same task. State: context manages transitions, states know about each other, focus is on behavior that changes with state. Strategy is about HOW, State is about WHEN.`,
+          codeExample: `// STRATEGY PATTERN - Client chooses algorithm
+// Different payment METHODS (algorithms) for same task (paying)
+PaymentStrategy creditCard = new CreditCardStrategy("1234...");
+PaymentStrategy paypal = new PayPalStrategy("user@mail.com");
+// Client explicitly selects which algorithm to use
+processor.setStrategy(creditCard);  // Client's choice
 
-Execution flow:
-1. Check: amount > 0? ✓
-2. Print: "=== Payment Processing ==="
-3. Print: "Method: Credit Card"
-4. Call: strategy.pay(100.0)
-   4a. Print: "Processing $100.0 via Credit Card"
-   4b. Print: "Card: ****3456"
-5. Print: "Payment completed successfully"
+// STATE PATTERN - Context manages transitions
+// Order behavior changes based on current state
+class Order {
+    private OrderState state;
 
-Output:
-=== Payment Processing ===
-Method: Credit Card
-Processing $100.0 via Credit Card
-Card: ****3456
-Payment completed successfully
+    public void ship() {
+        state.ship(this);  // State decides behavior
+    }
+}
 
-// Step 3: Switch strategy at runtime
-processor.setStrategy(new PayPalStrategy("user@example.com"))
+class PendingState implements OrderState {
+    public void ship(Order order) {
+        System.out.println("Shipping order...");
+        order.setState(new ShippedState());  // State transition
+    }
+}
 
-State: processor.strategy = PayPalStrategy instance
+class ShippedState implements OrderState {
+    public void ship(Order order) {
+        System.out.println("Already shipped!");  // Different behavior
+    }
+}
 
-// Step 4: Process with new strategy
-processor.processPayment(250.0)
-
-Execution flow:
-1. Check: amount > 0? ✓
-2. Print: "=== Payment Processing ==="
-3. Print: "Method: PayPal"
-4. Call: strategy.pay(250.0)
-   4a. Print: "Processing $250.0 via PayPal"
-   4b. Print: "Account: user@example.com"
-5. Print: "Payment completed successfully"
-
-Output:
-=== Payment Processing ===
-Method: PayPal
-Processing $250.0 via PayPal
-Account: user@example.com
-Payment completed successfully
-
-// Step 5: Switch to Crypto
-processor.setStrategy(new CryptoStrategy("1A2B3C", "ETH"))
-
-// Step 6: Process crypto payment
-processor.processPayment(500.0)
-
-Output:
-=== Payment Processing ===
-Method: Cryptocurrency (ETH)
-Processing $500.0 via ETH
-Wallet: 1A2B3C
-Payment completed successfully
-
-═══════════════════════════════════════════
-BEFORE vs AFTER STRATEGY PATTERN:
-═══════════════════════════════════════════
-
-// BEFORE: Conditional logic (BAD!)
-class PaymentProcessor:
-    void processPayment(String type, double amount):
-        if type == "CREDIT_CARD":
-            // Credit card logic...
-        else if type == "PAYPAL":
-            // PayPal logic...
-        else if type == "CRYPTO":
-            // Crypto logic...
-        // Adding new type requires modifying this class!
-
-// AFTER: Strategy pattern (GOOD!)
-class PaymentProcessor:
-    void processPayment(double amount):
-        strategy.pay(amount)  // Polymorphism!
-    // Adding new type: just create new strategy class
-
-═══════════════════════════════════════════
-FUNCTIONAL PROGRAMMING ALTERNATIVE (Java 8+):
-═══════════════════════════════════════════
-
-// Strategy as function interface
+// Summary:
+// Strategy: Multiple algorithms, client picks one
+// State: One object, multiple behavioral states`
+        },
+        {
+          name: 'Functional Approach',
+          diagram: StrategyPatternDiagram,
+          explanation: `In Java 8+, strategies can be implemented as lambdas using functional interfaces. This reduces boilerplate - no need for concrete strategy classes. You can use built-in functional interfaces (Function, Consumer) or define your own @FunctionalInterface. This is ideal for simple, stateless strategies.`,
+          codeExample: `// Strategy as functional interface
 @FunctionalInterface
-interface PaymentStrategy:
-    void pay(double amount)
+interface PaymentStrategy {
+    void pay(double amount);
+}
 
-// Usage with lambdas
+// Context accepts lambda strategies
+class PaymentProcessor {
+    private PaymentStrategy strategy;
+
+    public void setStrategy(PaymentStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public void process(double amount) {
+        strategy.pay(amount);
+    }
+}
+
+// Usage with lambdas - no classes needed!
+PaymentProcessor processor = new PaymentProcessor();
+
+// Credit card as lambda
 processor.setStrategy(amount ->
-    print("Processing $" + amount + " via Credit Card"))
+    System.out.println("Credit card: $" + amount));
+processor.process(100.0);
 
+// PayPal as lambda
 processor.setStrategy(amount ->
-    print("Processing $" + amount + " via PayPal"))
+    System.out.println("PayPal: $" + amount));
+processor.process(200.0);
 
-Complexity: O(1) time, O(1) space`
+// Method reference
+processor.setStrategy(this::processWithCrypto);
+
+// Using built-in functional interfaces
+import java.util.function.Consumer;
+
+class FlexibleProcessor {
+    private Consumer<Double> paymentStrategy;
+
+    public void setStrategy(Consumer<Double> strategy) {
+        this.paymentStrategy = strategy;
+    }
+
+    public void process(double amount) {
+        paymentStrategy.accept(amount);
+    }
+}
+
+// Strategy as method reference
+FlexibleProcessor fp = new FlexibleProcessor();
+fp.setStrategy(System.out::println);  // Simple print strategy
+fp.process(150.0);`
+        }
+      ]
     }
   ]
 
-  const handleQuestionSelect = (question) => {
-    setSelectedQuestion(question)
-    setUserCode(question.starterCode)
-    setShowSolution(false)
-    setShowExplanation(false)
-    setOutput('')
-  }
+  // =============================================================================
+  // NAVIGATION HANDLERS
+  // =============================================================================
 
-  const handleRunCode = () => {
-    setIsRunning(true)
-    setOutput('Running tests...\n')
+  const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 
-    setTimeout(() => {
-      const results = selectedQuestion.testCases.map((test, idx) =>
-        `Test ${idx + 1}: ${test.input}\nExpected: ${test.output}\n✓ Passed`
-      ).join('\n\n')
-
-      setOutput(results)
-      setIsRunning(false)
-    }, 1000)
-  }
-
-  const handleReset = () => {
-    setUserCode(selectedQuestion.starterCode)
-    setOutput('')
-    setShowSolution(false)
-  }
-
-  const handleKeyDown = (e) => {
-    // Stop propagation for all keys except Escape to allow typing in textarea
-    if (e.key !== 'Escape') {
-      e.stopPropagation()
-    }
-
-    if (e.key === 'Tab') {
-      e.preventDefault()
-      const start = e.target.selectionStart
-      const end = e.target.selectionEnd
-      const newValue = userCode.substring(0, start) + '    ' + userCode.substring(end)
-      setUserCode(newValue)
-      setTimeout(() => {
-        e.target.selectionStart = e.target.selectionEnd = start + 4
-      }, 0)
+  const handlePreviousConcept = () => {
+    if (selectedConceptIndex > 0) {
+      setSelectedConceptIndex(selectedConceptIndex - 1)
+      setSelectedDetailIndex(0)
     }
   }
 
-  if (!selectedQuestion) {
-    return (
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', minHeight: '100vh', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', color: 'white' }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '2rem',
-          gap: '1rem',
-          flexWrap: 'wrap'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button
-              onClick={onBack}
-              style={{
-                padding: '0.75rem 1.5rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
-              }}
-            >
-              ← Back to Practice
-            </button>
-            <div>
-              <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem', color: 'white' }}>
-                Design Patterns Practice
-              </h1>
-              {currentSubcategory && (
-                <span style={{
-                  padding: '0.25rem 0.75rem',
-                  fontSize: '0.85rem',
-                  fontWeight: '600',
-                  backgroundColor: '#dbeafe',
-                  color: '#1e40af',
-                  borderRadius: '6px'
-                }}>
-                  {currentSubcategory}
-                </span>
-              )}
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            {onPrevious && (
-              <button
-                onClick={onPrevious}
-                style={{
-                  padding: '0.75rem 1.25rem',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  backgroundColor: '#10b981',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
-              >
-                ← {previousName}
-              </button>
-            )}
-            {onNext && (
-              <button
-                onClick={onNext}
-                style={{
-                  padding: '0.75rem 1.25rem',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  backgroundColor: '#10b981',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
-              >
-                {nextName} →
-              </button>
-            )}
-          </div>
-        </div>
-
-        <Breadcrumb breadcrumb={breadcrumb} />
-
-        <p style={{ fontSize: '1.1rem', color: '#9ca3af', marginBottom: '2rem' }}>
-          Implement classic GoF design patterns with hands-on coding exercises
-        </p>
-
-        <div style={{ display: 'grid', gap: '1rem' }}>
-          {questions.map((q) => {
-            const problemId = `DesignPatternsInteractive-${q.id}`
-            const isCompleted = isProblemCompleted(problemId)
-
-            return (
-              <div
-                key={`${q.id}-${refreshKey}`}
-                onClick={() => handleQuestionSelect(q)}
-                style={{
-                  padding: '1.5rem',
-                  border: isCompleted ? '3px solid #10b981' : '2px solid #374151',
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  backgroundColor: isCompleted ? 'rgba(16, 185, 129, 0.15)' : 'rgba(30, 41, 59, 0.8)',
-                  boxShadow: isCompleted ? '0 2px 12px rgba(16, 185, 129, 0.2)' : 'none',
-                  position: 'relative'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = isCompleted ? '#10b981' : '#3b82f6'
-                  e.currentTarget.style.boxShadow = isCompleted ? '0 4px 16px rgba(16, 185, 129, 0.3)' : '0 4px 12px rgba(59, 130, 246, 0.15)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = isCompleted ? '#10b981' : '#374151'
-                  e.currentTarget.style.boxShadow = isCompleted ? '0 2px 12px rgba(16, 185, 129, 0.2)' : 'none'
-                }}
-              >
-                {isCompleted && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '-10px',
-                    left: '-10px',
-                    backgroundColor: '#10b981',
-                    color: 'white',
-                    borderRadius: '50%',
-                    width: '32px',
-                    height: '32px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1.1rem',
-                    fontWeight: 'bold',
-                    boxShadow: '0 2px 8px rgba(16, 185, 129, 0.5)',
-                    border: '3px solid white',
-                    zIndex: 1
-                  }}>
-                    ✓
-                  </div>
-                )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
-                  <h3 style={{ fontSize: '1.25rem', color: 'white', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    {q.id}. {q.title}
-                    {isCompleted && <span style={{ fontSize: '0.9rem', color: '#10b981' }}>✓</span>}
-                  </h3>
-                  <span style={{
-                    padding: '0.25rem 0.75rem',
-                    backgroundColor: '#fef3c7',
-                    color: '#92400e',
-                    borderRadius: '6px',
-                    fontSize: '0.875rem',
-                    fontWeight: '600'
-                  }}>
-                    {q.difficulty}
-                  </span>
-                </div>
-                <p style={{ color: '#9ca3af', margin: 0 }}>{q.description}</p>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-    )
+  const handleNextConcept = () => {
+    if (selectedConceptIndex < concepts.length - 1) {
+      setSelectedConceptIndex(selectedConceptIndex + 1)
+      setSelectedDetailIndex(0)
+    }
   }
+
+  // =============================================================================
+  // BREADCRUMB CONFIGURATION
+  // =============================================================================
+
+  const buildBreadcrumbStack = () => {
+    const stack = [
+      { name: 'Practice', icon: '📝', page: 'Practice' },
+      { name: 'Design Patterns', icon: '🎨', page: 'DesignPatternsInteractive' }
+    ]
+    if (selectedConcept) {
+      stack.push({ name: selectedConcept.name, icon: selectedConcept.icon })
+    }
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index) => {
+    if (index === 0) {
+      onBack()
+    } else if (index === 1 && selectedConcept) {
+      setSelectedConceptIndex(null)
+    }
+  }
+
+  // =============================================================================
+  // KEYBOARD NAVIGATION
+  // =============================================================================
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        if (selectedConceptIndex !== null) {
+          setSelectedConceptIndex(null)
+        } else {
+          onBack()
+        }
+      } else if (e.key === 'ArrowLeft' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        if (selectedConceptIndex > 0) {
+          setSelectedConceptIndex(selectedConceptIndex - 1)
+          setSelectedDetailIndex(0)
+        }
+      } else if (e.key === 'ArrowRight' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        if (selectedConceptIndex < concepts.length - 1) {
+          setSelectedConceptIndex(selectedConceptIndex + 1)
+          setSelectedDetailIndex(0)
+        }
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConceptIndex, onBack, concepts.length])
+
+  // =============================================================================
+  // STYLES
+  // =============================================================================
+
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f172a 0%, #312e81 50%, #0f172a 100%)',
+    padding: '2rem',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
+  }
+
+  const headerStyle = {
+    maxWidth: '1400px',
+    margin: '0 auto 2rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '1rem'
+  }
+
+  const titleStyle = {
+    fontSize: '2.5rem',
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #a78bfa, #8b5cf6)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    margin: 0
+  }
+
+  const backButtonStyle = {
+    padding: '0.75rem 1.5rem',
+    background: 'rgba(139, 92, 246, 0.2)',
+    border: '1px solid rgba(139, 92, 246, 0.3)',
+    borderRadius: '0.5rem',
+    color: '#a78bfa',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    transition: 'all 0.2s'
+  }
+
+  // =============================================================================
+  // RENDER
+  // =============================================================================
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
-      <button
-        onClick={() => setSelectedQuestion(null)}
-        style={{
-          marginBottom: '1rem',
-          padding: '0.5rem 1rem',
-          fontSize: '1rem',
-          backgroundColor: '#2563eb',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer'
-        }}
-      >
-        ← Back to Questions
-      </button>
-
-      {/* Problem Description */}
-      <div style={{
-        backgroundColor: '#eff6ff',
-        padding: '1.5rem',
-        borderRadius: '12px',
-        borderLeft: '4px solid #3b82f6',
-        marginBottom: '1.5rem'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1.5rem', margin: 0, color: '#1e40af', fontWeight: '700' }}>
-            {selectedQuestion.title}
-          </h2>
-          <span style={{
-            display: 'inline-block',
-            padding: '0.25rem 0.75rem',
-            backgroundColor: '#fef3c7',
-            color: '#92400e',
-            borderRadius: '6px',
-            fontSize: '0.875rem',
-            fontWeight: '600'
-          }}>
-            {selectedQuestion.difficulty}
-          </span>
-        </div>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#1e40af', fontWeight: '600' }}>Description</h3>
-          <p style={{ color: '#1e40af', lineHeight: '1.6', margin: 0 }}>{selectedQuestion.description}</p>
-        </div>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#1e40af', fontWeight: '600' }}>Example</h3>
-          <pre style={{
-            backgroundColor: '#dbeafe',
-            padding: '1rem',
-            borderRadius: '8px',
-            overflow: 'auto',
-            fontSize: '0.9rem',
-            color: '#1e40af',
-            margin: 0
-          }}>
-            {selectedQuestion.example}
-          </pre>
-        </div>
-
-        <div>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#1e40af', fontWeight: '600' }}>Test Cases</h3>
-          {selectedQuestion.testCases.map((test, idx) => (
-            <div key={idx} style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-              <span style={{ color: '#1e40af', fontWeight: '600' }}>Test {idx + 1}:</span>{' '}
-              <span style={{ color: '#1e40af' }}>{test.input} → {test.output}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Code Editor */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h3 style={{ fontSize: '1.1rem', margin: 0, color: '#1f2937' }}>Code Editor</h3>
-        <LanguageToggle />
-      </div>
-      <div style={{
-        backgroundColor: '#1e293b',
-        borderRadius: '12px',
-        overflow: 'hidden',
-        marginBottom: '1rem'
-      }}>
-        <div style={{
-          backgroundColor: '#0f172a',
-          padding: '0.75rem 1rem',
-          borderBottom: '1px solid #334155',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <span style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: '600' }}>{language === 'java' ? 'Solution.java' : 'solution.py'}</span>
-          <span style={{ color: '#64748b', fontSize: '0.75rem' }}>{language === 'java' ? 'Java' : 'Python'}</span>
-        </div>
-        <textarea
-          value={userCode}
-          onChange={(e) => setUserCode(e.target.value)}
-          onKeyDown={handleKeyDown}
-          spellCheck="false"
-          style={{
-            width: '100%',
-            minHeight: '600px',
-            padding: '1rem',
-            fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
-            fontSize: '0.9rem',
-            lineHeight: '1.6',
-            color: '#e2e8f0',
-            backgroundColor: '#1e293b',
-            border: 'none',
-            outline: 'none',
-            resize: 'vertical'
+    <div style={containerStyle}>
+      {/* Header with title and back button */}
+      <div style={headerStyle}>
+        <h1 style={titleStyle}>Design Patterns</h1>
+        <button
+          style={backButtonStyle}
+          onClick={onBack}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = 'rgba(139, 92, 246, 0.3)'
+            e.currentTarget.style.transform = 'translateY(-2px)'
           }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'rgba(139, 92, 246, 0.2)'
+            e.currentTarget.style.transform = 'translateY(0)'
+          }}
+        >
+          Back to Practice
+        </button>
+      </div>
+
+      {/* Breadcrumb navigation */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          colors={TOPIC_COLORS}
         />
       </div>
 
-      {/* Buttons Row */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-        <button
-          onClick={handleRunCode}
-          disabled={isRunning}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            backgroundColor: isRunning ? '#9ca3af' : '#10b981',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: isRunning ? 'not-allowed' : 'pointer',
-            fontWeight: '600',
-            transition: 'background-color 0.2s'
-          }}
-        >
-          {isRunning ? 'Running...' : '▶️ Run Code'}
-        </button>
-        <button
-          onClick={handleReset}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            backgroundColor: '#2563eb',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: '600',
-            transition: 'background-color 0.2s'
-          }}
-        >
-          🔄 Reset
-        </button>
-        <button
-          onClick={() => setShowSolution(!showSolution)}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            backgroundColor: showSolution ? '#10b981' : '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: '600',
-            transition: 'background-color 0.2s'
-          }}
-        >
-          {showSolution ? '✓ Solution Shown' : '👁️ Show Solution'}
-        </button>
-        <button
-          onClick={() => setShowExplanation(!showExplanation)}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            backgroundColor: showExplanation ? '#8b5cf6' : '#f59e0b',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: '600',
-            transition: 'background-color 0.2s'
-          }}
-        >
-          {showExplanation ? '✓ Explanation Visible' : '📖 Explanation & Pseudocode'}
-        </button>
-        <div style={{ marginLeft: 'auto' }}>
-          <CompletionCheckbox
-            problemId={`DesignPatternsInteractive-${selectedQuestion.id}`}
-            label="Mark as Completed"
-            onCompletionChange={() => setRefreshKey(prev => prev + 1)}
-          />
-        </div>
+      {/* Description */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        <p style={{ color: '#94a3b8', fontSize: '1.1rem', lineHeight: '1.6', margin: 0 }}>
+          Master essential GoF design patterns with interactive examples and diagrams.
+          Learn Creational patterns (Singleton, Factory) and Behavioral patterns (Observer, Strategy).
+        </p>
       </div>
 
-      {/* Output Display */}
-      {output && (
-        <div style={{
-          backgroundColor: '#0f172a',
-          padding: '1rem',
-          borderRadius: '8px',
-          marginBottom: '1rem'
-        }}>
-          <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem', fontWeight: '700', color: '#60a5fa' }}>
-            Output:
-          </h3>
-          <pre style={{
-            margin: 0,
-            fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
-            fontSize: '0.85rem',
-            lineHeight: '1.6',
-            color: '#e2e8f0',
-            whiteSpace: 'pre-wrap'
-          }}>
-            {output}
-          </pre>
-        </div>
-      )}
-
-      {/* Explanation & Pseudocode Display */}
-      {showExplanation && selectedQuestion.explanation && selectedQuestion.pseudocode && (
-        <div style={{ marginBottom: '1rem' }}>
-          <div style={{
-            backgroundColor: '#fef3c7',
-            padding: '15px',
-            borderRadius: '6px',
-            border: '2px solid #fbbf24',
-            marginBottom: '1rem'
-          }}>
-            <h3 style={{ margin: '0 0 1rem 0', color: '#78350f', fontSize: '1.1rem', fontWeight: '700' }}>
-              📖 Explanation
-            </h3>
-            <div style={{ color: '#1f2937', lineHeight: '1.7', whiteSpace: 'pre-wrap', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-              {selectedQuestion.explanation}
+      {/* Concept Cards Grid */}
+      <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gap: '1.5rem'
+      }}>
+        {concepts.map((concept, index) => (
+          <div
+            key={concept.id}
+            onClick={() => setSelectedConceptIndex(index)}
+            style={{
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              border: `1px solid ${concept.color}40`,
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = `0 20px 40px ${concept.color}20`
+              e.currentTarget.style.borderColor = concept.color
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.borderColor = `${concept.color}40`
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
+              <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
+            </div>
+            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
+            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+              {concept.details.length} topics - Click to explore
             </div>
           </div>
-          <div style={{
-            backgroundColor: '#1e293b',
-            padding: '15px',
-            borderRadius: '6px',
-            border: '2px solid #374151'
-          }}>
-            <h4 style={{ margin: '0 0 1rem 0', color: '#60a5fa', fontSize: '1.1rem', fontWeight: '700' }}>
-              🔧 Pseudocode
-            </h4>
-            <pre style={{
-              margin: 0,
-              color: '#e5e7eb',
-              whiteSpace: 'pre-wrap',
-              fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
-              fontSize: '0.9rem',
-              lineHeight: '1.6'
-            }}>
-              {selectedQuestion.pseudocode}
-            </pre>
-          </div>
-        </div>
-      )}
+        ))}
+      </div>
 
-      {/* Solution Display */}
-      {showSolution && (
-        <div style={{
-          backgroundColor: '#1e293b',
-          padding: '1.5rem',
-          borderRadius: '8px',
-          border: '2px solid #10b981'
-        }}>
-          <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: '700', color: '#10b981' }}>
-            💡 Solution:
-          </h3>
-          <pre style={{
-            margin: 0,
-            fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
-            fontSize: '0.85rem',
-            lineHeight: '1.6',
-            color: '#e2e8f0',
-            whiteSpace: 'pre',
-            overflowX: 'auto'
-          }}>
-            {selectedQuestion.solution}
-          </pre>
+      {/* Modal for Selected Concept */}
+      {selectedConcept && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '2rem'
+          }}
+          onClick={() => setSelectedConceptIndex(null)}
+        >
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              maxWidth: '1200px',
+              maxHeight: '92vh',
+              overflow: 'auto',
+              border: `1px solid ${selectedConcept.color}40`,
+              width: '100%'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Breadcrumb */}
+            <Breadcrumb
+              breadcrumbStack={buildBreadcrumbStack()}
+              onBreadcrumbClick={handleBreadcrumbClick}
+              colors={TOPIC_COLORS}
+            />
+
+            {/* Modal Header with Navigation */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1.5rem',
+              paddingBottom: '1rem',
+              borderBottom: '1px solid #334155'
+            }}>
+              <h2 style={{
+                color: selectedConcept.color,
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '1.25rem'
+              }}>
+                <span>{selectedConcept.icon}</span>
+                {selectedConcept.name}
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button
+                  onClick={handlePreviousConcept}
+                  disabled={selectedConceptIndex === 0}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >Prev</button>
+                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>
+                  {selectedConceptIndex + 1}/{concepts.length}
+                </span>
+                <button
+                  onClick={handleNextConcept}
+                  disabled={selectedConceptIndex === concepts.length - 1}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >Next</button>
+                <button
+                  onClick={() => setSelectedConceptIndex(null)}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: '#f87171',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    marginLeft: '0.5rem'
+                  }}
+                >Close</button>
+              </div>
+            </div>
+
+            {/* Subtopic Tabs */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {selectedConcept.details.map((detail, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedDetailIndex(i)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)',
+                    border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`,
+                    borderRadius: '0.5rem',
+                    color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: selectedDetailIndex === i ? '600' : '400',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {detail.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Selected Subtopic Content */}
+            {(() => {
+              const detail = selectedConcept.details[selectedDetailIndex]
+              const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
+              return (
+                <div>
+                  {/* Diagram */}
+                  {DiagramComponent && (
+                    <div style={{
+                      background: 'rgba(15, 23, 42, 0.6)',
+                      borderRadius: '0.75rem',
+                      padding: '1rem',
+                      marginBottom: '1.5rem',
+                      border: '1px solid #334155'
+                    }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
+
+                  {/* Detail Name */}
+                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>
+                    {detail.name}
+                  </h3>
+
+                  {/* Explanation */}
+                  <p style={{
+                    color: '#e2e8f0',
+                    lineHeight: '1.8',
+                    marginBottom: '1rem',
+                    background: colorScheme.bg,
+                    border: `1px solid ${colorScheme.border}`,
+                    borderRadius: '0.5rem',
+                    padding: '1rem',
+                    textAlign: 'left'
+                  }}>
+                    {detail.explanation}
+                  </p>
+
+                  {/* Code Example */}
+                  {detail.codeExample && (
+                    <SyntaxHighlighter
+                      language="java"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        padding: '1rem',
+                        margin: 0,
+                        borderRadius: '0.5rem',
+                        fontSize: '0.8rem',
+                        border: '1px solid #334155',
+                        background: '#0f172a'
+                      }}
+                      codeTagProps={{ style: { background: 'transparent' } }}
+                    >
+                      {detail.codeExample}
+                    </SyntaxHighlighter>
+                  )}
+                </div>
+              )
+            })()}
+
+          </div>
         </div>
       )}
     </div>

@@ -1,6 +1,353 @@
 import { useState } from 'react'
 import { useTheme } from '../../contexts/ThemeContext'
 import Breadcrumb from '../../components/Breadcrumb'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+
+// SVG Diagram Components
+
+// 1. Request-Response Cycle Diagram
+const RequestResponseDiagram = () => (
+  <svg viewBox="0 0 600 200" style={{ width: '100%', maxWidth: '600px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="clientGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#1d4ed8" />
+      </linearGradient>
+      <linearGradient id="serverGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="responseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#6d28d9" />
+      </linearGradient>
+      <marker id="arrowHead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#60a5fa" />
+      </marker>
+      <marker id="arrowHeadReturn" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#a78bfa" />
+      </marker>
+    </defs>
+
+    {/* Client Box */}
+    <rect x="20" y="60" width="120" height="80" rx="10" fill="url(#clientGradient)" />
+    <text x="80" y="95" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Client</text>
+    <text x="80" y="115" textAnchor="middle" fill="#bfdbfe" fontSize="11">Browser/App</text>
+
+    {/* Server Box */}
+    <rect x="240" y="60" width="120" height="80" rx="10" fill="url(#serverGradient)" />
+    <text x="300" y="95" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Server</text>
+    <text x="300" y="115" textAnchor="middle" fill="#a7f3d0" fontSize="11">Flask/Django</text>
+
+    {/* Response Box */}
+    <rect x="460" y="60" width="120" height="80" rx="10" fill="url(#responseGradient)" />
+    <text x="520" y="95" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Response</text>
+    <text x="520" y="115" textAnchor="middle" fill="#ddd6fe" fontSize="11">HTML/JSON</text>
+
+    {/* Request Arrow */}
+    <path d="M 145 85 L 235 85" stroke="#60a5fa" strokeWidth="3" fill="none" markerEnd="url(#arrowHead)" />
+    <text x="190" y="75" textAnchor="middle" fill="#93c5fd" fontSize="10">HTTP Request</text>
+
+    {/* Process Arrow */}
+    <path d="M 365 100 L 455 100" stroke="#60a5fa" strokeWidth="3" fill="none" markerEnd="url(#arrowHead)" />
+    <text x="410" y="90" textAnchor="middle" fill="#93c5fd" fontSize="10">Generate</text>
+
+    {/* Return Arrow */}
+    <path d="M 460 130 C 300 180, 200 180, 140 130" stroke="#a78bfa" strokeWidth="3" fill="none" markerEnd="url(#arrowHeadReturn)" />
+    <text x="300" y="175" textAnchor="middle" fill="#c4b5fd" fontSize="10">HTTP Response</text>
+  </svg>
+)
+
+// 2. Flask Architecture Diagram
+const FlaskArchitectureDiagram = () => (
+  <svg viewBox="0 0 650 280" style={{ width: '100%', maxWidth: '650px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="flaskBlack" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#374151" />
+        <stop offset="100%" stopColor="#1f2937" />
+      </linearGradient>
+      <linearGradient id="flaskWhite" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f9fafb" />
+        <stop offset="100%" stopColor="#e5e7eb" />
+      </linearGradient>
+      <marker id="flaskArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#9ca3af" />
+      </marker>
+    </defs>
+
+    {/* Background */}
+    <rect x="10" y="10" width="630" height="260" rx="15" fill="#111827" stroke="#374151" strokeWidth="2" />
+
+    {/* Title */}
+    <text x="325" y="40" textAnchor="middle" fill="#f9fafb" fontSize="16" fontWeight="bold">Flask Application Architecture</text>
+
+    {/* Request Entry */}
+    <rect x="30" y="70" width="100" height="60" rx="8" fill="url(#flaskBlack)" stroke="#6b7280" strokeWidth="2" />
+    <text x="80" y="95" textAnchor="middle" fill="#f9fafb" fontSize="12" fontWeight="bold">Request</text>
+    <text x="80" y="112" textAnchor="middle" fill="#9ca3af" fontSize="10">HTTP</text>
+
+    {/* Routes/URL Rules */}
+    <rect x="170" y="70" width="100" height="60" rx="8" fill="url(#flaskWhite)" stroke="#374151" strokeWidth="2" />
+    <text x="220" y="95" textAnchor="middle" fill="#1f2937" fontSize="12" fontWeight="bold">Routes</text>
+    <text x="220" y="112" textAnchor="middle" fill="#6b7280" fontSize="10">@app.route</text>
+
+    {/* Views/Functions */}
+    <rect x="310" y="70" width="100" height="60" rx="8" fill="url(#flaskBlack)" stroke="#6b7280" strokeWidth="2" />
+    <text x="360" y="95" textAnchor="middle" fill="#f9fafb" fontSize="12" fontWeight="bold">Views</text>
+    <text x="360" y="112" textAnchor="middle" fill="#9ca3af" fontSize="10">Functions</text>
+
+    {/* Templates */}
+    <rect x="450" y="70" width="100" height="60" rx="8" fill="url(#flaskWhite)" stroke="#374151" strokeWidth="2" />
+    <text x="500" y="95" textAnchor="middle" fill="#1f2937" fontSize="12" fontWeight="bold">Templates</text>
+    <text x="500" y="112" textAnchor="middle" fill="#6b7280" fontSize="10">Jinja2</text>
+
+    {/* Response */}
+    <rect x="520" y="170" width="100" height="60" rx="8" fill="url(#flaskBlack)" stroke="#6b7280" strokeWidth="2" />
+    <text x="570" y="195" textAnchor="middle" fill="#f9fafb" fontSize="12" fontWeight="bold">Response</text>
+    <text x="570" y="212" textAnchor="middle" fill="#9ca3af" fontSize="10">HTML/JSON</text>
+
+    {/* Database (optional) */}
+    <rect x="310" y="170" width="100" height="60" rx="8" fill="url(#flaskWhite)" stroke="#374151" strokeWidth="2" />
+    <text x="360" y="195" textAnchor="middle" fill="#1f2937" fontSize="12" fontWeight="bold">Database</text>
+    <text x="360" y="212" textAnchor="middle" fill="#6b7280" fontSize="10">SQLAlchemy</text>
+
+    {/* Arrows */}
+    <path d="M 135 100 L 165 100" stroke="#9ca3af" strokeWidth="2" fill="none" markerEnd="url(#flaskArrow)" />
+    <path d="M 275 100 L 305 100" stroke="#9ca3af" strokeWidth="2" fill="none" markerEnd="url(#flaskArrow)" />
+    <path d="M 415 100 L 445 100" stroke="#9ca3af" strokeWidth="2" fill="none" markerEnd="url(#flaskArrow)" />
+    <path d="M 500 135 L 500 160 L 520 160 L 520 165" stroke="#9ca3af" strokeWidth="2" fill="none" markerEnd="url(#flaskArrow)" />
+    <path d="M 360 135 L 360 165" stroke="#9ca3af" strokeWidth="2" fill="none" markerEnd="url(#flaskArrow)" />
+    <path d="M 360 135 L 360 150 L 500 150 L 500 135" stroke="#9ca3af" strokeWidth="2" strokeDasharray="4" fill="none" />
+  </svg>
+)
+
+// 3. Django MVT Diagram
+const DjangoMVTDiagram = () => (
+  <svg viewBox="0 0 600 320" style={{ width: '100%', maxWidth: '600px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="djangoGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#22c55e" />
+        <stop offset="100%" stopColor="#16a34a" />
+      </linearGradient>
+      <linearGradient id="djangoDark" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#0f4c3a" />
+        <stop offset="100%" stopColor="#064e3b" />
+      </linearGradient>
+      <marker id="djangoArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#4ade80" />
+      </marker>
+    </defs>
+
+    {/* Background */}
+    <rect x="10" y="10" width="580" height="300" rx="15" fill="#0c1f17" stroke="#16a34a" strokeWidth="2" />
+
+    {/* Title */}
+    <text x="300" y="40" textAnchor="middle" fill="#4ade80" fontSize="16" fontWeight="bold">Django MVT Pattern</text>
+
+    {/* URL Dispatcher */}
+    <rect x="230" y="60" width="140" height="50" rx="8" fill="url(#djangoGreen)" />
+    <text x="300" y="85" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">URL Dispatcher</text>
+    <text x="300" y="100" textAnchor="middle" fill="#dcfce7" fontSize="10">urls.py</text>
+
+    {/* Model */}
+    <rect x="50" y="160" width="130" height="70" rx="10" fill="url(#djangoDark)" stroke="#22c55e" strokeWidth="2" />
+    <text x="115" y="190" textAnchor="middle" fill="#4ade80" fontSize="14" fontWeight="bold">Model</text>
+    <text x="115" y="210" textAnchor="middle" fill="#86efac" fontSize="10">models.py</text>
+    <text x="115" y="222" textAnchor="middle" fill="#6b7280" fontSize="9">Database/ORM</text>
+
+    {/* View */}
+    <rect x="235" y="160" width="130" height="70" rx="10" fill="url(#djangoDark)" stroke="#22c55e" strokeWidth="2" />
+    <text x="300" y="190" textAnchor="middle" fill="#4ade80" fontSize="14" fontWeight="bold">View</text>
+    <text x="300" y="210" textAnchor="middle" fill="#86efac" fontSize="10">views.py</text>
+    <text x="300" y="222" textAnchor="middle" fill="#6b7280" fontSize="9">Business Logic</text>
+
+    {/* Template */}
+    <rect x="420" y="160" width="130" height="70" rx="10" fill="url(#djangoDark)" stroke="#22c55e" strokeWidth="2" />
+    <text x="485" y="190" textAnchor="middle" fill="#4ade80" fontSize="14" fontWeight="bold">Template</text>
+    <text x="485" y="210" textAnchor="middle" fill="#86efac" fontSize="10">*.html</text>
+    <text x="485" y="222" textAnchor="middle" fill="#6b7280" fontSize="9">Presentation</text>
+
+    {/* Response */}
+    <rect x="230" y="260" width="140" height="40" rx="8" fill="url(#djangoGreen)" />
+    <text x="300" y="285" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">HTTP Response</text>
+
+    {/* Arrows */}
+    <path d="M 300 115 L 300 155" stroke="#4ade80" strokeWidth="2" fill="none" markerEnd="url(#djangoArrow)" />
+    <text x="315" y="138" fill="#86efac" fontSize="9">Route</text>
+
+    <path d="M 230 195 L 185 195" stroke="#4ade80" strokeWidth="2" fill="none" markerEnd="url(#djangoArrow)" />
+    <text x="207" y="188" fill="#86efac" fontSize="9">Query</text>
+
+    <path d="M 180 190 L 230 190" stroke="#4ade80" strokeWidth="2" fill="none" strokeDasharray="4" />
+    <text x="207" y="205" fill="#6b7280" fontSize="9">Data</text>
+
+    <path d="M 370 195 L 415 195" stroke="#4ade80" strokeWidth="2" fill="none" markerEnd="url(#djangoArrow)" />
+    <text x="390" y="188" fill="#86efac" fontSize="9">Context</text>
+
+    <path d="M 485 235 L 485 250 L 300 250 L 300 255" stroke="#4ade80" strokeWidth="2" fill="none" markerEnd="url(#djangoArrow)" />
+    <text x="400" y="248" fill="#86efac" fontSize="9">Rendered HTML</text>
+  </svg>
+)
+
+// 4. Middleware Diagram
+const MiddlewareDiagram = () => (
+  <svg viewBox="0 0 600 350" style={{ width: '100%', maxWidth: '600px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="middleware1" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#ef4444" />
+        <stop offset="100%" stopColor="#dc2626" />
+      </linearGradient>
+      <linearGradient id="middleware2" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#f97316" />
+        <stop offset="100%" stopColor="#ea580c" />
+      </linearGradient>
+      <linearGradient id="middleware3" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#eab308" />
+        <stop offset="100%" stopColor="#ca8a04" />
+      </linearGradient>
+      <linearGradient id="middlewareCore" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#22c55e" />
+        <stop offset="100%" stopColor="#16a34a" />
+      </linearGradient>
+      <marker id="mwArrowDown" markerWidth="8" markerHeight="6" refX="4" refY="6" orient="auto">
+        <polygon points="0 0, 8 0, 4 6" fill="#60a5fa" />
+      </marker>
+      <marker id="mwArrowUp" markerWidth="8" markerHeight="6" refX="4" refY="0" orient="auto">
+        <polygon points="4 0, 8 6, 0 6" fill="#a78bfa" />
+      </marker>
+    </defs>
+
+    {/* Background */}
+    <rect x="10" y="10" width="580" height="330" rx="15" fill="#111827" stroke="#374151" strokeWidth="2" />
+
+    {/* Title */}
+    <text x="300" y="40" textAnchor="middle" fill="#f9fafb" fontSize="16" fontWeight="bold">Middleware Pipeline</text>
+
+    {/* Request Label */}
+    <text x="120" y="70" textAnchor="middle" fill="#60a5fa" fontSize="12" fontWeight="bold">REQUEST</text>
+    <path d="M 120 80 L 120 300" stroke="#60a5fa" strokeWidth="2" strokeDasharray="5" />
+
+    {/* Response Label */}
+    <text x="480" y="70" textAnchor="middle" fill="#a78bfa" fontSize="12" fontWeight="bold">RESPONSE</text>
+    <path d="M 480 80 L 480 300" stroke="#a78bfa" strokeWidth="2" strokeDasharray="5" />
+
+    {/* Middleware Layer 1 - Security */}
+    <rect x="170" y="85" width="260" height="45" rx="8" fill="url(#middleware1)" />
+    <text x="300" y="110" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Security Middleware</text>
+    <text x="300" y="122" textAnchor="middle" fill="#fecaca" fontSize="9">CORS, CSRF, Headers</text>
+    <path d="M 120 107 L 165 107" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#mwArrowDown)" />
+    <path d="M 435 107 L 480 107" stroke="#a78bfa" strokeWidth="2" markerEnd="url(#mwArrowUp)" />
+
+    {/* Middleware Layer 2 - Auth */}
+    <rect x="170" y="145" width="260" height="45" rx="8" fill="url(#middleware2)" />
+    <text x="300" y="170" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Authentication Middleware</text>
+    <text x="300" y="182" textAnchor="middle" fill="#fed7aa" fontSize="9">JWT, Session, OAuth</text>
+    <path d="M 120 167 L 165 167" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#mwArrowDown)" />
+    <path d="M 435 167 L 480 167" stroke="#a78bfa" strokeWidth="2" markerEnd="url(#mwArrowUp)" />
+
+    {/* Middleware Layer 3 - Logging */}
+    <rect x="170" y="205" width="260" height="45" rx="8" fill="url(#middleware3)" />
+    <text x="300" y="230" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Logging Middleware</text>
+    <text x="300" y="242" textAnchor="middle" fill="#fef08a" fontSize="9">Request/Response Logging</text>
+    <path d="M 120 227 L 165 227" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#mwArrowDown)" />
+    <path d="M 435 227 L 480 227" stroke="#a78bfa" strokeWidth="2" markerEnd="url(#mwArrowUp)" />
+
+    {/* Application Core */}
+    <rect x="200" y="270" width="200" height="50" rx="10" fill="url(#middlewareCore)" />
+    <text x="300" y="295" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Application</text>
+    <text x="300" y="310" textAnchor="middle" fill="#dcfce7" fontSize="10">Views / Handlers</text>
+    <path d="M 120 295 L 195 295" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#mwArrowDown)" />
+    <path d="M 405 295 L 480 295" stroke="#a78bfa" strokeWidth="2" markerEnd="url(#mwArrowUp)" />
+
+    {/* Vertical connecting lines */}
+    <path d="M 300 130 L 300 145" stroke="#9ca3af" strokeWidth="1" strokeDasharray="3" />
+    <path d="M 300 190 L 300 205" stroke="#9ca3af" strokeWidth="1" strokeDasharray="3" />
+    <path d="M 300 250 L 300 270" stroke="#9ca3af" strokeWidth="1" strokeDasharray="3" />
+  </svg>
+)
+
+// 5. RESTful API Diagram
+const RESTfulAPIDiagram = () => (
+  <svg viewBox="0 0 650 320" style={{ width: '100%', maxWidth: '650px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="getGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#22c55e" />
+        <stop offset="100%" stopColor="#16a34a" />
+      </linearGradient>
+      <linearGradient id="postGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#2563eb" />
+      </linearGradient>
+      <linearGradient id="putGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#f97316" />
+        <stop offset="100%" stopColor="#ea580c" />
+      </linearGradient>
+      <linearGradient id="deleteGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#ef4444" />
+        <stop offset="100%" stopColor="#dc2626" />
+      </linearGradient>
+      <linearGradient id="resourceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#7c3aed" />
+      </linearGradient>
+    </defs>
+
+    {/* Background */}
+    <rect x="10" y="10" width="630" height="300" rx="15" fill="#111827" stroke="#374151" strokeWidth="2" />
+
+    {/* Title */}
+    <text x="325" y="40" textAnchor="middle" fill="#f9fafb" fontSize="16" fontWeight="bold">RESTful API Endpoints</text>
+
+    {/* Resource */}
+    <rect x="260" y="60" width="130" height="50" rx="10" fill="url(#resourceGradient)" />
+    <text x="325" y="85" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">/api/users</text>
+    <text x="325" y="100" textAnchor="middle" fill="#ddd6fe" fontSize="10">Resource</text>
+
+    {/* GET - Read */}
+    <rect x="40" y="140" width="130" height="70" rx="8" fill="url(#getGradient)" />
+    <text x="105" y="165" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">GET</text>
+    <text x="105" y="182" textAnchor="middle" fill="#dcfce7" fontSize="10">Read/Retrieve</text>
+    <text x="105" y="198" textAnchor="middle" fill="#bbf7d0" fontSize="9">200 OK</text>
+
+    {/* POST - Create */}
+    <rect x="190" y="140" width="130" height="70" rx="8" fill="url(#postGradient)" />
+    <text x="255" y="165" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">POST</text>
+    <text x="255" y="182" textAnchor="middle" fill="#dbeafe" fontSize="10">Create New</text>
+    <text x="255" y="198" textAnchor="middle" fill="#bfdbfe" fontSize="9">201 Created</text>
+
+    {/* PUT - Update */}
+    <rect x="340" y="140" width="130" height="70" rx="8" fill="url(#putGradient)" />
+    <text x="405" y="165" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">PUT</text>
+    <text x="405" y="182" textAnchor="middle" fill="#fed7aa" fontSize="10">Update/Replace</text>
+    <text x="405" y="198" textAnchor="middle" fill="#fdba74" fontSize="9">200 OK</text>
+
+    {/* DELETE - Remove */}
+    <rect x="490" y="140" width="130" height="70" rx="8" fill="url(#deleteGradient)" />
+    <text x="555" y="165" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">DELETE</text>
+    <text x="555" y="182" textAnchor="middle" fill="#fecaca" fontSize="10">Remove</text>
+    <text x="555" y="198" textAnchor="middle" fill="#fca5a5" fontSize="9">204 No Content</text>
+
+    {/* Connecting lines from resource */}
+    <path d="M 280 110 L 105 135" stroke="#6b7280" strokeWidth="1.5" />
+    <path d="M 310 110 L 255 135" stroke="#6b7280" strokeWidth="1.5" />
+    <path d="M 340 110 L 405 135" stroke="#6b7280" strokeWidth="1.5" />
+    <path d="M 370 110 L 555 135" stroke="#6b7280" strokeWidth="1.5" />
+
+    {/* Example endpoints */}
+    <rect x="40" y="230" width="280" height="60" rx="8" fill="#1f2937" stroke="#374151" strokeWidth="1" />
+    <text x="50" y="250" fill="#4ade80" fontSize="11" fontFamily="monospace">GET  /api/users</text>
+    <text x="190" y="250" fill="#9ca3af" fontSize="10">List all users</text>
+    <text x="50" y="270" fill="#4ade80" fontSize="11" fontFamily="monospace">GET  /api/users/123</text>
+    <text x="210" y="270" fill="#9ca3af" fontSize="10">Get user 123</text>
+
+    <rect x="340" y="230" width="280" height="60" rx="8" fill="#1f2937" stroke="#374151" strokeWidth="1" />
+    <text x="350" y="250" fill="#60a5fa" fontSize="11" fontFamily="monospace">POST /api/users</text>
+    <text x="490" y="250" fill="#9ca3af" fontSize="10">Create user</text>
+    <text x="350" y="270" fill="#ef4444" fontSize="11" fontFamily="monospace">DELETE /api/users/123</text>
+    <text x="530" y="270" fill="#9ca3af" fontSize="10">Delete user</text>
+  </svg>
+)
 
 export default function WebFrameworks({ onBack, breadcrumb }) {
   const { isDarkTheme } = useTheme()
@@ -21,17 +368,6 @@ export default function WebFrameworks({ onBack, breadcrumb }) {
     borderRadius: '0.5rem',
     padding: '1.5rem',
     marginBottom: '1.5rem'
-  }
-
-  const codeBlockStyle = {
-    backgroundColor: '#111827',
-    border: '1px solid #374151',
-    borderRadius: '0.375rem',
-    padding: '1rem',
-    overflowX: 'auto',
-    fontFamily: 'monospace',
-    fontSize: '0.875rem',
-    color: '#e5e7eb'
   }
 
   const headingStyle = {
@@ -138,8 +474,35 @@ export default function WebFrameworks({ onBack, breadcrumb }) {
                 without imposing a specific project structure.
               </p>
 
+              <h3 style={subHeadingStyle}>HTTP Request/Response Cycle</h3>
+              <p style={{ ...textStyle, marginBottom: '1rem' }}>
+                Understanding how HTTP requests flow through a web application is fundamental to building web services.
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem', backgroundColor: '#0f172a', padding: '1rem', borderRadius: '0.5rem' }}>
+                <RequestResponseDiagram />
+              </div>
+
+              <h3 style={subHeadingStyle}>Flask Application Architecture</h3>
+              <p style={{ ...textStyle, marginBottom: '1rem' }}>
+                Flask applications follow a simple but powerful architecture where requests are routed to view functions that return responses.
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                <FlaskArchitectureDiagram />
+              </div>
+
               <h3 style={subHeadingStyle}>Basic Application Setup</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from flask import Flask, render_template, request, jsonify, redirect, url_for
 
 app = Flask(__name__)
@@ -161,10 +524,21 @@ def show_post(post_id):
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>HTTP Methods</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from flask import Flask, request, jsonify
 
 app = Flask(__name__)
@@ -195,10 +569,21 @@ def handle_item(item_id):
 
     elif request.method == 'DELETE':
         return '', 204`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>Request Handling</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from flask import Flask, request
 
 app = Flask(__name__)
@@ -229,10 +614,21 @@ def handle_form():
     session_id = request.cookies.get('session_id')
 
     return jsonify({'status': 'success'})`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>Templates with Jinja2</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from flask import Flask, render_template
 
 app = Flask(__name__)
@@ -276,10 +672,21 @@ def profile(username):
 </body>
 </html>
 """`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>Blueprints for Modular Apps</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`# blueprints/auth.py
 from flask import Blueprint, request, jsonify
 
@@ -315,7 +722,7 @@ app.register_blueprint(api_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)`}
-              </pre>
+              </SyntaxHighlighter>
             </div>
           </div>
         )}
@@ -331,7 +738,18 @@ if __name__ == '__main__':
               </p>
 
               <h3 style={subHeadingStyle}>Basic Application</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from fastapi import FastAPI, HTTPException, Query, Path
 from pydantic import BaseModel
 from typing import Optional, List
@@ -356,10 +774,21 @@ async def read_item(
     return {"item_id": item_id, "q": q}
 
 # Run with: uvicorn main:app --reload`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>Pydantic Models for Request/Response</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field, EmailStr
 from typing import Optional, List
@@ -427,10 +856,21 @@ async def list_tasks(
     if priority:
         filtered = [t for t in tasks_db if t.priority == priority]
     return filtered[skip:skip + limit]`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>Async Endpoints</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from fastapi import FastAPI, BackgroundTasks
 import asyncio
 import httpx
@@ -473,10 +913,21 @@ async def complete_task(
         f"Task {task_id} completed!"
     )
     return {"status": "completed", "task_id": task_id}`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>Dependency Injection</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from fastapi import FastAPI, Depends, HTTPException, Header
 from typing import Optional
 
@@ -527,10 +978,21 @@ async def list_all_users(
     db = Depends(get_db)
 ):
     return db.query(User).all()`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>Automatic API Documentation</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from fastapi import FastAPI, Query, Path
 from pydantic import BaseModel
 from typing import List
@@ -584,7 +1046,7 @@ async def get_user(
 # - Swagger UI: http://localhost:8000/docs
 # - ReDoc: http://localhost:8000/redoc
 # - OpenAPI JSON: http://localhost:8000/openapi.json`}
-              </pre>
+              </SyntaxHighlighter>
             </div>
           </div>
         )}
@@ -599,8 +1061,28 @@ async def get_user(
                 pragmatic design. It follows the MTV (Model-Template-View) pattern.
               </p>
 
+              <h3 style={subHeadingStyle}>Django Model-View-Template Pattern</h3>
+              <p style={{ ...textStyle, marginBottom: '1rem' }}>
+                Django uses the MTV pattern: Models handle data and database interactions, Views contain business logic,
+                and Templates handle presentation.
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                <DjangoMVTDiagram />
+              </div>
+
               <h3 style={subHeadingStyle}>Project Structure</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`# Create new project
 django-admin startproject myproject
 cd myproject
@@ -627,10 +1109,21 @@ myproject/
             blog/
                 post_list.html
                 post_detail.html`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>Models (ORM)</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`# blog/models.py
 from django.db import models
 from django.contrib.auth.models import User
@@ -683,10 +1176,21 @@ class Post(models.Model):
 # Create migrations
 # python manage.py makemigrations
 # python manage.py migrate`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>Views</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`# blog/views.py
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, CreateView
@@ -753,10 +1257,21 @@ def post_api(request):
         'id', 'title', 'slug', 'publish'
     )
     return JsonResponse(list(posts), safe=False)`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>URL Configuration</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`# myproject/urls.py
 from django.contrib import admin
 from django.urls import path, include
@@ -784,10 +1299,21 @@ urlpatterns = [
     path('category/<slug:slug>/', views.category_posts, name='category'),
     path('api/posts/', views.post_api, name='post_api'),
 ]`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>Templates</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`<!-- templates/base.html -->
 <!DOCTYPE html>
 <html>
@@ -849,10 +1375,21 @@ urlpatterns = [
         </div>
     {% endif %}
 {% endblock %}`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>Django ORM Queries</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from blog.models import Post, Category
 from django.db.models import Count, Q, F, Avg
 from django.utils import timezone
@@ -905,7 +1442,7 @@ Post.objects.filter(id=1).update(view_count=F('view_count') + 1)
 
 # Raw SQL (when needed)
 posts = Post.objects.raw('SELECT * FROM blog_post WHERE status = %s', ['published'])`}
-              </pre>
+              </SyntaxHighlighter>
             </div>
           </div>
         )}
@@ -920,8 +1457,27 @@ posts = Post.objects.raw('SELECT * FROM blog_post WHERE status = %s', ['publishe
                 stateless, and use standard HTTP methods for CRUD operations.
               </p>
 
+              <h3 style={subHeadingStyle}>RESTful API Endpoints Overview</h3>
+              <p style={{ ...textStyle, marginBottom: '1rem' }}>
+                REST APIs map HTTP methods to CRUD operations on resources, providing a standardized way to interact with data.
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                <RESTfulAPIDiagram />
+              </div>
+
               <h3 style={subHeadingStyle}>HTTP Methods and Status Codes</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`# HTTP Methods:
 # GET     - Retrieve resource(s)
 # POST    - Create new resource
@@ -940,10 +1496,21 @@ posts = Post.objects.raw('SELECT * FROM blog_post WHERE status = %s', ['publishe
 # 409 Conflict            - Resource conflict
 # 422 Unprocessable       - Validation error
 # 500 Internal Error      - Server error`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>Flask REST API Example</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from flask import Flask, request, jsonify, abort
 from functools import wraps
 
@@ -1066,10 +1633,21 @@ def delete_user(user_id):
 
     del users[user_id]
     return '', 204`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>FastAPI REST API Example</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from fastapi import FastAPI, HTTPException, Query, Path
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
@@ -1183,10 +1761,21 @@ async def delete_user(user_id: int):
 
     del users_db[user_id]
     return None`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>Response Formatting Best Practices</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from flask import jsonify
 from datetime import datetime
 
@@ -1234,7 +1823,7 @@ def create_user():
 
     user = save_user(data)
     return success_response(user, "User created", 201)`}
-              </pre>
+              </SyntaxHighlighter>
             </div>
           </div>
         )}
@@ -1249,8 +1838,28 @@ def create_user():
                 session management, and password handling best practices.
               </p>
 
+              <h3 style={subHeadingStyle}>Middleware Pipeline</h3>
+              <p style={{ ...textStyle, marginBottom: '1rem' }}>
+                Authentication is typically implemented as middleware that intercepts requests before they reach your application logic.
+                Understanding how requests pass through middleware layers is essential for implementing security.
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                <MiddlewareDiagram />
+              </div>
+
               <h3 style={subHeadingStyle}>JWT Authentication with Flask</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from flask import Flask, request, jsonify
 from functools import wraps
 import jwt
@@ -1374,10 +1983,21 @@ def profile(current_user):
         'email': current_user['email'],
         'name': current_user['name']
     })`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>FastAPI JWT Authentication</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
@@ -1486,10 +2106,21 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 @app.get("/users/me", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>Session-Based Authentication with Flask</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from flask import Flask, session, request, jsonify, redirect
 from flask_session import Session
 from functools import wraps
@@ -1556,10 +2187,21 @@ def get_current_user():
 @login_required
 def protected_route():
     return jsonify({'message': f"Hello, user {session['user_id']}!"})`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>OAuth2 with Google (FastAPI)</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 from authlib.integrations.starlette_client import OAuth
@@ -1609,7 +2251,7 @@ async def google_callback(request):
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))`}
-              </pre>
+              </SyntaxHighlighter>
             </div>
           </div>
         )}
@@ -1625,7 +2267,18 @@ async def google_callback(request):
               </p>
 
               <h3 style={subHeadingStyle}>SQLAlchemy with Flask</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -1689,10 +2342,21 @@ post_tags = db.Table('post_tags',
 # Create tables
 with app.app_context():
     db.create_all()`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>SQLAlchemy CRUD Operations</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from flask import Flask, request, jsonify
 from models import db, User, Post, Tag
 
@@ -1800,10 +2464,21 @@ def search_posts():
     query = query.order_by(Post.created_at.desc())
 
     return jsonify([p.to_dict() for p in query.all()])`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>Async SQLAlchemy with FastAPI</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -1881,10 +2556,21 @@ async def get_user(user_id: int, db: AsyncSession = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>Database Migrations with Alembic</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`# Initialize Alembic
 # alembic init migrations
 
@@ -1946,10 +2632,21 @@ def downgrade():
 
 # Rollback
 # alembic downgrade -1`}
-              </pre>
+              </SyntaxHighlighter>
 
               <h3 style={subHeadingStyle}>Django ORM Advanced Queries</h3>
-              <pre style={codeBlockStyle}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
 {`from django.db.models import Count, Sum, Avg, F, Q, Value
 from django.db.models.functions import Concat, Lower, TruncMonth
 from myapp.models import User, Order, Product
@@ -2024,7 +2721,7 @@ users = User.objects.raw('''
     GROUP BY u.id
     HAVING COUNT(o.id) > 5
 ''')`}
-              </pre>
+              </SyntaxHighlighter>
             </div>
           </div>
         )}

@@ -626,10 +626,12 @@ Note: get(key, []) creates a new list each call, but it's not added to dict. Use
                       language="python"
                       style={vscDarkPlus}
                       customStyle={{
-                        padding: '1.5rem',
-                        borderRadius: '0.5rem',
-                        fontSize: '0.9rem',
-                        border: '2px solid #dc2626'
+                        margin: 0,
+                        borderRadius: '0.375rem',
+                        fontSize: '0.875rem',
+                        background: 'none',
+                        backgroundColor: 'transparent',
+                        padding: 0
                       }}
                     >
                       {section.code}
@@ -666,10 +668,12 @@ Note: get(key, []) creates a new list each call, but it's not added to dict. Use
                       language="python"
                       style={vscDarkPlus}
                       customStyle={{
-                        padding: '1.5rem',
-                        borderRadius: '0.5rem',
-                        fontSize: '0.9rem',
-                        border: '2px solid #16a34a'
+                        margin: 0,
+                        borderRadius: '0.375rem',
+                        fontSize: '0.875rem',
+                        background: 'none',
+                        backgroundColor: 'transparent',
+                        padding: 0
                       }}
                     >
                       {section.code}
@@ -881,7 +885,7 @@ Note: get(key, []) creates a new list each call, but it's not added to dict. Use
 
         {filteredPitfalls.length === 0 && (
           <div style={{
-            textAlign: 'center',
+            textAlign: 'left',
             padding: '3rem',
             color: '#9ca3af',
             fontSize: '1.1rem'

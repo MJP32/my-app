@@ -1,931 +1,1353 @@
+/**
+ * Lambda Expressions - Java Functional Programming
+ *
+ * Covers lambda syntax, method references, functional interfaces,
+ * higher-order functions, and collection operations.
+ */
+
 import { useState, useEffect } from 'react'
-import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
-import LanguageToggle from '../../components/LanguageToggle.jsx'
-import DrawingCanvas from '../../components/DrawingCanvas.jsx'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
-import { isProblemCompleted } from '../../services/progressService'
-import { getPreferredLanguage } from '../../services/languageService'
-import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 
-function Lambdas({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb }) {
-  const [selectedQuestion, setSelectedQuestion] = useState(null)
-  const [showSolution, setShowSolution] = useState(false)
-  const [showExplanation, setShowExplanation] = useState(false)
-  const [userCode, setUserCode] = useState('')
-  const [output, setOutput] = useState('')
-  const [isRunning, setIsRunning] = useState(false)
-  const [refreshKey, setRefreshKey] = useState(0)
-  const [language, setLanguage] = useState(getPreferredLanguage())
-  const [showDrawing, setShowDrawing] = useState(false)
-  const [currentDrawing, setCurrentDrawing] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({
-    Easy: true,
-    Medium: true,
-    Hard: true
-  })
+// =============================================================================
+// COLORS CONFIGURATION
+// =============================================================================
 
-  useEffect(() => {
-    const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
-    window.addEventListener('progressUpdate', handleProgressUpdate)
-    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
-  }, [])
-
-  useEffect(() => {
-    const handleLanguageChange = (e) => {
-      setLanguage(e.detail)
-      if (selectedQuestion) {
-        setUserCode(selectedQuestion.code[e.detail].starterCode)
-      }
-    }
-    window.addEventListener('languageChange', handleLanguageChange)
-    return () => window.removeEventListener('languageChange', handleLanguageChange)
-  }, [selectedQuestion])
-
-  const questions = [
-    {
-      id: 1,
-      title: 'Lambda Expression Syntax and Types',
-      difficulty: 'Easy',
-      description: 'Understand lambda expression syntax variations, type inference, parameter types, and when to use lambdas. Learn the difference between single-expression and block lambdas, and how the compiler infers types from context.',
-      examples: [
-        { input: '(x, y) -> x + y', output: 'Lambda that adds two numbers' },
-        { input: '() -> System.out.println("Hello")', output: 'Lambda with no parameters' }
-      ],
-      code: {
-        java: {
-          starterCode: `import java.util.*;
-import java.util.function.*;
-
-public class LambdaSyntax {
-    // No parameters
-    public static void noParameters() {
-        Runnable r = // TODO: Lambda with no parameters
-        r.run();
-    }
-
-    // One parameter
-    public static void oneParameter() {
-        Consumer<String> c = // TODO: Lambda with one parameter
-        c.accept("Hello");
-    }
-
-    // Multiple parameters
-    public static void multipleParameters() {
-        BiFunction<Integer, Integer, Integer> add =
-            // TODO: Lambda with two parameters
-        System.out.println(add.apply(5, 3));
-    }
-
-    // Block lambda
-    public static void blockLambda() {
-        Function<String, String> process =
-            // TODO: Lambda with multiple statements
-        System.out.println(process.apply("hello"));
-    }
-}`,
-          solution: `import java.util.*;
-import java.util.function.*;
-
-public class LambdaSyntax {
-    // No parameters
-    public static void noParameters() {
-        // Single expression
-        Runnable r1 = () -> System.out.println("No params");
-
-        // Block
-        Runnable r2 = () -> {
-            System.out.println("Block");
-            System.out.println("Multiple statements");
-        };
-
-        r1.run();
-        r2.run();
-    }
-
-    // One parameter - parentheses optional
-    public static void oneParameter() {
-        // Without parentheses
-        Consumer<String> c1 = s -> System.out.println(s);
-
-        // With parentheses
-        Consumer<String> c2 = (s) -> System.out.println(s);
-
-        // With type
-        Consumer<String> c3 = (String s) -> System.out.println(s);
-
-        c1.accept("Hello");
-    }
-
-    // Multiple parameters - parentheses required
-    public static void multipleParameters() {
-        // Without types (type inference)
-        BiFunction<Integer, Integer, Integer> add1 =
-            (x, y) -> x + y;
-
-        // With types
-        BiFunction<Integer, Integer, Integer> add2 =
-            (Integer x, Integer y) -> x + y;
-
-        System.out.println("Sum: " + add1.apply(5, 3));
-    }
-
-    // Block lambda - requires explicit return
-    public static void blockLambda() {
-        Function<String, String> process = s -> {
-            String upper = s.toUpperCase();
-            String reversed = new StringBuilder(upper).reverse().toString();
-            return reversed;  // Explicit return needed
-        };
-
-        System.out.println(process.apply("hello"));
-    }
-
-    public static void main(String[] args) {
-        System.out.println("=== No Parameters ===");
-        noParameters();
-
-        System.out.println("\\n=== One Parameter ===");
-        oneParameter();
-
-        System.out.println("\\n=== Multiple Parameters ===");
-        multipleParameters();
-
-        System.out.println("\\n=== Block Lambda ===");
-        blockLambda();
-    }
+const LAMBDAS_COLORS = {
+  primary: '#a855f7',           // Purple - main accent color
+  primaryHover: '#c084fc',      // Hover state
+  bg: 'rgba(168, 85, 247, 0.1)', // Background with transparency
+  border: 'rgba(168, 85, 247, 0.3)', // Border color
+  arrow: '#a855f7',             // Arrow/indicator color
+  hoverBg: 'rgba(168, 85, 247, 0.2)', // Hover background
+  topicBg: 'rgba(168, 85, 247, 0.2)'  // Topic card background
 }
 
-// Time: O(1) to create lambda, O(depends) to execute
-// Space: O(1)
-// Lambdas are instances of functional interfaces`
+const SUBTOPIC_COLORS = [
+  { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)' },   // purple
+  { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },   // blue
+  { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' },     // green
+  { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' },   // amber
+  { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)' },   // pink
+  { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },     // cyan
+]
+
+// =============================================================================
+// SVG DIAGRAM COMPONENTS
+// =============================================================================
+
+const LambdaSyntaxDiagram = () => (
+  <svg viewBox="0 0 800 280" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="lambdaArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#8b5cf6" />
+      </marker>
+      <linearGradient id="lambdaGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#a78bfa" />
+      </linearGradient>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">
+      Lambda Expression Syntax
+    </text>
+
+    {/* Parameters Box */}
+    <rect x="50" y="60" width="160" height="60" rx="8" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="130" y="85" textAnchor="middle" fill="#a78bfa" fontSize="12" fontWeight="bold">Parameters</text>
+    <text x="130" y="105" textAnchor="middle" fill="#94a3b8" fontSize="10">(x, y) or x or ()</text>
+
+    {/* Arrow Operator */}
+    <rect x="260" y="60" width="80" height="60" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="300" y="85" textAnchor="middle" fill="#fbbf24" fontSize="14" fontWeight="bold">-&gt;</text>
+    <text x="300" y="105" textAnchor="middle" fill="#94a3b8" fontSize="10">Arrow</text>
+
+    {/* Body Box */}
+    <rect x="390" y="60" width="180" height="60" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="480" y="85" textAnchor="middle" fill="#4ade80" fontSize="12" fontWeight="bold">Body</text>
+    <text x="480" y="105" textAnchor="middle" fill="#94a3b8" fontSize="10">expression or {'{'}...{'}'}</text>
+
+    {/* Result */}
+    <rect x="620" y="60" width="130" height="60" rx="8" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="685" y="85" textAnchor="middle" fill="#60a5fa" fontSize="12" fontWeight="bold">Result</text>
+    <text x="685" y="105" textAnchor="middle" fill="#94a3b8" fontSize="10">Functional Interface</text>
+
+    {/* Arrows */}
+    <line x1="210" y1="90" x2="255" y2="90" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#lambdaArrow)"/>
+    <line x1="340" y1="90" x2="385" y2="90" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#lambdaArrow)"/>
+    <line x1="570" y1="90" x2="615" y2="90" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#lambdaArrow)"/>
+
+    {/* Examples */}
+    <text x="50" y="160" fill="#94a3b8" fontSize="11">Examples:</text>
+
+    <rect x="50" y="175" width="220" height="35" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
+    <text x="60" y="197" fill="#a78bfa" fontSize="11" fontFamily="monospace">() -&gt; "Hello"</text>
+    <text x="180" y="197" fill="#64748b" fontSize="9">no params</text>
+
+    <rect x="290" y="175" width="220" height="35" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
+    <text x="300" y="197" fill="#a78bfa" fontSize="11" fontFamily="monospace">x -&gt; x * 2</text>
+    <text x="420" y="197" fill="#64748b" fontSize="9">one param</text>
+
+    <rect x="530" y="175" width="220" height="35" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
+    <text x="540" y="197" fill="#a78bfa" fontSize="11" fontFamily="monospace">(x, y) -&gt; x + y</text>
+    <text x="690" y="197" fill="#64748b" fontSize="9">multiple</text>
+
+    {/* Block Lambda Example */}
+    <rect x="50" y="225" width="700" height="45" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
+    <text x="60" y="252" fill="#a78bfa" fontSize="11" fontFamily="monospace">(String s) -&gt; {'{'} String upper = s.toUpperCase(); return upper; {'}'}</text>
+    <text x="620" y="252" fill="#64748b" fontSize="9">block lambda</text>
+  </svg>
+)
+
+const FunctionalInterfaceDiagram = () => (
+  <svg viewBox="0 0 800 320" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="fiArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#8b5cf6" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">
+      Core Functional Interfaces (java.util.function)
+    </text>
+
+    {/* Function */}
+    <rect x="30" y="50" width="170" height="80" rx="8" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="115" y="75" textAnchor="middle" fill="#60a5fa" fontSize="13" fontWeight="bold">Function&lt;T,R&gt;</text>
+    <text x="115" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">R apply(T t)</text>
+    <text x="115" y="115" textAnchor="middle" fill="#64748b" fontSize="9">Transform T to R</text>
+
+    {/* Consumer */}
+    <rect x="220" y="50" width="170" height="80" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="305" y="75" textAnchor="middle" fill="#4ade80" fontSize="13" fontWeight="bold">Consumer&lt;T&gt;</text>
+    <text x="305" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">void accept(T t)</text>
+    <text x="305" y="115" textAnchor="middle" fill="#64748b" fontSize="9">Consume, no return</text>
+
+    {/* Supplier */}
+    <rect x="410" y="50" width="170" height="80" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="495" y="75" textAnchor="middle" fill="#fbbf24" fontSize="13" fontWeight="bold">Supplier&lt;T&gt;</text>
+    <text x="495" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">T get()</text>
+    <text x="495" y="115" textAnchor="middle" fill="#64748b" fontSize="9">Supply value</text>
+
+    {/* Predicate */}
+    <rect x="600" y="50" width="170" height="80" rx="8" fill="rgba(236, 72, 153, 0.2)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="685" y="75" textAnchor="middle" fill="#f472b6" fontSize="13" fontWeight="bold">Predicate&lt;T&gt;</text>
+    <text x="685" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">boolean test(T t)</text>
+    <text x="685" y="115" textAnchor="middle" fill="#64748b" fontSize="9">Test condition</text>
+
+    {/* BiFunction */}
+    <rect x="30" y="150" width="170" height="80" rx="8" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="115" y="175" textAnchor="middle" fill="#a78bfa" fontSize="12" fontWeight="bold">BiFunction&lt;T,U,R&gt;</text>
+    <text x="115" y="195" textAnchor="middle" fill="#94a3b8" fontSize="10">R apply(T t, U u)</text>
+    <text x="115" y="215" textAnchor="middle" fill="#64748b" fontSize="9">Two inputs</text>
+
+    {/* UnaryOperator */}
+    <rect x="220" y="150" width="170" height="80" rx="8" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="305" y="175" textAnchor="middle" fill="#22d3ee" fontSize="12" fontWeight="bold">UnaryOperator&lt;T&gt;</text>
+    <text x="305" y="195" textAnchor="middle" fill="#94a3b8" fontSize="10">T apply(T t)</text>
+    <text x="305" y="215" textAnchor="middle" fill="#64748b" fontSize="9">Same type in/out</text>
+
+    {/* BinaryOperator */}
+    <rect x="410" y="150" width="170" height="80" rx="8" fill="rgba(249, 115, 22, 0.2)" stroke="#f97316" strokeWidth="2"/>
+    <text x="495" y="175" textAnchor="middle" fill="#fb923c" fontSize="12" fontWeight="bold">BinaryOperator&lt;T&gt;</text>
+    <text x="495" y="195" textAnchor="middle" fill="#94a3b8" fontSize="10">T apply(T t1, T t2)</text>
+    <text x="495" y="215" textAnchor="middle" fill="#64748b" fontSize="9">Two same type</text>
+
+    {/* Runnable */}
+    <rect x="600" y="150" width="170" height="80" rx="8" fill="rgba(148, 163, 184, 0.2)" stroke="#94a3b8" strokeWidth="2"/>
+    <text x="685" y="175" textAnchor="middle" fill="#cbd5e1" fontSize="13" fontWeight="bold">Runnable</text>
+    <text x="685" y="195" textAnchor="middle" fill="#94a3b8" fontSize="10">void run()</text>
+    <text x="685" y="215" textAnchor="middle" fill="#64748b" fontSize="9">No input/output</text>
+
+    {/* @FunctionalInterface annotation */}
+    <rect x="250" y="255" width="300" height="50" rx="8" fill="rgba(139, 92, 246, 0.1)" stroke="#8b5cf640" strokeWidth="1" strokeDasharray="4"/>
+    <text x="400" y="278" textAnchor="middle" fill="#a78bfa" fontSize="11">@FunctionalInterface</text>
+    <text x="400" y="295" textAnchor="middle" fill="#64748b" fontSize="10">Exactly one abstract method</text>
+  </svg>
+)
+
+const MethodReferenceDiagram = () => (
+  <svg viewBox="0 0 800 300" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="mrArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#8b5cf6" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">
+      Four Types of Method References
+    </text>
+
+    {/* Type 1: Static */}
+    <rect x="30" y="50" width="170" height="100" rx="8" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="115" y="75" textAnchor="middle" fill="#60a5fa" fontSize="12" fontWeight="bold">Static Method</text>
+    <text x="115" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">Class::staticMethod</text>
+    <rect x="45" y="110" width="140" height="28" rx="4" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
+    <text x="115" y="128" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">Integer::parseInt</text>
+
+    {/* Type 2: Instance on object */}
+    <rect x="220" y="50" width="170" height="100" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="305" y="75" textAnchor="middle" fill="#4ade80" fontSize="12" fontWeight="bold">Instance Method</text>
+    <text x="305" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">instance::method</text>
+    <rect x="235" y="110" width="140" height="28" rx="4" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
+    <text x="305" y="128" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">System.out::println</text>
+
+    {/* Type 3: Instance on arbitrary */}
+    <rect x="410" y="50" width="170" height="100" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="495" y="75" textAnchor="middle" fill="#fbbf24" fontSize="12" fontWeight="bold">Arbitrary Object</text>
+    <text x="495" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">Class::instanceMethod</text>
+    <rect x="425" y="110" width="140" height="28" rx="4" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
+    <text x="495" y="128" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">String::toUpperCase</text>
+
+    {/* Type 4: Constructor */}
+    <rect x="600" y="50" width="170" height="100" rx="8" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="685" y="75" textAnchor="middle" fill="#a78bfa" fontSize="12" fontWeight="bold">Constructor</text>
+    <text x="685" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">Class::new</text>
+    <rect x="615" y="110" width="140" height="28" rx="4" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
+    <text x="685" y="128" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">ArrayList::new</text>
+
+    {/* Lambda to Method Reference */}
+    <text x="400" y="190" textAnchor="middle" fill="#94a3b8" fontSize="12">Lambda to Method Reference Conversion</text>
+
+    <rect x="80" y="210" width="280" height="35" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
+    <text x="220" y="232" textAnchor="middle" fill="#94a3b8" fontSize="10" fontFamily="monospace">s -&gt; Integer.parseInt(s)</text>
+
+    <line x1="365" y1="227" x2="430" y2="227" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#mrArrow)"/>
+    <text x="397" y="220" textAnchor="middle" fill="#8b5cf6" fontSize="10">converts to</text>
+
+    <rect x="440" y="210" width="280" height="35" rx="6" fill="rgba(139, 92, 246, 0.15)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="580" y="232" textAnchor="middle" fill="#a78bfa" fontSize="10" fontFamily="monospace">Integer::parseInt</text>
+
+    {/* Note */}
+    <text x="400" y="275" textAnchor="middle" fill="#64748b" fontSize="10">
+      Use method references when lambda just calls a single method with same parameters
+    </text>
+  </svg>
+)
+
+const CollectionOperationsDiagram = () => (
+  <svg viewBox="0 0 800 280" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="colArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#8b5cf6" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">
+      Lambda Collection Operations
+    </text>
+
+    {/* forEach */}
+    <rect x="30" y="50" width="170" height="90" rx="8" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="115" y="75" textAnchor="middle" fill="#60a5fa" fontSize="13" fontWeight="bold">forEach</text>
+    <text x="115" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">Iterate each element</text>
+    <rect x="45" y="105" width="140" height="24" rx="4" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
+    <text x="115" y="121" textAnchor="middle" fill="#a78bfa" fontSize="8" fontFamily="monospace">list.forEach(x -&gt; print(x))</text>
+
+    {/* removeIf */}
+    <rect x="220" y="50" width="170" height="90" rx="8" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="305" y="75" textAnchor="middle" fill="#f87171" fontSize="13" fontWeight="bold">removeIf</text>
+    <text x="305" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">Conditional removal</text>
+    <rect x="235" y="105" width="140" height="24" rx="4" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
+    <text x="305" y="121" textAnchor="middle" fill="#a78bfa" fontSize="8" fontFamily="monospace">list.removeIf(x -&gt; x &lt; 0)</text>
+
+    {/* sort */}
+    <rect x="410" y="50" width="170" height="90" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="495" y="75" textAnchor="middle" fill="#4ade80" fontSize="13" fontWeight="bold">sort</text>
+    <text x="495" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">Custom comparator</text>
+    <rect x="425" y="105" width="140" height="24" rx="4" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
+    <text x="495" y="121" textAnchor="middle" fill="#a78bfa" fontSize="8" fontFamily="monospace">list.sort((a,b) -&gt; a-b)</text>
+
+    {/* replaceAll */}
+    <rect x="600" y="50" width="170" height="90" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="685" y="75" textAnchor="middle" fill="#fbbf24" fontSize="13" fontWeight="bold">replaceAll</text>
+    <text x="685" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">Transform in place</text>
+    <rect x="615" y="105" width="140" height="24" rx="4" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
+    <text x="685" y="121" textAnchor="middle" fill="#a78bfa" fontSize="8" fontFamily="monospace">list.replaceAll(x -&gt; x*2)</text>
+
+    {/* Flow diagram */}
+    <text x="400" y="175" textAnchor="middle" fill="#94a3b8" fontSize="12">Collection Pipeline Example</text>
+
+    <rect x="50" y="195" width="100" height="40" rx="6" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="100" y="220" textAnchor="middle" fill="#a78bfa" fontSize="10">[1,2,3,4,5]</text>
+
+    <line x1="150" y1="215" x2="185" y2="215" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#colArrow)"/>
+
+    <rect x="190" y="195" width="120" height="40" rx="6" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="250" y="220" textAnchor="middle" fill="#f87171" fontSize="9">removeIf(odd)</text>
+
+    <line x1="310" y1="215" x2="345" y2="215" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#colArrow)"/>
+
+    <rect x="350" y="195" width="100" height="40" rx="6" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="400" y="220" textAnchor="middle" fill="#fbbf24" fontSize="9">replaceAll(*2)</text>
+
+    <line x1="450" y1="215" x2="485" y2="215" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#colArrow)"/>
+
+    <rect x="490" y="195" width="100" height="40" rx="6" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="540" y="220" textAnchor="middle" fill="#4ade80" fontSize="9">sort(desc)</text>
+
+    <line x1="590" y1="215" x2="625" y2="215" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#colArrow)"/>
+
+    <rect x="630" y="195" width="120" height="40" rx="6" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="690" y="220" textAnchor="middle" fill="#a78bfa" fontSize="10">[8,4]</text>
+
+    <text x="400" y="265" textAnchor="middle" fill="#64748b" fontSize="10">In-place operations modify the original collection</text>
+  </svg>
+)
+
+const HigherOrderFunctionsDiagram = () => (
+  <svg viewBox="0 0 800 300" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="hofArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#8b5cf6" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">
+      Higher-Order Functions
+    </text>
+
+    {/* Function that accepts function */}
+    <rect x="30" y="50" width="350" height="100" rx="8" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="205" y="75" textAnchor="middle" fill="#60a5fa" fontSize="12" fontWeight="bold">Function as Parameter</text>
+    <rect x="45" y="90" width="320" height="50" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
+    <text x="205" y="112" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">int applyTwice(Function&lt;Integer, Integer&gt; f, int x) {'{'}</text>
+    <text x="205" y="128" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">    return f.apply(f.apply(x));</text>
+
+    {/* Function that returns function */}
+    <rect x="420" y="50" width="350" height="100" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="595" y="75" textAnchor="middle" fill="#4ade80" fontSize="12" fontWeight="bold">Function as Return Value (Currying)</text>
+    <rect x="435" y="90" width="320" height="50" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
+    <text x="595" y="112" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">Function&lt;Integer, Integer&gt; add(int x) {'{'}</text>
+    <text x="595" y="128" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">    return y -&gt; x + y;</text>
+
+    {/* Composition */}
+    <text x="400" y="180" textAnchor="middle" fill="#94a3b8" fontSize="12">Function Composition</text>
+
+    <rect x="50" y="200" width="140" height="50" rx="8" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="120" y="225" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">f: x -&gt; x + 2</text>
+    <text x="120" y="240" textAnchor="middle" fill="#64748b" fontSize="9">add 2</text>
+
+    <rect x="230" y="200" width="140" height="50" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="300" y="225" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">g: x -&gt; x * 3</text>
+    <text x="300" y="240" textAnchor="middle" fill="#64748b" fontSize="9">multiply by 3</text>
+
+    {/* compose */}
+    <rect x="420" y="195" width="160" height="30" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="1"/>
+    <text x="500" y="215" textAnchor="middle" fill="#60a5fa" fontSize="9">f.compose(g) = f(g(x))</text>
+    <text x="620" y="215" textAnchor="middle" fill="#94a3b8" fontSize="9">(5*3)+2 = 17</text>
+
+    {/* andThen */}
+    <rect x="420" y="230" width="160" height="30" rx="6" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="500" y="250" textAnchor="middle" fill="#4ade80" fontSize="9">f.andThen(g) = g(f(x))</text>
+    <text x="620" y="250" textAnchor="middle" fill="#94a3b8" fontSize="9">(5+2)*3 = 21</text>
+
+    <line x1="190" y1="225" x2="225" y2="225" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#hofArrow)"/>
+    <line x1="370" y1="225" x2="415" y2="210" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#hofArrow)"/>
+    <line x1="370" y1="225" x2="415" y2="245" stroke="#22c55e" strokeWidth="2" markerEnd="url(#hofArrow)"/>
+
+    <text x="400" y="285" textAnchor="middle" fill="#64748b" fontSize="10">Higher-order functions enable functional composition and code reuse</text>
+  </svg>
+)
+
+const CaptureVariablesDiagram = () => (
+  <svg viewBox="0 0 800 250" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="capArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#8b5cf6" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">
+      Variable Capture in Lambdas
+    </text>
+
+    {/* Effectively Final */}
+    <rect x="30" y="50" width="350" height="85" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="205" y="75" textAnchor="middle" fill="#4ade80" fontSize="12" fontWeight="bold">Effectively Final (Valid)</text>
+    <rect x="45" y="90" width="320" height="35" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
+    <text x="205" y="112" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">int x = 10; // never reassigned</text>
+    <text x="205" y="125" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">Runnable r = () -&gt; print(x); // OK</text>
+
+    {/* Not Effectively Final */}
+    <rect x="420" y="50" width="350" height="85" rx="8" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="595" y="75" textAnchor="middle" fill="#f87171" fontSize="12" fontWeight="bold">Not Effectively Final (Error)</text>
+    <rect x="435" y="90" width="320" height="35" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
+    <text x="595" y="112" textAnchor="middle" fill="#f87171" fontSize="9" fontFamily="monospace">int x = 10; x = 20; // reassigned</text>
+    <text x="595" y="125" textAnchor="middle" fill="#f87171" fontSize="9" fontFamily="monospace">Runnable r = () -&gt; print(x); // ERROR</text>
+
+    {/* Workaround */}
+    <rect x="140" y="155" width="520" height="80" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="400" y="180" textAnchor="middle" fill="#fbbf24" fontSize="12" fontWeight="bold">Workaround: Use Wrapper or Array</text>
+    <rect x="155" y="195" width="490" height="30" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
+    <text x="400" y="215" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">int[] counter = {'{'}0{'}'}; list.forEach(x -&gt; counter[0]++); // Array ref is final</text>
+  </svg>
+)
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
+
+function Lambdas({ onBack, breadcrumb }) {
+  const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
+  const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+
+  // =============================================================================
+  // CONCEPTS DATA
+  // =============================================================================
+
+  const concepts = [
+    {
+      id: 'lambda-syntax',
+      name: 'Lambda Syntax',
+      icon: '\u03BB',
+      color: '#8b5cf6',
+      description: 'Understand lambda expression syntax variations, type inference, parameter types, and when to use lambdas vs anonymous classes.',
+      diagram: LambdaSyntaxDiagram,
+      details: [
+        {
+          name: 'Basic Syntax',
+          diagram: LambdaSyntaxDiagram,
+          explanation: 'Lambda expressions consist of three parts: parameters, arrow operator (->), and body. The basic form is (parameters) -> expression or (parameters) -> { statements }. For single-expression lambdas, the return is implicit. For block lambdas with multiple statements, you need an explicit return statement.',
+          codeExample: `// No parameters
+Runnable r = () -> System.out.println("Hello");
+
+// One parameter (parentheses optional)
+Consumer<String> c = s -> System.out.println(s);
+
+// Multiple parameters (parentheses required)
+BiFunction<Integer, Integer, Integer> add = (x, y) -> x + y;
+
+// With explicit types
+BiFunction<Integer, Integer, Integer> add2 = (Integer x, Integer y) -> x + y;
+
+// Block lambda (explicit return required)
+Function<String, String> process = s -> {
+    String upper = s.toUpperCase();
+    String reversed = new StringBuilder(upper).reverse().toString();
+    return reversed;
+};`
         },
-        python: {
-          starterCode: `# Lambda syntax in Python
-# Python equivalent of Java lambda expressions
+        {
+          name: 'Type Inference',
+          explanation: 'The Java compiler infers parameter types from the target type (the functional interface). This is called target typing. You can omit parameter types when the compiler can infer them from context. The target type must be a functional interface - an interface with exactly one abstract method.',
+          codeExample: `// Compiler infers types from Function<String, Integer>
+Function<String, Integer> length = s -> s.length();
 
-# No parameters
-no_params = lambda: print("No params")
+// Same lambda, different target types
+Predicate<String> isEmpty = s -> s.isEmpty();
+Function<String, Boolean> isEmpty2 = s -> s.isEmpty();
 
-# One parameter
-one_param = lambda s: print(s)
+// Type inference with generics
+List<String> names = Arrays.asList("Alice", "Bob");
+names.sort((s1, s2) -> s1.compareToIgnoreCase(s2));
 
-# Multiple parameters
-add = lambda x, y: x + y
+// When inference fails, add explicit types
+BiConsumer<String, Integer> printer = (String s, Integer n) -> {
+    for (int i = 0; i < n; i++) System.out.println(s);
+};`
+        },
+        {
+          name: 'Lambda vs Anonymous Class',
+          explanation: 'Lambdas are more concise than anonymous classes but have key differences: lambdas cannot have state (fields), "this" refers to enclosing class (not the lambda), and lambdas can only implement functional interfaces. Use anonymous classes when you need state or to implement interfaces with multiple methods.',
+          codeExample: `// Anonymous class - verbose, has its own "this"
+Runnable r1 = new Runnable() {
+    @Override
+    public void run() {
+        System.out.println("Anonymous class");
+    }
+};
 
-# TODO: Implement the examples above
-`,
-          solution: `# Lambda syntax in Python
-# Python equivalent of Java lambda expressions
+// Lambda - concise, "this" refers to enclosing class
+Runnable r2 = () -> System.out.println("Lambda");
 
-# No parameters
-no_params = lambda: print("No params")
-no_params()
+// Anonymous class needed for non-functional interfaces
+MouseListener listener = new MouseAdapter() {
+    @Override
+    public void mouseClicked(MouseEvent e) { }
+    @Override
+    public void mousePressed(MouseEvent e) { }
+};
 
-# One parameter (no parens needed for single param)
-one_param = lambda s: print(s)
-one_param("Hello")
-
-# Multiple parameters
-add = lambda x, y: x + y
-print(f"Sum: {add(5, 3)}")
-
-# Multi-line lambda equivalent (use def for multiple statements)
-def process(s):
-    upper = s.upper()
-    reversed_str = upper[::-1]
-    return reversed_str
-
-print(process("hello"))
-
-# Python lambdas are always single expressions
-# Use def for multiple statements`
+// "this" difference
+class Outer {
+    Runnable lambda = () -> System.out.println(this); // Prints Outer
+    Runnable anon = new Runnable() {
+        public void run() { System.out.println(this); } // Prints anon class
+    };
+}`
         }
-      },
-      explanation: 'Lambdas are anonymous functions that replace verbose anonymous classes. Key syntax rules: () -> expression for no params, x -> expression for one param (parens optional), (x, y) -> expression for multiple params. Block lambdas require explicit return.',
-      timeComplexity: 'O(1)',
-      spaceComplexity: 'O(1)'
+      ]
     },
     {
-      id: 2,
-      title: 'Lambda Expressions with Collections',
-      difficulty: 'Easy',
-      description: 'Apply lambdas to common collection operations: forEach, removeIf, sort, replaceAll. Learn how lambdas make collection manipulation more concise and readable compared to traditional approaches.',
-      examples: [
-        { input: 'List<String> names = ["Alice", "Bob", "Charlie"]', output: 'names.forEach(name -> System.out.println(name))' }
-      ],
-      code: {
-        java: {
-          starterCode: `import java.util.*;
+      id: 'functional-interfaces',
+      name: 'Functional Interfaces',
+      icon: '@',
+      color: '#3b82f6',
+      description: 'Master the core functional interfaces in java.util.function: Function, Consumer, Supplier, Predicate, and their variants.',
+      diagram: FunctionalInterfaceDiagram,
+      details: [
+        {
+          name: 'Core Interfaces',
+          diagram: FunctionalInterfaceDiagram,
+          explanation: 'Java provides four core functional interfaces: Function<T,R> transforms T to R with apply(). Consumer<T> accepts T and returns nothing with accept(). Supplier<T> provides T with no input via get(). Predicate<T> tests T and returns boolean via test(). These are the building blocks for functional programming in Java.',
+          codeExample: `import java.util.function.*;
 
-public class LambdasWithCollections {
-    // Iterate with forEach
-    public static void iterateList(List<String> list) {
-        // TODO: Use forEach with lambda
-    }
+// Function<T, R> - transforms input to output
+Function<String, Integer> length = s -> s.length();
+System.out.println(length.apply("Hello")); // 5
 
-    // Remove elements with removeIf
-    public static void removeEvens(List<Integer> list) {
-        // TODO: Use removeIf with lambda
-    }
+// Consumer<T> - consumes input, no return
+Consumer<String> printer = s -> System.out.println(s);
+printer.accept("Hello"); // prints "Hello"
 
-    // Sort with lambda comparator
-    public static void sortByLength(List<String> list) {
-        // TODO: Sort by string length using lambda
-    }
+// Supplier<T> - supplies value, no input
+Supplier<Double> random = () -> Math.random();
+System.out.println(random.get()); // random number
 
-    // Transform with replaceAll
-    public static void toUpperCase(List<String> list) {
-        // TODO: Convert all to uppercase using replaceAll
-    }
-}`,
-          solution: `import java.util.*;
-import java.util.function.*;
-
-public class LambdasWithCollections {
-    // forEach - iterate elements
-    public static void iterateList(List<String> list) {
-        // Lambda
-        list.forEach(s -> System.out.println(s));
-
-        // Method reference
-        list.forEach(System.out::println);
-    }
-
-    // removeIf - conditional removal
-    public static void removeEvens(List<Integer> list) {
-        list.removeIf(n -> n % 2 == 0);
-        System.out.println("After removing evens: " + list);
-    }
-
-    // sort - custom comparator
-    public static void sortByLength(List<String> list) {
-        // Lambda comparator
-        list.sort((s1, s2) -> s1.length() - s2.length());
-
-        // Or with Comparator.comparing
-        list.sort(Comparator.comparing(String::length));
-
-        System.out.println("Sorted by length: " + list);
-    }
-
-    // replaceAll - transform in place
-    public static void toUpperCase(List<String> list) {
-        list.replaceAll(s -> s.toUpperCase());
-
-        // Or method reference
-        list.replaceAll(String::toUpperCase);
-
-        System.out.println("Uppercase: " + list);
-    }
-
-    public static void main(String[] args) {
-        List<String> names = new ArrayList<>(
-            Arrays.asList("Alice", "Bob", "Charlie")
-        );
-
-        System.out.println("=== forEach ===");
-        iterateList(names);
-
-        System.out.println("\\n=== removeIf ===");
-        List<Integer> numbers = new ArrayList<>(
-            Arrays.asList(1, 2, 3, 4, 5, 6)
-        );
-        removeEvens(numbers);
-
-        System.out.println("\\n=== sort ===");
-        List<String> words = new ArrayList<>(
-            Arrays.asList("a", "aaa", "aa", "aaaa")
-        );
-        sortByLength(words);
-
-        System.out.println("\\n=== replaceAll ===");
-        toUpperCase(names);
-    }
-}
-
-// Time: Varies by operation (forEach: O(n), sort: O(n log n))
-// Space: O(1) for in-place operations
-// Lambdas make code more concise and readable`
+// Predicate<T> - tests condition
+Predicate<Integer> isPositive = n -> n > 0;
+System.out.println(isPositive.test(5)); // true`
         },
-        python: {
-          starterCode: `# Collection operations with lambda in Python
+        {
+          name: 'Bi-Variants',
+          explanation: 'For operations with two inputs, Java provides bi-variants: BiFunction<T,U,R> takes two inputs and returns a result. BiConsumer<T,U> accepts two inputs with no return. BiPredicate<T,U> tests two inputs. These are essential for operations like map merging and comparisons.',
+          codeExample: `import java.util.function.*;
 
-names = ["Alice", "Bob", "Charlie"]
+// BiFunction<T, U, R> - two inputs, one output
+BiFunction<String, String, String> concat = (a, b) -> a + b;
+System.out.println(concat.apply("Hello", " World")); // "Hello World"
 
-# TODO: Iterate with lambda/for loop
+// BiConsumer<T, U> - two inputs, no output
+BiConsumer<String, Integer> repeat = (s, n) -> {
+    for (int i = 0; i < n; i++) System.out.print(s);
+};
+repeat.accept("Hi", 3); // "HiHiHi"
 
-# TODO: Remove elements
+// BiPredicate<T, U> - two inputs, boolean output
+BiPredicate<String, String> startsWith = (s, prefix) -> s.startsWith(prefix);
+System.out.println(startsWith.test("Hello", "He")); // true
 
-# TODO: Sort by length
+// Used in Map operations
+Map<String, Integer> scores = new HashMap<>();
+scores.merge("Alice", 10, (old, add) -> old + add);`
+        },
+        {
+          name: 'Operators',
+          explanation: 'UnaryOperator<T> and BinaryOperator<T> are specialized versions where input and output types are the same. UnaryOperator extends Function<T,T> and BinaryOperator extends BiFunction<T,T,T>. These are commonly used with streams and collection operations.',
+          codeExample: `import java.util.function.*;
 
-# TODO: Transform to uppercase
-`,
-          solution: `# Collection operations with lambda in Python
+// UnaryOperator<T> - same type in and out
+UnaryOperator<Integer> square = x -> x * x;
+System.out.println(square.apply(5)); // 25
 
-names = ["Alice", "Bob", "Charlie"]
+// Used with replaceAll
+List<String> names = new ArrayList<>(Arrays.asList("alice", "bob"));
+names.replaceAll(String::toUpperCase); // ["ALICE", "BOB"]
 
-# Iterate (Python doesn't have forEach, use for or map)
-for name in names:
-    print(name)
+// BinaryOperator<T> - two same-type inputs, same-type output
+BinaryOperator<Integer> max = (a, b) -> a > b ? a : b;
+System.out.println(max.apply(5, 3)); // 5
 
-# Remove elements (filter for non-evens)
-numbers = [1, 2, 3, 4, 5, 6]
-odds = [n for n in numbers if n % 2 != 0]
-print(f"After removing evens: {odds}")
+// Used with reduce
+List<Integer> numbers = Arrays.asList(1, 2, 3, 4);
+int sum = numbers.stream().reduce(0, (a, b) -> a + b);
+System.out.println(sum); // 10`
+        },
+        {
+          name: 'Primitive Specializations',
+          explanation: 'To avoid boxing overhead, Java provides primitive-specialized interfaces: IntFunction, LongFunction, DoubleFunction for primitives to objects. IntConsumer, IntSupplier, IntPredicate for int operations. ToIntFunction, ToLongFunction, ToDoubleFunction for object to primitive conversion.',
+          codeExample: `import java.util.function.*;
 
-# Sort by length
-words = ["a", "aaa", "aa", "aaaa"]
-words.sort(key=lambda s: len(s))
-print(f"Sorted by length: {words}")
+// Primitive consumer - avoids boxing
+IntConsumer printInt = n -> System.out.println(n);
+printInt.accept(42);
 
-# Transform to uppercase
-names_upper = [s.upper() for s in names]
-# Or with map
-names_upper2 = list(map(str.upper, names))
-print(f"Uppercase: {names_upper}")`
+// Primitive supplier
+IntSupplier randomInt = () -> (int)(Math.random() * 100);
+System.out.println(randomInt.getAsInt());
+
+// Primitive predicate
+IntPredicate isEven = n -> n % 2 == 0;
+System.out.println(isEven.test(4)); // true
+
+// Object to primitive
+ToIntFunction<String> stringLength = s -> s.length();
+System.out.println(stringLength.applyAsInt("Hello")); // 5
+
+// Primitive to object
+IntFunction<String> intToString = n -> "Number: " + n;
+System.out.println(intToString.apply(42)); // "Number: 42"`
         }
-      },
-      explanation: 'Use forEach for iteration, removeIf for conditional removal (O(n)), sort for custom ordering (O(n log n)), and replaceAll for in-place transformation (O(n)). Lambdas enable concise, functional-style collection operations.',
-      timeComplexity: 'O(n) for forEach/removeIf/replaceAll, O(n log n) for sort',
-      spaceComplexity: 'O(1)'
+      ]
     },
     {
-      id: 3,
-      title: 'Method References',
-      difficulty: 'Medium',
-      description: 'Master method references as shorthand for lambdas. Learn the four types: static method, instance method on particular object, instance method on arbitrary object, and constructor references. Understand when method references are clearer than lambdas.',
-      examples: [
-        { input: 'list.forEach(System.out::println)', output: 'Instance method reference' },
-        { input: 'String::valueOf', output: 'Static method reference' }
-      ],
-      code: {
-        java: {
-          starterCode: `import java.util.*;
+      id: 'method-references',
+      name: 'Method References',
+      icon: '::',
+      color: '#22c55e',
+      description: 'Master method references as shorthand for lambdas. Learn the four types: static, instance, arbitrary object, and constructor references.',
+      diagram: MethodReferenceDiagram,
+      details: [
+        {
+          name: 'Four Types',
+          diagram: MethodReferenceDiagram,
+          explanation: 'Method references are shorthand for lambdas that just call one method. Four types: 1) Static: Class::staticMethod (e.g., Integer::parseInt), 2) Instance on specific object: instance::method (e.g., System.out::println), 3) Instance on arbitrary object: Class::instanceMethod (e.g., String::toUpperCase), 4) Constructor: Class::new (e.g., ArrayList::new).',
+          codeExample: `import java.util.*;
 import java.util.function.*;
 
-public class MethodReferences {
-    // Static method reference
-    public static void staticMethodRef() {
-        List<String> numbers = Arrays.asList("1", "2", "3");
+// Type 1: Static method reference
+// Lambda: s -> Integer.parseInt(s)
+Function<String, Integer> parse = Integer::parseInt;
 
-        // Lambda
-        List<Integer> parsed1 = numbers.stream()
-            .map(s -> Integer.parseInt(s))
-            .toList();
+// Type 2: Instance method on specific object
+// Lambda: s -> System.out.println(s)
+Consumer<String> print = System.out::println;
 
-        // TODO: Convert to method reference
-        List<Integer> parsed2 = numbers.stream()
-            .map(/* TODO */)
-            .toList();
-    }
+// Type 3: Instance method on arbitrary object
+// Lambda: s -> s.toUpperCase()
+Function<String, String> upper = String::toUpperCase;
 
-    // Instance method reference
-    public static void instanceMethodRef() {
-        List<String> strings = Arrays.asList("a", "b", "c");
+// Type 4: Constructor reference
+// Lambda: () -> new ArrayList<>()
+Supplier<List<String>> listFactory = ArrayList::new;
 
-        // TODO: Use method reference to print
-        strings.forEach(/* TODO */);
-    }
-
-    // Constructor reference
-    public static void constructorRef() {
-        List<String> strings = Arrays.asList("a", "b", "c");
-
-        // TODO: Convert strings to ArrayList using constructor reference
-    }
-}`,
-          solution: `import java.util.*;
-import java.util.function.*;
+// Array constructor reference
+// Lambda: n -> new String[n]
+IntFunction<String[]> arrayFactory = String[]::new;`
+        },
+        {
+          name: 'With Streams',
+          explanation: 'Method references shine with Stream operations. They make code more readable when the lambda simply delegates to an existing method. Common uses include map() for transformations, filter() with method predicates, forEach() for side effects, and collect() with collector factories.',
+          codeExample: `import java.util.*;
 import java.util.stream.*;
 
-public class MethodReferences {
-    // Type 1: Static method reference (Class::staticMethod)
-    public static void staticMethodRef() {
-        List<String> numbers = Arrays.asList("1", "2", "3");
+List<String> names = Arrays.asList("alice", "bob", "charlie");
 
-        // Lambda
-        numbers.stream()
-            .map(s -> Integer.parseInt(s))
-            .forEach(System.out::println);
+// Static method reference in map
+List<Integer> lengths = names.stream()
+    .map(String::length)  // s -> s.length()
+    .toList();
 
-        // Static method reference
-        numbers.stream()
-            .map(Integer::parseInt)  // Reference to static method
-            .forEach(System.out::println);
+// Instance method reference in forEach
+names.forEach(System.out::println);  // s -> System.out.println(s)
 
-        // More examples
-        List<Double> doubles = Arrays.asList(1.5, 2.7, 3.2);
-        doubles.stream()
-            .map(Math::ceil)  // Math.ceil is static
-            .forEach(System.out::println);
-    }
+// Arbitrary object method reference
+List<String> upperNames = names.stream()
+    .map(String::toUpperCase)  // s -> s.toUpperCase()
+    .toList();
 
-    // Type 2: Instance method reference (instance::instanceMethod)
-    public static void instanceMethodRef() {
-        String prefix = "Hello, ";
+// Constructor reference in collect
+List<String> list = names.stream()
+    .collect(Collectors.toCollection(ArrayList::new));
 
-        List<String> names = Arrays.asList("Alice", "Bob");
-
-        // Lambda
-        names.stream()
-            .map(name -> prefix.concat(name))
-            .forEach(System.out::println);
-
-        // Instance method reference
-        names.stream()
-            .map(prefix::concat)  // Reference to instance method
-            .forEach(System.out::println);
-
-        // Another example
-        List<String> strings = Arrays.asList("a", "b", "c");
-        strings.forEach(System.out::println);  // System.out is instance
-    }
-
-    // Type 3: Instance method of arbitrary object (Class::instanceMethod)
-    public static void arbitraryObjectMethodRef() {
-        List<String> words = Arrays.asList("apple", "banana", "cherry");
-
-        // Lambda
-        words.stream()
-            .map(s -> s.toUpperCase())
-            .forEach(System.out::println);
-
-        // Method reference on arbitrary object
-        words.stream()
-            .map(String::toUpperCase)  // Called on each string
-            .forEach(System.out::println);
-
-        // Sorting example
-        words.sort((s1, s2) -> s1.compareToIgnoreCase(s2));  // Lambda
-        words.sort(String::compareToIgnoreCase);  // Method reference
-    }
-
-    // Type 4: Constructor reference (Class::new)
-    public static void constructorRef() {
-        List<String> strings = Arrays.asList("a", "b", "c");
-
-        // Lambda creating ArrayList
-        Supplier<List<String>> supplier1 = () -> new ArrayList<>();
-
-        // Constructor reference
-        Supplier<List<String>> supplier2 = ArrayList::new;
-
-        // With streams
-        List<String> list = strings.stream()
-            .collect(Collectors.toCollection(ArrayList::new));
-
-        // Array constructor reference
-        String[] array = strings.stream()
-            .toArray(String[]::new);  // String[]::new is array constructor
-
-        System.out.println("List: " + list);
-        System.out.println("Array: " + Arrays.toString(array));
-    }
-
-    public static void main(String[] args) {
-        System.out.println("=== Static Method Reference ===");
-        staticMethodRef();
-
-        System.out.println("\\n=== Instance Method Reference ===");
-        instanceMethodRef();
-
-        System.out.println("\\n=== Arbitrary Object Method Reference ===");
-        arbitraryObjectMethodRef();
-
-        System.out.println("\\n=== Constructor Reference ===");
-        constructorRef();
-    }
-}
-
-// Time: Same as lambda (just syntax sugar)
-// Space: Same as lambda
-// Method references are compiled to same bytecode as equivalent lambdas`
+// Array constructor reference
+String[] array = names.stream()
+    .toArray(String[]::new);`
         },
-        python: {
-          starterCode: `# Python doesn't have exact method references like Java
-# But we can use similar concepts with function references
+        {
+          name: 'Comparator Methods',
+          explanation: 'Comparator has static methods that work beautifully with method references: comparing() extracts a key for comparison, thenComparing() for secondary sorts, reversed() to reverse order. These create readable, chainable sort specifications.',
+          codeExample: `import java.util.*;
 
-numbers = ["1", "2", "3"]
+List<Person> people = Arrays.asList(
+    new Person("Alice", 30),
+    new Person("Bob", 25),
+    new Person("Charlie", 30)
+);
 
-# TODO: Use int function as reference
-# TODO: Use str.upper as reference
-`,
-          solution: `# Python doesn't have exact method references like Java
-# But we can use similar concepts with function references
+// Sort by name using method reference
+people.sort(Comparator.comparing(Person::getName));
 
-numbers = ["1", "2", "3"]
+// Sort by age, then by name
+people.sort(Comparator
+    .comparing(Person::getAge)
+    .thenComparing(Person::getName));
 
-# Function reference (similar to static method reference)
-parsed = list(map(int, numbers))  # int is a function reference
-print(parsed)
+// Sort by age descending
+people.sort(Comparator
+    .comparing(Person::getAge)
+    .reversed());
 
-# Method reference on string class
-words = ["apple", "banana", "cherry"]
-upper_words = list(map(str.upper, words))  # str.upper as reference
-print(upper_words)
+// Null-safe comparison
+people.sort(Comparator
+    .comparing(Person::getName, Comparator.nullsLast(String::compareTo)));
 
-# Instance method reference
-prefix = "Hello, "
-names = ["Alice", "Bob"]
-# Python doesn't have direct instance method reference syntax
-# Use lambda instead
-greetings = [prefix + name for name in names]
-print(greetings)
-
-# Constructor reference (class as callable)
-lists = [list(), list(), list()]  # list is constructor reference
-print(lists)`
+// record Person(String name, int age) with getters
+class Person {
+    String name; int age;
+    Person(String n, int a) { name=n; age=a; }
+    String getName() { return name; }
+    int getAge() { return age; }
+}`
         }
-      },
-      explanation: 'Four types of method references: 1) Static (Class::staticMethod), 2) Instance of specific object (instance::method), 3) Instance of arbitrary object (Class::instanceMethod), 4) Constructor (Class::new). Use when lambda just calls one method with same parameters.',
-      timeComplexity: 'O(1)',
-      spaceComplexity: 'O(1)'
+      ]
     },
     {
-      id: 4,
-      title: 'Higher-Order Functions with Lambdas',
-      difficulty: 'Medium',
-      description: 'Build higher-order functions that accept functions as parameters or return functions. Learn function composition, currying, and building reusable functional utilities. Understand how to create flexible, composable APIs.',
-      examples: [
-        { input: 'Function<Integer, Integer> addTen = add(10)', output: 'Returns function that adds 10 to input' }
-      ],
-      code: {
-        java: {
-          starterCode: `import java.util.function.*;
+      id: 'collection-operations',
+      name: 'Collection Operations',
+      icon: '[]',
+      color: '#f59e0b',
+      description: 'Apply lambdas to common collection operations: forEach, removeIf, sort, replaceAll, and Map methods.',
+      diagram: CollectionOperationsDiagram,
+      details: [
+        {
+          name: 'List Operations',
+          diagram: CollectionOperationsDiagram,
+          explanation: 'Java 8 added default methods to Collection and List for lambda-friendly operations. forEach() iterates elements. removeIf() removes elements matching a predicate. replaceAll() transforms each element in place. sort() accepts a Comparator lambda. These methods modify the collection directly.',
+          codeExample: `import java.util.*;
 
-public class HigherOrderFunctions {
-    // Function that returns a function
-    public static Function<Integer, Integer> add(int x) {
-        // TODO: Return function that adds x to input
-        return null;
-    }
+List<String> names = new ArrayList<>(
+    Arrays.asList("Alice", "Bob", "Charlie", "David")
+);
 
-    // Function that accepts a function
-    public static int applyTwice(Function<Integer, Integer> f, int x) {
-        // TODO: Apply function twice
-        return 0;
-    }
+// forEach - iterate each element
+names.forEach(name -> System.out.println("Hello, " + name));
 
-    // Function composition
-    public static Function<Integer, Integer> compose(
-            Function<Integer, Integer> f,
-            Function<Integer, Integer> g) {
-        // TODO: Return f(g(x))
-        return null;
-    }
-}`,
-          solution: `import java.util.*;
-import java.util.function.*;
-import java.util.stream.*;
+// removeIf - conditional removal (modifies list)
+names.removeIf(name -> name.length() > 5);
+System.out.println(names); // [Alice, Bob, David]
 
-public class HigherOrderFunctions {
-    // Function that returns a function (Currying)
-    public static Function<Integer, Integer> add(int x) {
-        return y -> x + y;
-    }
+// replaceAll - transform in place
+names.replaceAll(String::toUpperCase);
+System.out.println(names); // [ALICE, BOB, DAVID]
 
-    public static Function<Integer, Integer> multiply(int x) {
-        return y -> x * y;
-    }
+// sort - custom comparator
+names.sort((a, b) -> a.length() - b.length());
+names.sort(Comparator.comparing(String::length));
+System.out.println(names); // [BOB, ALICE, DAVID]`
+        },
+        {
+          name: 'Map Operations',
+          explanation: 'Map got powerful new methods: forEach() for key-value iteration, compute() for conditional updates, computeIfAbsent() and computeIfPresent() for presence-based computation, merge() for combining values, and replaceAll() for transforming all values. These eliminate the need for manual null checks.',
+          codeExample: `import java.util.*;
 
-    // Function that accepts a function
-    public static int applyTwice(Function<Integer, Integer> f, int x) {
-        return f.apply(f.apply(x));
-    }
+Map<String, Integer> scores = new HashMap<>();
+scores.put("Alice", 90);
+scores.put("Bob", 85);
 
-    public static <T> void repeat(Consumer<T> action, T value, int times) {
-        for (int i = 0; i < times; i++) {
-            action.accept(value);
+// forEach - iterate key-value pairs
+scores.forEach((name, score) ->
+    System.out.println(name + ": " + score));
+
+// computeIfAbsent - add if missing
+scores.computeIfAbsent("Charlie", k -> 70);
+System.out.println(scores.get("Charlie")); // 70
+
+// computeIfPresent - update if present
+scores.computeIfPresent("Alice", (k, v) -> v + 5);
+System.out.println(scores.get("Alice")); // 95
+
+// merge - combine values
+scores.merge("Bob", 10, Integer::sum);
+System.out.println(scores.get("Bob")); // 95
+
+// replaceAll - transform all values
+scores.replaceAll((name, score) -> score + 5);
+
+// getOrDefault - default for missing
+int daveScore = scores.getOrDefault("Dave", 0);`
+        },
+        {
+          name: 'Iterable Default Methods',
+          explanation: 'Iterable interface gained forEach() that works on any collection. Collection gained removeIf() and stream(). List gained replaceAll() and sort(). These default methods provide functional operations without breaking backward compatibility with existing implementations.',
+          codeExample: `import java.util.*;
+
+// Iterable.forEach works on any Iterable
+Set<String> set = new HashSet<>(Arrays.asList("a", "b", "c"));
+set.forEach(System.out::println);
+
+// Collection.removeIf on any Collection
+Collection<Integer> nums = new LinkedList<>(
+    Arrays.asList(1, 2, 3, 4, 5)
+);
+nums.removeIf(n -> n % 2 == 0); // removes evens
+System.out.println(nums); // [1, 3, 5]
+
+// Works with custom collections too
+Queue<String> queue = new ArrayDeque<>();
+queue.addAll(Arrays.asList("task1", "task2", "task3"));
+queue.removeIf(task -> task.contains("2"));
+
+// Deque operations
+Deque<Integer> deque = new ArrayDeque<>();
+deque.addAll(Arrays.asList(1, 2, 3, 4, 5));
+deque.removeIf(n -> n < 3);
+System.out.println(deque); // [3, 4, 5]`
         }
-    }
+      ]
+    },
+    {
+      id: 'higher-order-functions',
+      name: 'Higher-Order Functions',
+      icon: 'f(g)',
+      color: '#ec4899',
+      description: 'Build higher-order functions that accept or return functions. Learn function composition, currying, and building reusable utilities.',
+      diagram: HigherOrderFunctionsDiagram,
+      details: [
+        {
+          name: 'Functions as Parameters',
+          diagram: HigherOrderFunctionsDiagram,
+          explanation: 'Higher-order functions accept functions as parameters, enabling powerful abstractions. You can pass different behaviors to the same algorithm. Examples include custom sorting, filtering, transformation, and event handling. This is the foundation of functional programming and the Strategy pattern.',
+          codeExample: `import java.util.function.*;
 
-    // Function composition: f(g(x))
-    public static Function<Integer, Integer> compose(
-            Function<Integer, Integer> f,
-            Function<Integer, Integer> g) {
-        return x -> f.apply(g.apply(x));
-    }
-
-    // Using built-in compose
-    public static void builtInComposition() {
-        Function<Integer, Integer> addTwo = x -> x + 2;
-        Function<Integer, Integer> multiplyThree = x -> x * 3;
-
-        // compose: f.compose(g) = f(g(x))
-        Function<Integer, Integer> composed1 =
-            addTwo.compose(multiplyThree);
-        System.out.println("compose: " + composed1.apply(5));  // (5*3)+2 = 17
-
-        // andThen: f.andThen(g) = g(f(x))
-        Function<Integer, Integer> composed2 =
-            addTwo.andThen(multiplyThree);
-        System.out.println("andThen: " + composed2.apply(5));  // (5+2)*3 = 21
-    }
-
-    // Predicate composition
-    public static void predicateComposition() {
-        Predicate<Integer> isEven = x -> x % 2 == 0;
-        Predicate<Integer> isPositive = x -> x > 0;
-
-        // and: both must be true
-        Predicate<Integer> isEvenAndPositive = isEven.and(isPositive);
-        System.out.println("4 even and positive? " +
-            isEvenAndPositive.test(4));  // true
-        System.out.println("-4 even and positive? " +
-            isEvenAndPositive.test(-4));  // false
-
-        // or: at least one must be true
-        Predicate<Integer> isEvenOrNegative = isEven.or(x -> x < 0);
-        System.out.println("3 even or negative? " +
-            isEvenOrNegative.test(3));  // false
-        System.out.println("-3 even or negative? " +
-            isEvenOrNegative.test(-3));  // true
-
-        // negate: opposite
-        Predicate<Integer> isOdd = isEven.negate();
-        System.out.println("5 is odd? " + isOdd.test(5));  // true
-    }
-
-    public static void main(String[] args) {
-        System.out.println("=== Returning Functions ===");
-        Function<Integer, Integer> add5 = add(5);
-        System.out.println("5 + 3 = " + add5.apply(3));
-
-        System.out.println("\\n=== Accepting Functions ===");
-        Function<Integer, Integer> double_ = x -> x * 2;
-        System.out.println("Apply twice: " + applyTwice(double_, 3));
-
-        System.out.println("\\n=== Composition ===");
-        builtInComposition();
-
-        System.out.println("\\n=== Predicate Composition ===");
-        predicateComposition();
+// Function that accepts a function
+public static <T> void repeat(Consumer<T> action, T value, int times) {
+    for (int i = 0; i < times; i++) {
+        action.accept(value);
     }
 }
 
-// Time: O(1) for function creation, varies for execution
-// Space: O(1) for simple functions, O(n) for memoization
-// Higher-order functions enable functional programming patterns`
+// Apply function twice
+public static <T> T applyTwice(Function<T, T> f, T value) {
+    return f.apply(f.apply(value));
+}
+
+// Usage
+repeat(System.out::println, "Hello", 3);
+
+Function<Integer, Integer> addOne = x -> x + 1;
+int result = applyTwice(addOne, 5); // 7
+
+// Filter with custom predicate
+public static <T> List<T> filter(List<T> list, Predicate<T> pred) {
+    return list.stream().filter(pred).toList();
+}
+
+List<Integer> nums = Arrays.asList(1, 2, 3, 4, 5);
+List<Integer> evens = filter(nums, n -> n % 2 == 0);`
         },
-        python: {
-          starterCode: `# Higher-order functions in Python
+        {
+          name: 'Functions as Return Values',
+          explanation: 'Functions can return other functions, enabling currying and factory patterns. Currying transforms a multi-parameter function into a chain of single-parameter functions. This allows partial application - fixing some arguments and getting a new function for the rest.',
+          codeExample: `import java.util.function.*;
 
-def add(x):
-    # TODO: Return function that adds x to input
-    pass
+// Currying: returns a function
+public static Function<Integer, Integer> add(int x) {
+    return y -> x + y;
+}
 
-def apply_twice(f, x):
-    # TODO: Apply function twice
-    pass
+public static Function<Integer, Integer> multiply(int x) {
+    return y -> x * y;
+}
 
-# TODO: Test the functions
-`,
-          solution: `# Higher-order functions in Python
+// Usage
+Function<Integer, Integer> add5 = add(5);
+System.out.println(add5.apply(3)); // 8
 
-# Function that returns a function (currying)
-def add(x):
-    return lambda y: x + y
+// Create specialized functions
+Function<Integer, Integer> double_ = multiply(2);
+Function<Integer, Integer> triple = multiply(3);
 
-def multiply(x):
-    return lambda y: x * y
+// Factory pattern
+public static Predicate<String> lengthGreaterThan(int n) {
+    return s -> s.length() > n;
+}
 
-# Function that accepts a function
-def apply_twice(f, x):
-    return f(f(x))
+Predicate<String> longer5 = lengthGreaterThan(5);
+System.out.println(longer5.test("Hello")); // false
+System.out.println(longer5.test("Hello World")); // true`
+        },
+        {
+          name: 'Function Composition',
+          explanation: 'Function composition combines functions: f.compose(g) applies g first then f (f(g(x))), while f.andThen(g) applies f first then g (g(f(x))). Predicates support and(), or(), and negate() for logical composition. This enables building complex operations from simple ones.',
+          codeExample: `import java.util.function.*;
 
-# Function composition
-def compose(f, g):
-    return lambda x: f(g(x))
+Function<Integer, Integer> addTwo = x -> x + 2;
+Function<Integer, Integer> multiplyThree = x -> x * 3;
 
-# Test
-print("=== Returning Functions ===")
-add5 = add(5)
-print(f"5 + 3 = {add5(3)}")
+// compose: f.compose(g) = f(g(x))
+Function<Integer, Integer> composed = addTwo.compose(multiplyThree);
+System.out.println(composed.apply(5)); // (5*3)+2 = 17
 
-print("\\n=== Accepting Functions ===")
-double = lambda x: x * 2
-print(f"Apply twice: {apply_twice(double, 3)}")
+// andThen: f.andThen(g) = g(f(x))
+Function<Integer, Integer> chained = addTwo.andThen(multiplyThree);
+System.out.println(chained.apply(5)); // (5+2)*3 = 21
 
-print("\\n=== Composition ===")
-add_two = lambda x: x + 2
-multiply_three = lambda x: x * 3
+// Predicate composition
+Predicate<Integer> isPositive = x -> x > 0;
+Predicate<Integer> isEven = x -> x % 2 == 0;
 
-composed = compose(add_two, multiply_three)
-print(f"compose: {composed(5)}")  # (5*3)+2 = 17
+Predicate<Integer> isPositiveEven = isPositive.and(isEven);
+Predicate<Integer> isPositiveOrEven = isPositive.or(isEven);
+Predicate<Integer> isNegative = isPositive.negate();
 
-# Python also has functools.reduce for composition
-from functools import reduce
-
-def chain(*functions):
-    def composed(x):
-        return reduce(lambda acc, f: f(acc), functions, x)
-    return composed
-
-result = chain(multiply_three, add_two)(5)  # (5*3)+2 = 17
-print(f"chain: {result}")`
+System.out.println(isPositiveEven.test(4)); // true
+System.out.println(isPositiveEven.test(-4)); // false`
         }
-      },
-      explanation: 'Higher-order functions accept or return functions. Currying transforms multi-param functions into chains of single-param functions. Composition combines functions: f.compose(g) = f(g(x)), f.andThen(g) = g(f(x)). Predicates support and(), or(), negate().',
-      timeComplexity: 'O(1) for creation, varies for execution',
-      spaceComplexity: 'O(1)'
+      ]
+    },
+    {
+      id: 'variable-capture',
+      name: 'Variable Capture',
+      icon: '{}',
+      color: '#06b6d4',
+      description: 'Understand how lambdas capture variables from enclosing scope. Learn effectively final requirements and closures.',
+      diagram: CaptureVariablesDiagram,
+      details: [
+        {
+          name: 'Effectively Final',
+          diagram: CaptureVariablesDiagram,
+          explanation: 'Lambdas can capture local variables from the enclosing scope, but only if they are "effectively final" - never reassigned after initialization. This restriction ensures thread safety and prevents confusing behavior. The variable does not need the final keyword, just must not be reassigned.',
+          codeExample: `// Valid - variable is effectively final
+int multiplier = 10;
+Function<Integer, Integer> times = x -> x * multiplier;
+System.out.println(times.apply(5)); // 50
+
+// Invalid - variable is reassigned
+int counter = 0;
+// counter++; // This would make the below lambda invalid
+// Runnable r = () -> System.out.println(counter);
+
+// Valid - final variable
+final int constant = 100;
+Supplier<Integer> getConst = () -> constant;
+
+// Valid - capture method parameter
+public static Function<Integer, Integer> createAdder(int base) {
+    return x -> x + base; // base is effectively final
+}`
+        },
+        {
+          name: 'Workarounds',
+          explanation: 'When you need mutable state in lambdas, use wrapper objects or single-element arrays. The reference is effectively final even though the contents can change. AtomicInteger and AtomicReference are thread-safe options. Instance fields can also be used since "this" is effectively final.',
+          codeExample: `import java.util.concurrent.atomic.*;
+
+// Workaround 1: Single-element array
+int[] counter = {0};
+List<Integer> nums = Arrays.asList(1, 2, 3);
+nums.forEach(n -> counter[0]++);
+System.out.println(counter[0]); // 3
+
+// Workaround 2: AtomicInteger (thread-safe)
+AtomicInteger atomicCounter = new AtomicInteger(0);
+nums.forEach(n -> atomicCounter.incrementAndGet());
+System.out.println(atomicCounter.get()); // 3
+
+// Workaround 3: Instance field
+class Counter {
+    private int count = 0;
+    public void countList(List<?> list) {
+        list.forEach(item -> count++); // "this" is effectively final
+    }
+    public int getCount() { return count; }
+}
+
+// Workaround 4: Mutable wrapper
+class Holder<T> {
+    T value;
+    Holder(T v) { value = v; }
+}`
+        },
+        {
+          name: 'Closures Explained',
+          explanation: 'A closure is a function that captures variables from its enclosing scope. In Java, lambdas create closures that capture the values of effectively final variables. The captured values persist even after the enclosing method returns, because the lambda holds references to them.',
+          codeExample: `import java.util.function.*;
+import java.util.*;
+
+// Closure captures enclosing variable
+public static Supplier<Integer> createCounter(int start) {
+    // start is captured by the lambda
+    return () -> start;
+}
+
+Supplier<Integer> counter1 = createCounter(10);
+Supplier<Integer> counter2 = createCounter(20);
+System.out.println(counter1.get()); // 10
+System.out.println(counter2.get()); // 20
+
+// Each lambda captures its own copy
+public static List<Supplier<Integer>> createSuppliers() {
+    List<Supplier<Integer>> suppliers = new ArrayList<>();
+    for (int i = 0; i < 5; i++) {
+        final int captured = i; // Each iteration captures different value
+        suppliers.add(() -> captured);
+    }
+    return suppliers;
+}
+
+List<Supplier<Integer>> suppliers = createSuppliers();
+suppliers.forEach(s -> System.out.print(s.get() + " ")); // 0 1 2 3 4`
+        }
+      ]
     }
   ]
 
-  // Calculate completion status
-  const getCompletionStats = () => {
-    const completed = questions.filter(q => isProblemCompleted(`Lambdas-${q.id}`)).length
-    return { completed, total: questions.length, percentage: Math.round((completed / questions.length) * 100) }
-  }
+  // =============================================================================
+  // NAVIGATION HANDLERS
+  // =============================================================================
 
-  const stats = getCompletionStats()
+  const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 
-  // Group questions by difficulty
-  const groupedQuestions = {
-    Easy: questions.filter(q => q.difficulty === 'Easy'),
-    Medium: questions.filter(q => q.difficulty === 'Medium'),
-    Hard: questions.filter(q => q.difficulty === 'Hard')
-  }
-
-  const selectQuestion = (question) => {
-    setSelectedQuestion(question)
-    setShowSolution(false)
-    setShowExplanation(false)
-    setUserCode(question.code[language].starterCode)
-    setOutput('')
-    setShowDrawing(false)
-  }
-
-  const toggleSection = (difficulty) => {
-    setExpandedSections(prev => ({ ...prev, [difficulty]: !prev[difficulty] }))
-  }
-
-  const getDifficultyColor = (difficulty) => {
-    switch(difficulty) {
-      case 'Easy': return '#10b981'
-      case 'Medium': return '#f59e0b'
-      case 'Hard': return '#ef4444'
-      default: return '#6b7280'
+  const handlePreviousConcept = () => {
+    if (selectedConceptIndex > 0) {
+      setSelectedConceptIndex(selectedConceptIndex - 1)
+      setSelectedDetailIndex(0)
     }
   }
 
-  if (selectedQuestion) {
-    return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', color: 'white', padding: '1.5rem' }}>
-      <div style={{ padding: '2rem', maxWidth: '1800px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap', alignItems: 'center' }}>
-          <button onClick={() => setSelectedQuestion(null)} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
-            ← Back to Java
-          </button>
-          <LanguageToggle />
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-          {/* Problem Description */}
-          <div style={{ background: 'linear-gradient(to bottom right, #1f2937, #111827)', padding: '2rem', borderRadius: '12px', border: '2px solid #374151', maxHeight: '85vh', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.75rem', color: '#fbbf24', margin: 0 }}>{selectedQuestion.title}</h2>
-              <span style={{ padding: '0.5rem 1rem', borderRadius: '12px', fontSize: '0.875rem', fontWeight: '600', backgroundColor: getDifficultyColor(selectedQuestion.difficulty) + '20', color: getDifficultyColor(selectedQuestion.difficulty) }}>
-                {selectedQuestion.difficulty}
-              </span>
-            </div>
-
-            <div style={{ marginBottom: '1.5rem' }}>
-              <CompletionCheckbox problemId={`Lambdas-${selectedQuestion.id}`} />
-            </div>
-
-            <div style={{ marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.1rem', color: '#fbbf24', marginBottom: '0.75rem' }}>Description</h3>
-              <p style={{ fontSize: '1rem', color: '#d1d5db', lineHeight: '1.6' }}>{selectedQuestion.description}</p>
-            </div>
-
-            {selectedQuestion.examples && selectedQuestion.examples.length > 0 && (
-              <div style={{ marginBottom: '1.5rem' }}>
-                <h3 style={{ fontSize: '1.1rem', color: '#fbbf24', marginBottom: '0.75rem' }}>Examples</h3>
-                {selectedQuestion.examples.map((example, idx) => (
-                  <div key={idx} style={{ background: 'linear-gradient(to bottom right, #1f2937, #111827)', padding: '1rem', borderRadius: '8px', marginBottom: '0.75rem', border: '1px solid #374151', color: '#d1d5db' }}>
-                    <div style={{ marginBottom: '0.5rem' }}>
-                      <strong style={{ color: '#fbbf24' }}>Input:</strong> <code style={{ color: '#d1d5db' }}>{example.input}</code>
-                    </div>
-                    <div>
-                      <strong style={{ color: '#fbbf24' }}>Output:</strong> <code style={{ color: '#d1d5db' }}>{example.output}</code>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {selectedQuestion.explanation && (
-              <div style={{ marginTop: '1.5rem' }}>
-                <h3 style={{ fontSize: '1.1rem', color: '#fbbf24', marginBottom: '0.75rem' }}>Explanation</h3>
-                <p style={{ fontSize: '0.95rem', color: '#d1d5db', lineHeight: '1.6' }}>{selectedQuestion.explanation}</p>
-              </div>
-            )}
-
-            {(selectedQuestion.timeComplexity || selectedQuestion.spaceComplexity) && (
-              <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'linear-gradient(to bottom right, #1f2937, #111827)', borderRadius: '8px', border: '1px solid #374151' }}>
-                <h3 style={{ fontSize: '1rem', color: '#fbbf24', marginBottom: '0.5rem' }}>Complexity</h3>
-                {selectedQuestion.timeComplexity && <div style={{ fontSize: '0.9rem', color: '#d1d5db' }}>Time: {selectedQuestion.timeComplexity}</div>}
-                {selectedQuestion.spaceComplexity && <div style={{ fontSize: '0.9rem', color: '#d1d5db' }}>Space: {selectedQuestion.spaceComplexity}</div>}
-              </div>
-            )}
-          </div>
-
-          {/* Code Editor */}
-          <div style={{ backgroundColor: '#1f2937', padding: '2rem', borderRadius: '12px', border: '2px solid #374151', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-              <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedQuestion.code[language].solution) }} style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-                {showSolution ? 'Hide' : 'Show'} Solution
-              </button>
-              <button onClick={() => setUserCode(selectedQuestion.code[language].starterCode)} style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-                Reset Code
-              </button>
-            </div>
-
-            <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'monospace', fontSize: '0.9rem', border: '2px solid #374151', borderRadius: '8px', resize: 'none', lineHeight: '1.5', backgroundColor: '#111827', color: '#d1d5db' }} spellCheck={false} />
-
-            {output && (
-              <div style={{ marginTop: '1rem' }}>
-                <h3 style={{ fontSize: '1rem', color: 'white', marginBottom: '0.5rem' }}>Output</h3>
-                <pre style={{ backgroundColor: '#111827', padding: '1rem', borderRadius: '8px', border: '1px solid #374151', overflow: 'auto', fontSize: '0.875rem', maxHeight: '150px', color: '#d1d5db' }}>{output}</pre>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-      </div>
-    )
+  const handleNextConcept = () => {
+    if (selectedConceptIndex < concepts.length - 1) {
+      setSelectedConceptIndex(selectedConceptIndex + 1)
+      setSelectedDetailIndex(0)
+    }
   }
 
+  // =============================================================================
+  // BREADCRUMB CONFIGURATION
+  // =============================================================================
+
+  const buildBreadcrumbStack = () => {
+    const stack = [
+      { name: 'Java', icon: '\u2615', page: 'Java' },
+      { name: 'Lambda Expressions', icon: '\u03BB', page: 'Lambdas' }
+    ]
+    if (selectedConcept) {
+      stack.push({ name: selectedConcept.name, icon: selectedConcept.icon })
+    }
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index, item) => {
+    if (index === 0) {
+      onBack()
+    } else if (index === 1 && selectedConcept) {
+      setSelectedConceptIndex(null)
+    }
+  }
+
+  // =============================================================================
+  // KEYBOARD NAVIGATION
+  // =============================================================================
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        if (selectedConcept) {
+          setSelectedConceptIndex(null)
+        } else {
+          onBack()
+        }
+      } else if (e.key === 'ArrowLeft' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handlePreviousConcept()
+      } else if (e.key === 'ArrowRight' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handleNextConcept()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConceptIndex, onBack])
+
+  // =============================================================================
+  // STYLES
+  // =============================================================================
+
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f172a 0%, #4c1d95 50%, #0f172a 100%)',
+    padding: '2rem',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
+  }
+
+  const headerStyle = {
+    maxWidth: '1400px',
+    margin: '0 auto 2rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '1rem'
+  }
+
+  const titleStyle = {
+    fontSize: '2.5rem',
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #a78bfa, #8b5cf6)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    margin: 0
+  }
+
+  const backButtonStyle = {
+    padding: '0.75rem 1.5rem',
+    background: 'rgba(139, 92, 246, 0.2)',
+    border: '1px solid rgba(139, 92, 246, 0.3)',
+    borderRadius: '0.5rem',
+    color: '#a78bfa',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    transition: 'all 0.2s'
+  }
+
+  // =============================================================================
+  // RENDER
+  // =============================================================================
+
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
-      <div style={{ marginBottom: '2rem' }}>
-        <button onClick={onBack} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
-          ← Back
+    <div style={containerStyle}>
+      {/* Header */}
+      <div style={headerStyle}>
+        <h1 style={titleStyle}>{'\u03BB'} Lambda Expressions</h1>
+        <button
+          style={backButtonStyle}
+          onClick={onBack}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = 'rgba(139, 92, 246, 0.3)'
+            e.currentTarget.style.transform = 'translateY(-2px)'
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'rgba(139, 92, 246, 0.2)'
+            e.currentTarget.style.transform = 'translateY(0)'
+          }}
+        >
+          {'\u2190'} Back to Java
         </button>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
-
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: 'white', marginBottom: '0.5rem' }}>λ Lambda Expressions</h1>
-        <p style={{ fontSize: '1.2rem', color: '#9ca3af' }}>Master lambda expressions for functional programming in Java</p>
-
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1.5rem' }}>
-          <div style={{ padding: '1rem 2rem', backgroundColor: '#1f2937', borderRadius: '12px', border: '2px solid #374151' }}>
-            <div style={{ fontSize: '2rem', fontWeight: '700', color: '#3b82f6' }}>{stats.completed}/{stats.total}</div>
-            <div style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.25rem' }}>Completed</div>
-          </div>
-          <div style={{ padding: '1rem 2rem', backgroundColor: '#1f2937', borderRadius: '12px', border: '2px solid #374151' }}>
-            <div style={{ fontSize: '2rem', fontWeight: '700', color: '#10b981' }}>{stats.percentage}%</div>
-            <div style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.25rem' }}>Progress</div>
-          </div>
-        </div>
+      {/* Breadcrumb */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          colors={LAMBDAS_COLORS}
+        />
       </div>
 
-      {Object.entries(groupedQuestions).map(([difficulty, difficultyQuestions]) => (
-        difficultyQuestions.length > 0 && (
-          <div key={difficulty} style={{ marginBottom: '2rem' }}>
-            <button onClick={() => toggleSection(difficulty)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', backgroundColor: '#1f2937', border: '2px solid #374151', borderRadius: '12px', cursor: 'pointer', marginBottom: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <span style={{ fontSize: '1.5rem', fontWeight: '700', color: getDifficultyColor(difficulty) }}>{difficulty}</span>
-                <span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>({difficultyQuestions.length} problems)</span>
-              </div>
-              <span style={{ fontSize: '1.25rem', color: '#9ca3af' }}>{expandedSections[difficulty] ? '▼' : '▶'}</span>
-            </button>
-
-            {expandedSections[difficulty] && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '1rem' }}>
-                {difficultyQuestions.map((question) => (
-                  <div key={question.id} onClick={() => selectQuestion(question)} style={{ backgroundColor: '#1f2937', padding: '1.5rem', borderRadius: '12px', border: '2px solid #374151', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.3)' }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'white', margin: 0, flex: 1 }}>{question.id}. {question.title}</h3>
-                    </div>
-                    <p style={{ fontSize: '0.875rem', color: '#9ca3af', lineHeight: '1.5', marginBottom: '1rem' }}>{question.description.substring(0, 100)}...</p>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '600', backgroundColor: getDifficultyColor(question.difficulty) + '20', color: getDifficultyColor(question.difficulty) }}>{question.difficulty}</span>
-                      <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ transform: 'scale(0.85)' }}>
-                          <CompletionCheckbox problemId={`Lambdas-${question.id}`} />
-                        </div>
-                        {question.leetcodeUrl && (
-                          <a
-                            href={question.leetcodeUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ padding: '0.25rem 0.75rem', backgroundColor: '#FFA116', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: '0.75rem', fontWeight: '600', display: 'inline-block' }}
-                          >
-                            LeetCode ↗
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+      {/* Concept Cards Grid */}
+      <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gap: '1.5rem'
+      }}>
+        {concepts.map((concept, index) => (
+          <div
+            key={concept.id}
+            onClick={() => setSelectedConceptIndex(index)}
+            style={{
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              border: `1px solid ${concept.color}40`,
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = `0 20px 40px ${concept.color}20`
+              e.currentTarget.style.borderColor = concept.color
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.borderColor = `${concept.color}40`
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '2.5rem', color: concept.color }}>{concept.icon}</span>
+              <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
+            </div>
+            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
+            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+              {concept.details.length} topics {'\u2022'} Click to explore
+            </div>
           </div>
-        )
-      ))}
+        ))}
+      </div>
+
+      {/* Modal */}
+      {selectedConcept && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '2rem'
+          }}
+          onClick={() => setSelectedConceptIndex(null)}
+        >
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              maxWidth: '1200px',
+              width: '100%',
+              maxHeight: '92vh',
+              overflow: 'auto',
+              border: `1px solid ${selectedConcept.color}40`
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Breadcrumb */}
+            <Breadcrumb
+              breadcrumbStack={buildBreadcrumbStack()}
+              onBreadcrumbClick={handleBreadcrumbClick}
+              colors={LAMBDAS_COLORS}
+            />
+
+            {/* Modal Header */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1.5rem',
+              paddingBottom: '1rem',
+              borderBottom: '1px solid #334155'
+            }}>
+              <h2 style={{
+                color: selectedConcept.color,
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '1.25rem'
+              }}>
+                <span>{selectedConcept.icon}</span>
+                {selectedConcept.name}
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button
+                  onClick={handlePreviousConcept}
+                  disabled={selectedConceptIndex === 0}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >{'\u2190'}</button>
+                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>
+                  {selectedConceptIndex + 1}/{concepts.length}
+                </span>
+                <button
+                  onClick={handleNextConcept}
+                  disabled={selectedConceptIndex === concepts.length - 1}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >{'\u2192'}</button>
+                <button
+                  onClick={() => setSelectedConceptIndex(null)}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: '#f87171',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    marginLeft: '0.5rem'
+                  }}
+                >{'\u2715'}</button>
+              </div>
+            </div>
+
+            {/* Subtopic Tabs */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {selectedConcept.details.map((detail, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedDetailIndex(i)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)',
+                    border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`,
+                    borderRadius: '0.5rem',
+                    color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: selectedDetailIndex === i ? '600' : '400',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {detail.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Selected Detail Content */}
+            {(() => {
+              const detail = selectedConcept.details[selectedDetailIndex]
+              const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
+              return (
+                <div>
+                  {/* Diagram */}
+                  {DiagramComponent && (
+                    <div style={{
+                      background: 'rgba(15, 23, 42, 0.6)',
+                      borderRadius: '0.75rem',
+                      padding: '1rem',
+                      marginBottom: '1.5rem',
+                      border: '1px solid #334155'
+                    }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
+
+                  {/* Detail Name */}
+                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>
+                    {detail.name}
+                  </h3>
+
+                  {/* Explanation */}
+                  <p style={{
+                    color: '#e2e8f0',
+                    lineHeight: '1.8',
+                    marginBottom: '1rem',
+                    background: colorScheme.bg,
+                    border: `1px solid ${colorScheme.border}`,
+                    borderRadius: '0.5rem',
+                    padding: '1rem',
+                    textAlign: 'left'
+                  }}>
+                    {detail.explanation}
+                  </p>
+
+                  {/* Code Example */}
+                  {detail.codeExample && (
+                    <SyntaxHighlighter
+                      language="java"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        padding: '1rem',
+                        margin: 0,
+                        borderRadius: '0.5rem',
+                        fontSize: '0.8rem',
+                        border: '1px solid #334155',
+                        background: '#0f172a'
+                      }}
+                      codeTagProps={{ style: { background: 'transparent' } }}
+                    >
+                      {detail.codeExample}
+                    </SyntaxHighlighter>
+                  )}
+                </div>
+              )
+            })()}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

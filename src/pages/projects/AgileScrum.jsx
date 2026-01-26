@@ -1,3088 +1,2110 @@
-import { useState, useEffect, useRef } from 'react'
+/**
+ * Agile & Scrum Section - Tab Template Format
+ *
+ * Converted to use modal-based navigation with concepts and details.
+ * Each concept is a main category with multiple detail tabs.
+ */
+
+import { useState, useEffect } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 
-// Simple syntax highlighter for Java code
-const SyntaxHighlighter = ({ code }) => {
-  const highlightJava = (code) => {
-    let highlighted = code
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
+// =============================================================================
+// COLORS CONFIGURATION
+// =============================================================================
 
-    const protectedContent = []
-    let placeholder = 0
-
-    // Protect comments
-    highlighted = highlighted.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
-      const id = `___COMMENT_${placeholder++}___`
-      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
-      return id
-    })
-
-    // Protect strings
-    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
-      const id = `___STRING_${placeholder++}___`
-      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
-      return id
-    })
-
-    // Apply syntax highlighting
-    highlighted = highlighted
-      .replace(/\b(public|private|protected|static|final|class|interface|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|import|package|void|abstract|synchronized|volatile|transient|native|strictfp|super|this|null)\b/g, '<span style="color: #c586c0;">$1</span>')
-      .replace(/\b(true|false|int|double|float|long|short|byte|char|boolean)\b/g, '<span style="color: #569cd6;">$1</span>')
-      .replace(/\b(String|List|ArrayList|HashMap|Optional|Stream|Exception|RuntimeException)\b/g, '<span style="color: #4ec9b0;">$1</span>')
-      .replace(/(@\w+)/g, '<span style="color: #dcdcaa;">$1</span>')
-      .replace(/\b(\d+\.?\d*[fLdD]?)\b/g, '<span style="color: #b5cea8;">$1</span>')
-      .replace(/\b([a-z_]\w*)\s*\(/g, '<span style="color: #dcdcaa;">$1</span>(')
-
-    protectedContent.forEach(({ id, replacement }) => {
-      highlighted = highlighted.replace(id, replacement)
-    })
-
-    return highlighted
-  }
-
-  return (
-    <pre style={{
-      margin: 0,
-      fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
-      fontSize: '0.85rem',
-      lineHeight: '1.6',
-      color: '#d4d4d4',
-      whiteSpace: 'pre',
-      overflowX: 'auto',
-      textAlign: 'left',
-      padding: 0
-    }}>
-      <code dangerouslySetInnerHTML={{ __html: highlightJava(code) }} />
-    </pre>
-  )
+/**
+ * Main topic colors - cyan theme for Agile/Scrum
+ */
+const AGILE_COLORS = {
+  primary: '#0891b2',           // Cyan main color
+  primaryHover: '#06b6d4',      // Cyan hover
+  bg: 'rgba(8, 145, 178, 0.1)', // Cyan background
+  border: 'rgba(8, 145, 178, 0.3)', // Cyan border
+  arrow: '#0891b2',             // Arrow color
+  hoverBg: 'rgba(8, 145, 178, 0.2)', // Hover background
+  topicBg: 'rgba(8, 145, 178, 0.15)' // Topic card background
 }
 
-function AgileScrum({ onBack, breadcrumb }) {
-  const [selectedTopic, setSelectedTopic] = useState(null)
+/**
+ * Alternating colors for subtopic detail explanations
+ */
+const SUBTOPIC_COLORS = [
+  { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },    // blue
+  { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' },      // green
+  { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' },    // amber
+  { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)' },    // purple
+  { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)' },    // pink
+  { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },      // cyan
+]
 
-  const agileScrumTopics = [
+// =============================================================================
+// DIAGRAM COMPONENTS
+// =============================================================================
+
+const AgilePrinciplesDiagram = () => (
+  <svg viewBox="0 0 800 280" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem auto', display: 'block' }}>
+    <defs>
+      <marker id="agile-arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#0891b2" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="16" fontWeight="bold">Agile Manifesto Values</text>
+
+    {/* Value 1 */}
+    <rect x="30" y="50" width="160" height="50" rx="8" fill="#0891b2" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="110" y="70" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Individuals &</text>
+    <text x="110" y="85" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Interactions</text>
+    <text x="215" y="75" textAnchor="middle" fill="#64748b" fontSize="11">over</text>
+    <rect x="240" y="50" width="160" height="50" rx="8" fill="#374151" stroke="#4b5563" strokeWidth="2"/>
+    <text x="320" y="70" textAnchor="middle" fill="#9ca3af" fontSize="10">Processes &</text>
+    <text x="320" y="85" textAnchor="middle" fill="#9ca3af" fontSize="10">Tools</text>
+
+    {/* Value 2 */}
+    <rect x="430" y="50" width="160" height="50" rx="8" fill="#10b981" stroke="#34d399" strokeWidth="2"/>
+    <text x="510" y="70" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Working</text>
+    <text x="510" y="85" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Software</text>
+    <text x="615" y="75" textAnchor="middle" fill="#64748b" fontSize="11">over</text>
+    <rect x="640" y="50" width="130" height="50" rx="8" fill="#374151" stroke="#4b5563" strokeWidth="2"/>
+    <text x="705" y="70" textAnchor="middle" fill="#9ca3af" fontSize="10">Comprehensive</text>
+    <text x="705" y="85" textAnchor="middle" fill="#9ca3af" fontSize="10">Documentation</text>
+
+    {/* Value 3 */}
+    <rect x="30" y="120" width="160" height="50" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="110" y="140" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Customer</text>
+    <text x="110" y="155" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Collaboration</text>
+    <text x="215" y="145" textAnchor="middle" fill="#64748b" fontSize="11">over</text>
+    <rect x="240" y="120" width="160" height="50" rx="8" fill="#374151" stroke="#4b5563" strokeWidth="2"/>
+    <text x="320" y="140" textAnchor="middle" fill="#9ca3af" fontSize="10">Contract</text>
+    <text x="320" y="155" textAnchor="middle" fill="#9ca3af" fontSize="10">Negotiation</text>
+
+    {/* Value 4 */}
+    <rect x="430" y="120" width="160" height="50" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="510" y="140" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Responding to</text>
+    <text x="510" y="155" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Change</text>
+    <text x="615" y="145" textAnchor="middle" fill="#64748b" fontSize="11">over</text>
+    <rect x="640" y="120" width="130" height="50" rx="8" fill="#374151" stroke="#4b5563" strokeWidth="2"/>
+    <text x="705" y="140" textAnchor="middle" fill="#9ca3af" fontSize="10">Following a</text>
+    <text x="705" y="155" textAnchor="middle" fill="#9ca3af" fontSize="10">Plan</text>
+  </svg>
+)
+
+const ScrumFrameworkDiagram = () => (
+  <svg viewBox="0 0 800 250" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem auto', display: 'block' }}>
+    <defs>
+      <marker id="scrum-arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#0891b2" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="16" fontWeight="bold">Scrum Framework Overview</text>
+
+    {/* Left side: Roles */}
+    <text x="100" y="55" textAnchor="middle" fill="#0891b2" fontSize="12" fontWeight="bold">ROLES</text>
+    <rect x="40" y="70" width="120" height="40" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="100" y="95" textAnchor="middle" fill="#e2e8f0" fontSize="10">Product Owner</text>
+
+    <rect x="40" y="120" width="120" height="40" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="100" y="145" textAnchor="middle" fill="#e2e8f0" fontSize="10">Scrum Master</text>
+
+    <rect x="40" y="170" width="120" height="40" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="100" y="195" textAnchor="middle" fill="#e2e8f0" fontSize="10">Dev Team</text>
+
+    {/* Middle: Artifacts */}
+    <text x="400" y="55" textAnchor="middle" fill="#0891b2" fontSize="12" fontWeight="bold">ARTIFACTS</text>
+    <rect x="310" y="70" width="180" height="40" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="400" y="95" textAnchor="middle" fill="#e2e8f0" fontSize="10">Product Backlog</text>
+
+    <rect x="310" y="120" width="180" height="40" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="400" y="145" textAnchor="middle" fill="#e2e8f0" fontSize="10">Sprint Backlog</text>
+
+    <rect x="310" y="170" width="180" height="40" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="400" y="195" textAnchor="middle" fill="#e2e8f0" fontSize="10">Increment</text>
+
+    {/* Right side: Events */}
+    <text x="700" y="55" textAnchor="middle" fill="#0891b2" fontSize="12" fontWeight="bold">EVENTS</text>
+    <rect x="620" y="70" width="160" height="40" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="700" y="95" textAnchor="middle" fill="#e2e8f0" fontSize="10">Sprint Planning</text>
+
+    <rect x="620" y="120" width="160" height="40" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="700" y="145" textAnchor="middle" fill="#e2e8f0" fontSize="10">Daily Standup</text>
+
+    <rect x="620" y="170" width="160" height="40" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="700" y="195" textAnchor="middle" fill="#e2e8f0" fontSize="10">Sprint Review</text>
+  </svg>
+)
+
+const SprintCycleDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem auto', display: 'block' }}>
+    <defs>
+      <marker id="sprint-arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#0891b2" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="16" fontWeight="bold">Sprint Cycle (2 Weeks)</text>
+
+    <rect x="50" y="50" width="110" height="60" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="105" y="75" textAnchor="middle" fill="#06b6d4" fontSize="11" fontWeight="bold">Day 1</text>
+    <text x="105" y="92" textAnchor="middle" fill="#e2e8f0" fontSize="9">Planning</text>
+
+    <line x1="160" y1="80" x2="190" y2="80" stroke="#0891b2" strokeWidth="2" markerEnd="url(#sprint-arrow)"/>
+
+    <rect x="190" y="50" width="110" height="60" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="245" y="75" textAnchor="middle" fill="#06b6d4" fontSize="11" fontWeight="bold">Days 2-9</text>
+    <text x="245" y="92" textAnchor="middle" fill="#e2e8f0" fontSize="9">Development</text>
+
+    <line x1="300" y1="80" x2="330" y2="80" stroke="#0891b2" strokeWidth="2" markerEnd="url(#sprint-arrow)"/>
+
+    <rect x="330" y="50" width="110" height="60" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="385" y="75" textAnchor="middle" fill="#06b6d4" fontSize="11" fontWeight="bold">Day 10</text>
+    <text x="385" y="92" textAnchor="middle" fill="#e2e8f0" fontSize="9">Review</text>
+
+    <line x1="440" y1="80" x2="470" y2="80" stroke="#0891b2" strokeWidth="2" markerEnd="url(#sprint-arrow)"/>
+
+    <rect x="470" y="50" width="110" height="60" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="525" y="75" textAnchor="middle" fill="#06b6d4" fontSize="11" fontWeight="bold">Day 10</text>
+    <text x="525" y="92" textAnchor="middle" fill="#e2e8f0" fontSize="9">Retro</text>
+
+    <line x1="580" y1="80" x2="610" y2="80" stroke="#0891b2" strokeWidth="2" markerEnd="url(#sprint-arrow)"/>
+
+    <rect x="610" y="50" width="110" height="60" rx="6" fill="#0891b2" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="665" y="75" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Release</text>
+    <text x="665" y="92" textAnchor="middle" fill="white" fontSize="9">Deploy</text>
+  </svg>
+)
+
+const UserStoryFormatDiagram = () => (
+  <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem auto', display: 'block' }}>
+    <defs>
+      <marker id="story-arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#0891b2" />
+      </marker>
+    </defs>
+
+    <rect x="50" y="20" width="700" height="140" rx="8" fill="rgba(8, 145, 178, 0.1)" stroke="#0891b2" strokeWidth="2"/>
+
+    <text x="70" y="45" fill="#06b6d4" fontSize="12" fontWeight="bold">User Story Format:</text>
+    <text x="70" y="65" fill="#e2e8f0" fontSize="11">"As a [user role], I want [action], so that [benefit]"</text>
+
+    <text x="70" y="90" fill="#94a3b8" fontSize="10" fontStyle="italic">Example:</text>
+    <text x="70" y="108" fill="#e2e8f0" fontSize="10">"As a customer, I want to reset my password, so that I can regain access to my account"</text>
+
+    <text x="70" y="135" fill="#94a3b8" fontSize="9">Acceptance Criteria | Story Points | Priority | Definition of Done</text>
+  </svg>
+)
+
+const EstimationDiagram = () => (
+  <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem auto', display: 'block' }}>
+    <defs>
+      <marker id="est-arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#0891b2" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Story Point Scale</text>
+
+    <circle cx="80" cy="90" r="25" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="80" y="95" textAnchor="middle" fill="#06b6d4" fontSize="14" fontWeight="bold">1</text>
+    <text x="80" y="130" textAnchor="middle" fill="#94a3b8" fontSize="9">Trivial</text>
+
+    <circle cx="200" cy="90" r="25" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="200" y="95" textAnchor="middle" fill="#06b6d4" fontSize="14" fontWeight="bold">3</text>
+    <text x="200" y="130" textAnchor="middle" fill="#94a3b8" fontSize="9">Easy</text>
+
+    <circle cx="320" cy="90" r="30" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="320" y="98" textAnchor="middle" fill="#06b6d4" fontSize="16" fontWeight="bold">5</text>
+    <text x="320" y="135" textAnchor="middle" fill="#94a3b8" fontSize="9">Medium</text>
+
+    <circle cx="450" cy="90" r="30" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="450" y="98" textAnchor="middle" fill="#06b6d4" fontSize="16" fontWeight="bold">8</text>
+    <text x="450" y="135" textAnchor="middle" fill="#94a3b8" fontSize="9">Hard</text>
+
+    <circle cx="580" cy="90" r="35" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="580" y="100" textAnchor="middle" fill="#06b6d4" fontSize="18" fontWeight="bold">13</text>
+    <text x="580" y="140" textAnchor="middle" fill="#94a3b8" fontSize="9">Very Hard</text>
+
+    <circle cx="720" cy="90" r="35" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="720" y="100" textAnchor="middle" fill="#f59e0b" fontSize="18" fontWeight="bold">?</text>
+    <text x="720" y="140" textAnchor="middle" fill="#94a3b8" fontSize="9">Unknown</text>
+  </svg>
+)
+
+const CeremoniesDiagram = () => (
+  <svg viewBox="0 0 800 220" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem auto', display: 'block' }}>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Scrum Ceremonies Timeline</text>
+
+    {/* Sprint Planning */}
+    <rect x="40" y="50" width="150" height="70" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="115" y="75" textAnchor="middle" fill="#06b6d4" fontSize="11" fontWeight="bold">Sprint Planning</text>
+    <text x="115" y="92" textAnchor="middle" fill="#e2e8f0" fontSize="9">4 hours</text>
+    <text x="115" y="108" textAnchor="middle" fill="#94a3b8" fontSize="8">Define sprint goal</text>
+
+    {/* Daily Standup */}
+    <rect x="220" y="50" width="150" height="70" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="295" y="75" textAnchor="middle" fill="#06b6d4" fontSize="11" fontWeight="bold">Daily Standup</text>
+    <text x="295" y="92" textAnchor="middle" fill="#e2e8f0" fontSize="9">15 min</text>
+    <text x="295" y="108" textAnchor="middle" fill="#94a3b8" fontSize="8">Status update</text>
+
+    {/* Sprint Review */}
+    <rect x="400" y="50" width="150" height="70" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="475" y="75" textAnchor="middle" fill="#06b6d4" fontSize="11" fontWeight="bold">Sprint Review</text>
+    <text x="475" y="92" textAnchor="middle" fill="#e2e8f0" fontSize="9">2 hours</text>
+    <text x="475" y="108" textAnchor="middle" fill="#94a3b8" fontSize="8">Demo & feedback</text>
+
+    {/* Retrospective */}
+    <rect x="580" y="50" width="150" height="70" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
+    <text x="655" y="75" textAnchor="middle" fill="#06b6d4" fontSize="11" fontWeight="bold">Retrospective</text>
+    <text x="655" y="92" textAnchor="middle" fill="#e2e8f0" fontSize="9">1.5 hours</text>
+    <text x="655" y="108" textAnchor="middle" fill="#94a3b8" fontSize="8">Team reflection</text>
+
+    {/* Backlog Refinement */}
+    <rect x="220" y="140" width="150" height="70" rx="6" fill="#1e3a5f" stroke="#10b981" strokeWidth="2"/>
+    <text x="295" y="165" textAnchor="middle" fill="#10b981" fontSize="11" fontWeight="bold">Refinement</text>
+    <text x="295" y="182" textAnchor="middle" fill="#e2e8f0" fontSize="9">Ongoing</text>
+    <text x="295" y="198" textAnchor="middle" fill="#94a3b8" fontSize="8">Prep next sprint</text>
+  </svg>
+)
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
+
+function AgileScrum({ onBack, breadcrumb }) {
+  const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
+  const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+
+  // =============================================================================
+  // CONCEPTS DATA
+  // =============================================================================
+
+  const concepts = [
     {
-      id: 1,
+      id: 'concept-1',
       name: 'Agile Principles',
       icon: '📜',
       color: '#3b82f6',
-      description: 'Agile Manifesto and 12 principles',
-      content: {
-        explanation: 'Agile is a mindset and methodology for software development emphasizing flexibility, collaboration, and customer feedback. The Agile Manifesto values individuals over processes, working software over documentation, customer collaboration over contract negotiation, and responding to change over following a plan. The 12 Agile principles guide teams toward iterative development, continuous delivery, sustainable pace, and technical excellence. Agile promotes adaptive planning and evolutionary development.',
-        keyPoints: [
-          'Individuals and interactions over processes and tools',
-          'Working software over comprehensive documentation',
-          'Customer collaboration over contract negotiation',
-          'Responding to change over following a plan',
-          'Deliver working software frequently (weeks not months)',
-          'Welcome changing requirements, even late in development',
-          'Build projects around motivated individuals, give them environment and support',
-          'Sustainable development - maintain constant pace indefinitely'
-        ],
-        codeExample: `// Agile Principles in Practice
+      description: 'Core values and 12 principles',
+      diagram: AgilePrinciplesDiagram,
+      details: [
+        {
+          name: 'Agile Manifesto',
+          explanation: 'The Agile Manifesto is a set of 4 core values that prioritize individuals and interactions over processes and tools, working software over comprehensive documentation, customer collaboration over contract negotiation, and responding to change over following a plan. These values form the foundation of agile development and guide all agile practices.',
+          codeExample: `// Agile Values in Practice
 
-// 1. Iterative Development - Release frequently
-/*
-Sprint Planning (2 weeks):
-Week 1-2: User Authentication Feature
-  - Day 1-3: Login/Registration
-  - Day 4-6: Password Reset
-  - Day 7-10: Testing & Refinement
-  - Demo to stakeholders
-  - Deploy to production
-*/
-
-// 2. Working Software - Focus on deliverable increments
-public class UserAuthenticationService {
-
-  // Sprint 1: Basic login (working software)
-  public boolean login(String username, String password) {
-    // Simple but working implementation
-    User user = userRepository.findByUsername(username);
-    return user != null && user.checkPassword(password);
-  }
-
-  // Sprint 2: Enhanced security (iterative improvement)
-  public AuthToken loginWithToken(String username, String password) {
-    User user = userRepository.findByUsername(username);
-    if (user != null && passwordEncoder.matches(password, user.getPassword())) {
-      return tokenService.generateToken(user);
-    }
-    throw new AuthenticationException("Invalid credentials");
-  }
-
-  // Sprint 3: Add MFA (incremental features)
-  public AuthToken loginWithMFA(String username, String password, String mfaCode) {
-    User user = authenticateUser(username, password);
-    if (mfaService.validateCode(user, mfaCode)) {
-      return tokenService.generateToken(user);
-    }
-    throw new MFAValidationException("Invalid MFA code");
+// 1. INDIVIDUALS & INTERACTIONS over processes and tools
+// Empower team members to make decisions
+public class TeamEmpowerment {
+  public void conductDailyStandup() {
+    // Face-to-face communication
+    // Direct problem solving
+    // Immediate feedback loops
   }
 }
 
-// 3. Customer Collaboration - Regular feedback
-/*
-Daily Standup (15 minutes):
-  - What did I complete yesterday?
-  - What will I work on today?
-  - Are there any blockers?
+// 2. WORKING SOFTWARE over comprehensive documentation
+// Release incrementally with working features
+public class IncrementalRelease {
+  public void sprintGoal() {
+    // Week 1: Authentication system (working)
+    // Week 2: User dashboard (working)
+    // Week 3: Admin panel (working)
+    // Continuous deployment
+  }
+}
 
-Sprint Review (End of sprint):
-  - Demo working features to stakeholders
-  - Gather feedback
-  - Adjust backlog priorities
+// 3. CUSTOMER COLLABORATION over contract negotiation
+// Involve customer in development
+public class CustomerInvolvement {
+  public void sprintReview() {
+    // Demonstrate features
+    // Gather feedback
+    // Adjust backlog based on feedback
+  }
+}
 
-Sprint Retrospective:
-  - What went well?
-  - What could be improved?
-  - Action items for next sprint
-*/
-
-// 4. Responding to Change - Flexible architecture
+// 4. RESPONDING TO CHANGE over following a plan
+// Build flexible, adaptable solutions
 public interface PaymentProcessor {
   PaymentResult process(Payment payment);
 }
 
-// Easy to swap implementations based on changing requirements
-public class StripePaymentProcessor implements PaymentProcessor {
-  public PaymentResult process(Payment payment) {
-    // Stripe implementation
-  }
-}
+// Add new payment methods without major refactoring
+public class CreditCardProcessor implements PaymentProcessor { }
+public class PayPalProcessor implements PaymentProcessor { }
+public class CryptoProcessor implements PaymentProcessor { }`
+        },
+        {
+          name: 'The 12 Principles',
+          explanation: 'The 12 Agile Principles provide specific guidance: prioritize customer satisfaction through continuous delivery, welcome changing requirements, deliver working software frequently, collaborate daily, build projects around motivated individuals, communicate face-to-face, measure progress by working software, maintain sustainable pace, ensure technical excellence and good design, keep things simple, trust self-organizing teams, and continuously improve through reflection.',
+          codeExample: `// The 12 Agile Principles
 
-public class PayPalPaymentProcessor implements PaymentProcessor {
-  public PaymentResult process(Payment payment) {
-    // PayPal implementation - added in Sprint 3
-  }
-}
-
-// Configuration allows change without code modification
-@Configuration
-public class PaymentConfig {
-
-  @Value("\${payment.processor}")
-  private String processorType;
-
-  @Bean
-  public PaymentProcessor paymentProcessor() {
-    // Adapt to changing business needs
-    return switch (processorType) {
-      case "stripe" -> new StripePaymentProcessor();
-      case "paypal" -> new PayPalPaymentProcessor();
-      default -> throw new IllegalArgumentException("Unknown processor");
-    };
-  }
-}
-
-// 5. Sustainable Pace - Technical Excellence
-public class ProductService {
-
-  // Write clean, maintainable code from the start
-  public Product createProduct(ProductRequest request) {
-    // Validate input
-    validateProductRequest(request);
-
-    // Create entity
-    Product product = new Product(
-      request.getName(),
-      request.getDescription(),
-      request.getPrice()
-    );
-
-    // Save to database
-    Product saved = productRepository.save(product);
-
-    // Publish event for other services
-    eventPublisher.publishEvent(new ProductCreatedEvent(saved));
-
-    // Send notification
-    notificationService.notifyProductCreated(saved);
-
-    return saved;
-  }
-
-  // Refactor continuously - keep code clean
-  private void validateProductRequest(ProductRequest request) {
-    if (request.getName() == null || request.getName().isEmpty()) {
-      throw new ValidationException("Product name is required");
-    }
-    if (request.getPrice() <= 0) {
-      throw new ValidationException("Price must be positive");
-    }
-  }
-}
-
-// 6. Self-organizing Teams
 /*
-Team Structure:
-  - Product Owner: Defines what to build
-  - Scrum Master: Facilitates process
-  - Development Team: Decides how to build (5-9 people)
+1. Satisfy the customer through continuous delivery
+   → Deploy to production every 2 weeks
 
-Team Autonomy:
-  - Team commits to sprint goals
-  - Team decides technical approach
-  - Team self-organizes around work
-  - No external task assignments
-*/
+2. Welcome changing requirements
+   → Design for flexibility and extensibility
 
-// 7. Continuous Improvement
-/*
-Retrospective Actions:
-Sprint 1:
-  - Issue: Tests taking too long
-  - Action: Implement parallel test execution
-  - Owner: John
-  - Due: Sprint 2
+3. Deliver working software frequently
+   → Each sprint produces releasable increment
 
-Sprint 2:
-  - Issue: Unclear requirements
-  - Action: Add acceptance criteria to all stories
-  - Owner: Sarah
-  - Due: Ongoing
+4. Business & developers work together daily
+   → Daily communication and collaboration
 
-Sprint 3:
-  - Issue: Code review bottleneck
-  - Action: Add second reviewer, limit PR size
-  - Owner: Team
-  - Due: Immediate
-*/
+5. Build projects around motivated individuals
+   → Hire smart people and give them autonomy
 
-// 8. Face-to-Face Communication
-public class DailyStandup {
-  /*
-  Format (15 minutes max):
-    1. Stand in circle (literally standing)
-    2. Each person shares:
-       - Yesterday: Completed login feature
-       - Today: Working on password reset
-       - Blockers: Need database schema approval
-    3. Park detailed discussions for after
-    4. Scrum Master tracks blockers
-  */
-}
+6. Most effective communication: face-to-face
+   → Use video calls, pair programming, standups
 
-// Agile vs Waterfall
-/*
-Waterfall (Sequential):
-  Requirements (2 months) ->
-  Design (2 months) ->
-  Implementation (4 months) ->
-  Testing (2 months) ->
-  Deployment (1 month)
-  Total: 11 months to first release
+7. Working software is primary measure of progress
+   → Track burndown, velocity, delivered features
 
-Agile (Iterative):
-  Sprint 1 (2 weeks): Core features -> Deploy
-  Sprint 2 (2 weeks): Enhanced features -> Deploy
-  Sprint 3 (2 weeks): Additional features -> Deploy
-  ...
-  Total: 2 weeks to first release, continuous delivery
+8. Sustainable pace (40-hour work weeks)
+   → Prevent burnout, maintain long-term velocity
 
-Benefits:
-  - Early feedback
-  - Risk reduction
-  - Faster time to market
-  - Ability to pivot
-  - Higher customer satisfaction
-*/
+9. Technical excellence and good design
+   → Code reviews, refactoring, testing
 
-// Definition of Done (DoD)
-/*
-Story is Done when:
-  ✓ Code complete and peer reviewed
-  ✓ Unit tests written and passing (>80% coverage)
-  ✓ Integration tests passing
-  ✓ Documentation updated
-  ✓ Deployed to staging environment
-  ✓ Acceptance criteria met
-  ✓ Product Owner accepted
-  ✓ No critical bugs
+10. Simplicity - maximize work not done
+    → YAGNI principle (You Aren't Gonna Need It)
+
+11. Self-organizing teams are most effective
+    → Teams decide how to accomplish work
+
+12. Team reflects and adjusts regularly
+    → Retrospectives every sprint
 */`
-      }
+        },
+        {
+          name: 'Values vs Waterfall',
+          explanation: 'Agile methodology fundamentally differs from Waterfall. Waterfall follows a sequential process: requirements, design, implementation, testing, deployment with months between each phase. Agile works in 2-week cycles, delivering working software continuously. Waterfall requires all requirements upfront; Agile embraces changing requirements. Waterfall finds bugs late; Agile catches them immediately. Choose Agile for evolving products, Waterfall only for well-defined projects.',
+          codeExample: `// Waterfall vs Agile Timeline
+
+/*
+WATERFALL (11 months to first release):
+═════════════════════════════════════════
+
+Month 1-2: Requirements gathering
+  ✓ Document all features upfront
+  ✓ 200-page specification document
+  ✗ Can't change requirements later
+  ✗ Can't verify assumptions
+
+Month 3-4: Design phase
+  ✓ Architecture planned
+  ✗ No code yet
+  ✗ Design assumptions may be wrong
+
+Month 5-8: Development
+  ✓ Developers implement from spec
+  ✗ No feedback from users
+  ✗ Issues discovered late
+
+Month 9-10: Testing phase
+  ✓ QA finds bugs
+  ✗ Fixing bugs delays release
+  ✗ Major rework needed
+
+Month 11: Deployment
+  ✓ Finally in production
+  ✗ Customer may not want this anymore
+  ✗ Market may have moved on
+
+
+AGILE (2 weeks to first release):
+═════════════════════════════════
+
+Sprint 1 (Week 1-2):
+  ✓ Core features defined
+  ✓ Design & code together
+  ✓ Test continuously
+  ✓ Deploy to production
+  ✓ Gather user feedback
+  ✓ Learn from real users
+
+Sprint 2 (Week 3-4):
+  ✓ Build on Sprint 1 feedback
+  ✓ Add customer-requested features
+  ✓ Adjust based on usage data
+  ✓ Continuous improvement
+
+Sprint 3, 4, 5...:
+  ✓ Rapid iterations
+  ✓ Respond to market changes
+  ✓ Stay competitive
+  ✓ Happy customers
+
+
+Key Differences:
+══════════════════════════════════
+Waterfall: All planning first, then execution
+Agile:     Plan + Execute in parallel
+
+Waterfall: Fixed scope, variable cost & time
+Agile:     Fixed time & cost, variable scope
+
+Waterfall: Complete features at the end
+Agile:     Complete features continuously
+
+Waterfall: Big risk - invest 11 months then fail
+Agile:     Small risk - fail in 2 weeks, pivot*/`
+        }
+      ]
     },
     {
-      id: 2,
+      id: 'concept-2',
       name: 'Scrum Framework',
       icon: '🔄',
       color: '#10b981',
-      description: 'Scrum roles, artifacts, and events',
-      content: {
-        explanation: 'Scrum is an Agile framework for managing complex projects. It consists of three roles: Product Owner (defines what to build), Scrum Master (facilitates the process), and Development Team (builds the product). Three artifacts track progress: Product Backlog (all work items), Sprint Backlog (work for current sprint), and Increment (working product). Five events structure the work: Sprint, Sprint Planning, Daily Scrum, Sprint Review, and Sprint Retrospective. Scrum emphasizes time-boxed iterations (sprints) typically 2 weeks long.',
-        keyPoints: [
-          'Product Owner: Maximizes product value, manages Product Backlog, defines priorities',
-          'Scrum Master: Facilitates Scrum process, removes impediments, coaches team',
-          'Development Team: Self-organizing, cross-functional, 5-9 members, delivers increments',
-          'Product Backlog: Ordered list of all work, single source of requirements',
-          'Sprint Backlog: Selected Product Backlog items plus plan for delivering them',
-          'Increment: Sum of all completed Product Backlog items, must be potentially shippable',
-          'Sprint: Time-box of 1-4 weeks (typically 2 weeks) where work is completed',
-          'Transparency, Inspection, Adaptation: Three pillars of Scrum'
-        ],
-        codeExample: `// Scrum Framework Implementation
+      description: 'Roles, artifacts, and events',
+      diagram: ScrumFrameworkDiagram,
+      details: [
+        {
+          name: 'Roles',
+          explanation: 'Scrum defines three key roles: The Product Owner manages the backlog, prioritizes work, and represents the customer. The Scrum Master facilitates the process, removes blockers, and coaches the team. The Development Team is 5-9 people who do the actual work, self-organize, and commit to sprint goals. Each role is essential; teams without clear roles fail.',
+          codeExample: `// Scrum Roles and Responsibilities
 
-// 1. Scrum Roles
-
-// Product Owner - Business representative
+// PRODUCT OWNER (PO)
 public class ProductOwner {
-  private ProductBacklog productBacklog;
 
-  // Define product vision
-  public void defineProductVision() {
+  public void manageProductBacklog() {
     /*
-    Vision: "E-commerce platform that enables small businesses
-    to sell online with minimal technical knowledge"
+    Responsibilities:
+    - Define product vision
+    - Create and prioritize user stories
+    - Accept completed work
+    - Talk to stakeholders
+    - Make business decisions
+    - Ensure ROI
     */
   }
-
-  // Prioritize backlog
-  public void prioritizeBacklog() {
-    productBacklog.sortByPriority(
-      new Comparator<UserStory>() {
-        public int compare(UserStory s1, UserStory s2) {
-          // Priority based on business value and dependencies
-          return s2.getBusinessValue() - s1.getBusinessValue();
-        }
-      }
-    );
-  }
-
-  // Accept or reject work
-  public boolean acceptUserStory(UserStory story) {
-    if (story.meetsAcceptanceCriteria() && story.hasNoBlockingBugs()) {
-      story.setStatus(Status.DONE);
-      return true;
-    }
-    return false;
-  }
-
-  // Stakeholder communication
-  public void communicateProgress() {
-    // Regular stakeholder updates
-    // Sprint Review demos
-    // Roadmap presentations
-  }
-}
-
-// Scrum Master - Process facilitator
-public class ScrumMaster {
-
-  // Facilitate Daily Scrum
-  public void facilitateDailyScrum() {
-    /*
-    Time: 9:00 AM daily (15 minutes)
-    Location: Team area
-    Format:
-      - What did you complete yesterday?
-      - What will you work on today?
-      - Any blockers?
-    */
-  }
-
-  // Remove impediments
-  public void removeImpediment(Impediment impediment) {
-    if (impediment.getType() == ImpedimentType.TECHNICAL) {
-      // Arrange technical spike
-      scheduleSpike(impediment);
-    } else if (impediment.getType() == ImpedimentType.ORGANIZATIONAL) {
-      // Escalate to management
-      escalateToManagement(impediment);
-    } else if (impediment.getType() == ImpedimentType.DEPENDENCY) {
-      // Coordinate with other teams
-      coordinateWithOtherTeams(impediment);
-    }
-  }
-
-  // Coach team on Agile practices
-  public void coachTeam() {
-    // Teach Scrum principles
-    // Facilitate retrospectives
-    // Help team self-organize
-    // Promote continuous improvement
-  }
-
-  // Shield team from interruptions
-  public void protectTeam(ExternalRequest request) {
-    // Defer non-urgent requests to next sprint
-    // Handle stakeholder inquiries
-    // Maintain team focus on sprint goal
-  }
-}
-
-// Development Team - Self-organizing
-public class DevelopmentTeam {
-  private List<Developer> developers;
-  private List<Tester> testers;
-
-  // Self-organize around work
-  public void selectSprintWork(List<UserStory> candidateStories) {
-    int teamCapacity = calculateTeamCapacity();
-    int committedPoints = 0;
-
-    List<UserStory> sprintBacklog = new ArrayList<>();
-
-    for (UserStory story : candidateStories) {
-      if (committedPoints + story.getStoryPoints() <= teamCapacity) {
-        sprintBacklog.add(story);
-        committedPoints += story.getStoryPoints();
-      } else {
-        break; // Don't overcommit
-      }
-    }
-  }
-
-  // Cross-functional collaboration
-  public void implementUserStory(UserStory story) {
-    // Developers and testers work together
-    Developer dev = findAvailableDeveloper();
-    Tester tester = findAvailableTester();
-
-    // Pair programming or collaboration
-    dev.implement(story);
-    tester.testEarly(story); // Shift-left testing
-    dev.fixIssues(tester.getDefects());
-    tester.verifyFixes();
-  }
-}
-
-// 2. Scrum Artifacts
-
-// Product Backlog
-public class ProductBacklog {
-  private List<UserStory> stories;
-
-  // Example Product Backlog
-  /*
-  Priority | ID | Story | Points | Status
-  ---------|----|--------------------------------------------|--------|--------
-  1        | 1  | As a user, I want to register an account  | 5      | To Do
-  2        | 2  | As a user, I want to login                | 3      | To Do
-  3        | 3  | As a user, I want to search products      | 8      | To Do
-  4        | 4  | As a user, I want to add items to cart    | 5      | To Do
-  5        | 5  | As a user, I want to checkout              | 13     | To Do
-  6        | 6  | As a user, I want to track my order       | 8      | To Do
-  */
 
   public void refineBacklog() {
-    // Backlog refinement (ongoing)
-    // - Break down large stories
-    // - Add acceptance criteria
-    // - Estimate story points
-    // - Clarify requirements
-  }
-}
-
-// Sprint Backlog
-public class SprintBacklog {
-  private int sprintNumber;
-  private LocalDate startDate;
-  private LocalDate endDate;
-  private List<UserStory> committedStories;
-  private String sprintGoal;
-
-  // Sprint 1 Example
-  /*
-  Sprint Goal: "Users can register and login to the platform"
-
-  Committed Stories:
-    - User Registration (5 points)
-      Tasks:
-        □ Create User entity and repository
-        □ Implement registration API endpoint
-        □ Add email validation
-        □ Write unit tests
-        □ Write integration tests
-
-    - User Login (3 points)
-      Tasks:
-        □ Implement authentication service
-        □ Create login API endpoint
-        □ Add JWT token generation
-        □ Write security tests
-
-  Total Commitment: 8 points
-  Team Capacity: 10 points (buffer for unexpected issues)
-  */
-
-  public void trackProgress() {
-    int totalPoints = committedStories.stream()
-      .mapToInt(UserStory::getStoryPoints)
-      .sum();
-
-    int completedPoints = committedStories.stream()
-      .filter(s -> s.getStatus() == Status.DONE)
-      .mapToInt(UserStory::getStoryPoints)
-      .sum();
-
-    System.out.println("Progress: " + completedPoints + "/" + totalPoints);
-  }
-}
-
-// Increment
-public class Increment {
-  private int sprintNumber;
-  private LocalDateTime releaseDate;
-  private List<UserStory> completedStories;
-
-  // Each sprint produces potentially shippable increment
-  public boolean isPotentiallyShippable() {
-    // All acceptance criteria met
-    // All tests passing
-    // Code reviewed
-    // Documented
-    // Deployed to staging
-    // Product Owner accepted
-    return completedStories.stream()
-      .allMatch(story -> story.meetsDefinitionOfDone());
-  }
-
-  // Cumulative increments
-  /*
-  Sprint 1 Increment: User Registration + Login
-  Sprint 2 Increment: Sprint 1 + Product Search + Shopping Cart
-  Sprint 3 Increment: Sprint 2 + Checkout + Payment
-  Each increment builds on previous
-  */
-}
-
-// 3. Scrum Events
-
-// Sprint Planning
-public class SprintPlanning {
-
-  // Part 1: What can be done? (4 hours for 2-week sprint)
-  public SprintBacklog planSprintWork(ProductBacklog productBacklog) {
-    // Product Owner presents top priorities
-    // Team asks questions
-    // Team determines what they can commit to
-
-    String sprintGoal = "Enable users to search and purchase products";
-
-    List<UserStory> selectedStories = new ArrayList<>();
-    selectedStories.add(productBacklog.getStory(3)); // Product search
-    selectedStories.add(productBacklog.getStory(4)); // Shopping cart
-    selectedStories.add(productBacklog.getStory(5)); // Checkout
-
-    return new SprintBacklog(sprintGoal, selectedStories);
-  }
-
-  // Part 2: How will it be done? (4 hours for 2-week sprint)
-  public void breakDownStories(List<UserStory> stories) {
-    for (UserStory story : stories) {
-      // Team breaks down into tasks
-      story.addTask("Create Product entity");
-      story.addTask("Implement search API");
-      story.addTask("Create search UI");
-      story.addTask("Write tests");
-      story.addTask("Code review");
-    }
-  }
-}
-
-// Daily Scrum
-public class DailyScrum {
-  public void conduct() {
     /*
-    Time-box: 15 minutes
-    Same time and place daily
-    Stand up (literally)
-
-    Each team member:
-    1. Yesterday: "I completed user authentication API"
-    2. Today: "I'll work on password reset functionality"
-    3. Blockers: "Waiting for database schema approval"
-
-    NOT a status report to Scrum Master
-    Team synchronizes and identifies blockers
-    Detailed discussions happen after
-    */
-  }
-}
-
-// Sprint Review
-public class SprintReview {
-  // 4 hours for 2-week sprint
-  public void conductReview(Increment increment) {
-    // 1. Product Owner describes what was Done vs Not Done
-
-    // 2. Development Team demonstrates working software
-    demo(increment.getCompletedStories());
-
-    // 3. Stakeholders provide feedback
-    List<Feedback> feedback = gatherStakeholderFeedback();
-
-    // 4. Discussion of what to do next
-    // Product Owner adjusts Product Backlog based on feedback
-
-    // 5. Review timeline, budget, marketplace changes
-  }
-
-  private void demo(List<UserStory> stories) {
-    // Live demonstration of working features
-    // Not slides or presentations
-    // Interactive - stakeholders can try it
-  }
-}
-
-// Sprint Retrospective
-public class SprintRetrospective {
-  // 3 hours for 2-week sprint
-  public void conductRetrospective() {
-    // What went well?
-    List<String> positives = Arrays.asList(
-      "Great collaboration between developers and testers",
-      "Daily standups were focused and helpful",
-      "Code review process improved"
-    );
-
-    // What could be improved?
-    List<String> improvements = Arrays.asList(
-      "Tests are taking too long to run",
-      "Requirements were unclear for Story #5",
-      "Need better documentation"
-    );
-
-    // Action items
-    List<ActionItem> actions = Arrays.asList(
-      new ActionItem("Implement parallel test execution", "John", "Sprint 3"),
-      new ActionItem("Add acceptance criteria template", "Sarah", "Immediate"),
-      new ActionItem("Document API endpoints", "Team", "Sprint 3")
-    );
-
-    // Continuous improvement
-  }
-}
-
-// Sprint Cadence
-/*
-2-Week Sprint Timeline:
-
-Day 1 (Monday):
-  - Sprint Planning (8:00 AM - 12:00 PM)
-  - Team starts development (1:00 PM onwards)
-
-Day 2-9 (Tuesday - Wednesday Week 2):
-  - Daily Scrum (9:00 AM daily)
-  - Development work
-  - Backlog Refinement (Wednesday afternoon, 2 hours)
-
-Day 10 (Thursday Week 2):
-  - Sprint Review (10:00 AM - 2:00 PM)
-  - Sprint Retrospective (2:00 PM - 5:00 PM)
-
-Day 11 (Friday Week 2):
-  - Next Sprint Planning
-  - Cycle repeats
-*/`
-      }
-    },
-    {
-      id: 3,
-      name: 'Sprint Planning',
-      icon: '📅',
-      color: '#f59e0b',
-      description: 'Sprint goals and capacity planning',
-      content: {
-        explanation: 'Sprint Planning is a collaborative event where the Scrum Team plans the work for the upcoming sprint. The Product Owner presents prioritized backlog items and explains business value. The Development Team asks clarifying questions and estimates effort. Together they define a Sprint Goal - a concise statement of what the sprint will achieve. The team considers their capacity (available hours minus vacation, meetings, etc.) and commits to realistic amount of work. Stories are broken into tasks with estimated hours. Sprint Planning answers "What can be delivered?" and "How will the work be done?"',
-        keyPoints: [
-          'Time-boxed: 8 hours for one-month sprint (4 hours for 2-week sprint)',
-          'Sprint Goal: Concise objective that provides coherence to sprint work',
-          'Capacity Planning: Calculate available team hours (subtract meetings, PTO, buffer)',
-          'Story Selection: Team pulls stories from Product Backlog based on priority and capacity',
-          'Definition of Ready: Stories must be clear, testable, and estimated before sprint',
-          'Task Breakdown: Decompose stories into development tasks (typically < 8 hours each)',
-          'Sprint Commitment: Team commits to Sprint Goal, not every story (flexibility)',
-          'Sprint Backlog: Output is selected stories plus plan for delivering them'
-        ],
-        codeExample: `// Sprint Planning Implementation
-
-// 1. Calculate Team Capacity
-public class CapacityCalculator {
-
-  public int calculateSprintCapacity(
-    List<TeamMember> team,
-    int sprintDurationDays,
-    int hoursPerDay
-  ) {
-    int totalCapacity = 0;
-
-    for (TeamMember member : team) {
-      // Calculate member's available hours
-      int memberHours = calculateMemberCapacity(
-        member,
-        sprintDurationDays,
-        hoursPerDay
-      );
-      totalCapacity += memberHours;
-    }
-
-    // Apply focus factor (typically 70-80%)
-    // Accounts for meetings, email, context switching
-    double focusFactor = 0.75;
-    int effectiveCapacity = (int) (totalCapacity * focusFactor);
-
-    return effectiveCapacity;
-  }
-
-  private int calculateMemberCapacity(
-    TeamMember member,
-    int sprintDays,
-    int hoursPerDay
-  ) {
-    int totalHours = sprintDays * hoursPerDay;
-
-    // Subtract PTO
-    int ptoHours = member.getPTODays() * hoursPerDay;
-
-    // Subtract recurring meetings
-    int meetingHours = calculateMeetingHours(sprintDays);
-
-    // Subtract on-call or support duties
-    int supportHours = member.isOnCall() ? 8 : 0;
-
-    return totalHours - ptoHours - meetingHours - supportHours;
-  }
-
-  private int calculateMeetingHours(int sprintDays) {
-    // Daily Scrum: 0.25 hours * days
-    // Sprint Planning: 4 hours
-    // Sprint Review: 2 hours
-    // Sprint Retrospective: 1.5 hours
-    // Backlog Refinement: 2 hours
-    return (int) (sprintDays * 0.25) + 4 + 2 + 2 + 2;
-  }
-
-  // Example Calculation for 2-week sprint (10 working days)
-  /*
-  Team: 5 developers
-  Sprint Duration: 10 days
-  Hours per day: 8
-
-  Developer 1: 10 days * 8 hours = 80 hours
-    - PTO: 1 day (8 hours)
-    - Meetings: 12 hours
-    - Available: 60 hours
-
-  Developer 2: 80 hours
-    - Meetings: 12 hours
-    - On-call: 8 hours
-    - Available: 60 hours
-
-  Developer 3: 80 hours
-    - PTO: 2 days (16 hours)
-    - Meetings: 12 hours
-    - Available: 52 hours
-
-  Developer 4: 80 hours
-    - Meetings: 12 hours
-    - Available: 68 hours
-
-  Developer 5: 80 hours
-    - Meetings: 12 hours
-    - Available: 68 hours
-
-  Total Raw Capacity: 308 hours
-  Apply Focus Factor (75%): 231 hours
-  Final Sprint Capacity: 231 hours (or ~29 story points if 8 hours = 1 point)
-  */
-}
-
-// 2. Define Sprint Goal
-public class SprintGoal {
-  private String goal;
-  private List<String> objectives;
-
-  // Good Sprint Goals - Focused and Business-Oriented
-  /*
-  Sprint 1: "Users can register and authenticate"
-  Sprint 2: "Users can search and view product catalog"
-  Sprint 3: "Users can add products to cart and checkout"
-  Sprint 4: "Users can track orders and view history"
-  */
-
-  // Bad Sprint Goals - Too vague or technical
-  /*
-  Bad: "Complete stories 1-5"
-  Bad: "Refactor database layer"
-  Bad: "Various improvements"
-  */
-
-  // Sprint Goal provides coherence
-  public boolean storySupportsGoal(UserStory story, String sprintGoal) {
-    // All stories should contribute to Sprint Goal
-    // If story doesn't support goal, consider deferring
-    return story.getBusinessValue().alignsWith(sprintGoal);
-  }
-}
-
-// 3. User Story Definition of Ready
-public class UserStory {
-  private String id;
-  private String title;
-  private String description;
-  private List<String> acceptanceCriteria;
-  private int storyPoints;
-  private List<String> dependencies;
-
-  // INVEST Criteria for ready stories
-  public boolean isReady() {
-    return isIndependent() &&
-           isNegotiable() &&
-           isValuable() &&
-           isEstimable() &&
-           isSmall() &&
-           isTestable();
-  }
-
-  // Independent - Can be developed in any order
-  private boolean isIndependent() {
-    return dependencies == null || dependencies.isEmpty();
-  }
-
-  // Negotiable - Details can be discussed
-  private boolean isNegotiable() {
-    return !description.contains("must exactly") &&
-           !description.contains("no alternatives");
-  }
-
-  // Valuable - Delivers business value
-  private boolean isValuable() {
-    return description.contains("As a") &&
-           description.contains("I want") &&
-           description.contains("So that");
-  }
-
-  // Estimable - Team can estimate size
-  private boolean isEstimable() {
-    return storyPoints > 0 &&
-           acceptanceCriteria != null &&
-           acceptanceCriteria.size() > 0;
-  }
-
-  // Small - Can be completed in one sprint
-  private boolean isSmall() {
-    return storyPoints <= 8; // Stories > 8 points should be split
-  }
-
-  // Testable - Clear acceptance criteria
-  private boolean isTestable() {
-    return acceptanceCriteria != null &&
-           acceptanceCriteria.stream()
-             .allMatch(criteria -> criteria.startsWith("Given") ||
-                                 criteria.startsWith("When") ||
-                                 criteria.startsWith("Then"));
-  }
-}
-
-// 4. Story Selection Process
-public class SprintPlanning {
-
-  public SprintBacklog selectSprintStories(
-    ProductBacklog productBacklog,
-    int teamCapacity
-  ) {
-    String sprintGoal = defineSprintGoal(productBacklog);
-    List<UserStory> selectedStories = new ArrayList<>();
-    int committedPoints = 0;
-
-    // Product Owner presents stories in priority order
-    for (UserStory story : productBacklog.getTopPriorityStories()) {
-
-      // Verify story is ready
-      if (!story.isReady()) {
-        System.out.println("Story " + story.getId() + " not ready - skipping");
-        continue;
-      }
-
-      // Check if story fits in remaining capacity
-      if (committedPoints + story.getStoryPoints() <= teamCapacity) {
-
-        // Team discusses and accepts story
-        if (teamAcceptsStory(story)) {
-          selectedStories.add(story);
-          committedPoints += story.getStoryPoints();
-
-          System.out.println("Committed: " + story.getTitle() +
-                           " (" + story.getStoryPoints() + " points)");
-        }
-      } else {
-        // Capacity full
-        System.out.println("Sprint capacity reached: " +
-                         committedPoints + " points committed");
-        break;
-      }
-    }
-
-    // Leave buffer for unexpected work
-    if (committedPoints > teamCapacity * 0.9) {
-      System.out.println("WARNING: Over 90% capacity committed");
-    }
-
-    return new SprintBacklog(sprintGoal, selectedStories);
-  }
-
-  private boolean teamAcceptsStory(UserStory story) {
-    // Team asks questions
-    // Team confirms understanding
-    // Team agrees they can complete it
-    // Fist of five voting: 3+ fingers = accept
-    return true;
-  }
-}
-
-// 5. Task Breakdown
-public class TaskBreakdown {
-
-  public void decomposeStory(UserStory story) {
-    // Example: User Login Story (3 points)
-
-    // Backend tasks
-    story.addTask(new Task(
-      "Create User entity and repository",
-      4, // hours
-      "John"
-    ));
-
-    story.addTask(new Task(
-      "Implement authentication service",
-      6,
-      "Sarah"
-    ));
-
-    story.addTask(new Task(
-      "Create login API endpoint",
-      4,
-      "John"
-    ));
-
-    story.addTask(new Task(
-      "Add JWT token generation",
-      3,
-      "Sarah"
-    ));
-
-    // Testing tasks
-    story.addTask(new Task(
-      "Write unit tests for auth service",
-      3,
-      "Mike"
-    ));
-
-    story.addTask(new Task(
-      "Write integration tests for login API",
-      4,
-      "Mike"
-    ));
-
-    // Total: 24 hours for 3-point story
-    // Rule of thumb: 1 story point ≈ 8 ideal hours
-  }
-
-  // Task Characteristics
-  /*
-  Good Tasks:
-    ✓ Small (< 8 hours)
-    ✓ Specific and clear
-    ✓ Testable
-    ✓ Has owner (self-assigned)
-
-  Bad Tasks:
-    ✗ "Implement login" (too vague)
-    ✗ "Fix all bugs" (not specific)
-    ✗ "Refactor code" (no clear done state)
-  */
-}
-
-// 6. Sprint Planning Agenda
-public class SprintPlanningAgenda {
-  /*
-  Part 1: What can be done? (First 4 hours)
-  ==========================================
-  09:00 - Product Owner presents Sprint Goal
-  09:15 - Product Owner presents top priority stories
-  09:30 - Team asks clarifying questions
-  10:00 - Team estimates unestimated stories
-  10:30 - Break
-  10:45 - Calculate team capacity
-  11:00 - Select stories for sprint
-  12:30 - Finalize Sprint Goal and commitment
-
-  Part 2: How will it be done? (Next 4 hours)
-  ===========================================
-  13:00 - Break down stories into tasks
-  14:00 - Identify dependencies and risks
-  14:30 - Create initial task assignments
-  15:00 - Break
-  15:15 - Discuss technical approach
-  15:45 - Identify spikes or unknowns
-  16:15 - Review Definition of Done
-  16:30 - Final questions and adjustments
-  16:45 - Sprint Planning complete
-  */
-}
-
-// 7. Sprint Backlog Board
-public class SprintBacklogBoard {
-  /*
-  Physical or Digital Board:
-
-  TO DO | IN PROGRESS | CODE REVIEW | TESTING | DONE
-  ------|-------------|-------------|---------|------
-  □ Registration    | 🔵 Login API    | 🟢 Password Reset | 🟡 Email Verify | ✅ User Profile
-  □ Product Search  | 🔵 Auth Service |                  |                | ✅ Settings
-  □ Shopping Cart   |                |                  |                |
-
-  Story Cards include:
-    - Story ID
-    - Story title
-    - Story points
-    - Assignee
-    - Tasks (checklist)
-    - Acceptance criteria
-    - Blockers (if any)
-  */
-}
-
-// 8. Sprint Planning Anti-Patterns
-public class SprintPlanningAntiPatterns {
-  /*
-  ❌ Anti-Pattern 1: Product Owner dictates commitment
-  ✅ Solution: Team self-organizes and commits
-
-  ❌ Anti-Pattern 2: No Sprint Goal defined
-  ✅ Solution: Always create focused Sprint Goal
-
-  ❌ Anti-Pattern 3: Overcommitting to hit targets
-  ✅ Solution: Use historical velocity, leave buffer
-
-  ❌ Anti-Pattern 4: Stories not ready for sprint
-  ✅ Solution: Refine backlog before Sprint Planning
-
-  ❌ Anti-Pattern 5: Planning takes 8+ hours
-  ✅ Solution: Better backlog refinement, timeboxing
-
-  ❌ Anti-Pattern 6: Detailed design during planning
-  ✅ Solution: High-level approach only, details during sprint
-
-  ❌ Anti-Pattern 7: Scope changes during sprint
-  ✅ Solution: Protect sprint commitment, defer to next sprint
-
-  ❌ Anti-Pattern 8: No task breakdown
-  ✅ Solution: Break stories into tasks < 8 hours
-  */
-}`
-      }
-    },
-    {
-      id: 4,
-      name: 'User Stories',
-      icon: '📝',
-      color: '#8b5cf6',
-      description: 'User story format and acceptance criteria',
-      content: {
-        explanation: 'User Stories are short, simple descriptions of features told from the user perspective. They follow the format: "As a [user role], I want [goal], so that [benefit]." This format focuses on WHO wants the feature, WHAT they want, and WHY they want it, emphasizing business value over technical implementation. User Stories include Acceptance Criteria - specific conditions that must be met for the story to be considered complete. Stories should follow the INVEST principles: Independent, Negotiable, Valuable, Estimable, Small, and Testable.',
-        keyPoints: [
-          'Format: As a [role], I want [feature], so that [benefit]',
-          'Focus on user value, not technical implementation',
-          'INVEST: Independent, Negotiable, Valuable, Estimable, Small, Testable',
-          'Acceptance Criteria: Specific, testable conditions for completion',
-          'Story Splitting: Break large stories (epics) into smaller deliverable pieces',
-          'Conversation over documentation: Stories prompt discussion',
-          'Story Points: Relative sizing (Fibonacci: 1, 2, 3, 5, 8, 13)',
-          '3 Cs: Card (brief description), Conversation (discussion), Confirmation (tests)'
-        ],
-        codeExample: `// User Stories Implementation
-
-// 1. User Story Format
-public class UserStory {
-  private String id;
-  private String role;      // As a...
-  private String goal;      // I want...
-  private String benefit;   // So that...
-  private List<String> acceptanceCriteria;
-  private int storyPoints;
-  private String status;
-
-  // Example: Good User Story
-  /*
-  ID: US-101
-  Title: User Registration
-
-  As a new visitor
-  I want to create an account
-  So that I can access personalized features and save my preferences
-
-  Acceptance Criteria:
-  1. Given I am on the registration page
-     When I enter valid email, password, and name
-     Then my account is created and I receive confirmation email
-
-  2. Given I enter an email that already exists
-     When I submit the registration form
-     Then I see error "Email already registered"
-
-  3. Given I enter a password less than 8 characters
-     When I submit the registration form
-     Then I see error "Password must be at least 8 characters"
-
-  4. Given I successfully register
-     When I check my email
-     Then I receive a welcome email with account verification link
-
-  Story Points: 5
-  Priority: High
-  Dependencies: None
-  */
-
-  // Bad User Story (Too Technical)
-  /*
-  ❌ As a developer
-     I want to implement JWT authentication
-     So that the system is secure
-
-  Why bad?
-  - User is "developer" not end user
-  - Describes implementation not business value
-  - Doesn't explain user benefit
-  */
-
-  // Bad User Story (Too Vague)
-  /*
-  ❌ As a user
-     I want a good experience
-     So that I'm happy
-
-  Why bad?
-  - "Good experience" is not specific
-  - Cannot be estimated
-  - Cannot be tested
-  */
-}
-
-// 2. INVEST Principles
-public class INVESTValidator {
-
-  // I - Independent
-  public boolean isIndependent(UserStory story) {
-    /*
-    Story should not depend on other stories being completed first
-    Can be developed in any order
-
-    Good: "User can search products"
-    Bad: "User can see search results (depends on search feature)"
-    */
-    return story.getDependencies().isEmpty();
-  }
-
-  // N - Negotiable
-  public boolean isNegotiable(UserStory story) {
-    /*
-    Details can be discussed and changed
-    Not a contract or rigid specification
-
-    Good: "User can filter products"
-    (Can discuss which filters, implementation)
-
-    Bad: "User must see filters as dropdown menus on left side"
-    (Over-specified, no room for discussion)
-    */
-    return !story.containsImplementationDetails();
-  }
-
-  // V - Valuable
-  public boolean isValuable(UserStory story) {
-    /*
-    Delivers value to user or business
-    Not just technical tasks
-
-    Good: "User can save favorite products"
-    (Clear user value)
-
-    Bad: "Refactor database schema"
-    (Technical task, no direct user value)
-    */
-    return story.getBenefit() != null &&
-           story.getBenefit().describesUserValue();
-  }
-
-  // E - Estimable
-  public boolean isEstimable(UserStory story) {
-    /*
-    Team can estimate size/effort
-    Requirements are clear enough
-
-    Good: Clear requirements, team understands scope
-    Bad: Too vague, too many unknowns
-    */
-    return story.getStoryPoints() > 0 &&
-           story.hasAcceptanceCriteria() &&
-           story.requirementsAreClear();
-  }
-
-  // S - Small
-  public boolean isSmall(UserStory story) {
-    /*
-    Can be completed within one sprint
-    Typically 1-8 story points
-
-    Good: "User can login with email/password" (3 points)
-    Bad: "User can manage entire account" (Too big - Epic)
-
-    Stories > 8 points should be split
-    */
-    return story.getStoryPoints() <= 8;
-  }
-
-  // T - Testable
-  public boolean isTestable(UserStory story) {
-    /*
-    Clear acceptance criteria
-    Can verify when done
-
-    Good: "User can login and see personalized dashboard"
-    (Clear, testable outcome)
-
-    Bad: "User has good login experience"
-    ("Good" is subjective, not testable)
-    */
-    return story.getAcceptanceCriteria().size() > 0 &&
-           story.hasVerifiableOutcomes();
-  }
-}
-
-// 3. Acceptance Criteria (Given-When-Then)
-public class AcceptanceCriteria {
-
-  // Format: Given-When-Then (BDD style)
-  public static void example() {
-    /*
-    Story: User Login
-
-    Scenario 1: Successful login
-    Given I am on the login page
-    When I enter valid credentials
-    Then I am redirected to dashboard
-    And I see welcome message with my name
-
-    Scenario 2: Invalid password
-    Given I am on the login page
-    When I enter incorrect password
-    Then I see error "Invalid credentials"
-    And I remain on login page
-
-    Scenario 3: Account locked
-    Given my account is locked
-    When I try to login
-    Then I see error "Account locked. Contact support"
-    And I see link to support page
-
-    Scenario 4: Remember me
-    Given I check "Remember me" checkbox
-    When I login successfully
-    Then I remain logged in after closing browser
-    */
-  }
-
-  // Alternative Format: Acceptance Criteria Checklist
-  public static void checklistExample() {
-    /*
-    Story: Product Search
-
-    Acceptance Criteria:
-    ✓ User can enter search term in search box
-    ✓ Search returns products matching term in name or description
-    ✓ Results are paginated (20 per page)
-    ✓ User can sort results by price, name, or relevance
-    ✓ Search is case-insensitive
-    ✓ Empty search shows all products
-    ✓ No results shows "No products found" message
-    ✓ Search completes within 2 seconds
-    */
-  }
-}
-
-// 4. Story Splitting Techniques
-public class StorySplitting {
-
-  // Epic (too large)
-  /*
-  Epic: E-commerce Checkout (21 points)
-
-  Split by workflow steps:
-    ✓ User can add items to cart (3 points)
-    ✓ User can view cart and update quantities (2 points)
-    ✓ User can enter shipping address (3 points)
-    ✓ User can select shipping method (2 points)
-    ✓ User can enter payment information (5 points)
-    ✓ User can review and place order (3 points)
-    ✓ User receives order confirmation (3 points)
-  */
-
-  // Split by CRUD operations
-  /*
-  Epic: Product Management (13 points)
-
-  Split by operations:
-    ✓ Admin can create product (3 points)
-    ✓ Admin can view product details (2 points)
-    ✓ Admin can update product (3 points)
-    ✓ Admin can delete product (2 points)
-    ✓ Admin can search products (3 points)
-  */
-
-  // Split by business rules
-  /*
-  Story: User can apply discount code (8 points)
-
-  Split by complexity:
-    ✓ User can apply single-use discount code (3 points)
-    ✓ User can apply percentage discount code (2 points)
-    ✓ User can apply free shipping code (2 points)
-    ✓ System validates discount expiration (1 point)
-  */
-
-  // Split by data variations
-  /*
-  Story: User can login (8 points)
-
-  Split by login methods:
-    ✓ User can login with email/password (3 points)
-    ✓ User can login with Google (3 points)
-    ✓ User can login with Facebook (2 points)
-  */
-
-  // Vertical slicing (preferred)
-  /*
-  End-to-end functionality for specific scenario
-
-  Good: "User can search products by name"
-  (Complete vertical slice: UI -> API -> Database)
-
-  Bad: "Create product search UI"
-  (Horizontal slice: just one layer)
-  */
-}
-
-// 5. Story Estimation (Planning Poker)
-public class StoryEstimation {
-
-  // Story Points (Fibonacci sequence)
-  /*
-  1 point  - Trivial (1-2 hours)
-    Example: Change button color
-
-  2 points - Simple (2-4 hours)
-    Example: Add validation to form field
-
-  3 points - Moderate (4-8 hours, ~1 day)
-    Example: Create new API endpoint
-
-  5 points - Complex (1-2 days)
-    Example: User login with JWT
-
-  8 points - Very Complex (2-4 days)
-    Example: Product search with filters
-
-  13 points - Epic (split into smaller stories)
-    Example: Complete checkout flow
-
-  Story points are relative, not time-based
-  Compare to baseline story (reference story = 3 points)
-  */
-
-  // Planning Poker Process
-  public void planningPokerSession(UserStory story) {
-    /*
-    1. Product Owner reads story
-    2. Team asks clarifying questions
-    3. Each team member selects card (1, 2, 3, 5, 8, 13, ?, ∞)
-    4. Everyone reveals cards simultaneously
-    5. If consensus (all same or close), done
-    6. If different, highest and lowest explain reasoning
-    7. Discussion and re-vote
-    8. Repeat until consensus
-
-    Special cards:
-    ? = Need more information
-    ∞ = Too large, needs splitting
-    ☕ = Need break
-    */
-  }
-
-  // Velocity Tracking
-  public void calculateVelocity(List<Sprint> completedSprints) {
-    /*
-    Sprint 1: 18 points completed
-    Sprint 2: 22 points completed
-    Sprint 3: 20 points completed
-    Sprint 4: 21 points completed
-
-    Average Velocity: 20.25 points per sprint
-    Use for future sprint planning
-    */
-    double avgVelocity = completedSprints.stream()
-      .mapToInt(Sprint::getCompletedPoints)
-      .average()
-      .orElse(0);
-
-    System.out.println("Team velocity: " + avgVelocity + " points/sprint");
-  }
-}
-
-// 6. User Story Mapping
-public class StoryMapping {
-  /*
-  Visual representation of user journey
-
-  User Activity:   Browse Products → Add to Cart → Checkout → Track Order
-                   ─────────────────────────────────────────────────────
-  Release 1:       • Search          • Add item      • Pay
-                   • Filter          • View cart     • Confirm
-
-  Release 2:       • Compare                         • Save address
-                   • Reviews                         • Multiple payment
-
-  Release 3:       • Recommendations                 • Express checkout
-                   • Wishlist                        • Gift cards
-
-  Benefits:
-  - Visualize user journey
-  - Prioritize features
-  - Plan releases
-  - Identify gaps
-  */
-}
-
-// 7. Definition of Done for User Stories
-public class DefinitionOfDone {
-  /*
-  Story is Done when:
-
-  Development:
-  ✓ Code complete and checked in
-  ✓ Unit tests written and passing
-  ✓ Code reviewed and approved
-  ✓ No critical bugs
-  ✓ Refactored and clean
-
-  Testing:
-  ✓ Integration tests passing
-  ✓ Acceptance criteria verified
-  ✓ Exploratory testing completed
-  ✓ No open defects
-
-  Documentation:
-  ✓ API documentation updated
-  ✓ Release notes updated
-  ✓ User documentation updated (if needed)
-
-  Deployment:
-  ✓ Deployed to staging environment
-  ✓ Product Owner accepted
-  ✓ Ready for production release
-
-  Non-functional:
-  ✓ Performance acceptable
-  ✓ Security reviewed
-  ✓ Accessibility verified
-  */
-}
-
-// 8. Story Examples by Domain
-public class StoryExamples {
-
-  // E-commerce
-  /*
-  As a shopper
-  I want to save products to wishlist
-  So that I can purchase them later
-  */
-
-  // Banking
-  /*
-  As an account holder
-  I want to transfer funds between my accounts
-  So that I can manage my money efficiently
-  */
-
-  // Healthcare
-  /*
-  As a patient
-  I want to schedule appointments online
-  So that I don't have to call during business hours
-  */
-
-  // Social Media
-  /*
-  As a user
-  I want to share posts with specific friends
-  So that I can control who sees my content
-  */
-
-  // Internal Tools
-  /*
-  As a manager
-  I want to approve time-off requests
-  So that my team can plan their schedules
-  */
-}`
-      }
-    },
-    {
-      id: 5,
-      name: 'Scrum Ceremonies',
-      icon: '👥',
-      color: '#ec4899',
-      description: 'Daily Standup, Review, Retrospective',
-      content: {
-        explanation: 'Scrum Ceremonies (also called events) are structured meetings that provide opportunities for inspection and adaptation. The Daily Scrum (standup) is a 15-minute daily sync where team members share progress and blockers. Sprint Review demonstrates working software to stakeholders and gathers feedback. Sprint Retrospective reflects on the process and identifies improvements. Backlog Refinement prepares upcoming stories for sprint planning. These ceremonies create transparency, enable collaboration, and drive continuous improvement.',
-        keyPoints: [
-          'Daily Scrum: 15-minute daily sync at same time/place, focus on progress and blockers',
-          'Sprint Review: Demo working software to stakeholders, gather feedback, adapt backlog',
-          'Sprint Retrospective: Reflect on process, identify improvements, create action items',
-          'Backlog Refinement: Clarify requirements, add acceptance criteria, estimate stories',
-          'All ceremonies are time-boxed to maintain focus and efficiency',
-          'Ceremonies provide transparency through regular inspection',
-          'Enable adaptation based on learnings and feedback',
-          'Foster collaboration between team and stakeholders'
-        ],
-        codeExample: `// Scrum Ceremonies Implementation
-
-// 1. Daily Scrum (Daily Standup)
-public class DailyScrum {
-
-  // Format and Structure
-  public void conductDailyScrum() {
-    /*
-    Time: Same time daily (e.g., 9:00 AM)
-    Duration: 15 minutes (time-boxed)
-    Location: Same place (team area or video call)
-    Participants: Development Team (required)
-                 Scrum Master (facilitates)
-                 Product Owner (optional)
-
-    Stand up (literally) - keeps meeting short
-
-    Each team member answers 3 questions:
-    1. What did I complete yesterday?
-    2. What will I work on today?
-    3. Are there any blockers?
-    */
-  }
-
-  // Example Daily Scrum
-  public static void exampleStandup() {
-    /*
-    Sarah (Developer):
-    - Yesterday: Completed user login API endpoint
-    - Today: Working on password reset functionality
-    - Blockers: None
-
-    John (Developer):
-    - Yesterday: Fixed bugs in shopping cart
-    - Today: Will add integration tests for cart
-    - Blockers: Waiting for test database setup
-
-    Mike (Tester):
-    - Yesterday: Tested user registration flow
-    - Today: Writing automated tests for login
-    - Blockers: Need access to staging environment
-
-    Lisa (Developer):
-    - Yesterday: Implemented product search API
-    - Today: Will work on search filters
-    - Blockers: Unclear requirements for price filter
-
-    Action Items:
-    - Scrum Master: Set up test database for John (by EOD)
-    - Scrum Master: Get staging access for Mike (by 11 AM)
-    - Lisa: Schedule quick session with Product Owner on filters (after standup)
-    */
-  }
-
-  // Daily Scrum Anti-Patterns
-  public void antiPatterns() {
-    /*
-    ❌ Status report to manager/Scrum Master
-    ✅ Team synchronization peer-to-peer
-
-    ❌ Detailed problem solving during standup
-    ✅ Identify issues, solve after standup
-
-    ❌ Longer than 15 minutes
-    ✅ Strict time-box, park discussions
-
-    ❌ Sitting down, informal start
-    ✅ Stand up, start exactly on time
-
-    ❌ Reading from task board
-    ✅ Speak from memory, reference board as needed
-
-    ❌ Skipping when "nothing to report"
-    ✅ Daily ceremony builds team habit
-
-    ❌ Only talking about tasks
-    ✅ Focus on Sprint Goal progress
-    */
-  }
-
-  // Virtual Daily Scrum Tips
-  public void virtualStandupTips() {
-    /*
-    Best Practices:
-    ✓ Cameras on for engagement
-    ✓ Mute when not speaking
-    ✓ Use virtual hand raise
-    ✓ Share screen with task board
-    ✓ Use timer visible to all
-    ✓ Record for absent members
-    ✓ Digital parking lot for follow-ups
-    */
-  }
-}
-
-// 2. Sprint Review
-public class SprintReview {
-
-  // Structure and Format
-  public void conductSprintReview(Sprint sprint) {
-    /*
-    Time: End of sprint (last day)
-    Duration: 4 hours for 1-month sprint (2 hours for 2-week sprint)
-    Participants: Scrum Team + Stakeholders + Customers
-
-    Agenda:
-    1. Product Owner reviews sprint goals (10 minutes)
-    2. Development Team demos completed work (60 minutes)
-    3. Stakeholder feedback and discussion (30 minutes)
-    4. Product Owner discusses Product Backlog (10 minutes)
-    5. Team discusses timeline and next release (10 minutes)
-
-    Key: This is a working session, not a presentation
-    */
-  }
-
-  // Demo Best Practices
-  public void demoGuidelines() {
-    /*
-    ✅ DO:
-    - Show working software (not slides)
-    - Make it interactive (let stakeholders try)
-    - Demo in production-like environment
-    - Show actual user flows
-    - Highlight business value
-    - Demonstrate acceptance criteria met
-    - Keep it real (show actual data)
-
-    ❌ DON'T:
-    - Use PowerPoint presentations
-    - Demo on development machine
-    - Make excuses for incomplete features
-    - Demo incomplete work
-    - Spend time on technical details
-    - Make it too scripted/rehearsed
-    */
-  }
-
-  // Example Sprint Review
-  public static void exampleReview() {
-    /*
-    Sprint 3 Review - E-commerce Platform
-
-    09:00 - Welcome and Sprint Goal Review
-    Product Owner: "Our goal was to enable users to search and
-    purchase products. Let's see what we accomplished."
-
-    09:10 - Demo: Product Search Feature
-    Sarah demos:
-    - Search by product name
-    - Filter by category and price range
-    - Sort by price, name, relevance
-    - Shows 100ms response time on 10,000 products
-
-    Stakeholder: "Can we search by brand?"
-    Sarah: "Not in this sprint. We can add that to backlog."
-
-    09:30 - Demo: Shopping Cart
-    John demos:
-    - Add products to cart
-    - Update quantities
-    - Remove items
-    - Cart persists across sessions
-    - Shows cart on mobile responsive design
-
-    Stakeholder: "Love the mobile view! Can we add coupon codes?"
-    Product Owner: "Great idea. I'll add that as a story."
-
-    09:50 - Demo: Checkout Flow
-    Mike demos:
-    - Enter shipping address
-    - Select shipping method
-    - Enter payment (Stripe integration)
-    - Order confirmation
-    - Email receipt
-
-    Stakeholder: "What about saved addresses?"
-    Lisa: "That's planned for Sprint 5."
-
-    10:10 - Break
-
-    10:20 - Feedback Discussion
-    - Overall positive feedback
-    - Request: Add product recommendations
-    - Request: Add order tracking
-    - Request: Support multiple payment methods
-
-    10:40 - Backlog Discussion
-    Product Owner reviews updated backlog:
-    - Reprioritized based on feedback
-    - Added new stories for recommendations
-    - Moved multi-payment to Sprint 4
-
-    10:50 - Next Steps
-    - Sprint 4 focus: Order management and tracking
-    - Expected release date: 3 weeks
-    - Next review: December 15
-
-    11:00 - Review Complete
-    */
-  }
-
-  // Gathering Actionable Feedback
-  public List<FeedbackItem> gatherFeedback() {
-    List<FeedbackItem> feedback = new ArrayList<>();
-
-    // Good feedback questions:
-    /*
-    - What did you like about what you saw?
-    - What would make this more useful?
-    - Are we building the right thing?
-    - What should we prioritize next?
-    - Who else should see this demo?
-    - What concerns do you have?
-    */
-
-    return feedback;
-  }
-}
-
-// 3. Sprint Retrospective
-public class SprintRetrospective {
-
-  // Structure and Format
-  public void conductRetrospective() {
-    /*
-    Time: After Sprint Review, before next Planning
-    Duration: 3 hours for 1-month sprint (1.5 hours for 2-week sprint)
-    Participants: Scrum Team only (safe environment)
-
-    Purpose:
-    - Inspect team and process
-    - Identify improvements
-    - Create actionable plan
-
-    Format (many variations):
-    1. Set the stage (5 minutes)
-    2. Gather data (15 minutes)
-    3. Generate insights (20 minutes)
-    4. Decide what to do (20 minutes)
-    5. Close retrospective (10 minutes)
-    */
-  }
-
-  // Retrospective Formats
-  public void retrospectiveFormats() {
-    /*
-    Format 1: Start-Stop-Continue
-    ═══════════════════════════════
-    Start: What should we start doing?
-    - Pair programming for complex features
-    - Writing API documentation upfront
-
-    Stop: What should we stop doing?
-    - Working on multiple stories simultaneously
-    - Skipping code reviews for "quick fixes"
-
-    Continue: What should we keep doing?
-    - Daily standups at 9 AM
-    - Thorough testing before deployment
-
-
-    Format 2: Glad-Sad-Mad
-    ═════════════════════
-    Glad: What made you happy?
-    😊 Great collaboration with QA
-    😊 Deployed twice this sprint
-    😊 Clear acceptance criteria
-
-    Sad: What disappointed you?
-    😟 Sprint goal not fully met
-    😟 Two production bugs
-    😟 Unclear story requirements
-
-    Mad: What frustrated you?
-    😠 Frequent interruptions during sprint
-    😠 Build pipeline failures
-    😠 Delayed feedback from stakeholders
-
-
-    Format 3: 4 Ls
-    ══════════════
-    Liked: Great team collaboration
-    Learned: New testing framework
-    Lacked: Better documentation
-    Longed For: Faster deployment process
-
-
-    Format 4: Sailboat
-    ══════════════════
-    Island (Goal): Sprint objectives
-    Wind (Helping): What moved us forward?
-    Anchors (Hindering): What held us back?
-    Rocks (Risks): What dangers ahead?
-
-
-    Format 5: Temperature Reading
-    ═════════════════════════════
-    Rate sprint on scale 1-10:
-    - Team collaboration: 8/10
-    - Code quality: 7/10
-    - Sprint goal achievement: 6/10
-    - Process efficiency: 7/10
-    - Communication: 9/10
-
-    Discuss highest and lowest ratings
-    */
-  }
-
-  // Example Retrospective
-  public static void exampleRetrospective() {
-    /*
-    Sprint 3 Retrospective
-
-    14:00 - Set the Stage
-    Scrum Master: "Let's reflect on Sprint 3. Be honest and constructive.
-    This is a safe space."
-
-    14:05 - Gather Data (Start-Stop-Continue)
-
-    START:
-    - Writing integration tests earlier (Sarah)
-    - Reviewing PRs within 4 hours (John)
-    - Adding performance tests (Mike)
-
-    STOP:
-    - Taking on unplanned work mid-sprint (Lisa)
-    - Skipping backlog refinement (Team)
-    - Working late to meet deadlines (Sarah)
-
-    CONTINUE:
-    - Excellent communication (Team)
-    - Helping each other with blockers (Team)
-    - Thorough code reviews (John)
-
-    14:20 - Generate Insights
-    Discussion identifies patterns:
-    - Taking unplanned work derailed sprint goal
-    - Late work indicates overcommitment
-    - Code quality good but testing could improve
-
-    14:40 - Decide What to Do
-    Action Items:
-    1. Implement "no new work" policy after Day 3 of sprint
-       Owner: Scrum Master
-       Due: Immediate
-
-    2. Add performance test task to DoD checklist
-       Owner: Mike
-       Due: Sprint 4
-
-    3. Set up automated PR review reminders (4-hour SLA)
-       Owner: John
-       Due: Sprint 4
-
-    4. Protect team from mid-sprint interruptions
-       Owner: Scrum Master
-       Due: Ongoing
-
-    5. Reduce sprint commitment by 10% to prevent overwork
-       Owner: Team
-       Due: Sprint 4 Planning
-
-    15:00 - Close Retrospective
-    - Team commits to action items
-    - Scrum Master will track progress
-    - Next retrospective will review these actions
-
-    15:10 - Retrospective Complete
-    */
-  }
-
-  // Retrospective Prime Directive
-  public static final String PRIME_DIRECTIVE =
-    "Regardless of what we discover, we understand and truly believe " +
-    "that everyone did the best job they could, given what they knew " +
-    "at the time, their skills and abilities, the resources available, " +
-    "and the situation at hand.";
-
-  // Anti-Patterns
-  public void retrospectiveAntiPatterns() {
-    /*
-    ❌ Same format every sprint (gets stale)
-    ✅ Rotate formats to keep fresh
-
-    ❌ No action items or follow-through
-    ✅ Create specific, measurable actions
-
-    ❌ Blaming individuals
-    ✅ Focus on process and system improvements
-
-    ❌ Management or stakeholders present
-    ✅ Team only - safe environment
-
-    ❌ Skipping retrospective when "went well"
-    ✅ Always reflect, even on good sprints
-
-    ❌ Too many action items
-    ✅ Focus on 1-3 key improvements
-
-    ❌ Vague improvements ("communicate better")
-    ✅ Specific actions with owners and dates
-    */
-  }
-}
-
-// 4. Backlog Refinement
-public class BacklogRefinement {
-
-  // Structure and Format
-  public void conductRefinement() {
-    /*
-    Time: Mid-sprint (ongoing activity)
-    Duration: ~10% of sprint (2-4 hours per 2-week sprint)
-    Participants: Scrum Team
-    Frequency: Weekly or multiple sessions
-
-    Activities:
+    Weekly: Backlog Refinement
     - Review upcoming stories
     - Add acceptance criteria
-    - Break down large stories
-    - Estimate stories
-    - Clarify requirements
-    - Order backlog by priority
-
-    Goal: Prepare stories for Sprint Planning
-    Stories should be "ready" (meet Definition of Ready)
-    */
-  }
-
-  // Refinement Agenda
-  public void refinementAgenda() {
-    /*
-    Backlog Refinement Session (2 hours)
-
-    14:00 - Review top 5 priority stories
-    - Product Owner explains each story
-    - Team asks clarifying questions
-    - Identify missing information
-
-    14:30 - Add acceptance criteria
-    - Product Owner defines "done" for each story
-    - Team provides input on edge cases
-    - Document in Gherkin format (Given-When-Then)
-
-    15:00 - Break
-
-    15:10 - Story estimation
-    - Planning poker for each story
-    - Discuss complexity and unknowns
-    - Split stories > 8 points
-
-    15:40 - Identify dependencies
-    - Technical dependencies
-    - External dependencies
-    - Risks and unknowns
-
-    15:50 - Update backlog order
-    - Confirm priorities
-    - Ensure top 1-2 sprints are ready
-
-    16:00 - Refinement complete
-    */
-  }
-
-  // Definition of Ready
-  public boolean isStoryReady(UserStory story) {
-    /*
-    Story is Ready when:
-    ✓ User story format complete (As a...I want...So that...)
-    ✓ Business value is clear
-    ✓ Acceptance criteria defined
-    ✓ Story is estimated
-    ✓ Dependencies identified
-    ✓ Story is testable
-    ✓ Story is small enough (≤ 8 points)
-    ✓ Team understands requirements
-
-    Ready backlog = efficient Sprint Planning
-    */
-    return story.hasUserStoryFormat() &&
-           story.hasAcceptanceCriteria() &&
-           story.isEstimated() &&
-           story.isSmall() &&
-           story.isTestable();
-  }
-
-  // Example Refinement Session
-  public static void exampleRefinement() {
-    /*
-    Story: "User can reset forgotten password"
-
-    Before Refinement:
-    - Vague description
-    - No acceptance criteria
-    - Not estimated
-    - Implementation unclear
-
-    During Refinement:
-
-    Product Owner: "Users often forget passwords and need a way
-    to reset them without contacting support."
-
-    Team Questions:
-    - How is identity verified? (Email link)
-    - How long is reset link valid? (1 hour)
-    - Can old password be reused? (No, last 5 passwords)
-    - What if email doesn't arrive? (Resend option)
-    - What about expired accounts? (Show account status)
-
-    Updated Story:
-    As a user with forgotten password
-    I want to reset my password via email
-    So that I can regain access to my account without contacting support
-
-    Acceptance Criteria:
-    1. Given I click "Forgot Password"
-       When I enter my email
-       Then I receive password reset email within 5 minutes
-
-    2. Given I click reset link in email
-       When link is less than 1 hour old
-       Then I see password reset form
-
-    3. Given I enter new password
-       When new password is different from last 5 passwords
-       Then my password is updated
-
-    4. Given reset link is expired
-       When I click link
-       Then I see "Link expired" message
-       And option to request new link
-
-    5. Given I enter invalid email
-       When I submit forgot password
-       Then I see "If account exists, email sent" (security)
-
-    Estimated: 5 story points
-
-    Dependencies: Email service must be configured
-
-    Story is now READY for Sprint Planning
+    - Estimate complexity
+    - Answer team questions
+    - Prepare for next sprint
     */
   }
 }
 
-// 5. Ceremony Calendar
-public class ScrumCalendar {
+// SCRUM MASTER (SM)
+public class ScrumMaster {
+
+  public void facilitateScrum() {
+    /*
+    Responsibilities:
+    - Facilitate ceremonies (not lead them)
+    - Remove team blockers
+    - Coach team on Scrum practices
+    - Protect team from interruptions
+    - Improve team velocity
+    - Track metrics
+    */
+  }
+
+  public void removeImpediments() {
+    /*
+    Handle blockers like:
+    - "We need database schema approval"
+    - "Testing environment is down"
+    - "Product Owner not available"
+    - "Dependency from other team"
+    - "Infrastructure issues"
+
+    Goal: Unblock team within 24 hours
+    */
+  }
+}
+
+// DEVELOPMENT TEAM
+public class DevelopmentTeam {
+
+  public void commitToSprint() {
+    /*
+    Responsibilities:
+    - Estimate story complexity
+    - Commit to sprint goal
+    - Deliver working software
+    - Self-organize work
+    - Collaborate on solutions
+    - Maintain code quality
+    */
+  }
+
+  public void selfOrganize() {
+    /*
+    Team decides:
+    - How to accomplish work
+    - Who works on what
+    - Code standards
+    - Testing approach
+    - Deployment process
+
+    No external task assignments!
+    */
+  }
+}
+
+// Team Size Matters
+/*
+Optimal: 5-9 people
+Too small: Can't deliver enough, single point of failure
+Too large: Communication overhead, coordination issues
+
+If larger:
+- Split into multiple teams
+- Use Scrum of Scrums pattern
+- Coordinate cross-team dependencies
+*/`
+        },
+        {
+          name: 'Artifacts',
+          explanation: 'Scrum artifacts represent concrete work and provide transparency. The Product Backlog is a prioritized list of all work needed. The Sprint Backlog is the subset of work for the current sprint. The Increment is the sum of all completed items, which must be working software. These artifacts enable the team to track progress and maintain alignment.',
+          codeExample: `// Scrum Artifacts
+
+// PRODUCT BACKLOG
+public class ProductBacklog {
+
+  private List<UserStory> stories;
+
   /*
-  2-Week Sprint Schedule
+  Backlog Structure:
+  ═════════════════════════════════════════
 
-  Week 1:
-  ───────
-  Monday 09:00   - Sprint Planning (4 hours)
-  Monday 14:00   - Sprint work begins
+  Priority 1: User Authentication
+    - Story 1: Login with email/password (8 pts)
+    - Story 2: Forgot password reset (5 pts)
+    - Story 3: MFA support (13 pts)
 
-  Tuesday 09:00  - Daily Scrum (15 min)
-  Wednesday 09:00- Daily Scrum (15 min)
-  Wednesday 14:00- Backlog Refinement (2 hours)
-  Thursday 09:00 - Daily Scrum (15 min)
-  Friday 09:00   - Daily Scrum (15 min)
+  Priority 2: User Profile
+    - Story 1: View profile (3 pts)
+    - Story 2: Edit profile (5 pts)
+    - Story 3: Upload avatar (5 pts)
 
-  Week 2:
-  ───────
-  Monday 09:00   - Daily Scrum (15 min)
-  Tuesday 09:00  - Daily Scrum (15 min)
-  Wednesday 09:00- Daily Scrum (15 min)
-  Thursday 09:00 - Daily Scrum (15 min)
+  Priority 3: Dashboard
+    - Story 1: Show stats (8 pts)
+    - Story 2: Charts and graphs (13 pts)
 
-  Friday 09:00   - Daily Scrum (15 min)
-  Friday 10:00   - Sprint Review (2 hours)
-  Friday 13:00   - Sprint Retrospective (1.5 hours)
-  Friday 15:00   - Sprint ends
+  Estimated Total: ~60 story points
+  At velocity of 20pts/sprint = 3 sprints
+  */
+}
 
-  Next Monday: New Sprint Planning
+// SPRINT BACKLOG
+public class SprintBacklog {
+
+  private String sprintGoal = "Enable user authentication with secure login";
+  private List<Task> tasks;
+
+  /*
+  Sprint Goal: Single focus for 2 weeks
+
+  Stories committed:
+  ═════════════════════════════════════════
+
+  1. User Authentication (8 points)
+     [ ] Design security model
+     [ ] Implement login endpoint
+     [ ] Add password encryption
+     [ ] Write tests
+     [ ] Code review
+
+  2. Forgot Password (5 points)
+     [ ] Design email flow
+     [ ] Implement reset endpoint
+     [ ] Send reset emails
+     [ ] Test email delivery
+
+  3. MFA Support (13 points)  [Carry over from last sprint]
+     [ ] Research MFA libraries
+     [ ] Design MFA flow
+     [ ] Implement TOTP
+     [ ] Test edge cases
+
+  Total: 21 points (based on team velocity)
+  */
+}
+
+// INCREMENT (Product Increment)
+public class Increment {
+
+  /*
+  Definition of Increment:
+  "Sum of all Product Backlog items completed during
+   a Sprint and all previous Sprints"
+
+  Must be:
+  ✓ WORKING - Tested and integrated
+  ✓ RELEASABLE - Can deploy to production
+  ✓ COMPLETE - Meets definition of done
+
+  Sprint 1 Increment:
+  ├─ User login functionality
+  ├─ Password reset flow
+  └─ Unit tests (80% coverage)
+
+  Sprint 2 Increment (cumulative):
+  ├─ User login functionality
+  ├─ Password reset flow
+  ├─ MFA authentication
+  ├─ Security audit passed
+  └─ Integration tests pass
+
+  This is the real measure of progress!
+  Not "70% complete" but actual working features
   */
 }`
-      }
+        },
+        {
+          name: 'Events & Ceremonies',
+          explanation: 'Scrum events provide a rhythm and structure. Sprint Planning kicks off each 2-week sprint with clear goals. Daily Standups keep the team synchronized. Sprint Review demos completed work to stakeholders. Sprint Retrospective reflects on how the team can improve. These timeboxed events prevent endless meetings while ensuring alignment.',
+          codeExample: `// Scrum Events (Ceremonies)
+
+// SPRINT PLANNING (4 hours for 2-week sprint)
+public class SprintPlanning {
+
+  public void conductPlanning() {
+    /*
+    Duration: 4 hours max for 2-week sprint
+    Attendees: Entire team + Product Owner
+
+    Output:
+    - Sprint goal (single focus for sprint)
+    - Sprint backlog (selected stories)
+    - Task breakdown
+    - Commitment from team
+
+    Example Dialog:
+    ─────────────────────────────────────────
+    PO: "I want users to be able to login securely"
+    Team: "We'll complete login + password reset"
+    SM: "Confirm you're committing to 16 points?"
+    Team: "Yes, we can deliver this"
+    PO: "Great! This is your sprint goal"
+    */
+  }
+}
+
+// DAILY STANDUP (15 minutes, same time daily)
+public class DailyStandup {
+
+  public void conduct() {
+    /*
+    Format: Stand in circle (literally standing!)
+
+    Each person shares (2 min):
+    1. What I completed yesterday
+    2. What I'll work on today
+    3. What's blocking me
+
+    Example:
+    ─────────────────────────────────────────
+    Alice: "Completed login UI. Today: password reset.
+            Blocker: Need database schema approval"
+
+    Bob: "Wrote tests for login. Today: code review.
+          No blockers"
+
+    Carol: "Reviewed login code. Today: database schema.
+            No blockers"
+
+    SM: "I'll follow up on database schema approval"
+
+    Duration: Usually 10 minutes, max 15
+
+    NOT a status report to managers!
+    It's team sync for self-organization
+    */
+  }
+}
+
+// SPRINT REVIEW (2 hours for 2-week sprint)
+public class SprintReview {
+
+  public void conductReview() {
+    /*
+    Demo to Stakeholders
+
+    Attendees: Team + Product Owner + Stakeholders
+
+    Goals:
+    - Show working software
+    - Gather feedback
+    - Adjust priorities
+    - Build trust with stakeholders
+
+    Example:
+    ─────────────────────────────────────────
+    Team: "Here's the login feature"
+      [Live demo in staging environment]
+      - Email login works
+      - Password reset works
+      - Error handling works
+
+    Stakeholder: "Great! Can we add OAuth?"
+    PO: "That's valuable. Adding to backlog"
+
+    Stakeholder: "The UI looks good but..."
+    [Feedback incorporated into backlog]
+
+    Focus on WORKING SOFTWARE, not slides!
+    */
+  }
+}
+
+// SPRINT RETROSPECTIVE (1.5 hours for 2-week sprint)
+public class SprintRetrospective {
+
+  public void conductRetro() {
+    /*
+    Team Reflection (without PO usually)
+
+    Attendees: Development Team + Scrum Master
+
+    Questions:
+    - What went well? (celebrate successes)
+    - What could be better? (identify issues)
+    - What will we do differently? (action items)
+
+    Example:
+    ─────────────────────────────────────────
+    Went well:
+    ✓ Code reviews caught security issues early
+    ✓ Test coverage prevented regressions
+    ✓ Team collaboration on hard problems
+
+    Could be better:
+    ✗ Tests took too long to run (30 min)
+    ✗ Unclear story acceptance criteria sometimes
+    ✗ Too many production incidents after deploy
+
+    Action items:
+    → Parallelize test execution (Alice - Sprint 2)
+    → Add checklist to acceptance criteria (PO - ongoing)
+    → Add smoke tests before deploy (Bob - Sprint 2)
+
+    This is the team's continuous improvement engine
+    */
+  }
+}`
+        }
+      ]
     },
     {
-      id: 6,
-      name: 'Agile Estimation',
-      icon: '🎯',
-      color: '#06b6d4',
-      description: 'Story points and velocity tracking',
-      content: {
-        explanation: 'Agile estimation uses relative sizing instead of hours to estimate work. Story Points represent the effort, complexity, and uncertainty of a user story relative to other stories. Teams use Planning Poker with Fibonacci sequence (1, 2, 3, 5, 8, 13) to estimate collaboratively, promoting discussion and consensus. Velocity is the average story points completed per sprint, used for forecasting and capacity planning. T-shirt sizing (XS, S, M, L, XL) provides rough estimates for epics. Estimation focuses on comparing stories rather than predicting exact time.',
-        keyPoints: [
-          'Story Points: Relative sizing representing effort, complexity, and risk',
-          'Fibonacci Sequence: 1, 2, 3, 5, 8, 13, 21 - larger numbers = more uncertainty',
-          'Planning Poker: Team estimation technique using cards, promotes discussion',
-          'Velocity: Average story points completed per sprint, used for forecasting',
-          'T-shirt Sizing: XS, S, M, L, XL for initial rough estimates',
-          'Reference Story: Baseline story (typically 3 points) to compare against',
-          'Re-estimation: Dont re-estimate completed stories, use original estimate for velocity',
-          'Estimation maturity: Teams get better at estimation over time'
-        ],
-        codeExample: `// Agile Estimation Implementation
+      id: 'concept-3',
+      name: 'User Stories',
+      icon: '📝',
+      color: '#f59e0b',
+      description: 'Writing and estimating stories',
+      diagram: UserStoryFormatDiagram,
+      details: [
+        {
+          name: 'Story Format',
+          explanation: 'User stories follow the format: "As a [user role], I want [action], so that [benefit]". This format ensures we capture who needs the feature and why. Stories should be written from the user\'s perspective, be small enough to complete in a sprint, and have clear acceptance criteria. Well-written stories facilitate clear communication between developers and stakeholders.',
+          codeExample: `// User Story Format and Best Practices
 
-// 1. Story Points Fundamentals
-public class StoryPoints {
+/*
+Standard Format:
+"As a [user role], I want [action], so that [benefit]"
 
-  // Fibonacci Scale (most common)
-  /*
-  1 point  - Trivial, almost no effort
-    Example: Change button text
-    Effort: 1-2 hours
-    Complexity: None
-    Risk: None
+Why this format?
+- User role: Defines WHO needs the feature
+- Action: Describes WHAT they want to do
+- Benefit: Explains WHY it matters (business value)
 
-  2 points - Very simple, minimal effort
-    Example: Add new field to form
-    Effort: 2-4 hours
-    Complexity: Low
-    Risk: Low
+Examples:
+*/
 
-  3 points - Simple, straightforward
-    Example: Create new API endpoint (CRUD)
-    Effort: 4-8 hours (about 1 day)
-    Complexity: Low-Medium
-    Risk: Low
+// GOOD User Story
+/*
+Title: User Password Reset
 
-  5 points - Moderate complexity
-    Example: User login with JWT authentication
-    Effort: 1-2 days
-    Complexity: Medium
-    Risk: Medium
+As a user with a forgotten password,
+I want to reset my password via email,
+so that I can regain access to my account.
 
-  8 points - Complex, significant effort
-    Example: Product search with filters
-    Effort: 2-4 days
-    Complexity: High
-    Risk: Medium-High
+Acceptance Criteria:
+✓ User clicks "Forgot Password" link
+✓ User enters email address
+✓ User receives reset email within 1 minute
+✓ Reset link is valid for 24 hours
+✓ User sets new password (min 8 chars)
+✓ User can login with new password
+✓ Old sessions are invalidated
+✓ Works on mobile and desktop
 
-  13 points - Very complex, should split
-    Example: Complete checkout flow
-    Effort: 4+ days
-    Complexity: Very High
-    Risk: High
+Definition of Done:
+✓ Code reviewed and approved
+✓ Unit tests (80%+ coverage)
+✓ Integration tests pass
+✓ Tested in staging
+✓ Works across browsers
+✓ Documentation updated
+*/
 
-  21+ points - Epic, must split into smaller stories
-  */
+// BAD User Story (Technical Task - Not from user perspective)
+/*
+Title: Refactor database layer
 
-  // Why Fibonacci?
-  /*
-  - Reflects uncertainty: larger estimates = more uncertainty
-  - Prevents false precision (no 3.5 or 4 points)
-  - Forces distinction between sizes
-  - Natural sequence in nature and mathematics
-  */
+This is NOT a user story - users don't care
+about refactoring. It should be:
 
-  // Story Point Components
-  public int estimateStory(UserStory story) {
-    int effort = estimateEffort(story);        // How much work?
-    int complexity = estimateComplexity(story); // How difficult?
-    int uncertainty = estimateUncertainty(story); // How much risk?
+"As a developer,
+I want cleaner database queries,
+so that we can add features faster"
 
-    // Story points consider all three dimensions
-    // Not just time!
-    return calculateStoryPoints(effort, complexity, uncertainty);
-  }
-}
+OR frame it as a story that enables customer value:
 
-// 2. Planning Poker Process
+"As a customer,
+I want faster page loads,
+so that I have a better experience"
+
+(Then refactoring is the technical implementation)
+*/
+
+// Story Size Guidelines
+/*
+Size estimates using story points (Fibonacci: 1,2,3,5,8,13)
+
+1-2 points: Can complete in 1-2 days
+  Example: Add login field validation
+
+3-5 points: Can complete in 2-3 days
+  Example: Implement user registration
+
+8 points: Challenging, needs careful work
+  Example: OAuth integration with Google
+
+13 points: Very complex, may need to split
+  Example: Payment system integration
+
+20+ points: TOO BIG - must split into smaller stories
+*/
+
+// How to Split Large Stories
+/*
+Original (20 points - Too Big):
+"As a user, I want to make payments securely"
+
+Split into:
+
+Story 1 (5 pts): "User sees payment form"
+Story 2 (5 pts): "User enters card details"
+Story 3 (8 pts): "Payment processes securely"
+Story 4 (3 pts): "User sees confirmation email"
+
+Now each can be completed in a sprint
+*/`
+        },
+        {
+          name: 'Acceptance Criteria',
+          explanation: 'Acceptance criteria define what "done" means for a story. They should be specific, measurable, and testable - not vague descriptions. Criteria help developers understand exactly what to build and enable QA to verify the feature works correctly. Well-written criteria prevent misunderstandings and reduce rework.',
+          codeExample: `// Acceptance Criteria Best Practices
+
+/*
+Definition: Specific conditions that must be true
+for the story to be considered complete.
+
+Why they matter:
+- Developers know exactly what to build
+- QA knows what to test
+- PO knows when to accept
+- Prevents "almost done" stories
+*/
+
+// GOOD Acceptance Criteria
+/*
+Story: User can update their profile
+
+Acceptance Criteria:
+✓ User can edit first name (required, max 50 chars)
+✓ User can edit last name (required, max 50 chars)
+✓ User can upload new profile picture (jpg/png, max 2MB)
+✓ User can update email (must be unique)
+✓ User can update phone (optional, validate format)
+✓ User sees validation error if field invalid
+✓ User sees success message after save
+✓ Changes persist when user logs out/in
+✓ Form works on mobile (responsive)
+✓ Profile picture crops/centers correctly
+*/
+
+// BAD Acceptance Criteria
+/*
+✗ "User can update profile"
+   → Too vague, doesn't define WHAT
+
+✗ "Should work correctly"
+   → Not testable, too subjective
+
+✗ "Profile updates quickly"
+   → How quick? Not measurable
+*/
+
+// Technical Acceptance Criteria
+/*
+Sometimes include technical requirements:
+
+✓ API returns 200 status on success
+✓ Validation happens client-side (instant feedback)
+✓ Database transaction succeeds or rolls back
+✓ No N+1 queries on load
+✓ Images resize to max 500px width
+✓ Response time < 200ms (API)
+✓ Supports 10,000 concurrent users
+*/
+
+// Testing Against Criteria
+/*
+Acceptance Criteria make testing systematic:
+
+Test 1: Valid Input
+  Input: firstName="John", lastName="Doe"
+  Expected: Success message, data saved
+
+Test 2: Invalid Input
+  Input: firstName="" (empty)
+  Expected: Error message shown
+
+Test 3: Boundary
+  Input: firstName with 50 chars
+  Expected: Accepted
+
+Test 4: Boundary
+  Input: firstName with 51 chars
+  Expected: Error message
+
+Test 5: Edge Case
+  Input: Special characters: "O'Brien"
+  Expected: Accepted
+
+Each criterion should be a test case!
+*/`
+        },
+        {
+          name: 'Estimation',
+          explanation: 'Teams estimate stories using story points (1, 2, 3, 5, 8, 13), not hours. Points represent complexity and risk, not time. The team estimates together in planning poker to expose different perspectives. Over time, teams measure velocity (points completed per sprint) to predict how much they can deliver. Velocity helps with planning and prevents over-commitment.',
+          codeExample: `// Story Point Estimation and Velocity
+
+// STORY POINT SCALE (Fibonacci Sequence)
+/*
+1 point: Trivial
+  - Simple bugfix
+  - Copy-paste existing code
+  - Very straightforward
+  - Example: Add validation to form field
+
+2 points: Easy
+  - Straightforward task
+  - Clear requirements
+  - Low risk
+  - Example: Add new API endpoint
+
+3 points: Simple
+  - Well-understood work
+  - Some unknowns
+  - Example: Implement basic search feature
+
+5 points: Medium
+  - Some complexity
+  - Multiple components
+  - Moderate risk
+  - Example: User authentication flow
+
+8 points: Hard
+  - Significant complexity
+  - Multiple unknowns
+  - Higher risk
+  - Example: OAuth integration
+
+13 points: Very Hard
+  - Very complex
+  - Many unknowns
+  - High risk
+  - Example: Payment system integration
+  - Usually should be split!
+
+? (Unknown): Need more research
+  - Spike/research task needed
+  - Example: "Evaluate caching options"
+*/
+
+// PLANNING POKER
 public class PlanningPoker {
-
-  // Team-based estimation technique
-  public int conductPlanningPoker(UserStory story, List<TeamMember> team) {
-    /*
-    Step 1: Product Owner reads story
-    "As a user, I want to reset my password via email,
-     so that I can regain access to my account"
-
-    Step 2: Team asks clarifying questions
-    - How is identity verified?
-    - How long is reset link valid?
-    - What about security requirements?
-    - Any integration with email service?
-
-    Step 3: Each team member selects estimate card (1,2,3,5,8,13)
-    Sarah:   3 points
-    John:    5 points
-    Mike:    5 points
-    Lisa:    8 points
-
-    Step 4: Reveal cards simultaneously (no anchoring)
-
-    Step 5: Discuss differences
-    Lisa (8): "Email service integration is complex. We need
-               to handle retries, failures, and security."
-
-    Sarah (3): "We already have email service. This is just
-                creating reset token and sending email."
-
-    Step 6: Discussion and re-vote
-    After discussion:
-    Sarah:   5 points (agreed complexity higher)
-    John:    5 points
-    Mike:    5 points
-    Lisa:    5 points
-
-    Step 7: Consensus reached - Story estimated at 5 points
-
-    If no consensus after 2-3 rounds:
-    - Take average or higher estimate
-    - Or identify what's unclear and defer estimation
-    */
-
-    return conductVote(story, team);
-  }
-
-  // Planning Poker Cards
   /*
-  Standard Deck:
-  0   - No effort (documentation change)
-  ½   - Minimal effort (not commonly used)
-  1   - Trivial
-  2   - Very simple
-  3   - Simple
-  5   - Moderate
-  8   - Complex
-  13  - Very complex
-  20  - Epic (split)
-  40  - Epic (definitely split)
-  100 - Epic (way too big)
-  ?   - Need more information
-  ∞   - Too large/undefined to estimate
-  ☕   - Need a break!
-  */
+  Estimation Technique:
 
-  // Remote Planning Poker
-  public void remotePlanningPoker() {
-    /*
-    Tools:
-    - PlanningPoker.com
-    - Scrum Poker Online
-    - Planning Poker in Jira
-    - Miro/Mural virtual cards
-
-    Best Practices:
-    ✓ Use video calls (see reactions)
-    ✓ Screen share story details
-    ✓ Use timer for discussions
-    ✓ Digital polling for reveals
-    */
-  }
-}
-
-// 3. Velocity Tracking
-public class VelocityTracker {
-
-  // Calculate velocity
-  public double calculateVelocity(List<Sprint> sprints) {
-    /*
-    Sprint 1: 18 points completed
-    Sprint 2: 22 points completed
-    Sprint 3: 20 points completed
-    Sprint 4: 16 points completed (team member out sick)
-    Sprint 5: 21 points completed
-    Sprint 6: 23 points completed
-
-    Average Velocity: 20 points per sprint
-
-    Use rolling average (last 3-6 sprints)
-    Ignore outliers (abnormal sprints)
-    */
-
-    return sprints.stream()
-      .mapToInt(Sprint::getCompletedPoints)
-      .average()
-      .orElse(0);
-  }
-
-  // Velocity for Forecasting
-  public void forecastRelease(ProductBacklog backlog, double velocity) {
-    /*
-    Product Backlog:
-    Epic 1: User Authentication (35 points)
-    Epic 2: Product Catalog (48 points)
-    Epic 3: Shopping Cart (28 points)
-    Epic 4: Checkout (42 points)
-    Total: 153 points
-
-    Team Velocity: 20 points per sprint (2 weeks)
-
-    Forecast:
-    153 points ÷ 20 points/sprint = 7.65 sprints
-    = 8 sprints × 2 weeks = 16 weeks to complete
-
-    With buffer (20%): 16 weeks × 1.2 = ~19 weeks
-
-    Target Release Date: ~5 months from now
-    */
-
-    int totalPoints = backlog.getTotalPoints();
-    int sprintsNeeded = (int) Math.ceil(totalPoints / velocity);
-    int weeksNeeded = sprintsNeeded * 2; // 2-week sprints
-
-    System.out.println("Estimated completion: " + weeksNeeded + " weeks");
-  }
-
-  // Velocity Chart
-  public void displayVelocityChart() {
-    /*
-    Story Points
-    30 │
-       │              ╭─●
-    25 │         ╭────╯
-       │    ╭────╯
-    20 │────●────●────●─── Average Velocity
-       │    │    │    │
-    15 │    │    │    │
-       │    │    │    │
-    10 │    │    │    │
-       └────┴────┴────┴────
-         S1   S2   S3   S4   Sprint
-
-    Committed vs Completed:
-    Sprint 3: Committed 25, Completed 23
-    Sprint 4: Committed 22, Completed 22
-    Sprint 5: Committed 20, Completed 24 (under-committed)
-    */
-  }
-
-  // Velocity Anti-Patterns
-  public void velocityAntiPatterns() {
-    /*
-    ❌ Treating velocity as productivity metric
-    ✅ Use for planning, not performance evaluation
-
-    ❌ Comparing team velocities
-    ✅ Story points are team-specific
-
-    ❌ Pressuring team to increase velocity
-    ✅ Let velocity stabilize naturally
-
-    ❌ Re-estimating completed stories
-    ✅ Use original estimates for historical velocity
-
-    ❌ Adding hours to calculate velocity
-    ✅ Velocity is in story points only
-
-    ❌ Gaming estimates to hit velocity targets
-    ✅ Honest estimates maintain forecasting accuracy
-    */
-  }
-}
-
-// 4. T-Shirt Sizing
-public class TShirtSizing {
-
-  // Initial rough estimates for epics
-  public enum Size {
-    XS,  // Extra Small: 1-2 sprints, 20-40 points
-    S,   // Small: 2-3 sprints, 40-60 points
-    M,   // Medium: 3-5 sprints, 60-100 points
-    L,   // Large: 5-8 sprints, 100-160 points
-    XL   // Extra Large: 8+ sprints, 160+ points (split!)
-  }
-
-  // Example T-Shirt Sizing
-  /*
-  Epic: E-commerce Platform
-
-  XS - User Profile Management
-       (Edit profile, change password, manage preferences)
-
-  S  - Product Catalog
-       (Browse products, search, filters, product details)
-
-  M  - Shopping Cart & Checkout
-       (Add to cart, modify cart, checkout flow, payment)
-
-  L  - Order Management
-       (Order history, tracking, returns, notifications)
-
-  XL - Admin Dashboard
-       (Product management, user management, analytics, reports)
-       >> Too large! Split into smaller epics
+  1. PO reads story aloud
+  2. Team asks clarifying questions
+  3. Each person picks a card (1-13 or ?)
+  4. Everyone reveals simultaneously
+  5. Discuss differences:
+     - High estimate: "This is risky, needs design first"
+     - Low estimate: "We did similar recently"
+  6. Re-estimate if discussion changes understanding
+  7. Reach consensus
 
   Benefits:
-  - Quick estimates without details
-  - Good for portfolio/roadmap planning
-  - Easy for non-technical stakeholders
-  - Converts to story points later
+  ✓ Exposes different perspectives
+  ✓ Prevents groupthink
+  ✓ Reveals uncertainties
+  ✓ Team commitment to estimate
   */
-
-  public int convertToStoryPoints(Size size, int velocity) {
-    // Rough conversion
-    return switch (size) {
-      case XS -> velocity * 1;   // 1 sprint worth
-      case S  -> velocity * 2;   // 2 sprints
-      case M  -> velocity * 4;   // 4 sprints
-      case L  -> velocity * 7;   // 7 sprints
-      case XL -> velocity * 12;  // Way too big!
-    };
-  }
 }
 
-// 5. Estimation Techniques
-public class EstimationTechniques {
-
-  // Technique 1: Reference Stories
-  public void referenceStoryMethod() {
-    /*
-    Select baseline reference stories:
-
-    1 point: Change button color
-    2 points: Add validation to form field
-    3 points: Create simple CRUD API endpoint (REFERENCE)
-    5 points: User login with authentication
-    8 points: Product search with filters
-
-    Compare new stories to reference:
-    "Is this story bigger or smaller than reference (3 points)?"
-    "Is it twice as complex? Use 5 points"
-    "Is it simpler? Use 2 points"
-    */
-  }
-
-  // Technique 2: Affinity Mapping
-  public void affinityMapping() {
-    /*
-    Physical or virtual board with columns:
-
-    1    2    3    5    8    13
-    ────────────────────────────
-    [Story cards moved to appropriate columns]
-
-    Process:
-    1. Place all story cards on table
-    2. Team silently sorts stories into columns
-    3. Discuss stories in wrong columns
-    4. Move until consensus
-    5. Fast estimation for many stories
-    */
-  }
-
-  // Technique 3: Bucket System
-  public void bucketSystem() {
-    /*
-    Similar to affinity mapping but uses buckets:
-    0, 1, 2, 3, 5, 8, 13, 20, 40, 100, ?, ∞
-
-    Fast estimation for large backlog refinement
-    Rough estimates, refined later with Planning Poker
-    */
-  }
-
-  // Technique 4: Relative Mass Valuation
-  public void relativeMassValuation() {
-    /*
-    Compare stories like comparing weights:
-    - Story A is twice as heavy as Story B
-    - Story C is half of Story A
-    - Builds relative understanding
-    */
-  }
-}
-
-// 6. Estimation Maturity
-public class EstimationMaturity {
+// VELOCITY TRACKING
+public class VelocityTracking {
 
   /*
-  Sprint 1-3: Estimation Variance High
-  ══════════════════════════════════════
-  Team still learning, estimates off by 50%+
-  Velocity unstable (15-30 points)
-  Many stories incomplete
-  Re-estimation needed
+  Velocity = Story points completed per sprint
 
-  Sprint 4-8: Estimation Improving
-  ══════════════════════════════════════
-  Better understanding of complexity
-  Estimates off by 20-30%
-  Velocity stabilizing (18-22 points)
-  Fewer incomplete stories
+  Sprint 1: Completed 16 points
+  Sprint 2: Completed 20 points
+  Sprint 3: Completed 18 points
+  Sprint 4: Completed 21 points
+  Sprint 5: Completed 19 points
+  Sprint 6: Completed 20 points
 
-  Sprint 9+: Estimation Mature
-  ══════════════════════════════════════
-  Accurate relative sizing
-  Estimates consistently close to actual
-  Stable velocity (19-21 points)
-  Predictable sprint outcomes
+  Average Velocity: 19 points per sprint
+
+  This enables predictability:
+
+  Backlog: 114 points of work
+  Velocity: 19 points/sprint
+  Estimate: 114 / 19 = 6 sprints = 12 weeks
+
+  For stakeholders: "We can deliver by Q3"
   */
-
-  public void estimationCalibration() {
-    /*
-    Review completed stories:
-    - Was 5-point story actually 5 points?
-    - Did 2-point story take as long as expected?
-    - Adjust understanding for future estimates
-
-    Don't change historical estimates!
-    Learn from differences for next time
-    */
-  }
 }
 
-// 7. Estimation Metrics
-public class EstimationMetrics {
-
-  // Burndown Chart
-  public void burndownChart() {
-    /*
-    Story Points Remaining
-
-    40 │●
-       │ ╲
-    30 │  ●
-       │   ╲
-    20 │    ●
-       │     ╲  Ideal
-    10 │      ●─╲─
-       │         ╲●
-     0 │          ●
-       └───────────────── Sprint Days
-         0 2 4 6 8 10
-
-    Shows remaining work over sprint
-    Track if team is on pace
-    Identify scope increases
-    */
-  }
-
-  // Burnup Chart
-  public void burnupChart() {
-    /*
-    Story Points
-
-    60 │          ╭──── Total Scope
-       │        ╭─╯
-    40 │      ╭─╯
-       │    ╭─╯
-    20 │  ╭─╯  ●────●────● Completed
-       │ ╯    ╱
-     0 │    ╱
-       └──────────────────── Sprints
-         1   2   3   4   5
-
-    Shows work completed over time
-    Shows scope changes
-    Better for releases (multiple sprints)
-    */
-  }
-
-  // Cumulative Flow Diagram
-  public void cumulativeFlowDiagram() {
-    /*
-    Visualizes work in different states over time
-    Helps identify bottlenecks
-    Shows WIP (Work in Progress)
-    */
-  }
-}
-
-// 8. Estimation Best Practices
-public class EstimationBestPractices {
+// COMMON MISTAKES
+public class EstimationMistakes {
   /*
-  ✓ Estimate as a team (whole team)
-  ✓ Use relative sizing, not hours
-  ✓ Base estimates on current team composition
-  ✓ Include all work (dev, test, review)
-  ✓ Re-estimate only if requirements change significantly
-  ✓ Track velocity for 3-6 sprints before forecasting
-  ✓ Don't compare velocities between teams
-  ✓ Use estimates for planning, not judging performance
-  ✓ Split stories > 13 points
-  ✓ Focus on conversation during estimation
-  ✓ Capture learning from completed stories
-  ✓ Don't pad estimates with buffers (already in points)
+  ✗ Mixing points with hours
+    "This is 5 points = 40 hours"
+    → Points are relative complexity, not hours
 
-  ✗ Don't estimate in hours
-  ✗ Don't let one person estimate alone
-  ✗ Don't pressure team on velocity
-  ✗ Don't re-estimate completed stories
-  ✗ Don't treat story points as commitments
-  ✗ Don't use velocity as productivity metric
-  ✗ Don't estimate every task, only user stories
-  ✗ Don't change estimates to fit in sprint
+  ✗ Pressuring to increase velocity
+    PO: "Why not 50 points next sprint?"
+    → Velocity is what team can actually deliver
+    → Forcing it leads to burnout and bugs
+
+  ✗ Using velocity to compare teams
+    Team A: 25 points/sprint
+    Team B: 15 points/sprint
+    → Different story point scales, team sizes
+    → Can't compare across teams
+
+  ✗ Including estimates in performance reviews
+    "Developer estimated wrong, fired"
+    → Estimates are team guesses, not individuals
+    → Creates fear of honest estimation
+
+  ✓ DO use velocity for planning
+  ✓ DO track trends over time
+  ✓ DO discuss estimation differences
+  ✓ DO adjust process, not people
   */
 }`
-      }
+        }
+      ]
     },
     {
-      id: 7,
-      name: 'Agile Best Practices',
-      icon: '✨',
-      color: '#84cc16',
-      description: 'Definition of Done and continuous improvement',
-      content: {
-        explanation: 'Agile Best Practices ensure teams deliver high-quality software sustainably. The Definition of Done (DoD) is a shared understanding of what "complete" means, ensuring consistent quality standards. Continuous improvement happens through retrospectives and experimentation. Team collaboration involves pair programming, code reviews, and knowledge sharing. Velocity tracking and burndown charts provide transparency. Limit work-in-progress to maintain focus. Embrace change and feedback. Maintain sustainable pace to prevent burnout. Metrics like velocity, cycle time, and defect rates guide improvement.',
-        keyPoints: [
-          'Definition of Done: Shared checklist ensuring every story meets quality standards',
-          'Continuous Improvement: Regular retrospectives with actionable improvements',
-          'Team Collaboration: Pair programming, code reviews, collective ownership',
-          'Velocity Tracking: Historical average used for capacity planning and forecasting',
-          'Burndown Charts: Visualize sprint progress and remaining work',
-          'Limit WIP: Focus on completing stories before starting new ones',
-          'Sustainable Pace: 40-hour weeks, avoid overtime, prevent burnout',
-          'Metrics: Track velocity, cycle time, defect rate, customer satisfaction'
-        ],
-        codeExample: `// Agile Best Practices Implementation
+      id: 'concept-4',
+      name: 'Scrum Ceremonies',
+      icon: '👥',
+      color: '#8b5cf6',
+      description: 'Daily standups and key events',
+      diagram: CeremoniesDiagram,
+      details: [
+        {
+          name: 'Daily Standup',
+          explanation: 'The Daily Standup is a 15-minute timeboxed meeting where each team member shares three things: what they completed yesterday, what they\'ll work on today, and any blockers. The team literally stands in a circle to keep it brief and focused. This is not a status report to managers but a team synchronization to identify blockers and coordinate work. If someone discusses something at length, they should "park it" for a separate conversation after.',
+          codeExample: `// Daily Standup Best Practices
 
-// 1. Definition of Done (DoD)
+public class DailyStandup {
+
+  /*
+  WHEN: Every day, same time (9:00 AM)
+  WHERE: Team area (in-person if possible)
+  HOW LONG: 15 minutes MAXIMUM
+
+  If over 15 min: Park detailed discussions
+  for after standup with relevant people
+  */
+
+  public void threeQuestions() {
+    /*
+    1. What did I complete yesterday?
+
+       Good: "Implemented login validation"
+       Bad: "Fixed some bugs and stuff"
+
+    2. What will I work on today?
+
+       Good: "Building password reset flow"
+       Bad: "Continuing on my tasks"
+
+    3. What's blocking me?
+
+       Good: "Need DB approval for schema"
+       Bad: "Nothing, all good"
+    */
+  }
+
+  public void format() {
+    /*
+    Visual Format (Circle, standing):
+
+           Alice ← Yesterday: login validation
+                   Today: password reset
+                   Blocker: None
+
+           Bob                Carol
+    Yesterday: Tests       Yesterday: DB schema
+    Today: Code review     Today: Deployment
+    Blocker: Password      Blocker: None
+
+           David
+    Yesterday: API work
+    Today: Bug fixes
+    Blocker: Need Carol's schema
+
+    SM: "Carol, David needs schema today?"
+    Carol: "Yes, 2 hours"
+    SM: "David, can you start API tests meanwhile?"
+    */
+  }
+}
+
+// ANTI-PATTERNS (What NOT to do)
+
+public class StandupAntiPatterns {
+
+  public void wrongApproach1() {
+    /*
+    ✗ Status Report to Manager
+
+    Manager asks each person:
+    "What are you working on?"
+    "When will it be done?"
+    "Are you on track?"
+
+    Problems:
+    - People feel micromanaged
+    - Team doesn't connect with each other
+    - Just reporting, not solving blockers
+    - Takes 30+ minutes
+
+    ✓ Instead: Team stands in circle
+      Each person talks to TEAM, not manager
+      Focus on blockers and coordination
+    */
+  }
+
+  public void wrongApproach2() {
+    /*
+    ✗ Detailed Technical Discussions
+
+    Alice: "I'm working on query optimization"
+    Bob: "How are you doing it? Have you tried..."
+    Carol: "I used a similar approach in..."
+    [15 minutes of technical discussion]
+
+    ✓ Instead:
+    Alice: "Query optimization, no blockers"
+    [After standup: Alice, Bob, Carol discuss approach]
+    */
+  }
+
+  public void wrongApproach3() {
+    /*
+    ✗ Checking if people worked
+
+    SM: "Did everyone work 8 hours yesterday?"
+    SM: "Who did actual coding vs meetings?"
+
+    Problems:
+    - Creates distrust
+    - People feel watched
+    - Doesn't improve team velocity
+
+    ✓ Trust the team
+      Focus on blockers, not hours
+    */
+  }
+}
+
+// RUNNING EFFECTIVE STANDUPS
+
+public class EffectiveStandup {
+
+  public void timeboxing() {
+    /*
+    If discussion takes > 30 seconds:
+
+    SM: "Let's discuss this separately"
+
+    Park long discussions for:
+    - Right after standup (interested parties)
+    - Dedicated discussion time
+    - Async Slack thread
+
+    Standup must stay 15 minutes!
+    */
+  }
+
+  public void blockersEscalation() {
+    /*
+    Blocker identified:
+
+    David: "Waiting for external API docs"
+    SM: "I'll follow up today, update in standup tomorrow"
+
+    SM responsibility:
+    - Own blocker resolution
+    - Update team next day
+    - Escalate if needed
+    - Don't let blockers linger > 24 hours
+    */
+  }
+
+  public void remoteStandups() {
+    /*
+    If team is distributed:
+
+    Option 1: Video call (best)
+    - Standup at specific time
+    - Camera on (face-to-face)
+    - 15 minutes strict
+
+    Option 2: Async (when impossible)
+    - Posted in Slack at fixed time
+    - Team responds within 1 hour
+    - SM identifies blockers
+    - Follow-up call if too many blockers
+
+    Avoid: Email chains, multiple channels
+    */
+  }
+}`
+        },
+        {
+          name: 'Sprint Review',
+          explanation: 'The Sprint Review is a ceremony to demonstrate completed work to stakeholders. The team shows working software (not slides or prototypes) and gathers feedback. This is not about status reporting but about collaborating with customers and adjusting priorities. The review influences backlog prioritization - if stakeholders love a feature, related work moves higher priority.',
+          codeExample: `// Sprint Review Best Practices
+
+public class SprintReview {
+
+  /*
+  WHEN: Last day of sprint, last 2 hours
+  WHO: Dev team + Scrum Master + Product Owner
+       + Key stakeholders + Customers
+  FORMAT: Demo-driven, interactive
+  OUTPUT: Stakeholder feedback → backlog adjustments
+  */
+
+  public void preparation() {
+    /*
+    Day before review:
+    - Verify all completed work is demo-ready
+    - Test in staging environment
+    - Have demo script prepared (not slides)
+    - Ensure internet/WiFi stable
+    - Have backup demo (video, local copy)
+
+    Worst demo: "Let me just load this page..."
+                [spinner spinning]
+                [awkward silence]
+    */
+  }
+
+  public void demoing() {
+    /*
+    Demo Best Practices:
+
+    ✓ Live demo from working software
+      [Open login page]
+      [Enter credentials]
+      [Page loads, shows user profile]
+      → Much more convincing than mockup
+
+    ✓ Let stakeholders try it
+      "Here, try logging in with this account"
+      "Try changing your profile picture"
+      → People engage with actual product
+
+    ✓ Walk through acceptance criteria
+      "Per requirements, email validation..."
+      [Shows validation message]
+      → Proves feature is complete
+
+    ✗ Avoid: Reading from PowerPoint slides
+    ✗ Avoid: Only showing frontend screenshots
+    ✗ Avoid: "Trust me, it works" without demo
+    */
+  }
+
+  public void gatheringFeedback() {
+    /*
+    During demo:
+
+    Stakeholder: "Can we add OAuth login too?"
+    PO: [Writing in backlog]
+
+    Stakeholder: "This UI is confusing"
+    Team: "Can you show us what's confusing?"
+    [Discussion about UX]
+
+    Stakeholder: "Performance is great!"
+    Team: "Thanks! We optimized the queries"
+
+    Notes:
+    - Feature requests → backlog items
+    - Bug reports → backlog items
+    - Praise → reinforces good decisions
+    - Questions → shows understanding gaps
+    */
+  }
+
+  public void backlogImpact() {
+    /*
+    Review generates backlog adjustments:
+
+    Before review:
+    Backlog Priority:
+    1. Advanced search (5 pts) - Medium priority
+    2. OAuth login (8 pts) - Low priority
+    3. Admin panel (13 pts) - High priority
+
+    Feedback: "OAuth is critical! Many users use Google"
+
+    After review:
+    Backlog Priority:
+    1. OAuth login (8 pts) - NOW HIGH priority
+    2. Advanced search (5 pts) - Medium priority
+    3. Admin panel (13 pts) - Still high, but after OAuth
+
+    Next sprint PO picks OAuth first!
+    */
+  }
+}
+
+// COMMON MISTAKES
+
+public class ReviewMistakes {
+
+  public void wrongApproach1() {
+    /*
+    ✗ Blaming team for incomplete work
+
+    PO: "Why wasn't X completed?"
+    Developer: [defensive]
+    "Well, we hit technical issues..."
+
+    This shuts down honest communication.
+
+    ✓ Instead: Matter-of-fact discussion
+    "We estimated X at 5 points but
+     discovered it was more complex.
+     Here's what we learned.
+     Next time we'll..."
+
+    Focus on process improvement, not blame.
+    */
+  }
+
+  public void wrongApproach2() {
+    /*
+    ✗ Scope creeping in review
+
+    Stakeholder: "Can you add this other feature?"
+    PO: "Sure, we'll add it this sprint"
+    [Sprint is already full]
+
+    Result: Overcommitment, missed goals
+
+    ✓ Instead:
+    PO: "Great idea! Adding to backlog.
+         We can prioritize for Sprint N."
+
+    Backlog is for capturing ideas.
+    Current sprint commitment doesn't change.
+    */
+  }
+
+  public void wrongApproach3() {
+    /*
+    ✗ Only technical team present
+
+    Review becomes internal:
+    "Look at our beautiful code architecture"
+    Stakeholders don't care about code!
+
+    ✓ Invite actual users/stakeholders
+    "Here's the new feature you requested"
+    "Does this solve your problem?"
+    "What would improve this?"
+    */
+  }
+}`
+        },
+        {
+          name: 'Sprint Retrospective',
+          explanation: 'The Sprint Retrospective is a team reflection on how to improve. Without the Product Owner, the team discusses what went well, what could improve, and commits to action items for next sprint. Retrospectives are essential for continuous improvement. The Scrum Master facilitates but doesn\'t lead - the team drives the discussion. Format varies: Start-Stop-Continue, Glad-Sad-Mad, or simple What Went Well/Could Be Better.',
+          codeExample: `// Sprint Retrospective Best Practices
+
+public class SprintRetrospective {
+
+  /*
+  WHEN: Last day of sprint, 1.5 hours for 2-week sprint
+  WHO: Development team + Scrum Master (no PO usually)
+  WHY: Continuous improvement, team ownership
+  OUTPUT: 1-3 action items for next sprint
+  */
+
+  public void psych() {
+    /*
+    Retrospective must feel SAFE:
+
+    ✓ Confidential - what's said stays in room
+    ✓ Blameless - focus on systems, not people
+    ✓ Respectful - everyone's view matters
+    ✓ Actionable - don't just complain
+
+    If team fears feedback:
+    "I can't say we failed because
+     management might punish us"
+    → Team never improves
+
+    If blameless:
+    "Tests took 30 min. Let's parallelize"
+    → Action: Run tests in parallel
+    → Faster feedback loop
+    → Team improves
+    */
+  }
+
+  public void format() {
+    /*
+    Simple Format (Start - Stop - Continue):
+
+    START: "We should start doing..."
+    - Start pair programming for complex features
+    - Start code reviews before committing
+    - Start writing tests first
+
+    STOP: "We should stop doing..."
+    - Stop having long meetings
+    - Stop context switching
+    - Stop delaying retrospectives
+
+    CONTINUE: "We should keep doing..."
+    - Continue daily standups (they help)
+    - Continue code reviews (they catch bugs)
+    - Continue writing tests (prevents regressions)
+    */
+  }
+
+  public void discussion() {
+    /*
+    Facilitate Deeper Thinking:
+
+    Observation: "Tests are slow"
+
+    SM: "Why are tests slow?"
+    Team: "We run all tests sequentially"
+
+    SM: "What's the impact?"
+    Team: "Developers wait 30 min for feedback"
+
+    SM: "How could we improve?"
+    Team: "Run tests in parallel on CI"
+
+    Action: "Alice will investigate parallel testing,
+            report in next retro"
+    */
+  }
+
+  public void actionItems() {
+    /*
+    Retrospectives produce action items:
+
+    Good Action Item:
+    - Specific: "Set up parallel test execution"
+    - Owned: "Alice owns this"
+    - Deadline: "Complete by Sprint 2 day 3"
+    - Measurable: "Tests run in 5 min vs 30 min"
+
+    Bad Action Item:
+    - Vague: "Improve team communication"
+    - Unowned: "We should all communicate better"
+    - No deadline: "Sometime soon"
+    - Unmeasurable: "Do better"
+
+    Typical: 1-3 action items per sprint
+    Too many: Team can't focus
+    Zero items: Not actually improving
+    */
+  }
+}
+
+// ADVANCED RETROSPECTIVE TECHNIQUES
+
+public class RetroVariations {
+
+  public void gladSadMad() {
+    /*
+    Alternative Format (Emotional):
+
+    GLAD: What are we happy about?
+    - Quick deployment process
+    - Team collaboration
+    - Feature shipped on time
+
+    SAD: What disappointed us?
+    - Database performance issues
+    - Unclear requirements from PO
+    - One person blocked for days
+
+    MAD: What frustrated us?
+    - Build server kept crashing
+    - Third-party API was unreliable
+    - Interruptions from support team
+
+    Discussion → Action items
+    */
+  }
+
+  public void sailboat() {
+    /*
+    Visual Format (Sailboat):
+
+         ⛵
+        ╱  ╲
+       ╱    ╲      ISLAND (Goal)
+      ╱      ╲     "Deliver payment system"
+    ────────────
+    │         │
+
+    Wind: Helping us move
+    - Skilled team
+    - Good tooling
+    - Clear requirements
+
+    Anchor: Slowing us down
+    - Slow deployment
+    - Unclear requirements
+    - Production bugs
+
+    Island: Our goal
+    - Delivery date
+    - Feature completeness
+    - Performance targets
+    */
+  }
+
+  public void retrospectiveGoals() {
+    /*
+    Track improvement across sprints:
+
+    Sprint 1 Retro:
+    Action: "Parallelize tests"
+    Result: Test time: 30 min → 10 min ✓
+
+    Sprint 2 Retro:
+    Action: "Improve deployment process"
+    Result: Deploy time: 45 min → 10 min ✓
+
+    Sprint 3 Retro:
+    Action: "Better requirements clarity"
+    Result: Stories returned: 3 → 0 ✓
+
+    This is continuous improvement!
+    Each sprint better than last.
+    */
+  }
+}`
+        }
+      ]
+    },
+    {
+      id: 'concept-5',
+      name: 'Best Practices',
+      icon: '✨',
+      color: '#ec4899',
+      description: 'Definition of Done and metrics',
+      diagram: EstimationDiagram,
+      details: [
+        {
+          name: 'Definition of Done',
+          explanation: 'Definition of Done (DoD) is a shared agreement on what "complete" means. Without it, some people think "done" means "code written" while others think it means "tested and deployed". A clear DoD prevents surprises and ensures quality. DoD typically includes code review, tests, documentation, and often deployment to staging. Different items might have different DoD levels, but all must meet the minimum.',
+          codeExample: `// Definition of Done (DoD)
+
 public class DefinitionOfDone {
 
-  // Comprehensive DoD Checklist
-  public boolean isStoryDone(UserStory story) {
-    /*
-    DEVELOPMENT COMPLETE
-    ══════════════════════════════════════════════
-    ✓ Code written and follows coding standards
-    ✓ Code checked into version control (Git)
-    ✓ Feature branch merged to main/develop
-    ✓ No compiler warnings
-    ✓ No code quality issues (SonarQube clean)
-    ✓ Technical debt identified and documented
-
-    TESTING COMPLETE
-    ══════════════════════════════════════════════
-    ✓ Unit tests written and passing (>80% coverage)
-    ✓ Integration tests written and passing
-    ✓ Acceptance criteria verified
-    ✓ Manual testing completed
-    ✓ Regression testing passed
-    ✓ No critical or high-priority bugs
-    ✓ Performance acceptable (meets SLA)
-    ✓ Security review completed
-
-    CODE REVIEW COMPLETE
-    ══════════════════════════════════════════════
-    ✓ Peer review completed
-    ✓ At least one approval from team member
-    ✓ Review feedback addressed
-    ✓ Architecture review (if needed)
-
-    DOCUMENTATION COMPLETE
-    ══════════════════════════════════════════════
-    ✓ API documentation updated
-    ✓ README updated (if needed)
-    ✓ Release notes updated
-    ✓ User documentation updated (if customer-facing)
-    ✓ Runbooks updated (if operational changes)
-
-    DEPLOYMENT READY
-    ══════════════════════════════════════════════
-    ✓ Deployed to staging environment
-    ✓ Smoke tests passing on staging
-    ✓ Product Owner acceptance obtained
-    ✓ Ready for production deployment
-    ✓ Rollback plan documented
-    ✓ Database migrations tested
-
-    NON-FUNCTIONAL REQUIREMENTS
-    ══════════════════════════════════════════════
-    ✓ Performance requirements met
-    ✓ Security requirements met
-    ✓ Accessibility requirements met (WCAG)
-    ✓ Browser compatibility verified
-    ✓ Mobile responsiveness verified
-    ✓ Monitoring/alerting configured
-    */
-
-    return story.isDevelopmentComplete() &&
-           story.isTestingComplete() &&
-           story.isReviewed() &&
-           story.isDocumented() &&
-           story.isDeploymentReady() &&
-           story.meetsNonFunctionalRequirements();
-  }
-
-  // DoD varies by team and context
   /*
-  Early-stage startup DoD (minimal):
-  ✓ Code works
-  ✓ Manually tested
-  ✓ Deployed to production
-
-  Enterprise DoD (comprehensive):
-  ✓ All automated tests passing
-  ✓ Security scan clean
-  ✓ Performance tested
-  ✓ Compliance requirements met
-  ✓ Documentation complete
-  ✓ Multiple environment deployments
+  Team Agreement: A story is DONE when:
   */
+
+  // CODE QUALITY
+  public void codeQuality() {
+    /*
+    ✓ Code written following team standards
+    ✓ Code reviewed by at least 1 peer
+    ✓ Code review approved (not just seen)
+    ✓ No code smells or obvious issues
+    ✓ Follows language/framework conventions
+    ✓ Proper error handling
+    ✓ No hardcoded values
+    */
+  }
+
+  // TESTING
+  public void testing() {
+    /*
+    ✓ Unit tests written for new code
+    ✓ Unit tests passing (100%)
+    ✓ Test coverage ≥ 80%
+    ✓ Integration tests pass
+    ✓ No regression in existing tests
+    ✓ Manual testing completed
+    ✓ Edge cases considered
+    */
+  }
+
+  // DOCUMENTATION
+  public void documentation() {
+    /*
+    ✓ Code comments for complex logic
+    ✓ Public methods have JavaDoc
+    ✓ README updated if needed
+    ✓ API documentation updated
+    ✓ Database schema documented
+    ✓ Configuration documented
+    */
+  }
+
+  // DEPLOYMENT
+  public void deployment() {
+    /*
+    ✓ Code deployed to staging
+    ✓ Works in staging environment
+    ✓ Works on multiple browsers (if web)
+    ✓ Works on mobile (if applicable)
+    ✓ Performance acceptable
+    ✓ No errors in logs
+    ✓ Ready for production (even if not deployed)
+    */
+  }
+
+  // ACCEPTANCE
+  public void acceptance() {
+    /*
+    ✓ Acceptance criteria met
+    ✓ Product Owner reviews
+    ✓ Product Owner accepts
+    ✓ No critical bugs
+    ✓ Ready for release
+    */
+  }
 }
 
-// 2. Continuous Improvement
-public class ContinuousImprovement {
+// SAMPLE DEFINITION OF DONE
 
-  // Track improvement metrics
-  public void trackImprovements(List<Sprint> sprints) {
+public class SampleDoD {
+
+  public void checklist() {
     /*
-    Velocity Trend:
-    Sprint 1: 15 points
-    Sprint 2: 18 points
-    Sprint 3: 20 points
+    Story: User can reset password
+
+    Before marking DONE, verify:
+
+    DEVELOPMENT TASKS:
+    ☐ Code written
+    ☐ Unit tests written (80%+ coverage)
+    ☐ All tests passing
+    ☐ Code reviewed and approved
+    ☐ No TODO comments in code
+    ☐ Handles error cases (invalid email, etc)
+    ☐ Follows security best practices
+    ☐ Deployed to staging
+    ☐ Works on Chrome, Firefox, Safari
+    ☐ Responsive on mobile
+    ☐ Load time < 2 seconds
+
+    DOCUMENTATION:
+    ☐ Code comments added
+    ☐ API documentation updated
+    ☐ Database schema documented
+    ☐ README updated
+
+    ACCEPTANCE:
+    ☐ Acceptance criteria met
+    ☐ No regression in other features
+    ☐ Product Owner tested and approved
+
+    When all checked: DONE! ✓
+    */
+  }
+}
+
+// TECHNICAL DEBT IN DOD
+
+public class TechnicalDebtManagement {
+
+  public void debtAllocation() {
+    /*
+    Allocate 20% of sprint capacity to debt:
+
+    Sprint capacity: 20 points
+    New features: 16 points (80%)
+    Technical debt: 4 points (20%)
+
+    Debt work:
+    ✓ Refactoring
+    ✓ Upgrading dependencies
+    ✓ Improving test coverage
+    ✓ Performance optimization
+    ✓ Security patches
+    ✓ Code cleanup
+    ✓ Build process improvements
+
+    All debt work follows SAME DoD as features!
+    */
+  }
+
+  public void preventAccumulation() {
+    /*
+    If team ignores debt:
+
+    Sprint 1: Code works, but messy
+    Sprint 2: Adding features gets slower
+    Sprint 3: Tests take too long
+    Sprint 4: Bugs increase
+    Sprint 5: Team velocity plummets
+    Sprint 6: Rewrite project from scratch ❌
+
+    If team allocates 20% to debt:
+
+    Sprint 1: Feature + refactor
+    Sprint 2: Feature + update dependencies
+    Sprint 3: Feature + improve tests
+    Sprint 4-N: Steady velocity, high quality ✓
+    */
+  }
+}`
+        },
+        {
+          name: 'Metrics & Velocity',
+          explanation: 'Velocity is the number of story points completed per sprint. It\'s a planning tool, not a performance metric for individuals. Velocity trends show if the team is accelerating, stable, or declining. Declining velocity might indicate technical debt, team turnover, or increased complexity. Use velocity to predict how much work can fit in future sprints. Velocity should be team metric, never used in performance reviews.',
+          codeExample: `// Metrics and Velocity Tracking
+
+public class VelocityMetrics {
+
+  public void tracking() {
+    /*
+    Velocity = Story points delivered per sprint
+
+    Sprint Results:
+    ═════════════════════════════════════════
+    Sprint 1: 16 points
+    Sprint 2: 20 points
+    Sprint 3: 18 points
     Sprint 4: 21 points
-    Sprint 5: 22 points
-    → Improving velocity (team maturing)
+    Sprint 5: 19 points
+    Sprint 6: 20 points
 
-    Defect Trend:
-    Sprint 1: 12 bugs
-    Sprint 2: 8 bugs
-    Sprint 3: 5 bugs
-    Sprint 4: 3 bugs
-    Sprint 5: 2 bugs
-    → Improving quality
-
-    Code Coverage:
-    Sprint 1: 45%
-    Sprint 2: 58%
-    Sprint 3: 68%
-    Sprint 4: 75%
-    Sprint 5: 82%
-    → Improving test coverage
+    Average: 19 points/sprint
+    Trend: Stable around 19-20 points
     */
   }
 
-  // Kaizen (Small continuous improvements)
-  public void implementKaizen() {
+  public void planning() {
     /*
-    Sprint 1 Improvement:
-    - Add pre-commit hooks for code formatting
+    Use velocity to predict delivery:
 
-    Sprint 2 Improvement:
-    - Implement parallel test execution (tests run 3x faster)
+    Backlog: 114 story points
+    Team velocity: 19 points/sprint
+    Sprints needed: 114 / 19 = 6 sprints
+    Timeline: 6 × 2 weeks = 12 weeks
 
-    Sprint 3 Improvement:
-    - Add automated deployment to staging
+    PO: "When can we launch?"
+    Team: "In 12 weeks with this scope"
 
-    Sprint 4 Improvement:
-    - Create story template with acceptance criteria
-
-    Sprint 5 Improvement:
-    - Implement feature flags for safer deployments
-
-    Small changes compound over time!
+    PO: "I need it in 8 weeks"
+    Team: "We can deliver 152 points in 8 weeks"
+    PO: "That's only 67% of backlog"
+    → Prioritize what's most important
     */
   }
 
-  // Retrospective Action Tracking
-  public class ActionItem {
-    private String action;
-    private String owner;
-    private String dueDate;
-    private String status;
-
-    // Example:
+  public void interpretation() {
     /*
-    Action: Set up automated PR review reminders
-    Owner: John
-    Due: Sprint 4
-    Status: Complete
+    Increasing Velocity:
+    ✓ Team learning domain
+    ✓ Process improvements working
+    ✓ Team gelling (forming → storming → norming)
+    ✓ Technical debt decreasing
 
-    Action: Reduce sprint commitment by 10%
-    Owner: Team
-    Due: Sprint 4 Planning
-    Status: In Progress
+    Stable Velocity:
+    ✓ Team settled in
+    ✓ Good planning and estimation
+    ✓ Sustainable pace
+    ✓ Can predict delivery dates
 
-    Action: Add performance tests to DoD
-    Owner: Mike
-    Due: Sprint 4
-    Status: Complete
-    */
-  }
-
-  // Learning culture
-  public void fosterLearning() {
-    /*
-    ✓ Lunch & Learn sessions (weekly)
-    ✓ Tech talks (bi-weekly)
-    ✓ Conference attendance
-    ✓ Internal training budget
-    ✓ Pair programming (knowledge sharing)
-    ✓ Code reviews (learning opportunity)
-    ✓ Documentation as you go
-    ✓ Failure retrospectives (blameless)
+    Decreasing Velocity:
+    ⚠ Accumulating technical debt
+    ⚠ Team members leaving
+    ⚠ New team members (learning curve)
+    ⚠ Increasing complexity
+    ⚠ Burnout/unsustainable pace
+    → Investigate and improve process
     */
   }
 }
 
-// 3. Team Collaboration Practices
-public class TeamCollaboration {
+// OTHER METRICS
 
-  // Pair Programming
-  public void pairProgramming() {
+public class OtherMetrics {
+
+  public void burndown() {
     /*
-    Driver (typing):
-    - Writes code
-    - Focuses on tactical details
-    - Implements solution
+    Sprint Burndown Chart:
+    Track remaining story points day-by-day
 
-    Navigator (reviewing):
-    - Reviews code as it's written
-    - Thinks strategically
-    - Suggests improvements
-    - Catches errors early
+    Ideal: Straight line down
+    Actual: Jagged, eventually reaching zero
 
-    Benefits:
-    ✓ Higher code quality
-    ✓ Knowledge sharing
-    ✓ Fewer bugs
-    ✓ Better design discussions
-    ✓ Onboarding new team members
-    ✓ Complex problems solved faster
+    Day:  0   2   4   6   8  10
+    Ideal 40  32  24  16  8   0  ▄▄▄▄▄
+    Actual 40  38  35  22  15  0
 
-    When to pair:
-    - Complex features
-    - Critical functionality
-    - Bug fixing
-    - Code reviews
-    - Knowledge transfer
-    - Learning new technology
+    ▁▄▂▃▂▄▃ (jagged but reaches zero ✓)
+
+    If stuck above zero on final day:
+    → Sprint goal at risk → Escalate
     */
   }
 
-  // Code Review Best Practices
-  public class CodeReview {
+  public void cycleTime() {
     /*
-    Reviewer Checklist:
-    ✓ Does code meet requirements?
-    ✓ Is code readable and maintainable?
-    ✓ Are there tests?
-    ✓ Are there edge cases missed?
-    ✓ Are there security issues?
-    ✓ Is error handling appropriate?
-    ✓ Is performance acceptable?
-    ✓ Does it follow team conventions?
+    Cycle Time: Days from start to done
 
-    Review Guidelines:
-    - Review within 4 hours
-    - Provide constructive feedback
-    - Ask questions, don't command
-    - Praise good code
-    - Focus on code, not person
-    - Use automated tools first (linters)
+    Story created: Jan 10
+    Story finished: Jan 15
+    Cycle Time: 5 days
 
-    Good Comment:
-    "Consider using a HashMap here for O(1) lookup
-     instead of iterating through the list (O(n))"
+    Improving cycle time:
+    → Can deliver to customers faster
+    → Get feedback faster
+    → Fix issues faster
+    → Respond to market faster
 
-    Bad Comment:
-    "This is wrong. Use a HashMap."
+    Measure: Average cycle time over sprints
+    Target: Decreasing over time
     */
   }
 
-  // Daily Standup Effectiveness
-  public void effectiveStandup() {
+  public void defectDensity() {
     /*
-    ✓ Same time, same place daily
-    ✓ Exactly 15 minutes (use timer)
-    ✓ Stand up (keeps it short)
-    ✓ Focus on Sprint Goal progress
-    ✓ Identify blockers immediately
-    ✓ Park detailed discussions
-    ✓ Update task board during standup
-    ✓ Anyone can facilitate (not just Scrum Master)
+    Defect Density: Bugs found per point delivered
 
-    Red Flags:
-    ✗ Standup runs over 20 minutes
-    ✗ Detailed problem solving during standup
-    ✗ Status reports to manager
-    ✗ People arrive late consistently
-    ✗ No discussion of blockers
-    ✗ Team members unprepared
-    */
-  }
+    Sprint 4:
+    - Delivered: 20 points
+    - Bugs found after deployment: 2
+    - Defect Density: 2/20 = 0.1 bugs/point
 
-  // Team Norms and Working Agreements
-  public void teamNorms() {
-    /*
-    Example Team Working Agreement:
-
-    Core Hours:
-    - Team available 10 AM - 3 PM daily
-    - Flexible outside core hours
-
-    Communication:
-    - Slack for quick questions
-    - Video calls for discussions
-    - Email for external communication
-    - Response time: 2 hours during core hours
-
-    Code Standards:
-    - Follow team coding conventions
-    - Code reviews within 4 hours
-    - All tests must pass before merge
-    - No commits directly to main
-
-    Meetings:
-    - Cameras on for team meetings
-    - Decline meetings if not needed
-    - Send agenda 24 hours before
-    - Start and end on time
-
-    Work-Life Balance:
-    - No expectation to work evenings/weekends
-    - Take time off when needed
-    - Respect PTO - no work contact
-    - Support each other
-    */
-  }
-}
-
-// 4. Metrics and Measurement
-public class AgileMetrics {
-
-  // Velocity (Story Points per Sprint)
-  public double calculateVelocity(List<Sprint> sprints) {
-    return sprints.stream()
-      .mapToInt(Sprint::getCompletedPoints)
-      .average()
-      .orElse(0);
-  }
-
-  // Cycle Time (Time from start to done)
-  public long calculateCycleTime(UserStory story) {
-    /*
-    Story started: Jan 10, 9:00 AM
-    Story completed: Jan 12, 3:00 PM
-    Cycle Time: 2.25 days
-
-    Target: Stories < 5 points should complete in 2-3 days
-    */
-    return ChronoUnit.HOURS.between(
-      story.getStartTime(),
-      story.getCompletionTime()
-    ) / 24;
-  }
-
-  // Lead Time (Time from request to delivery)
-  public long calculateLeadTime(UserStory story) {
-    /*
-    Story created: Jan 5
-    Story delivered: Jan 12
-    Lead Time: 7 days
-
-    Includes time in backlog waiting to be started
-    */
-    return ChronoUnit.DAYS.between(
-      story.getCreationTime(),
-      story.getDeliveryTime()
-    );
-  }
-
-  // Sprint Burndown
-  public void trackBurndown(Sprint sprint) {
-    /*
-    Day 0: 40 points remaining
-    Day 2: 35 points remaining
-    Day 4: 28 points remaining
-    Day 6: 22 points remaining
-    Day 8: 12 points remaining
-    Day 10: 0 points remaining ✓
-
-    Ideal vs Actual burndown shows if on track
-    */
-  }
-
-  // Defect Density
-  public double calculateDefectDensity(Sprint sprint) {
-    /*
-    Bugs found: 5
-    Story points delivered: 20
-    Defect Density: 0.25 bugs per point
-
-    Track over time:
-    Sprint 1: 0.50 bugs/point
+    Trend:
+    Sprint 1: 0.5 bugs/point (quality low)
     Sprint 2: 0.35 bugs/point
     Sprint 3: 0.25 bugs/point
-    Sprint 4: 0.20 bugs/point
-    → Quality improving
+    Sprint 4: 0.1 bugs/point (quality improving!)
+
+    Target: Decrease over time
     */
-    return (double) sprint.getBugCount() / sprint.getCompletedPoints();
   }
 
-  // Sprint Goal Success Rate
-  public double sprintGoalSuccessRate(List<Sprint> sprints) {
+  public void leadTime() {
     /*
-    Last 6 sprints:
-    Sprint 1: Goal met ✓
-    Sprint 2: Goal partially met ⚠
-    Sprint 3: Goal met ✓
-    Sprint 4: Goal met ✓
-    Sprint 5: Goal not met ✗
-    Sprint 6: Goal met ✓
+    Lead Time: Days from request to delivery
 
-    Success Rate: 67% (4/6 fully met)
-    */
-    long successfulSprints = sprints.stream()
-      .filter(Sprint::isGoalMet)
-      .count();
+    Story created: Jan 1
+    Story deployed: Jan 20
+    Lead Time: 19 days
 
-    return (double) successfulSprints / sprints.size();
-  }
+    Includes:
+    - Days waiting in backlog (14 days)
+    - Days in sprint (5 days)
 
-  // Team Happiness Metric
-  public void trackTeamMorale() {
-    /*
-    Weekly happiness survey (1-5 scale):
-
-    Week 1: 4.2 average
-    Week 2: 4.5 average
-    Week 3: 3.8 average (investigate drop)
-    Week 4: 4.3 average (improved after retrospective)
-
-    Track trends and address issues
-    Happy teams are productive teams
+    Reducing lead time:
+    ✓ Priorities clearer (less backlog wait)
+    ✓ Process efficient (less sprint time)
+    ✓ Customers happier (faster delivery)
     */
   }
 }
 
-// 5. Sustainable Pace
+// METRICS ANTI-PATTERNS
+
+public class MetricsAntiPatterns {
+
+  public void velocityPerformanceReview() {
+    /*
+    ✗ DON'T tie velocity to performance reviews:
+
+    Manager: "Developer A had lower velocity"
+    Team: [Fear] "We'll overcommit next sprint"
+    Result: Burnout, burnout, missed goals
+
+    ✓ Velocity is TEAM metric
+    If team velocity is low, investigate:
+    - Process issues? → Improve process
+    - Too much scope? → Prioritize
+    - Technical debt? → Allocate time
+    - Team burnout? → Reduce workload
+    */
+  }
+
+  public void velocityComparison() {
+    /*
+    ✗ DON'T compare velocity across teams:
+
+    Team A: 25 points/sprint
+    Team B: 15 points/sprint
+    Manager: "Why is Team B less productive?"
+
+    Problems:
+    - Different story point scales
+    - Different team sizes
+    - Different problem complexity
+    - Different tech stacks
+
+    Comparing is misleading and demoralizing
+    */
+  }
+
+  public void forcingVelocity() {
+    /*
+    ✗ DON'T force velocity to increase:
+
+    PO: "Why wasn't velocity 30 points?"
+    Team: "Our realistic capacity is 20"
+    PO: "Push harder, commit to 30"
+
+    Result in weeks 2-3:
+    - Team working nights/weekends
+    - Quality drops
+    - Bugs increase
+    - Team burnout
+    - Turnover
+
+    ✓ Velocity is what team can sustainably deliver
+    Accept it, plan based on it
+    */
+  }
+}`
+        },
+        {
+          name: 'Continuous Improvement',
+          explanation: 'Agile embraces continuous improvement through retrospectives and metrics. Teams should regularly reflect on what\'s working and what isn\'t, then commit to small improvements each sprint. Improvements might be process-related (shiorten meeting), technical (parallelize tests), or people-related (pair programming). Small consistent improvements compound into significant productivity gains over time.',
+          codeExample: `// Continuous Improvement Philosophy
+
+public class ContinuousImprovement {
+
+  public void kaizen() {
+    /*
+    Kaizen: Japanese philosophy of continuous improvement
+
+    Key Ideas:
+    ✓ Small improvements regularly > big changes rarely
+    ✓ Everyone participates in improvement
+    ✓ Focus on process, not people
+    ✓ Data-driven decisions
+    ✓ Implement, measure, adjust, repeat
+
+    Example: Test execution
+
+    Sprint 1 Retro:
+    - Tests take 30 minutes
+    - Action: "Run tests in parallel"
+    - Result: 15 minutes
+    - Improvement: 50%
+
+    Sprint 2 Retro:
+    - Tests take 15 minutes
+    - Action: "Skip tests for migrations"
+    - Result: 12 minutes
+    - Improvement: 20%
+
+    Sprint 3 Retro:
+    - Tests take 12 minutes
+    - Action: "Optimize database queries"
+    - Result: 8 minutes
+    - Improvement: 33%
+
+    Cumulative: 30 min → 8 min (73% improvement!)
+    */
+  }
+
+  public void actionItems() {
+    /*
+    Retrospective Action Items:
+
+    Sprint 1:
+    - Issue: Code reviews take too long
+    - Action: Limit PR to 400 lines
+    - Owner: Alice
+    - Target: Sprint 2 day 1
+
+    Sprint 2:
+    - Review Alice's status
+    - Measure: Average review time 2 hours → 45 min
+    - Success! Continue practice
+    - New issue: Deployment is slow
+    - Action: Automate deployment steps
+    - Owner: Bob
+
+    Sprint 3:
+    - Deployment time: 45 min → 10 min
+    - Success!
+    - New issue: Developers revert to long PRs
+    - Action: Code review tool enforces 400-line limit
+    - Owner: Carol
+
+    This is incremental improvement compounding
+    */
+  }
+}
+
+// SUSTAINABILITY AND PACE
+
 public class SustainablePace {
 
-  // Work-life balance
-  public void maintainSustainablePace() {
+  public void workLifeBalance() {
     /*
-    40-hour work weeks
-    ══════════════════════════════════════════════
+    Agile supports sustainable pace:
+
+    ✓ 40-hour work weeks (standard)
     ✓ No expectation of overtime
-    ✓ No weekend work (except critical issues)
+    ✓ No weekend work (except critical outages)
     ✓ Respect PTO and time off
-    ✓ Flexible hours when possible
+    ✓ Flexible hours where possible
     ✓ No late-night deployments regularly
 
-    Signs of unsustainable pace:
+    Signs of UNsustainable pace:
     ✗ Team working nights/weekends regularly
     ✗ Increasing bugs and technical debt
-    ✗ Declining velocity over time
-    ✗ Team burnout and turnover
+    ✗ Velocity declining over sprints
+    ✗ Team turnover increasing
     ✗ Decreased code quality
     ✗ Missing sprint goals repeatedly
 
@@ -3090,436 +2112,469 @@ public class SustainablePace {
     ✓ Reduce sprint commitment
     ✓ Add buffer time
     ✓ Invest in technical debt
-    ✓ Improve estimation
+    ✓ Improve estimation accuracy
     ✓ Protect team from interruptions
     ✓ Hire additional team members
     */
   }
 
-  // Technical Debt Management
-  public void manageTechnicalDebt() {
+  public void technicalDebt() {
     /*
-    Allocate 20% of sprint capacity to technical debt
+    Allocate 20% sprint capacity to debt:
 
-    Sprint capacity: 20 points
+    Total capacity: 20 points
     New features: 16 points (80%)
-    Tech debt: 4 points (20%)
+    Technical debt: 4 points (20%)
 
-    Tech debt work:
-    - Refactoring
+    Debt work types:
+    - Refactoring old code
     - Upgrading dependencies
     - Improving test coverage
-    - Fixing performance issues
-    - Improving deployment pipeline
-    - Documentation
+    - Performance optimization
+    - Security patches
+    - Build process improvements
+    - Documentation cleanup
 
-    Don't let debt accumulate!
+    If debt not addressed:
+    Sprint N: Velocity 20 points
+    Sprint N+1: Velocity 18 points (tests slow)
+    Sprint N+2: Velocity 16 points (more code fragile)
+    Sprint N+3: Velocity 12 points (deployment breaks)
+    → Compounding problem
+
+    If debt allocated 20% of time:
+    Sprint N: Velocity 20 points
+    Sprint N+1-5: Velocity 20 points (maintained)
+    → Sustainable, consistent delivery
     */
   }
 }
 
-// 6. Agile Anti-Patterns to Avoid
+// ANTI-PATTERNS TO AVOID
+
 public class AgileAntiPatterns {
-  /*
-  ❌ Scrum-but
-  "We do Scrum, but we skip retrospectives"
-  "We do Scrum, but Product Owner is never available"
-  ✅ Follow Scrum framework completely or adapt transparently
 
-  ❌ Agile Theater
-  Going through motions without embracing mindset
-  ✅ Focus on principles, not just rituals
+  public void scrumBut() {
+    /*
+    "We do Scrum, but..."
 
-  ❌ Mini-Waterfall Sprints
-  Requirements → Design → Development → Testing in sequence
-  ✅ Cross-functional work throughout sprint
+    ✗ "We do Scrum, but we skip retrospectives"
+    ✗ "We do Scrum, but Product Owner is never in meetings"
+    ✗ "We do Scrum, but we change sprint mid-way"
+    ✗ "We do Scrum, but we don't track velocity"
 
-  ❌ Velocity as Performance Metric
-  Comparing teams, pressuring to increase velocity
-  ✅ Use velocity for planning only
+    If you skip core practices:
+    → You're not doing Scrum
+    → You lose the benefits
 
-  ❌ Changing Sprint Length
-  2-week sprints, then 3-week, then 1-week
-  ✅ Consistent sprint length
+    ✓ Either do Scrum fully, or adapt transparently
+    "We modified Scrum because..."
+    [Document why and measure impact]
+    */
+  }
 
-  ❌ Not Protecting Sprint
-  Adding work mid-sprint, changing requirements
-  ✅ Protect sprint commitment
+  public void agileTheater() {
+    /*
+    ✗ Going through motions without commitment:
 
-  ❌ Skipping Ceremonies
-  "Too busy to do retrospective"
-  ✅ All ceremonies are essential
+    - Standups where nobody talks to each other
+    - Retrospectives where nothing changes
+    - Planning where PO isn't engaged
+    - Sprints where no one cares about goal
 
-  ❌ Large Teams
-  12-person "Agile team"
-  ✅ Keep teams 5-9 people, split if larger
+    Result: Zero benefit from Agile
 
-  ❌ No Definition of Done
-  "Done" means different things
-  ✅ Clear shared DoD
+    ✓ Agile is mindset, not just ceremonies
+    Focus on principles:
+    - Customer collaboration (real)
+    - Working software (real)
+    - Continuous improvement (real)
+    */
+  }
 
-  ❌ Technical Stories
-  "Refactor database" without user value
-  ✅ Frame work in terms of user value
-  */
-}
+  public void fixedScopeVsNegotiable() {
+    /*
+    ✗ "We must deliver all 100 points this sprint"
 
-// 7. Scaling Agile
-public class ScalingAgile {
-  /*
-  Single Team: Pure Scrum
-  ══════════════════════════════════════════════
-  5-9 people, one Product Owner, one Scrum Master
+    Pressure to force 100 points:
+    - Overcommitment
+    - Burnout
+    - Low quality
+    - Missed goals anyway
 
-  Multiple Teams (2-9 teams): Scrum of Scrums
-  ══════════════════════════════════════════════
-  - Representatives from each team meet daily
-  - Coordinate dependencies
-  - Resolve cross-team impediments
-  - Synchronize integrations
+    ✓ Negotiate scope:
+    "We can deliver 20 points
+     in 2 weeks with quality.
+     Which 20 are most important?"
 
-  Large Organizations: SAFe, LeSS, or Spotify Model
-  ══════════════════════════════════════════════
-  SAFe (Scaled Agile Framework):
-  - Program Increments (PI) - 8-12 week cycles
-  - Multiple Agile Release Trains
-  - Portfolio, Program, Team levels
-
-  LeSS (Large-Scale Scrum):
-  - One Product Backlog
-  - One Definition of Done
-  - One Sprint across all teams
-
-  Spotify Model:
-  - Squads (small teams)
-  - Tribes (collection of squads)
-  - Chapters (functional groups)
-  - Guilds (communities of interest)
-
-  Key Principles for Scaling:
-  ✓ Keep teams small and autonomous
-  ✓ Minimize dependencies between teams
-  ✓ Clear interfaces and contracts
-  ✓ Shared Product Backlog
-  ✓ Synchronized sprints
-  ✓ Regular cross-team sync
-  */
+    Agile trades scope flexibility for
+    stable time and cost predictability
+    */
+  }
 }`
-      }
+        }
+      ]
     }
   ]
 
-  const selectedTopicRef = useRef(selectedTopic)
-  useEffect(() => {
-    selectedTopicRef.current = selectedTopic
-  }, [selectedTopic])
+  const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
+
+  const handlePreviousConcept = () => {
+    if (selectedConceptIndex > 0) {
+      setSelectedConceptIndex(selectedConceptIndex - 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  const handleNextConcept = () => {
+    if (selectedConceptIndex < concepts.length - 1) {
+      setSelectedConceptIndex(selectedConceptIndex + 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  // =============================================================================
+  // BREADCRUMB CONFIGURATION
+  // =============================================================================
+
+  const buildBreadcrumbStack = () => {
+    const stack = [
+      { name: 'Projects', icon: '🚀', page: 'Projects' },
+      { name: 'Agile & Scrum', icon: '📋', page: 'Agile & Scrum' }
+    ]
+    if (selectedConcept) {
+      stack.push({ name: selectedConcept.name, icon: selectedConcept.icon })
+    }
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index, item) => {
+    if (index === 0) {
+      onBack()
+    } else if (index === 1 && selectedConcept) {
+      setSelectedConceptIndex(null)
+    }
+  }
+
+  // =============================================================================
+  // KEYBOARD NAVIGATION
+  // =============================================================================
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
-        if (selectedTopicRef.current) {
-          e.preventDefault()
-          e.stopImmediatePropagation()
-          setSelectedTopic(null)
-          return
+        e.preventDefault()
+        e.stopPropagation()
+        if (selectedConcept) {
+          setSelectedConceptIndex(null)
+        } else {
+          onBack()
         }
+      } else if (e.key === 'ArrowLeft' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handlePreviousConcept()
+      } else if (e.key === 'ArrowRight' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handleNextConcept()
       }
     }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConceptIndex, onBack])
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
+  // =============================================================================
+  // STYLES
+  // =============================================================================
+
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f172a 0%, #164e63 50%, #0f172a 100%)',
+    padding: '2rem',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
+  }
+
+  const headerStyle = {
+    maxWidth: '1400px',
+    margin: '0 auto 2rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '1rem'
+  }
+
+  const titleStyle = {
+    fontSize: '2.5rem',
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #06b6d4, #0891b2)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    margin: 0
+  }
+
+  const backButtonStyle = {
+    padding: '0.75rem 1.5rem',
+    background: `rgba(8, 145, 178, 0.2)`,
+    border: '1px solid rgba(8, 145, 178, 0.3)',
+    borderRadius: '0.5rem',
+    color: '#06b6d4',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    transition: 'all 0.2s'
+  }
+
+  // =============================================================================
+  // RENDER
+  // =============================================================================
 
   return (
-    <div style={{
-      padding: '2rem',
-      maxWidth: '95%',
-      margin: '120px auto 0',
-      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
-      borderRadius: '16px',
-      boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-      border: '3px solid #374151'
-    }}>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '2rem'
-      }}>
+    <div style={containerStyle}>
+      <div style={headerStyle}>
+        <h1 style={titleStyle}>Agile & Scrum</h1>
         <button
+          style={backButtonStyle}
           onClick={onBack}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            fontWeight: '600',
-            backgroundColor: '#2563eb',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = `rgba(8, 145, 178, 0.3)`
+            e.currentTarget.style.transform = 'translateY(-2px)'
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = `rgba(8, 145, 178, 0.2)`
+            e.currentTarget.style.transform = 'translateY(0)'
           }}
         >
-          ← Back to Menu
+          ← Back to Projects
         </button>
-        <h1 style={{
-          fontSize: '2.5rem',
-          fontWeight: '800',
-          color: 'white',
-          margin: 0,
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-        }}>
-          Agile & Scrum
-        </h1>
-        <div style={{ width: '120px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
-
-      <div style={{
-        backgroundColor: '#1f2937',
-        padding: '2.5rem 10rem',
-        borderRadius: '16px',
-        border: '3px solid #374151',
-        marginBottom: '2rem'
-      }}>
-        <p style={{
-          fontSize: '1.3rem',
-          color: '#9ca3af',
-          fontWeight: '500',
-          margin: 0,
-          lineHeight: '1.8',
-          textAlign: 'center'
-        }}>
-          Comprehensive Agile and Scrum guide covering Agile principles, Scrum framework, sprint planning,
-          user stories, Scrum ceremonies, estimation techniques, and best practices for continuous improvement.
-        </p>
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          colors={AGILE_COLORS}
+        />
       </div>
 
       <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
         display: 'grid',
-        gridTemplateColumns: selectedTopic ? '350px 1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '2rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gap: '1.5rem'
       }}>
-        {!selectedTopic ? (
-          agileScrumTopics.map((topic) => (
-            <div
-              key={topic.id}
-              onClick={() => setSelectedTopic(topic)}
-              style={{
-                backgroundColor: '#1f2937',
-                padding: '2rem',
-                borderRadius: '12px',
-                border: '2px solid #374151',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                height: '200px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#374151'
-                e.currentTarget.style.borderColor = topic.color
-                e.currentTarget.style.transform = 'translateY(-4px)'
-                e.currentTarget.style.boxShadow = `0 8px 16px ${topic.color}33`
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#1f2937'
-                e.currentTarget.style.borderColor = '#374151'
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
-            >
-              <div>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{topic.icon}</div>
-                <h3 style={{
-                  fontSize: '1.3rem',
-                  fontWeight: '700',
-                  color: topic.color,
-                  margin: '0 0 0.5rem 0'
-                }}>
-                  {topic.name}
-                </h3>
-                <p style={{
-                  fontSize: '0.9rem',
-                  color: '#9ca3af',
-                  margin: 0,
-                  lineHeight: '1.5'
-                }}>
-                  {topic.description}
-                </p>
-              </div>
-              <div style={{
-                fontSize: '0.85rem',
-                fontWeight: '600',
-                color: topic.color,
-                marginTop: '1rem'
-              }}>
-                Click to explore →
-              </div>
+        {concepts.map((concept, index) => (
+          <div
+            key={concept.id}
+            onClick={() => setSelectedConceptIndex(index)}
+            style={{
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              border: `1px solid ${concept.color}40`,
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = `0 20px 40px ${concept.color}20`
+              e.currentTarget.style.borderColor = concept.color
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.borderColor = `${concept.color}40`
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
+              <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
             </div>
-          ))
-        ) : (
-          <>
-            <div>
-              <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: 'white',
-                marginBottom: '1.5rem'
-              }}>
-                Agile & Scrum Topics
-              </h3>
-              <div style={{ display: 'grid', gap: '1rem' }}>
-                {agileScrumTopics.map((topic) => (
-                  <div
-                    key={topic.id}
-                    onClick={() => setSelectedTopic(topic)}
-                    style={{
-                      backgroundColor: selectedTopic?.id === topic.id
-                        ? `${topic.color}15`
-                        : '#1f2937',
-                      padding: '1rem',
-                      borderRadius: '8px',
-                      border: selectedTopic?.id === topic.id
-                        ? `3px solid ${topic.color}`
-                        : '2px solid #374151',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (selectedTopic?.id !== topic.id) {
-                        e.currentTarget.style.backgroundColor = '#374151'
-                        e.currentTarget.style.borderColor = '#4b5563'
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (selectedTopic?.id !== topic.id) {
-                        e.currentTarget.style.backgroundColor = '#1f2937'
-                        e.currentTarget.style.borderColor = '#374151'
-                      }
-                    }}
-                  >
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem'
-                    }}>
-                      <span style={{ fontSize: '1.5rem' }}>{topic.icon}</span>
-                      <div style={{
-                        fontSize: '1rem',
-                        fontWeight: '700',
-                        color: selectedTopic?.id === topic.id ? topic.color : 'white'
-                      }}>
-                        {topic.name}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
+            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+              {concept.details.length} topics • Click to explore
             </div>
+          </div>
+        ))}
+      </div>
 
-            <div>
-              <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: selectedTopic.color,
-                marginBottom: '1.5rem',
+      {selectedConcept && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '2rem'
+          }}
+          onClick={() => setSelectedConceptIndex(null)}
+        >
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              maxWidth: '1200px',
+              maxHeight: '92vh',
+              overflow: 'auto',
+              border: `1px solid ${selectedConcept.color}40`
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Breadcrumb
+              breadcrumbStack={buildBreadcrumbStack()}
+              onBreadcrumbClick={handleBreadcrumbClick}
+              colors={AGILE_COLORS}
+            />
+
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1.5rem',
+              paddingBottom: '1rem',
+              borderBottom: '1px solid #334155'
+            }}>
+              <h2 style={{
+                color: selectedConcept.color,
+                margin: 0,
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.75rem'
+                gap: '0.5rem',
+                fontSize: '1.25rem'
               }}>
-                <span style={{ fontSize: '2rem' }}>{selectedTopic.icon}</span>
-                {selectedTopic.name}
-              </h3>
-
-              <div style={{
-                backgroundColor: '#1f2937',
-                padding: '1.5rem',
-                borderRadius: '12px',
-                border: '2px solid #374151',
-                marginBottom: '1.5rem'
-              }}>
-                <p style={{
-                  fontSize: '1rem',
-                  color: '#9ca3af',
-                  fontWeight: '500',
-                  margin: 0,
-                  lineHeight: '1.7',
-                  textAlign: 'justify'
-                }}>
-                  {selectedTopic.content.explanation}
-                </p>
-              </div>
-
-              <div style={{
-                backgroundColor: '#1f2937',
-                padding: '1.5rem',
-                borderRadius: '12px',
-                border: '2px solid #374151',
-                marginBottom: '1.5rem'
-              }}>
-                <h4 style={{
-                  fontSize: '1.1rem',
-                  fontWeight: '700',
-                  color: selectedTopic.color,
-                  margin: '0 0 1rem 0'
-                }}>
-                  Key Points
-                </h4>
-                <div style={{ display: 'grid', gap: '0.75rem' }}>
-                  {selectedTopic.content.keyPoints.map((point, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '0.5rem',
-                        padding: '0.75rem',
-                        backgroundColor: '#374151',
-                        borderRadius: '6px',
-                        fontSize: '0.9rem',
-                        color: '#9ca3af',
-                        lineHeight: '1.6'
-                      }}
-                    >
-                      <span style={{
-                        color: selectedTopic.color,
-                        fontWeight: '700',
-                        fontSize: '1.2rem',
-                        lineHeight: '1'
-                      }}>
-                        •
-                      </span>
-                      {point}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h4 style={{
-                  fontSize: '1.1rem',
-                  fontWeight: '700',
-                  color: selectedTopic.color,
-                  margin: '0 0 1rem 0'
-                }}>
-                  Code Examples
-                </h4>
-                <div style={{
-                  backgroundColor: '#1e293b',
-                  padding: '1.5rem',
-                  borderRadius: '12px',
-                  border: '2px solid #374151'
-                }}>
-                  <SyntaxHighlighter code={selectedTopic.content.codeExample} />
-                </div>
+                <span>{selectedConcept.icon}</span>
+                {selectedConcept.name}
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button
+                  onClick={handlePreviousConcept}
+                  disabled={selectedConceptIndex === 0}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >←</button>
+                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>
+                  {selectedConceptIndex + 1}/{concepts.length}
+                </span>
+                <button
+                  onClick={handleNextConcept}
+                  disabled={selectedConceptIndex === concepts.length - 1}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >→</button>
+                <button
+                  onClick={() => setSelectedConceptIndex(null)}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: '#f87171',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    marginLeft: '0.5rem'
+                  }}
+                >✕</button>
               </div>
             </div>
-          </>
-        )}
-      </div>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {selectedConcept.details.map((detail, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedDetailIndex(i)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)',
+                    border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`,
+                    borderRadius: '0.5rem',
+                    color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: selectedDetailIndex === i ? '600' : '400',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {detail.name}
+                </button>
+              ))}
+            </div>
+
+            {(() => {
+              const detail = selectedConcept.details[selectedDetailIndex]
+              const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
+              return (
+                <div>
+                  {DiagramComponent && (
+                    <div style={{
+                      background: 'rgba(15, 23, 42, 0.6)',
+                      borderRadius: '0.75rem',
+                      padding: '1rem',
+                      marginBottom: '1.5rem',
+                      border: '1px solid #334155'
+                    }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
+
+                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>
+                    {detail.name}
+                  </h3>
+
+                  <p style={{
+                    color: '#e2e8f0',
+                    lineHeight: '1.8',
+                    marginBottom: '1rem',
+                    background: colorScheme.bg,
+                    border: `1px solid ${colorScheme.border}`,
+                    borderRadius: '0.5rem',
+                    padding: '1rem',
+                    textAlign: 'left'
+                  }}>
+                    {detail.explanation}
+                  </p>
+
+                  {detail.codeExample && (
+                    <SyntaxHighlighter
+                      language="java"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        padding: '1rem',
+                        margin: 0,
+                        borderRadius: '0.5rem',
+                        fontSize: '0.8rem',
+                        border: '1px solid #334155',
+                        background: '#0f172a'
+                      }}
+                      codeTagProps={{ style: { background: 'transparent' } }}
+                    >
+                      {detail.codeExample}
+                    </SyntaxHighlighter>
+                  )}
+                </div>
+              )
+            })()}
+
+          </div>
+        </div>
+      )}
     </div>
   )
 }

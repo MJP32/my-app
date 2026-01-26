@@ -1,6 +1,682 @@
 import { useState } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
 
+// SVG Diagram: High-Level Architecture
+const FoodDeliveryArchitectureDiagram = () => (
+  <svg viewBox="0 0 900 500" className="w-full h-auto" style={{ maxWidth: '900px', margin: '0 auto', display: 'block' }}>
+    <defs>
+      <linearGradient id="archClientGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f97316" />
+        <stop offset="100%" stopColor="#ea580c" />
+      </linearGradient>
+      <linearGradient id="archServiceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#dc2626" />
+        <stop offset="100%" stopColor="#b91c1c" />
+      </linearGradient>
+      <linearGradient id="archDbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#7c3aed" />
+        <stop offset="100%" stopColor="#6d28d9" />
+      </linearGradient>
+      <linearGradient id="archGatewayGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#0891b2" />
+        <stop offset="100%" stopColor="#0e7490" />
+      </linearGradient>
+      <filter id="archShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3" />
+      </filter>
+    </defs>
+
+    {/* Background */}
+    <rect width="900" height="500" fill="#1f2937" rx="10" />
+
+    {/* Title */}
+    <text x="450" y="35" textAnchor="middle" fill="#f97316" fontSize="20" fontWeight="bold">Food Delivery Platform Architecture</text>
+
+    {/* Client Applications Layer */}
+    <g filter="url(#archShadow)">
+      <rect x="50" y="60" width="180" height="70" rx="10" fill="url(#archClientGrad)" />
+      <text x="140" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Customer App</text>
+      <text x="140" y="110" textAnchor="middle" fill="#fed7aa" fontSize="11">iOS / Android</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="260" y="60" width="180" height="70" rx="10" fill="url(#archClientGrad)" />
+      <text x="350" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Restaurant App</text>
+      <text x="350" y="110" textAnchor="middle" fill="#fed7aa" fontSize="11">Dashboard / Tablet</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="470" y="60" width="180" height="70" rx="10" fill="url(#archClientGrad)" />
+      <text x="560" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Driver App</text>
+      <text x="560" y="110" textAnchor="middle" fill="#fed7aa" fontSize="11">iOS / Android</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="680" y="60" width="180" height="70" rx="10" fill="url(#archClientGrad)" />
+      <text x="770" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Admin Portal</text>
+      <text x="770" y="110" textAnchor="middle" fill="#fed7aa" fontSize="11">Web Dashboard</text>
+    </g>
+
+    {/* Arrows from clients to gateway */}
+    <path d="M140 130 L140 155 L450 155 L450 170" stroke="#9ca3af" strokeWidth="2" fill="none" markerEnd="url(#arrowhead)" />
+    <path d="M350 130 L350 155 L450 155" stroke="#9ca3af" strokeWidth="2" fill="none" />
+    <path d="M560 130 L560 155 L450 155" stroke="#9ca3af" strokeWidth="2" fill="none" />
+    <path d="M770 130 L770 155 L450 155" stroke="#9ca3af" strokeWidth="2" fill="none" />
+
+    {/* Arrow marker */}
+    <defs>
+      <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#9ca3af" />
+      </marker>
+    </defs>
+
+    {/* API Gateway */}
+    <g filter="url(#archShadow)">
+      <rect x="300" y="170" width="300" height="50" rx="8" fill="url(#archGatewayGrad)" />
+      <text x="450" y="200" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">API Gateway (Load Balancer + Auth)</text>
+    </g>
+
+    {/* Arrow from gateway to services */}
+    <path d="M450 220 L450 250" stroke="#9ca3af" strokeWidth="2" fill="none" markerEnd="url(#arrowhead)" />
+
+    {/* Microservices Layer */}
+    <rect x="40" y="250" width="820" height="120" rx="10" fill="#374151" stroke="#4b5563" strokeWidth="2" />
+    <text x="450" y="275" textAnchor="middle" fill="#d1d5db" fontSize="12" fontWeight="bold">MICROSERVICES LAYER</text>
+
+    {/* Services */}
+    <g filter="url(#archShadow)">
+      <rect x="55" y="290" width="110" height="60" rx="6" fill="url(#archServiceGrad)" />
+      <text x="110" y="315" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">User Service</text>
+      <text x="110" y="335" textAnchor="middle" fill="#fca5a5" fontSize="9">Auth + Profiles</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="175" y="290" width="110" height="60" rx="6" fill="url(#archServiceGrad)" />
+      <text x="230" y="315" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Order Service</text>
+      <text x="230" y="335" textAnchor="middle" fill="#fca5a5" fontSize="9">CRUD + Status</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="295" y="290" width="110" height="60" rx="6" fill="url(#archServiceGrad)" />
+      <text x="350" y="315" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Restaurant Svc</text>
+      <text x="350" y="335" textAnchor="middle" fill="#fca5a5" fontSize="9">Menus + Hours</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="415" y="290" width="110" height="60" rx="6" fill="url(#archServiceGrad)" />
+      <text x="470" y="315" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Driver Service</text>
+      <text x="470" y="335" textAnchor="middle" fill="#fca5a5" fontSize="9">Status + Location</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="535" y="290" width="110" height="60" rx="6" fill="url(#archServiceGrad)" />
+      <text x="590" y="315" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Matching Svc</text>
+      <text x="590" y="335" textAnchor="middle" fill="#fca5a5" fontSize="9">Order-Driver</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="655" y="290" width="110" height="60" rx="6" fill="url(#archServiceGrad)" />
+      <text x="710" y="315" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Payment Svc</text>
+      <text x="710" y="335" textAnchor="middle" fill="#fca5a5" fontSize="9">Stripe / Cards</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="775" y="290" width="75" height="60" rx="6" fill="url(#archServiceGrad)" />
+      <text x="812" y="315" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Notif Svc</text>
+      <text x="812" y="335" textAnchor="middle" fill="#fca5a5" fontSize="9">Push/SMS</text>
+    </g>
+
+    {/* Arrow from services to databases */}
+    <path d="M450 370 L450 400" stroke="#9ca3af" strokeWidth="2" fill="none" markerEnd="url(#arrowhead)" />
+
+    {/* Database Layer */}
+    <rect x="40" y="400" width="820" height="85" rx="10" fill="#1e1b4b" stroke="#4338ca" strokeWidth="2" />
+    <text x="450" y="425" textAnchor="middle" fill="#a5b4fc" fontSize="12" fontWeight="bold">DATA LAYER</text>
+
+    {/* Databases */}
+    <g filter="url(#archShadow)">
+      <rect x="55" y="440" width="100" height="35" rx="5" fill="url(#archDbGrad)" />
+      <text x="105" y="462" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">PostgreSQL</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="165" y="440" width="100" height="35" rx="5" fill="url(#archDbGrad)" />
+      <text x="215" y="462" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">MongoDB</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="275" y="440" width="100" height="35" rx="5" fill="url(#archDbGrad)" />
+      <text x="325" y="462" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Redis Geo</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="385" y="440" width="100" height="35" rx="5" fill="url(#archDbGrad)" />
+      <text x="435" y="462" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Elasticsearch</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="495" y="440" width="100" height="35" rx="5" fill="url(#archDbGrad)" />
+      <text x="545" y="462" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Cassandra</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="605" y="440" width="100" height="35" rx="5" fill="url(#archDbGrad)" />
+      <text x="655" y="462" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Kafka</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="715" y="440" width="100" height="35" rx="5" fill="url(#archDbGrad)" />
+      <text x="765" y="462" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">S3 / CDN</text>
+    </g>
+  </svg>
+)
+
+// SVG Diagram: Order Flow Lifecycle
+const OrderFlowDiagram = () => (
+  <svg viewBox="0 0 900 280" className="w-full h-auto" style={{ maxWidth: '900px', margin: '0 auto', display: 'block' }}>
+    <defs>
+      <linearGradient id="orderStepGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f97316" />
+        <stop offset="100%" stopColor="#ea580c" />
+      </linearGradient>
+      <linearGradient id="orderStepGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ef4444" />
+        <stop offset="100%" stopColor="#dc2626" />
+      </linearGradient>
+      <linearGradient id="orderStepGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#22c55e" />
+        <stop offset="100%" stopColor="#16a34a" />
+      </linearGradient>
+      <filter id="orderShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="2" floodOpacity="0.3" />
+      </filter>
+      <marker id="orderArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#f97316" />
+      </marker>
+    </defs>
+
+    {/* Background */}
+    <rect width="900" height="280" fill="#1f2937" rx="10" />
+
+    {/* Title */}
+    <text x="450" y="30" textAnchor="middle" fill="#f97316" fontSize="18" fontWeight="bold">Order Lifecycle Flow</text>
+
+    {/* Step 1: Browse */}
+    <g filter="url(#orderShadow)">
+      <circle cx="80" cy="120" r="40" fill="url(#orderStepGrad1)" />
+      <text x="80" y="115" textAnchor="middle" fill="white" fontSize="22">1</text>
+      <text x="80" y="135" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Browse</text>
+    </g>
+    <text x="80" y="180" textAnchor="middle" fill="#9ca3af" fontSize="10">Customer finds</text>
+    <text x="80" y="195" textAnchor="middle" fill="#9ca3af" fontSize="10">restaurant</text>
+
+    {/* Arrow 1-2 */}
+    <path d="M125 120 L175 120" stroke="#f97316" strokeWidth="3" fill="none" markerEnd="url(#orderArrow)" />
+
+    {/* Step 2: Order */}
+    <g filter="url(#orderShadow)">
+      <circle cx="220" cy="120" r="40" fill="url(#orderStepGrad1)" />
+      <text x="220" y="115" textAnchor="middle" fill="white" fontSize="22">2</text>
+      <text x="220" y="135" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Order</text>
+    </g>
+    <text x="220" y="180" textAnchor="middle" fill="#9ca3af" fontSize="10">Select items,</text>
+    <text x="220" y="195" textAnchor="middle" fill="#9ca3af" fontSize="10">add to cart</text>
+
+    {/* Arrow 2-3 */}
+    <path d="M265 120 L315 120" stroke="#f97316" strokeWidth="3" fill="none" markerEnd="url(#orderArrow)" />
+
+    {/* Step 3: Payment */}
+    <g filter="url(#orderShadow)">
+      <circle cx="360" cy="120" r="40" fill="url(#orderStepGrad2)" />
+      <text x="360" y="115" textAnchor="middle" fill="white" fontSize="22">3</text>
+      <text x="360" y="135" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Payment</text>
+    </g>
+    <text x="360" y="180" textAnchor="middle" fill="#9ca3af" fontSize="10">Process payment</text>
+    <text x="360" y="195" textAnchor="middle" fill="#9ca3af" fontSize="10">via Stripe</text>
+
+    {/* Arrow 3-4 */}
+    <path d="M405 120 L455 120" stroke="#f97316" strokeWidth="3" fill="none" markerEnd="url(#orderArrow)" />
+
+    {/* Step 4: Restaurant Prep */}
+    <g filter="url(#orderShadow)">
+      <circle cx="500" cy="120" r="40" fill="url(#orderStepGrad2)" />
+      <text x="500" y="115" textAnchor="middle" fill="white" fontSize="22">4</text>
+      <text x="500" y="135" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Preparing</text>
+    </g>
+    <text x="500" y="180" textAnchor="middle" fill="#9ca3af" fontSize="10">Restaurant</text>
+    <text x="500" y="195" textAnchor="middle" fill="#9ca3af" fontSize="10">prepares food</text>
+
+    {/* Arrow 4-5 */}
+    <path d="M545 120 L595 120" stroke="#f97316" strokeWidth="3" fill="none" markerEnd="url(#orderArrow)" />
+
+    {/* Step 5: Driver Pickup */}
+    <g filter="url(#orderShadow)">
+      <circle cx="640" cy="120" r="40" fill="url(#orderStepGrad3)" />
+      <text x="640" y="115" textAnchor="middle" fill="white" fontSize="22">5</text>
+      <text x="640" y="135" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Pickup</text>
+    </g>
+    <text x="640" y="180" textAnchor="middle" fill="#9ca3af" fontSize="10">Driver picks up</text>
+    <text x="640" y="195" textAnchor="middle" fill="#9ca3af" fontSize="10">from restaurant</text>
+
+    {/* Arrow 5-6 */}
+    <path d="M685 120 L735 120" stroke="#f97316" strokeWidth="3" fill="none" markerEnd="url(#orderArrow)" />
+
+    {/* Step 6: Delivery */}
+    <g filter="url(#orderShadow)">
+      <circle cx="780" cy="120" r="40" fill="url(#orderStepGrad3)" />
+      <text x="780" y="115" textAnchor="middle" fill="white" fontSize="22">6</text>
+      <text x="780" y="135" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Delivered</text>
+    </g>
+    <text x="780" y="180" textAnchor="middle" fill="#9ca3af" fontSize="10">Order arrives</text>
+    <text x="780" y="195" textAnchor="middle" fill="#9ca3af" fontSize="10">at customer</text>
+
+    {/* Time indicators */}
+    <rect x="50" y="220" width="780" height="40" rx="5" fill="#374151" />
+    <text x="80" y="245" textAnchor="middle" fill="#6b7280" fontSize="10">0 min</text>
+    <text x="220" y="245" textAnchor="middle" fill="#6b7280" fontSize="10">2-5 min</text>
+    <text x="360" y="245" textAnchor="middle" fill="#6b7280" fontSize="10">5-7 min</text>
+    <text x="500" y="245" textAnchor="middle" fill="#f97316" fontSize="10" fontWeight="bold">15-25 min</text>
+    <text x="640" y="245" textAnchor="middle" fill="#6b7280" fontSize="10">25-30 min</text>
+    <text x="780" y="245" textAnchor="middle" fill="#22c55e" fontSize="10" fontWeight="bold">35-45 min</text>
+  </svg>
+)
+
+// SVG Diagram: Driver Matching Algorithm
+const DriverMatchingDiagram = () => (
+  <svg viewBox="0 0 800 450" className="w-full h-auto" style={{ maxWidth: '800px', margin: '0 auto', display: 'block' }}>
+    <defs>
+      <linearGradient id="matchRestGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f97316" />
+        <stop offset="100%" stopColor="#dc2626" />
+      </linearGradient>
+      <linearGradient id="matchDriverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#22c55e" />
+        <stop offset="100%" stopColor="#16a34a" />
+      </linearGradient>
+      <linearGradient id="matchRadiusGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f97316" stopOpacity="0.3" />
+        <stop offset="100%" stopColor="#f97316" stopOpacity="0.1" />
+      </linearGradient>
+      <filter id="matchShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="2" floodOpacity="0.3" />
+      </filter>
+      <marker id="matchArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#f97316" />
+      </marker>
+    </defs>
+
+    {/* Background */}
+    <rect width="800" height="450" fill="#1f2937" rx="10" />
+
+    {/* Title */}
+    <text x="400" y="30" textAnchor="middle" fill="#f97316" fontSize="18" fontWeight="bold">Driver Matching Algorithm</text>
+
+    {/* Map Area */}
+    <rect x="30" y="50" width="350" height="300" rx="8" fill="#374151" stroke="#4b5563" strokeWidth="2" />
+    <text x="205" y="75" textAnchor="middle" fill="#9ca3af" fontSize="12" fontWeight="bold">Geospatial View</text>
+
+    {/* Search Radius Circle */}
+    <circle cx="180" cy="200" r="100" fill="url(#matchRadiusGrad)" stroke="#f97316" strokeWidth="2" strokeDasharray="5,5" />
+    <text x="180" y="310" textAnchor="middle" fill="#f97316" fontSize="10">5km radius</text>
+
+    {/* Restaurant (center) */}
+    <g filter="url(#matchShadow)">
+      <rect x="160" y="180" width="40" height="40" rx="5" fill="url(#matchRestGrad)" />
+      <text x="180" y="205" textAnchor="middle" fill="white" fontSize="18">R</text>
+    </g>
+
+    {/* Drivers */}
+    <g filter="url(#matchShadow)">
+      <circle cx="120" cy="150" r="15" fill="url(#matchDriverGrad)" />
+      <text x="120" y="155" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">D1</text>
+      <text x="120" y="130" textAnchor="middle" fill="#22c55e" fontSize="9">1.2km</text>
+    </g>
+    <g filter="url(#matchShadow)">
+      <circle cx="250" cy="170" r="15" fill="url(#matchDriverGrad)" />
+      <text x="250" y="175" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">D2</text>
+      <text x="250" y="150" textAnchor="middle" fill="#22c55e" fontSize="9">2.1km</text>
+    </g>
+    <g filter="url(#matchShadow)">
+      <circle cx="200" cy="260" r="15" fill="url(#matchDriverGrad)" />
+      <text x="200" y="265" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">D3</text>
+      <text x="200" y="285" textAnchor="middle" fill="#22c55e" fontSize="9">2.8km</text>
+    </g>
+    <g filter="url(#matchShadow)">
+      <circle cx="100" cy="230" r="15" fill="url(#matchDriverGrad)" />
+      <text x="100" y="235" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">D4</text>
+      <text x="100" y="255" textAnchor="middle" fill="#22c55e" fontSize="9">3.5km</text>
+    </g>
+    <g filter="url(#matchShadow)">
+      <circle cx="280" cy="240" r="15" fill="#6b7280" />
+      <text x="280" y="245" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">D5</text>
+      <text x="280" y="265" textAnchor="middle" fill="#6b7280" fontSize="9">6.2km</text>
+    </g>
+
+    {/* Dashed lines from drivers to restaurant */}
+    <line x1="120" y1="150" x2="160" y2="185" stroke="#22c55e" strokeWidth="1" strokeDasharray="3,3" />
+    <line x1="250" y1="170" x2="200" y2="195" stroke="#22c55e" strokeWidth="1" strokeDasharray="3,3" />
+    <line x1="200" y1="260" x2="190" y2="220" stroke="#22c55e" strokeWidth="1" strokeDasharray="3,3" />
+    <line x1="100" y1="230" x2="160" y2="210" stroke="#22c55e" strokeWidth="1" strokeDasharray="3,3" />
+
+    {/* Scoring Panel */}
+    <rect x="410" y="50" width="360" height="300" rx="8" fill="#374151" stroke="#4b5563" strokeWidth="2" />
+    <text x="590" y="75" textAnchor="middle" fill="#9ca3af" fontSize="12" fontWeight="bold">Match Scoring</text>
+
+    {/* Scoring Formula */}
+    <rect x="430" y="90" width="320" height="50" rx="5" fill="#1f2937" />
+    <text x="590" y="115" textAnchor="middle" fill="#f97316" fontSize="11" fontWeight="bold">Score = 0.4(Distance) + 0.3(ETA) + 0.2(Rating) + 0.1(Accept%)</text>
+
+    {/* Driver Scores */}
+    <rect x="430" y="150" width="320" height="40" rx="5" fill="#22c55e" fillOpacity="0.2" stroke="#22c55e" strokeWidth="1" />
+    <text x="445" y="175" fill="white" fontSize="12" fontWeight="bold">D1:</text>
+    <text x="475" y="175" fill="#22c55e" fontSize="11">1.2km | 4min | 4.9 star | 92% = 82.3</text>
+    <rect x="680" y="158" width="60" height="24" rx="4" fill="#22c55e" />
+    <text x="710" y="175" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">BEST</text>
+
+    <rect x="430" y="200" width="320" height="40" rx="5" fill="#1f2937" />
+    <text x="445" y="225" fill="white" fontSize="12" fontWeight="bold">D2:</text>
+    <text x="475" y="225" fill="#9ca3af" fontSize="11">2.1km | 7min | 4.7 star | 88% = 71.5</text>
+
+    <rect x="430" y="250" width="320" height="40" rx="5" fill="#1f2937" />
+    <text x="445" y="275" fill="white" fontSize="12" fontWeight="bold">D3:</text>
+    <text x="475" y="275" fill="#9ca3af" fontSize="11">2.8km | 9min | 4.5 star | 85% = 65.2</text>
+
+    <rect x="430" y="300" width="320" height="40" rx="5" fill="#1f2937" />
+    <text x="445" y="325" fill="white" fontSize="12" fontWeight="bold">D4:</text>
+    <text x="475" y="325" fill="#9ca3af" fontSize="11">3.5km | 12min | 4.3 star | 78% = 58.1</text>
+
+    {/* Process Flow */}
+    <rect x="30" y="370" width="740" height="65" rx="8" fill="#374151" stroke="#4b5563" strokeWidth="2" />
+
+    <rect x="50" y="385" width="120" height="35" rx="5" fill="url(#matchRestGrad)" />
+    <text x="110" y="407" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Order Placed</text>
+
+    <path d="M175 402 L195 402" stroke="#f97316" strokeWidth="2" fill="none" markerEnd="url(#matchArrow)" />
+
+    <rect x="200" y="385" width="120" height="35" rx="5" fill="url(#matchRestGrad)" />
+    <text x="260" y="407" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">GEORADIUS</text>
+
+    <path d="M325 402 L345 402" stroke="#f97316" strokeWidth="2" fill="none" markerEnd="url(#matchArrow)" />
+
+    <rect x="350" y="385" width="120" height="35" rx="5" fill="url(#matchRestGrad)" />
+    <text x="410" y="407" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Score Drivers</text>
+
+    <path d="M475 402 L495 402" stroke="#f97316" strokeWidth="2" fill="none" markerEnd="url(#matchArrow)" />
+
+    <rect x="500" y="385" width="120" height="35" rx="5" fill="url(#matchRestGrad)" />
+    <text x="560" y="407" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Send to Top 5</text>
+
+    <path d="M625 402 L645 402" stroke="#f97316" strokeWidth="2" fill="none" markerEnd="url(#matchArrow)" />
+
+    <rect x="650" y="385" width="110" height="35" rx="5" fill="url(#matchDriverGrad)" />
+    <text x="705" y="407" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">First Accept Wins</text>
+  </svg>
+)
+
+// SVG Diagram: Real-Time GPS Tracking
+const RealTimeTrackingDiagram = () => (
+  <svg viewBox="0 0 800 380" className="w-full h-auto" style={{ maxWidth: '800px', margin: '0 auto', display: 'block' }}>
+    <defs>
+      <linearGradient id="trackDriverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#22c55e" />
+        <stop offset="100%" stopColor="#16a34a" />
+      </linearGradient>
+      <linearGradient id="trackRestGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f97316" />
+        <stop offset="100%" stopColor="#ea580c" />
+      </linearGradient>
+      <linearGradient id="trackCustomerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#2563eb" />
+      </linearGradient>
+      <linearGradient id="trackServerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#7c3aed" />
+      </linearGradient>
+      <filter id="trackShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="2" floodOpacity="0.3" />
+      </filter>
+      <marker id="trackArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#22c55e" />
+      </marker>
+      <marker id="trackArrowBlue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6" />
+      </marker>
+    </defs>
+
+    {/* Background */}
+    <rect width="800" height="380" fill="#1f2937" rx="10" />
+
+    {/* Title */}
+    <text x="400" y="30" textAnchor="middle" fill="#f97316" fontSize="18" fontWeight="bold">Real-Time GPS Tracking System</text>
+
+    {/* Driver App */}
+    <g filter="url(#trackShadow)">
+      <rect x="30" y="80" width="150" height="180" rx="10" fill="#374151" stroke="url(#trackDriverGrad)" strokeWidth="2" />
+      <rect x="50" y="95" width="110" height="20" rx="5" fill="url(#trackDriverGrad)" />
+      <text x="105" y="110" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Driver App</text>
+
+      {/* Phone screen */}
+      <rect x="50" y="125" width="110" height="120" rx="5" fill="#1f2937" />
+
+      {/* GPS Icon */}
+      <circle cx="105" cy="170" r="20" fill="none" stroke="#22c55e" strokeWidth="2" />
+      <circle cx="105" cy="170" r="10" fill="#22c55e" />
+      <circle cx="105" cy="170" r="5" fill="white" />
+
+      <text x="105" y="215" textAnchor="middle" fill="#22c55e" fontSize="9">GPS: 37.7749, -122.4194</text>
+      <text x="105" y="230" textAnchor="middle" fill="#6b7280" fontSize="8">Every 5-10 sec</text>
+    </g>
+
+    {/* Arrow: Driver to Server */}
+    <path d="M185 170 L285 170" stroke="#22c55e" strokeWidth="2" fill="none" markerEnd="url(#trackArrow)" />
+    <text x="235" y="160" textAnchor="middle" fill="#22c55e" fontSize="9">Location Update</text>
+    <text x="235" y="185" textAnchor="middle" fill="#6b7280" fontSize="8">lat, lng, heading, speed</text>
+
+    {/* Backend Services */}
+    <g filter="url(#trackShadow)">
+      <rect x="290" y="60" width="220" height="220" rx="10" fill="#374151" stroke="url(#trackServerGrad)" strokeWidth="2" />
+      <text x="400" y="85" textAnchor="middle" fill="#a78bfa" fontSize="12" fontWeight="bold">Backend Services</text>
+
+      {/* Location Service */}
+      <rect x="310" y="100" width="180" height="50" rx="5" fill="#1f2937" stroke="#8b5cf6" strokeWidth="1" />
+      <text x="400" y="120" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Location Service</text>
+      <text x="400" y="138" textAnchor="middle" fill="#9ca3af" fontSize="9">Process + Store in Redis Geo</text>
+
+      {/* Kafka */}
+      <rect x="310" y="160" width="180" height="50" rx="5" fill="#1f2937" stroke="#8b5cf6" strokeWidth="1" />
+      <text x="400" y="180" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Kafka</text>
+      <text x="400" y="198" textAnchor="middle" fill="#9ca3af" fontSize="9">Publish location events</text>
+
+      {/* WebSocket Server */}
+      <rect x="310" y="220" width="180" height="50" rx="5" fill="#1f2937" stroke="#8b5cf6" strokeWidth="1" />
+      <text x="400" y="240" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">WebSocket Server</text>
+      <text x="400" y="258" textAnchor="middle" fill="#9ca3af" fontSize="9">Push updates to customers</text>
+    </g>
+
+    {/* Arrow: Server to Customer */}
+    <path d="M515 170 L615 170" stroke="#3b82f6" strokeWidth="2" fill="none" markerEnd="url(#trackArrowBlue)" />
+    <text x="565" y="160" textAnchor="middle" fill="#3b82f6" fontSize="9">WebSocket Push</text>
+    <text x="565" y="185" textAnchor="middle" fill="#6b7280" fontSize="8">Real-time location</text>
+
+    {/* Customer App */}
+    <g filter="url(#trackShadow)">
+      <rect x="620" y="80" width="150" height="180" rx="10" fill="#374151" stroke="url(#trackCustomerGrad)" strokeWidth="2" />
+      <rect x="640" y="95" width="110" height="20" rx="5" fill="url(#trackCustomerGrad)" />
+      <text x="695" y="110" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Customer App</text>
+
+      {/* Phone screen with map */}
+      <rect x="640" y="125" width="110" height="120" rx="5" fill="#1f2937" />
+
+      {/* Map representation */}
+      <rect x="650" y="135" width="90" height="80" rx="3" fill="#374151" />
+
+      {/* Route line */}
+      <path d="M665 195 Q680 175 705 160 Q720 150 725 145" stroke="#f97316" strokeWidth="2" fill="none" strokeDasharray="4,2" />
+
+      {/* Driver marker */}
+      <circle cx="690" cy="170" r="6" fill="#22c55e" />
+
+      {/* Restaurant marker */}
+      <rect x="720" y="140" width="10" height="10" rx="2" fill="#f97316" />
+
+      {/* Customer marker */}
+      <circle cx="665" cy="195" r="6" fill="#3b82f6" />
+
+      <text x="695" y="230" textAnchor="middle" fill="#22c55e" fontSize="10" fontWeight="bold">ETA: 8 min</text>
+      <text x="695" y="245" textAnchor="middle" fill="#6b7280" fontSize="8">1.2 km away</text>
+    </g>
+
+    {/* Data Flow Summary */}
+    <rect x="30" y="290" width="740" height="75" rx="8" fill="#374151" stroke="#4b5563" strokeWidth="2" />
+    <text x="400" y="315" textAnchor="middle" fill="#9ca3af" fontSize="12" fontWeight="bold">Data Flow</text>
+
+    <rect x="50" y="330" width="150" height="25" rx="4" fill="#22c55e" fillOpacity="0.2" />
+    <text x="125" y="347" textAnchor="middle" fill="#22c55e" fontSize="10">Driver GPS (5-10s)</text>
+
+    <text x="215" y="347" textAnchor="middle" fill="#6b7280" fontSize="14">-&gt;</text>
+
+    <rect x="230" y="330" width="150" height="25" rx="4" fill="#8b5cf6" fillOpacity="0.2" />
+    <text x="305" y="347" textAnchor="middle" fill="#a78bfa" fontSize="10">Redis Geo + Kafka</text>
+
+    <text x="395" y="347" textAnchor="middle" fill="#6b7280" fontSize="14">-&gt;</text>
+
+    <rect x="410" y="330" width="150" height="25" rx="4" fill="#8b5cf6" fillOpacity="0.2" />
+    <text x="485" y="347" textAnchor="middle" fill="#a78bfa" fontSize="10">WebSocket Server</text>
+
+    <text x="575" y="347" textAnchor="middle" fill="#6b7280" fontSize="14">-&gt;</text>
+
+    <rect x="590" y="330" width="170" height="25" rx="4" fill="#3b82f6" fillOpacity="0.2" />
+    <text x="675" y="347" textAnchor="middle" fill="#3b82f6" fontSize="10">Customer Live Map</text>
+  </svg>
+)
+
+// SVG Diagram: ETA Prediction with ML
+const ETAPredictionDiagram = () => (
+  <svg viewBox="0 0 800 420" className="w-full h-auto" style={{ maxWidth: '800px', margin: '0 auto', display: 'block' }}>
+    <defs>
+      <linearGradient id="etaInputGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f97316" />
+        <stop offset="100%" stopColor="#ea580c" />
+      </linearGradient>
+      <linearGradient id="etaModelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#7c3aed" />
+      </linearGradient>
+      <linearGradient id="etaOutputGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#22c55e" />
+        <stop offset="100%" stopColor="#16a34a" />
+      </linearGradient>
+      <filter id="etaShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="2" floodOpacity="0.3" />
+      </filter>
+      <marker id="etaArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#8b5cf6" />
+      </marker>
+    </defs>
+
+    {/* Background */}
+    <rect width="800" height="420" fill="#1f2937" rx="10" />
+
+    {/* Title */}
+    <text x="400" y="30" textAnchor="middle" fill="#f97316" fontSize="18" fontWeight="bold">ML-Based ETA Prediction System</text>
+
+    {/* Input Features Section */}
+    <rect x="30" y="55" width="220" height="300" rx="10" fill="#374151" stroke="url(#etaInputGrad)" strokeWidth="2" />
+    <rect x="50" y="70" width="180" height="25" rx="5" fill="url(#etaInputGrad)" />
+    <text x="140" y="88" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Input Features</text>
+
+    {/* Feature items */}
+    <rect x="45" y="105" width="190" height="30" rx="4" fill="#1f2937" />
+    <text x="140" y="125" textAnchor="middle" fill="#fed7aa" fontSize="10">Distance: 5.2 km</text>
+
+    <rect x="45" y="145" width="190" height="30" rx="4" fill="#1f2937" />
+    <text x="140" y="165" textAnchor="middle" fill="#fed7aa" fontSize="10">Time: 12:30 PM (Lunch Rush)</text>
+
+    <rect x="45" y="185" width="190" height="30" rx="4" fill="#1f2937" />
+    <text x="140" y="205" textAnchor="middle" fill="#fed7aa" fontSize="10">Traffic: Heavy (0.8)</text>
+
+    <rect x="45" y="225" width="190" height="30" rx="4" fill="#1f2937" />
+    <text x="140" y="245" textAnchor="middle" fill="#fed7aa" fontSize="10">Weather: Rain</text>
+
+    <rect x="45" y="265" width="190" height="30" rx="4" fill="#1f2937" />
+    <text x="140" y="285" textAnchor="middle" fill="#fed7aa" fontSize="10">Restaurant Prep: 15 min (avg)</text>
+
+    <rect x="45" y="305" width="190" height="30" rx="4" fill="#1f2937" />
+    <text x="140" y="325" textAnchor="middle" fill="#fed7aa" fontSize="10">Driver Rating: 4.8</text>
+
+    {/* Arrow to ML Model */}
+    <path d="M255 200 L285 200" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#etaArrow)" />
+
+    {/* ML Model Section */}
+    <g filter="url(#etaShadow)">
+      <rect x="290" y="80" width="220" height="240" rx="10" fill="#374151" stroke="url(#etaModelGrad)" strokeWidth="2" />
+      <rect x="310" y="95" width="180" height="25" rx="5" fill="url(#etaModelGrad)" />
+      <text x="400" y="113" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">ML Model</text>
+
+      {/* Neural network visualization */}
+      <rect x="310" y="135" width="180" height="130" rx="5" fill="#1f2937" />
+
+      {/* Input layer */}
+      <circle cx="340" cy="160" r="8" fill="#f97316" />
+      <circle cx="340" cy="185" r="8" fill="#f97316" />
+      <circle cx="340" cy="210" r="8" fill="#f97316" />
+      <circle cx="340" cy="235" r="8" fill="#f97316" />
+
+      {/* Hidden layer 1 */}
+      <circle cx="385" cy="170" r="8" fill="#8b5cf6" />
+      <circle cx="385" cy="200" r="8" fill="#8b5cf6" />
+      <circle cx="385" cy="230" r="8" fill="#8b5cf6" />
+
+      {/* Hidden layer 2 */}
+      <circle cx="430" cy="180" r="8" fill="#8b5cf6" />
+      <circle cx="430" cy="210" r="8" fill="#8b5cf6" />
+
+      {/* Output layer */}
+      <circle cx="470" cy="195" r="10" fill="#22c55e" />
+
+      {/* Connections (simplified) */}
+      <line x1="348" y1="160" x2="377" y2="170" stroke="#6b7280" strokeWidth="1" opacity="0.5" />
+      <line x1="348" y1="185" x2="377" y2="200" stroke="#6b7280" strokeWidth="1" opacity="0.5" />
+      <line x1="348" y1="210" x2="377" y2="200" stroke="#6b7280" strokeWidth="1" opacity="0.5" />
+      <line x1="348" y1="235" x2="377" y2="230" stroke="#6b7280" strokeWidth="1" opacity="0.5" />
+      <line x1="393" y1="170" x2="422" y2="180" stroke="#6b7280" strokeWidth="1" opacity="0.5" />
+      <line x1="393" y1="200" x2="422" y2="195" stroke="#6b7280" strokeWidth="1" opacity="0.5" />
+      <line x1="393" y1="230" x2="422" y2="210" stroke="#6b7280" strokeWidth="1" opacity="0.5" />
+      <line x1="438" y1="180" x2="460" y2="195" stroke="#6b7280" strokeWidth="1" opacity="0.5" />
+      <line x1="438" y1="210" x2="460" y2="195" stroke="#6b7280" strokeWidth="1" opacity="0.5" />
+
+      <text x="400" y="280" textAnchor="middle" fill="#a78bfa" fontSize="10">Gradient Boosting / Neural Net</text>
+      <text x="400" y="300" textAnchor="middle" fill="#6b7280" fontSize="9">Trained on 10M+ deliveries</text>
+    </g>
+
+    {/* Arrow to Output */}
+    <path d="M515 200 L545 200" stroke="#8b5cf6" strokeWidth="3" fill="none" markerEnd="url(#etaArrow)" />
+
+    {/* Output Section */}
+    <rect x="550" y="55" width="220" height="300" rx="10" fill="#374151" stroke="url(#etaOutputGrad)" strokeWidth="2" />
+    <rect x="570" y="70" width="180" height="25" rx="5" fill="url(#etaOutputGrad)" />
+    <text x="660" y="88" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">ETA Prediction</text>
+
+    {/* Predicted ETA */}
+    <rect x="570" y="105" width="180" height="80" rx="8" fill="#1f2937" />
+    <text x="660" y="135" textAnchor="middle" fill="#22c55e" fontSize="28" fontWeight="bold">38 min</text>
+    <text x="660" y="160" textAnchor="middle" fill="#6b7280" fontSize="11">Estimated Delivery Time</text>
+    <text x="660" y="178" textAnchor="middle" fill="#22c55e" fontSize="10">Confidence: 94%</text>
+
+    {/* Breakdown */}
+    <rect x="570" y="195" width="180" height="145" rx="5" fill="#1f2937" />
+    <text x="660" y="215" textAnchor="middle" fill="#9ca3af" fontSize="11" fontWeight="bold">Breakdown</text>
+
+    <text x="585" y="240" fill="#fed7aa" fontSize="10">Driver to Restaurant:</text>
+    <text x="735" y="240" textAnchor="end" fill="white" fontSize="10">8 min</text>
+
+    <text x="585" y="260" fill="#fed7aa" fontSize="10">Food Preparation:</text>
+    <text x="735" y="260" textAnchor="end" fill="white" fontSize="10">15 min</text>
+
+    <text x="585" y="280" fill="#fed7aa" fontSize="10">Restaurant to Customer:</text>
+    <text x="735" y="280" textAnchor="end" fill="white" fontSize="10">12 min</text>
+
+    <text x="585" y="300" fill="#fed7aa" fontSize="10">Buffer (traffic/weather):</text>
+    <text x="735" y="300" textAnchor="end" fill="white" fontSize="10">3 min</text>
+
+    <rect x="585" y="310" width="150" height="1" fill="#4b5563" />
+    <text x="585" y="330" fill="#22c55e" fontSize="11" fontWeight="bold">Total:</text>
+    <text x="735" y="330" textAnchor="end" fill="#22c55e" fontSize="11" fontWeight="bold">38 min</text>
+
+    {/* Feedback Loop */}
+    <rect x="30" y="370" width="740" height="40" rx="8" fill="#374151" stroke="#4b5563" strokeWidth="2" />
+    <text x="400" y="395" textAnchor="middle" fill="#9ca3af" fontSize="11">
+      Feedback Loop: Actual delivery time collected for model retraining (MAE target: under 3 min)
+    </text>
+  </svg>
+)
+
 function FoodDelivery({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview')
 
@@ -102,6 +778,11 @@ function FoodDelivery({ onBack, breadcrumb }) {
               </p>
             </div>
 
+            {/* Order Flow Diagram */}
+            <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+              <OrderFlowDiagram />
+            </div>
+
             {/* Scale Metrics */}
             <div className="bg-gradient-to-br from-orange-900/30 to-orange-900/30 rounded-xl p-6 border-2 border-orange-700">
               <h3 className="text-2xl font-bold mb-4 text-orange-400">Scale & Metrics</h3>
@@ -189,6 +870,11 @@ function FoodDelivery({ onBack, breadcrumb }) {
         {activeTab === 'architecture' && (
           <div className="space-y-6">
             <h2 className="text-3xl font-bold mb-6 text-white">High-Level Architecture</h2>
+
+            {/* Architecture Diagram */}
+            <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 mb-8">
+              <FoodDeliveryArchitectureDiagram />
+            </div>
 
             <div className="flex flex-col items-center space-y-4">
               {/* Client Layer */}
@@ -318,6 +1004,11 @@ function FoodDelivery({ onBack, breadcrumb }) {
           <div className="space-y-6">
             <h2 className="text-3xl font-bold mb-6 text-white">Order-Driver Matching Algorithm</h2>
 
+            {/* Driver Matching Diagram */}
+            <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 mb-8">
+              <DriverMatchingDiagram />
+            </div>
+
             {/* Matching Flow */}
             <div className="space-y-4">
               <h3 className="text-2xl font-bold text-white">Matching Flow</h3>
@@ -445,6 +1136,11 @@ Total Score = 0.4x60 + 0.3x60 + 0.2x96 + 0.1x85
           <div className="space-y-6">
             <h2 className="text-3xl font-bold mb-6 text-white">Driver Routing & Navigation</h2>
 
+            {/* ETA Prediction Diagram */}
+            <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 mb-8">
+              <ETAPredictionDiagram />
+            </div>
+
             {/* Route Optimization */}
             <div className="bg-gradient-to-br from-blue-900/30 to-blue-900/30 rounded-xl p-6 border-2 border-blue-700">
               <h3 className="text-2xl font-bold mb-4 text-blue-400">Multi-Stop Route Optimization</h3>
@@ -544,6 +1240,11 @@ Total Score = 0.4x60 + 0.3x60 + 0.2x96 + 0.1x85
         {activeTab === 'features' && (
           <div className="space-y-6">
             <h2 className="text-3xl font-bold mb-6 text-white">Key Features</h2>
+
+            {/* Real-Time Tracking Diagram */}
+            <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 mb-8">
+              <RealTimeTrackingDiagram />
+            </div>
 
             {/* Real-time Tracking */}
             <div className="bg-gradient-to-br from-blue-900/30 to-blue-900/30 rounded-xl p-6 border-2 border-blue-700">

@@ -2,6 +2,798 @@ import { useState } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
 import { useTheme } from '../../contexts/ThemeContext'
 
+// SVG Diagram: High-Level Architecture
+const DropboxArchitectureDiagram = () => (
+  <svg viewBox="0 0 900 500" style={{ width: '100%', maxWidth: '900px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="clientGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3B82F6" />
+        <stop offset="100%" stopColor="#1D4ED8" />
+      </linearGradient>
+      <linearGradient id="syncGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8B5CF6" />
+        <stop offset="100%" stopColor="#6D28D9" />
+      </linearGradient>
+      <linearGradient id="blockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10B981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="metaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#F59E0B" />
+        <stop offset="100%" stopColor="#D97706" />
+      </linearGradient>
+      <linearGradient id="storageGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#EC4899" />
+        <stop offset="100%" stopColor="#BE185D" />
+      </linearGradient>
+      <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+      </filter>
+    </defs>
+
+    {/* Background */}
+    <rect width="900" height="500" fill="#1F2937" rx="12"/>
+
+    {/* Title */}
+    <text x="450" y="35" textAnchor="middle" fill="#F9FAFB" fontSize="18" fontWeight="bold">Dropbox High-Level Architecture</text>
+
+    {/* Desktop Client */}
+    <g filter="url(#shadow)">
+      <rect x="50" y="70" width="140" height="80" rx="8" fill="url(#clientGrad)"/>
+      <text x="120" y="105" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Desktop Client</text>
+      <text x="120" y="125" textAnchor="middle" fill="#BFDBFE" fontSize="10">Windows/Mac/Linux</text>
+      <text x="120" y="140" textAnchor="middle" fill="#BFDBFE" fontSize="18">&#128187;</text>
+    </g>
+
+    {/* Mobile Client */}
+    <g filter="url(#shadow)">
+      <rect x="50" y="170" width="140" height="80" rx="8" fill="url(#clientGrad)"/>
+      <text x="120" y="205" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Mobile Client</text>
+      <text x="120" y="225" textAnchor="middle" fill="#BFDBFE" fontSize="10">iOS / Android</text>
+      <text x="120" y="240" textAnchor="middle" fill="#BFDBFE" fontSize="18">&#128241;</text>
+    </g>
+
+    {/* Web Client */}
+    <g filter="url(#shadow)">
+      <rect x="50" y="270" width="140" height="80" rx="8" fill="url(#clientGrad)"/>
+      <text x="120" y="305" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Web Browser</text>
+      <text x="120" y="325" textAnchor="middle" fill="#BFDBFE" fontSize="10">dropbox.com</text>
+      <text x="120" y="340" textAnchor="middle" fill="#BFDBFE" fontSize="18">&#127760;</text>
+    </g>
+
+    {/* Arrows from clients to sync service */}
+    <path d="M190 110 L280 200" stroke="#60A5FA" strokeWidth="2" fill="none" markerEnd="url(#arrowBlue)"/>
+    <path d="M190 210 L280 210" stroke="#60A5FA" strokeWidth="2" fill="none" markerEnd="url(#arrowBlue)"/>
+    <path d="M190 310 L280 220" stroke="#60A5FA" strokeWidth="2" fill="none" markerEnd="url(#arrowBlue)"/>
+
+    {/* Sync Service */}
+    <g filter="url(#shadow)">
+      <rect x="280" y="160" width="160" height="100" rx="8" fill="url(#syncGrad)"/>
+      <text x="360" y="195" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Sync Service</text>
+      <text x="360" y="215" textAnchor="middle" fill="#DDD6FE" fontSize="10">WebSocket + Long Poll</text>
+      <text x="360" y="235" textAnchor="middle" fill="#DDD6FE" fontSize="10">Change Detection</text>
+      <text x="360" y="250" textAnchor="middle" fill="#DDD6FE" fontSize="16">&#128260;</text>
+    </g>
+
+    {/* Arrow to Block Servers */}
+    <path d="M440 190 L520 140" stroke="#A78BFA" strokeWidth="2" fill="none" markerEnd="url(#arrowPurple)"/>
+
+    {/* Arrow to Metadata DB */}
+    <path d="M440 230 L520 280" stroke="#A78BFA" strokeWidth="2" fill="none" markerEnd="url(#arrowPurple)"/>
+
+    {/* Block Servers */}
+    <g filter="url(#shadow)">
+      <rect x="520" y="80" width="160" height="100" rx="8" fill="url(#blockGrad)"/>
+      <text x="600" y="115" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Block Servers</text>
+      <text x="600" y="135" textAnchor="middle" fill="#A7F3D0" fontSize="10">Chunking (4MB)</text>
+      <text x="600" y="155" textAnchor="middle" fill="#A7F3D0" fontSize="10">Deduplication</text>
+      <text x="600" y="170" textAnchor="middle" fill="#A7F3D0" fontSize="16">&#128230;</text>
+    </g>
+
+    {/* Metadata DB */}
+    <g filter="url(#shadow)">
+      <rect x="520" y="240" width="160" height="100" rx="8" fill="url(#metaGrad)"/>
+      <text x="600" y="275" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Metadata DB</text>
+      <text x="600" y="295" textAnchor="middle" fill="#FDE68A" fontSize="10">PostgreSQL (Sharded)</text>
+      <text x="600" y="315" textAnchor="middle" fill="#FDE68A" fontSize="10">Files, Folders, Users</text>
+      <text x="600" y="330" textAnchor="middle" fill="#FDE68A" fontSize="16">&#128451;</text>
+    </g>
+
+    {/* Arrow to Cloud Storage */}
+    <path d="M680 130 L760 200" stroke="#34D399" strokeWidth="2" fill="none" markerEnd="url(#arrowGreen)"/>
+    <path d="M680 290 L760 220" stroke="#FBBF24" strokeWidth="2" fill="none" markerEnd="url(#arrowYellow)"/>
+
+    {/* Cloud Storage (S3) */}
+    <g filter="url(#shadow)">
+      <rect x="760" y="160" width="120" height="100" rx="8" fill="url(#storageGrad)"/>
+      <text x="820" y="195" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Cloud Storage</text>
+      <text x="820" y="215" textAnchor="middle" fill="#FBCFE8" fontSize="10">Amazon S3</text>
+      <text x="820" y="235" textAnchor="middle" fill="#FBCFE8" fontSize="10">Block Data</text>
+      <text x="820" y="250" textAnchor="middle" fill="#FBCFE8" fontSize="16">&#9729;</text>
+    </g>
+
+    {/* Cache Layer */}
+    <g filter="url(#shadow)">
+      <rect x="380" y="380" width="140" height="70" rx="8" fill="#374151" stroke="#6B7280" strokeWidth="2"/>
+      <text x="450" y="410" textAnchor="middle" fill="#F9FAFB" fontSize="12" fontWeight="bold">Redis Cache</text>
+      <text x="450" y="430" textAnchor="middle" fill="#9CA3AF" fontSize="10">Metadata + Sessions</text>
+    </g>
+
+    {/* Arrow from Sync to Cache */}
+    <path d="M360 260 L400 380" stroke="#6B7280" strokeWidth="2" strokeDasharray="5,5" fill="none"/>
+
+    {/* Message Queue */}
+    <g filter="url(#shadow)">
+      <rect x="580" y="380" width="140" height="70" rx="8" fill="#374151" stroke="#6B7280" strokeWidth="2"/>
+      <text x="650" y="410" textAnchor="middle" fill="#F9FAFB" fontSize="12" fontWeight="bold">Message Queue</text>
+      <text x="650" y="430" textAnchor="middle" fill="#9CA3AF" fontSize="10">Kafka / SQS</text>
+    </g>
+
+    {/* Arrow from Metadata to Queue */}
+    <path d="M600 340 L620 380" stroke="#6B7280" strokeWidth="2" strokeDasharray="5,5" fill="none"/>
+
+    {/* Legend */}
+    <rect x="50" y="400" width="200" height="80" rx="6" fill="#111827" stroke="#374151"/>
+    <text x="60" y="420" fill="#9CA3AF" fontSize="10">Legend:</text>
+    <line x1="60" y1="435" x2="90" y2="435" stroke="#60A5FA" strokeWidth="2"/>
+    <text x="95" y="438" fill="#9CA3AF" fontSize="9">Client Connection</text>
+    <line x1="60" y1="455" x2="90" y2="455" stroke="#A78BFA" strokeWidth="2"/>
+    <text x="95" y="458" fill="#9CA3AF" fontSize="9">Internal Service</text>
+    <line x1="60" y1="475" x2="90" y2="475" stroke="#6B7280" strokeWidth="2" strokeDasharray="5,5"/>
+    <text x="95" y="478" fill="#9CA3AF" fontSize="9">Async / Cache</text>
+
+    {/* Arrow markers */}
+    <defs>
+      <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#60A5FA"/>
+      </marker>
+      <marker id="arrowPurple" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#A78BFA"/>
+      </marker>
+      <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#34D399"/>
+      </marker>
+      <marker id="arrowYellow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#FBBF24"/>
+      </marker>
+    </defs>
+  </svg>
+)
+
+// SVG Diagram: File Sync / Block-Level Synchronization
+const FileSyncDiagram = () => (
+  <svg viewBox="0 0 900 450" style={{ width: '100%', maxWidth: '900px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="fileGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3B82F6" />
+        <stop offset="100%" stopColor="#1D4ED8" />
+      </linearGradient>
+      <linearGradient id="chunkGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#10B981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="chunkGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#F59E0B" />
+        <stop offset="100%" stopColor="#D97706" />
+      </linearGradient>
+      <linearGradient id="chunkGrad3" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#EC4899" />
+        <stop offset="100%" stopColor="#BE185D" />
+      </linearGradient>
+      <linearGradient id="hashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8B5CF6" />
+        <stop offset="100%" stopColor="#6D28D9" />
+      </linearGradient>
+      <filter id="shadowSync" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+      </filter>
+    </defs>
+
+    {/* Background */}
+    <rect width="900" height="450" fill="#1F2937" rx="12"/>
+
+    {/* Title */}
+    <text x="450" y="35" textAnchor="middle" fill="#F9FAFB" fontSize="18" fontWeight="bold">Block-Level Synchronization & Deduplication</text>
+
+    {/* Original File */}
+    <g filter="url(#shadowSync)">
+      <rect x="40" y="70" width="120" height="160" rx="6" fill="url(#fileGrad)"/>
+      <text x="100" y="95" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Original File</text>
+      <text x="100" y="115" textAnchor="middle" fill="#BFDBFE" fontSize="10">document.pdf</text>
+      <text x="100" y="135" textAnchor="middle" fill="#BFDBFE" fontSize="10">(12 MB)</text>
+      <rect x="55" y="150" width="90" height="70" rx="4" fill="white" opacity="0.2"/>
+      <text x="100" y="190" textAnchor="middle" fill="white" fontSize="28">&#128196;</text>
+    </g>
+
+    {/* Chunking Arrow */}
+    <path d="M160 150 L200 150" stroke="#60A5FA" strokeWidth="2" markerEnd="url(#arrowBlueSync)"/>
+    <text x="180" y="140" textAnchor="middle" fill="#9CA3AF" fontSize="9">Chunk</text>
+
+    {/* Chunked Blocks */}
+    <g filter="url(#shadowSync)">
+      <rect x="210" y="60" width="100" height="50" rx="4" fill="url(#chunkGrad1)"/>
+      <text x="260" y="80" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Chunk 1</text>
+      <text x="260" y="100" textAnchor="middle" fill="#A7F3D0" fontSize="9">4 MB</text>
+    </g>
+
+    <g filter="url(#shadowSync)">
+      <rect x="210" y="120" width="100" height="50" rx="4" fill="url(#chunkGrad2)"/>
+      <text x="260" y="140" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Chunk 2</text>
+      <text x="260" y="160" textAnchor="middle" fill="#FDE68A" fontSize="9">4 MB</text>
+    </g>
+
+    <g filter="url(#shadowSync)">
+      <rect x="210" y="180" width="100" height="50" rx="4" fill="url(#chunkGrad3)"/>
+      <text x="260" y="200" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Chunk 3</text>
+      <text x="260" y="220" textAnchor="middle" fill="#FBCFE8" fontSize="9">4 MB</text>
+    </g>
+
+    {/* Hash Computation Arrow */}
+    <path d="M310 85 L360 85" stroke="#34D399" strokeWidth="2" markerEnd="url(#arrowGreenSync)"/>
+    <path d="M310 145 L360 145" stroke="#FBBF24" strokeWidth="2" markerEnd="url(#arrowYellowSync)"/>
+    <path d="M310 205 L360 205" stroke="#EC4899" strokeWidth="2" markerEnd="url(#arrowPinkSync)"/>
+    <text x="335" y="255" textAnchor="middle" fill="#9CA3AF" fontSize="9">SHA-256</text>
+
+    {/* Hash Values */}
+    <g filter="url(#shadowSync)">
+      <rect x="370" y="60" width="140" height="50" rx="4" fill="url(#hashGrad)"/>
+      <text x="440" y="80" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Hash: a3f2b1c...</text>
+      <text x="440" y="100" textAnchor="middle" fill="#DDD6FE" fontSize="8">Unique identifier</text>
+    </g>
+
+    <g filter="url(#shadowSync)">
+      <rect x="370" y="120" width="140" height="50" rx="4" fill="url(#hashGrad)"/>
+      <text x="440" y="140" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Hash: 7e9d4f2...</text>
+      <text x="440" y="160" textAnchor="middle" fill="#DDD6FE" fontSize="8">Unique identifier</text>
+    </g>
+
+    <g filter="url(#shadowSync)">
+      <rect x="370" y="180" width="140" height="50" rx="4" fill="url(#hashGrad)"/>
+      <text x="440" y="200" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Hash: b2c8e5a...</text>
+      <text x="440" y="220" textAnchor="middle" fill="#DDD6FE" fontSize="8">Unique identifier</text>
+    </g>
+
+    {/* Check Hash Index Arrow */}
+    <path d="M510 145 L560 145" stroke="#A78BFA" strokeWidth="2" markerEnd="url(#arrowPurpleSync)"/>
+    <text x="535" y="135" textAnchor="middle" fill="#9CA3AF" fontSize="9">Lookup</text>
+
+    {/* Hash Index (DynamoDB) */}
+    <g filter="url(#shadowSync)">
+      <rect x="570" y="70" width="130" height="150" rx="6" fill="#374151" stroke="#6B7280" strokeWidth="2"/>
+      <text x="635" y="95" textAnchor="middle" fill="#F9FAFB" fontSize="11" fontWeight="bold">Hash Index</text>
+      <text x="635" y="115" textAnchor="middle" fill="#9CA3AF" fontSize="9">(DynamoDB)</text>
+      <line x1="585" y1="125" x2="685" y2="125" stroke="#4B5563"/>
+      <text x="590" y="145" fill="#10B981" fontSize="9">a3f2b1c... &#10004;</text>
+      <text x="590" y="165" fill="#EF4444" fontSize="9">7e9d4f2... &#10008;</text>
+      <text x="590" y="185" fill="#10B981" fontSize="9">b2c8e5a... &#10004;</text>
+      <text x="635" y="210" textAnchor="middle" fill="#6B7280" fontSize="8">Exists? Y/N</text>
+    </g>
+
+    {/* Upload Decision Arrow */}
+    <path d="M700 145 L750 145" stroke="#6B7280" strokeWidth="2" markerEnd="url(#arrowGraySync)"/>
+    <text x="725" y="135" textAnchor="middle" fill="#9CA3AF" fontSize="9">Upload</text>
+
+    {/* S3 Storage */}
+    <g filter="url(#shadowSync)">
+      <rect x="760" y="70" width="120" height="150" rx="6" fill="#1E3A5F" stroke="#3B82F6" strokeWidth="2"/>
+      <text x="820" y="95" textAnchor="middle" fill="#F9FAFB" fontSize="11" fontWeight="bold">S3 Storage</text>
+      <line x1="775" y1="105" x2="865" y2="105" stroke="#3B82F6"/>
+      <text x="820" y="130" textAnchor="middle" fill="#9CA3AF" fontSize="9">Only Chunk 2</text>
+      <text x="820" y="150" textAnchor="middle" fill="#9CA3AF" fontSize="9">uploaded!</text>
+      <rect x="785" y="160" width="70" height="40" rx="4" fill="url(#chunkGrad2)"/>
+      <text x="820" y="185" textAnchor="middle" fill="white" fontSize="9">Chunk 2</text>
+    </g>
+
+    {/* Bottom Section - Dedup Savings */}
+    <rect x="40" y="280" width="840" height="150" rx="8" fill="#111827" stroke="#374151"/>
+    <text x="460" y="310" textAnchor="middle" fill="#F9FAFB" fontSize="14" fontWeight="bold">Deduplication Savings</text>
+
+    {/* Without Dedup */}
+    <rect x="70" y="330" width="350" height="80" rx="6" fill="#7F1D1D" fillOpacity="0.3" stroke="#EF4444"/>
+    <text x="245" y="355" textAnchor="middle" fill="#FCA5A5" fontSize="11" fontWeight="bold">Without Deduplication</text>
+    <rect x="90" y="365" width="80" height="30" rx="3" fill="#EF4444"/>
+    <rect x="175" y="365" width="80" height="30" rx="3" fill="#EF4444"/>
+    <rect x="260" y="365" width="80" height="30" rx="3" fill="#EF4444"/>
+    <text x="245" y="410" textAnchor="middle" fill="#FCA5A5" fontSize="10">Upload: 12 MB (all chunks)</text>
+
+    {/* With Dedup */}
+    <rect x="480" y="330" width="350" height="80" rx="6" fill="#14532D" fillOpacity="0.3" stroke="#10B981"/>
+    <text x="655" y="355" textAnchor="middle" fill="#6EE7B7" fontSize="11" fontWeight="bold">With Deduplication</text>
+    <rect x="500" y="365" width="80" height="30" rx="3" fill="#374151" stroke="#6B7280" strokeDasharray="4"/>
+    <text x="540" y="385" textAnchor="middle" fill="#6B7280" fontSize="8">Skip</text>
+    <rect x="585" y="365" width="80" height="30" rx="3" fill="#10B981"/>
+    <text x="625" y="385" textAnchor="middle" fill="white" fontSize="8">Upload</text>
+    <rect x="670" y="365" width="80" height="30" rx="3" fill="#374151" stroke="#6B7280" strokeDasharray="4"/>
+    <text x="710" y="385" textAnchor="middle" fill="#6B7280" fontSize="8">Skip</text>
+    <text x="655" y="410" textAnchor="middle" fill="#6EE7B7" fontSize="10">Upload: 4 MB only (67% saved!)</text>
+
+    {/* Arrow markers */}
+    <defs>
+      <marker id="arrowBlueSync" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#60A5FA"/>
+      </marker>
+      <marker id="arrowPurpleSync" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#A78BFA"/>
+      </marker>
+      <marker id="arrowGreenSync" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#34D399"/>
+      </marker>
+      <marker id="arrowYellowSync" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#FBBF24"/>
+      </marker>
+      <marker id="arrowPinkSync" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#EC4899"/>
+      </marker>
+      <marker id="arrowGraySync" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#6B7280"/>
+      </marker>
+    </defs>
+  </svg>
+)
+
+// SVG Diagram: Conflict Resolution
+const ConflictResolutionDiagram = () => (
+  <svg viewBox="0 0 900 480" style={{ width: '100%', maxWidth: '900px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="device1Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3B82F6" />
+        <stop offset="100%" stopColor="#1D4ED8" />
+      </linearGradient>
+      <linearGradient id="device2Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10B981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="serverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8B5CF6" />
+        <stop offset="100%" stopColor="#6D28D9" />
+      </linearGradient>
+      <linearGradient id="conflictGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#EF4444" />
+        <stop offset="100%" stopColor="#B91C1C" />
+      </linearGradient>
+      <linearGradient id="resolveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#F59E0B" />
+        <stop offset="100%" stopColor="#D97706" />
+      </linearGradient>
+      <filter id="shadowConflict" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+      </filter>
+    </defs>
+
+    {/* Background */}
+    <rect width="900" height="480" fill="#1F2937" rx="12"/>
+
+    {/* Title */}
+    <text x="450" y="35" textAnchor="middle" fill="#F9FAFB" fontSize="18" fontWeight="bold">Conflict Detection & Resolution</text>
+
+    {/* Timeline */}
+    <line x1="50" y1="450" x2="850" y2="450" stroke="#4B5563" strokeWidth="2"/>
+    <text x="50" y="470" fill="#9CA3AF" fontSize="10">T0</text>
+    <text x="250" y="470" fill="#9CA3AF" fontSize="10">T1</text>
+    <text x="450" y="470" fill="#9CA3AF" fontSize="10">T2</text>
+    <text x="650" y="470" fill="#9CA3AF" fontSize="10">T3</text>
+    <text x="850" y="470" fill="#9CA3AF" fontSize="10">T4</text>
+
+    {/* Device A - Laptop */}
+    <g filter="url(#shadowConflict)">
+      <rect x="40" y="70" width="120" height="80" rx="6" fill="url(#device1Grad)"/>
+      <text x="100" y="100" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Device A</text>
+      <text x="100" y="120" textAnchor="middle" fill="#BFDBFE" fontSize="10">Laptop</text>
+      <text x="100" y="140" textAnchor="middle" fill="white" fontSize="16">&#128187;</text>
+    </g>
+
+    {/* Device B - Phone */}
+    <g filter="url(#shadowConflict)">
+      <rect x="40" y="180" width="120" height="80" rx="6" fill="url(#device2Grad)"/>
+      <text x="100" y="210" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Device B</text>
+      <text x="100" y="230" textAnchor="middle" fill="#A7F3D0" fontSize="10">Phone</text>
+      <text x="100" y="250" textAnchor="middle" fill="white" fontSize="16">&#128241;</text>
+    </g>
+
+    {/* Server */}
+    <g filter="url(#shadowConflict)">
+      <rect x="40" y="300" width="120" height="80" rx="6" fill="url(#serverGrad)"/>
+      <text x="100" y="330" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Server</text>
+      <text x="100" y="350" textAnchor="middle" fill="#DDD6FE" fontSize="10">Dropbox Cloud</text>
+      <text x="100" y="370" textAnchor="middle" fill="white" fontSize="16">&#9729;</text>
+    </g>
+
+    {/* Initial State - T0 */}
+    <rect x="180" y="70" width="80" height="40" rx="4" fill="#374151" stroke="#6B7280"/>
+    <text x="220" y="95" textAnchor="middle" fill="#9CA3AF" fontSize="9">file.txt v1</text>
+
+    <rect x="180" y="200" width="80" height="40" rx="4" fill="#374151" stroke="#6B7280"/>
+    <text x="220" y="225" textAnchor="middle" fill="#9CA3AF" fontSize="9">file.txt v1</text>
+
+    <rect x="180" y="320" width="80" height="40" rx="4" fill="#374151" stroke="#6B7280"/>
+    <text x="220" y="345" textAnchor="middle" fill="#9CA3AF" fontSize="9">file.txt v1</text>
+
+    {/* T1 - Device A edits */}
+    <rect x="290" y="70" width="100" height="50" rx="4" fill="url(#device1Grad)"/>
+    <text x="340" y="90" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Edit: "Hello"</text>
+    <text x="340" y="110" textAnchor="middle" fill="#BFDBFE" fontSize="8">Local v2a</text>
+
+    {/* T1 - Device B edits (simultaneously) */}
+    <rect x="290" y="200" width="100" height="50" rx="4" fill="url(#device2Grad)"/>
+    <text x="340" y="220" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Edit: "World"</text>
+    <text x="340" y="240" textAnchor="middle" fill="#A7F3D0" fontSize="8">Local v2b</text>
+
+    {/* Arrows from devices to server */}
+    <path d="M390 95 L460 320" stroke="#60A5FA" strokeWidth="2" markerEnd="url(#arrowBlueConflict)"/>
+    <text x="410" y="200" fill="#60A5FA" fontSize="8" transform="rotate(60 410 200)">Sync @T2</text>
+
+    <path d="M390 225 L470 320" stroke="#34D399" strokeWidth="2" markerEnd="url(#arrowGreenConflict)"/>
+    <text x="450" y="260" fill="#34D399" fontSize="8" transform="rotate(55 450 260)">Sync @T2.1</text>
+
+    {/* T2 - Conflict Detection */}
+    <g filter="url(#shadowConflict)">
+      <rect x="480" y="290" width="140" height="100" rx="6" fill="url(#conflictGrad)"/>
+      <text x="550" y="320" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">CONFLICT!</text>
+      <text x="550" y="340" textAnchor="middle" fill="#FECACA" fontSize="9">Both modified v1</text>
+      <text x="550" y="360" textAnchor="middle" fill="#FECACA" fontSize="9">Base version same</text>
+      <text x="550" y="380" textAnchor="middle" fill="white" fontSize="14">&#9888;</text>
+    </g>
+
+    {/* T3 - Resolution */}
+    <g filter="url(#shadowConflict)">
+      <rect x="660" y="280" width="180" height="120" rx="6" fill="url(#resolveGrad)"/>
+      <text x="750" y="305" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Resolution (LWW)</text>
+      <line x1="675" y1="315" x2="825" y2="315" stroke="white" strokeOpacity="0.3"/>
+      <text x="750" y="335" textAnchor="middle" fill="#FEF3C7" fontSize="9">Winner: Device B</text>
+      <text x="750" y="355" textAnchor="middle" fill="#FEF3C7" fontSize="8">(Later timestamp)</text>
+      <rect x="680" y="365" width="140" height="25" rx="3" fill="white" fillOpacity="0.2"/>
+      <text x="750" y="382" textAnchor="middle" fill="white" fontSize="8">file.txt v2 = "World"</text>
+    </g>
+
+    {/* Arrow from conflict to resolution */}
+    <path d="M620 340 L660 340" stroke="#F59E0B" strokeWidth="2" markerEnd="url(#arrowOrangeConflict)"/>
+
+    {/* T4 - Final State */}
+    <rect x="720" y="70" width="120" height="50" rx="4" fill="#374151" stroke="#3B82F6"/>
+    <text x="780" y="90" textAnchor="middle" fill="#60A5FA" fontSize="9">file.txt v2</text>
+    <text x="780" y="108" textAnchor="middle" fill="#9CA3AF" fontSize="8">"World"</text>
+
+    <rect x="720" y="135" width="120" height="50" rx="4" fill="#374151" stroke="#EF4444" strokeDasharray="4"/>
+    <text x="780" y="155" textAnchor="middle" fill="#FCA5A5" fontSize="8">file (A's conflict)</text>
+    <text x="780" y="170" textAnchor="middle" fill="#9CA3AF" fontSize="8">"Hello"</text>
+
+    <rect x="720" y="200" width="120" height="50" rx="4" fill="#374151" stroke="#10B981"/>
+    <text x="780" y="220" textAnchor="middle" fill="#6EE7B7" fontSize="9">file.txt v2</text>
+    <text x="780" y="238" textAnchor="middle" fill="#9CA3AF" fontSize="8">"World"</text>
+
+    {/* Arrow from resolution to final states */}
+    <path d="M750 280 L780 185" stroke="#9CA3AF" strokeWidth="1" strokeDasharray="4"/>
+
+    {/* Legend Box */}
+    <rect x="50" y="400" width="280" height="40" rx="4" fill="#111827" stroke="#374151"/>
+    <text x="60" y="420" fill="#9CA3AF" fontSize="9">Conflict Copy: "file (User A's conflicted copy).txt"</text>
+    <text x="60" y="432" fill="#6B7280" fontSize="8">Preserves both versions for manual merge</text>
+
+    {/* Arrow markers */}
+    <defs>
+      <marker id="arrowBlueConflict" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#60A5FA"/>
+      </marker>
+      <marker id="arrowGreenConflict" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#34D399"/>
+      </marker>
+      <marker id="arrowOrangeConflict" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#F59E0B"/>
+      </marker>
+    </defs>
+  </svg>
+)
+
+// SVG Diagram: Metadata Service
+const MetadataServiceDiagram = () => (
+  <svg viewBox="0 0 900 450" style={{ width: '100%', maxWidth: '900px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="apiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3B82F6" />
+        <stop offset="100%" stopColor="#1D4ED8" />
+      </linearGradient>
+      <linearGradient id="cacheGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#EF4444" />
+        <stop offset="100%" stopColor="#B91C1C" />
+      </linearGradient>
+      <linearGradient id="dbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10B981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="shardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8B5CF6" />
+        <stop offset="100%" stopColor="#6D28D9" />
+      </linearGradient>
+      <filter id="shadowMeta" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+      </filter>
+    </defs>
+
+    {/* Background */}
+    <rect width="900" height="450" fill="#1F2937" rx="12"/>
+
+    {/* Title */}
+    <text x="450" y="35" textAnchor="middle" fill="#F9FAFB" fontSize="18" fontWeight="bold">Metadata Service Architecture</text>
+
+    {/* Client Request */}
+    <g filter="url(#shadowMeta)">
+      <rect x="40" y="80" width="120" height="70" rx="6" fill="#374151" stroke="#6B7280"/>
+      <text x="100" y="110" textAnchor="middle" fill="#F9FAFB" fontSize="11" fontWeight="bold">Client</text>
+      <text x="100" y="130" textAnchor="middle" fill="#9CA3AF" fontSize="9">GET /files/metadata</text>
+    </g>
+
+    {/* Arrow to API */}
+    <path d="M160 115 L220 115" stroke="#60A5FA" strokeWidth="2" markerEnd="url(#arrowBlueMeta)"/>
+
+    {/* API Gateway */}
+    <g filter="url(#shadowMeta)">
+      <rect x="230" y="70" width="140" height="90" rx="6" fill="url(#apiGrad)"/>
+      <text x="300" y="100" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Metadata API</text>
+      <text x="300" y="120" textAnchor="middle" fill="#BFDBFE" fontSize="9">Authentication</text>
+      <text x="300" y="140" textAnchor="middle" fill="#BFDBFE" fontSize="9">Rate Limiting</text>
+    </g>
+
+    {/* Arrow to Cache */}
+    <path d="M370 100 L440 100" stroke="#60A5FA" strokeWidth="2" markerEnd="url(#arrowBlueMeta)"/>
+    <text x="405" y="90" textAnchor="middle" fill="#9CA3AF" fontSize="8">1. Check</text>
+
+    {/* Redis Cache */}
+    <g filter="url(#shadowMeta)">
+      <rect x="450" y="60" width="150" height="100" rx="6" fill="url(#cacheGrad)"/>
+      <text x="525" y="90" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Redis Cache</text>
+      <text x="525" y="110" textAnchor="middle" fill="#FECACA" fontSize="9">TTL: 5 minutes</text>
+      <text x="525" y="130" textAnchor="middle" fill="#FECACA" fontSize="9">Hot metadata</text>
+      <text x="525" y="150" textAnchor="middle" fill="white" fontSize="14">&#9889;</text>
+    </g>
+
+    {/* Cache Hit Arrow */}
+    <path d="M525 160 L525 190 L160 190 L160 130" stroke="#10B981" strokeWidth="2" strokeDasharray="5,3" markerEnd="url(#arrowGreenMeta)"/>
+    <text x="340" y="185" textAnchor="middle" fill="#10B981" fontSize="8">Cache Hit (fast!)</text>
+
+    {/* Cache Miss Arrow */}
+    <path d="M600 110 L680 110 L680 200" stroke="#EF4444" strokeWidth="2" markerEnd="url(#arrowRedMeta)"/>
+    <text x="640" y="100" textAnchor="middle" fill="#EF4444" fontSize="8">Miss</text>
+
+    {/* Shard Router */}
+    <g filter="url(#shadowMeta)">
+      <rect x="620" y="210" width="140" height="80" rx="6" fill="#374151" stroke="#6B7280"/>
+      <text x="690" y="240" textAnchor="middle" fill="#F9FAFB" fontSize="11" fontWeight="bold">Shard Router</text>
+      <text x="690" y="260" textAnchor="middle" fill="#9CA3AF" fontSize="9">user_id % N</text>
+      <text x="690" y="280" textAnchor="middle" fill="#9CA3AF" fontSize="9">Consistent Hash</text>
+    </g>
+
+    {/* Arrows to Shards */}
+    <path d="M620 250 L520 320" stroke="#A78BFA" strokeWidth="2" markerEnd="url(#arrowPurpleMeta)"/>
+    <path d="M690 290 L690 320" stroke="#A78BFA" strokeWidth="2" markerEnd="url(#arrowPurpleMeta)"/>
+    <path d="M760 250 L840 320" stroke="#A78BFA" strokeWidth="2" markerEnd="url(#arrowPurpleMeta)"/>
+
+    {/* Database Shards */}
+    <g filter="url(#shadowMeta)">
+      <rect x="440" y="330" width="120" height="100" rx="6" fill="url(#shardGrad)"/>
+      <text x="500" y="360" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Shard 1</text>
+      <text x="500" y="380" textAnchor="middle" fill="#DDD6FE" fontSize="8">PostgreSQL</text>
+      <text x="500" y="400" textAnchor="middle" fill="#DDD6FE" fontSize="8">Users 0-99M</text>
+      <rect x="455" y="405" width="90" height="18" rx="2" fill="white" fillOpacity="0.1"/>
+      <text x="500" y="417" textAnchor="middle" fill="#DDD6FE" fontSize="7">Read Replicas: 3</text>
+    </g>
+
+    <g filter="url(#shadowMeta)">
+      <rect x="620" y="330" width="120" height="100" rx="6" fill="url(#shardGrad)"/>
+      <text x="680" y="360" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Shard 2</text>
+      <text x="680" y="380" textAnchor="middle" fill="#DDD6FE" fontSize="8">PostgreSQL</text>
+      <text x="680" y="400" textAnchor="middle" fill="#DDD6FE" fontSize="8">Users 100-199M</text>
+      <rect x="635" y="405" width="90" height="18" rx="2" fill="white" fillOpacity="0.1"/>
+      <text x="680" y="417" textAnchor="middle" fill="#DDD6FE" fontSize="7">Read Replicas: 3</text>
+    </g>
+
+    <g filter="url(#shadowMeta)">
+      <rect x="780" y="330" width="100" height="100" rx="6" fill="url(#shardGrad)"/>
+      <text x="830" y="360" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Shard N</text>
+      <text x="830" y="380" textAnchor="middle" fill="#DDD6FE" fontSize="8">PostgreSQL</text>
+      <text x="830" y="400" textAnchor="middle" fill="#DDD6FE" fontSize="8">Users ...</text>
+      <text x="830" y="420" textAnchor="middle" fill="white" fontSize="10">...</text>
+    </g>
+
+    {/* Schema Box */}
+    <rect x="40" y="230" width="200" height="200" rx="6" fill="#111827" stroke="#374151"/>
+    <text x="140" y="255" textAnchor="middle" fill="#F9FAFB" fontSize="11" fontWeight="bold">Metadata Schema</text>
+    <line x1="50" y1="265" x2="230" y2="265" stroke="#374151"/>
+    <text x="55" y="285" fill="#60A5FA" fontSize="9" fontFamily="monospace">file_id: UUID</text>
+    <text x="55" y="302" fill="#9CA3AF" fontSize="9" fontFamily="monospace">name: VARCHAR</text>
+    <text x="55" y="319" fill="#9CA3AF" fontSize="9" fontFamily="monospace">path: VARCHAR</text>
+    <text x="55" y="336" fill="#9CA3AF" fontSize="9" fontFamily="monospace">size: BIGINT</text>
+    <text x="55" y="353" fill="#9CA3AF" fontSize="9" fontFamily="monospace">chunks: JSONB[]</text>
+    <text x="55" y="370" fill="#9CA3AF" fontSize="9" fontFamily="monospace">version: INT</text>
+    <text x="55" y="387" fill="#9CA3AF" fontSize="9" fontFamily="monospace">modified_at: TIMESTAMP</text>
+    <text x="55" y="404" fill="#10B981" fontSize="9" fontFamily="monospace">user_id: UUID (shard key)</text>
+    <text x="55" y="421" fill="#9CA3AF" fontSize="9" fontFamily="monospace">permissions: JSONB</text>
+
+    {/* Response Flow */}
+    <rect x="270" y="200" width="120" height="50" rx="4" fill="#14532D" stroke="#10B981"/>
+    <text x="330" y="225" textAnchor="middle" fill="#6EE7B7" fontSize="9" fontWeight="bold">Response</text>
+    <text x="330" y="242" textAnchor="middle" fill="#A7F3D0" fontSize="8">{'<'} 50ms p99</text>
+
+    {/* Arrow from response to cache (write-through) */}
+    <path d="M390 225 L450 150" stroke="#6B7280" strokeWidth="1" strokeDasharray="4"/>
+    <text x="420" y="180" textAnchor="middle" fill="#6B7280" fontSize="7">Update cache</text>
+
+    {/* Arrow markers */}
+    <defs>
+      <marker id="arrowBlueMeta" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#60A5FA"/>
+      </marker>
+      <marker id="arrowGreenMeta" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#10B981"/>
+      </marker>
+      <marker id="arrowRedMeta" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#EF4444"/>
+      </marker>
+      <marker id="arrowPurpleMeta" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#A78BFA"/>
+      </marker>
+    </defs>
+  </svg>
+)
+
+// SVG Diagram: Sharing and Permissions
+const SharingDiagram = () => (
+  <svg viewBox="0 0 900 500" style={{ width: '100%', maxWidth: '900px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="ownerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3B82F6" />
+        <stop offset="100%" stopColor="#1D4ED8" />
+      </linearGradient>
+      <linearGradient id="editorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10B981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="viewerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#F59E0B" />
+        <stop offset="100%" stopColor="#D97706" />
+      </linearGradient>
+      <linearGradient id="publicGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#EC4899" />
+        <stop offset="100%" stopColor="#BE185D" />
+      </linearGradient>
+      <linearGradient id="folderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8B5CF6" />
+        <stop offset="100%" stopColor="#6D28D9" />
+      </linearGradient>
+      <filter id="shadowShare" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+      </filter>
+    </defs>
+
+    {/* Background */}
+    <rect width="900" height="500" fill="#1F2937" rx="12"/>
+
+    {/* Title */}
+    <text x="450" y="35" textAnchor="middle" fill="#F9FAFB" fontSize="18" fontWeight="bold">Sharing & Permissions Model</text>
+
+    {/* Shared Folder */}
+    <g filter="url(#shadowShare)">
+      <rect x="350" y="70" width="200" height="120" rx="8" fill="url(#folderGrad)"/>
+      <text x="450" y="105" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Project Folder</text>
+      <text x="450" y="130" textAnchor="middle" fill="#DDD6FE" fontSize="10">/Team/Project Alpha</text>
+      <text x="450" y="160" textAnchor="middle" fill="white" fontSize="24">&#128193;</text>
+    </g>
+
+    {/* Owner */}
+    <g filter="url(#shadowShare)">
+      <rect x="50" y="100" width="130" height="100" rx="6" fill="url(#ownerGrad)"/>
+      <text x="115" y="130" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">OWNER</text>
+      <text x="115" y="150" textAnchor="middle" fill="#BFDBFE" fontSize="9">Alice</text>
+      <text x="115" y="170" textAnchor="middle" fill="#BFDBFE" fontSize="8">Full Control</text>
+      <text x="115" y="190" textAnchor="middle" fill="white" fontSize="14">&#128081;</text>
+    </g>
+
+    {/* Arrow from owner to folder */}
+    <path d="M180 150 L350 130" stroke="#60A5FA" strokeWidth="2" markerEnd="url(#arrowBlueShare)"/>
+
+    {/* Editor */}
+    <g filter="url(#shadowShare)">
+      <rect x="720" y="80" width="130" height="100" rx="6" fill="url(#editorGrad)"/>
+      <text x="785" y="110" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">EDITOR</text>
+      <text x="785" y="130" textAnchor="middle" fill="#A7F3D0" fontSize="9">Bob</text>
+      <text x="785" y="150" textAnchor="middle" fill="#A7F3D0" fontSize="8">Read + Write</text>
+      <text x="785" y="170" textAnchor="middle" fill="white" fontSize="14">&#9998;</text>
+    </g>
+
+    {/* Arrow from folder to editor */}
+    <path d="M550 130 L720 130" stroke="#34D399" strokeWidth="2" markerEnd="url(#arrowGreenShare)"/>
+
+    {/* Viewer */}
+    <g filter="url(#shadowShare)">
+      <rect x="720" y="200" width="130" height="100" rx="6" fill="url(#viewerGrad)"/>
+      <text x="785" y="230" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">VIEWER</text>
+      <text x="785" y="250" textAnchor="middle" fill="#FDE68A" fontSize="9">Carol</text>
+      <text x="785" y="270" textAnchor="middle" fill="#FDE68A" fontSize="8">Read Only</text>
+      <text x="785" y="290" textAnchor="middle" fill="white" fontSize="14">&#128065;</text>
+    </g>
+
+    {/* Arrow from folder to viewer */}
+    <path d="M550 160 L720 230" stroke="#FBBF24" strokeWidth="2" markerEnd="url(#arrowYellowShare)"/>
+
+    {/* Public Link */}
+    <g filter="url(#shadowShare)">
+      <rect x="350" y="230" width="200" height="90" rx="6" fill="url(#publicGrad)"/>
+      <text x="450" y="260" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">PUBLIC LINK</text>
+      <text x="450" y="280" textAnchor="middle" fill="#FBCFE8" fontSize="8">dropbox.com/s/abc123</text>
+      <text x="450" y="300" textAnchor="middle" fill="#FBCFE8" fontSize="8">Anyone with link</text>
+    </g>
+
+    {/* Arrow from folder to public link */}
+    <path d="M450 190 L450 230" stroke="#EC4899" strokeWidth="2" markerEnd="url(#arrowPinkShare)"/>
+
+    {/* Permissions Table */}
+    <rect x="50" y="350" width="380" height="130" rx="6" fill="#111827" stroke="#374151"/>
+    <text x="240" y="375" textAnchor="middle" fill="#F9FAFB" fontSize="12" fontWeight="bold">Permission Levels</text>
+    <line x1="60" y1="385" x2="420" y2="385" stroke="#374151"/>
+
+    {/* Table headers */}
+    <text x="100" y="405" fill="#9CA3AF" fontSize="9" fontWeight="bold">Action</text>
+    <text x="200" y="405" fill="#3B82F6" fontSize="9" fontWeight="bold">Owner</text>
+    <text x="280" y="405" fill="#10B981" fontSize="9" fontWeight="bold">Editor</text>
+    <text x="360" y="405" fill="#F59E0B" fontSize="9" fontWeight="bold">Viewer</text>
+
+    {/* Table rows */}
+    <text x="100" y="425" fill="#9CA3AF" fontSize="9">View files</text>
+    <text x="210" y="425" fill="#10B981" fontSize="9">&#10004;</text>
+    <text x="290" y="425" fill="#10B981" fontSize="9">&#10004;</text>
+    <text x="370" y="425" fill="#10B981" fontSize="9">&#10004;</text>
+
+    <text x="100" y="445" fill="#9CA3AF" fontSize="9">Edit files</text>
+    <text x="210" y="445" fill="#10B981" fontSize="9">&#10004;</text>
+    <text x="290" y="445" fill="#10B981" fontSize="9">&#10004;</text>
+    <text x="370" y="445" fill="#EF4444" fontSize="9">&#10008;</text>
+
+    <text x="100" y="465" fill="#9CA3AF" fontSize="9">Manage sharing</text>
+    <text x="210" y="465" fill="#10B981" fontSize="9">&#10004;</text>
+    <text x="290" y="465" fill="#EF4444" fontSize="9">&#10008;</text>
+    <text x="370" y="465" fill="#EF4444" fontSize="9">&#10008;</text>
+
+    {/* Link Settings */}
+    <rect x="470" y="350" width="380" height="130" rx="6" fill="#111827" stroke="#374151"/>
+    <text x="660" y="375" textAnchor="middle" fill="#F9FAFB" fontSize="12" fontWeight="bold">Link Settings</text>
+    <line x1="480" y1="385" x2="840" y2="385" stroke="#374151"/>
+
+    <text x="490" y="405" fill="#EC4899" fontSize="9">&#128279; Password Protection</text>
+    <text x="490" y="425" fill="#EC4899" fontSize="9">&#128337; Expiration Date</text>
+    <text x="490" y="445" fill="#EC4899" fontSize="9">&#128203; Download Disabled</text>
+    <text x="490" y="465" fill="#EC4899" fontSize="9">&#128202; View Analytics</text>
+
+    <text x="700" y="405" fill="#6B7280" fontSize="9">Optional security</text>
+    <text x="700" y="425" fill="#6B7280" fontSize="9">Auto-disable link</text>
+    <text x="700" y="445" fill="#6B7280" fontSize="9">View only in browser</text>
+    <text x="700" y="465" fill="#6B7280" fontSize="9">Track who accessed</text>
+
+    {/* Inheritance Arrow */}
+    <g filter="url(#shadowShare)">
+      <rect x="200" y="230" width="100" height="60" rx="4" fill="#374151" stroke="#6B7280"/>
+      <text x="250" y="255" textAnchor="middle" fill="#9CA3AF" fontSize="9" fontWeight="bold">Inheritance</text>
+      <text x="250" y="275" textAnchor="middle" fill="#6B7280" fontSize="8">Subfolders inherit</text>
+    </g>
+
+    <path d="M250 190 L250 230" stroke="#6B7280" strokeWidth="1" strokeDasharray="4"/>
+
+    {/* Arrow markers */}
+    <defs>
+      <marker id="arrowBlueShare" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#60A5FA"/>
+      </marker>
+      <marker id="arrowGreenShare" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#34D399"/>
+      </marker>
+      <marker id="arrowYellowShare" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#FBBF24"/>
+      </marker>
+      <marker id="arrowPinkShare" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#EC4899"/>
+      </marker>
+    </defs>
+  </svg>
+)
+
 function Dropbox({ onBack, breadcrumb }) {
   const { colors } = useTheme()
   const [activeTab, setActiveTab] = useState('overview')
@@ -191,7 +983,12 @@ function Dropbox({ onBack, breadcrumb }) {
         {/* Architecture Tab */}
         {activeTab === 'architecture' && (
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold mb-6 text-gray-800">🏗️ High-Level Architecture</h2>
+            <h2 className="text-3xl font-bold mb-6 text-gray-800">High-Level Architecture</h2>
+
+            {/* Architecture Diagram */}
+            <div className="flex justify-center mb-8">
+              <DropboxArchitectureDiagram />
+            </div>
 
             <div className="flex flex-col items-center space-y-4">
               {/* Client Layer */}
@@ -291,9 +1088,17 @@ function Dropbox({ onBack, breadcrumb }) {
               </div>
             </div>
 
+            {/* Metadata Service Diagram */}
+            <div className="mt-8 bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-6 border-2 border-amber-200">
+              <h3 className="text-2xl font-bold mb-4 text-amber-800">Metadata Service Architecture</h3>
+              <div className="flex justify-center">
+                <MetadataServiceDiagram />
+              </div>
+            </div>
+
             {/* Key Components */}
             <div className="mt-8 bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-6 border-2 border-pink-200">
-              <h3 className="text-2xl font-bold mb-4 text-pink-800">🔧 Key Components</h3>
+              <h3 className="text-2xl font-bold mb-4 text-pink-800">Key Components</h3>
               <div className="space-y-3">
                 <div className="bg-white rounded-lg p-4 shadow">
                   <div className="font-bold text-gray-800 mb-2">📂 Metadata Database</div>
@@ -319,7 +1124,12 @@ function Dropbox({ onBack, breadcrumb }) {
         {/* File Sync Tab */}
         {activeTab === 'sync' && (
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold mb-6 text-gray-800">🔄 File Synchronization</h2>
+            <h2 className="text-3xl font-bold mb-6 text-gray-800">File Synchronization</h2>
+
+            {/* File Sync Diagram */}
+            <div className="flex justify-center mb-8">
+              <FileSyncDiagram />
+            </div>
 
             {/* Upload Flow */}
             <div className="space-y-4">
@@ -434,7 +1244,13 @@ function Dropbox({ onBack, breadcrumb }) {
 
             {/* Conflict Resolution */}
             <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border-2 border-red-200">
-              <h3 className="text-2xl font-bold mb-4 text-red-800">⚔️ Conflict Resolution</h3>
+              <h3 className="text-2xl font-bold mb-4 text-red-800">Conflict Resolution</h3>
+
+              {/* Conflict Resolution Diagram */}
+              <div className="flex justify-center mb-6">
+                <ConflictResolutionDiagram />
+              </div>
+
               <div className="space-y-3">
                 <p className="text-gray-700">
                   When the same file is modified on multiple devices simultaneously:
@@ -574,11 +1390,16 @@ function Dropbox({ onBack, breadcrumb }) {
         {/* Features Tab */}
         {activeTab === 'features' && (
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold mb-6 text-gray-800">✨ Key Features</h2>
+            <h2 className="text-3xl font-bold mb-6 text-gray-800">Key Features</h2>
+
+            {/* Sharing Diagram */}
+            <div className="flex justify-center mb-8">
+              <SharingDiagram />
+            </div>
 
             {/* File Sharing */}
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border-2 border-blue-200">
-              <h3 className="text-2xl font-bold mb-4 text-blue-800">🔗 File Sharing</h3>
+              <h3 className="text-2xl font-bold mb-4 text-blue-800">File Sharing</h3>
               <div className="space-y-3">
                 <div className="bg-white rounded-lg p-4 shadow">
                   <div className="font-bold text-gray-800 mb-2">🌐 Public Links</div>

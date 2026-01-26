@@ -1,6 +1,72 @@
 import { useState } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
 
+// JWT Token Flow Diagram
+const JWTFlowDiagram = () => (
+  <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">JWT Authentication Flow</text>
+
+    <rect x="30" y="45" width="100" height="55" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="80" y="70" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Client</text>
+    <text x="80" y="88" textAnchor="middle" fill="#93c5fd" fontSize="8">Login request</text>
+
+    <rect x="180" y="45" width="120" height="55" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="240" y="70" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Auth Server</text>
+    <text x="240" y="88" textAnchor="middle" fill="#86efac" fontSize="8">Verify credentials</text>
+
+    <rect x="350" y="45" width="130" height="55" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="415" y="65" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Generate JWT</text>
+    <text x="415" y="82" textAnchor="middle" fill="#fcd34d" fontSize="8">Header.Payload</text>
+    <text x="415" y="95" textAnchor="middle" fill="#fcd34d" fontSize="8">.Signature</text>
+
+    <rect x="530" y="45" width="110" height="55" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="585" y="70" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Client Stores</text>
+    <text x="585" y="88" textAnchor="middle" fill="#c4b5fd" fontSize="8">localStorage/cookie</text>
+
+    <rect x="690" y="45" width="90" height="55" rx="6" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="735" y="70" textAnchor="middle" fill="#f472b6" fontSize="10" fontWeight="bold">API Server</text>
+    <text x="735" y="88" textAnchor="middle" fill="#fbcfe8" fontSize="8">Verify JWT</text>
+
+    <path d="M 130 72 L 175 72" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+    <path d="M 300 72 L 345 72" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+    <path d="M 480 72 L 525 72" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+    <path d="M 640 72 L 685 72" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+
+    <rect x="200" y="120" width="400" height="45" rx="6" fill="rgba(100, 116, 139, 0.1)" stroke="#64748b" strokeWidth="1"/>
+    <text x="400" y="140" textAnchor="middle" fill="#94a3b8" fontSize="9" fontWeight="bold">JWT: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0.signature</text>
+    <text x="400" y="157" textAnchor="middle" fill="#64748b" fontSize="8">Stateless - No server session required | Self-contained user info</text>
+  </svg>
+)
+
+// JWT Structure Diagram
+const JWTStructureDiagram = () => (
+  <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">JWT Token Structure</text>
+
+    <rect x="50" y="50" width="200" height="70" rx="6" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="150" y="75" textAnchor="middle" fill="#f87171" fontSize="11" fontWeight="bold">Header</text>
+    <text x="150" y="95" textAnchor="middle" fill="#fca5a5" fontSize="8">{"{"} alg: "HS256", typ: "JWT" {"}"}</text>
+    <text x="150" y="110" textAnchor="middle" fill="#fca5a5" fontSize="8">Base64Url encoded</text>
+
+    <text x="265" y="85" textAnchor="middle" fill="#94a3b8" fontSize="20" fontWeight="bold">.</text>
+
+    <rect x="290" y="50" width="220" height="70" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="400" y="75" textAnchor="middle" fill="#a78bfa" fontSize="11" fontWeight="bold">Payload (Claims)</text>
+    <text x="400" y="93" textAnchor="middle" fill="#c4b5fd" fontSize="8">sub, iat, exp, iss, aud</text>
+    <text x="400" y="108" textAnchor="middle" fill="#c4b5fd" fontSize="8">Custom claims: roles, permissions</text>
+
+    <text x="525" y="85" textAnchor="middle" fill="#94a3b8" fontSize="20" fontWeight="bold">.</text>
+
+    <rect x="550" y="50" width="200" height="70" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="650" y="75" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">Signature</text>
+    <text x="650" y="93" textAnchor="middle" fill="#86efac" fontSize="8">HMAC-SHA256 / RS256</text>
+    <text x="650" y="108" textAnchor="middle" fill="#86efac" fontSize="8">Verifies integrity</text>
+
+    <rect x="150" y="140" width="500" height="30" rx="4" fill="rgba(59, 130, 246, 0.1)" stroke="#3b82f6" strokeWidth="1"/>
+    <text x="400" y="160" textAnchor="middle" fill="#60a5fa" fontSize="9">Signature = HMACSHA256(base64(header) + "." + base64(payload), secret)</text>
+  </svg>
+)
+
 export default function JWT({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview')
 
@@ -62,6 +128,10 @@ export default function JWT({ onBack, breadcrumb }) {
         <div className="mb-8">
           {activeTab === 'overview' && (
             <div className="space-y-8">
+              {/* JWT Flow Diagram */}
+              <div className="bg-gray-800 rounded-xl shadow-md p-6 border-l-4 border-blue-600">
+                <JWTFlowDiagram />
+              </div>
               {/* What is JWT */}
               <div className="bg-gray-800 rounded-xl shadow-md p-8 border-l-4 border-purple-600">
                 <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">

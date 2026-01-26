@@ -19,84 +19,91 @@ function ETrading({ onBack, onSelectItem, breadcrumb }) {
       name: 'RFQ Systems',
       icon: '💬',
       color: '#22c55e',
-      description: 'Request-for-Quote systems via Tradeweb and Bloomberg. Electronic customer RFQ workflows, quote generation, and automated response mechanisms.'
+      description: 'Request-for-Quote systems via Tradeweb, Bloomberg, and MarketAxess. Electronic customer RFQ workflows with auto-quoting engines, competitive quote generation using real-time market data, spread calculation, and automated response mechanisms. Covers D2C (dealer-to-customer) and D2D (dealer-to-dealer) trading flows.'
     },
     {
       id: 'Fixed Income Trading',
       name: 'Fixed Income Trading',
       icon: '📜',
       color: '#3b82f6',
-      description: 'US Treasury Bonds, USD Interest Rate Swaps, and Rates trading. Multi-tiered electronic trading systems for fixed income markets.'
+      description: 'US Treasury Bonds, USD Interest Rate Swaps, Credit Default Swaps, and Rates trading. Multi-tiered electronic trading systems including voice, click-to-trade, and fully automated execution. Covers yield curve construction, bond pricing models, duration/convexity calculations, and swap valuation.'
     },
     {
       id: 'Order Management',
       name: 'Order Management System',
       icon: '📋',
       color: '#f59e0b',
-      description: 'Order lifecycle management, order routing, execution workflows, and trade booking. OMS integration with trading platforms.'
+      description: 'Complete order lifecycle management from inception to settlement. Order routing logic, execution workflows, partial fills handling, and trade booking to back-office systems. OMS integration with EMS, PMS, and trading platforms via FIX. Covers order types, time-in-force, and regulatory reporting (MiFID II, CAT).'
     },
     {
       id: 'Execution Algorithms',
       name: 'Execution Algorithms',
       icon: '🎯',
       color: '#ef4444',
-      description: 'Algorithmic execution strategies, TWAP, VWAP, and smart order routing. Automated execution for optimal trade outcomes.'
+      description: 'Algorithmic execution strategies including TWAP, VWAP, POV (Percentage of Volume), Implementation Shortfall, and Iceberg orders. Smart order routing (SOR) across lit and dark venues. Market impact modeling, transaction cost analysis (TCA), and optimal execution benchmarks. Covers algo parameter tuning and A/B testing.'
     },
     {
       id: 'Automated Hedging',
       name: 'Automated Hedging',
       icon: '🔄',
       color: '#8b5cf6',
-      description: 'Automatic hedging of customer trades, delta hedging, and risk-neutral position management. Real-time hedge calculation and execution.'
+      description: 'Automatic hedging of customer trades with delta, gamma, and vega hedging strategies. Risk-neutral position management using futures, options, and swaps. Real-time Greeks calculation, hedge ratio optimization, and basis risk management. Covers portfolio hedging, cross-asset hedging, and hedge accounting.'
     },
     {
       id: 'Price Contribution',
       name: 'Real-time Pricing',
       icon: '💰',
       color: '#ec4899',
-      description: 'Real-time price contribution to trading venues. Price calculation engines, market making, and quote dissemination systems.'
+      description: 'Real-time price contribution to ECNs, MTFs, and trading venues. Price calculation engines using market data, inventory, and risk parameters. Market making strategies with bid-ask spread optimization, quote skewing, and inventory management. Covers price discovery, fair value calculation, and quote throttling.'
     },
     {
       id: 'Low Latency',
       name: 'Low Latency Systems',
       icon: '🚀',
       color: '#06b6d4',
-      description: 'Ultra-low latency architectures, kernel bypass, lock-free data structures, and performance optimization for sub-millisecond execution.'
+      description: 'Ultra-low latency architectures achieving sub-100 microsecond execution. Kernel bypass with DPDK/RDMA, lock-free data structures, memory-mapped files, and CPU pinning. Hardware timestamping, FPGA acceleration, and co-location strategies. Covers JVM tuning, GC avoidance, and mechanical sympathy principles.'
     },
     {
       id: 'Aeron Messaging',
       name: 'Aeron Messaging',
       icon: '⚡',
       color: '#f97316',
-      description: 'High-performance, low-latency messaging with Aeron. UDP unicast/multicast, IPC, and reliable message transport for trading systems.'
+      description: 'High-performance, low-latency messaging with Aeron achieving millions of messages per second. UDP unicast/multicast transport, IPC for inter-process communication, and Aeron Cluster for fault-tolerant replication. Covers publication/subscription patterns, back-pressure handling, and archive for message replay.'
     },
     {
       id: 'FIX Protocol',
       name: 'FIX Protocol',
       icon: '📡',
       color: '#10b981',
-      description: 'Financial Information eXchange protocol. FIX 4.2/4.4/5.0, session management, and message handling for trading connectivity.'
+      description: 'Financial Information eXchange protocol - the industry standard for trading connectivity. FIX 4.2/4.4/5.0 SP2 message formats, session management (logon, heartbeat, sequence reset), and execution reports. Covers FIX engines (QuickFIX/J), FIXML, FIX Orchestra, and drop copy connections for regulatory compliance.'
     },
     {
       id: 'Java Trading',
       name: 'Java for Trading',
       icon: '☕',
       color: '#fbbf24',
-      description: 'Java multithreading, Spring Boot microservices, and concurrent programming patterns for high-throughput trading applications.'
+      description: 'Java for high-frequency trading: multithreading with ExecutorService and ForkJoinPool, concurrent collections (ConcurrentHashMap, CopyOnWriteArrayList), and lock-free programming with Atomics. Spring Boot microservices with reactive streams. Covers object pooling, off-heap memory, Chronicle Queue, and Agrona primitives.'
     },
     {
       id: 'Distributed Systems',
       name: 'Distributed Systems',
       icon: '🌐',
       color: '#a855f7',
-      description: 'Distributed computing, message-based architectures, event-driven systems, and fault-tolerant design for trading infrastructure.'
+      description: 'Distributed computing for trading infrastructure: event-driven architectures with Kafka/Solace, CQRS and event sourcing patterns, and saga orchestration. Consensus algorithms (Raft, Paxos), distributed caching with Hazelcast/Redis, and service mesh. Covers CAP theorem trade-offs, idempotency, and exactly-once delivery.'
     },
     {
       id: 'Risk Management',
       name: 'Risk Management',
       icon: '🛡️',
       color: '#64748b',
-      description: 'Pre-trade and post-trade risk controls, position limits, P&L monitoring, and real-time risk analytics for trading desks.'
+      description: 'Pre-trade risk controls: position limits, notional limits, and fat-finger checks. Post-trade analytics: VaR, CVaR, stress testing, and scenario analysis. Real-time P&L monitoring, Greeks aggregation, and counterparty credit risk. Covers regulatory capital (Basel III), margin calculations, and kill switches for circuit breakers.'
+    },
+    {
+      id: 'Disruptor Pattern',
+      name: 'Disruptor Pattern',
+      icon: '💫',
+      color: '#22c55e',
+      description: 'LMAX Disruptor for ultra-low latency inter-thread messaging achieving 25M+ ops/sec. Ring buffer with pre-allocated events, lock-free sequences with cache line padding, and configurable wait strategies. Covers single/multi-producer sequencers, event handler pipelines, memory barriers, and false sharing prevention.'
     }
   ]
 

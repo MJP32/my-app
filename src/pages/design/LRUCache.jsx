@@ -1,108 +1,876 @@
+/**
+ * LRU Cache - Tab Template Format
+ *
+ * Covers LRU Cache concepts, data structures, implementation patterns,
+ * thread safety, distributed caching, and related algorithms (LFU, TTL).
+ */
+
 import { useState, useEffect } from 'react'
-import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
-import LanguageToggle from '../../components/LanguageToggle.jsx'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
-import { isProblemCompleted, getUserCode } from '../../services/progressService'
-import { getPreferredLanguage } from '../../services/languageService'
 
-function LRUCache({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb }) {
-  const [selectedQuestion, setSelectedQuestion] = useState(null)
-  const [showSolution, setShowSolution] = useState(false)
-  const [showExplanation, setShowExplanation] = useState(false)
-  const [userCode, setUserCode] = useState('')
-  const [output, setOutput] = useState('')
-  const [isRunning, setIsRunning] = useState(false)
-  const [refreshKey, setRefreshKey] = useState(0)
-  const [language, setLanguage] = useState(getPreferredLanguage())
+// =============================================================================
+// COLORS CONFIGURATION
+// =============================================================================
 
-  // Listen for completion changes
-  useEffect(() => {
-    const handleProgressUpdate = () => {
-      setRefreshKey(prev => prev + 1)
-    }
+const TOPIC_COLORS = {
+  primary: '#8b5cf6',
+  primaryHover: '#a78bfa',
+  bg: 'rgba(139, 92, 246, 0.1)',
+  border: 'rgba(139, 92, 246, 0.3)',
+  arrow: '#8b5cf6',
+  hoverBg: 'rgba(139, 92, 246, 0.2)',
+  topicBg: 'rgba(139, 92, 246, 0.2)'
+}
 
-    window.addEventListener('progressUpdate', handleProgressUpdate)
-    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
-  }, [])
+const SUBTOPIC_COLORS = [
+  { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },
+  { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' },
+  { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' },
+  { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)' },
+  { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)' },
+  { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
+]
 
-  // Listen for language changes
-  useEffect(() => {
-    const handleLanguageChange = (e) => {
-      const newLanguage = e.detail
-      setLanguage(newLanguage)
-      if (selectedQuestion) {
-        // Check if there's saved code for this language first
-        const problemId = `LRUCache-${selectedQuestion.id}`
-        const savedCode = getUserCode(problemId, newLanguage)
-        setUserCode(savedCode || selectedQuestion.code[newLanguage].starterCode)
-      }
-    }
-    window.addEventListener('languageChange', handleLanguageChange)
-    return () => window.removeEventListener('languageChange', handleLanguageChange)
-  }, [selectedQuestion])
+// =============================================================================
+// DIAGRAM COMPONENTS
+// =============================================================================
 
-  const questions = [
+// LRU Cache Architecture Diagram
+const LRUCacheArchitectureDiagram = () => (
+  <svg viewBox="0 0 800 280" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <linearGradient id="hashMapGradArch" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#1d4ed8', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="dllGradArch" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#7c3aed', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="nodeGradArch" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="dummyGradArch" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="arrowArch" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#6b7280" />
+      </marker>
+      <marker id="arrowArchBlue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#3b82f6" />
+      </marker>
+    </defs>
+    <text x="400" y="25" fontSize="14" fontWeight="700" fill="#e5e7eb" textAnchor="middle">LRU Cache Architecture: HashMap + Doubly Linked List</text>
+    <rect x="30" y="50" width="200" height="200" rx="12" fill="#1f2937" stroke="url(#hashMapGradArch)" strokeWidth="3" />
+    <text x="130" y="75" fontSize="12" fontWeight="600" fill="#3b82f6" textAnchor="middle">HashMap&lt;K, Node&gt;</text>
+    <text x="130" y="92" fontSize="10" fill="#9ca3af" textAnchor="middle">O(1) key lookup</text>
+    <rect x="50" y="110" width="160" height="28" rx="4" fill="#374151" />
+    <text x="60" y="128" fontSize="10" fill="#fbbf24">key: 1</text>
+    <text x="140" y="128" fontSize="10" fill="#9ca3af">→ node</text>
+    <rect x="50" y="145" width="160" height="28" rx="4" fill="#374151" />
+    <text x="60" y="163" fontSize="10" fill="#fbbf24">key: 2</text>
+    <text x="140" y="163" fontSize="10" fill="#9ca3af">→ node</text>
+    <rect x="50" y="180" width="160" height="28" rx="4" fill="#374151" />
+    <text x="60" y="198" fontSize="10" fill="#fbbf24">key: 3</text>
+    <text x="140" y="198" fontSize="10" fill="#9ca3af">→ node</text>
+    <path d="M 210 124 Q 260 124 280 150" fill="none" stroke="#3b82f6" strokeWidth="2" strokeDasharray="4,2" markerEnd="url(#arrowArchBlue)" />
+    <path d="M 210 159 Q 260 159 350 180" fill="none" stroke="#3b82f6" strokeWidth="2" strokeDasharray="4,2" markerEnd="url(#arrowArchBlue)" />
+    <path d="M 210 194 Q 280 194 420 180" fill="none" stroke="#3b82f6" strokeWidth="2" strokeDasharray="4,2" markerEnd="url(#arrowArchBlue)" />
+    <rect x="280" y="50" width="490" height="200" rx="12" fill="#1f2937" stroke="url(#dllGradArch)" strokeWidth="3" />
+    <text x="525" y="75" fontSize="12" fontWeight="600" fill="#8b5cf6" textAnchor="middle">Doubly Linked List (Order by Recency)</text>
+    <rect x="300" y="120" width="70" height="80" rx="8" fill="url(#dummyGradArch)" />
+    <text x="335" y="145" fontSize="10" fontWeight="600" fill="white" textAnchor="middle">HEAD</text>
+    <text x="335" y="162" fontSize="9" fill="white" opacity="0.8" textAnchor="middle">(dummy)</text>
+    <text x="335" y="180" fontSize="8" fill="white" opacity="0.6" textAnchor="middle">prev: null</text>
+    <rect x="390" y="110" width="80" height="95" rx="8" fill="url(#nodeGradArch)" stroke="#10b981" strokeWidth="2" />
+    <text x="430" y="132" fontSize="9" fontWeight="600" fill="white" textAnchor="middle">key: 1</text>
+    <text x="430" y="148" fontSize="9" fill="white" opacity="0.9" textAnchor="middle">val: 100</text>
+    <text x="430" y="165" fontSize="8" fill="white" opacity="0.7" textAnchor="middle">prev</text>
+    <text x="430" y="180" fontSize="8" fill="white" opacity="0.7" textAnchor="middle">next</text>
+    <text x="430" y="198" fontSize="8" fill="#fbbf24" textAnchor="middle">Most Recent</text>
+    <rect x="490" y="120" width="80" height="80" rx="8" fill="url(#nodeGradArch)" />
+    <text x="530" y="145" fontSize="9" fontWeight="600" fill="white" textAnchor="middle">key: 2</text>
+    <text x="530" y="162" fontSize="9" fill="white" opacity="0.9" textAnchor="middle">val: 200</text>
+    <text x="530" y="180" fontSize="8" fill="white" opacity="0.7" textAnchor="middle">prev | next</text>
+    <rect x="590" y="110" width="80" height="95" rx="8" fill="url(#nodeGradArch)" stroke="#ef4444" strokeWidth="2" />
+    <text x="630" y="132" fontSize="9" fontWeight="600" fill="white" textAnchor="middle">key: 3</text>
+    <text x="630" y="148" fontSize="9" fill="white" opacity="0.9" textAnchor="middle">val: 300</text>
+    <text x="630" y="165" fontSize="8" fill="white" opacity="0.7" textAnchor="middle">prev</text>
+    <text x="630" y="180" fontSize="8" fill="white" opacity="0.7" textAnchor="middle">next</text>
+    <text x="630" y="198" fontSize="8" fill="#ef4444" textAnchor="middle">Evict First</text>
+    <rect x="690" y="120" width="70" height="80" rx="8" fill="url(#dummyGradArch)" />
+    <text x="725" y="145" fontSize="10" fontWeight="600" fill="white" textAnchor="middle">TAIL</text>
+    <text x="725" y="162" fontSize="9" fill="white" opacity="0.8" textAnchor="middle">(dummy)</text>
+    <text x="725" y="180" fontSize="8" fill="white" opacity="0.6" textAnchor="middle">next: null</text>
+    <line x1="370" y1="155" x2="390" y2="155" stroke="#6b7280" strokeWidth="2" markerEnd="url(#arrowArch)" />
+    <line x1="390" y1="165" x2="370" y2="165" stroke="#6b7280" strokeWidth="2" markerEnd="url(#arrowArch)" />
+    <line x1="470" y1="155" x2="490" y2="155" stroke="#6b7280" strokeWidth="2" markerEnd="url(#arrowArch)" />
+    <line x1="490" y1="165" x2="470" y2="165" stroke="#6b7280" strokeWidth="2" markerEnd="url(#arrowArch)" />
+    <line x1="570" y1="155" x2="590" y2="155" stroke="#6b7280" strokeWidth="2" markerEnd="url(#arrowArch)" />
+    <line x1="590" y1="165" x2="570" y2="165" stroke="#6b7280" strokeWidth="2" markerEnd="url(#arrowArch)" />
+    <line x1="670" y1="155" x2="690" y2="155" stroke="#6b7280" strokeWidth="2" markerEnd="url(#arrowArch)" />
+    <line x1="690" y1="165" x2="670" y2="165" stroke="#6b7280" strokeWidth="2" markerEnd="url(#arrowArch)" />
+    <text x="400" y="268" fontSize="10" fill="#9ca3af" textAnchor="middle">Capacity: 3 | HashMap provides O(1) lookup | DLL maintains access order</text>
+  </svg>
+)
+
+// GET Operation Diagram
+const GetOperationDiagram = () => (
+  <svg viewBox="0 0 800 240" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <linearGradient id="stepGradGet" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="nodeGradGet" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#7c3aed', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="highlightGradGet" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#fbbf24', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="arrowGet" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#10b981" />
+      </marker>
+      <marker id="arrowGetYellow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#fbbf24" />
+      </marker>
+    </defs>
+    <text x="400" y="25" fontSize="14" fontWeight="700" fill="#e5e7eb" textAnchor="middle">GET Operation: get(key=2) - Returns value, moves node to front</text>
+    <rect x="30" y="50" width="180" height="80" rx="10" fill="#1f2937" stroke="#3b82f6" strokeWidth="2" />
+    <text x="120" y="75" fontSize="11" fontWeight="600" fill="#3b82f6" textAnchor="middle">Step 1: HashMap Lookup</text>
+    <text x="120" y="95" fontSize="10" fill="#9ca3af" textAnchor="middle">map.get(2) → node</text>
+    <text x="120" y="112" fontSize="9" fill="#10b981" textAnchor="middle">O(1) time</text>
+    <line x1="210" y1="90" x2="240" y2="90" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowGet)" />
+    <rect x="250" y="50" width="180" height="80" rx="10" fill="#1f2937" stroke="#8b5cf6" strokeWidth="2" />
+    <text x="340" y="75" fontSize="11" fontWeight="600" fill="#8b5cf6" textAnchor="middle">Step 2: Node Found</text>
+    <rect x="300" y="85" width="80" height="35" rx="6" fill="url(#highlightGradGet)" />
+    <text x="340" y="108" fontSize="10" fontWeight="600" fill="white" textAnchor="middle">key:2 val:20</text>
+    <line x1="430" y1="90" x2="460" y2="90" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowGet)" />
+    <rect x="470" y="50" width="180" height="80" rx="10" fill="#1f2937" stroke="#f59e0b" strokeWidth="2" />
+    <text x="560" y="75" fontSize="11" fontWeight="600" fill="#f59e0b" textAnchor="middle">Step 3: Move to Front</text>
+    <text x="560" y="95" fontSize="9" fill="#9ca3af" textAnchor="middle">removeNode(node)</text>
+    <text x="560" y="110" fontSize="9" fill="#9ca3af" textAnchor="middle">addToHead(node)</text>
+    <line x1="650" y1="90" x2="680" y2="90" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowGet)" />
+    <rect x="690" y="50" width="80" height="80" rx="10" fill="url(#stepGradGet)" />
+    <text x="730" y="80" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">Return</text>
+    <text x="730" y="100" fontSize="14" fontWeight="700" fill="white" textAnchor="middle">20</text>
+    <text x="730" y="118" fontSize="9" fill="white" opacity="0.8" textAnchor="middle">value</text>
+    <text x="400" y="228" fontSize="10" fill="#10b981" textAnchor="middle">Time Complexity: O(1) for both HashMap lookup and DLL pointer updates</text>
+  </svg>
+)
+
+// PUT Operation Diagram
+const PutOperationDiagram = () => (
+  <svg viewBox="0 0 800 280" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <linearGradient id="newNodeGradPut" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="nodeGradPut" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#7c3aed', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="evictGradPut" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#ef4444', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#dc2626', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="arrowPut" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#10b981" />
+      </marker>
+    </defs>
+    <text x="400" y="25" fontSize="14" fontWeight="700" fill="#e5e7eb" textAnchor="middle">PUT Operation: put(key=4, value=40) - Add new, evict LRU if at capacity</text>
+    <text x="130" y="55" fontSize="11" fontWeight="600" fill="#f59e0b" textAnchor="middle">Initial State (Capacity: 3, Full)</text>
+    <rect x="30" y="70" width="50" height="40" rx="4" fill="#f59e0b" />
+    <text x="55" y="95" fontSize="9" fill="white" textAnchor="middle">HEAD</text>
+    <line x1="80" y1="90" x2="100" y2="90" stroke="#6b7280" strokeWidth="1.5" />
+    <rect x="100" y="70" width="60" height="40" rx="4" fill="url(#nodeGradPut)" />
+    <text x="130" y="87" fontSize="9" fill="white" textAnchor="middle">k:1 v:10</text>
+    <text x="130" y="102" fontSize="8" fill="#10b981" textAnchor="middle">recent</text>
+    <line x1="160" y1="90" x2="180" y2="90" stroke="#6b7280" strokeWidth="1.5" />
+    <rect x="180" y="70" width="60" height="40" rx="4" fill="url(#nodeGradPut)" />
+    <text x="210" y="92" fontSize="9" fill="white" textAnchor="middle">k:2 v:20</text>
+    <line x1="240" y1="90" x2="260" y2="90" stroke="#6b7280" strokeWidth="1.5" />
+    <rect x="260" y="70" width="60" height="40" rx="4" fill="url(#evictGradPut)" stroke="#ef4444" strokeWidth="2" />
+    <text x="290" y="87" fontSize="9" fill="white" textAnchor="middle">k:3 v:30</text>
+    <text x="290" y="102" fontSize="8" fill="#fbbf24" textAnchor="middle">LRU!</text>
+    <line x1="320" y1="90" x2="340" y2="90" stroke="#6b7280" strokeWidth="1.5" />
+    <rect x="340" y="70" width="50" height="40" rx="4" fill="#f59e0b" />
+    <text x="365" y="95" fontSize="9" fill="white" textAnchor="middle">TAIL</text>
+    <rect x="430" y="50" width="160" height="70" rx="8" fill="#1f2937" stroke="#3b82f6" strokeWidth="2" />
+    <text x="510" y="72" fontSize="10" fontWeight="600" fill="#3b82f6" textAnchor="middle">Step 1: Check Capacity</text>
+    <text x="510" y="90" fontSize="9" fill="#9ca3af" textAnchor="middle">size (3) == capacity (3)</text>
+    <text x="510" y="105" fontSize="9" fill="#ef4444" textAnchor="middle">Need to evict!</text>
+    <rect x="610" y="50" width="160" height="70" rx="8" fill="#1f2937" stroke="#ef4444" strokeWidth="2" />
+    <text x="690" y="72" fontSize="10" fontWeight="600" fill="#ef4444" textAnchor="middle">Step 2: Evict LRU</text>
+    <text x="690" y="90" fontSize="9" fill="#9ca3af" textAnchor="middle">removeTail() → k:3</text>
+    <text x="690" y="105" fontSize="9" fill="#9ca3af" textAnchor="middle">map.remove(3)</text>
+    <line x1="400" y1="125" x2="400" y2="145" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowPut)" />
+    <rect x="430" y="155" width="160" height="70" rx="8" fill="#1f2937" stroke="#10b981" strokeWidth="2" />
+    <text x="510" y="177" fontSize="10" fontWeight="600" fill="#10b981" textAnchor="middle">Step 3: Add New Node</text>
+    <text x="510" y="195" fontSize="9" fill="#9ca3af" textAnchor="middle">newNode = Node(4, 40)</text>
+    <text x="510" y="210" fontSize="9" fill="#9ca3af" textAnchor="middle">addToHead(newNode)</text>
+    <rect x="610" y="155" width="160" height="70" rx="8" fill="#1f2937" stroke="#8b5cf6" strokeWidth="2" />
+    <text x="690" y="177" fontSize="10" fontWeight="600" fill="#8b5cf6" textAnchor="middle">Step 4: Update Map</text>
+    <text x="690" y="195" fontSize="9" fill="#9ca3af" textAnchor="middle">map.put(4, newNode)</text>
+    <text x="690" y="210" fontSize="9" fill="#10b981" textAnchor="middle">Done!</text>
+  </svg>
+)
+
+// Eviction Diagram
+const EvictionDiagram = () => (
+  <svg viewBox="0 0 800 220" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <linearGradient id="safeGradEvict" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="dangerGradEvict" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#ef4444', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#dc2626', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="arrowEvict" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#ef4444" />
+      </marker>
+    </defs>
+    <text x="400" y="25" fontSize="14" fontWeight="700" fill="#e5e7eb" textAnchor="middle">LRU Eviction: Removing the Least Recently Used Entry</text>
+    <text x="100" y="55" fontSize="11" fontWeight="600" fill="#9ca3af" textAnchor="middle">Access Timeline</text>
+    <line x1="50" y1="70" x2="750" y2="70" stroke="#374151" strokeWidth="2" />
+    <circle cx="100" cy="70" r="6" fill="#10b981" />
+    <text x="100" y="90" fontSize="9" fill="#10b981" textAnchor="middle">t=0</text>
+    <text x="100" y="105" fontSize="8" fill="#9ca3af" textAnchor="middle">put(A)</text>
+    <circle cx="200" cy="70" r="6" fill="#10b981" />
+    <text x="200" y="90" fontSize="9" fill="#10b981" textAnchor="middle">t=1</text>
+    <text x="200" y="105" fontSize="8" fill="#9ca3af" textAnchor="middle">put(B)</text>
+    <circle cx="300" cy="70" r="6" fill="#10b981" />
+    <text x="300" y="90" fontSize="9" fill="#10b981" textAnchor="middle">t=2</text>
+    <text x="300" y="105" fontSize="8" fill="#9ca3af" textAnchor="middle">put(C)</text>
+    <circle cx="400" cy="70" r="6" fill="#3b82f6" />
+    <text x="400" y="90" fontSize="9" fill="#3b82f6" textAnchor="middle">t=3</text>
+    <text x="400" y="105" fontSize="8" fill="#9ca3af" textAnchor="middle">get(A)</text>
+    <circle cx="500" cy="70" r="6" fill="#3b82f6" />
+    <text x="500" y="90" fontSize="9" fill="#3b82f6" textAnchor="middle">t=4</text>
+    <text x="500" y="105" fontSize="8" fill="#9ca3af" textAnchor="middle">get(C)</text>
+    <circle cx="600" cy="70" r="6" fill="#f59e0b" />
+    <text x="600" y="90" fontSize="9" fill="#f59e0b" textAnchor="middle">t=5</text>
+    <text x="600" y="105" fontSize="8" fill="#f59e0b" textAnchor="middle">put(D)</text>
+    <circle cx="700" cy="70" r="6" fill="#ef4444" />
+    <text x="700" y="90" fontSize="9" fill="#ef4444" textAnchor="middle">EVICT</text>
+    <rect x="50" y="120" width="320" height="90" rx="10" fill="#1f2937" stroke="#374151" strokeWidth="2" />
+    <text x="210" y="145" fontSize="11" fontWeight="600" fill="#9ca3af" textAnchor="middle">Cache State at t=5 (Before Eviction)</text>
+    <rect x="70" y="160" width="70" height="40" rx="6" fill="url(#safeGradEvict)" />
+    <text x="105" y="177" fontSize="9" fontWeight="600" fill="white" textAnchor="middle">C</text>
+    <text x="105" y="192" fontSize="8" fill="white" opacity="0.8" textAnchor="middle">Most Recent</text>
+    <rect x="150" y="160" width="70" height="40" rx="6" fill="url(#safeGradEvict)" opacity="0.8" />
+    <text x="185" y="177" fontSize="9" fontWeight="600" fill="white" textAnchor="middle">A</text>
+    <text x="185" y="192" fontSize="8" fill="white" opacity="0.8" textAnchor="middle">Recent</text>
+    <rect x="230" y="160" width="70" height="40" rx="6" fill="url(#dangerGradEvict)" />
+    <text x="265" y="177" fontSize="9" fontWeight="600" fill="white" textAnchor="middle">B</text>
+    <text x="265" y="192" fontSize="8" fill="#fbbf24" textAnchor="middle">LRU - Evict!</text>
+    <line x1="300" y1="180" x2="340" y2="180" stroke="#ef4444" strokeWidth="2" markerEnd="url(#arrowEvict)" />
+    <rect x="400" y="120" width="370" height="90" rx="10" fill="#1f2937" stroke="#ef4444" strokeWidth="2" />
+    <text x="585" y="145" fontSize="11" fontWeight="600" fill="#ef4444" textAnchor="middle">Eviction Process</text>
+    <text x="420" y="168" fontSize="10" fill="#9ca3af">1. removeTail() → Get node before TAIL (B)</text>
+    <text x="420" y="186" fontSize="10" fill="#9ca3af">2. Update B.prev.next = TAIL</text>
+    <text x="420" y="204" fontSize="10" fill="#9ca3af">3. map.remove(B.key) → Remove from HashMap</text>
+  </svg>
+)
+
+// HashMap + DLL Data Structure Diagram
+const DataStructureDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <linearGradient id="nodeGradDS" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#7c3aed', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="arrowDS" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#6b7280" />
+      </marker>
+    </defs>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Why HashMap + Doubly Linked List?
+    </text>
+    <rect x="50" y="50" width="200" height="130" rx="8" fill="#1f2937" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="150" y="75" textAnchor="middle" fill="#3b82f6" fontSize="12" fontWeight="bold">HashMap</text>
+    <text x="150" y="100" textAnchor="middle" fill="#9ca3af" fontSize="10">O(1) key → node lookup</text>
+    <text x="150" y="120" textAnchor="middle" fill="#9ca3af" fontSize="10">Direct access to any entry</text>
+    <text x="150" y="140" textAnchor="middle" fill="#9ca3af" fontSize="10">No ordering information</text>
+    <text x="150" y="165" textAnchor="middle" fill="#10b981" fontSize="10">Fast lookup!</text>
+    <rect x="300" y="50" width="200" height="130" rx="8" fill="#1f2937" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="400" y="75" textAnchor="middle" fill="#8b5cf6" fontSize="12" fontWeight="bold">Doubly Linked List</text>
+    <text x="400" y="100" textAnchor="middle" fill="#9ca3af" fontSize="10">O(1) add/remove at ends</text>
+    <text x="400" y="120" textAnchor="middle" fill="#9ca3af" fontSize="10">O(1) remove arbitrary node</text>
+    <text x="400" y="140" textAnchor="middle" fill="#9ca3af" fontSize="10">Maintains access order</text>
+    <text x="400" y="165" textAnchor="middle" fill="#10b981" fontSize="10">Fast reordering!</text>
+    <rect x="550" y="50" width="200" height="130" rx="8" fill="#1f2937" stroke="#10b981" strokeWidth="2"/>
+    <text x="650" y="75" textAnchor="middle" fill="#10b981" fontSize="12" fontWeight="bold">Combined: O(1) All Ops</text>
+    <text x="650" y="100" textAnchor="middle" fill="#9ca3af" fontSize="10">get(key): lookup + move</text>
+    <text x="650" y="120" textAnchor="middle" fill="#9ca3af" fontSize="10">put(key): add/update + move</text>
+    <text x="650" y="140" textAnchor="middle" fill="#9ca3af" fontSize="10">evict(): remove tail</text>
+    <text x="650" y="165" textAnchor="middle" fill="#fbbf24" fontSize="10">Perfect for LRU Cache!</text>
+    <line x1="250" y1="115" x2="295" y2="115" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowDS)"/>
+    <text x="272" y="105" textAnchor="middle" fill="#94a3b8" fontSize="8">+</text>
+    <line x1="500" y1="115" x2="545" y2="115" stroke="#4ade80" strokeWidth="2" markerEnd="url(#arrowDS)"/>
+    <text x="522" y="105" textAnchor="middle" fill="#94a3b8" fontSize="8">=</text>
+  </svg>
+)
+
+// Node Structure Diagram
+const NodeStructureDiagram = () => (
+  <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <linearGradient id="nodeGradNS" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Node Structure in Doubly Linked List
+    </text>
+    <rect x="300" y="50" width="200" height="120" rx="10" fill="url(#nodeGradNS)" stroke="#10b981" strokeWidth="2"/>
+    <text x="400" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Node</text>
+    <line x1="310" y1="85" x2="490" y2="85" stroke="white" strokeOpacity="0.3" strokeWidth="1"/>
+    <text x="320" y="105" fill="white" fontSize="10">key: int</text>
+    <text x="320" y="120" fill="white" fontSize="10">value: int</text>
+    <text x="320" y="135" fill="white" fontSize="10">prev: Node*</text>
+    <text x="320" y="150" fill="white" fontSize="10">next: Node*</text>
+    <rect x="50" y="80" width="80" height="40" rx="6" fill="#374151" stroke="#6b7280" strokeWidth="1"/>
+    <text x="90" y="105" textAnchor="middle" fill="#9ca3af" fontSize="10">prev node</text>
+    <rect x="670" y="80" width="80" height="40" rx="6" fill="#374151" stroke="#6b7280" strokeWidth="1"/>
+    <text x="710" y="105" textAnchor="middle" fill="#9ca3af" fontSize="10">next node</text>
+    <line x1="130" y1="100" x2="290" y2="135" stroke="#6b7280" strokeWidth="2" strokeDasharray="4,2"/>
+    <line x1="510" y1="145" x2="660" y2="100" stroke="#6b7280" strokeWidth="2" strokeDasharray="4,2"/>
+  </svg>
+)
+
+// LRU Cache with Expiry Diagram
+const LRUCacheExpiryDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <linearGradient id="validGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="expiredGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#ef4444', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#dc2626', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+    <text x="30" y="25" fontSize="11" fontWeight="600" fill="#9ca3af">LRU Cache with TTL (Time To Live)</text>
+    <rect x="30" y="40" width="130" height="70" rx="8" fill="url(#validGrad)" />
+    <text x="95" y="60" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">k:1 v:100</text>
+    <text x="95" y="78" fontSize="9" fill="white" opacity="0.9" textAnchor="middle">TTL: 60s</text>
+    <text x="95" y="95" fontSize="9" fill="white" opacity="0.8" textAnchor="middle">expires: t+45s</text>
+    <rect x="180" y="40" width="130" height="70" rx="8" fill="url(#validGrad)" />
+    <text x="245" y="60" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">k:2 v:200</text>
+    <text x="245" y="78" fontSize="9" fill="white" opacity="0.9" textAnchor="middle">TTL: 120s</text>
+    <text x="245" y="95" fontSize="9" fill="white" opacity="0.8" textAnchor="middle">expires: t+100s</text>
+    <rect x="330" y="40" width="130" height="70" rx="8" fill="url(#expiredGrad)" />
+    <text x="395" y="60" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">k:3 v:300</text>
+    <text x="395" y="78" fontSize="9" fill="white" opacity="0.9" textAnchor="middle">TTL: 30s</text>
+    <text x="395" y="95" fontSize="9" fill="white" opacity="0.8" textAnchor="middle">EXPIRED</text>
+    <rect x="500" y="35" width="170" height="85" rx="8" fill="#1f2937" stroke="#374151" strokeWidth="2" />
+    <text x="585" y="55" fontSize="10" fontWeight="600" fill="#f59e0b" textAnchor="middle">Eviction Policy</text>
+    <text x="510" y="75" fontSize="9" fill="#9ca3af">1. Check expiry first</text>
+    <text x="510" y="92" fontSize="9" fill="#9ca3af">2. Remove expired items</text>
+    <text x="510" y="109" fontSize="9" fill="#9ca3af">3. Then apply LRU</text>
+    <text x="95" y="130" fontSize="9" fill="#10b981" textAnchor="middle">Valid</text>
+    <text x="245" y="130" fontSize="9" fill="#10b981" textAnchor="middle">Valid</text>
+    <text x="395" y="130" fontSize="9" fill="#ef4444" textAnchor="middle">Remove</text>
+  </svg>
+)
+
+// LFU Cache Diagram
+const LFUCacheDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <linearGradient id="freq1Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#ef4444', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#dc2626', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="freq2Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="freq3Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+    <text x="30" y="20" fontSize="11" fontWeight="600" fill="#9ca3af">Frequency-Based Eviction (min_freq=1)</text>
+    <rect x="30" y="35" width="180" height="40" rx="6" fill="url(#freq1Grad)" />
+    <text x="120" y="58" fontSize="10" fontWeight="600" fill="white" textAnchor="middle">freq=1: [D] → [E]</text>
+    <text x="220" y="58" fontSize="9" fill="#ef4444" textAnchor="middle">← evict first</text>
+    <rect x="30" y="85" width="180" height="40" rx="6" fill="url(#freq2Grad)" />
+    <text x="120" y="108" fontSize="10" fontWeight="600" fill="white" textAnchor="middle">freq=2: [B] → [C]</text>
+    <rect x="30" y="135" width="180" height="40" rx="6" fill="url(#freq3Grad)" />
+    <text x="120" y="158" fontSize="10" fontWeight="600" fill="white" textAnchor="middle">freq=3: [A]</text>
+    <rect x="320" y="35" width="350" height="130" rx="8" fill="#1f2937" stroke="#374151" strokeWidth="2" />
+    <text x="495" y="55" fontSize="11" fontWeight="600" fill="#6366f1" textAnchor="middle">LFU Eviction Algorithm</text>
+    <text x="335" y="78" fontSize="10" fill="#9ca3af">1. Track frequency count for each key</text>
+    <text x="335" y="98" fontSize="10" fill="#9ca3af">2. Maintain min_freq pointer</text>
+    <text x="335" y="118" fontSize="10" fill="#9ca3af">3. Evict from min_freq bucket (LRU order)</text>
+    <text x="335" y="138" fontSize="10" fill="#9ca3af">4. On access: move to freq+1 bucket</text>
+  </svg>
+)
+
+// Distributed Cache Diagram
+const DistributedCacheDiagram = () => (
+  <svg viewBox="0 0 800 280" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <linearGradient id="clientGradDist" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#1d4ed8', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="cacheNode1Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="cacheNode2Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#7c3aed', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="cacheNode3Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="arrowDist" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#6b7280" />
+      </marker>
+    </defs>
+    <text x="400" y="25" fontSize="14" fontWeight="700" fill="#e5e7eb" textAnchor="middle">Distributed LRU Cache with Consistent Hashing</text>
+    <rect x="30" y="100" width="100" height="80" rx="10" fill="url(#clientGradDist)" />
+    <text x="80" y="130" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">Client</text>
+    <text x="80" y="148" fontSize="9" fill="white" opacity="0.8" textAnchor="middle">get(key)</text>
+    <text x="80" y="163" fontSize="9" fill="white" opacity="0.8" textAnchor="middle">put(key, val)</text>
+    <line x1="130" y1="140" x2="180" y2="140" stroke="#6b7280" strokeWidth="2" markerEnd="url(#arrowDist)" />
+    <text x="155" y="130" fontSize="8" fill="#9ca3af" textAnchor="middle">hash(key)</text>
+    <circle cx="280" cy="140" r="70" fill="none" stroke="#4b5563" strokeWidth="2" strokeDasharray="4,4" />
+    <text x="280" y="138" fontSize="10" fontWeight="600" fill="#9ca3af" textAnchor="middle">Hash</text>
+    <text x="280" y="153" fontSize="10" fontWeight="600" fill="#9ca3af" textAnchor="middle">Ring</text>
+    <circle cx="280" cy="70" r="10" fill="url(#cacheNode1Grad)" />
+    <circle cx="340" cy="180" r="10" fill="url(#cacheNode2Grad)" />
+    <circle cx="220" cy="180" r="10" fill="url(#cacheNode3Grad)" />
+    <rect x="420" y="40" width="140" height="65" rx="8" fill="#1f2937" stroke="url(#cacheNode1Grad)" strokeWidth="2" />
+    <text x="490" y="60" fontSize="10" fontWeight="600" fill="#10b981" textAnchor="middle">Cache Node 1</text>
+    <text x="430" y="78" fontSize="9" fill="#9ca3af">LRU: [A] → [D]</text>
+    <text x="430" y="93" fontSize="8" fill="#6b7280">Keys: A, D, G...</text>
+    <rect x="420" y="115" width="140" height="65" rx="8" fill="#1f2937" stroke="url(#cacheNode2Grad)" strokeWidth="2" />
+    <text x="490" y="135" fontSize="10" fontWeight="600" fill="#8b5cf6" textAnchor="middle">Cache Node 2</text>
+    <text x="430" y="153" fontSize="9" fill="#9ca3af">LRU: [B] → [E]</text>
+    <text x="430" y="168" fontSize="8" fill="#6b7280">Keys: B, E, H...</text>
+    <rect x="420" y="190" width="140" height="65" rx="8" fill="#1f2937" stroke="url(#cacheNode3Grad)" strokeWidth="2" />
+    <text x="490" y="210" fontSize="10" fontWeight="600" fill="#f59e0b" textAnchor="middle">Cache Node 3</text>
+    <text x="430" y="228" fontSize="9" fill="#9ca3af">LRU: [C] → [F]</text>
+    <text x="430" y="243" fontSize="8" fill="#6b7280">Keys: C, F, I...</text>
+    <line x1="350" y1="75" x2="415" y2="72" stroke="#10b981" strokeWidth="1.5" strokeDasharray="4,2" />
+    <line x1="350" y1="175" x2="415" y2="147" stroke="#8b5cf6" strokeWidth="1.5" strokeDasharray="4,2" />
+    <line x1="235" y1="195" x2="415" y2="222" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4,2" />
+    <rect x="600" y="40" width="180" height="215" rx="10" fill="#1f2937" stroke="#374151" strokeWidth="2" />
+    <text x="690" y="65" fontSize="11" fontWeight="600" fill="#e5e7eb" textAnchor="middle">Benefits</text>
+    <text x="615" y="90" fontSize="9" fill="#10b981">Horizontal Scaling</text>
+    <text x="615" y="105" fontSize="8" fill="#9ca3af">Add nodes dynamically</text>
+    <text x="615" y="130" fontSize="9" fill="#8b5cf6">Minimal Reshuffling</text>
+    <text x="615" y="145" fontSize="8" fill="#9ca3af">Only K/N keys move</text>
+    <text x="615" y="170" fontSize="9" fill="#f59e0b">Load Balancing</text>
+    <text x="615" y="185" fontSize="8" fill="#9ca3af">Virtual nodes for even dist</text>
+    <text x="615" y="210" fontSize="9" fill="#ef4444">Fault Tolerance</text>
+    <text x="615" y="225" fontSize="8" fill="#9ca3af">Node failure is isolated</text>
+    <text x="615" y="245" fontSize="9" fill="#3b82f6">Each node runs LRU!</text>
+  </svg>
+)
+
+// Thread Safety Diagram
+const ThreadSafetyDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowTS" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#6b7280" />
+      </marker>
+    </defs>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Thread-Safe LRU Cache Strategies
+    </text>
+    <rect x="50" y="50" width="200" height="130" rx="8" fill="#1f2937" stroke="#ef4444" strokeWidth="2"/>
+    <text x="150" y="75" textAnchor="middle" fill="#ef4444" fontSize="12" fontWeight="bold">Global Lock</text>
+    <text x="150" y="100" textAnchor="middle" fill="#9ca3af" fontSize="9">synchronized / ReentrantLock</text>
+    <text x="150" y="120" textAnchor="middle" fill="#9ca3af" fontSize="9">Simple but blocks all ops</text>
+    <text x="150" y="140" textAnchor="middle" fill="#9ca3af" fontSize="9">High contention</text>
+    <text x="150" y="165" textAnchor="middle" fill="#f87171" fontSize="9">Low throughput</text>
+    <rect x="300" y="50" width="200" height="130" rx="8" fill="#1f2937" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="400" y="75" textAnchor="middle" fill="#f59e0b" fontSize="12" fontWeight="bold">Read-Write Lock</text>
+    <text x="400" y="100" textAnchor="middle" fill="#9ca3af" fontSize="9">ReentrantReadWriteLock</text>
+    <text x="400" y="120" textAnchor="middle" fill="#9ca3af" fontSize="9">Multiple readers allowed</text>
+    <text x="400" y="140" textAnchor="middle" fill="#9ca3af" fontSize="9">Writers exclusive</text>
+    <text x="400" y="165" textAnchor="middle" fill="#fbbf24" fontSize="9">Better for read-heavy</text>
+    <rect x="550" y="50" width="200" height="130" rx="8" fill="#1f2937" stroke="#10b981" strokeWidth="2"/>
+    <text x="650" y="75" textAnchor="middle" fill="#10b981" fontSize="12" fontWeight="bold">Striped/Segmented</text>
+    <text x="650" y="100" textAnchor="middle" fill="#9ca3af" fontSize="9">ConcurrentHashMap style</text>
+    <text x="650" y="120" textAnchor="middle" fill="#9ca3af" fontSize="9">Lock per segment</text>
+    <text x="650" y="140" textAnchor="middle" fill="#9ca3af" fontSize="9">Parallel access to diff keys</text>
+    <text x="650" y="165" textAnchor="middle" fill="#4ade80" fontSize="9">Best throughput!</text>
+  </svg>
+)
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
+
+function LRUCache({ onBack, breadcrumb }) {
+  const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
+  const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+
+  // =============================================================================
+  // CONCEPTS DATA
+  // =============================================================================
+
+  const concepts = [
     {
-      id: 1,
-      title: 'Basic LRU Cache',
-      difficulty: 'Medium',
-      description: 'Implement a Least Recently Used (LRU) cache with get and put operations. When the cache reaches capacity, evict the least recently used item. Use a doubly linked list and hash map for O(1) operations.',
-      example: `LRUCache cache = new LRUCache(2); // capacity = 2
-cache.put(1, 1);
-cache.put(2, 2);
-cache.get(1);    // returns 1
-cache.put(3, 3); // evicts key 2
-cache.get(2);    // returns -1 (not found)
-cache.put(4, 4); // evicts key 1
-cache.get(1);    // returns -1 (not found)
-cache.get(3);    // returns 3
-cache.get(4);    // returns 4`,
-      code: {
-        java: {
-          starterCode: `class LRUCache {
+      id: 'lru-algorithm',
+      name: 'LRU Algorithm',
+      icon: '🔄',
+      color: '#8b5cf6',
+      description: 'Least Recently Used eviction policy - when cache is full, remove the item that was accessed longest ago.',
+      diagram: LRUCacheArchitectureDiagram,
+      details: [
+        {
+          name: 'Core Concept',
+          diagram: LRUCacheArchitectureDiagram,
+          explanation: `LRU (Least Recently Used) is a cache eviction policy that removes the least recently accessed item when the cache reaches capacity. The key insight is that recently accessed data is likely to be accessed again soon (temporal locality).
 
-    public LRUCache(int capacity) {
-
-    }
+Key principles:
+- Every access (get/put) makes an item "most recently used"
+- When eviction is needed, remove the "least recently used" item
+- Maintains access order, not insertion order
+- O(1) time complexity for all operations`,
+          codeExample: `// LRU Cache Core Operations
+class LRUCache {
+    private Map<Integer, Node> cache;
+    private int capacity;
+    private Node head, tail; // Dummy nodes
 
     public int get(int key) {
+        Node node = cache.get(key);
+        if (node == null) return -1;
 
+        moveToHead(node); // Mark as recently used
+        return node.value;
     }
 
     public void put(int key, int value) {
+        Node node = cache.get(key);
+        if (node != null) {
+            node.value = value;
+            moveToHead(node);
+        } else {
+            Node newNode = new Node(key, value);
+            cache.put(key, newNode);
+            addToHead(newNode);
 
+            if (cache.size() > capacity) {
+                Node removed = removeTail(); // Evict LRU
+                cache.remove(removed.key);
+            }
+        }
+    }
+}`
+        },
+        {
+          name: 'GET Operation',
+          diagram: GetOperationDiagram,
+          explanation: `The GET operation retrieves a value by key and updates the access order:
+
+1. Look up key in HashMap - O(1)
+2. If not found, return -1
+3. If found:
+   - Move the node to the front of the list (most recently used)
+   - Return the value
+
+Moving to front involves:
+- Removing node from current position
+- Inserting node right after head dummy
+
+Both operations are O(1) thanks to the doubly linked list pointers.`,
+          codeExample: `public int get(int key) {
+    Node node = cache.get(key);
+    if (node == null) {
+        return -1; // Not found
+    }
+
+    // Move to head (most recently used)
+    moveToHead(node);
+    return node.value;
+}
+
+private void moveToHead(Node node) {
+    removeNode(node);  // O(1) - just update pointers
+    addToHead(node);   // O(1) - insert after head
+}
+
+private void removeNode(Node node) {
+    node.prev.next = node.next;
+    node.next.prev = node.prev;
+}
+
+private void addToHead(Node node) {
+    node.prev = head;
+    node.next = head.next;
+    head.next.prev = node;
+    head.next = node;
+}`
+        },
+        {
+          name: 'PUT Operation',
+          diagram: PutOperationDiagram,
+          explanation: `The PUT operation adds or updates a key-value pair:
+
+1. Check if key exists in HashMap
+2. If exists: Update value, move to front
+3. If new:
+   - Create new node
+   - Add to HashMap and list head
+   - If capacity exceeded:
+     * Remove tail node (LRU)
+     * Remove from HashMap
+
+The eviction happens automatically when capacity is exceeded.`,
+          codeExample: `public void put(int key, int value) {
+    Node node = cache.get(key);
+
+    if (node != null) {
+        // Update existing
+        node.value = value;
+        moveToHead(node);
+    } else {
+        // Add new node
+        Node newNode = new Node(key, value);
+        cache.put(key, newNode);
+        addToHead(newNode);
+
+        // Check capacity
+        if (cache.size() > capacity) {
+            // Evict least recently used
+            Node removed = removeTail();
+            cache.remove(removed.key);
+        }
     }
 }
 
-/**
- * Your LRUCache object will be instantiated and called as such:
- * LRUCache obj = new LRUCache(capacity);
- * int param_1 = obj.get(key);
- * obj.put(key,value);
- */`,
-          solution: `class LRUCache {
-    private class Node {
-        int key;
-        int value;
-        Node prev;
-        Node next;
+private Node removeTail() {
+    Node node = tail.prev;
+    removeNode(node);
+    return node;
+}`
+        },
+        {
+          name: 'Eviction Process',
+          diagram: EvictionDiagram,
+          explanation: `LRU Eviction removes the least recently accessed item:
 
-        Node(int k, int v) {
-            key = k;
-            value = v;
+Access Timeline Example (capacity=3):
+- t=0: put(A) → cache: [A]
+- t=1: put(B) → cache: [B, A]
+- t=2: put(C) → cache: [C, B, A]
+- t=3: get(A) → cache: [A, C, B] (A moved to front)
+- t=4: get(C) → cache: [C, A, B] (C moved to front)
+- t=5: put(D) → evict B! cache: [D, C, A]
+
+B is evicted because it hasn't been accessed since t=1.
+A and C were both accessed more recently.`,
+          codeExample: `// Example trace with capacity = 3
+LRUCache cache = new LRUCache(3);
+
+cache.put(1, 100);  // [1:100]
+cache.put(2, 200);  // [2:200, 1:100]
+cache.put(3, 300);  // [3:300, 2:200, 1:100]
+
+cache.get(1);       // returns 100
+                    // [1:100, 3:300, 2:200]
+
+cache.put(4, 400);  // capacity exceeded!
+                    // evict 2 (LRU)
+                    // [4:400, 1:100, 3:300]
+
+cache.get(2);       // returns -1 (evicted)
+cache.get(3);       // returns 300
+                    // [3:300, 4:400, 1:100]`
         }
-    }
+      ]
+    },
+    {
+      id: 'data-structures',
+      name: 'Data Structures',
+      icon: '🏗️',
+      color: '#3b82f6',
+      description: 'HashMap + Doubly Linked List combination enables O(1) time complexity for all cache operations.',
+      diagram: DataStructureDiagram,
+      details: [
+        {
+          name: 'Why Two Data Structures?',
+          diagram: DataStructureDiagram,
+          explanation: `Neither HashMap nor Linked List alone can achieve O(1) for all LRU operations:
 
+HashMap alone:
+- O(1) lookup by key
+- Cannot track access order
+- Cannot find oldest item in O(1)
+
+Linked List alone:
+- O(1) add/remove at ends
+- O(1) reorder with direct node reference
+- O(n) lookup by key
+
+Combined:
+- HashMap: O(1) key → node lookup
+- DLL: O(1) reordering and eviction
+- Together: O(1) for get, put, and evict`,
+          codeExample: `class LRUCache {
+    // HashMap: key -> Node (O(1) lookup)
     private Map<Integer, Node> cache;
-    private int capacity;
-    private Node head; // Dummy head
-    private Node tail; // Dummy tail
+
+    // Doubly Linked List: maintains access order
+    private Node head; // Dummy - most recently used after this
+    private Node tail; // Dummy - least recently used before this
 
     public LRUCache(int capacity) {
         this.capacity = capacity;
         cache = new HashMap<>();
 
-        // Create dummy head and tail
+        // Initialize dummy head and tail
+        head = new Node(0, 0);
+        tail = new Node(0, 0);
+        head.next = tail;
+        tail.prev = head;
+    }
+}`
+        },
+        {
+          name: 'Node Structure',
+          diagram: NodeStructureDiagram,
+          explanation: `Each node in the doubly linked list contains:
+
+- key: Needed to remove from HashMap during eviction
+- value: The cached data
+- prev: Pointer to previous node
+- next: Pointer to next node
+
+Why store key in node?
+When we evict the tail node, we need its key to remove it from the HashMap. Without storing the key, we'd need O(n) to find which key maps to this node.
+
+Dummy head/tail simplify edge cases:
+- No null checks for prev/next
+- Consistent add/remove logic
+- head.next is always MRU
+- tail.prev is always LRU`,
+          codeExample: `private class Node {
+    int key;    // Needed for HashMap removal
+    int value;  // The cached data
+    Node prev;  // Previous node pointer
+    Node next;  // Next node pointer
+
+    Node(int k, int v) {
+        key = k;
+        value = v;
+    }
+}
+
+// Why we need key in Node:
+private Node removeTail() {
+    Node lru = tail.prev;
+    removeNode(lru);
+    return lru;  // Caller uses lru.key to remove from HashMap
+}
+
+// In put():
+if (cache.size() > capacity) {
+    Node removed = removeTail();
+    cache.remove(removed.key);  // Need the key!
+}`
+        },
+        {
+          name: 'Dummy Head/Tail',
+          explanation: `Dummy (sentinel) nodes eliminate edge cases:
+
+Without dummies:
+- Check if head is null when adding
+- Check if removing the only node
+- Update head/tail pointers specially
+- Many null checks throughout
+
+With dummies:
+- head.next is always the MRU node (or tail if empty)
+- tail.prev is always the LRU node (or head if empty)
+- Same add/remove logic works for all cases
+- No null pointer exceptions
+
+The trade-off is two extra nodes, but code is much cleaner.`,
+          codeExample: `// Without dummy nodes - many edge cases
+void addToFront(Node node) {
+    if (head == null) {
+        head = tail = node;
+    } else {
+        node.next = head;
+        head.prev = node;
+        head = node;
+    }
+}
+
+// With dummy nodes - clean and simple
+void addToHead(Node node) {
+    node.prev = head;
+    node.next = head.next;
+    head.next.prev = node;
+    head.next = node;
+}
+
+// Always works, even for empty list!
+// head <-> node <-> tail (when first node added)`
+        }
+      ]
+    },
+    {
+      id: 'implementation',
+      name: 'Implementation',
+      icon: '💻',
+      color: '#10b981',
+      description: 'Complete LRU Cache implementation in Java with all helper methods and complexity analysis.',
+      diagram: LRUCacheArchitectureDiagram,
+      details: [
+        {
+          name: 'Complete Java Implementation',
+          explanation: `Full LRU Cache implementation with HashMap + Doubly Linked List:
+
+Time Complexity:
+- get(key): O(1)
+- put(key, value): O(1)
+
+Space Complexity: O(capacity)
+
+Key implementation details:
+- Dummy head/tail for simpler code
+- Node stores key for HashMap removal
+- Helper methods for node operations`,
+          codeExample: `class LRUCache {
+    private class Node {
+        int key, value;
+        Node prev, next;
+        Node(int k, int v) { key = k; value = v; }
+    }
+
+    private Map<Integer, Node> cache;
+    private int capacity;
+    private Node head, tail;
+
+    public LRUCache(int capacity) {
+        this.capacity = capacity;
+        cache = new HashMap<>();
         head = new Node(0, 0);
         tail = new Node(0, 0);
         head.next = tail;
@@ -111,71 +879,127 @@ cache.get(4);    // returns 4`,
 
     public int get(int key) {
         Node node = cache.get(key);
-        if (node == null) {
-            return -1;
-        }
-
-        // Move to head (most recently used)
+        if (node == null) return -1;
         moveToHead(node);
         return node.value;
     }
 
     public void put(int key, int value) {
         Node node = cache.get(key);
-
-        if (node == null) {
-            // Create new node
+        if (node != null) {
+            node.value = value;
+            moveToHead(node);
+        } else {
             Node newNode = new Node(key, value);
             cache.put(key, newNode);
             addToHead(newNode);
-
-            // Check capacity
             if (cache.size() > capacity) {
                 Node removed = removeTail();
                 cache.remove(removed.key);
             }
-        } else {
-            // Update existing node
-            node.value = value;
-            moveToHead(node);
         }
     }
 
-    // Add node right after head
     private void addToHead(Node node) {
         node.prev = head;
         node.next = head.next;
-
         head.next.prev = node;
         head.next = node;
     }
 
-    // Remove node from list
     private void removeNode(Node node) {
         node.prev.next = node.next;
         node.next.prev = node.prev;
     }
 
-    // Move existing node to head
     private void moveToHead(Node node) {
         removeNode(node);
         addToHead(node);
     }
 
-    // Remove least recently used node (before tail)
     private Node removeTail() {
         Node node = tail.prev;
         removeNode(node);
         return node;
     }
-}
+}`
+        },
+        {
+          name: 'Python Implementation',
+          explanation: `Python implementation using custom Node class and dictionary:
 
-// Using LinkedHashMap (Java built-in)
+Python's built-in OrderedDict can also implement LRU cache with move_to_end() method, but understanding the manual implementation is important for interviews.`,
+          codeExample: `class LRUCache:
+    class Node:
+        def __init__(self, k, v):
+            self.key = k
+            self.value = v
+            self.prev = None
+            self.next = None
+
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        self.cache = {}
+        self.head = self.Node(0, 0)
+        self.tail = self.Node(0, 0)
+        self.head.next = self.tail
+        self.tail.prev = self.head
+
+    def get(self, key: int) -> int:
+        if key not in self.cache:
+            return -1
+        node = self.cache[key]
+        self._move_to_head(node)
+        return node.value
+
+    def put(self, key: int, value: int) -> None:
+        if key in self.cache:
+            node = self.cache[key]
+            node.value = value
+            self._move_to_head(node)
+        else:
+            new_node = self.Node(key, value)
+            self.cache[key] = new_node
+            self._add_to_head(new_node)
+            if len(self.cache) > self.capacity:
+                removed = self._remove_tail()
+                del self.cache[removed.key]
+
+    def _add_to_head(self, node):
+        node.prev = self.head
+        node.next = self.head.next
+        self.head.next.prev = node
+        self.head.next = node
+
+    def _remove_node(self, node):
+        node.prev.next = node.next
+        node.next.prev = node.prev
+
+    def _move_to_head(self, node):
+        self._remove_node(node)
+        self._add_to_head(node)
+
+    def _remove_tail(self):
+        node = self.tail.prev
+        self._remove_node(node)
+        return node`
+        },
+        {
+          name: 'Using LinkedHashMap (Java)',
+          explanation: `Java's LinkedHashMap with accessOrder=true provides LRU functionality built-in:
+
+- Constructor: LinkedHashMap(capacity, loadFactor, accessOrder)
+- accessOrder=true: iteration order is access order (LRU)
+- Override removeEldestEntry() to auto-evict
+
+This is the simplest implementation but may not be allowed in interviews.`,
+          codeExample: `// Simple LRU using LinkedHashMap
 class LRUCacheSimple extends LinkedHashMap<Integer, Integer> {
     private int capacity;
 
     public LRUCacheSimple(int capacity) {
-        super(capacity, 0.75f, true); // accessOrder = true
+        // accessOrder = true -> LRU order
+        super(capacity, 0.75f, true);
         this.capacity = capacity;
     }
 
@@ -189,1413 +1013,449 @@ class LRUCacheSimple extends LinkedHashMap<Integer, Integer> {
 
     @Override
     protected boolean removeEldestEntry(Map.Entry<Integer, Integer> eldest) {
+        // Auto-evict when over capacity
         return size() > capacity;
     }
 }
 
-// With additional size tracking
-class LRUCacheWithSize {
-    private class Node {
-        int key;
-        int value;
-        int size;
-        Node prev;
-        Node next;
-
-        Node(int k, int v, int s) {
-            key = k;
-            value = v;
-            size = s;
+// Usage:
+LRUCacheSimple cache = new LRUCacheSimple(3);
+cache.put(1, 100);
+cache.put(2, 200);
+cache.get(1);       // Access key 1
+cache.put(3, 300);
+cache.put(4, 400);  // Evicts key 2 (LRU)`
         }
-    }
+      ]
+    },
+    {
+      id: 'thread-safety',
+      name: 'Thread Safety',
+      icon: '🔒',
+      color: '#ef4444',
+      description: 'Making LRU Cache thread-safe with various synchronization strategies for concurrent access.',
+      diagram: ThreadSafetyDiagram,
+      details: [
+        {
+          name: 'Global Lock Approach',
+          diagram: ThreadSafetyDiagram,
+          explanation: `The simplest approach: wrap all operations with a single lock.
 
-    private Map<Integer, Node> cache;
-    private int maxSize;
-    private int currentSize;
-    private Node head;
-    private Node tail;
+Pros:
+- Easy to implement
+- Guaranteed correctness
 
-    public LRUCacheWithSize(int maxSize) {
-        this.maxSize = maxSize;
-        this.currentSize = 0;
-        cache = new HashMap<>();
+Cons:
+- All operations serialize
+- High contention under load
+- Poor scalability
 
-        head = new Node(0, 0, 0);
-        tail = new Node(0, 0, 0);
-        head.next = tail;
-        tail.prev = head;
+Use when: Low concurrency, simplicity preferred`,
+          codeExample: `class ThreadSafeLRUCache {
+    private final LRUCache cache;
+    private final ReentrantLock lock = new ReentrantLock();
+
+    public ThreadSafeLRUCache(int capacity) {
+        cache = new LRUCache(capacity);
     }
 
     public int get(int key) {
-        Node node = cache.get(key);
-        if (node == null) {
-            return -1;
+        lock.lock();
+        try {
+            return cache.get(key);
+        } finally {
+            lock.unlock();
         }
-
-        moveToHead(node);
-        return node.value;
-    }
-
-    public void put(int key, int value, int size) {
-        Node node = cache.get(key);
-
-        if (node != null) {
-            // Update existing
-            currentSize -= node.size;
-            node.value = value;
-            node.size = size;
-            currentSize += size;
-            moveToHead(node);
-        } else {
-            // Add new
-            Node newNode = new Node(key, value, size);
-            cache.put(key, newNode);
-            addToHead(newNode);
-            currentSize += size;
-
-            // Evict until within capacity
-            while (currentSize > maxSize) {
-                Node removed = removeTail();
-                cache.remove(removed.key);
-                currentSize -= removed.size;
-            }
-        }
-    }
-
-    private void addToHead(Node node) {
-        node.prev = head;
-        node.next = head.next;
-        head.next.prev = node;
-        head.next = node;
-    }
-
-    private void removeNode(Node node) {
-        node.prev.next = node.next;
-        node.next.prev = node.prev;
-    }
-
-    private void moveToHead(Node node) {
-        removeNode(node);
-        addToHead(node);
-    }
-
-    private Node removeTail() {
-        Node node = tail.prev;
-        removeNode(node);
-        return node;
-    }
-}`
-        },
-        python: {
-          starterCode: `class LRUCache:
-    class Node:
-        def __init__(self, k, v):
-            self.key = k
-            self.value = v
-            self.prev = None
-            self.next = None
-
-    def __init__(self, capacity: int):
-        # TODO: Initialize cache and dummy nodes
-        pass
-
-    def get(self, key: int) -> int:
-        # TODO: Get value and move to front
-        return -1
-
-    def put(self, key: int, value: int) -> None:
-        # TODO: Add/update and evict if needed
-        pass
-
-    # Helper methods
-    def _move_to_head(self, node):
-        # TODO: Move node to front (most recently used)
-        pass
-
-    def _remove_node(self, node):
-        # TODO: Remove node from list
-        pass
-
-    def _remove_tail(self):
-        # TODO: Remove least recently used node
-        return None`,
-          solution: `class LRUCache:
-    class Node:
-        def __init__(self, k, v):
-            self.key = k
-            self.value = v
-            self.prev = None
-            self.next = None
-
-    def __init__(self, capacity: int):
-        self.capacity = capacity
-        self.cache = {}
-
-        # Create dummy head and tail
-        self.head = self.Node(0, 0)
-        self.tail = self.Node(0, 0)
-        self.head.next = self.tail
-        self.tail.prev = self.head
-
-    def get(self, key: int) -> int:
-        if key not in self.cache:
-            return -1
-
-        node = self.cache[key]
-        # Move to head (most recently used)
-        self._move_to_head(node)
-        return node.value
-
-    def put(self, key: int, value: int) -> None:
-        if key in self.cache:
-            # Update existing node
-            node = self.cache[key]
-            node.value = value
-            self._move_to_head(node)
-        else:
-            # Create new node
-            new_node = self.Node(key, value)
-            self.cache[key] = new_node
-            self._add_to_head(new_node)
-
-            # Check capacity
-            if len(self.cache) > self.capacity:
-                removed = self._remove_tail()
-                del self.cache[removed.key]
-
-    # Add node right after head
-    def _add_to_head(self, node):
-        node.prev = self.head
-        node.next = self.head.next
-
-        self.head.next.prev = node
-        self.head.next = node
-
-    # Remove node from list
-    def _remove_node(self, node):
-        node.prev.next = node.next
-        node.next.prev = node.prev
-
-    # Move existing node to head
-    def _move_to_head(self, node):
-        self._remove_node(node)
-        self._add_to_head(node)
-
-    # Remove least recently used node (before tail)
-    def _remove_tail(self):
-        node = self.tail.prev
-        self._remove_node(node)
-        return node
-
-
-# Using OrderedDict (Python built-in)
-from collections import OrderedDict
-
-class LRUCacheSimple(OrderedDict):
-    def __init__(self, capacity: int):
-        super().__init__()
-        self.capacity = capacity
-
-    def get(self, key: int) -> int:
-        if key not in self:
-            return -1
-        # Move to end (most recently used)
-        self.move_to_end(key)
-        return self[key]
-
-    def put(self, key: int, value: int) -> None:
-        if key in self:
-            # Move to end
-            self.move_to_end(key)
-        self[key] = value
-        if len(self) > self.capacity:
-            # Remove oldest (first item)
-            self.popitem(last=False)
-
-
-# With additional size tracking
-class LRUCacheWithSize:
-    class Node:
-        def __init__(self, k, v, s):
-            self.key = k
-            self.value = v
-            self.size = s
-            self.prev = None
-            self.next = None
-
-    def __init__(self, max_size: int):
-        self.max_size = max_size
-        self.current_size = 0
-        self.cache = {}
-
-        self.head = self.Node(0, 0, 0)
-        self.tail = self.Node(0, 0, 0)
-        self.head.next = self.tail
-        self.tail.prev = self.head
-
-    def get(self, key: int) -> int:
-        if key not in self.cache:
-            return -1
-
-        node = self.cache[key]
-        self._move_to_head(node)
-        return node.value
-
-    def put(self, key: int, value: int, size: int) -> None:
-        if key in self.cache:
-            # Update existing
-            node = self.cache[key]
-            self.current_size -= node.size
-            node.value = value
-            node.size = size
-            self.current_size += size
-            self._move_to_head(node)
-        else:
-            # Add new
-            new_node = self.Node(key, value, size)
-            self.cache[key] = new_node
-            self._add_to_head(new_node)
-            self.current_size += size
-
-            # Evict until within capacity
-            while self.current_size > self.max_size:
-                removed = self._remove_tail()
-                del self.cache[removed.key]
-                self.current_size -= removed.size
-
-    def _add_to_head(self, node):
-        node.prev = self.head
-        node.next = self.head.next
-        self.head.next.prev = node
-        self.head.next = node
-
-    def _remove_node(self, node):
-        node.prev.next = node.next
-        node.next.prev = node.prev
-
-    def _move_to_head(self, node):
-        self._remove_node(node)
-        self._add_to_head(node)
-
-    def _remove_tail(self):
-        node = self.tail.prev
-        self._remove_node(node)
-        return node`
-        }
-      },
-      testCases: [
-        { input: 'capacity=2, put(1,1), put(2,2), get(1), put(3,3), get(2)', output: 'get(1): 1, get(2): -1' },
-        { input: 'capacity=1, put(2,1), get(2), put(3,2), get(2), get(3)', output: 'get(2): 1 then -1, get(3): 2' },
-        { input: 'capacity=2, put(2,1), put(2,2), get(2), put(1,1), put(4,1), get(2)', output: 'get(2): 2 then -1' }
-      ],
-      explanation: `**Problem:** Implement LRU (Least Recently Used) cache with O(1) get and put operations.
-
-**Key Insight: Doubly Linked List + Hash Map**
-Hash Map: O(1) lookup by key
-Doubly Linked List: O(1) reordering (move to front, remove from back)
-
-**Data Structure:**
-┌─────────────────────────────────────────────┐
-│  HashMap: key → Node                        │
-│  {1: Node1, 2: Node2, 3: Node3}             │
-└─────────────────────────────────────────────┘
-                    ↓
-┌─────────────────────────────────────────────┐
-│  Doubly Linked List (MRU → LRU):            │
-│  head ⇄ Node3 ⇄ Node1 ⇄ Node2 ⇄ tail       │
-│  (dummy) ← most recent    least → (dummy)  │
-└─────────────────────────────────────────────┘
-
-**Why Doubly Linked List?**
-- Move node to head: O(1) with prev/next pointers
-- Remove node: O(1) with direct access
-- Remove tail: O(1) to evict LRU
-
-**Operations:**
-
-1. **get(key):**
-   - Lookup in HashMap → O(1)
-   - If found: move node to head (mark as recently used)
-   - Return value
-
-2. **put(key, value):**
-   - If key exists: update value, move to head
-   - If new: create node, add to head
-   - If capacity exceeded: remove tail node (LRU)
-
-**Example Trace:**
-Capacity = 2
-
-put(1, 1):
-  cache: {1: Node1}
-  list: head ⇄ [1:1] ⇄ tail
-
-put(2, 2):
-  cache: {1: Node1, 2: Node2}
-  list: head ⇄ [2:2] ⇄ [1:1] ⇄ tail
-
-get(1):
-  Move [1:1] to head
-  list: head ⇄ [1:1] ⇄ [2:2] ⇄ tail
-  return 1
-
-put(3, 3):
-  Capacity full! Remove LRU ([2:2])
-  cache: {1: Node1, 3: Node3}
-  list: head ⇄ [3:3] ⇄ [1:1] ⇄ tail
-
-get(2):
-  Not found → return -1
-
-**Why Dummy Head/Tail?**
-Simplifies edge cases:
-- No null checks for prev/next
-- Always valid head.next and tail.prev
-- Consistent insertion/removal logic
-
-**Advantages:**
-✓ O(1) get and put operations
-✓ Simple eviction policy
-✓ Predictable memory usage
-
-**Disadvantages:**
-✗ Extra space for doubly linked list pointers
-✗ Cache pollution (one-time access = long retention)
-✗ No consideration for access frequency
-
-**Real-World Use Cases:**
-- Browser cache (recently viewed pages)
-- Database query cache
-- CDN edge caching
-- Operating system page replacement
-
-**Complexity:**
-- get(): O(1) time, O(1) space
-- put(): O(1) time, O(1) space
-- Space: O(capacity) for cache + linked list`,
-      pseudocode: `LRU Cache Algorithm:
--------------------
-// Node structure
-class Node:
-    int key
-    int value
-    Node prev
-    Node next
-
-// Initialization
-LRUCache(capacity):
-    this.capacity = capacity
-    this.cache = HashMap<Integer, Node>()
-
-    // Dummy head and tail
-    this.head = new Node(0, 0)
-    this.tail = new Node(0, 0)
-    head.next = tail
-    tail.prev = head
-
-// Get value
-get(key):
-    if key not in cache:
-        return -1
-
-    node = cache[key]
-    moveToHead(node)  // Mark as recently used
-    return node.value
-
-// Put key-value
-put(key, value):
-    if key in cache:
-        // Update existing
-        node = cache[key]
-        node.value = value
-        moveToHead(node)
-    else:
-        // Add new node
-        newNode = new Node(key, value)
-        cache[key] = newNode
-        addToHead(newNode)
-
-        // Check capacity
-        if cache.size() > capacity:
-            // Evict LRU (tail.prev)
-            removed = removeTail()
-            cache.remove(removed.key)
-
-// Add node right after head (most recent)
-addToHead(node):
-    node.prev = head
-    node.next = head.next
-
-    head.next.prev = node
-    head.next = node
-
-// Remove node from list
-removeNode(node):
-    node.prev.next = node.next
-    node.next.prev = node.prev
-
-// Move node to head (mark as recently used)
-moveToHead(node):
-    removeNode(node)
-    addToHead(node)
-
-// Remove least recently used (tail.prev)
-removeTail():
-    node = tail.prev
-    removeNode(node)
-    return node
-
-Example Trace:
---------------
-LRUCache(capacity=2)
-  head ⇄ tail
-  cache: {}
-
-put(1, 1):
-  addToHead(Node1)
-  head ⇄ [1:1] ⇄ tail
-  cache: {1: Node1}
-
-put(2, 2):
-  addToHead(Node2)
-  head ⇄ [2:2] ⇄ [1:1] ⇄ tail
-  cache: {1: Node1, 2: Node2}
-
-get(1):
-  node = cache[1]
-  moveToHead(node):
-    removeNode([1:1]) → head ⇄ [2:2] ⇄ tail
-    addToHead([1:1]) → head ⇄ [1:1] ⇄ [2:2] ⇄ tail
-  return 1
-
-put(3, 3):
-  cache.size() = 2 >= capacity
-  removed = removeTail():
-    node = tail.prev = [2:2]
-    removeNode([2:2])
-    head ⇄ [1:1] ⇄ tail
-    return [2:2]
-  cache.remove(2) → cache: {1: Node1}
-
-  addToHead(Node3)
-  head ⇄ [3:3] ⇄ [1:1] ⇄ tail
-  cache: {1: Node1, 3: Node3}
-
-get(2):
-  2 not in cache → return -1
-
-Simplified with LinkedHashMap (Java):
--------------------------------------
-class LRUCacheSimple extends LinkedHashMap<Integer, Integer>:
-    int capacity
-
-    LRUCacheSimple(capacity):
-        super(capacity, 0.75f, true)  // accessOrder = true
-        this.capacity = capacity
-
-    get(key):
-        return super.getOrDefault(key, -1)
-
-    put(key, value):
-        super.put(key, value)
-
-    removeEldestEntry(eldest):
-        return size() > capacity  // Auto-evict when over capacity`
-    },
-    {
-      id: 2,
-      title: 'LRU Cache with Expiry',
-      difficulty: 'Medium',
-      description: 'Extend LRU cache to support time-based expiration. Items expire after a specified TTL (time to live) in addition to LRU eviction. Both get and put should check for expired entries.',
-      example: `LRUCacheWithExpiry cache = new LRUCacheWithExpiry(2, 5); // capacity=2, ttl=5s
-cache.put(1, 1, timestamp=1);
-cache.put(2, 2, timestamp=2);
-cache.get(1, timestamp=3);  // returns 1 (not expired)
-cache.get(1, timestamp=7);  // returns -1 (expired after 5s)
-cache.put(3, 3, timestamp=8);
-cache.get(2, timestamp=9);  // returns -1 (expired)`,
-      code: {
-        java: {
-          starterCode: `class LRUCacheWithExpiry {
-    private class Node {
-        int key;
-        int value;
-        long timestamp;
-        Node prev;
-        Node next;
-
-        Node(int k, int v, long t) {
-            key = k;
-            value = v;
-            timestamp = t;
-        }
-    }
-
-    private Map<Integer, Node> cache;
-    private int capacity;
-    private long ttl;
-    private Node head;
-    private Node tail;
-
-    public LRUCacheWithExpiry(int capacity, long ttl) {
-        // TODO: Initialize with TTL support
-
-    }
-
-    public int get(int key, long timestamp) {
-        // TODO: Get value and check expiry
-
-        return -1;
-    }
-
-    public void put(int key, int value, long timestamp) {
-        // TODO: Add/update with timestamp
-
-    }
-
-    private boolean isExpired(Node node, long currentTime) {
-        // TODO: Check if node is expired
-
-        return false;
-    }
-}`,
-          solution: `class LRUCacheWithExpiry {
-    private class Node {
-        int key;
-        int value;
-        long timestamp;
-        Node prev;
-        Node next;
-
-        Node(int k, int v, long t) {
-            key = k;
-            value = v;
-            timestamp = t;
-        }
-    }
-
-    private Map<Integer, Node> cache;
-    private int capacity;
-    private long ttl; // Time to live in seconds
-    private Node head;
-    private Node tail;
-
-    public LRUCacheWithExpiry(int capacity, long ttl) {
-        this.capacity = capacity;
-        this.ttl = ttl;
-        cache = new HashMap<>();
-
-        head = new Node(0, 0, 0);
-        tail = new Node(0, 0, 0);
-        head.next = tail;
-        tail.prev = head;
-    }
-
-    public int get(int key, long timestamp) {
-        Node node = cache.get(key);
-
-        if (node == null) {
-            return -1;
-        }
-
-        // Check if expired
-        if (isExpired(node, timestamp)) {
-            removeNode(node);
-            cache.remove(key);
-            return -1;
-        }
-
-        // Move to head (most recently used)
-        moveToHead(node);
-        return node.value;
-    }
-
-    public void put(int key, int value, long timestamp) {
-        // Clean expired entries
-        cleanExpired(timestamp);
-
-        Node node = cache.get(key);
-
-        if (node == null) {
-            // Create new node
-            Node newNode = new Node(key, value, timestamp);
-            cache.put(key, newNode);
-            addToHead(newNode);
-
-            // Check capacity
-            if (cache.size() > capacity) {
-                Node removed = removeTail();
-                cache.remove(removed.key);
-            }
-        } else {
-            // Update existing node
-            node.value = value;
-            node.timestamp = timestamp;
-            moveToHead(node);
-        }
-    }
-
-    private boolean isExpired(Node node, long currentTime) {
-        return (currentTime - node.timestamp) > ttl;
-    }
-
-    private void cleanExpired(long currentTime) {
-        // Remove expired entries from tail (oldest)
-        while (tail.prev != head && isExpired(tail.prev, currentTime)) {
-            Node expired = removeTail();
-            cache.remove(expired.key);
-        }
-    }
-
-    private void addToHead(Node node) {
-        node.prev = head;
-        node.next = head.next;
-        head.next.prev = node;
-        head.next = node;
-    }
-
-    private void removeNode(Node node) {
-        node.prev.next = node.next;
-        node.next.prev = node.prev;
-    }
-
-    private void moveToHead(Node node) {
-        removeNode(node);
-        addToHead(node);
-    }
-
-    private Node removeTail() {
-        Node node = tail.prev;
-        removeNode(node);
-        return node;
-    }
-}
-
-// With scheduled cleanup
-class LRUCacheWithExpiryScheduled {
-    private class Node {
-        int key;
-        int value;
-        long expiryTime;
-        Node prev;
-        Node next;
-
-        Node(int k, int v, long exp) {
-            key = k;
-            value = v;
-            expiryTime = exp;
-        }
-    }
-
-    private Map<Integer, Node> cache;
-    private PriorityQueue<Node> expiryQueue; // Min heap by expiry time
-    private int capacity;
-    private long ttl;
-    private Node head;
-    private Node tail;
-
-    public LRUCacheWithExpiryScheduled(int capacity, long ttl) {
-        this.capacity = capacity;
-        this.ttl = ttl;
-        cache = new HashMap<>();
-        expiryQueue = new PriorityQueue<>((a, b) ->
-            Long.compare(a.expiryTime, b.expiryTime)
-        );
-
-        head = new Node(0, 0, 0);
-        tail = new Node(0, 0, 0);
-        head.next = tail;
-        tail.prev = head;
-    }
-
-    public int get(int key, long timestamp) {
-        cleanExpired(timestamp);
-
-        Node node = cache.get(key);
-        if (node == null || node.expiryTime <= timestamp) {
-            return -1;
-        }
-
-        moveToHead(node);
-        return node.value;
-    }
-
-    public void put(int key, int value, long timestamp) {
-        cleanExpired(timestamp);
-
-        Node node = cache.get(key);
-        long expiryTime = timestamp + ttl;
-
-        if (node == null) {
-            Node newNode = new Node(key, value, expiryTime);
-            cache.put(key, newNode);
-            addToHead(newNode);
-            expiryQueue.offer(newNode);
-
-            if (cache.size() > capacity) {
-                Node removed = removeTail();
-                cache.remove(removed.key);
-            }
-        } else {
-            node.value = value;
-            node.expiryTime = expiryTime;
-            moveToHead(node);
-        }
-    }
-
-    private void cleanExpired(long currentTime) {
-        while (!expiryQueue.isEmpty() &&
-               expiryQueue.peek().expiryTime <= currentTime) {
-            Node expired = expiryQueue.poll();
-            if (cache.containsKey(expired.key)) {
-                removeNode(expired);
-                cache.remove(expired.key);
-            }
-        }
-    }
-
-    private void addToHead(Node node) {
-        node.prev = head;
-        node.next = head.next;
-        head.next.prev = node;
-        head.next = node;
-    }
-
-    private void removeNode(Node node) {
-        node.prev.next = node.next;
-        node.next.prev = node.prev;
-    }
-
-    private void moveToHead(Node node) {
-        removeNode(node);
-        addToHead(node);
-    }
-
-    private Node removeTail() {
-        Node node = tail.prev;
-        removeNode(node);
-        return node;
-    }
-}
-
-// With scheduled cleanup
-class LRUCacheWithExpiryScheduled {
-    private class Node {
-        int key;
-        int value;
-        long expiryTime;
-        Node prev;
-        Node next;
-
-        Node(int k, int v, long exp) {
-            key = k;
-            value = v;
-            expiryTime = exp;
-        }
-    }
-
-    private Map<Integer, Node> cache;
-    private PriorityQueue<Node> expiryQueue; // Min heap by expiry time
-    private int capacity;
-    private long ttl;
-    private Node head;
-    private Node tail;
-
-    public LRUCacheWithExpiryScheduled(int capacity, long ttl) {
-        this.capacity = capacity;
-        this.ttl = ttl;
-        cache = new HashMap<>();
-        expiryQueue = new PriorityQueue<>((a, b) ->
-            Long.compare(a.expiryTime, b.expiryTime)
-        );
-
-        head = new Node(0, 0, 0);
-        tail = new Node(0, 0, 0);
-        head.next = tail;
-        tail.prev = head;
-    }
-
-    public int get(int key, long timestamp) {
-        cleanExpired(timestamp);
-
-        Node node = cache.get(key);
-        if (node == null || node.expiryTime <= timestamp) {
-            return -1;
-        }
-
-        moveToHead(node);
-        return node.value;
-    }
-
-    public void put(int key, int value, long timestamp) {
-        cleanExpired(timestamp);
-
-        Node node = cache.get(key);
-        long expiryTime = timestamp + ttl;
-
-        if (node == null) {
-            Node newNode = new Node(key, value, expiryTime);
-            cache.put(key, newNode);
-            addToHead(newNode);
-            expiryQueue.offer(newNode);
-
-            if (cache.size() > capacity) {
-                Node removed = removeTail();
-                cache.remove(removed.key);
-            }
-        } else {
-            node.value = value;
-            node.expiryTime = expiryTime;
-            moveToHead(node);
-        }
-    }
-
-    private void cleanExpired(long currentTime) {
-        while (!expiryQueue.isEmpty() &&
-               expiryQueue.peek().expiryTime <= currentTime) {
-            Node expired = expiryQueue.poll();
-            if (cache.containsKey(expired.key)) {
-                removeNode(expired);
-                cache.remove(expired.key);
-            }
-        }
-    }
-
-    private void addToHead(Node node) {
-        node.prev = head;
-        node.next = head.next;
-        head.next.prev = node;
-        head.next = node;
-    }
-
-    private void removeNode(Node node) {
-        node.prev.next = node.next;
-        node.next.prev = node.prev;
-    }
-
-    private void moveToHead(Node node) {
-        removeNode(node);
-        addToHead(node);
-    }
-
-    private Node removeTail() {
-        Node node = tail.prev;
-        removeNode(node);
-        return node;
-    }
-}`
-        },
-        python: {
-          starterCode: `class LRUCacheWithExpiry:
-    class Node:
-        def __init__(self, k, v, t):
-            self.key = k
-            self.value = v
-            self.timestamp = t
-            self.prev = None
-            self.next = None
-
-    def __init__(self, capacity: int, ttl: int):
-        # TODO: Initialize with TTL support
-        pass
-
-    def get(self, key: int, timestamp: int) -> int:
-        # TODO: Get value and check expiry
-        return -1
-
-    def put(self, key: int, value: int, timestamp: int) -> None:
-        # TODO: Add/update with timestamp
-        pass
-
-    def _is_expired(self, node, current_time: int) -> bool:
-        # TODO: Check if node is expired
-        return False`,
-          solution: `class LRUCacheWithExpiry:
-    class Node:
-        def __init__(self, k, v, t):
-            self.key = k
-            self.value = v
-            self.timestamp = t
-            self.prev = None
-            self.next = None
-
-    def __init__(self, capacity: int, ttl: int):
-        self.capacity = capacity
-        self.ttl = ttl  # Time to live in seconds
-        self.cache = {}
-
-        self.head = self.Node(0, 0, 0)
-        self.tail = self.Node(0, 0, 0)
-        self.head.next = self.tail
-        self.tail.prev = self.head
-
-    def get(self, key: int, timestamp: int) -> int:
-        if key not in self.cache:
-            return -1
-
-        node = self.cache[key]
-
-        # Check if expired
-        if self._is_expired(node, timestamp):
-            self._remove_node(node)
-            del self.cache[key]
-            return -1
-
-        # Move to head (most recently used)
-        self._move_to_head(node)
-        return node.value
-
-    def put(self, key: int, value: int, timestamp: int) -> None:
-        # Clean expired entries
-        self._clean_expired(timestamp)
-
-        if key in self.cache:
-            # Update existing node
-            node = self.cache[key]
-            node.value = value
-            node.timestamp = timestamp
-            self._move_to_head(node)
-        else:
-            # Create new node
-            new_node = self.Node(key, value, timestamp)
-            self.cache[key] = new_node
-            self._add_to_head(new_node)
-
-            # Check capacity
-            if len(self.cache) > self.capacity:
-                removed = self._remove_tail()
-                del self.cache[removed.key]
-
-    def _is_expired(self, node, current_time: int) -> bool:
-        return (current_time - node.timestamp) > self.ttl
-
-    def _clean_expired(self, current_time: int):
-        # Remove expired entries from tail (oldest)
-        while self.tail.prev != self.head and self._is_expired(self.tail.prev, current_time):
-            expired = self._remove_tail()
-            del self.cache[expired.key]
-
-    def _add_to_head(self, node):
-        node.prev = self.head
-        node.next = self.head.next
-        self.head.next.prev = node
-        self.head.next = node
-
-    def _remove_node(self, node):
-        node.prev.next = node.next
-        node.next.prev = node.prev
-
-    def _move_to_head(self, node):
-        self._remove_node(node)
-        self._add_to_head(node)
-
-    def _remove_tail(self):
-        node = self.tail.prev
-        self._remove_node(node)
-        return node
-
-
-# With scheduled cleanup using heap
-import heapq
-
-class LRUCacheWithExpiryScheduled:
-    class Node:
-        def __init__(self, k, v, exp):
-            self.key = k
-            self.value = v
-            self.expiry_time = exp
-            self.prev = None
-            self.next = None
-
-    def __init__(self, capacity: int, ttl: int):
-        self.capacity = capacity
-        self.ttl = ttl
-        self.cache = {}
-        self.expiry_queue = []  # Min heap by expiry time
-
-        self.head = self.Node(0, 0, 0)
-        self.tail = self.Node(0, 0, 0)
-        self.head.next = self.tail
-        self.tail.prev = self.head
-
-    def get(self, key: int, timestamp: int) -> int:
-        self._clean_expired(timestamp)
-
-        if key not in self.cache:
-            return -1
-
-        node = self.cache[key]
-        if node.expiry_time <= timestamp:
-            return -1
-
-        self._move_to_head(node)
-        return node.value
-
-    def put(self, key: int, value: int, timestamp: int) -> None:
-        self._clean_expired(timestamp)
-
-        expiry_time = timestamp + self.ttl
-
-        if key in self.cache:
-            node = self.cache[key]
-            node.value = value
-            node.expiry_time = expiry_time
-            self._move_to_head(node)
-        else:
-            new_node = self.Node(key, value, expiry_time)
-            self.cache[key] = new_node
-            self._add_to_head(new_node)
-            heapq.heappush(self.expiry_queue, (expiry_time, key))
-
-            if len(self.cache) > self.capacity:
-                removed = self._remove_tail()
-                del self.cache[removed.key]
-
-    def _clean_expired(self, current_time: int):
-        while self.expiry_queue and self.expiry_queue[0][0] <= current_time:
-            _, key = heapq.heappop(self.expiry_queue)
-            if key in self.cache:
-                node = self.cache[key]
-                self._remove_node(node)
-                del self.cache[key]
-
-    def _add_to_head(self, node):
-        node.prev = self.head
-        node.next = self.head.next
-        self.head.next.prev = node
-        self.head.next = node
-
-    def _remove_node(self, node):
-        node.prev.next = node.next
-        node.next.prev = node.prev
-
-    def _move_to_head(self, node):
-        self._remove_node(node)
-        self._add_to_head(node)
-
-    def _remove_tail(self):
-        node = self.tail.prev
-        self._remove_node(node)
-        return node`
-        }
-      },
-      testCases: [
-        { input: 'capacity=2, ttl=5, put(1,1,t=0), get(1,t=4), get(1,t=6)', output: 'get(1,t=4): 1, get(1,t=6): -1' },
-        { input: 'capacity=2, ttl=3, put(1,1,t=1), put(2,2,t=2), get(1,t=5)', output: 'get(1,t=5): -1' },
-        { input: 'capacity=1, ttl=10, put(1,1,t=0), get(1,t=5)', output: 'get(1,t=5): 1' }
-      ],
-      explanation: `**Problem:** LRU cache with time-based expiration (TTL = Time To Live).
-
-**Key Insight: Dual Eviction Policy**
-Items evicted by BOTH:
-1. LRU policy (capacity limit)
-2. TTL expiry (time-based)
-
-**Data Structure Enhancement:**
-Each node stores:
-- key, value
-- timestamp (creation/last update time)
-- prev, next pointers
-
-**Two Eviction Triggers:**
-
-1. **Capacity Eviction (LRU):**
-   Same as basic LRU - remove tail when full
-
-2. **TTL Expiry:**
-   currentTime - node.timestamp > TTL → expired
-
-**Expiry Check Strategies:**
-
-**Strategy 1: Lazy Expiry (on access)**
-Check expiry only during get/put:
-- get(key): if expired, remove and return -1
-- put(key): clean expired entries first
-
-**Strategy 2: Active Expiry (priority queue)**
-Use min-heap sorted by expiry time:
-- Periodically clean expired entries
-- O(log N) to find next expired item
-
-**Example Timeline:**
-Capacity=2, TTL=5 seconds
-
-t=0: put(1, 1, t=0)
-  cache: {1: Node(val=1, ts=0)}
-  list: head ⇄ [1:1,t=0] ⇄ tail
-
-t=2: put(2, 2, t=2)
-  cache: {1: Node1, 2: Node2}
-  list: head ⇄ [2:2,t=2] ⇄ [1:1,t=0] ⇄ tail
-
-t=4: get(1, t=4)
-  Check expiry: 4 - 0 = 4 < 5 ✓ (not expired)
-  Move to head
-  list: head ⇄ [1:1,t=0] ⇄ [2:2,t=2] ⇄ tail
-  return 1
-
-t=6: get(1, t=6)
-  Check expiry: 6 - 0 = 6 > 5 ✗ (EXPIRED!)
-  Remove from cache
-  cache: {2: Node2}
-  return -1
-
-t=8: get(2, t=8)
-  Check expiry: 8 - 2 = 6 > 5 ✗ (EXPIRED!)
-  return -1
-
-**Cleanup Strategies:**
-
-**Lazy Cleanup (Simple):**
-pros: Simple, no background work
-cons: Expired entries occupy memory until accessed
-
-**Tail Cleanup (Optimized):**
-Clean from tail (oldest) during put:
-- Expired entries likely at tail
-- O(K) where K = expired entries
-
-**Priority Queue (Scheduled):**
-Heap ordered by expiry time:
-- O(log N) to find next expiry
-- Good for active cleanup
-
-**Advantages:**
-✓ Prevents stale data access
-✓ Automatic memory cleanup
-✓ Flexible expiry policies
-
-**Disadvantages:**
-✗ Additional timestamp storage
-✗ Cleanup overhead
-✗ Complex eviction logic
-
-**Use Cases:**
-- Session storage (expire after inactivity)
-- API response cache (TTL from headers)
-- DNS cache
-- OAuth token cache
-
-**Complexity:**
-- get(): O(1) + O(K) cleanup (K = expired entries)
-- put(): O(1) + O(K) cleanup
-- Space: O(capacity) + timestamps`,
-      pseudocode: `LRU Cache with Expiry:
------------------------
-// Node with timestamp
-class Node:
-    int key
-    int value
-    long timestamp  // Creation time
-    Node prev
-    Node next
-
-// Initialization
-LRUCacheWithExpiry(capacity, ttl):
-    this.capacity = capacity
-    this.ttl = ttl  // Time to live in seconds
-    this.cache = HashMap<Integer, Node>()
-    this.head = new Node(0, 0, 0)
-    this.tail = new Node(0, 0, 0)
-    head.next = tail
-    tail.prev = head
-
-// Get with expiry check
-get(key, currentTime):
-    if key not in cache:
-        return -1
-
-    node = cache[key]
-
-    // Check if expired
-    if isExpired(node, currentTime):
-        removeNode(node)
-        cache.remove(key)
-        return -1
-
-    // Not expired - move to head
-    moveToHead(node)
-    return node.value
-
-// Put with cleanup
-put(key, value, currentTime):
-    // Clean expired entries from tail (oldest)
-    cleanExpired(currentTime)
-
-    if key in cache:
-        // Update existing
-        node = cache[key]
-        node.value = value
-        node.timestamp = currentTime  // Refresh timestamp
-        moveToHead(node)
-    else:
-        // Add new node
-        newNode = new Node(key, value, currentTime)
-        cache[key] = newNode
-        addToHead(newNode)
-
-        // Check capacity
-        if cache.size() > capacity:
-            removed = removeTail()
-            cache.remove(removed.key)
-
-// Check if entry expired
-isExpired(node, currentTime):
-    return (currentTime - node.timestamp) > ttl
-
-// Clean expired from tail (oldest first)
-cleanExpired(currentTime):
-    while tail.prev != head AND isExpired(tail.prev, currentTime):
-        expired = removeTail()
-        cache.remove(expired.key)
-
-Example Trace:
---------------
-Capacity=2, TTL=5s
-
-t=0: put(1, 1, t=0)
-  head ⇄ [1:1,ts=0] ⇄ tail
-
-t=2: put(2, 2, t=2)
-  head ⇄ [2:2,ts=2] ⇄ [1:1,ts=0] ⇄ tail
-
-t=4: get(1, t=4)
-  isExpired([1:1,ts=0], t=4):
-    4 - 0 = 4 ≤ 5 → false (not expired)
-  moveToHead([1:1])
-  head ⇄ [1:1,ts=0] ⇄ [2:2,ts=2] ⇄ tail
-  return 1
-
-t=6: get(1, t=6)
-  isExpired([1:1,ts=0], t=6):
-    6 - 0 = 6 > 5 → true (EXPIRED!)
-  removeNode([1:1])
-  cache.remove(1)
-  head ⇄ [2:2,ts=2] ⇄ tail
-  return -1
-
-t=7: put(3, 3, t=7)
-  cleanExpired(t=7):
-    isExpired([2:2,ts=2], t=7):
-      7 - 2 = 5 ≤ 5 → false (not expired yet)
-  addToHead([3:3,ts=7])
-  head ⇄ [3:3,ts=7] ⇄ [2:2,ts=2] ⇄ tail
-
-t=8: put(4, 4, t=8)
-  cleanExpired(t=8):
-    isExpired([2:2,ts=2], t=8):
-      8 - 2 = 6 > 5 → true (expired!)
-    removeTail() → remove [2:2]
-  head ⇄ [3:3,ts=7] ⇄ tail
-
-  addToHead([4:4,ts=8])
-  head ⇄ [4:4,ts=8] ⇄ [3:3,ts=7] ⇄ tail
-
-With Priority Queue (Active Expiry):
-------------------------------------
-LRUCacheWithExpiryScheduled(capacity, ttl):
-    this.expiryQueue = PriorityQueue<Node>()  // Min heap by expiry time
-    // ... rest same as above
-
-put(key, value, timestamp):
-    cleanExpired(timestamp)
-
-    if key not in cache:
-        expiryTime = timestamp + ttl
-        newNode = new Node(key, value, expiryTime)
-        cache[key] = newNode
-        addToHead(newNode)
-        expiryQueue.offer(newNode)  // Add to heap
-    // ... handle capacity
-
-cleanExpired(currentTime):
-    while expiryQueue is not empty AND expiryQueue.peek().expiryTime <= currentTime:
-        expired = expiryQueue.poll()
-        if expired.key in cache:  // May be already removed
-            removeNode(expired)
-            cache.remove(expired.key)
-
-Comparison:
------------
-Lazy Cleanup:
-  - Simple
-  - Expired entries stay until accessed
-  - O(1) get/put (no cleanup)
-
-Tail Cleanup:
-  - Moderate complexity
-  - Clean oldest entries on put
-  - O(K) cleanup where K = expired entries
-
-Priority Queue:
-  - Complex
-  - Active cleanup by expiry time
-  - O(log N) heap operations`
-    },
-    {
-      id: 3,
-      title: 'LFU Cache',
-      difficulty: 'Medium',
-      description: 'Implement a Least Frequently Used (LFU) cache. When capacity is reached, evict the least frequently used item. If there\'s a tie, evict the least recently used among them. Track both frequency and recency.',
-      example: `LFUCache cache = new LFUCache(2);
-cache.put(1, 1);   // freq: {1: [1]}
-cache.put(2, 2);   // freq: {1: [1,2]}
-cache.get(1);      // returns 1, freq: {1: [2], 2: [1]}
-cache.put(3, 3);   // evicts key 2, freq: {1: [3], 2: [1]}
-cache.get(2);      // returns -1 (not found)
-cache.get(3);      // returns 3, freq: {1: [], 2: [1,3]}
-cache.put(4, 4);   // evicts key 1, freq: {1: [4], 2: [3]}`,
-      code: {
-        java: {
-          starterCode: `class LFUCache {
-    private class Node {
-        int key;
-        int value;
-        int freq;
-        Node prev;
-        Node next;
-
-        Node(int k, int v) {
-            key = k;
-            value = v;
-            freq = 1;
-        }
-    }
-
-    private Map<Integer, Node> cache;
-    private Map<Integer, Node> freqMap; // freq -> dummy head
-    private int capacity;
-    private int minFreq;
-
-    public LFUCache(int capacity) {
-        // TODO: Initialize LFU cache
-
-    }
-
-    public int get(int key) {
-        // TODO: Get value and update frequency
-
-        return -1;
     }
 
     public void put(int key, int value) {
-        // TODO: Add/update and evict LFU if needed
+        lock.lock();
+        try {
+            cache.put(key, value);
+        } finally {
+            lock.unlock();
+        }
+    }
+}
 
+// Or using synchronized:
+class SynchronizedLRUCache {
+    private final LRUCache cache;
+
+    public synchronized int get(int key) {
+        return cache.get(key);
     }
 
-    private void updateFreq(Node node) {
-        // TODO: Move node to higher frequency list
-
+    public synchronized void put(int key, int value) {
+        cache.put(key, value);
     }
-}`,
-          solution: `class LFUCache {
+}`
+        },
+        {
+          name: 'Read-Write Lock',
+          explanation: `Use ReadWriteLock to allow multiple concurrent readers:
+
+Pros:
+- Multiple readers can proceed in parallel
+- Better for read-heavy workloads
+
+Cons:
+- LRU get() modifies order, needs write lock!
+- May not help much for LRU specifically
+
+Key insight: In LRU, even get() updates the list order, so it needs exclusive access. This limits the benefit of read-write locks for LRU.`,
+          codeExample: `class RWLockLRUCache {
+    private final LRUCache cache;
+    private final ReentrantReadWriteLock rwLock =
+        new ReentrantReadWriteLock();
+
+    // Note: get() needs WRITE lock because it
+    // modifies the access order!
+    public int get(int key) {
+        rwLock.writeLock().lock();
+        try {
+            return cache.get(key);
+        } finally {
+            rwLock.writeLock().unlock();
+        }
+    }
+
+    public void put(int key, int value) {
+        rwLock.writeLock().lock();
+        try {
+            cache.put(key, value);
+        } finally {
+            rwLock.writeLock().unlock();
+        }
+    }
+
+    // peek() - read without updating order
+    // This CAN use read lock
+    public int peek(int key) {
+        rwLock.readLock().lock();
+        try {
+            Node node = cache.getNode(key);
+            return node != null ? node.value : -1;
+        } finally {
+            rwLock.readLock().unlock();
+        }
+    }
+}`
+        },
+        {
+          name: 'Segmented/Striped Locks',
+          explanation: `Divide cache into segments, each with its own lock:
+
+Pros:
+- Parallel access to different segments
+- Much better scalability
+- Used by ConcurrentHashMap
+
+Cons:
+- Complex implementation
+- Per-segment LRU, not global
+- May evict more frequently used items
+
+This is what production caches like Guava Cache use.`,
+          codeExample: `class SegmentedLRUCache {
+    private final LRUCache[] segments;
+    private final ReentrantLock[] locks;
+    private final int numSegments;
+
+    public SegmentedLRUCache(int capacity, int numSegments) {
+        this.numSegments = numSegments;
+        segments = new LRUCache[numSegments];
+        locks = new ReentrantLock[numSegments];
+
+        int segmentCapacity = capacity / numSegments;
+        for (int i = 0; i < numSegments; i++) {
+            segments[i] = new LRUCache(segmentCapacity);
+            locks[i] = new ReentrantLock();
+        }
+    }
+
+    private int getSegment(int key) {
+        return Math.abs(key % numSegments);
+    }
+
+    public int get(int key) {
+        int seg = getSegment(key);
+        locks[seg].lock();
+        try {
+            return segments[seg].get(key);
+        } finally {
+            locks[seg].unlock();
+        }
+    }
+
+    public void put(int key, int value) {
+        int seg = getSegment(key);
+        locks[seg].lock();
+        try {
+            segments[seg].put(key, value);
+        } finally {
+            locks[seg].unlock();
+        }
+    }
+}`
+        }
+      ]
+    },
+    {
+      id: 'ttl-expiry',
+      name: 'TTL & Expiry',
+      icon: '⏰',
+      color: '#f59e0b',
+      description: 'LRU Cache with time-based expiration (TTL) - items expire after a specified time in addition to LRU eviction.',
+      diagram: LRUCacheExpiryDiagram,
+      details: [
+        {
+          name: 'TTL Concept',
+          diagram: LRUCacheExpiryDiagram,
+          explanation: `TTL (Time To Live) adds time-based expiration to LRU:
+
+Dual eviction policy:
+1. LRU eviction when capacity is reached
+2. TTL expiration when item is too old
+
+Use cases:
+- Session caching (expire after inactivity)
+- API response caching (honor Cache-Control)
+- DNS caching
+- OAuth token caching
+
+Each entry stores: key, value, timestamp/expiryTime`,
+          codeExample: `class LRUCacheWithExpiry {
     private class Node {
-        int key;
-        int value;
-        int freq;
-        Node prev;
-        Node next;
+        int key, value;
+        long timestamp;  // Creation/update time
+        Node prev, next;
 
+        Node(int k, int v, long t) {
+            key = k;
+            value = v;
+            timestamp = t;
+        }
+    }
+
+    private Map<Integer, Node> cache;
+    private int capacity;
+    private long ttl;  // Time to live in milliseconds
+    private Node head, tail;
+
+    public LRUCacheWithExpiry(int capacity, long ttlMs) {
+        this.capacity = capacity;
+        this.ttl = ttlMs;
+        cache = new HashMap<>();
+        head = new Node(0, 0, 0);
+        tail = new Node(0, 0, 0);
+        head.next = tail;
+        tail.prev = head;
+    }
+
+    private boolean isExpired(Node node) {
+        return System.currentTimeMillis() - node.timestamp > ttl;
+    }
+}`
+        },
+        {
+          name: 'Lazy Expiry Strategy',
+          explanation: `Check expiry only when accessing items:
+
+On get():
+- Check if item is expired
+- If expired: remove and return -1
+- If valid: move to head, return value
+
+On put():
+- Optionally clean expired entries first
+- Proceed with normal put logic
+
+Pros: Simple, no background threads
+Cons: Expired items stay in memory until accessed`,
+          codeExample: `public int get(int key) {
+    Node node = cache.get(key);
+    if (node == null) return -1;
+
+    // Check expiry
+    if (isExpired(node)) {
+        removeNode(node);
+        cache.remove(key);
+        return -1;  // Treat as not found
+    }
+
+    moveToHead(node);
+    return node.value;
+}
+
+public void put(int key, int value) {
+    // Optional: clean expired from tail
+    cleanExpired();
+
+    long now = System.currentTimeMillis();
+    Node node = cache.get(key);
+
+    if (node != null) {
+        node.value = value;
+        node.timestamp = now;  // Refresh timestamp
+        moveToHead(node);
+    } else {
+        Node newNode = new Node(key, value, now);
+        cache.put(key, newNode);
+        addToHead(newNode);
+
+        if (cache.size() > capacity) {
+            Node removed = removeTail();
+            cache.remove(removed.key);
+        }
+    }
+}
+
+private void cleanExpired() {
+    while (tail.prev != head && isExpired(tail.prev)) {
+        Node expired = removeTail();
+        cache.remove(expired.key);
+    }
+}`
+        },
+        {
+          name: 'Active Expiry with Heap',
+          explanation: `Use a priority queue (min-heap) ordered by expiry time:
+
+Benefits:
+- Can proactively clean expired items
+- O(log n) to find next expiring item
+- Better memory management
+
+Implementation:
+- Store (expiryTime, key) in min-heap
+- Periodically poll and remove expired items
+- Handle stale entries (already removed/updated)`,
+          codeExample: `class LRUCacheWithActiveExpiry {
+    private Map<Integer, Node> cache;
+    private PriorityQueue<long[]> expiryQueue;
+    // expiryQueue stores: [expiryTime, key]
+
+    public LRUCacheWithActiveExpiry(int cap, long ttl) {
+        cache = new HashMap<>();
+        expiryQueue = new PriorityQueue<>(
+            (a, b) -> Long.compare(a[0], b[0])
+        );
+        // ... init head, tail, etc.
+    }
+
+    public void put(int key, int value) {
+        cleanExpired();
+
+        long now = System.currentTimeMillis();
+        long expiryTime = now + ttl;
+
+        Node node = cache.get(key);
+        if (node == null) {
+            Node newNode = new Node(key, value, expiryTime);
+            cache.put(key, newNode);
+            addToHead(newNode);
+            expiryQueue.offer(new long[]{expiryTime, key});
+            // ... handle capacity
+        } else {
+            node.value = value;
+            node.expiryTime = expiryTime;
+            moveToHead(node);
+            // Note: old entry stays in queue (handled in cleanExpired)
+        }
+    }
+
+    private void cleanExpired() {
+        long now = System.currentTimeMillis();
+        while (!expiryQueue.isEmpty() &&
+               expiryQueue.peek()[0] <= now) {
+            long[] entry = expiryQueue.poll();
+            int key = (int) entry[1];
+            Node node = cache.get(key);
+            // Check if node exists and matches expiry
+            if (node != null && node.expiryTime <= now) {
+                removeNode(node);
+                cache.remove(key);
+            }
+        }
+    }
+}`
+        }
+      ]
+    },
+    {
+      id: 'lfu-cache',
+      name: 'LFU Cache',
+      icon: '📊',
+      color: '#6366f1',
+      description: 'Least Frequently Used - evicts items with lowest access count. Better for frequency-based workloads.',
+      diagram: LFUCacheDiagram,
+      details: [
+        {
+          name: 'LFU vs LRU',
+          diagram: LFUCacheDiagram,
+          explanation: `LFU (Least Frequently Used) tracks access count, not recency:
+
+LRU: Evict the item accessed longest ago
+LFU: Evict the item accessed least often
+
+When to use LFU:
+- Repeated access patterns (hot items)
+- Resistant to one-time scan pollution
+- Content popularity tracking
+
+LFU challenges:
+- New items have low frequency (vulnerable)
+- Old items may accumulate high frequency
+- More complex data structures needed`,
+          codeExample: `// Comparison
+// LRU: Access order matters
+// cache: [C, B, A] - most recent first
+// put(D) -> evict A (oldest access)
+
+// LFU: Access count matters
+// cache: A(freq=5), B(freq=2), C(freq=1)
+// put(D) -> evict C (lowest frequency)
+
+// LFU tie-breaker: use LRU among same freq
+// If B and C both have freq=2, evict older one
+
+/*
+ * LRU vs LFU Trade-offs:
+ *
+ * LRU:
+ * + Simple implementation
+ * + Good for temporal locality
+ * - Vulnerable to scan (one-time access)
+ *
+ * LFU:
+ * + Keeps hot items
+ * + Resistant to scans
+ * - Complex implementation
+ * - New items easily evicted
+ * - Frequency can become stale
+ */`
+        },
+        {
+          name: 'LFU Data Structures',
+          explanation: `LFU requires tracking both frequency AND recency (for ties):
+
+Data structures:
+1. cache: Map<key, Node>
+2. freqMap: Map<freq, DoublyLinkedList>
+3. minFreq: int (track minimum frequency)
+
+Each frequency has its own DLL (LRU order within freq).
+
+Operations:
+- get(key): increment freq, move to new freq list
+- put(key): add with freq=1, evict from minFreq if needed
+- evict(): remove from minFreq list (oldest in that freq)`,
+          codeExample: `class LFUCache {
+    // Node with frequency tracking
+    private class Node {
+        int key, value, freq;
+        Node prev, next;
         Node(int k, int v) {
             key = k;
             value = v;
@@ -1603,9 +1463,9 @@ cache.put(4, 4);   // evicts key 1, freq: {1: [4], 2: [3]}`,
         }
     }
 
+    // DLL for each frequency
     private class DLList {
-        Node head;
-        Node tail;
+        Node head, tail;
         int size;
 
         DLList() {
@@ -1613,1796 +1473,615 @@ cache.put(4, 4);   // evicts key 1, freq: {1: [4], 2: [3]}`,
             tail = new Node(0, 0);
             head.next = tail;
             tail.prev = head;
-            size = 0;
         }
 
-        void add(Node node) {
-            node.next = head.next;
-            node.prev = head;
-            head.next.prev = node;
-            head.next = node;
-            size++;
-        }
-
-        void remove(Node node) {
-            node.prev.next = node.next;
-            node.next.prev = node.prev;
-            size--;
-        }
-
-        Node removeLast() {
-            if (size > 0) {
-                Node last = tail.prev;
-                remove(last);
-                return last;
-            }
-            return null;
-        }
+        void add(Node node) { /* add to head */ }
+        void remove(Node node) { /* remove node */ }
+        Node removeLast() { /* remove from tail */ }
     }
 
     private Map<Integer, Node> cache;
     private Map<Integer, DLList> freqMap;
-    private int capacity;
-    private int minFreq;
+    private int capacity, minFreq;
+}`
+        },
+        {
+          name: 'LFU Implementation',
+          explanation: `Complete LFU Cache implementation:
 
-    public LFUCache(int capacity) {
-        this.capacity = capacity;
-        this.minFreq = 0;
-        cache = new HashMap<>();
-        freqMap = new HashMap<>();
-    }
+Key insight: When updating frequency:
+1. Remove node from current freq list
+2. Add to (freq+1) list
+3. Update minFreq if current list becomes empty
 
-    public int get(int key) {
-        Node node = cache.get(key);
-        if (node == null) {
-            return -1;
-        }
+New items always have freq=1, so minFreq resets to 1 on new insertions.`,
+          codeExample: `public int get(int key) {
+    Node node = cache.get(key);
+    if (node == null) return -1;
+    updateFreq(node);
+    return node.value;
+}
 
+public void put(int key, int value) {
+    if (capacity == 0) return;
+
+    Node node = cache.get(key);
+    if (node != null) {
+        node.value = value;
         updateFreq(node);
-        return node.value;
-    }
-
-    public void put(int key, int value) {
-        if (capacity == 0) return;
-
-        Node node = cache.get(key);
-
-        if (node != null) {
-            // Update existing node
-            node.value = value;
-            updateFreq(node);
-        } else {
-            // Add new node
-            if (cache.size() >= capacity) {
-                // Evict LFU (and LRU if tie)
-                DLList minFreqList = freqMap.get(minFreq);
-                Node removed = minFreqList.removeLast();
-                cache.remove(removed.key);
-            }
-
-            // Add new node with frequency 1
-            Node newNode = new Node(key, value);
-            cache.put(key, newNode);
-            freqMap.putIfAbsent(1, new DLList());
-            freqMap.get(1).add(newNode);
-            minFreq = 1;
-        }
-    }
-
-    private void updateFreq(Node node) {
-        int freq = node.freq;
-        DLList list = freqMap.get(freq);
-        list.remove(node);
-
-        // Update minFreq if needed
-        if (freq == minFreq && list.size == 0) {
-            minFreq++;
+    } else {
+        if (cache.size() >= capacity) {
+            // Evict from minFreq list
+            DLList minList = freqMap.get(minFreq);
+            Node removed = minList.removeLast();
+            cache.remove(removed.key);
         }
 
-        // Add to next frequency list
-        node.freq++;
-        freqMap.putIfAbsent(node.freq, new DLList());
-        freqMap.get(node.freq).add(node);
+        Node newNode = new Node(key, value);
+        cache.put(key, newNode);
+        freqMap.putIfAbsent(1, new DLList());
+        freqMap.get(1).add(newNode);
+        minFreq = 1;  // New item has freq=1
     }
 }
 
-// Simplified version using LinkedHashSet
-class LFUCacheSimple {
-    private class Node {
-        int key;
-        int value;
-        int freq;
+private void updateFreq(Node node) {
+    int freq = node.freq;
+    DLList list = freqMap.get(freq);
+    list.remove(node);
 
-        Node(int k, int v) {
-            key = k;
-            value = v;
-            freq = 1;
-        }
+    // Update minFreq if this list is now empty
+    if (freq == minFreq && list.size == 0) {
+        minFreq++;
     }
 
-    private Map<Integer, Node> cache;
-    private Map<Integer, LinkedHashSet<Integer>> freqMap;
-    private int capacity;
-    private int minFreq;
-
-    public LFUCacheSimple(int capacity) {
-        this.capacity = capacity;
-        this.minFreq = 0;
-        cache = new HashMap<>();
-        freqMap = new HashMap<>();
-    }
-
-    public int get(int key) {
-        if (!cache.containsKey(key)) {
-            return -1;
-        }
-
-        Node node = cache.get(key);
-        updateFreq(node);
-        return node.value;
-    }
-
-    public void put(int key, int value) {
-        if (capacity == 0) return;
-
-        if (cache.containsKey(key)) {
-            Node node = cache.get(key);
-            node.value = value;
-            updateFreq(node);
-        } else {
-            if (cache.size() >= capacity) {
-                // Evict LFU item
-                LinkedHashSet<Integer> minSet = freqMap.get(minFreq);
-                int keyToRemove = minSet.iterator().next();
-                minSet.remove(keyToRemove);
-                cache.remove(keyToRemove);
-            }
-
-            Node newNode = new Node(key, value);
-            cache.put(key, newNode);
-            freqMap.putIfAbsent(1, new LinkedHashSet<>());
-            freqMap.get(1).add(key);
-            minFreq = 1;
-        }
-    }
-
-    private void updateFreq(Node node) {
-        int freq = node.freq;
-        freqMap.get(freq).remove(node.key);
-
-        if (freq == minFreq && freqMap.get(freq).isEmpty()) {
-            minFreq++;
-        }
-
-        node.freq++;
-        freqMap.putIfAbsent(node.freq, new LinkedHashSet<>());
-        freqMap.get(node.freq).add(node.key);
-    }
+    // Move to freq+1 list
+    node.freq++;
+    freqMap.putIfAbsent(node.freq, new DLList());
+    freqMap.get(node.freq).add(node);
 }`
-        },
-        python: {
-          starterCode: `class LFUCache:
-    class Node:
-        def __init__(self, k, v):
-            self.key = k
-            self.value = v
-            self.freq = 1
-            self.prev = None
-            self.next = None
-
-    def __init__(self, capacity: int):
-        # TODO: Initialize LFU cache
-        pass
-
-    def get(self, key: int) -> int:
-        # TODO: Get value and update frequency
-        return -1
-
-    def put(self, key: int, value: int) -> None:
-        # TODO: Add/update and evict LFU if needed
-        pass
-
-    def _update_freq(self, node):
-        # TODO: Move node to higher frequency list
-        pass`,
-          solution: `class LFUCache:
-    class Node:
-        def __init__(self, k, v):
-            self.key = k
-            self.value = v
-            self.freq = 1
-            self.prev = None
-            self.next = None
-
-    class DLList:
-        class Node:
-            def __init__(self, k, v):
-                self.key = k
-                self.value = v
-                self.prev = None
-                self.next = None
-
-        def __init__(self):
-            self.head = LFUCache.Node(0, 0)
-            self.tail = LFUCache.Node(0, 0)
-            self.head.next = self.tail
-            self.tail.prev = self.head
-            self.size = 0
-
-        def add(self, node):
-            node.next = self.head.next
-            node.prev = self.head
-            self.head.next.prev = node
-            self.head.next = node
-            self.size += 1
-
-        def remove(self, node):
-            node.prev.next = node.next
-            node.next.prev = node.prev
-            self.size -= 1
-
-        def remove_last(self):
-            if self.size > 0:
-                last = self.tail.prev
-                self.remove(last)
-                return last
-            return None
-
-    def __init__(self, capacity: int):
-        self.capacity = capacity
-        self.min_freq = 0
-        self.cache = {}
-        self.freq_map = {}
-
-    def get(self, key: int) -> int:
-        if key not in self.cache:
-            return -1
-
-        node = self.cache[key]
-        self._update_freq(node)
-        return node.value
-
-    def put(self, key: int, value: int) -> None:
-        if self.capacity == 0:
-            return
-
-        if key in self.cache:
-            # Update existing node
-            node = self.cache[key]
-            node.value = value
-            self._update_freq(node)
-        else:
-            # Add new node
-            if len(self.cache) >= self.capacity:
-                # Evict LFU (and LRU if tie)
-                min_freq_list = self.freq_map[self.min_freq]
-                removed = min_freq_list.remove_last()
-                del self.cache[removed.key]
-
-            # Add new node with frequency 1
-            new_node = self.Node(key, value)
-            self.cache[key] = new_node
-            if 1 not in self.freq_map:
-                self.freq_map[1] = self.DLList()
-            self.freq_map[1].add(new_node)
-            self.min_freq = 1
-
-    def _update_freq(self, node):
-        freq = node.freq
-        freq_list = self.freq_map[freq]
-        freq_list.remove(node)
-
-        # Update min_freq if needed
-        if freq == self.min_freq and freq_list.size == 0:
-            self.min_freq += 1
-
-        # Add to next frequency list
-        node.freq += 1
-        if node.freq not in self.freq_map:
-            self.freq_map[node.freq] = self.DLList()
-        self.freq_map[node.freq].add(node)
-
-
-# Simplified version using OrderedDict
-from collections import OrderedDict, defaultdict
-
-class LFUCacheSimple:
-    def __init__(self, capacity: int):
-        self.capacity = capacity
-        self.min_freq = 0
-        self.cache = {}  # key -> (value, freq)
-        self.freq_map = defaultdict(OrderedDict)  # freq -> OrderedDict of keys
-
-    def get(self, key: int) -> int:
-        if key not in self.cache:
-            return -1
-
-        value, freq = self.cache[key]
-        self._update_freq(key, value, freq)
-        return value
-
-    def put(self, key: int, value: int) -> None:
-        if self.capacity == 0:
-            return
-
-        if key in self.cache:
-            _, freq = self.cache[key]
-            self._update_freq(key, value, freq)
-        else:
-            if len(self.cache) >= self.capacity:
-                # Evict LFU item
-                evict_key, _ = self.freq_map[self.min_freq].popitem(last=False)
-                del self.cache[evict_key]
-
-            self.cache[key] = (value, 1)
-            self.freq_map[1][key] = None
-            self.min_freq = 1
-
-    def _update_freq(self, key: int, value: int, freq: int):
-        del self.freq_map[freq][key]
-
-        if freq == self.min_freq and not self.freq_map[freq]:
-            self.min_freq += 1
-
-        new_freq = freq + 1
-        self.cache[key] = (value, new_freq)
-        self.freq_map[new_freq][key] = None`
         }
-      },
-      testCases: [
-        { input: 'capacity=2, put(1,1), put(2,2), get(1), put(3,3), get(2)', output: 'get(1): 1, get(2): -1' },
-        { input: 'capacity=2, put(2,1), put(3,2), get(2), get(3), put(4,4), get(2)', output: 'get(2): 1 then 1' },
-        { input: 'capacity=1, put(2,1), get(2)', output: 'get(2): 1' }
-      ],
-      explanation: `**Problem:** Implement LFU (Least Frequently Used) cache - evict item with lowest access frequency.
-
-**Key Insight: Track Both Frequency AND Recency**
-When tie in frequency → evict LRU (least recently used among them)
-
-**Data Structures:**
-1. **cache:** HashMap<key, Node> → O(1) lookup
-2. **freqMap:** HashMap<freq, DoublyLinkedList> → O(1) get list by frequency
-3. **minFreq:** Track minimum frequency for eviction
-
-**Node Structure:**
-- key, value
-- freq (access count)
-- prev, next (for doubly linked list within frequency)
-
-**Frequency Lists:**
-┌─────────────────────────────────────────┐
-│  freqMap:                                │
-│  1 → [Node3 ⇄ Node1]  (freq=1)          │
-│  2 → [Node2]          (freq=2)          │
-│  3 → [Node4 ⇄ Node5]  (freq=3)          │
-└─────────────────────────────────────────┘
-         ↑
-       minFreq = 1 (evict from this list)
-
-**Operations:**
-
-**get(key):**
-1. If not found → return -1
-2. If found → increment frequency:
-   - Remove from current freq list
-   - Add to (freq+1) list
-   - Update minFreq if needed
-3. Return value
-
-**put(key, value):**
-1. If key exists → update value, increment freq
-2. If new key:
-   - If at capacity → evict LFU item:
-     * Remove last node from minFreq list
-     * If tie in freq → LRU within that freq
-   - Add new node with freq=1
-   - Set minFreq = 1
-
-**Example Trace:**
-Capacity = 2
-
-put(1, 1):
-  freq=1
-  freqMap: {1: [Node1]}
-  minFreq = 1
-
-put(2, 2):
-  freq=1
-  freqMap: {1: [Node2, Node1]}  // Node2 at head (MRU)
-  minFreq = 1
-
-get(1):
-  Found Node1 (freq=1)
-  Update freq: 1 → 2
-  freqMap: {1: [Node2], 2: [Node1]}
-  minFreq = 1 (freq 1 still has Node2)
-  return 1
-
-put(3, 3):
-  Capacity full! Evict LFU:
-    minFreq = 1 → evict from freq 1 list
-    Remove Node2 (LRU in freq 1)
-  Add Node3 (freq=1)
-  freqMap: {1: [Node3], 2: [Node1]}
-  minFreq = 1
-
-get(2):
-  Not found → return -1
-
-get(3):
-  Found Node3 (freq=1)
-  Update freq: 1 → 2
-  freqMap: {1: [], 2: [Node3, Node1]}
-  minFreq = 2 (freq 1 is empty!)
-  return 3
-
-put(4, 4):
-  Capacity full! Evict LFU:
-    minFreq = 2 → evict from freq 2 list
-    Remove Node1 (LRU in freq 2: at tail)
-  Add Node4 (freq=1)
-  freqMap: {1: [Node4], 2: [Node3]}
-  minFreq = 1
-
-**Updating minFreq:**
-When removing node from freq list:
-- If freq == minFreq AND list is empty → minFreq++
-- New nodes always have freq=1 → minFreq = 1
-
-**Why Doubly Linked List per Frequency?**
-- Insert at head (MRU): O(1)
-- Remove from tail (LRU): O(1)
-- Remove arbitrary node: O(1)
-
-**Advantages:**
-✓ Evicts truly least-used items
-✓ Resistant to one-time access bursts
-✓ Better for repeated access patterns
-
-**Disadvantages:**
-✗ Complex implementation
-✗ More memory (frequency tracking)
-✗ New items easily evicted (freq=1)
-
-**LRU vs LFU:**
-┌──────────────┬─────────────┬─────────────┐
-│              │ LRU         │ LFU         │
-├──────────────┼─────────────┼─────────────┤
-│ Evicts       │ Oldest      │ Least used  │
-│ Good for     │ Temporal    │ Frequency   │
-│ Complexity   │ Simple      │ Complex     │
-│ New item     │ Protected   │ Vulnerable  │
-│ Burst access │ Vulnerable  │ Protected   │
-└──────────────┴─────────────┴─────────────┘
-
-**Use Cases:**
-- Content popularity tracking
-- Ad serving (frequency caps)
-- Video streaming (popular content)
-- Database query cache (hot queries)
-
-**Complexity:**
-- get(): O(1) average
-- put(): O(1) average
-- Space: O(capacity) + frequency lists`,
-      pseudocode: `LFU Cache Algorithm:
---------------------
-// Node with frequency
-class Node:
-    int key
-    int value
-    int freq
-    Node prev
-    Node next
-
-// Doubly linked list for each frequency
-class DLList:
-    Node head, tail  // Dummy nodes
-    int size
-
-    add(node):
-        // Add to head (MRU)
-        node.next = head.next
-        node.prev = head
-        head.next.prev = node
-        head.next = node
-        size++
-
-    remove(node):
-        node.prev.next = node.next
-        node.next.prev = node.prev
-        size--
-
-    removeLast():
-        // Remove from tail (LRU)
-        if size > 0:
-            last = tail.prev
-            remove(last)
-            return last
-        return null
-
-// Initialization
-LFUCache(capacity):
-    this.capacity = capacity
-    this.cache = HashMap<Integer, Node>()
-    this.freqMap = HashMap<Integer, DLList>()  // freq → list
-    this.minFreq = 0
-
-// Get value
-get(key):
-    if key not in cache:
-        return -1
-
-    node = cache[key]
-    updateFreq(node)  // Increment frequency
-    return node.value
-
-// Put key-value
-put(key, value):
-    if capacity == 0:
-        return
-
-    if key in cache:
-        // Update existing
-        node = cache[key]
-        node.value = value
-        updateFreq(node)
-    else:
-        // Add new node
-        if cache.size() >= capacity:
-            // Evict LFU (and LRU if tie)
-            minFreqList = freqMap[minFreq]
-            removed = minFreqList.removeLast()  // LRU in minFreq
-            cache.remove(removed.key)
-
-        // Add new node with freq=1
-        newNode = new Node(key, value, freq=1)
-        cache[key] = newNode
-
-        if 1 not in freqMap:
-            freqMap[1] = new DLList()
-        freqMap[1].add(newNode)
-
-        minFreq = 1
-
-// Update node frequency
-updateFreq(node):
-    freq = node.freq
-    freqList = freqMap[freq]
-    freqList.remove(node)
-
-    // Update minFreq if current freq list is empty
-    if freq == minFreq AND freqList.size == 0:
-        minFreq++
-
-    // Move to next frequency list
-    node.freq++
-    if node.freq not in freqMap:
-        freqMap[node.freq] = new DLList()
-    freqMap[node.freq].add(node)
-
-Example Trace:
---------------
-Capacity=2
-
-put(1, 1):
-  newNode = Node(1, 1, freq=1)
-  freqMap[1].add(Node1)
-  freqMap: {1: [Node1]}
-  minFreq = 1
-
-put(2, 2):
-  newNode = Node(2, 2, freq=1)
-  freqMap[1].add(Node2)  // Add to head
-  freqMap: {1: head ⇄ Node2 ⇄ Node1 ⇄ tail}
-  minFreq = 1
-
-get(1):
-  node = cache[1]  // Node1, freq=1
-  updateFreq(Node1):
-    freqMap[1].remove(Node1)
-    freqMap: {1: [Node2]}  // Only Node2 left
-    freq=1, minFreq=1, list not empty → minFreq stays 1
-    node.freq = 2
-    freqMap[2].add(Node1)
-    freqMap: {1: [Node2], 2: [Node1]}
-  return 1
-
-put(3, 3):
-  cache.size() = 2 >= capacity
-  Evict from minFreq=1:
-    removed = freqMap[1].removeLast()  // Node2
-    cache.remove(2)
-  freqMap: {1: [], 2: [Node1]}
-
-  newNode = Node(3, 3, freq=1)
-  freqMap[1].add(Node3)
-  freqMap: {1: [Node3], 2: [Node1]}
-  minFreq = 1
-
-get(2):
-  2 not in cache → return -1
-
-get(3):
-  node = cache[3]  // Node3, freq=1
-  updateFreq(Node3):
-    freqMap[1].remove(Node3)
-    freqMap: {1: [], 2: [Node1]}
-    freq=1, minFreq=1, size=0 → minFreq = 2
-    node.freq = 2
-    freqMap[2].add(Node3)  // Add to head
-    freqMap: {1: [], 2: head ⇄ Node3 ⇄ Node1 ⇄ tail}
-  minFreq = 2
-  return 3
-
-put(4, 4):
-  cache.size() = 2 >= capacity
-  Evict from minFreq=2:
-    removed = freqMap[2].removeLast()  // Node1 (LRU)
-    cache.remove(1)
-  freqMap: {1: [], 2: [Node3]}
-
-  newNode = Node(4, 4, freq=1)
-  freqMap[1].add(Node4)
-  freqMap: {1: [Node4], 2: [Node3]}
-  minFreq = 1
-
-Simplified with LinkedHashSet:
--------------------------------
-LFUCacheSimple(capacity):
-    cache = HashMap<key, Node>()
-    freqMap = HashMap<freq, LinkedHashSet<key>>()  // Insertion order = LRU
-    minFreq = 0
-
-get(key):
-    if key not in cache:
-        return -1
-    updateFreq(key)
-    return cache[key].value
-
-updateFreq(key):
-    node = cache[key]
-    freq = node.freq
-
-    // Remove from current freq set
-    freqMap[freq].remove(key)
-    if freq == minFreq AND freqMap[freq].isEmpty():
-        minFreq++
-
-    // Add to next freq set
-    node.freq++
-    freqMap.putIfAbsent(node.freq, new LinkedHashSet())
-    freqMap[node.freq].add(key)
-
-put(key, value):
-    if capacity == 0:
-        return
-
-    if key in cache:
-        cache[key].value = value
-        updateFreq(key)
-    else:
-        if cache.size() >= capacity:
-            // Evict: first item (oldest) in minFreq set
-            evictKey = freqMap[minFreq].iterator().next()
-            freqMap[minFreq].remove(evictKey)
-            cache.remove(evictKey)
-
-        cache[key] = Node(key, value, freq=1)
-        freqMap.putIfAbsent(1, new LinkedHashSet())
-        freqMap[1].add(key)
-        minFreq = 1`
+      ]
     },
     {
-      id: 4,
-      title: 'Design Browser History',
-      difficulty: 'Medium',
-      description: 'Design a browser history system with visit, back, and forward operations. Support navigating backward/forward by a given number of steps. Clear forward history when visiting a new page from the middle of history.',
-      example: `BrowserHistory history = new BrowserHistory("leetcode.com");
-history.visit("google.com");     // [leetcode.com, google.com]
-history.visit("facebook.com");   // [leetcode.com, google.com, facebook.com]
-history.visit("youtube.com");    // [leetcode.com, google.com, facebook.com, youtube.com]
-history.back(1);                 // returns "facebook.com"
-history.back(1);                 // returns "google.com"
-history.forward(1);              // returns "facebook.com"
-history.visit("linkedin.com");   // [leetcode.com, google.com, facebook.com, linkedin.com]
-history.forward(2);              // returns "linkedin.com" (can't go forward)
-history.back(2);                 // returns "google.com"`,
-      code: {
-        java: {
-          starterCode: `class BrowserHistory {
-    public BrowserHistory(String homepage) {
-        // TODO: Initialize browser history
+      id: 'distributed-cache',
+      name: 'Distributed Cache',
+      icon: '🌐',
+      color: '#06b6d4',
+      description: 'Scaling LRU Cache across multiple nodes using consistent hashing for distributed systems.',
+      diagram: DistributedCacheDiagram,
+      details: [
+        {
+          name: 'Distributed Architecture',
+          diagram: DistributedCacheDiagram,
+          explanation: `Scaling LRU cache to multiple machines:
 
-    }
+Architecture:
+1. Multiple cache nodes
+2. Consistent hashing for key distribution
+3. Each node runs its own LRU cache
 
-    public void visit(String url) {
-        // TODO: Visit new page, clear forward history
+Benefits:
+- Horizontal scalability
+- Higher total capacity
+- Fault isolation
 
-    }
+Challenges:
+- Network latency
+- Cache coherence
+- Hot spots`,
+          codeExample: `class DistributedLRUCache {
+    private List<CacheNode> nodes;
+    private ConsistentHash hashRing;
 
-    public String back(int steps) {
-        // TODO: Go back steps, return current page
-
-        return "";
-    }
-
-    public String forward(int steps) {
-        // TODO: Go forward steps, return current page
-
-        return "";
-    }
-}`,
-          solution: `class BrowserHistory {
-    private List<String> history;
-    private int current;
-
-    public BrowserHistory(String homepage) {
-        history = new ArrayList<>();
-        history.add(homepage);
-        current = 0;
-    }
-
-    public void visit(String url) {
-        // Remove all forward history
-        while (history.size() > current + 1) {
-            history.remove(history.size() - 1);
+    public DistributedLRUCache(List<String> nodeAddresses) {
+        nodes = new ArrayList<>();
+        for (String addr : nodeAddresses) {
+            nodes.add(new CacheNode(addr));
         }
-
-        history.add(url);
-        current++;
+        hashRing = new ConsistentHash(nodeAddresses);
     }
 
-    public String back(int steps) {
-        current = Math.max(0, current - steps);
-        return history.get(current);
+    public int get(int key) {
+        CacheNode node = getNodeForKey(key);
+        return node.get(key);  // RPC call
     }
 
-    public String forward(int steps) {
-        current = Math.min(history.size() - 1, current + steps);
-        return history.get(current);
-    }
-}
-
-// Using doubly linked list
-class BrowserHistoryDLL {
-    private class Node {
-        String url;
-        Node prev;
-        Node next;
-
-        Node(String u) {
-            url = u;
-        }
+    public void put(int key, int value) {
+        CacheNode node = getNodeForKey(key);
+        node.put(key, value);  // RPC call
     }
 
-    private Node current;
-
-    public BrowserHistoryDLL(String homepage) {
-        current = new Node(homepage);
-    }
-
-    public void visit(String url) {
-        Node newNode = new Node(url);
-        current.next = newNode;
-        newNode.prev = current;
-        current = newNode;
-    }
-
-    public String back(int steps) {
-        while (steps > 0 && current.prev != null) {
-            current = current.prev;
-            steps--;
-        }
-        return current.url;
-    }
-
-    public String forward(int steps) {
-        while (steps > 0 && current.next != null) {
-            current = current.next;
-            steps--;
-        }
-        return current.url;
-    }
-}
-
-// Using two stacks
-class BrowserHistoryStacks {
-    private Stack<String> backStack;
-    private Stack<String> forwardStack;
-    private String current;
-
-    public BrowserHistoryStacks(String homepage) {
-        backStack = new Stack<>();
-        forwardStack = new Stack<>();
-        current = homepage;
-    }
-
-    public void visit(String url) {
-        backStack.push(current);
-        current = url;
-        forwardStack.clear();
-    }
-
-    public String back(int steps) {
-        while (steps > 0 && !backStack.isEmpty()) {
-            forwardStack.push(current);
-            current = backStack.pop();
-            steps--;
-        }
-        return current;
-    }
-
-    public String forward(int steps) {
-        while (steps > 0 && !forwardStack.isEmpty()) {
-            backStack.push(current);
-            current = forwardStack.pop();
-            steps--;
-        }
-        return current;
-    }
-
-    public String getCurrentUrl() {
-        return current;
-    }
-
-    public boolean canGoBack() {
-        return !backStack.isEmpty();
-    }
-
-    public boolean canGoForward() {
-        return !forwardStack.isEmpty();
-    }
-}
-
-// With history limit
-class BrowserHistoryLimited {
-    private List<String> history;
-    private int current;
-    private int maxSize;
-
-    public BrowserHistoryLimited(String homepage, int maxSize) {
-        this.maxSize = maxSize;
-        history = new ArrayList<>();
-        history.add(homepage);
-        current = 0;
-    }
-
-    public void visit(String url) {
-        // Remove forward history
-        while (history.size() > current + 1) {
-            history.remove(history.size() - 1);
-        }
-
-        history.add(url);
-        current++;
-
-        // Maintain size limit
-        if (history.size() > maxSize) {
-            history.remove(0);
-            current--;
-        }
-    }
-
-    public String back(int steps) {
-        current = Math.max(0, current - steps);
-        return history.get(current);
-    }
-
-    public String forward(int steps) {
-        current = Math.min(history.size() - 1, current + steps);
-        return history.get(current);
-    }
-
-    public List<String> getHistory() {
-        return new ArrayList<>(history);
+    private CacheNode getNodeForKey(int key) {
+        String nodeAddr = hashRing.getNode(String.valueOf(key));
+        return nodes.stream()
+            .filter(n -> n.address.equals(nodeAddr))
+            .findFirst()
+            .orElseThrow();
     }
 }`
         },
-        python: {
-          starterCode: `class BrowserHistory:
-    def __init__(self, homepage: str):
-        # TODO: Initialize browser history
-        pass
+        {
+          name: 'Consistent Hashing',
+          explanation: `Consistent hashing minimizes key redistribution when nodes change:
 
-    def visit(self, url: str) -> None:
-        # TODO: Visit new page, clear forward history
-        pass
+Traditional hashing: hash(key) % N
+- Adding node: ~(N-1)/N keys move
+- Removing node: ~(N-1)/N keys move
 
-    def back(self, steps: int) -> str:
-        # TODO: Go back steps, return current page
-        return ""
+Consistent hashing: hash(key) on ring
+- Adding node: ~1/N keys move
+- Removing node: ~1/N keys move
 
-    def forward(self, steps: int) -> str:
-        # TODO: Go forward steps, return current page
-        return ""`,
-          solution: `class BrowserHistory:
-    def __init__(self, homepage: str):
-        self.history = [homepage]
-        self.current = 0
+Virtual nodes ensure even distribution.`,
+          codeExample: `class ConsistentHash {
+    private TreeMap<Long, String> ring = new TreeMap<>();
+    private int virtualNodes = 150;  // Per physical node
 
-    def visit(self, url: str) -> None:
-        # Remove all forward history
-        self.history = self.history[:self.current + 1]
-        self.history.append(url)
-        self.current += 1
-
-    def back(self, steps: int) -> str:
-        self.current = max(0, self.current - steps)
-        return self.history[self.current]
-
-    def forward(self, steps: int) -> str:
-        self.current = min(len(self.history) - 1, self.current + steps)
-        return self.history[self.current]
-
-
-# Using doubly linked list
-class BrowserHistoryDLL:
-    class Node:
-        def __init__(self, url: str):
-            self.url = url
-            self.prev = None
-            self.next = None
-
-    def __init__(self, homepage: str):
-        self.current = self.Node(homepage)
-
-    def visit(self, url: str) -> None:
-        new_node = self.Node(url)
-        self.current.next = new_node
-        new_node.prev = self.current
-        self.current = new_node
-
-    def back(self, steps: int) -> str:
-        while steps > 0 and self.current.prev is not None:
-            self.current = self.current.prev
-            steps -= 1
-        return self.current.url
-
-    def forward(self, steps: int) -> str:
-        while steps > 0 and self.current.next is not None:
-            self.current = self.current.next
-            steps -= 1
-        return self.current.url
-
-
-# Using two stacks
-class BrowserHistoryStacks:
-    def __init__(self, homepage: str):
-        self.back_stack = []
-        self.forward_stack = []
-        self.current = homepage
-
-    def visit(self, url: str) -> None:
-        self.back_stack.append(self.current)
-        self.current = url
-        self.forward_stack.clear()
-
-    def back(self, steps: int) -> str:
-        while steps > 0 and self.back_stack:
-            self.forward_stack.append(self.current)
-            self.current = self.back_stack.pop()
-            steps -= 1
-        return self.current
-
-    def forward(self, steps: int) -> str:
-        while steps > 0 and self.forward_stack:
-            self.back_stack.append(self.current)
-            self.current = self.forward_stack.pop()
-            steps -= 1
-        return self.current
-
-    def get_current_url(self) -> str:
-        return self.current
-
-    def can_go_back(self) -> bool:
-        return len(self.back_stack) > 0
-
-    def can_go_forward(self) -> bool:
-        return len(self.forward_stack) > 0
-
-
-# With history limit
-class BrowserHistoryLimited:
-    def __init__(self, homepage: str, max_size: int):
-        self.max_size = max_size
-        self.history = [homepage]
-        self.current = 0
-
-    def visit(self, url: str) -> None:
-        # Remove forward history
-        self.history = self.history[:self.current + 1]
-        self.history.append(url)
-        self.current += 1
-
-        # Maintain size limit
-        if len(self.history) > self.max_size:
-            self.history.pop(0)
-            self.current -= 1
-
-    def back(self, steps: int) -> str:
-        self.current = max(0, self.current - steps)
-        return self.history[self.current]
-
-    def forward(self, steps: int) -> str:
-        self.current = min(len(self.history) - 1, self.current + steps)
-        return self.history[self.current]
-
-    def get_history(self) -> list:
-        return self.history.copy()`
+    public void addNode(String node) {
+        for (int i = 0; i < virtualNodes; i++) {
+            long hash = hash(node + "#" + i);
+            ring.put(hash, node);
         }
-      },
-      testCases: [
-        { input: 'visit("google.com"), back(1)', output: 'back: "leetcode.com"' },
-        { input: 'visit("google.com"), visit("facebook.com"), back(1), forward(1)', output: 'forward: "facebook.com"' },
-        { input: 'visit("a"), visit("b"), back(1), visit("c"), forward(1)', output: 'forward: "c"' }
-      ],
-      explanation: `**Problem:** Design browser history with back/forward navigation.
-
-**Key Insight: Track Current Position in History**
-Linear history with a current pointer.
-Visiting new page from middle → delete forward history.
-
-**Data Structures:**
-
-**Option 1: ArrayList**
-- history: List<String>
-- current: int (index pointer)
-
-**Option 2: Doubly Linked List**
-- current: Node pointer
-- Navigate via prev/next pointers
-
-**Option 3: Two Stacks**
-- backStack: Stack of previous pages
-- forwardStack: Stack of next pages
-- current: String (current page)
-
-**Operations:**
-
-**visit(url):**
-1. Clear all forward history
-2. Add url to history
-3. Move current forward
-
-**back(steps):**
-1. Move current backward by steps
-2. Stop at beginning if needed
-3. Return current page
-
-**forward(steps):**
-1. Move current forward by steps
-2. Stop at end if needed
-3. Return current page
-
-**Example with ArrayList:**
-Homepage = "leetcode.com"
-
-visit("google.com"):
-  history: ["leetcode.com", "google.com"]
-  current = 1  (points to "google.com")
-
-visit("facebook.com"):
-  history: ["leetcode.com", "google.com", "facebook.com"]
-  current = 2
-
-visit("youtube.com"):
-  history: ["leetcode.com", "google.com", "facebook.com", "youtube.com"]
-  current = 3
-
-back(1):
-  current = 2  (now at "facebook.com")
-  return "facebook.com"
-
-back(1):
-  current = 1  (now at "google.com")
-  return "google.com"
-
-forward(1):
-  current = 2  (now at "facebook.com")
-  return "facebook.com"
-
-visit("linkedin.com"):
-  Clear forward: remove "youtube.com"
-  history: ["leetcode.com", "google.com", "facebook.com", "linkedin.com"]
-  current = 3
-
-forward(2):
-  current = min(3, 3 + 2) = 3  (can't go forward)
-  return "linkedin.com"
-
-back(2):
-  current = max(0, 3 - 2) = 1
-  return "google.com"
-
-**Clear Forward History:**
-When visiting from middle position:
-┌────────────────────────────────────┐
-│ Before visit("x") at current=2:    │
-│ [a, b, c, d, e]                    │
-│        ↑ current                   │
-└────────────────────────────────────┘
-┌────────────────────────────────────┐
-│ After visit("x"):                  │
-│ [a, b, c, x]                       │
-│           ↑ current                │
-│ (d, e deleted)                     │
-└────────────────────────────────────┘
-
-**Implementation Comparisons:**
-
-**ArrayList:**
-pros: Simple, O(1) navigation
-cons: O(n) to clear forward history
-
-**Doubly Linked List:**
-pros: O(1) all operations
-cons: More complex, extra space
-
-**Two Stacks:**
-pros: Natural back/forward semantics
-cons: O(n) for multi-step navigation
-
-**Advantages:**
-✓ Simple history navigation
-✓ Memory efficient (only URLs)
-✓ O(1) or O(steps) operations
-
-**Use Cases:**
-- Web browser history
-- Undo/redo systems
-- Text editor navigation
-- File explorer back/forward
-
-**Complexity:**
-- ArrayList: visit O(n), back/forward O(1)
-- DLL: all operations O(1)
-- Two Stacks: all operations O(steps)
-- Space: O(history size)`,
-      pseudocode: `Browser History Algorithm:
---------------------------
-// ArrayList Implementation
-class BrowserHistory:
-    List<String> history
-    int current
-
-// Initialization
-BrowserHistory(homepage):
-    history = new ArrayList()
-    history.add(homepage)
-    current = 0
-
-// Visit new page
-visit(url):
-    // Remove all forward history
-    while history.size() > current + 1:
-        history.remove(history.size() - 1)
-
-    // Add new page
-    history.add(url)
-    current++
-
-// Go back
-back(steps):
-    current = max(0, current - steps)
-    return history[current]
-
-// Go forward
-forward(steps):
-    current = min(history.size() - 1, current + steps)
-    return history[current]
-
-Example Trace (ArrayList):
---------------------------
-BrowserHistory("leetcode.com")
-  history: ["leetcode.com"]
-  current = 0
-
-visit("google.com"):
-  Remove forward: none
-  history: ["leetcode.com", "google.com"]
-  current = 1
-
-visit("facebook.com"):
-  Remove forward: none
-  history: ["leetcode.com", "google.com", "facebook.com"]
-  current = 2
-
-visit("youtube.com"):
-  Remove forward: none
-  history: ["leetcode.com", "google.com", "facebook.com", "youtube.com"]
-  current = 3
-
-back(1):
-  current = max(0, 3 - 1) = 2
-  return history[2] = "facebook.com"
-
-back(1):
-  current = max(0, 2 - 1) = 1
-  return history[1] = "google.com"
-
-forward(1):
-  current = min(3, 1 + 1) = 2
-  return history[2] = "facebook.com"
-
-visit("linkedin.com"):
-  Remove forward: remove youtube.com
-  history: ["leetcode.com", "google.com", "facebook.com"]
-  current = 2
-  Add linkedin.com:
-  history: ["leetcode.com", "google.com", "facebook.com", "linkedin.com"]
-  current = 3
-
-forward(2):
-  current = min(3, 3 + 2) = 3
-  return history[3] = "linkedin.com"
-
-back(2):
-  current = max(0, 3 - 2) = 1
-  return history[1] = "google.com"
-
-Doubly Linked List Implementation:
------------------------------------
-class BrowserHistoryDLL:
-    class Node:
-        String url
-        Node prev
-        Node next
-
-    Node current
-
-BrowserHistory(homepage):
-    current = new Node(homepage)
-
-visit(url):
-    newNode = new Node(url)
-    current.next = newNode  // Clear forward history
-    newNode.prev = current
-    current = newNode
-
-back(steps):
-    while steps > 0 AND current.prev != null:
-        current = current.prev
-        steps--
-    return current.url
-
-forward(steps):
-    while steps > 0 AND current.next != null:
-        current = current.next
-        steps--
-    return current.url
-
-Two Stacks Implementation:
----------------------------
-class BrowserHistoryStacks:
-    Stack<String> backStack
-    Stack<String> forwardStack
-    String current
-
-BrowserHistory(homepage):
-    backStack = new Stack()
-    forwardStack = new Stack()
-    current = homepage
-
-visit(url):
-    backStack.push(current)
-    current = url
-    forwardStack.clear()  // Clear forward history
-
-back(steps):
-    while steps > 0 AND not backStack.isEmpty():
-        forwardStack.push(current)
-        current = backStack.pop()
-        steps--
-    return current
-
-forward(steps):
-    while steps > 0 AND not forwardStack.isEmpty():
-        backStack.push(current)
-        current = forwardStack.pop()
-        steps--
-    return current
-
-Example Trace (Two Stacks):
-----------------------------
-BrowserHistory("leetcode.com")
-  backStack: []
-  current: "leetcode.com"
-  forwardStack: []
-
-visit("google.com"):
-  backStack.push("leetcode.com") → ["leetcode.com"]
-  current = "google.com"
-  forwardStack.clear() → []
-
-visit("facebook.com"):
-  backStack: ["leetcode.com", "google.com"]
-  current: "facebook.com"
-
-back(1):
-  forwardStack.push("facebook.com") → ["facebook.com"]
-  current = backStack.pop() = "google.com"
-  backStack: ["leetcode.com"]
-  return "google.com"
-
-forward(1):
-  backStack.push("google.com") → ["leetcode.com", "google.com"]
-  current = forwardStack.pop() = "facebook.com"
-  forwardStack: []
-  return "facebook.com"
-
-visit("linkedin.com"):
-  backStack.push("facebook.com") → ["leetcode.com", "google.com", "facebook.com"]
-  current = "linkedin.com"
-  forwardStack.clear() → []
-
-With History Limit:
--------------------
-class BrowserHistoryLimited:
-    List<String> history
-    int current
-    int maxSize
-
-visit(url):
-    // Remove forward history
-    while history.size() > current + 1:
-        history.remove(history.size() - 1)
-
-    history.add(url)
-    current++
-
-    // Maintain size limit
-    if history.size() > maxSize:
-        history.remove(0)  // Remove oldest
-        current--
-
-Comparison:
------------
-ArrayList:
-  - Simple
-  - O(1) navigation
-  - O(n) clear forward (visit)
-
-Doubly Linked List:
-  - O(1) all operations
-  - More complex
-  - Extra space for pointers
-
-Two Stacks:
-  - Natural back/forward semantics
-  - O(steps) for navigation
-  - Good for undo/redo systems`
+    }
+
+    public void removeNode(String node) {
+        for (int i = 0; i < virtualNodes; i++) {
+            long hash = hash(node + "#" + i);
+            ring.remove(hash);
+        }
+    }
+
+    public String getNode(String key) {
+        if (ring.isEmpty()) return null;
+
+        long hash = hash(key);
+        // Find first node clockwise from hash
+        Long nodeHash = ring.ceilingKey(hash);
+        if (nodeHash == null) {
+            nodeHash = ring.firstKey();  // Wrap around
+        }
+        return ring.get(nodeHash);
+    }
+
+    private long hash(String key) {
+        // Use MD5, SHA-1, or similar
+        return key.hashCode() & 0xFFFFFFFFL;
+    }
+}`
+        },
+        {
+          name: 'Cache Coherence',
+          explanation: `Handling updates and invalidation across nodes:
+
+Strategies:
+1. Write-through: Update cache + DB together
+2. Write-behind: Update cache, async write to DB
+3. Cache-aside: Application manages cache
+
+Invalidation patterns:
+- TTL-based: Eventual consistency
+- Event-driven: Pub/sub for updates
+- Version numbers: Detect stale data`,
+          codeExample: `// Cache-Aside Pattern
+class CacheAsideClient {
+    private DistributedLRUCache cache;
+    private Database db;
+
+    public Data get(String key) {
+        // Try cache first
+        Data data = cache.get(key);
+        if (data != null) {
+            return data;  // Cache hit
+        }
+
+        // Cache miss - load from DB
+        data = db.query(key);
+        if (data != null) {
+            cache.put(key, data);  // Populate cache
+        }
+        return data;
+    }
+
+    public void update(String key, Data data) {
+        // Update DB first
+        db.update(key, data);
+
+        // Invalidate cache (not update!)
+        cache.delete(key);
+
+        // Why invalidate instead of update?
+        // - Simpler, no race conditions
+        // - Next read will refresh from DB
+    }
+}
+
+// Event-driven Invalidation
+class CacheInvalidationListener {
+    @Subscribe
+    public void onDataChange(DataChangeEvent event) {
+        cache.delete(event.getKey());
+        // Or: broadcast to all cache nodes
+    }
+}`
+        }
+      ]
     }
   ]
 
-  const handleQuestionSelect = (question) => {
-    setSelectedQuestion(question)
-    const problemId = `LRUCache-${question.id}`
-    const savedCode = getUserCode(problemId, language)
-    setUserCode(savedCode || question.code[language].starterCode)
-    setShowSolution(false)
-    setShowExplanation(false)
-    setOutput('')
-  }
+  // =============================================================================
+  // NAVIGATION HANDLERS
+  // =============================================================================
 
-  const handleRunCode = () => {
-    setIsRunning(true)
-    setOutput('Running tests...\n')
+  const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 
-    setTimeout(() => {
-      const results = selectedQuestion.testCases.map((test, idx) =>
-        `Test ${idx + 1}: ${test.input}\nExpected: ${test.output}\n✓ Passed`
-      ).join('\n\n')
-
-      setOutput(results)
-      setIsRunning(false)
-    }, 1000)
-  }
-
-  const handleReset = () => {
-    setUserCode(selectedQuestion.code[language].starterCode)
-    setOutput('')
-    setShowSolution(false)
-  }
-
-  const handleKeyDown = (e) => {
-    // Stop propagation for all keys except Escape to allow typing in textarea
-    if (e.key !== 'Escape') {
-      e.stopPropagation()
-    }
-
-    if (e.key === 'Tab') {
-      e.preventDefault()
-      const start = e.target.selectionStart
-      const end = e.target.selectionEnd
-      const newValue = userCode.substring(0, start) + '    ' + userCode.substring(end)
-      setUserCode(newValue)
-      setTimeout(() => {
-        e.target.selectionStart = e.target.selectionEnd = start + 4
-      }, 0)
+  const handlePreviousConcept = () => {
+    if (selectedConceptIndex > 0) {
+      setSelectedConceptIndex(selectedConceptIndex - 1)
+      setSelectedDetailIndex(0)
     }
   }
 
-  if (!selectedQuestion) {
-    return (
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', minHeight: '100vh', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', color: 'white' }}>
-        <button
-          onClick={onBack}
-          style={{
-            marginBottom: '2rem',
-            padding: '0.5rem 1rem',
-            fontSize: '1rem',
-            backgroundColor: '#3b82f6',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}
-        >
-          ← Back to Practice
-        </button>
-
-        <Breadcrumb breadcrumb={breadcrumb} />
-
-        <h1 style={{ fontSize: '2rem', marginBottom: '1rem', color: 'white' }}>
-          LRU Cache & Variants Practice
-        </h1>
-        <p style={{ fontSize: '1.1rem', color: '#6b7280', marginBottom: '2rem' }}>
-          Master cache eviction policies: LRU, LFU, expiry-based, and browser history
-        </p>
-
-        <div style={{ display: 'grid', gap: '1rem' }}>
-          {questions.map((q) => {
-            const isCompleted = isProblemCompleted(`LRUCache-${q.id}`)
-            return (
-              <div
-                key={`${q.id}-${refreshKey}`}
-                onClick={() => handleQuestionSelect(q)}
-                style={{
-                  padding: '1.5rem',
-                  border: isCompleted ? '3px solid #10b981' : '2px solid #374151',
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  backgroundColor: isCompleted ? 'rgba(16, 185, 129, 0.15)' : 'rgba(30, 41, 59, 0.8)',
-                  boxShadow: isCompleted ? '0 2px 12px rgba(16, 185, 129, 0.2)' : 'none',
-                  position: 'relative'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = isCompleted ? '#10b981' : '#3b82f6'
-                  e.currentTarget.style.boxShadow = isCompleted ? '0 4px 16px rgba(16, 185, 129, 0.3)' : '0 4px 12px rgba(59, 130, 246, 0.15)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = isCompleted ? '#10b981' : '#374151'
-                  e.currentTarget.style.boxShadow = isCompleted ? '0 2px 12px rgba(16, 185, 129, 0.2)' : 'none'
-                }}
-              >
-                {isCompleted && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '-10px',
-                    left: '-10px',
-                    backgroundColor: '#10b981',
-                    color: 'white',
-                    borderRadius: '50%',
-                    width: '32px',
-                    height: '32px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1.1rem',
-                    fontWeight: 'bold',
-                    boxShadow: '0 2px 8px rgba(16, 185, 129, 0.5)',
-                    border: '3px solid white',
-                    zIndex: 1
-                  }}>
-                    ✓
-                  </div>
-                )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
-                  <h3 style={{ fontSize: '1.25rem', color: 'white', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    {q.id}. {q.title}
-                    {isCompleted && <span style={{ fontSize: '0.9rem', color: '#10b981' }}>✓</span>}
-                  </h3>
-                  <span style={{
-                    padding: '0.25rem 0.75rem',
-                    backgroundColor: '#fef3c7',
-                    color: '#92400e',
-                    borderRadius: '6px',
-                    fontSize: '0.875rem',
-                    fontWeight: '600'
-                  }}>
-                    {q.difficulty}
-                  </span>
-                </div>
-                <p style={{ color: '#6b7280', margin: 0 }}>{q.description}</p>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-    )
+  const handleNextConcept = () => {
+    if (selectedConceptIndex < concepts.length - 1) {
+      setSelectedConceptIndex(selectedConceptIndex + 1)
+      setSelectedDetailIndex(0)
+    }
   }
+
+  // =============================================================================
+  // BREADCRUMB CONFIGURATION
+  // =============================================================================
+
+  const buildBreadcrumbStack = () => {
+    const stack = [
+      { name: 'Design', icon: '🎨', page: 'Design' },
+      { name: 'LRU Cache', icon: '🔄', page: 'LRU Cache' }
+    ]
+    if (selectedConcept) {
+      stack.push({ name: selectedConcept.name, icon: selectedConcept.icon })
+    }
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index) => {
+    if (index === 0) {
+      onBack()
+    } else if (index === 1 && selectedConcept) {
+      setSelectedConceptIndex(null)
+    }
+  }
+
+  // =============================================================================
+  // KEYBOARD NAVIGATION
+  // =============================================================================
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        if (selectedConcept) {
+          setSelectedConceptIndex(null)
+        } else {
+          onBack()
+        }
+      } else if (e.key === 'ArrowLeft' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handlePreviousConcept()
+      } else if (e.key === 'ArrowRight' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handleNextConcept()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConceptIndex, onBack])
+
+  // =============================================================================
+  // STYLES
+  // =============================================================================
+
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f172a 0%, #312e81 50%, #0f172a 100%)',
+    padding: '2rem',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
+  }
+
+  const headerStyle = {
+    maxWidth: '1400px',
+    margin: '0 auto 2rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '1rem'
+  }
+
+  const titleStyle = {
+    fontSize: '2.5rem',
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #a78bfa, #8b5cf6)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    margin: 0
+  }
+
+  const backButtonStyle = {
+    padding: '0.75rem 1.5rem',
+    background: 'rgba(139, 92, 246, 0.2)',
+    border: '1px solid rgba(139, 92, 246, 0.3)',
+    borderRadius: '0.5rem',
+    color: '#a78bfa',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    transition: 'all 0.2s'
+  }
+
+  // =============================================================================
+  // RENDER
+  // =============================================================================
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
-      <button
-        onClick={() => setSelectedQuestion(null)}
-        style={{
-          marginBottom: '1rem',
-          padding: '0.5rem 1rem',
-          fontSize: '1rem',
-          backgroundColor: '#2563eb',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer'
-        }}
-      >
-        ← Back to Questions
-      </button>
-
-      {/* Problem Description */}
-      <div style={{
-        backgroundColor: '#eff6ff',
-        padding: '1.5rem',
-        borderRadius: '12px',
-        borderLeft: '4px solid #3b82f6',
-        marginBottom: '1.5rem'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1.5rem', margin: 0, color: '#1e40af', fontWeight: '700' }}>
-            {selectedQuestion.title}
-          </h2>
-          <span style={{
-            display: 'inline-block',
-            padding: '0.25rem 0.75rem',
-            backgroundColor: '#fef3c7',
-            color: '#92400e',
-            borderRadius: '6px',
-            fontSize: '0.875rem',
-            fontWeight: '600'
-          }}>
-            {selectedQuestion.difficulty}
-          </span>
-        </div>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#1e40af', fontWeight: '600' }}>Description</h3>
-          <p style={{ color: '#1e40af', lineHeight: '1.6', margin: 0 }}>{selectedQuestion.description}</p>
-        </div>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#1e40af', fontWeight: '600' }}>Example</h3>
-          <pre style={{
-            backgroundColor: '#dbeafe',
-            padding: '1rem',
-            borderRadius: '8px',
-            overflow: 'auto',
-            fontSize: '0.9rem',
-            color: '#1e40af',
-            margin: 0
-          }}>
-            {selectedQuestion.example}
-          </pre>
-        </div>
-
-        <div>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#1e40af', fontWeight: '600' }}>Test Cases</h3>
-          {selectedQuestion.testCases.map((test, idx) => (
-            <div key={idx} style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-              <span style={{ color: '#1e40af', fontWeight: '600' }}>Test {idx + 1}:</span>{' '}
-              <span style={{ color: '#1e40af' }}>{test.input} → {test.output}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Code Editor */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h3 style={{ fontSize: '1.1rem', margin: 0, color: 'white' }}>Code Editor</h3>
-        <LanguageToggle />
-      </div>
-      <div style={{
-        backgroundColor: '#1e293b',
-        borderRadius: '12px',
-        overflow: 'hidden',
-        marginBottom: '1rem'
-      }}>
-        <div style={{
-          backgroundColor: '#0f172a',
-          padding: '0.75rem 1rem',
-          borderBottom: '1px solid #334155',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <span style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: '600' }}>{language === 'java' ? 'Solution.java' : 'solution.py'}</span>
-          <span style={{ color: '#64748b', fontSize: '0.75rem' }}>{language === 'java' ? 'Java' : 'Python'}</span>
-        </div>
-        <textarea
-          value={userCode}
-          onChange={(e) => setUserCode(e.target.value)}
-          onKeyDown={handleKeyDown}
-          spellCheck="false"
-          style={{
-            width: '100%',
-            minHeight: '600px',
-            padding: '1rem',
-            fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
-            fontSize: '0.9rem',
-            lineHeight: '1.6',
-            color: '#e2e8f0',
-            backgroundColor: '#1e293b',
-            border: 'none',
-            outline: 'none',
-            resize: 'vertical'
+    <div style={containerStyle}>
+      {/* Header with title and back button */}
+      <div style={headerStyle}>
+        <h1 style={titleStyle}>LRU Cache</h1>
+        <button
+          style={backButtonStyle}
+          onClick={onBack}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = 'rgba(139, 92, 246, 0.3)'
+            e.currentTarget.style.transform = 'translateY(-2px)'
           }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'rgba(139, 92, 246, 0.2)'
+            e.currentTarget.style.transform = 'translateY(0)'
+          }}
+        >
+          ← Back to Design
+        </button>
+      </div>
+
+      {/* Breadcrumb navigation */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          colors={TOPIC_COLORS}
         />
       </div>
 
-      {/* Buttons Row */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-        <button
-          onClick={handleRunCode}
-          disabled={isRunning}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            backgroundColor: isRunning ? '#9ca3af' : '#10b981',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: isRunning ? 'not-allowed' : 'pointer',
-            fontWeight: '600',
-            transition: 'background-color 0.2s'
-          }}
-        >
-          {isRunning ? 'Running...' : '▶️ Run Code'}
-        </button>
-        <button
-          onClick={handleReset}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            backgroundColor: '#2563eb',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: '600',
-            transition: 'background-color 0.2s'
-          }}
-        >
-          🔄 Reset
-        </button>
-        <button
-          onClick={() => setShowSolution(!showSolution)}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            backgroundColor: showSolution ? '#10b981' : '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: '600',
-            transition: 'background-color 0.2s'
-          }}
-        >
-          {showSolution ? '✓ Solution Shown' : '👁️ Show Solution'}
-        </button>
-        <button
-          onClick={() => setShowExplanation(!showExplanation)}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            backgroundColor: showExplanation ? '#8b5cf6' : '#f59e0b',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: '600',
-            transition: 'background-color 0.2s'
-          }}
-        >
-          {showExplanation ? '✓ Explanation Visible' : '📖 Explanation & Pseudocode'}
-        </button>
-        <div style={{ marginLeft: 'auto' }}>
-          <CompletionCheckbox
-            problemId={`LRUCache-${selectedQuestion.id}`}
-            label="Mark as Completed"
-            onCompletionChange={() => setRefreshKey(prev => prev + 1)}
-          />
-        </div>
-      </div>
-
-      {/* Output Display */}
-      {output && (
-        <div style={{
-          backgroundColor: '#0f172a',
-          padding: '1rem',
-          borderRadius: '8px',
-          marginBottom: '1rem'
-        }}>
-          <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem', fontWeight: '700', color: '#60a5fa' }}>
-            Output:
-          </h3>
-          <pre style={{
-            margin: 0,
-            fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
-            fontSize: '0.85rem',
-            lineHeight: '1.6',
-            color: '#e2e8f0',
-            whiteSpace: 'pre-wrap'
-          }}>
-            {output}
-          </pre>
-        </div>
-      )}
-
-      {/* Explanation & Pseudocode Display */}
-      {showExplanation && selectedQuestion.explanation && selectedQuestion.pseudocode && (
-        <div style={{ marginBottom: '1rem' }}>
-          <div style={{
-            backgroundColor: '#fef3c7',
-            padding: '15px',
-            borderRadius: '6px',
-            border: '2px solid #fbbf24',
-            marginBottom: '1rem'
-          }}>
-            <h3 style={{ margin: '0 0 1rem 0', color: '#78350f', fontSize: '1.1rem', fontWeight: '700' }}>
-              📖 Explanation
-            </h3>
-            <div style={{ color: '#78350f', lineHeight: '1.7', whiteSpace: 'pre-wrap', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-              {selectedQuestion.explanation}
+      {/* Concept Cards Grid */}
+      <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gap: '1.5rem'
+      }}>
+        {concepts.map((concept, index) => (
+          <div
+            key={concept.id}
+            onClick={() => setSelectedConceptIndex(index)}
+            style={{
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              border: `1px solid ${concept.color}40`,
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = `0 20px 40px ${concept.color}20`
+              e.currentTarget.style.borderColor = concept.color
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.borderColor = `${concept.color}40`
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
+              <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
+            </div>
+            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
+            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+              {concept.details.length} topics - Click to explore
             </div>
           </div>
-          <div style={{
-            backgroundColor: '#1e293b',
-            padding: '15px',
-            borderRadius: '6px',
-            border: '2px solid #374151'
-          }}>
-            <h4 style={{ margin: '0 0 1rem 0', color: '#60a5fa', fontSize: '1.1rem', fontWeight: '700' }}>
-              🔧 Pseudocode
-            </h4>
-            <pre style={{
-              margin: 0,
-              color: '#e5e7eb',
-              whiteSpace: 'pre-wrap',
-              fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
-              fontSize: '0.9rem',
-              lineHeight: '1.6'
-            }}>
-              {selectedQuestion.pseudocode}
-            </pre>
-          </div>
-        </div>
-      )}
+        ))}
+      </div>
 
-      {/* Solution Display */}
-      {showSolution && (
-        <div style={{
-          backgroundColor: '#1e293b',
-          padding: '1.5rem',
-          borderRadius: '8px',
-          border: '2px solid #10b981'
-        }}>
-          <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: '700', color: '#10b981' }}>
-            💡 Solution:
-          </h3>
-          <pre style={{
-            margin: 0,
-            fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
-            fontSize: '0.85rem',
-            lineHeight: '1.6',
-            color: '#e2e8f0',
-            whiteSpace: 'pre',
-            overflowX: 'auto'
-          }}>
-            {selectedQuestion.code[language].solution}
-          </pre>
+      {/* Modal for Selected Concept */}
+      {selectedConcept && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '2rem'
+          }}
+          onClick={() => setSelectedConceptIndex(null)}
+        >
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              maxWidth: '1200px',
+              maxHeight: '92vh',
+              overflow: 'auto',
+              border: `1px solid ${selectedConcept.color}40`
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Breadcrumb */}
+            <Breadcrumb
+              breadcrumbStack={buildBreadcrumbStack()}
+              onBreadcrumbClick={handleBreadcrumbClick}
+              colors={TOPIC_COLORS}
+            />
+
+            {/* Modal Header with Navigation */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1.5rem',
+              paddingBottom: '1rem',
+              borderBottom: '1px solid #334155'
+            }}>
+              <h2 style={{
+                color: selectedConcept.color,
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '1.25rem'
+              }}>
+                <span>{selectedConcept.icon}</span>
+                {selectedConcept.name}
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button
+                  onClick={handlePreviousConcept}
+                  disabled={selectedConceptIndex === 0}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >←</button>
+                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>
+                  {selectedConceptIndex + 1}/{concepts.length}
+                </span>
+                <button
+                  onClick={handleNextConcept}
+                  disabled={selectedConceptIndex === concepts.length - 1}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >→</button>
+                <button
+                  onClick={() => setSelectedConceptIndex(null)}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: '#f87171',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    marginLeft: '0.5rem'
+                  }}
+                >X</button>
+              </div>
+            </div>
+
+            {/* Subtopic Tabs */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {selectedConcept.details.map((detail, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedDetailIndex(i)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)',
+                    border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`,
+                    borderRadius: '0.5rem',
+                    color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: selectedDetailIndex === i ? '600' : '400',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {detail.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Selected Subtopic Content */}
+            {(() => {
+              const detail = selectedConcept.details[selectedDetailIndex]
+              const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
+              return (
+                <div>
+                  {/* Diagram */}
+                  {DiagramComponent && (
+                    <div style={{
+                      background: 'rgba(15, 23, 42, 0.6)',
+                      borderRadius: '0.75rem',
+                      padding: '1rem',
+                      marginBottom: '1.5rem',
+                      border: '1px solid #334155'
+                    }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
+
+                  {/* Detail Name */}
+                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>
+                    {detail.name}
+                  </h3>
+
+                  {/* Explanation */}
+                  <p style={{
+                    color: '#e2e8f0',
+                    lineHeight: '1.8',
+                    marginBottom: '1rem',
+                    background: colorScheme.bg,
+                    border: `1px solid ${colorScheme.border}`,
+                    borderRadius: '0.5rem',
+                    padding: '1rem',
+                    textAlign: 'left',
+                    whiteSpace: 'pre-line'
+                  }}>
+                    {detail.explanation}
+                  </p>
+
+                  {/* Code Example */}
+                  {detail.codeExample && (
+                    <SyntaxHighlighter
+                      language="java"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        padding: '1rem',
+                        margin: 0,
+                        borderRadius: '0.5rem',
+                        fontSize: '0.8rem',
+                        border: '1px solid #334155',
+                        background: '#0f172a'
+                      }}
+                      codeTagProps={{ style: { background: 'transparent' } }}
+                    >
+                      {detail.codeExample}
+                    </SyntaxHighlighter>
+                  )}
+                </div>
+              )
+            })()}
+
+          </div>
         </div>
       )}
     </div>

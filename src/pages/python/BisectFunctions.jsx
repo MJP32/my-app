@@ -1078,7 +1078,7 @@ for score in [85, 92, 78, 88, 95, 72, 90]:
               </h3>
               <p style={{
                 color: '#d1d5db',
-                textAlign: 'center',
+                textAlign: 'left',
                 fontSize: '0.875rem'
               }}>
                 Click to explore bisect module concepts
@@ -1241,10 +1241,12 @@ for score in [85, 92, 78, 88, 95, 72, 90]:
                             language="python"
                             style={vscDarkPlus}
                             customStyle={{
-                              borderRadius: '0 0 8px 8px',
-                              padding: '1rem',
-                              fontSize: '0.9rem',
-                              margin: 0
+                              margin: 0,
+                              borderRadius: '0.375rem',
+                              fontSize: '0.875rem',
+                              background: 'none',
+                              backgroundColor: 'transparent',
+                              padding: 0
                             }}
                           >
                             {section.code}
@@ -1262,9 +1264,12 @@ for score in [85, 92, 78, 88, 95, 72, 90]:
                         language="python"
                         style={vscDarkPlus}
                         customStyle={{
-                          borderRadius: '8px',
-                          padding: '1rem',
-                          fontSize: '0.9rem'
+                          margin: 0,
+                          borderRadius: '0.375rem',
+                          fontSize: '0.875rem',
+                          background: 'none',
+                          backgroundColor: 'transparent',
+                          padding: 0
                         }}
                       >
                         {concepts[selectedConcept].codeExample}

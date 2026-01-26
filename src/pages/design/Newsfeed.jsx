@@ -1,6 +1,638 @@
 import React, { useState } from 'react';
 import Breadcrumb from '../../components/Breadcrumb';
 
+// SVG Diagram Components
+
+// 1. High-level architecture: Clients → API → Feed Service → Storage
+const NewsfeedArchitectureDiagram = () => (
+  <svg viewBox="0 0 900 320" className="w-full h-auto">
+    <defs>
+      <linearGradient id="clientGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#1d4ed8" />
+      </linearGradient>
+      <linearGradient id="apiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#6d28d9" />
+      </linearGradient>
+      <linearGradient id="feedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+      <linearGradient id="storageGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="cacheGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06b6d4" />
+        <stop offset="100%" stopColor="#0891b2" />
+      </linearGradient>
+      <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+      </marker>
+      <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3" />
+      </filter>
+    </defs>
+
+    {/* Title */}
+    <text x="450" y="30" textAnchor="middle" fill="#1e293b" fontSize="18" fontWeight="bold">Newsfeed System Architecture</text>
+
+    {/* Clients Layer */}
+    <g filter="url(#dropShadow)">
+      <rect x="30" y="60" width="120" height="80" rx="10" fill="url(#clientGradient)" />
+      <text x="90" y="95" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Web Client</text>
+      <text x="90" y="115" textAnchor="middle" fill="#bfdbfe" fontSize="10">React/Vue</text>
+    </g>
+    <g filter="url(#dropShadow)">
+      <rect x="30" y="160" width="120" height="80" rx="10" fill="url(#clientGradient)" />
+      <text x="90" y="195" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Mobile App</text>
+      <text x="90" y="215" textAnchor="middle" fill="#bfdbfe" fontSize="10">iOS/Android</text>
+    </g>
+
+    {/* API Gateway */}
+    <g filter="url(#dropShadow)">
+      <rect x="220" y="110" width="140" height="90" rx="10" fill="url(#apiGradient)" />
+      <text x="290" y="145" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">API Gateway</text>
+      <text x="290" y="165" textAnchor="middle" fill="#c4b5fd" fontSize="10">Load Balancer</text>
+      <text x="290" y="182" textAnchor="middle" fill="#c4b5fd" fontSize="10">Auth / Rate Limit</text>
+    </g>
+
+    {/* Feed Service */}
+    <g filter="url(#dropShadow)">
+      <rect x="430" y="110" width="140" height="90" rx="10" fill="url(#feedGradient)" />
+      <text x="500" y="145" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Feed Service</text>
+      <text x="500" y="165" textAnchor="middle" fill="#fef3c7" fontSize="10">Fan-out Engine</text>
+      <text x="500" y="182" textAnchor="middle" fill="#fef3c7" fontSize="10">Ranking Algorithm</text>
+    </g>
+
+    {/* Cache Layer */}
+    <g filter="url(#dropShadow)">
+      <rect x="640" y="60" width="120" height="70" rx="10" fill="url(#cacheGradient)" />
+      <text x="700" y="90" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Redis Cache</text>
+      <text x="700" y="108" textAnchor="middle" fill="#cffafe" fontSize="10">Feed Cache</text>
+    </g>
+
+    {/* Storage Layer */}
+    <g filter="url(#dropShadow)">
+      <rect x="640" y="170" width="120" height="70" rx="10" fill="url(#storageGradient)" />
+      <text x="700" y="200" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Database</text>
+      <text x="700" y="218" textAnchor="middle" fill="#a7f3d0" fontSize="10">Cassandra/PostgreSQL</text>
+    </g>
+
+    {/* CDN */}
+    <g filter="url(#dropShadow)">
+      <rect x="800" y="110" width="80" height="90" rx="10" fill="#ec4899" />
+      <text x="840" y="145" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">CDN</text>
+      <text x="840" y="163" textAnchor="middle" fill="#fbcfe8" fontSize="9">CloudFront</text>
+      <text x="840" y="178" textAnchor="middle" fill="#fbcfe8" fontSize="9">Media</text>
+    </g>
+
+    {/* Arrows */}
+    <path d="M 150 100 L 210 140" stroke="#64748b" strokeWidth="2" fill="none" markerEnd="url(#arrowhead)" />
+    <path d="M 150 200 L 210 165" stroke="#64748b" strokeWidth="2" fill="none" markerEnd="url(#arrowhead)" />
+    <path d="M 360 155 L 420 155" stroke="#64748b" strokeWidth="2" fill="none" markerEnd="url(#arrowhead)" />
+    <path d="M 570 135 L 630 100" stroke="#64748b" strokeWidth="2" fill="none" markerEnd="url(#arrowhead)" />
+    <path d="M 570 175 L 630 200" stroke="#64748b" strokeWidth="2" fill="none" markerEnd="url(#arrowhead)" />
+    <path d="M 760 155 L 790 155" stroke="#64748b" strokeWidth="2" fill="none" markerEnd="url(#arrowhead)" />
+
+    {/* Labels on arrows */}
+    <text x="175" y="110" fill="#475569" fontSize="9">REST/GraphQL</text>
+    <text x="385" y="145" fill="#475569" fontSize="9">Request</text>
+    <text x="595" y="85" fill="#475569" fontSize="9">Cache</text>
+    <text x="595" y="205" fill="#475569" fontSize="9">Persist</text>
+
+    {/* Legend */}
+    <rect x="30" y="270" width="840" height="40" rx="8" fill="#f8fafc" stroke="#e2e8f0" />
+    <circle cx="60" cy="290" r="8" fill="url(#clientGradient)" />
+    <text x="75" y="294" fill="#475569" fontSize="10">Clients</text>
+    <circle cx="150" cy="290" r="8" fill="url(#apiGradient)" />
+    <text x="165" y="294" fill="#475569" fontSize="10">API Layer</text>
+    <circle cx="260" cy="290" r="8" fill="url(#feedGradient)" />
+    <text x="275" y="294" fill="#475569" fontSize="10">Feed Service</text>
+    <circle cx="380" cy="290" r="8" fill="url(#cacheGradient)" />
+    <text x="395" y="294" fill="#475569" fontSize="10">Cache</text>
+    <circle cx="470" cy="290" r="8" fill="url(#storageGradient)" />
+    <text x="485" y="294" fill="#475569" fontSize="10">Storage</text>
+  </svg>
+);
+
+// 2. Feed Generation Diagram - Push/Pull models
+const FeedGenerationDiagram = () => (
+  <svg viewBox="0 0 900 400" className="w-full h-auto">
+    <defs>
+      <linearGradient id="pushGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="pullGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+      <linearGradient id="userGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#2563eb" />
+      </linearGradient>
+      <linearGradient id="followerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#7c3aed" />
+      </linearGradient>
+      <marker id="arrowGreen" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#10b981" />
+      </marker>
+      <marker id="arrowOrange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b" />
+      </marker>
+    </defs>
+
+    {/* Title */}
+    <text x="450" y="30" textAnchor="middle" fill="#1e293b" fontSize="18" fontWeight="bold">Feed Generation: Push vs Pull Model</text>
+
+    {/* Divider */}
+    <line x1="450" y1="50" x2="450" y2="380" stroke="#e2e8f0" strokeWidth="2" strokeDasharray="5,5" />
+
+    {/* Push Model (Left Side) */}
+    <text x="225" y="60" textAnchor="middle" fill="#059669" fontSize="16" fontWeight="bold">Fan-out on Write (Push)</text>
+
+    {/* User creates post */}
+    <g filter="url(#dropShadow)">
+      <rect x="50" y="90" width="100" height="60" rx="8" fill="url(#userGradient)" />
+      <text x="100" y="115" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">User A</text>
+      <text x="100" y="132" textAnchor="middle" fill="#bfdbfe" fontSize="9">Creates Post</text>
+    </g>
+
+    {/* Post Service */}
+    <g filter="url(#dropShadow)">
+      <rect x="200" y="90" width="100" height="60" rx="8" fill="url(#pushGradient)" />
+      <text x="250" y="115" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Post Service</text>
+      <text x="250" y="132" textAnchor="middle" fill="#a7f3d0" fontSize="9">Store Post</text>
+    </g>
+
+    {/* Fan-out Service */}
+    <g filter="url(#dropShadow)">
+      <rect x="350" y="90" width="80" height="60" rx="8" fill="url(#pushGradient)" />
+      <text x="390" y="115" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Fan-out</text>
+      <text x="390" y="132" textAnchor="middle" fill="#a7f3d0" fontSize="9">Push to all</text>
+    </g>
+
+    {/* Followers */}
+    <g filter="url(#dropShadow)">
+      <rect x="200" y="180" width="80" height="50" rx="8" fill="url(#followerGradient)" />
+      <text x="240" y="205" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Follower 1</text>
+      <text x="240" y="218" textAnchor="middle" fill="#c4b5fd" fontSize="8">Feed Cache</text>
+    </g>
+    <g filter="url(#dropShadow)">
+      <rect x="290" y="180" width="80" height="50" rx="8" fill="url(#followerGradient)" />
+      <text x="330" y="205" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Follower 2</text>
+      <text x="330" y="218" textAnchor="middle" fill="#c4b5fd" fontSize="8">Feed Cache</text>
+    </g>
+    <g filter="url(#dropShadow)">
+      <rect x="200" y="240" width="80" height="50" rx="8" fill="url(#followerGradient)" />
+      <text x="240" y="265" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Follower 3</text>
+      <text x="240" y="278" textAnchor="middle" fill="#c4b5fd" fontSize="8">Feed Cache</text>
+    </g>
+    <g filter="url(#dropShadow)">
+      <rect x="290" y="240" width="80" height="50" rx="8" fill="url(#followerGradient)" />
+      <text x="330" y="265" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Follower N</text>
+      <text x="330" y="278" textAnchor="middle" fill="#c4b5fd" fontSize="8">Feed Cache</text>
+    </g>
+
+    {/* Push arrows */}
+    <path d="M 150 120 L 190 120" stroke="#10b981" strokeWidth="2" fill="none" markerEnd="url(#arrowGreen)" />
+    <path d="M 300 120 L 340 120" stroke="#10b981" strokeWidth="2" fill="none" markerEnd="url(#arrowGreen)" />
+    <path d="M 390 150 L 260 175" stroke="#10b981" strokeWidth="2" fill="none" markerEnd="url(#arrowGreen)" />
+    <path d="M 390 150 L 310 175" stroke="#10b981" strokeWidth="2" fill="none" markerEnd="url(#arrowGreen)" />
+    <path d="M 390 150 L 260 235" stroke="#10b981" strokeWidth="2" fill="none" markerEnd="url(#arrowGreen)" />
+    <path d="M 390 150 L 310 235" stroke="#10b981" strokeWidth="2" fill="none" markerEnd="url(#arrowGreen)" />
+
+    {/* Push model characteristics */}
+    <rect x="50" y="310" width="380" height="70" rx="8" fill="#ecfdf5" stroke="#a7f3d0" />
+    <text x="240" y="335" textAnchor="middle" fill="#065f46" fontSize="11" fontWeight="bold">Push Model Characteristics</text>
+    <text x="240" y="352" textAnchor="middle" fill="#047857" fontSize="10">Fast reads (pre-computed) | High write cost</text>
+    <text x="240" y="368" textAnchor="middle" fill="#047857" fontSize="10">Best for users with moderate followers</text>
+
+    {/* Pull Model (Right Side) */}
+    <text x="675" y="60" textAnchor="middle" fill="#d97706" fontSize="16" fontWeight="bold">Fan-out on Read (Pull)</text>
+
+    {/* User requests feed */}
+    <g filter="url(#dropShadow)">
+      <rect x="500" y="90" width="100" height="60" rx="8" fill="url(#userGradient)" />
+      <text x="550" y="115" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">User B</text>
+      <text x="550" y="132" textAnchor="middle" fill="#bfdbfe" fontSize="9">Requests Feed</text>
+    </g>
+
+    {/* Feed Service */}
+    <g filter="url(#dropShadow)">
+      <rect x="650" y="90" width="100" height="60" rx="8" fill="url(#pullGradient)" />
+      <text x="700" y="115" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Feed Service</text>
+      <text x="700" y="132" textAnchor="middle" fill="#fef3c7" fontSize="9">On-demand</text>
+    </g>
+
+    {/* Database queries */}
+    <g filter="url(#dropShadow)">
+      <rect x="800" y="90" width="80" height="60" rx="8" fill="#334155" />
+      <text x="840" y="115" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Database</text>
+      <text x="840" y="132" textAnchor="middle" fill="#94a3b8" fontSize="9">Query Posts</text>
+    </g>
+
+    {/* Following list */}
+    <g filter="url(#dropShadow)">
+      <rect x="620" y="180" width="80" height="50" rx="8" fill="url(#followerGradient)" />
+      <text x="660" y="205" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Following 1</text>
+      <text x="660" y="218" textAnchor="middle" fill="#c4b5fd" fontSize="8">Fetch posts</text>
+    </g>
+    <g filter="url(#dropShadow)">
+      <rect x="710" y="180" width="80" height="50" rx="8" fill="url(#followerGradient)" />
+      <text x="750" y="205" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Following 2</text>
+      <text x="750" y="218" textAnchor="middle" fill="#c4b5fd" fontSize="8">Fetch posts</text>
+    </g>
+    <g filter="url(#dropShadow)">
+      <rect x="620" y="240" width="80" height="50" rx="8" fill="url(#followerGradient)" />
+      <text x="660" y="265" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Following 3</text>
+      <text x="660" y="278" textAnchor="middle" fill="#c4b5fd" fontSize="8">Fetch posts</text>
+    </g>
+    <g filter="url(#dropShadow)">
+      <rect x="710" y="240" width="80" height="50" rx="8" fill="url(#followerGradient)" />
+      <text x="750" y="265" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Following N</text>
+      <text x="750" y="278" textAnchor="middle" fill="#c4b5fd" fontSize="8">Fetch posts</text>
+    </g>
+
+    {/* Pull arrows */}
+    <path d="M 600 120 L 640 120" stroke="#f59e0b" strokeWidth="2" fill="none" markerEnd="url(#arrowOrange)" />
+    <path d="M 750 120 L 790 120" stroke="#f59e0b" strokeWidth="2" fill="none" markerEnd="url(#arrowOrange)" />
+    <path d="M 700 150 L 680 175" stroke="#f59e0b" strokeWidth="2" fill="none" markerEnd="url(#arrowOrange)" />
+    <path d="M 700 150 L 730 175" stroke="#f59e0b" strokeWidth="2" fill="none" markerEnd="url(#arrowOrange)" />
+    <path d="M 700 150 L 680 235" stroke="#f59e0b" strokeWidth="2" fill="none" markerEnd="url(#arrowOrange)" />
+    <path d="M 700 150 L 730 235" stroke="#f59e0b" strokeWidth="2" fill="none" markerEnd="url(#arrowOrange)" />
+
+    {/* Pull model characteristics */}
+    <rect x="470" y="310" width="380" height="70" rx="8" fill="#fffbeb" stroke="#fcd34d" />
+    <text x="660" y="335" textAnchor="middle" fill="#92400e" fontSize="11" fontWeight="bold">Pull Model Characteristics</text>
+    <text x="660" y="352" textAnchor="middle" fill="#b45309" fontSize="10">Slow reads (compute on demand) | Low write cost</text>
+    <text x="660" y="368" textAnchor="middle" fill="#b45309" fontSize="10">Best for celebrities with millions of followers</text>
+  </svg>
+);
+
+// 3. Ranking Algorithm Diagram - EdgeRank style
+const RankingAlgorithmDiagram = () => (
+  <svg viewBox="0 0 900 350" className="w-full h-auto">
+    <defs>
+      <linearGradient id="affinityGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ec4899" />
+        <stop offset="100%" stopColor="#be185d" />
+      </linearGradient>
+      <linearGradient id="weightGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#6d28d9" />
+      </linearGradient>
+      <linearGradient id="decayGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06b6d4" />
+        <stop offset="100%" stopColor="#0891b2" />
+      </linearGradient>
+      <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+    </defs>
+
+    {/* Title */}
+    <text x="450" y="30" textAnchor="middle" fill="#1e293b" fontSize="18" fontWeight="bold">Feed Ranking Algorithm (EdgeRank-Style)</text>
+
+    {/* Formula display */}
+    <rect x="200" y="50" width="500" height="50" rx="10" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="2" />
+    <text x="450" y="82" textAnchor="middle" fill="#1e293b" fontSize="20" fontWeight="bold" fontFamily="monospace">
+      Score = Affinity x Weight x Time Decay
+    </text>
+
+    {/* Three main components */}
+    {/* Affinity */}
+    <g filter="url(#dropShadow)">
+      <rect x="80" y="130" width="200" height="180" rx="12" fill="url(#affinityGrad)" />
+      <text x="180" y="160" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">Affinity Score</text>
+      <text x="180" y="185" textAnchor="middle" fill="#fce7f3" fontSize="11">User-to-creator relationship</text>
+      <line x1="100" y1="200" x2="260" y2="200" stroke="#f9a8d4" strokeWidth="1" />
+      <text x="180" y="220" textAnchor="middle" fill="#fce7f3" fontSize="10">Comments: +5 points</text>
+      <text x="180" y="238" textAnchor="middle" fill="#fce7f3" fontSize="10">Likes: +3 points</text>
+      <text x="180" y="256" textAnchor="middle" fill="#fce7f3" fontSize="10">Profile views: +2 points</text>
+      <text x="180" y="274" textAnchor="middle" fill="#fce7f3" fontSize="10">Message: +4 points</text>
+      <text x="180" y="295" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Range: 0.1 - 1.0</text>
+    </g>
+
+    {/* Weight */}
+    <g filter="url(#dropShadow)">
+      <rect x="350" y="130" width="200" height="180" rx="12" fill="url(#weightGrad)" />
+      <text x="450" y="160" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">Edge Weight</text>
+      <text x="450" y="185" textAnchor="middle" fill="#ddd6fe" fontSize="11">Content type importance</text>
+      <line x1="370" y1="200" x2="530" y2="200" stroke="#a78bfa" strokeWidth="1" />
+      <text x="450" y="220" textAnchor="middle" fill="#ddd6fe" fontSize="10">Video: 1.5x weight</text>
+      <text x="450" y="238" textAnchor="middle" fill="#ddd6fe" fontSize="10">Photo: 1.2x weight</text>
+      <text x="450" y="256" textAnchor="middle" fill="#ddd6fe" fontSize="10">Link: 1.0x weight</text>
+      <text x="450" y="274" textAnchor="middle" fill="#ddd6fe" fontSize="10">Text: 0.8x weight</text>
+      <text x="450" y="295" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Range: 0.5 - 2.0</text>
+    </g>
+
+    {/* Time Decay */}
+    <g filter="url(#dropShadow)">
+      <rect x="620" y="130" width="200" height="180" rx="12" fill="url(#decayGrad)" />
+      <text x="720" y="160" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">Time Decay</text>
+      <text x="720" y="185" textAnchor="middle" fill="#cffafe" fontSize="11">Freshness factor</text>
+      <line x1="640" y1="200" x2="800" y2="200" stroke="#67e8f9" strokeWidth="1" />
+      <text x="720" y="220" textAnchor="middle" fill="#cffafe" fontSize="10">0-1 hour: 1.0</text>
+      <text x="720" y="238" textAnchor="middle" fill="#cffafe" fontSize="10">1-6 hours: 0.8</text>
+      <text x="720" y="256" textAnchor="middle" fill="#cffafe" fontSize="10">6-24 hours: 0.5</text>
+      <text x="720" y="274" textAnchor="middle" fill="#cffafe" fontSize="10">24+ hours: 0.2</text>
+      <text x="720" y="295" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Formula: e^(-λt)</text>
+    </g>
+
+    {/* Multiplication symbols */}
+    <text x="305" y="220" textAnchor="middle" fill="#475569" fontSize="30" fontWeight="bold">x</text>
+    <text x="575" y="220" textAnchor="middle" fill="#475569" fontSize="30" fontWeight="bold">x</text>
+
+    {/* Result */}
+    <rect x="350" y="320" width="200" height="30" rx="8" fill="url(#scoreGrad)" />
+    <text x="450" y="341" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Final Score: 0 - 100</text>
+  </svg>
+);
+
+// 4. Fan-out Diagram - Write vs Read comparison
+const FanOutDiagram = () => (
+  <svg viewBox="0 0 900 420" className="w-full h-auto">
+    <defs>
+      <linearGradient id="writeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#22c55e" />
+        <stop offset="100%" stopColor="#16a34a" />
+      </linearGradient>
+      <linearGradient id="readGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f97316" />
+        <stop offset="100%" stopColor="#ea580c" />
+      </linearGradient>
+      <linearGradient id="hybridGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#7c3aed" />
+      </linearGradient>
+    </defs>
+
+    {/* Title */}
+    <text x="450" y="30" textAnchor="middle" fill="#1e293b" fontSize="18" fontWeight="bold">Fan-out Strategies Comparison</text>
+
+    {/* Fan-out on Write */}
+    <rect x="30" y="50" width="260" height="340" rx="12" fill="#f0fdf4" stroke="#86efac" strokeWidth="2" />
+    <rect x="30" y="50" width="260" height="40" rx="12" fill="url(#writeGrad)" />
+    <text x="160" y="77" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Fan-out on Write</text>
+
+    {/* Write flow */}
+    <g>
+      <rect x="55" y="110" width="70" height="40" rx="6" fill="#3b82f6" />
+      <text x="90" y="135" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Post</text>
+    </g>
+    <path d="M 125 130 L 160 130" stroke="#22c55e" strokeWidth="2" fill="none" markerEnd="url(#arrowGreen)" />
+    <g>
+      <rect x="170" y="110" width="100" height="40" rx="6" fill="url(#writeGrad)" />
+      <text x="220" y="130" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Fan-out</text>
+      <text x="220" y="143" textAnchor="middle" fill="#dcfce7" fontSize="8">To all followers</text>
+    </g>
+
+    {/* Follower caches */}
+    <g>
+      <rect x="55" y="170" width="60" height="30" rx="4" fill="#06b6d4" />
+      <text x="85" y="190" textAnchor="middle" fill="white" fontSize="9">Cache 1</text>
+    </g>
+    <g>
+      <rect x="125" y="170" width="60" height="30" rx="4" fill="#06b6d4" />
+      <text x="155" y="190" textAnchor="middle" fill="white" fontSize="9">Cache 2</text>
+    </g>
+    <g>
+      <rect x="195" y="170" width="60" height="30" rx="4" fill="#06b6d4" />
+      <text x="225" y="190" textAnchor="middle" fill="white" fontSize="9">Cache N</text>
+    </g>
+
+    <path d="M 195 150 L 85 170" stroke="#22c55e" strokeWidth="1.5" fill="none" />
+    <path d="M 220 150 L 155 170" stroke="#22c55e" strokeWidth="1.5" fill="none" />
+    <path d="M 245 150 L 225 170" stroke="#22c55e" strokeWidth="1.5" fill="none" />
+
+    {/* Pros/Cons for Write */}
+    <rect x="50" y="220" width="220" height="70" rx="6" fill="#dcfce7" />
+    <text x="160" y="240" textAnchor="middle" fill="#166534" fontSize="11" fontWeight="bold">Advantages</text>
+    <text x="160" y="258" textAnchor="middle" fill="#15803d" fontSize="9">Fast reads (O(1) lookup)</text>
+    <text x="160" y="273" textAnchor="middle" fill="#15803d" fontSize="9">Pre-computed feeds ready</text>
+
+    <rect x="50" y="300" width="220" height="70" rx="6" fill="#fee2e2" />
+    <text x="160" y="320" textAnchor="middle" fill="#991b1b" fontSize="11" fontWeight="bold">Disadvantages</text>
+    <text x="160" y="338" textAnchor="middle" fill="#b91c1c" fontSize="9">High write amplification</text>
+    <text x="160" y="353" textAnchor="middle" fill="#b91c1c" fontSize="9">Celebrity problem (millions of writes)</text>
+
+    {/* Fan-out on Read */}
+    <rect x="320" y="50" width="260" height="340" rx="12" fill="#fff7ed" stroke="#fdba74" strokeWidth="2" />
+    <rect x="320" y="50" width="260" height="40" rx="12" fill="url(#readGrad)" />
+    <text x="450" y="77" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Fan-out on Read</text>
+
+    {/* Read flow */}
+    <g>
+      <rect x="345" y="110" width="70" height="40" rx="6" fill="#3b82f6" />
+      <text x="380" y="130" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Request</text>
+      <text x="380" y="143" textAnchor="middle" fill="#bfdbfe" fontSize="8">Feed</text>
+    </g>
+    <path d="M 415 130 L 450 130" stroke="#f97316" strokeWidth="2" fill="none" markerEnd="url(#arrowOrange)" />
+    <g>
+      <rect x="460" y="110" width="100" height="40" rx="6" fill="url(#readGrad)" />
+      <text x="510" y="130" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Query</text>
+      <text x="510" y="143" textAnchor="middle" fill="#fed7aa" fontSize="8">Following's posts</text>
+    </g>
+
+    {/* Database queries */}
+    <g>
+      <rect x="345" y="170" width="60" height="30" rx="4" fill="#334155" />
+      <text x="375" y="190" textAnchor="middle" fill="white" fontSize="9">Query 1</text>
+    </g>
+    <g>
+      <rect x="415" y="170" width="60" height="30" rx="4" fill="#334155" />
+      <text x="445" y="190" textAnchor="middle" fill="white" fontSize="9">Query 2</text>
+    </g>
+    <g>
+      <rect x="485" y="170" width="60" height="30" rx="4" fill="#334155" />
+      <text x="515" y="190" textAnchor="middle" fill="white" fontSize="9">Query N</text>
+    </g>
+
+    <path d="M 485 150 L 375 170" stroke="#f97316" strokeWidth="1.5" fill="none" />
+    <path d="M 510 150 L 445 170" stroke="#f97316" strokeWidth="1.5" fill="none" />
+    <path d="M 535 150 L 515 170" stroke="#f97316" strokeWidth="1.5" fill="none" />
+
+    {/* Pros/Cons for Read */}
+    <rect x="340" y="220" width="220" height="70" rx="6" fill="#dcfce7" />
+    <text x="450" y="240" textAnchor="middle" fill="#166534" fontSize="11" fontWeight="bold">Advantages</text>
+    <text x="450" y="258" textAnchor="middle" fill="#15803d" fontSize="9">Low write cost (O(1))</text>
+    <text x="450" y="273" textAnchor="middle" fill="#15803d" fontSize="9">Always fresh data</text>
+
+    <rect x="340" y="300" width="220" height="70" rx="6" fill="#fee2e2" />
+    <text x="450" y="320" textAnchor="middle" fill="#991b1b" fontSize="11" fontWeight="bold">Disadvantages</text>
+    <text x="450" y="338" textAnchor="middle" fill="#b91c1c" fontSize="9">Slow reads (multiple DB queries)</text>
+    <text x="450" y="353" textAnchor="middle" fill="#b91c1c" fontSize="9">High read latency (500ms+)</text>
+
+    {/* Hybrid Approach */}
+    <rect x="610" y="50" width="260" height="340" rx="12" fill="#f3e8ff" stroke="#c4b5fd" strokeWidth="2" />
+    <rect x="610" y="50" width="260" height="40" rx="12" fill="url(#hybridGrad)" />
+    <text x="740" y="77" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Hybrid Approach</text>
+
+    {/* Hybrid flow */}
+    <rect x="635" y="100" width="210" height="100" rx="8" fill="#ede9fe" stroke="#a78bfa" />
+    <text x="740" y="125" textAnchor="middle" fill="#5b21b6" fontSize="11" fontWeight="bold">Decision Logic</text>
+    <text x="740" y="150" textAnchor="middle" fill="#6d28d9" fontSize="10">if followers less than 1M:</text>
+    <text x="740" y="168" textAnchor="middle" fill="#22c55e" fontSize="10" fontWeight="bold">   Fan-out on Write</text>
+    <text x="740" y="186" textAnchor="middle" fill="#6d28d9" fontSize="10">else: Fan-out on Read</text>
+
+    {/* Best of both */}
+    <rect x="630" y="220" width="220" height="150" rx="6" fill="#ddd6fe" />
+    <text x="740" y="245" textAnchor="middle" fill="#5b21b6" fontSize="12" fontWeight="bold">Best of Both Worlds</text>
+    <text x="740" y="270" textAnchor="middle" fill="#6d28d9" fontSize="10">99% users: Fast reads</text>
+    <text x="740" y="290" textAnchor="middle" fill="#6d28d9" fontSize="10">1% celebrities: Low write cost</text>
+    <text x="740" y="315" textAnchor="middle" fill="#6d28d9" fontSize="10">Feed assembly merges both</text>
+    <text x="740" y="340" textAnchor="middle" fill="#6d28d9" fontSize="10">at read time if needed</text>
+    <text x="740" y="360" textAnchor="middle" fill="#7c3aed" fontSize="9" fontWeight="bold">Used by: Twitter, Instagram</text>
+  </svg>
+);
+
+// 5. Caching Layers Diagram
+const CachingLayersDiagram = () => (
+  <svg viewBox="0 0 900 400" className="w-full h-auto">
+    <defs>
+      <linearGradient id="l1Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#2563eb" />
+      </linearGradient>
+      <linearGradient id="l2Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#7c3aed" />
+      </linearGradient>
+      <linearGradient id="l3Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06b6d4" />
+        <stop offset="100%" stopColor="#0891b2" />
+      </linearGradient>
+      <linearGradient id="l4Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="dbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#64748b" />
+        <stop offset="100%" stopColor="#475569" />
+      </linearGradient>
+    </defs>
+
+    {/* Title */}
+    <text x="450" y="30" textAnchor="middle" fill="#1e293b" fontSize="18" fontWeight="bold">Multi-Tier Caching Architecture</text>
+
+    {/* Layer 1: Client Cache */}
+    <g filter="url(#dropShadow)">
+      <rect x="50" y="60" width="160" height="300" rx="12" fill="url(#l1Grad)" />
+      <text x="130" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">L1: Client</text>
+      <text x="130" y="110" textAnchor="middle" fill="#bfdbfe" fontSize="11">App Memory</text>
+
+      <rect x="65" y="130" width="130" height="60" rx="6" fill="rgba(255,255,255,0.2)" />
+      <text x="130" y="152" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Feed Data</text>
+      <text x="130" y="168" textAnchor="middle" fill="#bfdbfe" fontSize="9">TTL: 1-2 min</text>
+      <text x="130" y="182" textAnchor="middle" fill="#bfdbfe" fontSize="9">Size: ~5MB</text>
+
+      <rect x="65" y="200" width="130" height="60" rx="6" fill="rgba(255,255,255,0.2)" />
+      <text x="130" y="222" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Thumbnails</text>
+      <text x="130" y="238" textAnchor="middle" fill="#bfdbfe" fontSize="9">Images cached</text>
+      <text x="130" y="252" textAnchor="middle" fill="#bfdbfe" fontSize="9">Size: ~50MB</text>
+
+      <rect x="65" y="270" width="130" height="40" rx="6" fill="rgba(255,255,255,0.15)" />
+      <text x="130" y="290" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Hit Rate: 40%</text>
+      <text x="130" y="305" textAnchor="middle" fill="#93c5fd" fontSize="9">Latency: 1ms</text>
+    </g>
+
+    {/* Layer 2: CDN */}
+    <g filter="url(#dropShadow)">
+      <rect x="240" y="60" width="160" height="300" rx="12" fill="url(#l2Grad)" />
+      <text x="320" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">L2: CDN</text>
+      <text x="320" y="110" textAnchor="middle" fill="#ddd6fe" fontSize="11">Edge Servers</text>
+
+      <rect x="255" y="130" width="130" height="60" rx="6" fill="rgba(255,255,255,0.2)" />
+      <text x="320" y="152" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Static Assets</text>
+      <text x="320" y="168" textAnchor="middle" fill="#ddd6fe" fontSize="9">TTL: 7 days</text>
+      <text x="320" y="182" textAnchor="middle" fill="#ddd6fe" fontSize="9">JS/CSS bundles</text>
+
+      <rect x="255" y="200" width="130" height="60" rx="6" fill="rgba(255,255,255,0.2)" />
+      <text x="320" y="222" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Media Files</text>
+      <text x="320" y="238" textAnchor="middle" fill="#ddd6fe" fontSize="9">TTL: 24 hours</text>
+      <text x="320" y="252" textAnchor="middle" fill="#ddd6fe" fontSize="9">Images/Videos</text>
+
+      <rect x="255" y="270" width="130" height="40" rx="6" fill="rgba(255,255,255,0.15)" />
+      <text x="320" y="290" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Hit Rate: 95%</text>
+      <text x="320" y="305" textAnchor="middle" fill="#c4b5fd" fontSize="9">Latency: 10ms</text>
+    </g>
+
+    {/* Layer 3: Redis */}
+    <g filter="url(#dropShadow)">
+      <rect x="430" y="60" width="160" height="300" rx="12" fill="url(#l3Grad)" />
+      <text x="510" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">L3: Redis</text>
+      <text x="510" y="110" textAnchor="middle" fill="#cffafe" fontSize="11">Application Cache</text>
+
+      <rect x="445" y="130" width="130" height="50" rx="6" fill="rgba(255,255,255,0.2)" />
+      <text x="510" y="150" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Feed Cache</text>
+      <text x="510" y="168" textAnchor="middle" fill="#cffafe" fontSize="9">TTL: 5 min | 100TB</text>
+
+      <rect x="445" y="190" width="130" height="50" rx="6" fill="rgba(255,255,255,0.2)" />
+      <text x="510" y="210" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">User Cache</text>
+      <text x="510" y="228" textAnchor="middle" fill="#cffafe" fontSize="9">TTL: 15 min | 10TB</text>
+
+      <rect x="445" y="250" width="130" height="50" rx="6" fill="rgba(255,255,255,0.2)" />
+      <text x="510" y="270" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Hot Posts</text>
+      <text x="510" y="288" textAnchor="middle" fill="#cffafe" fontSize="9">TTL: 1 hour | 5TB</text>
+
+      <rect x="445" y="310" width="130" height="40" rx="6" fill="rgba(255,255,255,0.15)" />
+      <text x="510" y="328" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Hit Rate: 90%</text>
+      <text x="510" y="343" textAnchor="middle" fill="#a5f3fc" fontSize="9">Latency: 5ms</text>
+    </g>
+
+    {/* Layer 4: DB Query Cache */}
+    <g filter="url(#dropShadow)">
+      <rect x="620" y="60" width="130" height="300" rx="12" fill="url(#l4Grad)" />
+      <text x="685" y="90" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">L4: DB Cache</text>
+      <text x="685" y="110" textAnchor="middle" fill="#a7f3d0" fontSize="10">Query Cache</text>
+
+      <rect x="632" y="130" width="106" height="110" rx="6" fill="rgba(255,255,255,0.2)" />
+      <text x="685" y="152" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Row Cache</text>
+      <text x="685" y="172" textAnchor="middle" fill="#a7f3d0" fontSize="9">Cassandra</text>
+      <text x="685" y="188" textAnchor="middle" fill="#a7f3d0" fontSize="9">row cache</text>
+      <text x="685" y="210" textAnchor="middle" fill="#a7f3d0" fontSize="9">PostgreSQL</text>
+      <text x="685" y="226" textAnchor="middle" fill="#a7f3d0" fontSize="9">shared buffers</text>
+
+      <rect x="632" y="310" width="106" height="40" rx="6" fill="rgba(255,255,255,0.15)" />
+      <text x="685" y="328" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Hit Rate: 85%</text>
+      <text x="685" y="343" textAnchor="middle" fill="#86efac" fontSize="9">Latency: 2ms</text>
+    </g>
+
+    {/* Database */}
+    <g filter="url(#dropShadow)">
+      <rect x="780" y="120" width="100" height="180" rx="12" fill="url(#dbGrad)" />
+      <text x="830" y="155" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Database</text>
+      <text x="830" y="175" textAnchor="middle" fill="#cbd5e1" fontSize="10">Primary</text>
+      <text x="830" y="195" textAnchor="middle" fill="#cbd5e1" fontSize="10">Storage</text>
+
+      <rect x="790" y="210" width="80" height="40" rx="6" fill="rgba(255,255,255,0.15)" />
+      <text x="830" y="230" textAnchor="middle" fill="#94a3b8" fontSize="9">Disk I/O</text>
+      <text x="830" y="245" textAnchor="middle" fill="#94a3b8" fontSize="9">10-100ms</text>
+    </g>
+
+    {/* Arrows showing request flow */}
+    <path d="M 210 210 L 230 210" stroke="#475569" strokeWidth="2" fill="none" markerEnd="url(#arrowhead)" />
+    <path d="M 400 210 L 420 210" stroke="#475569" strokeWidth="2" fill="none" markerEnd="url(#arrowhead)" />
+    <path d="M 590 210 L 610 210" stroke="#475569" strokeWidth="2" fill="none" markerEnd="url(#arrowhead)" />
+    <path d="M 750 210 L 770 210" stroke="#475569" strokeWidth="2" fill="none" markerEnd="url(#arrowhead)" />
+
+    {/* Labels */}
+    <text x="220" y="200" fill="#64748b" fontSize="8">Miss</text>
+    <text x="410" y="200" fill="#64748b" fontSize="8">Miss</text>
+    <text x="600" y="200" fill="#64748b" fontSize="8">Miss</text>
+    <text x="760" y="200" fill="#64748b" fontSize="8">Miss</text>
+
+    {/* Request flow label */}
+    <rect x="300" y="375" width="300" height="25" rx="6" fill="#f8fafc" stroke="#e2e8f0" />
+    <text x="450" y="393" textAnchor="middle" fill="#475569" fontSize="11">Request flows left to right, checking each cache layer</text>
+  </svg>
+);
+
 export default function Newsfeed({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -159,13 +791,18 @@ export default function Newsfeed({ onBack, breadcrumb }) {
               </div>
             </div>
 
-            {/* Architecture Diagram */}
+            {/* Simplified Architecture Diagram */}
             <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-indigo-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-indigo-600">🏗️</span>
-                High-Level Architecture
+                System Architecture Overview
               </h2>
 
+              <div className="bg-gradient-to-br from-indigo-50 to-blue-50 p-8 rounded-xl border-2 border-indigo-200 mb-6">
+                <NewsfeedArchitectureDiagram />
+              </div>
+
+              <h3 className="text-xl font-bold text-gray-800 mb-4 mt-8">Detailed Architecture</h3>
               <div className="bg-gradient-to-br from-indigo-50 to-blue-50 p-8 rounded-xl border-2 border-indigo-200">
                 <svg viewBox="0 0 1400 900" className="w-full h-auto">
                   {/* Client Layer */}
@@ -358,6 +995,17 @@ export default function Newsfeed({ onBack, breadcrumb }) {
 
         {activeTab === 'components' && (
           <div className="space-y-6">
+            {/* Feed Generation Diagram */}
+            <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-t-4 border-amber-500">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                <span className="text-amber-600">🔄</span>
+                Feed Generation Models
+              </h2>
+              <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-xl border-2 border-amber-200">
+                <FeedGenerationDiagram />
+              </div>
+            </div>
+
             <div className="grid md:grid-cols-2 gap-6">
               {/* Post Service */}
               <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-shadow">
@@ -420,11 +1068,14 @@ export default function Newsfeed({ onBack, breadcrumb }) {
               </div>
 
               {/* Ranking Engine */}
-              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl transition-shadow">
+              <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl transition-shadow md:col-span-2">
                 <h3 className="text-2xl font-bold text-blue-700 mb-4 flex items-center gap-2">
                   <span>⭐</span>
                   Ranking Engine
                 </h3>
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border-2 border-blue-200 mb-4">
+                  <RankingAlgorithmDiagram />
+                </div>
                 <div className="space-y-3 text-gray-700">
                   <div className="bg-blue-50 p-3 rounded-lg">
                     <div className="font-semibold text-blue-900 mb-1">Ranking Signals</div>
@@ -733,6 +1384,11 @@ export default function Newsfeed({ onBack, breadcrumb }) {
                 Multi-Layer Caching Strategy
               </h2>
 
+              {/* Caching Layers Diagram */}
+              <div className="bg-gradient-to-br from-cyan-50 to-teal-50 p-6 rounded-xl border-2 border-cyan-200 mb-6">
+                <CachingLayersDiagram />
+              </div>
+
               <div className="space-y-4">
                 <div className="bg-cyan-50 p-6 rounded-xl border-l-4 border-cyan-500">
                   <div className="font-bold text-cyan-900 mb-3 text-lg">L1: Client-Side Cache (App Memory)</div>
@@ -999,6 +1655,11 @@ export default function Newsfeed({ onBack, breadcrumb }) {
                 {/* Fan-out Strategy */}
                 <div className="bg-orange-50 p-6 rounded-xl border-l-4 border-orange-500">
                   <h3 className="text-xl font-bold text-orange-900 mb-4">1. Fan-out on Write vs Fan-out on Read</h3>
+
+                  {/* Fan-out Diagram */}
+                  <div className="bg-white p-4 rounded-xl border-2 border-orange-200 mb-6">
+                    <FanOutDiagram />
+                  </div>
 
                   <div className="grid md:grid-cols-2 gap-4 mb-4">
                     <div className="bg-gray-800 p-4 rounded-lg border-2 border-green-200">

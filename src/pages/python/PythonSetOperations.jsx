@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
 import LanguageToggle from '../../components/LanguageToggle.jsx'
 import DrawingCanvas from '../../components/DrawingCanvas.jsx'
@@ -9,11 +11,8 @@ import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 
 function PythonSetOperations({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null)
-  const [showSolution, setShowSolution] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
-  const [userCode, setUserCode] = useState('')
   const [output, setOutput] = useState('')
-  const [isRunning, setIsRunning] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [language, setLanguage] = useState(getPreferredLanguage())
   const [showDrawing, setShowDrawing] = useState(false)
@@ -28,13 +27,10 @@ function PythonSetOperations({ onBack, onPrevious, onNext, previousName, nextNam
   useEffect(() => {
     const handleLanguageChange = (e) => {
       setLanguage(e.detail)
-      if (selectedQuestion) {
-        setUserCode(selectedQuestion.code[e.detail].starterCode)
-      }
     }
     window.addEventListener('languageChange', handleLanguageChange)
     return () => window.removeEventListener('languageChange', handleLanguageChange)
-  }, [selectedQuestion])
+  }, [])
 
   const questions = [
     {
@@ -480,9 +476,7 @@ function PythonSetOperations({ onBack, onPrevious, onNext, previousName, nextNam
 
   const selectQuestion = (question) => {
     setSelectedQuestion(question)
-    setShowSolution(false)
     setShowExplanation(false)
-    setUserCode(question.code[language].starterCode)
     setOutput('')
     setShowDrawing(false)
   }
@@ -558,22 +552,73 @@ function PythonSetOperations({ onBack, onPrevious, onNext, previousName, nextNam
           </div>
 
           {/* Code Editor */}
-          <div style={{ backgroundColor: '#1f2937', padding: '2rem', borderRadius: '12px', border: '2px solid #374151', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-              <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedQuestion.code[language].solution) }} style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}>
-                {showSolution ? 'Hide' : 'Show'} Solution
-              </button>
-              <button onClick={() => setUserCode(selectedQuestion.code[language].starterCode)} style={{ padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: '600', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d97706'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f59e0b'}>
-                Reset Code
-              </button>
+          <div style={{ backgroundColor: '#1f2937', padding: '2rem', borderRadius: '12px', border: '2px solid #374151', maxHeight: '85vh', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h3 style={{ fontSize: '1.1rem', color: 'white', marginBottom: '0.75rem' }}>Starter Code</h3>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
+                {selectedQuestion.code[language].starterCode}
+              </SyntaxHighlighter>
             </div>
 
-            <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'monospace', fontSize: '0.9rem', border: '2px solid #374151', borderRadius: '8px', resize: 'none', lineHeight: '1.5', backgroundColor: '#1f2937', color: '#9ca3af' }} spellCheck={false} />
+            <details style={{ marginTop: '1rem' }}>
+              <summary style={{
+                cursor: 'pointer',
+                padding: '0.75rem 1rem',
+                background: '#991b1b',
+                borderRadius: '0.5rem',
+                fontWeight: '600',
+                color: '#fca5a5',
+                border: '1px solid #ef4444',
+                marginBottom: '0.75rem'
+              }}>
+                Show Solution (Try solving first!)
+              </summary>
+              <div style={{ marginTop: '0.75rem' }}>
+                <SyntaxHighlighter
+                  language="python"
+                  style={vscDarkPlus}
+                  customStyle={{
+                    margin: 0,
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    background: 'none',
+                    backgroundColor: 'transparent',
+                    padding: 0
+                  }}
+                >
+                  {selectedQuestion.code[language].solution}
+                </SyntaxHighlighter>
+              </div>
+            </details>
 
             {output && (
               <div style={{ marginTop: '1rem' }}>
                 <h3 style={{ fontSize: '1rem', color: 'white', marginBottom: '0.5rem' }}>Output</h3>
-                <pre style={{ backgroundColor: '#1f2937', padding: '1rem', borderRadius: '8px', border: '1px solid #374151', overflow: 'auto', fontSize: '0.875rem', maxHeight: '150px', color: '#9ca3af' }}>{output}</pre>
+                <SyntaxHighlighter
+                  language="text"
+                  style={vscDarkPlus}
+                  customStyle={{
+                    margin: 0,
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    background: 'none',
+                    backgroundColor: 'transparent',
+                    padding: 0
+                  }}
+                >
+                  {output}
+                </SyntaxHighlighter>
               </div>
             )}
           </div>
@@ -592,7 +637,7 @@ function PythonSetOperations({ onBack, onPrevious, onNext, previousName, nextNam
 
       <Breadcrumb breadcrumb={breadcrumb} />
 
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+      <div style={{ marginBottom: '3rem' }}>
         <h1 style={{ fontSize: '2.5rem', fontWeight: '800', background: 'linear-gradient(to right, #60a5fa, #22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginBottom: '0.5rem' }}>Python Set Operations</h1>
         <p style={{ fontSize: '1.2rem', color: '#9ca3af' }}>Master Python set operations including union, intersection, difference, and subset operations</p>
 

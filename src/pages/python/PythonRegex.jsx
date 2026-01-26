@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
 import LanguageToggle from '../../components/LanguageToggle.jsx'
 import DrawingCanvas from '../../components/DrawingCanvas.jsx'
@@ -1481,14 +1483,20 @@ print(extract_person_info("Bob (invalid)"))  # None
               }}>
                 Output:
               </h3>
-              <pre style={{
-                whiteSpace: 'pre-wrap',
-                fontFamily: 'monospace',
-                fontSize: '0.875rem',
-                color: '#d1d5db'
-              }}>
+              <SyntaxHighlighter
+                language="python"
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  background: 'none',
+                  backgroundColor: 'transparent',
+                  padding: 0
+                }}
+              >
                 {output}
-              </pre>
+              </SyntaxHighlighter>
             </div>
           )}
         </div>

@@ -1,31 +1,382 @@
+/**
+ * Apache Flink - Stream Processing Framework
+ *
+ * Converted to tab_template format with modal-based navigation
+ */
+
 import { useState, useEffect } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 
-function ApacheFlink({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
-  const [selectedConcept, setSelectedConcept] = useState(null)
+// =============================================================================
+// COLORS CONFIGURATION
+// =============================================================================
 
-  // Handle Escape key for modal navigation
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        e.stopPropagation() // Prevent event from reaching parent handlers
+const FLINK_COLORS = {
+  primary: '#e11d48',           // Crimson
+  primaryHover: '#f43f5e',      // Lighter crimson
+  bg: 'rgba(225, 29, 72, 0.1)', // Background with transparency
+  border: 'rgba(225, 29, 72, 0.3)', // Border color
+  arrow: '#e11d48',             // Arrow/indicator color
+  hoverBg: 'rgba(225, 29, 72, 0.2)', // Hover background
+  topicBg: 'rgba(225, 29, 72, 0.2)'  // Topic card background
+}
 
-        if (selectedConcept) {
-          // If viewing a concept, go back to concept list
-          setSelectedConcept(null)
-        } else {
-          // If on concept list, close the modal
-          onBack()
-        }
-      }
-    }
+const SUBTOPIC_COLORS = [
+  { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },    // blue
+  { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' },      // green
+  { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' },    // amber
+  { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)' },    // purple
+  { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)' },    // pink
+  { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },      // cyan
+]
 
-    document.addEventListener('keydown', handleEscape)
-    return () => {
-      document.removeEventListener('keydown', handleEscape)
-    }
-  }, [selectedConcept, onBack])
+// =============================================================================
+// DIAGRAM COMPONENTS
+// =============================================================================
+
+const StreamProcessingDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrow-stream" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+      </marker>
+    </defs>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Flink Stream Processing Architecture</text>
+
+    <rect x="30" y="45" width="100" height="55" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="80" y="68" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Source</text>
+    <text x="80" y="85" textAnchor="middle" fill="#93c5fd" fontSize="8">Kafka/Kinesis</text>
+
+    <rect x="170" y="45" width="100" height="55" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="220" y="68" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Watermark</text>
+    <text x="220" y="85" textAnchor="middle" fill="#fcd34d" fontSize="8">Event Time</text>
+
+    <rect x="310" y="45" width="100" height="55" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="360" y="68" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Transform</text>
+    <text x="360" y="85" textAnchor="middle" fill="#c4b5fd" fontSize="8">Map/Filter</text>
+
+    <rect x="450" y="45" width="100" height="55" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="500" y="68" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Window</text>
+    <text x="500" y="85" textAnchor="middle" fill="#86efac" fontSize="8">Tumbling/Sliding</text>
+
+    <rect x="590" y="45" width="100" height="55" rx="6" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="640" y="68" textAnchor="middle" fill="#f472b6" fontSize="10" fontWeight="bold">Aggregate</text>
+    <text x="640" y="85" textAnchor="middle" fill="#fbcfe8" fontSize="8">Sum/Count</text>
+
+    <rect x="700" y="45" width="70" height="55" rx="6" fill="rgba(6, 182, 212, 0.3)" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="735" y="68" textAnchor="middle" fill="#22d3ee" fontSize="10" fontWeight="bold">Sink</text>
+    <text x="735" y="85" textAnchor="middle" fill="#a5f3fc" fontSize="8">Output</text>
+
+    <path d="M 130 72 L 165 72" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow-stream)"/>
+    <path d="M 270 72 L 305 72" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow-stream)"/>
+    <path d="M 410 72 L 445 72" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow-stream)"/>
+    <path d="M 550 72 L 585 72" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow-stream)"/>
+    <path d="M 690 72 L 695 72" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow-stream)"/>
+
+    <rect x="200" y="125" width="400" height="55" rx="6" fill="rgba(100, 116, 139, 0.15)" stroke="#64748b" strokeWidth="1" strokeDasharray="4"/>
+    <text x="400" y="148" textAnchor="middle" fill="#94a3b8" fontSize="10" fontWeight="bold">Distributed Dataflow Runtime</text>
+    <text x="400" y="165" textAnchor="middle" fill="#64748b" fontSize="8">Parallel Execution | Back-pressure | Checkpointing</text>
+  </svg>
+)
+
+const StatefulComputingDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrow-state" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+      </marker>
+    </defs>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Flink Stateful Computing</text>
+
+    <rect x="50" y="50" width="140" height="130" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="120" y="72" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Keyed State</text>
+    <rect x="60" y="85" width="120" height="25" rx="3" fill="rgba(34, 197, 94, 0.4)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="120" y="102" textAnchor="middle" fill="#4ade80" fontSize="8">ValueState&lt;T&gt;</text>
+    <rect x="60" y="115" width="120" height="25" rx="3" fill="rgba(245, 158, 11, 0.4)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="120" y="132" textAnchor="middle" fill="#fbbf24" fontSize="8">ListState&lt;T&gt;</text>
+    <rect x="60" y="145" width="120" height="25" rx="3" fill="rgba(139, 92, 246, 0.4)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="120" y="162" textAnchor="middle" fill="#a78bfa" fontSize="8">MapState&lt;K,V&gt;</text>
+
+    <rect x="250" y="50" width="140" height="130" rx="6" fill="rgba(236, 72, 153, 0.2)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="320" y="72" textAnchor="middle" fill="#f472b6" fontSize="10" fontWeight="bold">State Backend</text>
+    <rect x="260" y="85" width="120" height="35" rx="3" fill="rgba(6, 182, 212, 0.3)" stroke="#06b6d4" strokeWidth="1"/>
+    <text x="320" y="100" textAnchor="middle" fill="#22d3ee" fontSize="8">HashMapState</text>
+    <text x="320" y="112" textAnchor="middle" fill="#a5f3fc" fontSize="7">(In-Memory)</text>
+    <rect x="260" y="125" width="120" height="35" rx="3" fill="rgba(99, 102, 241, 0.3)" stroke="#6366f1" strokeWidth="1"/>
+    <text x="320" y="140" textAnchor="middle" fill="#818cf8" fontSize="8">RocksDB</text>
+    <text x="320" y="152" textAnchor="middle" fill="#a5b4fc" fontSize="7">(Large State)</text>
+
+    <rect x="450" y="50" width="140" height="130" rx="6" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="520" y="72" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Checkpoint Storage</text>
+    <rect x="460" y="85" width="120" height="80" rx="3" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="520" y="105" textAnchor="middle" fill="#fbbf24" fontSize="9">S3 / HDFS</text>
+    <text x="520" y="125" textAnchor="middle" fill="#fcd34d" fontSize="8">Periodic Snapshots</text>
+    <text x="520" y="145" textAnchor="middle" fill="#fcd34d" fontSize="8">Incremental Backup</text>
+
+    <rect x="650" y="75" width="120" height="80" rx="6" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="710" y="100" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">State TTL</text>
+    <text x="710" y="120" textAnchor="middle" fill="#c4b5fd" fontSize="8">Auto Cleanup</text>
+    <text x="710" y="138" textAnchor="middle" fill="#c4b5fd" fontSize="8">Expiration Rules</text>
+
+    <path d="M 190 115 L 245 115" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow-state)"/>
+    <path d="M 390 115 L 445 115" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow-state)"/>
+    <path d="M 590 115 L 645 115" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow-state)"/>
+  </svg>
+)
+
+const FaultToleranceDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Flink Checkpointing & Recovery</text>
+
+    <rect x="30" y="50" width="80" height="50" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="70" y="72" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Source</text>
+    <text x="70" y="88" textAnchor="middle" fill="#93c5fd" fontSize="7">Offset: 100</text>
+
+    <rect x="150" y="50" width="100" height="50" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="200" y="72" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Operator A</text>
+    <text x="200" y="88" textAnchor="middle" fill="#fcd34d" fontSize="7">State: {'{ ... }'}</text>
+
+    <rect x="290" y="50" width="100" height="50" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="340" y="72" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Operator B</text>
+    <text x="340" y="88" textAnchor="middle" fill="#c4b5fd" fontSize="7">State: {'{ ... }'}</text>
+
+    <rect x="430" y="50" width="80" height="50" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="470" y="72" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Sink</text>
+    <text x="470" y="88" textAnchor="middle" fill="#86efac" fontSize="7">Commit</text>
+
+    <line x1="70" y1="110" x2="470" y2="110" stroke="#ec4899" strokeWidth="2" strokeDasharray="8,4"/>
+    <text x="270" y="125" textAnchor="middle" fill="#f472b6" fontSize="8" fontWeight="bold">Checkpoint Barrier</text>
+
+    <rect x="550" y="45" width="220" height="60" rx="6" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="660" y="68" textAnchor="middle" fill="#22d3ee" fontSize="10" fontWeight="bold">Checkpoint Storage</text>
+    <text x="660" y="88" textAnchor="middle" fill="#a5f3fc" fontSize="8">S3/HDFS | Consistent Snapshot</text>
+
+    <rect x="100" y="140" width="200" height="45" rx="6" fill="rgba(236, 72, 153, 0.2)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="200" y="160" textAnchor="middle" fill="#f472b6" fontSize="9" fontWeight="bold">Chandy-Lamport Algorithm</text>
+    <text x="200" y="175" textAnchor="middle" fill="#fbcfe8" fontSize="7">Distributed Snapshots without Pausing</text>
+
+    <rect x="350" y="140" width="200" height="45" rx="6" fill="rgba(99, 102, 241, 0.2)" stroke="#6366f1" strokeWidth="2"/>
+    <text x="450" y="160" textAnchor="middle" fill="#818cf8" fontSize="9" fontWeight="bold">Recovery Process</text>
+    <text x="450" y="175" textAnchor="middle" fill="#a5b4fc" fontSize="7">Restore State + Rewind Offsets</text>
+  </svg>
+)
+
+const TableSQLDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrow-table" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+      </marker>
+    </defs>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Flink Table API & SQL</text>
+
+    <rect x="50" y="50" width="150" height="60" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="125" y="75" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">SQL Query</text>
+    <text x="125" y="95" textAnchor="middle" fill="#93c5fd" fontSize="8">SELECT * FROM stream</text>
+
+    <rect x="250" y="50" width="150" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="325" y="75" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Query Optimizer</text>
+    <text x="325" y="95" textAnchor="middle" fill="#fcd34d" fontSize="8">Volcano/Cascades</text>
+
+    <rect x="450" y="50" width="150" height="60" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="525" y="75" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Execution Plan</text>
+    <text x="525" y="95" textAnchor="middle" fill="#c4b5fd" fontSize="8">DataStream API</text>
+
+    <rect x="650" y="50" width="120" height="60" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="710" y="75" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Runtime</text>
+    <text x="710" y="95" textAnchor="middle" fill="#86efac" fontSize="8">Parallel Exec</text>
+
+    <path d="M 200 80 L 245 80" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow-table)"/>
+    <path d="M 400 80 L 445 80" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow-table)"/>
+    <path d="M 600 80 L 645 80" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow-table)"/>
+
+    <rect x="100" y="130" width="140" height="55" rx="6" fill="rgba(236, 72, 153, 0.2)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="170" y="152" textAnchor="middle" fill="#f472b6" fontSize="9" fontWeight="bold">Dynamic Tables</text>
+    <text x="170" y="170" textAnchor="middle" fill="#fbcfe8" fontSize="7">Continuous Queries</text>
+
+    <rect x="280" y="130" width="140" height="55" rx="6" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="350" y="152" textAnchor="middle" fill="#22d3ee" fontSize="9" fontWeight="bold">Catalogs</text>
+    <text x="350" y="170" textAnchor="middle" fill="#a5f3fc" fontSize="7">Hive/JDBC/Memory</text>
+
+    <rect x="460" y="130" width="140" height="55" rx="6" fill="rgba(99, 102, 241, 0.2)" stroke="#6366f1" strokeWidth="2"/>
+    <text x="530" y="152" textAnchor="middle" fill="#818cf8" fontSize="9" fontWeight="bold">Connectors</text>
+    <text x="530" y="170" textAnchor="middle" fill="#a5b4fc" fontSize="7">Kafka/FS/JDBC</text>
+  </svg>
+)
+
+const DeploymentDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Flink Cluster Architecture</text>
+
+    <rect x="300" y="40" width="200" height="55" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="400" y="62" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">JobManager</text>
+    <text x="400" y="80" textAnchor="middle" fill="#fcd34d" fontSize="8">Scheduler | Checkpoint Coordinator</text>
+
+    <rect x="50" y="120" width="160" height="70" rx="6" fill="rgba(59, 130, 246, 0.25)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="130" y="142" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">TaskManager 1</text>
+    <rect x="60" y="152" width="60" height="28" rx="3" fill="rgba(34, 197, 94, 0.4)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="90" y="170" textAnchor="middle" fill="#4ade80" fontSize="7">Slot 1</text>
+    <rect x="130" y="152" width="60" height="28" rx="3" fill="rgba(139, 92, 246, 0.4)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="160" y="170" textAnchor="middle" fill="#a78bfa" fontSize="7">Slot 2</text>
+
+    <rect x="250" y="120" width="160" height="70" rx="6" fill="rgba(59, 130, 246, 0.25)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="330" y="142" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">TaskManager 2</text>
+    <rect x="260" y="152" width="60" height="28" rx="3" fill="rgba(236, 72, 153, 0.4)" stroke="#ec4899" strokeWidth="1"/>
+    <text x="290" y="170" textAnchor="middle" fill="#f472b6" fontSize="7">Slot 3</text>
+    <rect x="330" y="152" width="60" height="28" rx="3" fill="rgba(6, 182, 212, 0.4)" stroke="#06b6d4" strokeWidth="1"/>
+    <text x="360" y="170" textAnchor="middle" fill="#22d3ee" fontSize="7">Slot 4</text>
+
+    <rect x="450" y="120" width="160" height="70" rx="6" fill="rgba(59, 130, 246, 0.25)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="530" y="142" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">TaskManager 3</text>
+    <rect x="460" y="152" width="60" height="28" rx="3" fill="rgba(99, 102, 241, 0.4)" stroke="#6366f1" strokeWidth="1"/>
+    <text x="490" y="170" textAnchor="middle" fill="#818cf8" fontSize="7">Slot 5</text>
+    <rect x="530" y="152" width="60" height="28" rx="3" fill="rgba(245, 158, 11, 0.4)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="560" y="170" textAnchor="middle" fill="#fbbf24" fontSize="7">Slot 6</text>
+
+    <rect x="650" y="100" width="120" height="90" rx="6" fill="rgba(236, 72, 153, 0.2)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="710" y="125" textAnchor="middle" fill="#f472b6" fontSize="9" fontWeight="bold">Deployment</text>
+    <text x="710" y="145" textAnchor="middle" fill="#fbcfe8" fontSize="7">Kubernetes</text>
+    <text x="710" y="160" textAnchor="middle" fill="#fbcfe8" fontSize="7">YARN</text>
+    <text x="710" y="175" textAnchor="middle" fill="#fbcfe8" fontSize="7">Standalone</text>
+
+    <path d="M 400 95 L 130 115" stroke="#64748b" strokeWidth="1.5"/>
+    <path d="M 400 95 L 330 115" stroke="#64748b" strokeWidth="1.5"/>
+    <path d="M 400 95 L 530 115" stroke="#64748b" strokeWidth="1.5"/>
+  </svg>
+)
+
+const ConnectorsDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrow-conn" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+      </marker>
+    </defs>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Flink Connectors Ecosystem</text>
+
+    <rect x="50" y="45" width="120" height="70" rx="6" fill="rgba(59, 130, 246, 0.25)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="110" y="68" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Sources</text>
+    <text x="110" y="85" textAnchor="middle" fill="#93c5fd" fontSize="7">Kafka | Kinesis</text>
+    <text x="110" y="98" textAnchor="middle" fill="#93c5fd" fontSize="7">Files | JDBC</text>
+    <text x="110" y="111" textAnchor="middle" fill="#93c5fd" fontSize="7">CDC</text>
+
+    <rect x="300" y="35" width="200" height="90" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="400" y="58" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">Apache Flink</text>
+    <text x="400" y="78" textAnchor="middle" fill="#fcd34d" fontSize="8">Stream & Batch Processing</text>
+    <rect x="320" y="88" width="70" height="25" rx="3" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="355" y="105" textAnchor="middle" fill="#a78bfa" fontSize="7">DataStream</text>
+    <rect x="410" y="88" width="70" height="25" rx="3" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="445" y="105" textAnchor="middle" fill="#4ade80" fontSize="7">Table/SQL</text>
+
+    <rect x="630" y="45" width="120" height="70" rx="6" fill="rgba(236, 72, 153, 0.25)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="690" y="68" textAnchor="middle" fill="#f472b6" fontSize="9" fontWeight="bold">Sinks</text>
+    <text x="690" y="85" textAnchor="middle" fill="#fbcfe8" fontSize="7">Kafka | ES</text>
+    <text x="690" y="98" textAnchor="middle" fill="#fbcfe8" fontSize="7">JDBC | S3</text>
+    <text x="690" y="111" textAnchor="middle" fill="#fbcfe8" fontSize="7">Redis</text>
+
+    <rect x="100" y="140" width="150" height="45" rx="6" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="175" y="160" textAnchor="middle" fill="#22d3ee" fontSize="9" fontWeight="bold">Message Queues</text>
+    <text x="175" y="175" textAnchor="middle" fill="#a5f3fc" fontSize="7">RabbitMQ | Pulsar | NATS</text>
+
+    <rect x="300" y="140" width="150" height="45" rx="6" fill="rgba(99, 102, 241, 0.2)" stroke="#6366f1" strokeWidth="2"/>
+    <text x="375" y="160" textAnchor="middle" fill="#818cf8" fontSize="9" fontWeight="bold">Databases</text>
+    <text x="375" y="175" textAnchor="middle" fill="#a5b4fc" fontSize="7">MySQL | Postgres | MongoDB</text>
+
+    <rect x="500" y="140" width="150" height="45" rx="6" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="575" y="160" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Cloud Services</text>
+    <text x="575" y="175" textAnchor="middle" fill="#86efac" fontSize="7">AWS | GCP | Azure</text>
+
+    <path d="M 170 80 L 295 80" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow-conn)"/>
+    <path d="M 500 80 L 625 80" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow-conn)"/>
+  </svg>
+)
+
+const PerformanceDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Flink Performance Architecture</text>
+
+    <rect x="50" y="45" width="200" height="70" rx="6" fill="rgba(59, 130, 246, 0.25)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="150" y="68" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Pipelined Execution</text>
+    <text x="150" y="88" textAnchor="middle" fill="#93c5fd" fontSize="8">No Batch Boundaries</text>
+    <text x="150" y="103" textAnchor="middle" fill="#93c5fd" fontSize="8">Credit-based Flow Control</text>
+
+    <rect x="300" y="45" width="200" height="70" rx="6" fill="rgba(245, 158, 11, 0.25)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="400" y="68" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Memory Management</text>
+    <text x="400" y="88" textAnchor="middle" fill="#fcd34d" fontSize="8">Off-Heap Binary Format</text>
+    <text x="400" y="103" textAnchor="middle" fill="#fcd34d" fontSize="8">Zero GC Pressure</text>
+
+    <rect x="550" y="45" width="200" height="70" rx="6" fill="rgba(139, 92, 246, 0.25)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="650" y="68" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Network Stack</text>
+    <text x="650" y="88" textAnchor="middle" fill="#c4b5fd" fontSize="8">Netty Zero-Copy</text>
+    <text x="650" y="103" textAnchor="middle" fill="#c4b5fd" fontSize="8">Compression</text>
+
+    <rect x="100" y="135" width="180" height="55" rx="6" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="190" y="158" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Operator Chaining</text>
+    <text x="190" y="175" textAnchor="middle" fill="#86efac" fontSize="7">Reduce Serialization Overhead</text>
+
+    <rect x="320" y="135" width="180" height="55" rx="6" fill="rgba(236, 72, 153, 0.2)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="410" y="158" textAnchor="middle" fill="#f472b6" fontSize="9" fontWeight="bold">Slot Sharing</text>
+    <text x="410" y="175" textAnchor="middle" fill="#fbcfe8" fontSize="7">Efficient Resource Usage</text>
+
+    <rect x="540" y="135" width="180" height="55" rx="6" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="630" y="158" textAnchor="middle" fill="#22d3ee" fontSize="9" fontWeight="bold">Back-Pressure</text>
+    <text x="630" y="175" textAnchor="middle" fill="#a5f3fc" fontSize="7">Automatic Flow Control</text>
+  </svg>
+)
+
+const UseCasesDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Flink Use Cases</text>
+
+    <rect x="300" y="40" width="200" height="50" rx="25" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="400" y="70" textAnchor="middle" fill="#fbbf24" fontSize="12" fontWeight="bold">Apache Flink</text>
+
+    <rect x="50" y="60" width="130" height="50" rx="6" fill="rgba(59, 130, 246, 0.25)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="115" y="82" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Real-time</text>
+    <text x="115" y="98" textAnchor="middle" fill="#93c5fd" fontSize="7">Analytics</text>
+
+    <rect x="620" y="60" width="130" height="50" rx="6" fill="rgba(139, 92, 246, 0.25)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="685" y="82" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">ETL</text>
+    <text x="685" y="98" textAnchor="middle" fill="#c4b5fd" fontSize="7">Pipelines</text>
+
+    <rect x="50" y="130" width="130" height="50" rx="6" fill="rgba(236, 72, 153, 0.25)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="115" y="152" textAnchor="middle" fill="#f472b6" fontSize="9" fontWeight="bold">Fraud</text>
+    <text x="115" y="168" textAnchor="middle" fill="#fbcfe8" fontSize="7">Detection</text>
+
+    <rect x="220" y="140" width="130" height="50" rx="6" fill="rgba(34, 197, 94, 0.25)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="285" y="162" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">IoT</text>
+    <text x="285" y="178" textAnchor="middle" fill="#86efac" fontSize="7">Processing</text>
+
+    <rect x="450" y="140" width="130" height="50" rx="6" fill="rgba(6, 182, 212, 0.25)" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="515" y="162" textAnchor="middle" fill="#22d3ee" fontSize="9" fontWeight="bold">ML Feature</text>
+    <text x="515" y="178" textAnchor="middle" fill="#a5f3fc" fontSize="7">Engineering</text>
+
+    <rect x="620" y="130" width="130" height="50" rx="6" fill="rgba(99, 102, 241, 0.25)" stroke="#6366f1" strokeWidth="2"/>
+    <text x="685" y="152" textAnchor="middle" fill="#818cf8" fontSize="9" fontWeight="bold">Event-Driven</text>
+    <text x="685" y="168" textAnchor="middle" fill="#a5b4fc" fontSize="7">Applications</text>
+
+    <path d="M 295 65 L 180 70" stroke="#64748b" strokeWidth="1.5"/>
+    <path d="M 500 65 L 615 70" stroke="#64748b" strokeWidth="1.5"/>
+    <path d="M 300 85 L 180 125" stroke="#64748b" strokeWidth="1.5"/>
+    <path d="M 350 90 L 285 135" stroke="#64748b" strokeWidth="1.5"/>
+    <path d="M 450 90 L 515 135" stroke="#64748b" strokeWidth="1.5"/>
+    <path d="M 500 85 L 620 125" stroke="#64748b" strokeWidth="1.5"/>
+  </svg>
+)
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
+
+function ApacheFlink({ onBack, breadcrumb }) {
+  const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
+  const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+
+  // =============================================================================
+  // CONCEPTS DATA
+  // =============================================================================
 
   const concepts = [
     {
@@ -34,6 +385,7 @@ function ApacheFlink({ onBack, onPrevious, onNext, previousName, nextName, curre
       icon: '🌊',
       color: '#3b82f6',
       description: 'Unified stream and batch processing framework with event-time handling, windowing, and rich operators',
+      diagram: StreamProcessingDiagram,
       details: [
         {
           name: 'Unbounded Streams',
@@ -98,59 +450,6 @@ class EventTimeWindowFunction extends ProcessWindowFunction<Event, Result, Strin
         out.collect(new Result(key, count, context.window().getStart(), context.window().getEnd()));
     }
 }`
-        },
-        {
-          name: 'Exactly-Once Semantics',
-          explanation: 'Guarantee each event affects state exactly once. Two-phase commit protocol. Transactional sinks for external systems. State snapshots with barriers. Critical for financial systems. No duplicate processing on failures. Combination of checkpointing and idempotent writes.',
-          codeExample: `// Exactly-Once Semantics with Kafka Sink
-StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-
-// Enable checkpointing for exactly-once
-env.enableCheckpointing(60000);
-env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-
-DataStream<Transaction> transactions = ...;
-
-// Kafka sink with exactly-once guarantees (two-phase commit)
-KafkaSink<Transaction> sink = KafkaSink.<Transaction>builder()
-    .setBootstrapServers("localhost:9092")
-    .setRecordSerializer(KafkaRecordSerializationSchema.builder()
-        .setTopic("processed-transactions")
-        .setValueSerializationSchema(new JsonSerializationSchema())
-        .build()
-    )
-    // Enable exactly-once with transactional writes
-    .setDeliveryGuarantee(DeliveryGuarantee.EXACTLY_ONCE)
-    .setTransactionalIdPrefix("flink-transaction")
-    .build();
-
-transactions
-    .map(t -> processTransaction(t))
-    .sinkTo(sink);
-
-// JDBC sink with exactly-once via XA transactions
-JdbcSink.exactlyOnceSink(
-    "INSERT INTO transactions (id, amount, timestamp) VALUES (?, ?, ?)",
-    (ps, transaction) -> {
-        ps.setString(1, transaction.getId());
-        ps.setBigDecimal(2, transaction.getAmount());
-        ps.setTimestamp(3, transaction.getTimestamp());
-    },
-    JdbcExecutionOptions.builder()
-        .withMaxRetries(3)
-        .build(),
-    JdbcExactlyOnceOptions.builder()
-        .withTransactionPerConnection(true)
-        .build(),
-    () -> {
-        // XA DataSource configuration
-        PGXADataSource xaDataSource = new PGXADataSource();
-        xaDataSource.setUrl("jdbc:postgresql://localhost:5432/mydb");
-        return xaDataSource;
-    }
-);
-
-env.execute("Exactly-Once Processing");`
         },
         {
           name: 'Windowing',
@@ -229,15 +528,7 @@ DataStream<Alert> alerts = patternStream.select(
         Event payment = pattern.get("payment").get(0);
         return new Alert(login.getUserId(), "High-value payment after login", payment.getAmount());
     }
-);
-
-// Complex pattern: Detect fraud (3 failed logins followed by success)
-Pattern<LoginEvent, ?> fraudPattern = Pattern.<LoginEvent>begin("failures")
-    .where(event -> event.getStatus().equals("FAILED"))
-    .times(3).consecutive()
-    .followedBy("success")
-    .where(event -> event.getStatus().equals("SUCCESS"))
-    .within(Time.minutes(5));`
+);`
         },
         {
           name: 'Rich Operators',
@@ -279,25 +570,7 @@ DataStream<OrderPayment> joined = orders
         }
     });
 
-// 6. CoProcess - process two streams with shared state
-DataStream<Control> controls = ...;
-events.keyBy(Event::getUserId)
-    .connect(controls.keyBy(Control::getUserId))
-    .process(new CoProcessFunction<Event, Control, Result>() {
-        private ValueState<ControlState> state;
-
-        @Override
-        public void processElement1(Event event, Context ctx, Collector<Result> out) {
-            // Process events stream
-        }
-
-        @Override
-        public void processElement2(Control control, Context ctx, Collector<Result> out) {
-            // Process control stream
-        }
-    });
-
-// 7. AsyncIO - async external lookup
+// 6. AsyncIO - async external lookup
 AsyncDataStream.unorderedWait(
     events,
     new AsyncDatabaseRequest(),
@@ -313,6 +586,7 @@ AsyncDataStream.unorderedWait(
       icon: '💾',
       color: '#10b981',
       description: 'Managed state with multiple backends, queryable state, broadcast patterns, and TTL management',
+      diagram: StatefulComputingDiagram,
       details: [
         {
           name: 'Managed State',
@@ -400,25 +674,7 @@ ColumnFamilyOptions columnOptions = new ColumnFamilyOptions()
     .setCompactionStyle(CompactionStyle.LEVEL)
     .setWriteBufferSize(64 * 1024 * 1024)  // 64 MB
     .setMaxWriteBufferNumber(3)
-    .setTargetFileSizeBase(64 * 1024 * 1024);
-
-RocksDBOptionsFactory optionsFactory = new RocksDBOptionsFactory() {
-    @Override
-    public DBOptions createDBOptions(DBOptions currentOptions, Collection<AutoCloseable> handlesToClose) {
-        return dbOptions;
-    }
-
-    @Override
-    public ColumnFamilyOptions createColumnOptions(ColumnFamilyOptions currentOptions, Collection<AutoCloseable> handlesToClose) {
-        return columnOptions;
-    }
-};
-
-rocksDBBackend.setRocksDBOptions(optionsFactory);`
-        },
-        {
-          name: 'Queryable State',
-          explanation: 'Query state from external applications. Expose state over network. Key-based lookups for dashboards. Real-time materialized views. Client API for queries. No impact on processing performance. Alternative to writing state to external database.'
+    .setTargetFileSizeBase(64 * 1024 * 1024);`
         },
         {
           name: 'Broadcast State',
@@ -472,11 +728,7 @@ DataStream<Alert> alerts = eventStream
                 rules.remove(rule.getId());
             }
         }
-    });
-
-// Use case: Fraud detection with dynamic rules
-// Rule stream updates fraud patterns in real-time
-// Event stream applies latest rules to detect fraud`
+    });`
         },
         {
           name: 'State TTL',
@@ -537,6 +789,10 @@ public class StateTTLExample extends KeyedProcessFunction<String, Event, Result>
 }`
         },
         {
+          name: 'Queryable State',
+          explanation: 'Query state from external applications. Expose state over network. Key-based lookups for dashboards. Real-time materialized views. Client API for queries. No impact on processing performance. Alternative to writing state to external database.'
+        },
+        {
           name: 'Savepoints',
           explanation: 'Manually triggered snapshots for versioning. Upgrade applications with state migration. A/B testing with state forking. State evolution with serializer upgrades. Relocate jobs across clusters. Debug production issues. Externalized state for disaster recovery.'
         }
@@ -548,6 +804,7 @@ public class StateTTLExample extends KeyedProcessFunction<String, Event, Result>
       icon: '🛡️',
       color: '#8b5cf6',
       description: 'Distributed snapshots with checkpointing, Chandy-Lamport algorithm, and fast recovery mechanisms',
+      diagram: FaultToleranceDiagram,
       details: [
         {
           name: 'Checkpointing',
@@ -617,6 +874,7 @@ env.setStateBackend(new HashMapStateBackend());
       icon: '📊',
       color: '#ef4444',
       description: 'Unified batch and streaming with ANSI SQL, catalogs, continuous queries, and optimization',
+      diagram: TableSQLDiagram,
       details: [
         {
           name: 'Unified Batch & Stream',
@@ -697,6 +955,7 @@ tableEnv.executeSql(
       icon: '🚀',
       color: '#f59e0b',
       description: 'Flexible deployment options with dynamic scaling, resource management, HA, and Kubernetes integration',
+      diagram: DeploymentDiagram,
       details: [
         {
           name: 'Flexible Deployment',
@@ -730,6 +989,7 @@ tableEnv.executeSql(
       icon: '🔌',
       color: '#14b8a6',
       description: 'Rich ecosystem of connectors for Kafka, filesystems, databases, AWS services, and custom integration',
+      diagram: ConnectorsDiagram,
       details: [
         {
           name: 'Apache Kafka',
@@ -812,6 +1072,7 @@ env.execute("Kafka Integration Example");`
       icon: '⚡',
       color: '#6366f1',
       description: 'Advanced performance features including pipelined execution, memory management, and operator chaining',
+      diagram: PerformanceDiagram,
       details: [
         {
           name: 'Pipelined Execution',
@@ -845,6 +1106,7 @@ env.execute("Kafka Integration Example");`
       icon: '🎯',
       color: '#ec4899',
       description: 'Real-world applications from real-time analytics to fraud detection, IoT processing, and recommendations',
+      diagram: UseCasesDiagram,
       details: [
         {
           name: 'Real-time Analytics',
@@ -856,84 +1118,7 @@ env.execute("Kafka Integration Example");`
         },
         {
           name: 'Fraud Detection',
-          explanation: 'Real-time transaction monitoring. Pattern detection with CEP. Machine learning model scoring. Rule engines for complex logic. Risk scoring and alerting. Multi-level aggregations. Session-based analysis. Low-latency requirements (milliseconds).',
-          codeExample: `// Real-time Fraud Detection System
-import org.apache.flink.cep.*;
-import org.apache.flink.cep.pattern.Pattern;
-import org.apache.flink.cep.pattern.conditions.SimpleCondition;
-
-StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-
-DataStream<Transaction> transactions = env
-    .fromSource(kafkaSource, WatermarkStrategy.forMonotonousTimestamps(), "Transactions");
-
-// Rule 1: Velocity check - Multiple transactions in short time
-DataStream<Alert> velocityAlerts = transactions
-    .keyBy(Transaction::getCardNumber)
-    .window(SlidingEventTimeWindows.of(Time.minutes(5), Time.minutes(1)))
-    .aggregate(new AggregateFunction<Transaction, VelocityAccumulator, VelocityResult>() {
-        // Count transactions and total amount in window
-    })
-    .filter(result -> result.getCount() > 10 || result.getTotalAmount() > 10000)
-    .map(result -> new Alert("VELOCITY", result, "High transaction velocity"));
-
-// Rule 2: Geographic anomaly - Transactions from different locations
-Pattern<Transaction, ?> geoPattern = Pattern.<Transaction>begin("first")
-    .where(new SimpleCondition<Transaction>() {
-        @Override
-        public boolean filter(Transaction txn) { return true; }
-    })
-    .followedBy("second")
-    .where(new SimpleCondition<Transaction>() {
-        @Override
-        public boolean filter(Transaction txn) { return true; }
-    })
-    .within(Time.hours(1));
-
-DataStream<Alert> geoAlerts = CEP.pattern(
-    transactions.keyBy(Transaction::getCardNumber),
-    geoPattern
-).select((Map<String, List<Transaction>> pattern) -> {
-    Transaction first = pattern.get("first").get(0);
-    Transaction second = pattern.get("second").get(0);
-    double distance = calculateDistance(first.getLocation(), second.getLocation());
-    if (distance > 100) {  // 100 km
-        return new Alert("GEO_ANOMALY", second, "Impossible travel detected");
-    }
-    return null;
-}).filter(alert -> alert != null);
-
-// Rule 3: ML Model Scoring with AsyncIO
-AsyncDataStream.unorderedWait(
-    transactions,
-    new AsyncFunction<Transaction, ScoredTransaction>() {
-        @Override
-        public void asyncInvoke(Transaction txn, ResultFuture<ScoredTransaction> resultFuture) {
-            // Call ML model service asynchronously
-            mlModelClient.scoreAsync(txn)
-                .thenAccept(score -> resultFuture.complete(
-                    Collections.singleton(new ScoredTransaction(txn, score))
-                ));
-        }
-    },
-    1000, TimeUnit.MILLISECONDS
-)
-.filter(scored -> scored.getRiskScore() > 0.8)
-.map(scored -> new Alert("ML_MODEL", scored.getTransaction(), "High risk score: " + scored.getRiskScore()));
-
-// Combine all alert streams
-DataStream<Alert> allAlerts = velocityAlerts
-    .union(geoAlerts)
-    .union(mlAlerts);
-
-// Aggregate and deduplicate alerts
-allAlerts
-    .keyBy(Alert::getTransactionId)
-    .window(TumblingEventTimeWindows.of(Time.minutes(1)))
-    .reduce((a1, a2) -> a1)  // Dedup
-    .sinkTo(alertSink);
-
-env.execute("Fraud Detection");`
+          explanation: 'Real-time transaction monitoring. Pattern detection with CEP. Machine learning model scoring. Rule engines for complex logic. Risk scoring and alerting. Multi-level aggregations. Session-based analysis. Low-latency requirements (milliseconds).'
         },
         {
           name: 'IoT & Sensors',
@@ -947,359 +1132,380 @@ env.execute("Fraud Detection");`
     }
   ]
 
+  // =============================================================================
+  // NAVIGATION HANDLERS
+  // =============================================================================
+
+  const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
+
+  const handlePreviousConcept = () => {
+    if (selectedConceptIndex > 0) {
+      setSelectedConceptIndex(selectedConceptIndex - 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  const handleNextConcept = () => {
+    if (selectedConceptIndex < concepts.length - 1) {
+      setSelectedConceptIndex(selectedConceptIndex + 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  // =============================================================================
+  // BREADCRUMB CONFIGURATION
+  // =============================================================================
+
+  const buildBreadcrumbStack = () => {
+    const stack = [
+      { name: 'Messaging', icon: '💬', page: 'Messaging' },
+      { name: 'Apache Flink', icon: '🌊', page: 'Apache Flink' }
+    ]
+    if (selectedConcept) {
+      stack.push({ name: selectedConcept.name, icon: selectedConcept.icon })
+    }
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index, item) => {
+    if (index === 0) {
+      onBack()  // Go back to Messaging main page
+    } else if (index === 1 && selectedConcept) {
+      setSelectedConceptIndex(null)  // Close modal, stay on Apache Flink page
+    }
+  }
+
+  // =============================================================================
+  // KEYBOARD NAVIGATION
+  // =============================================================================
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        if (selectedConcept) {
+          setSelectedConceptIndex(null)
+        } else {
+          onBack()
+        }
+      } else if (e.key === 'ArrowLeft' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handlePreviousConcept()
+      } else if (e.key === 'ArrowRight' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handleNextConcept()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConceptIndex, onBack])
+
+  // =============================================================================
+  // STYLES
+  // =============================================================================
+
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f172a 0%, #7c2d12 50%, #0f172a 100%)',
+    padding: '2rem',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
+  }
+
+  const headerStyle = {
+    maxWidth: '1400px',
+    margin: '0 auto 2rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '1rem'
+  }
+
+  const titleStyle = {
+    fontSize: '2.5rem',
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    margin: 0
+  }
+
+  const backButtonStyle = {
+    padding: '0.75rem 1.5rem',
+    background: 'rgba(225, 29, 72, 0.2)',
+    border: '1px solid rgba(225, 29, 72, 0.3)',
+    borderRadius: '0.5rem',
+    color: '#f43f5e',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    transition: 'all 0.2s'
+  }
+
+  // =============================================================================
+  // RENDER
+  // =============================================================================
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #7c2d12, #111827)',
-      color: 'white',
-      padding: '1.5rem'
-    }}>
-    <div style={{ padding: '2rem', maxWidth: '1600px', margin: '0 auto' }}>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '2rem',
-        gap: '1rem',
-        flexWrap: 'wrap'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button
-            onClick={onBack}
-            style={{
-              padding: '0.75rem 1.5rem',
-              fontSize: '1rem',
-              fontWeight: '600',
-              backgroundColor: '#f59e0b',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d97706'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f59e0b'}
-          >
-            ← Back to Messaging
-          </button>
-          <div>
-            <h1 style={{
-              fontSize: '2.5rem',
-              fontWeight: '800',
-              background: 'linear-gradient(to right, #fcd34d, #f59e0b)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              margin: 0,
-              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-            }}>
-              Apache Flink
-            </h1>
-            {currentSubcategory && (
-              <span style={{
-                padding: '0.25rem 0.75rem',
-                fontSize: '0.85rem',
-                fontWeight: '600',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
-                borderRadius: '6px',
-                marginTop: '0.25rem',
-                display: 'inline-block'
-              }}>
-                {currentSubcategory}
-              </span>
-            )}
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-          {onPrevious && (
-            <button
-              onClick={onPrevious}
-              style={{
-                padding: '0.75rem 1.25rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
-            >
-              ← {previousName}
-            </button>
-          )}
-          {onNext && (
-            <button
-              onClick={onNext}
-              style={{
-                padding: '0.75rem 1.25rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
-            >
-              {nextName} →
-            </button>
-          )}
-        </div>
+    <div style={containerStyle}>
+      {/* Header with title and back button */}
+      <div style={headerStyle}>
+        <h1 style={titleStyle}>Apache Flink</h1>
+        <button
+          style={backButtonStyle}
+          onClick={onBack}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = 'rgba(225, 29, 72, 0.3)'
+            e.currentTarget.style.transform = 'translateY(-2px)'
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'rgba(225, 29, 72, 0.2)'
+            e.currentTarget.style.transform = 'translateY(0)'
+          }}
+        >
+          ← Back to Messaging
+        </button>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      {/* Breadcrumb navigation */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          colors={FLINK_COLORS}
+        />
+      </div>
 
-      <p style={{
-        fontSize: '1.2rem',
-        color: '#9ca3af',
-        textAlign: 'center',
-        marginBottom: '3rem',
-        lineHeight: '1.8'
-      }}>
-        Stream processing framework for real-time data analytics and event-driven applications. Covers stateful computations,
-        event time processing, windowing, checkpointing, fault tolerance, Table API & SQL, deployment strategies, and connectors.
-      </p>
-
+      {/* Concept Cards Grid */}
       <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
         display: 'grid',
-        gridTemplateColumns: selectedConcept ? '350px 1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '2rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gap: '1.5rem'
       }}>
-        {selectedConcept ? (
-          <>
-            {/* Sidebar */}
+        {concepts.map((concept, index) => (
+          <div
+            key={concept.id}
+            onClick={() => setSelectedConceptIndex(index)}
+            style={{
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              border: `1px solid ${concept.color}40`,
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = `0 20px 40px ${concept.color}20`
+              e.currentTarget.style.borderColor = concept.color
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.borderColor = `${concept.color}40`
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
+              <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
+            </div>
+            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
+            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+              {concept.details.length} topics • Click to explore
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Modal for Selected Concept */}
+      {selectedConcept && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '2rem'
+          }}
+          onClick={() => setSelectedConceptIndex(null)}
+        >
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              maxWidth: '1200px',
+              maxHeight: '92vh',
+              overflow: 'auto',
+              border: `1px solid ${selectedConcept.color}40`
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Breadcrumb */}
+            <Breadcrumb
+              breadcrumbStack={buildBreadcrumbStack()}
+              onBreadcrumbClick={handleBreadcrumbClick}
+              colors={FLINK_COLORS}
+            />
+
+            {/* Modal Header with Navigation */}
             <div style={{
               display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1.5rem',
+              paddingBottom: '1rem',
+              borderBottom: '1px solid #334155'
             }}>
-              <button
-                onClick={() => setSelectedConcept(null)}
-                style={{
-                  padding: '0.75rem',
-                  fontSize: '0.95rem',
-                  fontWeight: '600',
-                  backgroundColor: '#3b82f6',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  marginBottom: '0.5rem'
-                }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#2563eb'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#3b82f6'}
-              >
-                ← Back to Categories
-              </button>
-              {concepts.map((concept) => (
-                <div
-                  key={concept.id}
-                  onClick={() => setSelectedConcept(concept)}
-                  style={{
-                    padding: '1rem',
-                    backgroundColor: selectedConcept.id === concept.id ? concept.color + '20' : '#1f2937',
-                    border: `2px solid ${selectedConcept.id === concept.id ? concept.color : '#374151'}`,
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (selectedConcept.id !== concept.id) {
-                      e.currentTarget.style.backgroundColor = concept.color + '10'
-                      e.currentTarget.style.borderColor = concept.color
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (selectedConcept.id !== concept.id) {
-                      e.currentTarget.style.backgroundColor = '#1f2937'
-                      e.currentTarget.style.borderColor = '#374151'
-                    }
-                  }}
-                >
-                  <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{concept.icon}</div>
-                  <div style={{
-                    fontSize: '0.9rem',
-                    fontWeight: '600',
-                    color: '#e5e7eb'
-                  }}>
-                    {concept.name}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Main content */}
-            <div>
-              <div style={{
-                backgroundColor: selectedConcept.color + '10',
-                padding: '2rem',
-                borderRadius: '12px',
-                border: `3px solid ${selectedConcept.color}40`,
-                marginBottom: '2rem'
-              }}>
-                <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>{selectedConcept.icon}</div>
-                <h2 style={{
-                  fontSize: '2rem',
-                  fontWeight: '800',
-                  color: '#f3f4f6',
-                  marginBottom: '1rem'
-                }}>
-                  {selectedConcept.name}
-                </h2>
-                <p style={{
-                  fontSize: '1.1rem',
-                  color: '#9ca3af',
-                  lineHeight: '1.8'
-                }}>
-                  {selectedConcept.description}
-                </p>
-              </div>
-
-              <div style={{
-                display: 'grid',
-                gap: '1.5rem'
-              }}>
-                {selectedConcept.details.map((detail, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      backgroundColor: '#1f2937',
-                      padding: '1.5rem',
-                      borderRadius: '12px',
-                      border: `2px solid ${selectedConcept.color}30`,
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                    }}
-                  >
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem',
-                      marginBottom: '0.75rem'
-                    }}>
-                      <div style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '50%',
-                        backgroundColor: selectedConcept.color,
-                        color: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '0.9rem',
-                        fontWeight: '700'
-                      }}>
-                        {index + 1}
-                      </div>
-                      <h3 style={{
-                        fontSize: '1.1rem',
-                        fontWeight: '700',
-                        color: '#f3f4f6',
-                        margin: 0
-                      }}>
-                        {detail.name}
-                      </h3>
-                    </div>
-                    <p style={{
-                      fontSize: '1rem',
-                      color: '#9ca3af',
-                      lineHeight: '1.7',
-                      margin: 0
-                    }}>
-                      {detail.explanation}
-                    </p>
-                    {detail.codeExample && (
-                      <pre style={{
-                        backgroundColor: '#1e293b',
-                        color: '#e2e8f0',
-                        padding: '1.5rem',
-                        borderRadius: '8px',
-                        overflow: 'auto',
-                        fontSize: '0.875rem',
-                        lineHeight: '1.6',
-                        marginTop: '1rem',
-                        border: `2px solid ${selectedConcept.color}40`
-                      }}>
-                        <code>{detail.codeExample}</code>
-                      </pre>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </>
-        ) : (
-          concepts.map((concept) => (
-            <div
-              key={concept.id}
-              onClick={() => setSelectedConcept(concept)}
-              style={{
-                backgroundColor: concept.color + '10',
-                padding: '2rem',
-                borderRadius: '12px',
-                border: `3px solid ${concept.color}40`,
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                transform: 'translateY(0)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)'
-                e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.3)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
-            >
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{concept.icon}</div>
-              <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: '#f3f4f6',
-                marginBottom: '0.75rem'
-              }}>
-                {concept.name}
-              </h3>
-              <p style={{
-                fontSize: '0.95rem',
-                color: '#9ca3af',
-                lineHeight: '1.6',
-                marginBottom: '1rem'
-              }}>
-                {concept.description}
-              </p>
-              <div style={{
+              <h2 style={{
+                color: selectedConcept.color,
+                margin: 0,
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                fontSize: '0.9rem',
-                color: concept.color,
-                fontWeight: '600'
+                fontSize: '1.25rem'
               }}>
-                <span>Learn more</span>
-                <span>→</span>
+                <span>{selectedConcept.icon}</span>
+                {selectedConcept.name}
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button
+                  onClick={handlePreviousConcept}
+                  disabled={selectedConceptIndex === 0}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >←</button>
+                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>
+                  {selectedConceptIndex + 1}/{concepts.length}
+                </span>
+                <button
+                  onClick={handleNextConcept}
+                  disabled={selectedConceptIndex === concepts.length - 1}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >→</button>
+                <button
+                  onClick={() => setSelectedConceptIndex(null)}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: '#f87171',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    marginLeft: '0.5rem'
+                  }}
+                >✕</button>
               </div>
             </div>
-          ))
-        )}
-      </div>
-    </div>
+
+            {/* Subtopic Tabs */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {selectedConcept.details.map((detail, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedDetailIndex(i)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)',
+                    border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`,
+                    borderRadius: '0.5rem',
+                    color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: selectedDetailIndex === i ? '600' : '400',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {detail.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Selected Subtopic Content */}
+            {(() => {
+              const detail = selectedConcept.details[selectedDetailIndex]
+              const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
+              return (
+                <div>
+                  {/* Diagram */}
+                  {DiagramComponent && (
+                    <div style={{
+                      background: 'rgba(15, 23, 42, 0.6)',
+                      borderRadius: '0.75rem',
+                      padding: '1rem',
+                      marginBottom: '1.5rem',
+                      border: '1px solid #334155'
+                    }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
+
+                  {/* Detail Name */}
+                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>
+                    {detail.name}
+                  </h3>
+
+                  {/* Explanation */}
+                  <p style={{
+                    color: '#e2e8f0',
+                    lineHeight: '1.8',
+                    marginBottom: '1rem',
+                    background: colorScheme.bg,
+                    border: `1px solid ${colorScheme.border}`,
+                    borderRadius: '0.5rem',
+                    padding: '1rem',
+                    textAlign: 'left'
+                  }}>
+                    {detail.explanation}
+                  </p>
+
+                  {/* Code Example */}
+                  {detail.codeExample && (
+                    <SyntaxHighlighter
+                      language="java"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        padding: '1rem',
+                        margin: 0,
+                        borderRadius: '0.5rem',
+                        fontSize: '0.8rem',
+                        border: '1px solid #334155',
+                        background: '#0f172a'
+                      }}
+                      codeTagProps={{ style: { background: 'transparent' } }}
+                    >
+                      {detail.codeExample}
+                    </SyntaxHighlighter>
+                  )}
+                </div>
+              )
+            })()}
+
+          </div>
+        </div>
+      )}
     </div>
   )
 }

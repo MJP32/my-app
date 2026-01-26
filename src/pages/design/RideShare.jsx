@@ -6,6 +6,882 @@ import {
 } from 'lucide-react';
 import Breadcrumb from '../../components/Breadcrumb';
 
+// SVG Diagram Components with Uber-inspired black/white theme
+
+// 1. High-Level Architecture Diagram
+const RideShareArchitectureDiagram = () => (
+  <svg viewBox="0 0 900 500" className="w-full h-auto">
+    <defs>
+      <linearGradient id="uberBlack" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#1a1a1a" />
+        <stop offset="100%" stopColor="#2d2d2d" />
+      </linearGradient>
+      <linearGradient id="uberGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06c167" />
+        <stop offset="100%" stopColor="#04a659" />
+      </linearGradient>
+      <linearGradient id="uberBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#276ef1" />
+        <stop offset="100%" stopColor="#1a5ed9" />
+      </linearGradient>
+      <linearGradient id="uberPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#7356bf" />
+        <stop offset="100%" stopColor="#5e45a8" />
+      </linearGradient>
+      <linearGradient id="uberOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f6b900" />
+        <stop offset="100%" stopColor="#e5a800" />
+      </linearGradient>
+      <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="3" stdDeviation="3" floodOpacity="0.3"/>
+      </filter>
+    </defs>
+
+    {/* Background */}
+    <rect width="900" height="500" fill="#0d0d0d" rx="12"/>
+
+    {/* Title */}
+    <text x="450" y="35" textAnchor="middle" fill="#ffffff" fontSize="20" fontWeight="bold">High-Level System Architecture</text>
+
+    {/* Client Layer */}
+    <g transform="translate(50, 60)">
+      <rect width="160" height="80" rx="8" fill="url(#uberBlack)" stroke="#3d3d3d" strokeWidth="2" filter="url(#shadow)"/>
+      <text x="80" y="35" textAnchor="middle" fill="#ffffff" fontSize="14" fontWeight="bold">Rider App</text>
+      <text x="80" y="55" textAnchor="middle" fill="#9ca3af" fontSize="11">iOS / Android</text>
+      <circle cx="80" cy="70" r="4" fill="#06c167"/>
+    </g>
+
+    <g transform="translate(250, 60)">
+      <rect width="160" height="80" rx="8" fill="url(#uberBlack)" stroke="#3d3d3d" strokeWidth="2" filter="url(#shadow)"/>
+      <text x="80" y="35" textAnchor="middle" fill="#ffffff" fontSize="14" fontWeight="bold">Driver App</text>
+      <text x="80" y="55" textAnchor="middle" fill="#9ca3af" fontSize="11">Real-time GPS</text>
+      <circle cx="80" cy="70" r="4" fill="#06c167"/>
+    </g>
+
+    {/* Arrows from clients to API Gateway */}
+    <path d="M130 140 L130 170 L450 170 L450 200" stroke="#06c167" strokeWidth="2" fill="none" markerEnd="url(#arrowGreen)"/>
+    <path d="M330 140 L330 170 L450 170 L450 200" stroke="#06c167" strokeWidth="2" fill="none"/>
+
+    <defs>
+      <marker id="arrowGreen" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#06c167"/>
+      </marker>
+      <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#276ef1"/>
+      </marker>
+      <marker id="arrowPurple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#7356bf"/>
+      </marker>
+    </defs>
+
+    {/* API Gateway */}
+    <g transform="translate(350, 200)">
+      <rect width="200" height="70" rx="8" fill="url(#uberGreen)" filter="url(#shadow)"/>
+      <text x="100" y="30" textAnchor="middle" fill="#ffffff" fontSize="14" fontWeight="bold">API Gateway</text>
+      <text x="100" y="50" textAnchor="middle" fill="#e8f5e9" fontSize="11">Load Balancer / Auth / Rate Limit</text>
+    </g>
+
+    {/* Arrow from Gateway to Services */}
+    <path d="M450 270 L450 310" stroke="#276ef1" strokeWidth="2" fill="none" markerEnd="url(#arrowBlue)"/>
+
+    {/* Services Layer */}
+    <g transform="translate(50, 320)">
+      <rect width="130" height="70" rx="8" fill="url(#uberBlue)" filter="url(#shadow)"/>
+      <text x="65" y="30" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">Ride Service</text>
+      <text x="65" y="48" textAnchor="middle" fill="#e3f2fd" fontSize="10">Booking & Status</text>
+    </g>
+
+    <g transform="translate(200, 320)">
+      <rect width="130" height="70" rx="8" fill="url(#uberBlue)" filter="url(#shadow)"/>
+      <text x="65" y="30" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">Driver Service</text>
+      <text x="65" y="48" textAnchor="middle" fill="#e3f2fd" fontSize="10">Location & Avail</text>
+    </g>
+
+    <g transform="translate(350, 320)">
+      <rect width="130" height="70" rx="8" fill="url(#uberBlue)" filter="url(#shadow)"/>
+      <text x="65" y="30" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">Matching</text>
+      <text x="65" y="48" textAnchor="middle" fill="#e3f2fd" fontSize="10">AI Algorithm</text>
+    </g>
+
+    <g transform="translate(500, 320)">
+      <rect width="130" height="70" rx="8" fill="url(#uberBlue)" filter="url(#shadow)"/>
+      <text x="65" y="30" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">Payment</text>
+      <text x="65" y="48" textAnchor="middle" fill="#e3f2fd" fontSize="10">Transactions</text>
+    </g>
+
+    <g transform="translate(650, 320)">
+      <rect width="130" height="70" rx="8" fill="url(#uberBlue)" filter="url(#shadow)"/>
+      <text x="65" y="30" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">Notification</text>
+      <text x="65" y="48" textAnchor="middle" fill="#e3f2fd" fontSize="10">Push / SMS</text>
+    </g>
+
+    {/* Arrows from Services to Databases */}
+    <path d="M265 390 L265 420" stroke="#7356bf" strokeWidth="2" fill="none"/>
+    <path d="M415 390 L415 420" stroke="#7356bf" strokeWidth="2" fill="none"/>
+    <path d="M565 390 L565 420" stroke="#7356bf" strokeWidth="2" fill="none" markerEnd="url(#arrowPurple)"/>
+
+    {/* Database Layer */}
+    <g transform="translate(100, 420)">
+      <rect width="120" height="60" rx="8" fill="url(#uberPurple)" filter="url(#shadow)"/>
+      <text x="60" y="28" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">PostgreSQL</text>
+      <text x="60" y="45" textAnchor="middle" fill="#ede7f6" fontSize="10">Primary Data</text>
+    </g>
+
+    <g transform="translate(240, 420)">
+      <rect width="120" height="60" rx="8" fill="url(#uberPurple)" filter="url(#shadow)"/>
+      <text x="60" y="28" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">Redis</text>
+      <text x="60" y="45" textAnchor="middle" fill="#ede7f6" fontSize="10">Cache & GEO</text>
+    </g>
+
+    <g transform="translate(380, 420)">
+      <rect width="120" height="60" rx="8" fill="url(#uberPurple)" filter="url(#shadow)"/>
+      <text x="60" y="28" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">MongoDB</text>
+      <text x="60" y="45" textAnchor="middle" fill="#ede7f6" fontSize="10">Ride History</text>
+    </g>
+
+    <g transform="translate(520, 420)">
+      <rect width="120" height="60" rx="8" fill="url(#uberPurple)" filter="url(#shadow)"/>
+      <text x="60" y="28" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">Kafka</text>
+      <text x="60" y="45" textAnchor="middle" fill="#ede7f6" fontSize="10">Event Stream</text>
+    </g>
+
+    <g transform="translate(660, 420)">
+      <rect width="120" height="60" rx="8" fill="url(#uberPurple)" filter="url(#shadow)"/>
+      <text x="60" y="28" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">Cassandra</text>
+      <text x="60" y="45" textAnchor="middle" fill="#ede7f6" fontSize="10">Time Series</text>
+    </g>
+
+    {/* Web App */}
+    <g transform="translate(690, 60)">
+      <rect width="160" height="80" rx="8" fill="url(#uberBlack)" stroke="#3d3d3d" strokeWidth="2" filter="url(#shadow)"/>
+      <text x="80" y="35" textAnchor="middle" fill="#ffffff" fontSize="14" fontWeight="bold">Web Dashboard</text>
+      <text x="80" y="55" textAnchor="middle" fill="#9ca3af" fontSize="11">Admin Portal</text>
+      <circle cx="80" cy="70" r="4" fill="#f6b900"/>
+    </g>
+
+    <path d="M770 140 L770 170 L450 170" stroke="#f6b900" strokeWidth="2" fill="none"/>
+
+    {/* Legend */}
+    <g transform="translate(20, 485)">
+      <rect x="0" y="-10" width="12" height="12" rx="2" fill="url(#uberBlack)"/>
+      <text x="18" y="0" fill="#9ca3af" fontSize="10">Client Apps</text>
+      <rect x="100" y="-10" width="12" height="12" rx="2" fill="url(#uberGreen)"/>
+      <text x="118" y="0" fill="#9ca3af" fontSize="10">Gateway</text>
+      <rect x="180" y="-10" width="12" height="12" rx="2" fill="url(#uberBlue)"/>
+      <text x="198" y="0" fill="#9ca3af" fontSize="10">Services</text>
+      <rect x="260" y="-10" width="12" height="12" rx="2" fill="url(#uberPurple)"/>
+      <text x="278" y="0" fill="#9ca3af" fontSize="10">Data Stores</text>
+    </g>
+  </svg>
+);
+
+// 2. Matching Algorithm Diagram
+const MatchingAlgorithmDiagram = () => (
+  <svg viewBox="0 0 900 480" className="w-full h-auto">
+    <defs>
+      <linearGradient id="matchGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06c167" />
+        <stop offset="100%" stopColor="#04a659" />
+      </linearGradient>
+      <linearGradient id="matchBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#276ef1" />
+        <stop offset="100%" stopColor="#1a5ed9" />
+      </linearGradient>
+      <linearGradient id="matchOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ff6b35" />
+        <stop offset="100%" stopColor="#e55a2b" />
+      </linearGradient>
+      <radialGradient id="searchRadius" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stopColor="#06c167" stopOpacity="0.3"/>
+        <stop offset="70%" stopColor="#06c167" stopOpacity="0.1"/>
+        <stop offset="100%" stopColor="#06c167" stopOpacity="0"/>
+      </radialGradient>
+      <filter id="matchShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="3" stdDeviation="3" floodOpacity="0.3"/>
+      </filter>
+    </defs>
+
+    <rect width="900" height="480" fill="#0d0d0d" rx="12"/>
+    <text x="450" y="35" textAnchor="middle" fill="#ffffff" fontSize="20" fontWeight="bold">Driver-Rider Matching with Geospatial Indexing</text>
+
+    {/* Geospatial Map Area */}
+    <g transform="translate(50, 60)">
+      <rect width="380" height="320" rx="8" fill="#1a1a1a" stroke="#3d3d3d" strokeWidth="2"/>
+      <text x="190" y="25" textAnchor="middle" fill="#ffffff" fontSize="14" fontWeight="bold">Geospatial Search Area</text>
+
+      {/* Search Radius Circle */}
+      <circle cx="190" cy="180" r="120" fill="url(#searchRadius)" stroke="#06c167" strokeWidth="2" strokeDasharray="8,4"/>
+      <text x="190" y="310" textAnchor="middle" fill="#06c167" fontSize="11">5km Radius</text>
+
+      {/* Rider (center) */}
+      <g transform="translate(175, 165)">
+        <circle r="20" fill="#276ef1" stroke="#ffffff" strokeWidth="3"/>
+        <text x="0" y="5" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">R</text>
+      </g>
+      <text x="190" y="220" textAnchor="middle" fill="#276ef1" fontSize="10">Rider Location</text>
+
+      {/* Driver 1 - Closest */}
+      <g transform="translate(120, 120)">
+        <circle r="15" fill="#06c167" stroke="#ffffff" strokeWidth="2"/>
+        <text x="0" y="4" textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="bold">D1</text>
+      </g>
+      <text x="120" y="100" textAnchor="middle" fill="#06c167" fontSize="9">0.8km - Score: 95</text>
+
+      {/* Driver 2 */}
+      <g transform="translate(270, 140)">
+        <circle r="15" fill="#06c167" stroke="#ffffff" strokeWidth="2"/>
+        <text x="0" y="4" textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="bold">D2</text>
+      </g>
+      <text x="270" y="120" textAnchor="middle" fill="#06c167" fontSize="9">1.2km - Score: 88</text>
+
+      {/* Driver 3 */}
+      <g transform="translate(150, 240)">
+        <circle r="15" fill="#06c167" stroke="#ffffff" strokeWidth="2"/>
+        <text x="0" y="4" textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="bold">D3</text>
+      </g>
+      <text x="150" y="270" textAnchor="middle" fill="#06c167" fontSize="9">2.1km - Score: 72</text>
+
+      {/* Driver 4 - Edge of radius */}
+      <g transform="translate(280, 260)">
+        <circle r="15" fill="#f6b900" stroke="#ffffff" strokeWidth="2"/>
+        <text x="0" y="4" textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="bold">D4</text>
+      </g>
+      <text x="280" y="290" textAnchor="middle" fill="#f6b900" fontSize="9">4.5km - Score: 45</text>
+
+      {/* Driver 5 - Outside radius */}
+      <g transform="translate(350, 100)">
+        <circle r="15" fill="#ff6b35" stroke="#ffffff" strokeWidth="2" strokeDasharray="4,2"/>
+        <text x="0" y="4" textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="bold">D5</text>
+      </g>
+      <text x="350" y="80" textAnchor="middle" fill="#ff6b35" fontSize="9">Outside Range</text>
+
+      {/* Match line */}
+      <line x1="190" y1="180" x2="120" y2="120" stroke="#06c167" strokeWidth="3" strokeDasharray="6,3">
+        <animate attributeName="stroke-dashoffset" from="18" to="0" dur="1s" repeatCount="indefinite"/>
+      </line>
+    </g>
+
+    {/* Algorithm Steps */}
+    <g transform="translate(470, 60)">
+      <rect width="380" height="320" rx="8" fill="#1a1a1a" stroke="#3d3d3d" strokeWidth="2"/>
+      <text x="190" y="25" textAnchor="middle" fill="#ffffff" fontSize="14" fontWeight="bold">Matching Algorithm</text>
+
+      {/* Step 1 */}
+      <g transform="translate(20, 45)">
+        <rect width="340" height="50" rx="6" fill="#276ef1" filter="url(#matchShadow)"/>
+        <circle cx="25" cy="25" r="12" fill="#ffffff"/>
+        <text x="25" y="30" textAnchor="middle" fill="#276ef1" fontSize="12" fontWeight="bold">1</text>
+        <text x="50" y="20" fill="#ffffff" fontSize="11" fontWeight="bold">Redis GEORADIUS Query</text>
+        <text x="50" y="38" fill="#e3f2fd" fontSize="10">GEORADIUS drivers lat lng 5 km WITHDIST</text>
+      </g>
+
+      {/* Step 2 */}
+      <g transform="translate(20, 105)">
+        <rect width="340" height="50" rx="6" fill="#06c167" filter="url(#matchShadow)"/>
+        <circle cx="25" cy="25" r="12" fill="#ffffff"/>
+        <text x="25" y="30" textAnchor="middle" fill="#06c167" fontSize="12" fontWeight="bold">2</text>
+        <text x="50" y="20" fill="#ffffff" fontSize="11" fontWeight="bold">Filter Available Drivers</text>
+        <text x="50" y="38" fill="#e8f5e9" fontSize="10">Status: AVAILABLE, No active ride</text>
+      </g>
+
+      {/* Step 3 */}
+      <g transform="translate(20, 165)">
+        <rect width="340" height="50" rx="6" fill="#7356bf" filter="url(#matchShadow)"/>
+        <circle cx="25" cy="25" r="12" fill="#ffffff"/>
+        <text x="25" y="30" textAnchor="middle" fill="#7356bf" fontSize="12" fontWeight="bold">3</text>
+        <text x="50" y="20" fill="#ffffff" fontSize="11" fontWeight="bold">Calculate Driver Score</text>
+        <text x="50" y="38" fill="#ede7f6" fontSize="10">Score = (1/dist)*0.5 + rating*0.3 + (1/ETA)*0.2</text>
+      </g>
+
+      {/* Step 4 */}
+      <g transform="translate(20, 225)">
+        <rect width="340" height="50" rx="6" fill="#f6b900" filter="url(#matchShadow)"/>
+        <circle cx="25" cy="25" r="12" fill="#1a1a1a"/>
+        <text x="25" y="30" textAnchor="middle" fill="#f6b900" fontSize="12" fontWeight="bold">4</text>
+        <text x="50" y="20" fill="#1a1a1a" fontSize="11" fontWeight="bold">Select Best Match</text>
+        <text x="50" y="38" fill="#3d3d3d" fontSize="10">Optimistic lock + Send push notification</text>
+      </g>
+
+      {/* Metrics */}
+      <g transform="translate(20, 285)">
+        <rect width="155" height="28" rx="4" fill="#2d2d2d"/>
+        <text x="78" y="19" textAnchor="middle" fill="#06c167" fontSize="11" fontWeight="bold">Latency: &lt;500ms</text>
+      </g>
+      <g transform="translate(185, 285)">
+        <rect width="175" height="28" rx="4" fill="#2d2d2d"/>
+        <text x="88" y="19" textAnchor="middle" fill="#06c167" fontSize="11" fontWeight="bold">Match Rate: 99.5%</text>
+      </g>
+    </g>
+
+    {/* H3 Hexagonal Grid Explanation */}
+    <g transform="translate(50, 400)">
+      <rect width="800" height="65" rx="8" fill="#1a1a1a" stroke="#3d3d3d" strokeWidth="2"/>
+      <text x="20" y="25" fill="#ffffff" fontSize="12" fontWeight="bold">H3 Hexagonal Index:</text>
+      <text x="20" y="45" fill="#9ca3af" fontSize="11">Uses Uber's H3 library for hierarchical spatial indexing. Hexagons provide uniform distance calculations and efficient neighbor lookups.</text>
+
+      {/* Mini hexagons */}
+      <g transform="translate(700, 32)">
+        <polygon points="0,-12 10,-6 10,6 0,12 -10,6 -10,-6" fill="#06c167" stroke="#ffffff" strokeWidth="1"/>
+        <polygon points="18,-6 28,0 28,12 18,18 8,12 8,0" fill="#06c167" stroke="#ffffff" strokeWidth="1" opacity="0.7"/>
+        <polygon points="-18,-6 -8,0 -8,12 -18,18 -28,12 -28,0" fill="#06c167" stroke="#ffffff" strokeWidth="1" opacity="0.7"/>
+      </g>
+    </g>
+  </svg>
+);
+
+// 3. Real-Time Location Diagram
+const RealTimeLocationDiagram = () => (
+  <svg viewBox="0 0 900 420" className="w-full h-auto">
+    <defs>
+      <linearGradient id="locGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06c167" />
+        <stop offset="100%" stopColor="#04a659" />
+      </linearGradient>
+      <linearGradient id="locBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#276ef1" />
+        <stop offset="100%" stopColor="#1a5ed9" />
+      </linearGradient>
+      <linearGradient id="locPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#7356bf" />
+        <stop offset="100%" stopColor="#5e45a8" />
+      </linearGradient>
+      <filter id="locShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="3" stdDeviation="3" floodOpacity="0.3"/>
+      </filter>
+      <marker id="arrowWhite" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#ffffff"/>
+      </marker>
+    </defs>
+
+    <rect width="900" height="420" fill="#0d0d0d" rx="12"/>
+    <text x="450" y="35" textAnchor="middle" fill="#ffffff" fontSize="20" fontWeight="bold">Real-Time Location Tracking Flow</text>
+
+    {/* Driver Phone */}
+    <g transform="translate(50, 70)">
+      <rect width="120" height="180" rx="12" fill="#1a1a1a" stroke="#3d3d3d" strokeWidth="3"/>
+      <rect x="10" y="30" width="100" height="130" rx="4" fill="#2d2d2d"/>
+      <circle cx="60" cy="175" r="6" fill="#3d3d3d"/>
+      <text x="60" y="55" textAnchor="middle" fill="#06c167" fontSize="11" fontWeight="bold">Driver App</text>
+
+      {/* GPS Signal */}
+      <g transform="translate(60, 100)">
+        <circle r="8" fill="#06c167"/>
+        <circle r="16" fill="none" stroke="#06c167" strokeWidth="1" opacity="0.6">
+          <animate attributeName="r" values="16;30;16" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <circle r="24" fill="none" stroke="#06c167" strokeWidth="1" opacity="0.3">
+          <animate attributeName="r" values="24;40;24" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/>
+        </circle>
+      </g>
+      <text x="60" y="145" textAnchor="middle" fill="#9ca3af" fontSize="9">GPS: 4Hz</text>
+    </g>
+
+    {/* Arrow 1 */}
+    <g transform="translate(175, 150)">
+      <line x1="0" y1="0" x2="60" y2="0" stroke="#06c167" strokeWidth="3" markerEnd="url(#arrowWhite)"/>
+      <text x="30" y="-10" textAnchor="middle" fill="#06c167" fontSize="9">WebSocket</text>
+      <text x="30" y="20" textAnchor="middle" fill="#9ca3af" fontSize="8">lat, lng, heading</text>
+    </g>
+
+    {/* Location Gateway */}
+    <g transform="translate(250, 100)">
+      <rect width="140" height="100" rx="8" fill="url(#locGreen)" filter="url(#locShadow)"/>
+      <text x="70" y="35" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">Location</text>
+      <text x="70" y="52" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">Gateway</text>
+      <text x="70" y="75" textAnchor="middle" fill="#e8f5e9" fontSize="10">Batching</text>
+      <text x="70" y="90" textAnchor="middle" fill="#e8f5e9" fontSize="10">Compression</text>
+    </g>
+
+    {/* Arrow 2 */}
+    <g transform="translate(395, 150)">
+      <line x1="0" y1="0" x2="50" y2="0" stroke="#276ef1" strokeWidth="3" markerEnd="url(#arrowWhite)"/>
+      <text x="25" y="-10" textAnchor="middle" fill="#276ef1" fontSize="9">Kafka</text>
+    </g>
+
+    {/* Kafka */}
+    <g transform="translate(455, 100)">
+      <rect width="120" height="100" rx="8" fill="url(#locBlue)" filter="url(#locShadow)"/>
+      <text x="60" y="35" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">Kafka</text>
+      <text x="60" y="55" textAnchor="middle" fill="#e3f2fd" fontSize="10">locations topic</text>
+      <text x="60" y="75" textAnchor="middle" fill="#e3f2fd" fontSize="9">Partitioned by</text>
+      <text x="60" y="90" textAnchor="middle" fill="#e3f2fd" fontSize="9">driver_id</text>
+    </g>
+
+    {/* Arrow 3 - to Redis */}
+    <g transform="translate(580, 130)">
+      <line x1="0" y1="0" x2="50" y2="-30" stroke="#7356bf" strokeWidth="3" markerEnd="url(#arrowWhite)"/>
+    </g>
+
+    {/* Arrow 4 - to Location Service */}
+    <g transform="translate(580, 170)">
+      <line x1="0" y1="0" x2="50" y2="30" stroke="#7356bf" strokeWidth="3" markerEnd="url(#arrowWhite)"/>
+    </g>
+
+    {/* Redis GEO */}
+    <g transform="translate(640, 60)">
+      <rect width="130" height="80" rx="8" fill="url(#locPurple)" filter="url(#locShadow)"/>
+      <text x="65" y="30" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">Redis GEO</text>
+      <text x="65" y="50" textAnchor="middle" fill="#ede7f6" fontSize="10">GEOADD</text>
+      <text x="65" y="68" textAnchor="middle" fill="#ede7f6" fontSize="10">drivers:active</text>
+    </g>
+
+    {/* Location Service */}
+    <g transform="translate(640, 160)">
+      <rect width="130" height="80" rx="8" fill="url(#locPurple)" filter="url(#locShadow)"/>
+      <text x="65" y="30" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">Location Svc</text>
+      <text x="65" y="50" textAnchor="middle" fill="#ede7f6" fontSize="10">Broadcast to</text>
+      <text x="65" y="68" textAnchor="middle" fill="#ede7f6" fontSize="10">active riders</text>
+    </g>
+
+    {/* Arrow to Rider */}
+    <g transform="translate(775, 200)">
+      <line x1="0" y1="0" x2="40" y2="0" stroke="#06c167" strokeWidth="3" markerEnd="url(#arrowWhite)"/>
+    </g>
+
+    {/* Rider Phone */}
+    <g transform="translate(820, 110)">
+      <rect width="60" height="100" rx="8" fill="#1a1a1a" stroke="#3d3d3d" strokeWidth="2"/>
+      <rect x="5" y="15" width="50" height="65" rx="2" fill="#2d2d2d"/>
+
+      {/* Moving dot animation */}
+      <circle cx="30" cy="45" r="4" fill="#06c167">
+        <animate attributeName="cx" values="20;40;20" dur="3s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="35;55;35" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      <text x="30" y="95" textAnchor="middle" fill="#9ca3af" fontSize="8">Rider</text>
+    </g>
+
+    {/* Bottom Stats Section */}
+    <g transform="translate(50, 280)">
+      <rect width="800" height="120" rx="8" fill="#1a1a1a" stroke="#3d3d3d" strokeWidth="2"/>
+      <text x="400" y="25" textAnchor="middle" fill="#ffffff" fontSize="14" fontWeight="bold">Location Update Pipeline Metrics</text>
+
+      {/* Metric Boxes */}
+      <g transform="translate(30, 45)">
+        <rect width="145" height="55" rx="6" fill="#2d2d2d"/>
+        <text x="72" y="25" textAnchor="middle" fill="#06c167" fontSize="18" fontWeight="bold">100K/sec</text>
+        <text x="72" y="45" textAnchor="middle" fill="#9ca3af" fontSize="10">Location Updates</text>
+      </g>
+
+      <g transform="translate(195, 45)">
+        <rect width="145" height="55" rx="6" fill="#2d2d2d"/>
+        <text x="72" y="25" textAnchor="middle" fill="#276ef1" fontSize="18" fontWeight="bold">&lt;100ms</text>
+        <text x="72" y="45" textAnchor="middle" fill="#9ca3af" fontSize="10">End-to-End Latency</text>
+      </g>
+
+      <g transform="translate(360, 45)">
+        <rect width="145" height="55" rx="6" fill="#2d2d2d"/>
+        <text x="72" y="25" textAnchor="middle" fill="#7356bf" fontSize="18" fontWeight="bold">4 Hz</text>
+        <text x="72" y="45" textAnchor="middle" fill="#9ca3af" fontSize="10">Update Frequency</text>
+      </g>
+
+      <g transform="translate(525, 45)">
+        <rect width="145" height="55" rx="6" fill="#2d2d2d"/>
+        <text x="72" y="25" textAnchor="middle" fill="#f6b900" fontSize="18" fontWeight="bold">3m</text>
+        <text x="72" y="45" textAnchor="middle" fill="#9ca3af" fontSize="10">GPS Accuracy</text>
+      </g>
+
+      <g transform="translate(690, 45)">
+        <rect width="80" height="55" rx="6" fill="#2d2d2d"/>
+        <text x="40" y="25" textAnchor="middle" fill="#ff6b35" fontSize="18" fontWeight="bold">H3</text>
+        <text x="40" y="45" textAnchor="middle" fill="#9ca3af" fontSize="10">Index</text>
+      </g>
+    </g>
+  </svg>
+);
+
+// 4. Dynamic Pricing Diagram
+const PricingDiagram = () => (
+  <svg viewBox="0 0 900 450" className="w-full h-auto">
+    <defs>
+      <linearGradient id="priceRed" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ef4444" />
+        <stop offset="100%" stopColor="#dc2626" />
+      </linearGradient>
+      <linearGradient id="priceOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f6b900" />
+        <stop offset="100%" stopColor="#e5a800" />
+      </linearGradient>
+      <linearGradient id="priceGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06c167" />
+        <stop offset="100%" stopColor="#04a659" />
+      </linearGradient>
+      <linearGradient id="priceBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#276ef1" />
+        <stop offset="100%" stopColor="#1a5ed9" />
+      </linearGradient>
+      <filter id="priceShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="3" stdDeviation="3" floodOpacity="0.3"/>
+      </filter>
+    </defs>
+
+    <rect width="900" height="450" fill="#0d0d0d" rx="12"/>
+    <text x="450" y="35" textAnchor="middle" fill="#ffffff" fontSize="20" fontWeight="bold">Dynamic / Surge Pricing Calculation</text>
+
+    {/* Supply-Demand Graph */}
+    <g transform="translate(50, 60)">
+      <rect width="350" height="250" rx="8" fill="#1a1a1a" stroke="#3d3d3d" strokeWidth="2"/>
+      <text x="175" y="25" textAnchor="middle" fill="#ffffff" fontSize="13" fontWeight="bold">Supply vs Demand</text>
+
+      {/* Axes */}
+      <line x1="50" y1="220" x2="320" y2="220" stroke="#3d3d3d" strokeWidth="2"/>
+      <line x1="50" y1="220" x2="50" y2="50" stroke="#3d3d3d" strokeWidth="2"/>
+      <text x="185" y="245" textAnchor="middle" fill="#9ca3af" fontSize="10">Time</text>
+      <text x="25" y="135" textAnchor="middle" fill="#9ca3af" fontSize="10" transform="rotate(-90, 25, 135)">Volume</text>
+
+      {/* Demand curve (higher) */}
+      <path d="M60 180 Q120 100 180 120 Q240 140 300 80" stroke="#ef4444" strokeWidth="3" fill="none"/>
+      <text x="310" y="75" fill="#ef4444" fontSize="10" fontWeight="bold">Demand</text>
+
+      {/* Supply curve (lower) */}
+      <path d="M60 200 Q120 190 180 185 Q240 180 300 170" stroke="#06c167" strokeWidth="3" fill="none"/>
+      <text x="310" y="175" fill="#06c167" fontSize="10" fontWeight="bold">Supply</text>
+
+      {/* Gap area highlight */}
+      <path d="M180 120 Q240 140 300 80 L300 170 Q240 180 180 185 Z" fill="#ef4444" opacity="0.15"/>
+
+      {/* Surge indicator */}
+      <g transform="translate(240, 95)">
+        <rect width="60" height="25" rx="4" fill="#ef4444"/>
+        <text x="30" y="17" textAnchor="middle" fill="#ffffff" fontSize="11" fontWeight="bold">2.5x</text>
+      </g>
+    </g>
+
+    {/* Pricing Formula */}
+    <g transform="translate(430, 60)">
+      <rect width="420" height="120" rx="8" fill="#1a1a1a" stroke="#3d3d3d" strokeWidth="2"/>
+      <text x="210" y="25" textAnchor="middle" fill="#ffffff" fontSize="13" fontWeight="bold">Surge Pricing Formula</text>
+
+      <g transform="translate(20, 45)">
+        <rect width="380" height="55" rx="6" fill="#2d2d2d"/>
+        <text x="190" y="25" textAnchor="middle" fill="#f6b900" fontSize="14" fontWeight="bold" fontFamily="monospace">
+          surge = max(1.0, demand / supply)
+        </text>
+        <text x="190" y="45" textAnchor="middle" fill="#9ca3af" fontSize="11" fontFamily="monospace">
+          final_price = base_fare * surge * distance_rate
+        </text>
+      </g>
+    </g>
+
+    {/* Pricing Factors */}
+    <g transform="translate(430, 195)">
+      <rect width="420" height="190" rx="8" fill="#1a1a1a" stroke="#3d3d3d" strokeWidth="2"/>
+      <text x="210" y="25" textAnchor="middle" fill="#ffffff" fontSize="13" fontWeight="bold">Pricing Factors</text>
+
+      {/* Factor 1 */}
+      <g transform="translate(15, 40)">
+        <rect width="120" height="65" rx="6" fill="url(#priceRed)" filter="url(#priceShadow)"/>
+        <text x="60" y="28" textAnchor="middle" fill="#ffffff" fontSize="11" fontWeight="bold">Demand</text>
+        <text x="60" y="45" textAnchor="middle" fill="#fee2e2" fontSize="9">Active requests</text>
+        <text x="60" y="58" textAnchor="middle" fill="#fee2e2" fontSize="9">in area</text>
+      </g>
+
+      {/* Factor 2 */}
+      <g transform="translate(150, 40)">
+        <rect width="120" height="65" rx="6" fill="url(#priceGreen)" filter="url(#priceShadow)"/>
+        <text x="60" y="28" textAnchor="middle" fill="#ffffff" fontSize="11" fontWeight="bold">Supply</text>
+        <text x="60" y="45" textAnchor="middle" fill="#e8f5e9" fontSize="9">Available drivers</text>
+        <text x="60" y="58" textAnchor="middle" fill="#e8f5e9" fontSize="9">in area</text>
+      </g>
+
+      {/* Factor 3 */}
+      <g transform="translate(285, 40)">
+        <rect width="120" height="65" rx="6" fill="url(#priceBlue)" filter="url(#priceShadow)"/>
+        <text x="60" y="28" textAnchor="middle" fill="#ffffff" fontSize="11" fontWeight="bold">External</text>
+        <text x="60" y="45" textAnchor="middle" fill="#e3f2fd" fontSize="9">Weather, events</text>
+        <text x="60" y="58" textAnchor="middle" fill="#e3f2fd" fontSize="9">time of day</text>
+      </g>
+
+      {/* Factor 4 */}
+      <g transform="translate(15, 115)">
+        <rect width="120" height="65" rx="6" fill="url(#priceOrange)" filter="url(#priceShadow)"/>
+        <text x="60" y="28" textAnchor="middle" fill="#1a1a1a" fontSize="11" fontWeight="bold">Historical</text>
+        <text x="60" y="45" textAnchor="middle" fill="#3d3d3d" fontSize="9">ML predictions</text>
+        <text x="60" y="58" textAnchor="middle" fill="#3d3d3d" fontSize="9">pattern analysis</text>
+      </g>
+
+      {/* Factor 5 */}
+      <g transform="translate(150, 115)">
+        <rect width="120" height="65" rx="6" fill="#7356bf" filter="url(#priceShadow)"/>
+        <text x="60" y="28" textAnchor="middle" fill="#ffffff" fontSize="11" fontWeight="bold">Distance</text>
+        <text x="60" y="45" textAnchor="middle" fill="#ede7f6" fontSize="9">Route length</text>
+        <text x="60" y="58" textAnchor="middle" fill="#ede7f6" fontSize="9">+ traffic ETA</text>
+      </g>
+
+      {/* Factor 6 */}
+      <g transform="translate(285, 115)">
+        <rect width="120" height="65" rx="6" fill="#06b6d4" filter="url(#priceShadow)"/>
+        <text x="60" y="28" textAnchor="middle" fill="#ffffff" fontSize="11" fontWeight="bold">Vehicle Type</text>
+        <text x="60" y="45" textAnchor="middle" fill="#e0f7fa" fontSize="9">UberX, Comfort</text>
+        <text x="60" y="58" textAnchor="middle" fill="#e0f7fa" fontSize="9">Black, XL</text>
+      </g>
+    </g>
+
+    {/* Surge Levels */}
+    <g transform="translate(50, 330)">
+      <rect width="800" height="100" rx="8" fill="#1a1a1a" stroke="#3d3d3d" strokeWidth="2"/>
+      <text x="400" y="25" textAnchor="middle" fill="#ffffff" fontSize="13" fontWeight="bold">Surge Multiplier Levels</text>
+
+      {/* Level bars */}
+      <g transform="translate(40, 45)">
+        <rect width="80" height="40" rx="4" fill="#06c167"/>
+        <text x="40" y="18" textAnchor="middle" fill="#ffffff" fontSize="14" fontWeight="bold">1.0x</text>
+        <text x="40" y="33" textAnchor="middle" fill="#e8f5e9" fontSize="9">Normal</text>
+      </g>
+
+      <g transform="translate(140, 45)">
+        <rect width="80" height="40" rx="4" fill="#84cc16"/>
+        <text x="40" y="18" textAnchor="middle" fill="#ffffff" fontSize="14" fontWeight="bold">1.2x</text>
+        <text x="40" y="33" textAnchor="middle" fill="#ecfccb" fontSize="9">Low</text>
+      </g>
+
+      <g transform="translate(240, 45)">
+        <rect width="80" height="40" rx="4" fill="#f6b900"/>
+        <text x="40" y="18" textAnchor="middle" fill="#1a1a1a" fontSize="14" fontWeight="bold">1.5x</text>
+        <text x="40" y="33" textAnchor="middle" fill="#3d3d3d" fontSize="9">Moderate</text>
+      </g>
+
+      <g transform="translate(340, 45)">
+        <rect width="80" height="40" rx="4" fill="#fb923c"/>
+        <text x="40" y="18" textAnchor="middle" fill="#ffffff" fontSize="14" fontWeight="bold">1.8x</text>
+        <text x="40" y="33" textAnchor="middle" fill="#ffedd5" fontSize="9">High</text>
+      </g>
+
+      <g transform="translate(440, 45)">
+        <rect width="80" height="40" rx="4" fill="#f87171"/>
+        <text x="40" y="18" textAnchor="middle" fill="#ffffff" fontSize="14" fontWeight="bold">2.0x</text>
+        <text x="40" y="33" textAnchor="middle" fill="#fee2e2" fontSize="9">Very High</text>
+      </g>
+
+      <g transform="translate(540, 45)">
+        <rect width="80" height="40" rx="4" fill="#ef4444"/>
+        <text x="40" y="18" textAnchor="middle" fill="#ffffff" fontSize="14" fontWeight="bold">2.5x</text>
+        <text x="40" y="33" textAnchor="middle" fill="#fee2e2" fontSize="9">Peak</text>
+      </g>
+
+      <g transform="translate(640, 45)">
+        <rect width="80" height="40" rx="4" fill="#dc2626"/>
+        <text x="40" y="18" textAnchor="middle" fill="#ffffff" fontSize="14" fontWeight="bold">3.0x+</text>
+        <text x="40" y="33" textAnchor="middle" fill="#fee2e2" fontSize="9">Extreme</text>
+      </g>
+
+      {/* Arrow */}
+      <line x1="40" y1="50" x2="720" y2="50" stroke="#ffffff" strokeWidth="2" strokeDasharray="4,4" opacity="0.3"/>
+    </g>
+  </svg>
+);
+
+// 5. Trip Lifecycle Diagram
+const TripLifecycleDiagram = () => (
+  <svg viewBox="0 0 900 500" className="w-full h-auto">
+    <defs>
+      <linearGradient id="tripBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#276ef1" />
+        <stop offset="100%" stopColor="#1a5ed9" />
+      </linearGradient>
+      <linearGradient id="tripGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06c167" />
+        <stop offset="100%" stopColor="#04a659" />
+      </linearGradient>
+      <linearGradient id="tripOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f6b900" />
+        <stop offset="100%" stopColor="#e5a800" />
+      </linearGradient>
+      <linearGradient id="tripPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#7356bf" />
+        <stop offset="100%" stopColor="#5e45a8" />
+      </linearGradient>
+      <linearGradient id="tripCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06b6d4" />
+        <stop offset="100%" stopColor="#0891b2" />
+      </linearGradient>
+      <filter id="tripShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="3" stdDeviation="3" floodOpacity="0.3"/>
+      </filter>
+      <marker id="tripArrow" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto">
+        <polygon points="0 0, 12 4, 0 8" fill="#06c167"/>
+      </marker>
+    </defs>
+
+    <rect width="900" height="500" fill="#0d0d0d" rx="12"/>
+    <text x="450" y="35" textAnchor="middle" fill="#ffffff" fontSize="20" fontWeight="bold">Complete Trip Lifecycle</text>
+
+    {/* Main Flow - Top Row */}
+    {/* Step 1: Request */}
+    <g transform="translate(50, 70)">
+      <rect width="140" height="100" rx="10" fill="url(#tripBlue)" filter="url(#tripShadow)"/>
+      <circle cx="20" cy="20" r="14" fill="#ffffff"/>
+      <text x="20" y="25" textAnchor="middle" fill="#276ef1" fontSize="14" fontWeight="bold">1</text>
+      <text x="70" y="50" textAnchor="middle" fill="#ffffff" fontSize="13" fontWeight="bold">REQUEST</text>
+      <text x="70" y="70" textAnchor="middle" fill="#e3f2fd" fontSize="10">Rider opens app</text>
+      <text x="70" y="85" textAnchor="middle" fill="#e3f2fd" fontSize="10">Sets pickup/dest</text>
+    </g>
+
+    {/* Arrow 1-2 */}
+    <line x1="195" y1="120" x2="230" y2="120" stroke="#06c167" strokeWidth="3" markerEnd="url(#tripArrow)"/>
+
+    {/* Step 2: Match */}
+    <g transform="translate(235, 70)">
+      <rect width="140" height="100" rx="10" fill="url(#tripGreen)" filter="url(#tripShadow)"/>
+      <circle cx="20" cy="20" r="14" fill="#ffffff"/>
+      <text x="20" y="25" textAnchor="middle" fill="#06c167" fontSize="14" fontWeight="bold">2</text>
+      <text x="70" y="50" textAnchor="middle" fill="#ffffff" fontSize="13" fontWeight="bold">MATCH</text>
+      <text x="70" y="70" textAnchor="middle" fill="#e8f5e9" fontSize="10">Find nearest driver</text>
+      <text x="70" y="85" textAnchor="middle" fill="#e8f5e9" fontSize="10">Score & assign</text>
+    </g>
+
+    {/* Arrow 2-3 */}
+    <line x1="380" y1="120" x2="415" y2="120" stroke="#06c167" strokeWidth="3" markerEnd="url(#tripArrow)"/>
+
+    {/* Step 3: Pickup */}
+    <g transform="translate(420, 70)">
+      <rect width="140" height="100" rx="10" fill="url(#tripOrange)" filter="url(#tripShadow)"/>
+      <circle cx="20" cy="20" r="14" fill="#1a1a1a"/>
+      <text x="20" y="25" textAnchor="middle" fill="#f6b900" fontSize="14" fontWeight="bold">3</text>
+      <text x="70" y="50" textAnchor="middle" fill="#1a1a1a" fontSize="13" fontWeight="bold">PICKUP</text>
+      <text x="70" y="70" textAnchor="middle" fill="#3d3d3d" fontSize="10">Driver en route</text>
+      <text x="70" y="85" textAnchor="middle" fill="#3d3d3d" fontSize="10">Arrival confirm</text>
+    </g>
+
+    {/* Arrow 3-4 */}
+    <line x1="565" y1="120" x2="600" y2="120" stroke="#06c167" strokeWidth="3" markerEnd="url(#tripArrow)"/>
+
+    {/* Step 4: Trip */}
+    <g transform="translate(605, 70)">
+      <rect width="140" height="100" rx="10" fill="url(#tripPurple)" filter="url(#tripShadow)"/>
+      <circle cx="20" cy="20" r="14" fill="#ffffff"/>
+      <text x="20" y="25" textAnchor="middle" fill="#7356bf" fontSize="14" fontWeight="bold">4</text>
+      <text x="70" y="50" textAnchor="middle" fill="#ffffff" fontSize="13" fontWeight="bold">IN TRIP</text>
+      <text x="70" y="70" textAnchor="middle" fill="#ede7f6" fontSize="10">Live navigation</text>
+      <text x="70" y="85" textAnchor="middle" fill="#ede7f6" fontSize="10">Real-time tracking</text>
+    </g>
+
+    {/* Arrow 4-5 */}
+    <line x1="750" y1="120" x2="785" y2="120" stroke="#06c167" strokeWidth="3" markerEnd="url(#tripArrow)"/>
+
+    {/* Step 5: Dropoff - Wraps down */}
+    <g transform="translate(750, 70)">
+      <rect width="100" height="100" rx="10" fill="url(#tripCyan)" filter="url(#tripShadow)"/>
+      <circle cx="15" cy="15" r="12" fill="#ffffff"/>
+      <text x="15" y="20" textAnchor="middle" fill="#06b6d4" fontSize="12" fontWeight="bold">5</text>
+      <text x="50" y="50" textAnchor="middle" fill="#ffffff" fontSize="11" fontWeight="bold">DROPOFF</text>
+      <text x="50" y="68" textAnchor="middle" fill="#e0f7fa" fontSize="9">Destination</text>
+      <text x="50" y="82" textAnchor="middle" fill="#e0f7fa" fontSize="9">reached</text>
+    </g>
+
+    {/* Arrow down to Payment */}
+    <path d="M800 175 L800 210 L675 210 L675 230" stroke="#06c167" strokeWidth="3" fill="none" markerEnd="url(#tripArrow)"/>
+
+    {/* Step 6: Payment */}
+    <g transform="translate(605, 235)">
+      <rect width="140" height="100" rx="10" fill="#ef4444" filter="url(#tripShadow)"/>
+      <circle cx="20" cy="20" r="14" fill="#ffffff"/>
+      <text x="20" y="25" textAnchor="middle" fill="#ef4444" fontSize="14" fontWeight="bold">6</text>
+      <text x="70" y="50" textAnchor="middle" fill="#ffffff" fontSize="13" fontWeight="bold">PAYMENT</text>
+      <text x="70" y="70" textAnchor="middle" fill="#fee2e2" fontSize="10">Auto-charge</text>
+      <text x="70" y="85" textAnchor="middle" fill="#fee2e2" fontSize="10">Receipt sent</text>
+    </g>
+
+    {/* Status Timeline */}
+    <g transform="translate(50, 210)">
+      <rect width="520" height="130" rx="8" fill="#1a1a1a" stroke="#3d3d3d" strokeWidth="2"/>
+      <text x="260" y="25" textAnchor="middle" fill="#ffffff" fontSize="13" fontWeight="bold">Ride Status State Machine</text>
+
+      {/* Status boxes */}
+      <g transform="translate(20, 45)">
+        <rect width="70" height="30" rx="4" fill="#276ef1"/>
+        <text x="35" y="20" textAnchor="middle" fill="#ffffff" fontSize="9" fontWeight="bold">PENDING</text>
+      </g>
+
+      <text x="100" y="65" fill="#06c167" fontSize="16">→</text>
+
+      <g transform="translate(115, 45)">
+        <rect width="70" height="30" rx="4" fill="#06c167"/>
+        <text x="35" y="20" textAnchor="middle" fill="#ffffff" fontSize="9" fontWeight="bold">MATCHED</text>
+      </g>
+
+      <text x="195" y="65" fill="#06c167" fontSize="16">→</text>
+
+      <g transform="translate(210, 45)">
+        <rect width="70" height="30" rx="4" fill="#f6b900"/>
+        <text x="35" y="20" textAnchor="middle" fill="#1a1a1a" fontSize="9" fontWeight="bold">ARRIVING</text>
+      </g>
+
+      <text x="290" y="65" fill="#06c167" fontSize="16">→</text>
+
+      <g transform="translate(305, 45)">
+        <rect width="70" height="30" rx="4" fill="#7356bf"/>
+        <text x="35" y="20" textAnchor="middle" fill="#ffffff" fontSize="9" fontWeight="bold">IN_TRIP</text>
+      </g>
+
+      <text x="385" y="65" fill="#06c167" fontSize="16">→</text>
+
+      <g transform="translate(400, 45)">
+        <rect width="90" height="30" rx="4" fill="#06b6d4"/>
+        <text x="45" y="20" textAnchor="middle" fill="#ffffff" fontSize="9" fontWeight="bold">COMPLETED</text>
+      </g>
+
+      {/* Cancel path */}
+      <g transform="translate(20, 95)">
+        <rect width="65" height="25" rx="4" fill="#ef4444"/>
+        <text x="32" y="17" textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="bold">CANCELLED</text>
+      </g>
+      <text x="95" y="112" fill="#9ca3af" fontSize="9">(from any state before IN_TRIP)</text>
+    </g>
+
+    {/* Events Panel */}
+    <g transform="translate(50, 360)">
+      <rect width="800" height="120" rx="8" fill="#1a1a1a" stroke="#3d3d3d" strokeWidth="2"/>
+      <text x="400" y="25" textAnchor="middle" fill="#ffffff" fontSize="13" fontWeight="bold">Kafka Events Published During Trip</text>
+
+      {/* Event boxes */}
+      <g transform="translate(20, 45)">
+        <rect width="115" height="55" rx="6" fill="#276ef1"/>
+        <text x="57" y="20" textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="bold">ride.requested</text>
+        <text x="57" y="38" textAnchor="middle" fill="#e3f2fd" fontSize="8">rider_id, pickup</text>
+        <text x="57" y="50" textAnchor="middle" fill="#e3f2fd" fontSize="8">destination</text>
+      </g>
+
+      <g transform="translate(150, 45)">
+        <rect width="115" height="55" rx="6" fill="#06c167"/>
+        <text x="57" y="20" textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="bold">driver.matched</text>
+        <text x="57" y="38" textAnchor="middle" fill="#e8f5e9" fontSize="8">driver_id, eta</text>
+        <text x="57" y="50" textAnchor="middle" fill="#e8f5e9" fontSize="8">vehicle_info</text>
+      </g>
+
+      <g transform="translate(280, 45)">
+        <rect width="115" height="55" rx="6" fill="#f6b900"/>
+        <text x="57" y="20" textAnchor="middle" fill="#1a1a1a" fontSize="10" fontWeight="bold">driver.arrived</text>
+        <text x="57" y="38" textAnchor="middle" fill="#3d3d3d" fontSize="8">timestamp</text>
+        <text x="57" y="50" textAnchor="middle" fill="#3d3d3d" fontSize="8">location</text>
+      </g>
+
+      <g transform="translate(410, 45)">
+        <rect width="115" height="55" rx="6" fill="#7356bf"/>
+        <text x="57" y="20" textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="bold">trip.started</text>
+        <text x="57" y="38" textAnchor="middle" fill="#ede7f6" fontSize="8">start_time</text>
+        <text x="57" y="50" textAnchor="middle" fill="#ede7f6" fontSize="8">route_id</text>
+      </g>
+
+      <g transform="translate(540, 45)">
+        <rect width="115" height="55" rx="6" fill="#06b6d4"/>
+        <text x="57" y="20" textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="bold">trip.completed</text>
+        <text x="57" y="38" textAnchor="middle" fill="#e0f7fa" fontSize="8">distance, duration</text>
+        <text x="57" y="50" textAnchor="middle" fill="#e0f7fa" fontSize="8">final_fare</text>
+      </g>
+
+      <g transform="translate(670, 45)">
+        <rect width="110" height="55" rx="6" fill="#ef4444"/>
+        <text x="55" y="20" textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="bold">payment.processed</text>
+        <text x="55" y="38" textAnchor="middle" fill="#fee2e2" fontSize="8">amount, method</text>
+        <text x="55" y="50" textAnchor="middle" fill="#fee2e2" fontSize="8">receipt_url</text>
+      </g>
+    </g>
+  </svg>
+);
+
 export default function RideShare({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('architecture');
   const [expandedSections, setExpandedSections] = useState({});
@@ -372,6 +1248,24 @@ export default function RideShare({ onBack, breadcrumb }) {
           {/* Component Diagram Tab */}
           {activeTab === 'diagram' && (
             <div className="space-y-8">
+              {/* High-Level Architecture SVG Diagram */}
+              <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 rounded-2xl p-6 border-2 border-gray-700 shadow-lg">
+                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <Server className="w-7 h-7 text-blue-400" />
+                  System Architecture Overview
+                </h2>
+                <RideShareArchitectureDiagram />
+              </div>
+
+              {/* Trip Lifecycle SVG Diagram */}
+              <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 rounded-2xl p-6 border-2 border-gray-700 shadow-lg">
+                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <Navigation className="w-7 h-7 text-green-400" />
+                  Complete Trip Lifecycle
+                </h2>
+                <TripLifecycleDiagram />
+              </div>
+
               {/* Legend */}
               <div className="bg-gradient-to-br from-gray-900/30 to-gray-800/30 rounded-2xl p-6 border-2 border-gray-700 shadow-lg">
                 <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
@@ -1042,6 +1936,33 @@ export default function RideShare({ onBack, breadcrumb }) {
           {/* Matching Tab */}
           {activeTab === 'matching' && (
             <div className="space-y-6">
+              {/* Matching Algorithm SVG Diagram */}
+              <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 rounded-2xl p-6 border-2 border-gray-700 shadow-lg">
+                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <MapPin className="w-7 h-7 text-green-400" />
+                  Geospatial Matching Visualization
+                </h2>
+                <MatchingAlgorithmDiagram />
+              </div>
+
+              {/* Real-Time Location SVG Diagram */}
+              <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 rounded-2xl p-6 border-2 border-gray-700 shadow-lg">
+                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <Radio className="w-7 h-7 text-blue-400" />
+                  Real-Time GPS Tracking Flow
+                </h2>
+                <RealTimeLocationDiagram />
+              </div>
+
+              {/* Dynamic Pricing SVG Diagram */}
+              <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 rounded-2xl p-6 border-2 border-gray-700 shadow-lg">
+                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <TrendingUp className="w-7 h-7 text-yellow-400" />
+                  Dynamic Surge Pricing
+                </h2>
+                <PricingDiagram />
+              </div>
+
               <div className="bg-gradient-to-br from-gray-900/30 to-gray-800/30 rounded-2xl p-8 border border-gray-700 shadow-sm">
                 <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                   <div className="p-2 bg-blue-900/30 rounded-lg">

@@ -1,6 +1,681 @@
 import React, { useState } from 'react';
 import Breadcrumb from '../../components/Breadcrumb';
 
+// SVG Diagram Components
+
+// 1. High-level architecture: Client → API → Search Service → Trie/Index
+const TypeAheadArchitectureDiagram = () => (
+  <svg viewBox="0 0 900 400" className="w-full h-auto">
+    <defs>
+      <linearGradient id="archClientGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#6d28d9" />
+      </linearGradient>
+      <linearGradient id="archApiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06b6d4" />
+        <stop offset="100%" stopColor="#0891b2" />
+      </linearGradient>
+      <linearGradient id="archServiceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="archTrieGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+      <linearGradient id="archCacheGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ef4444" />
+        <stop offset="100%" stopColor="#dc2626" />
+      </linearGradient>
+      <filter id="archShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+      </filter>
+      <marker id="archArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#64748b" />
+      </marker>
+    </defs>
+
+    {/* Background */}
+    <rect x="0" y="0" width="900" height="400" fill="#f8fafc" rx="12"/>
+
+    {/* Title */}
+    <text x="450" y="35" textAnchor="middle" fontSize="18" fontWeight="bold" fill="#1e293b">TypeAhead System Architecture</text>
+
+    {/* Client Layer */}
+    <g filter="url(#archShadow)">
+      <rect x="30" y="80" width="120" height="80" rx="10" fill="url(#archClientGrad)"/>
+      <text x="90" y="115" textAnchor="middle" fontSize="13" fontWeight="bold" fill="white">Web Client</text>
+      <text x="90" y="135" textAnchor="middle" fontSize="10" fill="#e0e7ff">Browser/Mobile</text>
+    </g>
+
+    {/* API Gateway */}
+    <g filter="url(#archShadow)">
+      <rect x="220" y="80" width="140" height="80" rx="10" fill="url(#archApiGrad)"/>
+      <text x="290" y="110" textAnchor="middle" fontSize="13" fontWeight="bold" fill="white">API Gateway</text>
+      <text x="290" y="130" textAnchor="middle" fontSize="10" fill="#cffafe">Rate Limiting</text>
+      <text x="290" y="145" textAnchor="middle" fontSize="10" fill="#cffafe">Load Balancing</text>
+    </g>
+
+    {/* Search Service */}
+    <g filter="url(#archShadow)">
+      <rect x="430" y="80" width="150" height="80" rx="10" fill="url(#archServiceGrad)"/>
+      <text x="505" y="110" textAnchor="middle" fontSize="13" fontWeight="bold" fill="white">Search Service</text>
+      <text x="505" y="130" textAnchor="middle" fontSize="10" fill="#d1fae5">Query Processing</text>
+      <text x="505" y="145" textAnchor="middle" fontSize="10" fill="#d1fae5">Ranking</text>
+    </g>
+
+    {/* Trie/Index */}
+    <g filter="url(#archShadow)">
+      <rect x="650" y="80" width="140" height="80" rx="10" fill="url(#archTrieGrad)"/>
+      <text x="720" y="110" textAnchor="middle" fontSize="13" fontWeight="bold" fill="white">Trie Index</text>
+      <text x="720" y="130" textAnchor="middle" fontSize="10" fill="#fef3c7">Prefix Tree</text>
+      <text x="720" y="145" textAnchor="middle" fontSize="10" fill="#fef3c7">In-Memory</text>
+    </g>
+
+    {/* Cache Layer */}
+    <g filter="url(#archShadow)">
+      <rect x="430" y="220" width="150" height="70" rx="10" fill="url(#archCacheGrad)"/>
+      <text x="505" y="250" textAnchor="middle" fontSize="13" fontWeight="bold" fill="white">Redis Cache</text>
+      <text x="505" y="270" textAnchor="middle" fontSize="10" fill="#fee2e2">Prefix → Suggestions</text>
+    </g>
+
+    {/* Database */}
+    <g filter="url(#archShadow)">
+      <rect x="650" y="220" width="140" height="70" rx="10" fill="#334155"/>
+      <text x="720" y="250" textAnchor="middle" fontSize="13" fontWeight="bold" fill="white">Database</text>
+      <text x="720" y="270" textAnchor="middle" fontSize="10" fill="#94a3b8">PostgreSQL</text>
+    </g>
+
+    {/* Arrows */}
+    <line x1="150" y1="120" x2="215" y2="120" stroke="#64748b" strokeWidth="2" markerEnd="url(#archArrow)"/>
+    <line x1="360" y1="120" x2="425" y2="120" stroke="#64748b" strokeWidth="2" markerEnd="url(#archArrow)"/>
+    <line x1="580" y1="120" x2="645" y2="120" stroke="#64748b" strokeWidth="2" markerEnd="url(#archArrow)"/>
+    <line x1="505" y1="160" x2="505" y2="215" stroke="#64748b" strokeWidth="2" markerEnd="url(#archArrow)"/>
+    <line x1="580" y1="255" x2="645" y2="255" stroke="#64748b" strokeWidth="2" markerEnd="url(#archArrow)"/>
+    <line x1="720" y1="160" x2="720" y2="215" stroke="#64748b" strokeWidth="2" markerEnd="url(#archArrow)"/>
+
+    {/* Labels on arrows */}
+    <text x="182" y="108" fontSize="9" fill="#64748b">GET /autocomplete</text>
+    <text x="392" y="108" fontSize="9" fill="#64748b">Query</text>
+    <text x="605" y="108" fontSize="9" fill="#64748b">Lookup</text>
+    <text x="515" y="190" fontSize="9" fill="#64748b">Cache Hit</text>
+    <text x="605" y="243" fontSize="9" fill="#64748b">Miss</text>
+
+    {/* Response flow (dashed) */}
+    <line x1="215" y1="140" x2="150" y2="140" stroke="#22c55e" strokeWidth="2" strokeDasharray="5,3" markerEnd="url(#archArrow)"/>
+    <text x="182" y="155" fontSize="9" fill="#22c55e">Suggestions</text>
+
+    {/* Legend */}
+    <rect x="30" y="320" width="840" height="60" fill="#f1f5f9" rx="8"/>
+    <text x="50" y="345" fontSize="11" fontWeight="bold" fill="#475569">Request Flow:</text>
+    <line x1="140" y1="342" x2="180" y2="342" stroke="#64748b" strokeWidth="2" markerEnd="url(#archArrow)"/>
+    <text x="190" y="346" fontSize="10" fill="#64748b">Solid arrows</text>
+    <text x="290" y="345" fontSize="11" fontWeight="bold" fill="#475569">Response Flow:</text>
+    <line x1="400" y1="342" x2="440" y2="342" stroke="#22c55e" strokeWidth="2" strokeDasharray="5,3"/>
+    <text x="450" y="346" fontSize="10" fill="#22c55e">Dashed arrows</text>
+    <text x="550" y="345" fontSize="11" fontWeight="bold" fill="#475569">Latency Target:</text>
+    <text x="660" y="346" fontSize="10" fill="#ef4444">P99 &lt; 100ms</text>
+  </svg>
+);
+
+// 2. Trie Data Structure for Prefix Matching
+const TrieDataStructureDiagram = () => (
+  <svg viewBox="0 0 800 500" className="w-full h-auto">
+    <defs>
+      <linearGradient id="trieNodeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#7c3aed" />
+      </linearGradient>
+      <linearGradient id="trieEndGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="trieHighlightGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+      <filter id="trieShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="1" dy="1" stdDeviation="2" floodOpacity="0.3"/>
+      </filter>
+    </defs>
+
+    {/* Background */}
+    <rect x="0" y="0" width="800" height="500" fill="#f8fafc" rx="12"/>
+
+    {/* Title */}
+    <text x="400" y="30" textAnchor="middle" fontSize="18" fontWeight="bold" fill="#1e293b">Trie Data Structure for Prefix "car"</text>
+
+    {/* Root Node */}
+    <g filter="url(#trieShadow)">
+      <circle cx="400" cy="80" r="25" fill="url(#trieNodeGrad)"/>
+      <text x="400" y="85" textAnchor="middle" fontSize="14" fontWeight="bold" fill="white">root</text>
+    </g>
+
+    {/* Level 1: 'c' */}
+    <line x1="400" y1="105" x2="400" y2="145" stroke="#64748b" strokeWidth="2"/>
+    <g filter="url(#trieShadow)">
+      <circle cx="400" cy="170" r="25" fill="url(#trieHighlightGrad)"/>
+      <text x="400" y="175" textAnchor="middle" fontSize="16" fontWeight="bold" fill="white">c</text>
+    </g>
+
+    {/* Level 2: 'a' */}
+    <line x1="400" y1="195" x2="400" y2="235" stroke="#64748b" strokeWidth="2"/>
+    <g filter="url(#trieShadow)">
+      <circle cx="400" cy="260" r="25" fill="url(#trieHighlightGrad)"/>
+      <text x="400" y="265" textAnchor="middle" fontSize="16" fontWeight="bold" fill="white">a</text>
+    </g>
+
+    {/* Level 3: 'r' - This is the prefix match node */}
+    <line x1="400" y1="285" x2="400" y2="325" stroke="#64748b" strokeWidth="2"/>
+    <g filter="url(#trieShadow)">
+      <circle cx="400" cy="350" r="28" fill="url(#trieHighlightGrad)" stroke="#dc2626" strokeWidth="3"/>
+      <text x="400" y="355" textAnchor="middle" fontSize="16" fontWeight="bold" fill="white">r</text>
+    </g>
+
+    {/* Prefix indicator */}
+    <rect x="440" y="335" width="120" height="30" rx="5" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="500" y="355" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#92400e">Prefix: "car"</text>
+
+    {/* Level 4: Branches from 'r' */}
+    {/* Branch to empty (word: car) */}
+    <line x1="360" y1="370" x2="280" y2="420" stroke="#22c55e" strokeWidth="2"/>
+    <g filter="url(#trieShadow)">
+      <circle cx="260" cy="440" r="22" fill="url(#trieEndGrad)"/>
+      <text x="260" y="445" textAnchor="middle" fontSize="12" fontWeight="bold" fill="white">END</text>
+    </g>
+    <text x="260" y="475" textAnchor="middle" fontSize="11" fill="#059669" fontWeight="bold">"car" (1M)</text>
+
+    {/* Branch to 's' (cars) */}
+    <line x1="380" y1="375" x2="340" y2="420" stroke="#64748b" strokeWidth="2"/>
+    <g filter="url(#trieShadow)">
+      <circle cx="330" cy="440" r="20" fill="url(#trieNodeGrad)"/>
+      <text x="330" y="445" textAnchor="middle" fontSize="14" fontWeight="bold" fill="white">s</text>
+    </g>
+    <text x="330" y="475" textAnchor="middle" fontSize="11" fill="#7c3aed">"cars" (500K)</text>
+
+    {/* Branch to 'b' (carbon) */}
+    <line x1="420" y1="375" x2="460" y2="420" stroke="#64748b" strokeWidth="2"/>
+    <g filter="url(#trieShadow)">
+      <circle cx="470" cy="440" r="20" fill="url(#trieNodeGrad)"/>
+      <text x="470" y="445" textAnchor="middle" fontSize="14" fontWeight="bold" fill="white">b</text>
+    </g>
+    <text x="470" y="475" textAnchor="middle" fontSize="11" fill="#7c3aed">"carbon..." (300K)</text>
+
+    {/* Branch to 'e' (career) */}
+    <line x1="440" y1="370" x2="540" y2="420" stroke="#64748b" strokeWidth="2"/>
+    <g filter="url(#trieShadow)">
+      <circle cx="560" cy="440" r="20" fill="url(#trieNodeGrad)"/>
+      <text x="560" y="445" textAnchor="middle" fontSize="14" fontWeight="bold" fill="white">e</text>
+    </g>
+    <text x="560" y="475" textAnchor="middle" fontSize="11" fill="#7c3aed">"career..." (200K)</text>
+
+    {/* Explanation Box */}
+    <rect x="600" y="80" width="180" height="150" rx="8" fill="#eff6ff" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="690" y="105" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#1e40af">Trie Properties</text>
+    <text x="615" y="130" fontSize="10" fill="#1e3a5a">- O(k) lookup time</text>
+    <text x="615" y="150" fontSize="10" fill="#1e3a5a">- k = prefix length</text>
+    <text x="615" y="170" fontSize="10" fill="#1e3a5a">- Store top N at each node</text>
+    <text x="615" y="190" fontSize="10" fill="#1e3a5a">- Memory: ~100B/node</text>
+    <text x="615" y="210" fontSize="10" fill="#1e3a5a">- Compressed (PATRICIA)</text>
+
+    {/* Legend */}
+    <rect x="20" y="80" width="150" height="130" rx="8" fill="#f1f5f9" stroke="#e2e8f0" strokeWidth="1"/>
+    <text x="95" y="105" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#475569">Legend</text>
+    <circle cx="45" cy="130" r="10" fill="url(#trieHighlightGrad)"/>
+    <text x="65" y="135" fontSize="10" fill="#64748b">Prefix path</text>
+    <circle cx="45" cy="160" r="10" fill="url(#trieNodeGrad)"/>
+    <text x="65" y="165" fontSize="10" fill="#64748b">Child node</text>
+    <circle cx="45" cy="190" r="10" fill="url(#trieEndGrad)"/>
+    <text x="65" y="195" fontSize="10" fill="#64748b">Word end</text>
+  </svg>
+);
+
+// 3. Ranking Diagram - How suggestions are ranked by popularity/relevance
+const RankingDiagram = () => (
+  <svg viewBox="0 0 850 450" className="w-full h-auto">
+    <defs>
+      <linearGradient id="rankInputGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#7c3aed" />
+      </linearGradient>
+      <linearGradient id="rankFeatureGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06b6d4" />
+        <stop offset="100%" stopColor="#0891b2" />
+      </linearGradient>
+      <linearGradient id="rankModelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+      <linearGradient id="rankOutputGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <filter id="rankShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+      </filter>
+      <marker id="rankArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#64748b" />
+      </marker>
+    </defs>
+
+    {/* Background */}
+    <rect x="0" y="0" width="850" height="450" fill="#f8fafc" rx="12"/>
+
+    {/* Title */}
+    <text x="425" y="30" textAnchor="middle" fontSize="18" fontWeight="bold" fill="#1e293b">Suggestion Ranking Pipeline</text>
+
+    {/* Input: Raw Suggestions */}
+    <g filter="url(#rankShadow)">
+      <rect x="30" y="70" width="140" height="100" rx="10" fill="url(#rankInputGrad)"/>
+      <text x="100" y="100" textAnchor="middle" fontSize="12" fontWeight="bold" fill="white">Raw Suggestions</text>
+      <text x="100" y="120" textAnchor="middle" fontSize="10" fill="#e0e7ff">From Trie</text>
+      <text x="100" y="140" textAnchor="middle" fontSize="10" fill="#c4b5fd">car, cars, carbon,</text>
+      <text x="100" y="155" textAnchor="middle" fontSize="10" fill="#c4b5fd">career, careful...</text>
+    </g>
+
+    {/* Feature Extraction */}
+    <g filter="url(#rankShadow)">
+      <rect x="220" y="50" width="160" height="300" rx="10" fill="url(#rankFeatureGrad)"/>
+      <text x="300" y="80" textAnchor="middle" fontSize="12" fontWeight="bold" fill="white">Feature Extraction</text>
+
+      {/* Feature boxes */}
+      <rect x="235" y="100" width="130" height="35" rx="5" fill="#0e7490"/>
+      <text x="300" y="115" textAnchor="middle" fontSize="10" fontWeight="bold" fill="white">Popularity</text>
+      <text x="300" y="128" textAnchor="middle" fontSize="9" fill="#cffafe">Query frequency</text>
+
+      <rect x="235" y="145" width="130" height="35" rx="5" fill="#0e7490"/>
+      <text x="300" y="160" textAnchor="middle" fontSize="10" fontWeight="bold" fill="white">Recency</text>
+      <text x="300" y="173" textAnchor="middle" fontSize="9" fill="#cffafe">Time decay factor</text>
+
+      <rect x="235" y="190" width="130" height="35" rx="5" fill="#0e7490"/>
+      <text x="300" y="205" textAnchor="middle" fontSize="10" fontWeight="bold" fill="white">Personalization</text>
+      <text x="300" y="218" textAnchor="middle" fontSize="9" fill="#cffafe">User history match</text>
+
+      <rect x="235" y="235" width="130" height="35" rx="5" fill="#0e7490"/>
+      <text x="300" y="250" textAnchor="middle" fontSize="10" fontWeight="bold" fill="white">Context</text>
+      <text x="300" y="263" textAnchor="middle" fontSize="9" fill="#cffafe">Location, device</text>
+
+      <rect x="235" y="280" width="130" height="35" rx="5" fill="#0e7490"/>
+      <text x="300" y="295" textAnchor="middle" fontSize="10" fontWeight="bold" fill="white">CTR</text>
+      <text x="300" y="308" textAnchor="middle" fontSize="9" fill="#cffafe">Click-through rate</text>
+    </g>
+
+    {/* ML Model */}
+    <g filter="url(#rankShadow)">
+      <rect x="430" y="100" width="160" height="200" rx="10" fill="url(#rankModelGrad)"/>
+      <text x="510" y="130" textAnchor="middle" fontSize="12" fontWeight="bold" fill="white">ML Ranking Model</text>
+      <text x="510" y="150" textAnchor="middle" fontSize="10" fill="#fef3c7">(XGBoost/GBDT)</text>
+
+      {/* Formula */}
+      <rect x="445" y="165" width="130" height="60" rx="5" fill="#b45309"/>
+      <text x="510" y="185" textAnchor="middle" fontSize="9" fontWeight="bold" fill="white">Score Formula:</text>
+      <text x="510" y="200" textAnchor="middle" fontSize="8" fill="#fef3c7">w1×pop + w2×rec</text>
+      <text x="510" y="212" textAnchor="middle" fontSize="8" fill="#fef3c7">+ w3×pers + w4×ctx</text>
+
+      {/* Training info */}
+      <text x="510" y="250" textAnchor="middle" fontSize="9" fill="#fef3c7">Trained daily</text>
+      <text x="510" y="265" textAnchor="middle" fontSize="9" fill="#fef3c7">on click data</text>
+      <text x="510" y="280" textAnchor="middle" fontSize="9" fill="#fef3c7">A/B tested</text>
+    </g>
+
+    {/* Output: Ranked Suggestions */}
+    <g filter="url(#rankShadow)">
+      <rect x="640" y="70" width="180" height="260" rx="10" fill="url(#rankOutputGrad)"/>
+      <text x="730" y="100" textAnchor="middle" fontSize="12" fontWeight="bold" fill="white">Ranked Suggestions</text>
+      <text x="730" y="118" textAnchor="middle" fontSize="10" fill="#d1fae5">Top 10 returned</text>
+
+      {/* Ranked list */}
+      <rect x="660" y="130" width="140" height="25" rx="4" fill="#047857"/>
+      <text x="680" y="147" fontSize="10" fill="white">1. car</text>
+      <text x="780" y="147" fontSize="9" fill="#a7f3d0">0.95</text>
+
+      <rect x="660" y="160" width="140" height="25" rx="4" fill="#047857"/>
+      <text x="680" y="177" fontSize="10" fill="white">2. cars</text>
+      <text x="780" y="177" fontSize="9" fill="#a7f3d0">0.89</text>
+
+      <rect x="660" y="190" width="140" height="25" rx="4" fill="#047857"/>
+      <text x="680" y="207" fontSize="10" fill="white">3. carbon</text>
+      <text x="780" y="207" fontSize="9" fill="#a7f3d0">0.82</text>
+
+      <rect x="660" y="220" width="140" height="25" rx="4" fill="#047857"/>
+      <text x="680" y="237" fontSize="10" fill="white">4. career</text>
+      <text x="780" y="237" fontSize="9" fill="#a7f3d0">0.78</text>
+
+      <rect x="660" y="250" width="140" height="25" rx="4" fill="#047857"/>
+      <text x="680" y="267" fontSize="10" fill="white">5. careful</text>
+      <text x="780" y="267" fontSize="9" fill="#a7f3d0">0.71</text>
+
+      <text x="730" y="300" textAnchor="middle" fontSize="10" fill="#d1fae5">...</text>
+    </g>
+
+    {/* Arrows */}
+    <line x1="170" y1="120" x2="215" y2="120" stroke="#64748b" strokeWidth="2" markerEnd="url(#rankArrow)"/>
+    <line x1="380" y1="200" x2="425" y2="200" stroke="#64748b" strokeWidth="2" markerEnd="url(#rankArrow)"/>
+    <line x1="590" y1="200" x2="635" y2="200" stroke="#64748b" strokeWidth="2" markerEnd="url(#rankArrow)"/>
+
+    {/* Latency indicator */}
+    <rect x="30" y="380" width="790" height="50" rx="8" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="425" y="400" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#92400e">Ranking Latency Budget</text>
+    <text x="200" y="420" textAnchor="middle" fontSize="10" fill="#78350f">Feature Extraction: ~5ms</text>
+    <text x="425" y="420" textAnchor="middle" fontSize="10" fill="#78350f">Model Inference: ~10ms</text>
+    <text x="650" y="420" textAnchor="middle" fontSize="10" fill="#78350f">Total: ~15-20ms</text>
+  </svg>
+);
+
+// 4. Multi-layer Caching Diagram
+const CachingDiagram = () => (
+  <svg viewBox="0 0 800 500" className="w-full h-auto">
+    <defs>
+      <linearGradient id="cacheL1Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#7c3aed" />
+      </linearGradient>
+      <linearGradient id="cacheL2Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06b6d4" />
+        <stop offset="100%" stopColor="#0891b2" />
+      </linearGradient>
+      <linearGradient id="cacheL3Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ef4444" />
+        <stop offset="100%" stopColor="#dc2626" />
+      </linearGradient>
+      <linearGradient id="cacheL4Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="cacheDbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+      <filter id="cacheShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+      </filter>
+      <marker id="cacheArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#64748b" />
+      </marker>
+      <marker id="cacheArrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#22c55e" />
+      </marker>
+    </defs>
+
+    {/* Background */}
+    <rect x="0" y="0" width="800" height="500" fill="#f8fafc" rx="12"/>
+
+    {/* Title */}
+    <text x="400" y="30" textAnchor="middle" fontSize="18" fontWeight="bold" fill="#1e293b">Multi-Layer Caching Strategy</text>
+
+    {/* Client */}
+    <g filter="url(#cacheShadow)">
+      <rect x="30" y="60" width="100" height="60" rx="8" fill="#64748b"/>
+      <text x="80" y="85" textAnchor="middle" fontSize="11" fontWeight="bold" fill="white">Client</text>
+      <text x="80" y="100" textAnchor="middle" fontSize="9" fill="#e2e8f0">Browser/App</text>
+    </g>
+
+    {/* L1: Browser Cache */}
+    <g filter="url(#cacheShadow)">
+      <rect x="180" y="50" width="130" height="80" rx="10" fill="url(#cacheL1Grad)"/>
+      <text x="245" y="75" textAnchor="middle" fontSize="11" fontWeight="bold" fill="white">L1: Browser Cache</text>
+      <text x="245" y="95" textAnchor="middle" fontSize="9" fill="#e0e7ff">TTL: 5 min</text>
+      <text x="245" y="110" textAnchor="middle" fontSize="9" fill="#c4b5fd">LocalStorage/Memory</text>
+    </g>
+
+    {/* L2: CDN Edge */}
+    <g filter="url(#cacheShadow)">
+      <rect x="360" y="50" width="130" height="80" rx="10" fill="url(#cacheL2Grad)"/>
+      <text x="425" y="75" textAnchor="middle" fontSize="11" fontWeight="bold" fill="white">L2: CDN Edge</text>
+      <text x="425" y="95" textAnchor="middle" fontSize="9" fill="#cffafe">TTL: 10 min</text>
+      <text x="425" y="110" textAnchor="middle" fontSize="9" fill="#a5f3fc">CloudFront/Fastly</text>
+    </g>
+
+    {/* L3: Redis Cluster */}
+    <g filter="url(#cacheShadow)">
+      <rect x="540" y="50" width="130" height="80" rx="10" fill="url(#cacheL3Grad)"/>
+      <text x="605" y="75" textAnchor="middle" fontSize="11" fontWeight="bold" fill="white">L3: Redis Cluster</text>
+      <text x="605" y="95" textAnchor="middle" fontSize="9" fill="#fee2e2">TTL: 1 hour</text>
+      <text x="605" y="110" textAnchor="middle" fontSize="9" fill="#fecaca">Distributed Cache</text>
+    </g>
+
+    {/* L4: App Memory */}
+    <g filter="url(#cacheShadow)">
+      <rect x="540" y="170" width="130" height="80" rx="10" fill="url(#cacheL4Grad)"/>
+      <text x="605" y="195" textAnchor="middle" fontSize="11" fontWeight="bold" fill="white">L4: App Memory</text>
+      <text x="605" y="215" textAnchor="middle" fontSize="9" fill="#d1fae5">LRU Cache</text>
+      <text x="605" y="230" textAnchor="middle" fontSize="9" fill="#a7f3d0">Hot queries</text>
+    </g>
+
+    {/* Database/Trie */}
+    <g filter="url(#cacheShadow)">
+      <rect x="540" y="290" width="130" height="80" rx="10" fill="url(#cacheDbGrad)"/>
+      <text x="605" y="315" textAnchor="middle" fontSize="11" fontWeight="bold" fill="white">Trie Index</text>
+      <text x="605" y="335" textAnchor="middle" fontSize="9" fill="#fef3c7">Source of Truth</text>
+      <text x="605" y="350" textAnchor="middle" fontSize="9" fill="#fde68a">In-Memory</text>
+    </g>
+
+    {/* Arrows for request flow */}
+    <line x1="130" y1="90" x2="175" y2="90" stroke="#64748b" strokeWidth="2" markerEnd="url(#cacheArrow)"/>
+    <line x1="310" y1="90" x2="355" y2="90" stroke="#64748b" strokeWidth="2" markerEnd="url(#cacheArrow)"/>
+    <line x1="490" y1="90" x2="535" y2="90" stroke="#64748b" strokeWidth="2" markerEnd="url(#cacheArrow)"/>
+    <line x1="605" y1="130" x2="605" y2="165" stroke="#64748b" strokeWidth="2" markerEnd="url(#cacheArrow)"/>
+    <line x1="605" y1="250" x2="605" y2="285" stroke="#64748b" strokeWidth="2" markerEnd="url(#cacheArrow)"/>
+
+    {/* Hit/Miss labels */}
+    <text x="152" y="80" fontSize="8" fill="#64748b">Request</text>
+    <text x="332" y="80" fontSize="8" fill="#dc2626">Miss</text>
+    <text x="512" y="80" fontSize="8" fill="#dc2626">Miss</text>
+    <text x="620" y="150" fontSize="8" fill="#dc2626">Miss</text>
+    <text x="620" y="270" fontSize="8" fill="#dc2626">Miss</text>
+
+    {/* Cache hit rates box */}
+    <rect x="30" y="160" width="200" height="200" rx="10" fill="#eff6ff" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="130" y="185" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#1e40af">Cache Hit Rates</text>
+
+    <rect x="50" y="200" width="160" height="30" rx="5" fill="#8b5cf6"/>
+    <rect x="50" y="200" width="128" height="30" rx="5" fill="#a78bfa"/>
+    <text x="130" y="220" textAnchor="middle" fontSize="10" fontWeight="bold" fill="white">L1: 80%</text>
+
+    <rect x="50" y="240" width="160" height="30" rx="5" fill="#06b6d4"/>
+    <rect x="50" y="240" width="144" height="30" rx="5" fill="#22d3ee"/>
+    <text x="130" y="260" textAnchor="middle" fontSize="10" fontWeight="bold" fill="white">L2: 90%</text>
+
+    <rect x="50" y="280" width="160" height="30" rx="5" fill="#ef4444"/>
+    <rect x="50" y="280" width="152" height="30" rx="5" fill="#f87171"/>
+    <text x="130" y="300" textAnchor="middle" fontSize="10" fontWeight="bold" fill="white">L3: 95%</text>
+
+    <rect x="50" y="320" width="160" height="30" rx="5" fill="#10b981"/>
+    <rect x="50" y="320" width="156" height="30" rx="5" fill="#34d399"/>
+    <text x="130" y="340" textAnchor="middle" fontSize="10" fontWeight="bold" fill="white">L4: 98%</text>
+
+    {/* Latency indicator */}
+    <rect x="260" y="160" width="230" height="210" rx="10" fill="#f0fdf4" stroke="#22c55e" strokeWidth="2"/>
+    <text x="375" y="185" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#166534">Latency by Layer</text>
+
+    <text x="280" y="215" fontSize="11" fill="#166534">L1 Hit:</text>
+    <text x="440" y="215" fontSize="11" fontWeight="bold" fill="#15803d">&lt;1ms</text>
+
+    <text x="280" y="245" fontSize="11" fill="#166534">L2 Hit:</text>
+    <text x="440" y="245" fontSize="11" fontWeight="bold" fill="#15803d">~5ms</text>
+
+    <text x="280" y="275" fontSize="11" fill="#166534">L3 Hit:</text>
+    <text x="440" y="275" fontSize="11" fontWeight="bold" fill="#15803d">~10ms</text>
+
+    <text x="280" y="305" fontSize="11" fill="#166534">L4 Hit:</text>
+    <text x="440" y="305" fontSize="11" fontWeight="bold" fill="#15803d">~20ms</text>
+
+    <text x="280" y="335" fontSize="11" fill="#166534">Trie Lookup:</text>
+    <text x="440" y="335" fontSize="11" fontWeight="bold" fill="#dc2626">~50ms</text>
+
+    <text x="280" y="360" fontSize="11" fill="#166534">Effective Avg:</text>
+    <text x="440" y="360" fontSize="11" fontWeight="bold" fill="#15803d">&lt;15ms</text>
+
+    {/* Cache key format */}
+    <rect x="30" y="400" width="760" height="80" rx="8" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="410" y="425" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#92400e">Cache Key Strategy</text>
+    <text x="200" y="455" textAnchor="middle" fontSize="11" fill="#78350f">Key Format: autocomplete:{'{prefix}'}:{'{lang}'}:{'{locale}'}</text>
+    <text x="550" y="455" textAnchor="middle" fontSize="11" fill="#78350f">Example: autocomplete:car:en:US</text>
+    <text x="410" y="475" textAnchor="middle" fontSize="10" fill="#92400e">Value: Compressed JSON array of top 10 suggestions with scores</text>
+  </svg>
+);
+
+// 5. Data Collection and Indexing Diagram
+const DataCollectionDiagram = () => (
+  <svg viewBox="0 0 900 480" className="w-full h-auto">
+    <defs>
+      <linearGradient id="dcClientGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#7c3aed" />
+      </linearGradient>
+      <linearGradient id="dcKafkaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+      <linearGradient id="dcFlinkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06b6d4" />
+        <stop offset="100%" stopColor="#0891b2" />
+      </linearGradient>
+      <linearGradient id="dcDbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="dcTrieGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ef4444" />
+        <stop offset="100%" stopColor="#dc2626" />
+      </linearGradient>
+      <filter id="dcShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+      </filter>
+      <marker id="dcArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#64748b" />
+      </marker>
+    </defs>
+
+    {/* Background */}
+    <rect x="0" y="0" width="900" height="480" fill="#f8fafc" rx="12"/>
+
+    {/* Title */}
+    <text x="450" y="30" textAnchor="middle" fontSize="18" fontWeight="bold" fill="#1e293b">Query Collection and Trie Indexing Pipeline</text>
+
+    {/* User searches */}
+    <g filter="url(#dcShadow)">
+      <rect x="30" y="60" width="120" height="80" rx="10" fill="url(#dcClientGrad)"/>
+      <text x="90" y="90" textAnchor="middle" fontSize="11" fontWeight="bold" fill="white">User Searches</text>
+      <text x="90" y="110" textAnchor="middle" fontSize="9" fill="#e0e7ff">"car insurance"</text>
+      <text x="90" y="125" textAnchor="middle" fontSize="9" fill="#c4b5fd">"car rental"</text>
+    </g>
+
+    {/* Query Logger */}
+    <g filter="url(#dcShadow)">
+      <rect x="30" y="170" width="120" height="70" rx="10" fill="#64748b"/>
+      <text x="90" y="200" textAnchor="middle" fontSize="11" fontWeight="bold" fill="white">Query Logger</text>
+      <text x="90" y="220" textAnchor="middle" fontSize="9" fill="#e2e8f0">Async logging</text>
+    </g>
+
+    {/* Kafka */}
+    <g filter="url(#dcShadow)">
+      <rect x="200" y="130" width="140" height="140" rx="10" fill="url(#dcKafkaGrad)"/>
+      <text x="270" y="160" textAnchor="middle" fontSize="12" fontWeight="bold" fill="white">Apache Kafka</text>
+      <text x="270" y="180" textAnchor="middle" fontSize="10" fill="#fef3c7">Topic: search_queries</text>
+
+      <rect x="215" y="195" width="110" height="25" rx="4" fill="#b45309"/>
+      <text x="270" y="212" textAnchor="middle" fontSize="9" fill="white">Partition 0</text>
+
+      <rect x="215" y="225" width="110" height="25" rx="4" fill="#b45309"/>
+      <text x="270" y="242" textAnchor="middle" fontSize="9" fill="white">Partition 1</text>
+    </g>
+
+    {/* Apache Flink */}
+    <g filter="url(#dcShadow)">
+      <rect x="390" y="100" width="160" height="200" rx="10" fill="url(#dcFlinkGrad)"/>
+      <text x="470" y="130" textAnchor="middle" fontSize="12" fontWeight="bold" fill="white">Apache Flink</text>
+      <text x="470" y="150" textAnchor="middle" fontSize="10" fill="#cffafe">Stream Processing</text>
+
+      <rect x="405" y="165" width="130" height="30" rx="5" fill="#0e7490"/>
+      <text x="470" y="185" textAnchor="middle" fontSize="9" fill="white">5-min Tumbling Window</text>
+
+      <rect x="405" y="205" width="130" height="30" rx="5" fill="#0e7490"/>
+      <text x="470" y="225" textAnchor="middle" fontSize="9" fill="white">Count Aggregation</text>
+
+      <rect x="405" y="245" width="130" height="30" rx="5" fill="#0e7490"/>
+      <text x="470" y="265" textAnchor="middle" fontSize="9" fill="white">Trend Detection</text>
+    </g>
+
+    {/* Database */}
+    <g filter="url(#dcShadow)">
+      <rect x="600" y="80" width="140" height="100" rx="10" fill="url(#dcDbGrad)"/>
+      <text x="670" y="110" textAnchor="middle" fontSize="11" fontWeight="bold" fill="white">Query Database</text>
+      <text x="670" y="130" textAnchor="middle" fontSize="10" fill="#d1fae5">Cassandra</text>
+      <text x="670" y="150" textAnchor="middle" fontSize="9" fill="#a7f3d0">query → count, ts</text>
+      <text x="670" y="165" textAnchor="middle" fontSize="9" fill="#a7f3d0">Append-only logs</text>
+    </g>
+
+    {/* Trie Builder */}
+    <g filter="url(#dcShadow)">
+      <rect x="600" y="210" width="140" height="90" rx="10" fill="#7c3aed"/>
+      <text x="670" y="240" textAnchor="middle" fontSize="11" fontWeight="bold" fill="white">Trie Builder</text>
+      <text x="670" y="260" textAnchor="middle" fontSize="9" fill="#e0e7ff">Daily batch job</text>
+      <text x="670" y="280" textAnchor="middle" fontSize="9" fill="#c4b5fd">Incremental updates</text>
+    </g>
+
+    {/* Trie Servers */}
+    <g filter="url(#dcShadow)">
+      <rect x="780" y="130" width="100" height="140" rx="10" fill="url(#dcTrieGrad)"/>
+      <text x="830" y="160" textAnchor="middle" fontSize="11" fontWeight="bold" fill="white">Trie Servers</text>
+
+      <rect x="795" y="175" width="70" height="25" rx="4" fill="#b91c1c"/>
+      <text x="830" y="192" textAnchor="middle" fontSize="9" fill="white">Shard 1</text>
+
+      <rect x="795" y="205" width="70" height="25" rx="4" fill="#b91c1c"/>
+      <text x="830" y="222" textAnchor="middle" fontSize="9" fill="white">Shard 2</text>
+
+      <rect x="795" y="235" width="70" height="25" rx="4" fill="#b91c1c"/>
+      <text x="830" y="252" textAnchor="middle" fontSize="9" fill="white">Shard N</text>
+    </g>
+
+    {/* Arrows */}
+    <line x1="90" y1="140" x2="90" y2="165" stroke="#64748b" strokeWidth="2" markerEnd="url(#dcArrow)"/>
+    <line x1="150" y1="205" x2="195" y2="205" stroke="#64748b" strokeWidth="2" markerEnd="url(#dcArrow)"/>
+    <line x1="340" y1="200" x2="385" y2="200" stroke="#64748b" strokeWidth="2" markerEnd="url(#dcArrow)"/>
+    <line x1="550" y1="130" x2="595" y2="130" stroke="#64748b" strokeWidth="2" markerEnd="url(#dcArrow)"/>
+    <line x1="550" y1="255" x2="595" y2="255" stroke="#64748b" strokeWidth="2" markerEnd="url(#dcArrow)"/>
+    <line x1="670" y1="180" x2="670" y2="205" stroke="#64748b" strokeWidth="2" markerEnd="url(#dcArrow)"/>
+    <line x1="740" y1="200" x2="775" y2="200" stroke="#64748b" strokeWidth="2" markerEnd="url(#dcArrow)"/>
+
+    {/* Labels */}
+    <text x="105" y="155" fontSize="8" fill="#64748b">Log</text>
+    <text x="170" y="195" fontSize="8" fill="#64748b">Publish</text>
+    <text x="360" y="190" fontSize="8" fill="#64748b">Consume</text>
+    <text x="570" y="120" fontSize="8" fill="#64748b">Store</text>
+    <text x="560" y="245" fontSize="8" fill="#64748b">Trending</text>
+    <text x="755" y="190" fontSize="8" fill="#64748b">Deploy</text>
+
+    {/* Timeline section */}
+    <rect x="30" y="330" width="850" height="130" rx="10" fill="#f1f5f9" stroke="#cbd5e1" strokeWidth="2"/>
+    <text x="455" y="355" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#475569">Processing Timeline</text>
+
+    {/* Timeline bar */}
+    <rect x="60" y="380" width="790" height="20" rx="5" fill="#e2e8f0"/>
+
+    {/* Timeline segments */}
+    <rect x="60" y="380" width="150" height="20" rx="5" fill="#f59e0b"/>
+    <text x="135" y="395" textAnchor="middle" fontSize="9" fontWeight="bold" fill="white">Real-time (ms)</text>
+
+    <rect x="210" y="380" width="200" height="20" rx="5" fill="#06b6d4"/>
+    <text x="310" y="395" textAnchor="middle" fontSize="9" fontWeight="bold" fill="white">5-min Window</text>
+
+    <rect x="410" y="380" width="150" height="20" rx="5" fill="#10b981"/>
+    <text x="485" y="395" textAnchor="middle" fontSize="9" fontWeight="bold" fill="white">Incremental (5-10 min)</text>
+
+    <rect x="560" y="380" width="290" height="20" rx="5" fill="#8b5cf6"/>
+    <text x="705" y="395" textAnchor="middle" fontSize="9" fontWeight="bold" fill="white">Full Rebuild (Daily - Nightly)</text>
+
+    {/* Labels below timeline */}
+    <text x="135" y="425" textAnchor="middle" fontSize="9" fill="#64748b">Query Logging</text>
+    <text x="310" y="425" textAnchor="middle" fontSize="9" fill="#64748b">Aggregation</text>
+    <text x="485" y="425" textAnchor="middle" fontSize="9" fill="#64748b">Hot Path Updates</text>
+    <text x="705" y="425" textAnchor="middle" fontSize="9" fill="#64748b">Complete Trie Rebuild</text>
+
+    <text x="455" y="450" textAnchor="middle" fontSize="10" fill="#475569" fontWeight="bold">Trending queries surface in 5-10 minutes | Full index refresh every 24 hours</text>
+  </svg>
+);
+
 export default function TypeAhead({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -151,12 +826,16 @@ export default function TypeAhead({ onBack, breadcrumb }) {
               </div>
             </div>
 
-            {/* Architecture Diagram */}
+            {/* Architecture Diagram - New SVG Component */}
             <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-violet-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span className="text-violet-600">🏗️</span>
                 High-Level Architecture
               </h2>
+
+              <div className="bg-gradient-to-br from-violet-50 to-purple-50 p-8 rounded-xl border-2 border-violet-200 mb-6">
+                <TypeAheadArchitectureDiagram />
+              </div>
 
               <div className="bg-gradient-to-br from-violet-50 to-purple-50 p-8 rounded-xl border-2 border-violet-200">
                 <svg viewBox="0 0 1200 800" className="w-full h-auto">
@@ -389,6 +1068,17 @@ export default function TypeAhead({ onBack, breadcrumb }) {
 
         {activeTab === 'components' && (
           <div className="space-y-6">
+            {/* Ranking Pipeline Diagram */}
+            <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-t-4 border-orange-500">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                <span className="text-orange-600">⭐</span>
+                Ranking Pipeline Overview
+              </h2>
+              <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-xl border-2 border-orange-200">
+                <RankingDiagram />
+              </div>
+            </div>
+
             <div className="grid md:grid-cols-2 gap-6">
               {/* Query Service */}
               <div className="bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-shadow">
@@ -613,6 +1303,17 @@ export default function TypeAhead({ onBack, breadcrumb }) {
               </div>
             </div>
 
+            {/* Data Collection Pipeline Diagram */}
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-amber-500">
+              <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <span className="text-amber-600">📊</span>
+                Query Collection & Indexing Pipeline
+              </h2>
+              <div className="bg-gradient-to-br from-amber-50 to-yellow-50 p-6 rounded-xl border-2 border-amber-200">
+                <DataCollectionDiagram />
+              </div>
+            </div>
+
             {/* Trie Update Flow */}
             <div className="bg-gray-800 rounded-xl shadow-lg p-8 border-t-4 border-orange-500">
               <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
@@ -652,6 +1353,11 @@ export default function TypeAhead({ onBack, breadcrumb }) {
                 <span className="text-blue-600">🌳</span>
                 Trie Structure Example
               </h2>
+
+              {/* Trie Data Structure Diagram */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border-2 border-blue-200 mb-6">
+                <TrieDataStructureDiagram />
+              </div>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="bg-blue-50 p-6 rounded-xl border-2 border-blue-200">
@@ -761,6 +1467,11 @@ export default function TypeAhead({ onBack, breadcrumb }) {
                 <span className="text-cyan-600">⚡</span>
                 Caching at Scale
               </h2>
+
+              {/* Multi-Layer Caching Diagram */}
+              <div className="bg-gradient-to-br from-cyan-50 to-teal-50 p-6 rounded-xl border-2 border-cyan-200 mb-6">
+                <CachingDiagram />
+              </div>
 
               <div className="space-y-4">
                 <div className="bg-cyan-50 p-6 rounded-xl border-l-4 border-cyan-500">

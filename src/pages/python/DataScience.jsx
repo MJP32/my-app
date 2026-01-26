@@ -3,6 +3,608 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 
+// SVG Diagram: Data Science Workflow
+const DataScienceWorkflowDiagram = () => (
+  <svg viewBox="0 0 900 200" style={{ width: '100%', maxWidth: '900px', height: 'auto', margin: '1rem auto', display: 'block' }}>
+    <defs>
+      <linearGradient id="workflowGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#6366f1" />
+      </linearGradient>
+      <linearGradient id="workflowGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#2563eb" />
+      </linearGradient>
+      <linearGradient id="workflowGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="workflowGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+      <linearGradient id="workflowGrad5" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ec4899" />
+        <stop offset="100%" stopColor="#db2777" />
+      </linearGradient>
+      <filter id="workflowShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="4" stdDeviation="4" floodOpacity="0.3" />
+      </filter>
+      <marker id="workflowArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#60a5fa" />
+      </marker>
+    </defs>
+
+    {/* Background */}
+    <rect x="0" y="0" width="900" height="200" fill="#111827" rx="12" />
+
+    {/* Title */}
+    <text x="450" y="30" textAnchor="middle" fill="#93c5fd" fontSize="16" fontWeight="bold">Data Science Workflow</text>
+
+    {/* Step 1: Question */}
+    <rect x="30" y="60" width="130" height="80" rx="10" fill="url(#workflowGrad1)" filter="url(#workflowShadow)" />
+    <text x="95" y="95" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Question</text>
+    <text x="95" y="115" textAnchor="middle" fill="#e9d5ff" fontSize="10">Define the problem</text>
+    <text x="95" y="128" textAnchor="middle" fill="#e9d5ff" fontSize="10">& objectives</text>
+
+    {/* Arrow 1 */}
+    <line x1="165" y1="100" x2="195" y2="100" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#workflowArrow)" />
+
+    {/* Step 2: Data */}
+    <rect x="200" y="60" width="130" height="80" rx="10" fill="url(#workflowGrad2)" filter="url(#workflowShadow)" />
+    <text x="265" y="95" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Data</text>
+    <text x="265" y="115" textAnchor="middle" fill="#bfdbfe" fontSize="10">Collect & clean</text>
+    <text x="265" y="128" textAnchor="middle" fill="#bfdbfe" fontSize="10">data sources</text>
+
+    {/* Arrow 2 */}
+    <line x1="335" y1="100" x2="365" y2="100" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#workflowArrow)" />
+
+    {/* Step 3: Explore */}
+    <rect x="370" y="60" width="130" height="80" rx="10" fill="url(#workflowGrad3)" filter="url(#workflowShadow)" />
+    <text x="435" y="95" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Explore</text>
+    <text x="435" y="115" textAnchor="middle" fill="#a7f3d0" fontSize="10">EDA & visualize</text>
+    <text x="435" y="128" textAnchor="middle" fill="#a7f3d0" fontSize="10">patterns</text>
+
+    {/* Arrow 3 */}
+    <line x1="505" y1="100" x2="535" y2="100" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#workflowArrow)" />
+
+    {/* Step 4: Model */}
+    <rect x="540" y="60" width="130" height="80" rx="10" fill="url(#workflowGrad4)" filter="url(#workflowShadow)" />
+    <text x="605" y="95" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Model</text>
+    <text x="605" y="115" textAnchor="middle" fill="#fde68a" fontSize="10">Build & evaluate</text>
+    <text x="605" y="128" textAnchor="middle" fill="#fde68a" fontSize="10">ML models</text>
+
+    {/* Arrow 4 */}
+    <line x1="675" y1="100" x2="705" y2="100" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#workflowArrow)" />
+
+    {/* Step 5: Communicate */}
+    <rect x="710" y="60" width="150" height="80" rx="10" fill="url(#workflowGrad5)" filter="url(#workflowShadow)" />
+    <text x="785" y="95" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Communicate</text>
+    <text x="785" y="115" textAnchor="middle" fill="#fbcfe8" fontSize="10">Share insights &</text>
+    <text x="785" y="128" textAnchor="middle" fill="#fbcfe8" fontSize="10">recommendations</text>
+
+    {/* Iteration arrow */}
+    <path d="M785,145 L785,170 L95,170 L95,145" fill="none" stroke="#4b5563" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#workflowArrow)" />
+    <text x="440" y="185" textAnchor="middle" fill="#6b7280" fontSize="10">Iterate and refine</text>
+  </svg>
+)
+
+// SVG Diagram: Pandas DataFrame Structure
+const PandasDataFrameDiagram = () => (
+  <svg viewBox="0 0 700 350" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem auto', display: 'block' }}>
+    <defs>
+      <linearGradient id="dfHeaderGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="dfIndexGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#2563eb" />
+      </linearGradient>
+      <linearGradient id="dfCellGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#374151" />
+        <stop offset="100%" stopColor="#1f2937" />
+      </linearGradient>
+    </defs>
+
+    {/* Background */}
+    <rect x="0" y="0" width="700" height="350" fill="#111827" rx="12" />
+
+    {/* Title */}
+    <text x="350" y="30" textAnchor="middle" fill="#93c5fd" fontSize="16" fontWeight="bold">Pandas DataFrame Structure</text>
+
+    {/* DataFrame table */}
+    {/* Index column header */}
+    <rect x="60" y="55" width="70" height="35" rx="4" fill="#1f2937" stroke="#4b5563" />
+    <text x="95" y="78" textAnchor="middle" fill="#6b7280" fontSize="11">Index</text>
+
+    {/* Column headers */}
+    <rect x="135" y="55" width="100" height="35" rx="4" fill="url(#dfHeaderGrad)" />
+    <text x="185" y="78" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Name</text>
+
+    <rect x="240" y="55" width="80" height="35" rx="4" fill="url(#dfHeaderGrad)" />
+    <text x="280" y="78" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Age</text>
+
+    <rect x="325" y="55" width="100" height="35" rx="4" fill="url(#dfHeaderGrad)" />
+    <text x="375" y="78" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">City</text>
+
+    <rect x="430" y="55" width="100" height="35" rx="4" fill="url(#dfHeaderGrad)" />
+    <text x="480" y="78" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Salary</text>
+
+    {/* Row 0 */}
+    <rect x="60" y="95" width="70" height="35" rx="4" fill="url(#dfIndexGrad)" />
+    <text x="95" y="118" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">0</text>
+
+    <rect x="135" y="95" width="100" height="35" rx="4" fill="url(#dfCellGrad)" stroke="#4b5563" />
+    <text x="185" y="118" textAnchor="middle" fill="#d1d5db" fontSize="11">Alice</text>
+
+    <rect x="240" y="95" width="80" height="35" rx="4" fill="url(#dfCellGrad)" stroke="#4b5563" />
+    <text x="280" y="118" textAnchor="middle" fill="#d1d5db" fontSize="11">25</text>
+
+    <rect x="325" y="95" width="100" height="35" rx="4" fill="url(#dfCellGrad)" stroke="#4b5563" />
+    <text x="375" y="118" textAnchor="middle" fill="#d1d5db" fontSize="11">NYC</text>
+
+    <rect x="430" y="95" width="100" height="35" rx="4" fill="url(#dfCellGrad)" stroke="#4b5563" />
+    <text x="480" y="118" textAnchor="middle" fill="#d1d5db" fontSize="11">70000</text>
+
+    {/* Row 1 */}
+    <rect x="60" y="135" width="70" height="35" rx="4" fill="url(#dfIndexGrad)" />
+    <text x="95" y="158" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">1</text>
+
+    <rect x="135" y="135" width="100" height="35" rx="4" fill="url(#dfCellGrad)" stroke="#4b5563" />
+    <text x="185" y="158" textAnchor="middle" fill="#d1d5db" fontSize="11">Bob</text>
+
+    <rect x="240" y="135" width="80" height="35" rx="4" fill="url(#dfCellGrad)" stroke="#4b5563" />
+    <text x="280" y="158" textAnchor="middle" fill="#d1d5db" fontSize="11">30</text>
+
+    <rect x="325" y="135" width="100" height="35" rx="4" fill="url(#dfCellGrad)" stroke="#4b5563" />
+    <text x="375" y="158" textAnchor="middle" fill="#d1d5db" fontSize="11">LA</text>
+
+    <rect x="430" y="135" width="100" height="35" rx="4" fill="url(#dfCellGrad)" stroke="#4b5563" />
+    <text x="480" y="158" textAnchor="middle" fill="#d1d5db" fontSize="11">80000</text>
+
+    {/* Row 2 */}
+    <rect x="60" y="175" width="70" height="35" rx="4" fill="url(#dfIndexGrad)" />
+    <text x="95" y="198" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">2</text>
+
+    <rect x="135" y="175" width="100" height="35" rx="4" fill="url(#dfCellGrad)" stroke="#4b5563" />
+    <text x="185" y="198" textAnchor="middle" fill="#d1d5db" fontSize="11">Charlie</text>
+
+    <rect x="240" y="175" width="80" height="35" rx="4" fill="url(#dfCellGrad)" stroke="#4b5563" />
+    <text x="280" y="198" textAnchor="middle" fill="#d1d5db" fontSize="11">35</text>
+
+    <rect x="325" y="175" width="100" height="35" rx="4" fill="url(#dfCellGrad)" stroke="#4b5563" />
+    <text x="375" y="198" textAnchor="middle" fill="#d1d5db" fontSize="11">Chicago</text>
+
+    <rect x="430" y="175" width="100" height="35" rx="4" fill="url(#dfCellGrad)" stroke="#4b5563" />
+    <text x="480" y="198" textAnchor="middle" fill="#d1d5db" fontSize="11">90000</text>
+
+    {/* Annotations */}
+    {/* Columns annotation */}
+    <path d="M135,48 L530,48" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4,2" />
+    <text x="570" y="52" fill="#f59e0b" fontSize="11" fontWeight="bold">Columns (df.columns)</text>
+
+    {/* Index annotation */}
+    <path d="M52,95 L52,210" stroke="#ec4899" strokeWidth="2" strokeDasharray="4,2" />
+    <text x="30" y="260" fill="#ec4899" fontSize="11" fontWeight="bold" transform="rotate(-90 30 260)">Index (df.index)</text>
+
+    {/* Shape annotation */}
+    <rect x="550" y="95" width="130" height="60" rx="6" fill="#1f2937" stroke="#4b5563" />
+    <text x="615" y="115" textAnchor="middle" fill="#93c5fd" fontSize="11" fontWeight="bold">df.shape</text>
+    <text x="615" y="135" textAnchor="middle" fill="#d1d5db" fontSize="12">(3, 4)</text>
+    <text x="615" y="148" textAnchor="middle" fill="#6b7280" fontSize="9">rows x columns</text>
+
+    {/* Legend */}
+    <rect x="60" y="240" width="470" height="95" rx="8" fill="#1f2937" stroke="#374151" />
+    <text x="80" y="265" fill="#93c5fd" fontSize="12" fontWeight="bold">Access Patterns:</text>
+
+    <rect x="80" y="280" width="12" height="12" fill="url(#dfHeaderGrad)" />
+    <text x="100" y="290" fill="#d1d5db" fontSize="10">df['Name'] - Column access</text>
+
+    <rect x="80" y="300" width="12" height="12" fill="url(#dfIndexGrad)" />
+    <text x="100" y="310" fill="#d1d5db" fontSize="10">df.loc[0] - Row by label</text>
+
+    <rect x="280" y="280" width="12" height="12" fill="#f59e0b" />
+    <text x="300" y="290" fill="#d1d5db" fontSize="10">df.iloc[0] - Row by position</text>
+
+    <rect x="280" y="300" width="12" height="12" fill="#ec4899" />
+    <text x="300" y="310" fill="#d1d5db" fontSize="10">df.loc[0, 'Name'] - Single cell</text>
+  </svg>
+)
+
+// SVG Diagram: NumPy Array Dimensions
+const NumpyArrayDiagram = () => (
+  <svg viewBox="0 0 800 380" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem auto', display: 'block' }}>
+    <defs>
+      <linearGradient id="np1dGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#1d4ed8" />
+      </linearGradient>
+      <linearGradient id="np2dGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="np3dGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#7c3aed" />
+      </linearGradient>
+      <filter id="npShadow" x="-10%" y="-10%" width="120%" height="120%">
+        <feDropShadow dx="2" dy="2" stdDeviation="2" floodOpacity="0.3" />
+      </filter>
+    </defs>
+
+    {/* Background */}
+    <rect x="0" y="0" width="800" height="380" fill="#111827" rx="12" />
+
+    {/* Title */}
+    <text x="400" y="30" textAnchor="middle" fill="#93c5fd" fontSize="16" fontWeight="bold">NumPy Array Dimensions</text>
+
+    {/* 1D Array */}
+    <text x="130" y="65" textAnchor="middle" fill="#60a5fa" fontSize="13" fontWeight="bold">1D Array (Vector)</text>
+    <text x="130" y="82" textAnchor="middle" fill="#6b7280" fontSize="10">shape: (5,)</text>
+
+    {['1', '2', '3', '4', '5'].map((val, i) => (
+      <g key={`1d-${i}`}>
+        <rect x={30 + i * 45} y="95" width="40" height="40" rx="4" fill="url(#np1dGrad)" filter="url(#npShadow)" />
+        <text x={50 + i * 45} y="122" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">{val}</text>
+      </g>
+    ))}
+
+    {/* Axis indicator for 1D */}
+    <line x1="30" y1="145" x2="250" y2="145" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#workflowArrow)" />
+    <text x="260" y="150" fill="#f59e0b" fontSize="10">axis=0</text>
+
+    {/* 2D Array */}
+    <text x="130" y="185" textAnchor="middle" fill="#34d399" fontSize="13" fontWeight="bold">2D Array (Matrix)</text>
+    <text x="130" y="202" textAnchor="middle" fill="#6b7280" fontSize="10">shape: (3, 4)</text>
+
+    {/* 2D Grid */}
+    {[0, 1, 2].map(row => (
+      [0, 1, 2, 3].map(col => (
+        <g key={`2d-${row}-${col}`}>
+          <rect x={30 + col * 50} y={215 + row * 40} width="45" height="35" rx="4" fill="url(#np2dGrad)" filter="url(#npShadow)" />
+          <text x={52 + col * 50} y={238 + row * 40} textAnchor="middle" fill="white" fontSize="11">{row * 4 + col + 1}</text>
+        </g>
+      ))
+    ))}
+
+    {/* Axis indicators for 2D */}
+    <line x1="15" y1="215" x2="15" y2="335" stroke="#ec4899" strokeWidth="2" />
+    <text x="8" y="280" fill="#ec4899" fontSize="10" transform="rotate(-90 8 280)">axis=0</text>
+
+    <line x1="30" y1="345" x2="230" y2="345" stroke="#f59e0b" strokeWidth="2" />
+    <text x="240" y="350" fill="#f59e0b" fontSize="10">axis=1</text>
+
+    {/* 3D Array */}
+    <text x="550" y="65" textAnchor="middle" fill="#a78bfa" fontSize="13" fontWeight="bold">3D Array (Tensor)</text>
+    <text x="550" y="82" textAnchor="middle" fill="#6b7280" fontSize="10">shape: (2, 3, 4)</text>
+
+    {/* 3D visualization - two stacked 2D arrays */}
+    {/* Back layer */}
+    {[0, 1, 2].map(row => (
+      [0, 1, 2, 3].map(col => (
+        <g key={`3d-back-${row}-${col}`}>
+          <rect x={420 + col * 42 + 25} y={95 + row * 35 - 15} width="38" height="32" rx="3" fill="#4c1d95" stroke="#6d28d9" opacity="0.7" />
+        </g>
+      ))
+    ))}
+
+    {/* Front layer */}
+    {[0, 1, 2].map(row => (
+      [0, 1, 2, 3].map(col => (
+        <g key={`3d-front-${row}-${col}`}>
+          <rect x={400 + col * 42} y={110 + row * 35} width="38" height="32" rx="3" fill="url(#np3dGrad)" filter="url(#npShadow)" />
+          <text x={419 + col * 42} y={131 + row * 35} textAnchor="middle" fill="white" fontSize="10">{row * 4 + col + 1}</text>
+        </g>
+      ))
+    ))}
+
+    {/* Axis indicators for 3D */}
+    <line x1="385" y1="110" x2="385" y2="215" stroke="#ec4899" strokeWidth="2" />
+    <text x="378" y="165" fill="#ec4899" fontSize="9" transform="rotate(-90 378 165)">axis=1</text>
+
+    <line x1="400" y1="225" x2="570" y2="225" stroke="#f59e0b" strokeWidth="2" />
+    <text x="575" y="230" fill="#f59e0b" fontSize="9">axis=2</text>
+
+    <line x1="570" y1="95" x2="600" y2="65" stroke="#22d3ee" strokeWidth="2" />
+    <text x="605" y="65" fill="#22d3ee" fontSize="9">axis=0</text>
+
+    {/* Operations section */}
+    <rect x="400" y="250" width="380" height="115" rx="8" fill="#1f2937" stroke="#374151" />
+    <text x="420" y="275" fill="#93c5fd" fontSize="12" fontWeight="bold">Common Operations</text>
+
+    <text x="420" y="298" fill="#d1d5db" fontSize="10">arr.sum(axis=0) - Sum along rows</text>
+    <text x="420" y="316" fill="#d1d5db" fontSize="10">arr.mean(axis=1) - Mean along columns</text>
+    <text x="420" y="334" fill="#d1d5db" fontSize="10">arr.reshape(3, 4) - Change shape</text>
+    <text x="420" y="352" fill="#d1d5db" fontSize="10">arr.T - Transpose matrix</text>
+
+    <text x="620" y="298" fill="#d1d5db" fontSize="10">arr.flatten() - To 1D</text>
+    <text x="620" y="316" fill="#d1d5db" fontSize="10">np.concatenate()</text>
+    <text x="620" y="334" fill="#d1d5db" fontSize="10">np.stack()</text>
+    <text x="620" y="352" fill="#d1d5db" fontSize="10">np.split()</text>
+  </svg>
+)
+
+// SVG Diagram: Data Cleaning Pipeline
+const DataCleaningDiagram = () => (
+  <svg viewBox="0 0 850 320" style={{ width: '100%', maxWidth: '850px', height: 'auto', margin: '1rem auto', display: 'block' }}>
+    <defs>
+      <linearGradient id="cleanGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ef4444" />
+        <stop offset="100%" stopColor="#dc2626" />
+      </linearGradient>
+      <linearGradient id="cleanGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+      <linearGradient id="cleanGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#2563eb" />
+      </linearGradient>
+      <linearGradient id="cleanGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+      <linearGradient id="rawDataGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#6b7280" />
+        <stop offset="100%" stopColor="#4b5563" />
+      </linearGradient>
+      <linearGradient id="cleanDataGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#22c55e" />
+        <stop offset="100%" stopColor="#16a34a" />
+      </linearGradient>
+      <marker id="cleanArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#60a5fa" />
+      </marker>
+      <filter id="cleanShadow" x="-10%" y="-10%" width="120%" height="120%">
+        <feDropShadow dx="0" dy="3" stdDeviation="3" floodOpacity="0.3" />
+      </filter>
+    </defs>
+
+    {/* Background */}
+    <rect x="0" y="0" width="850" height="320" fill="#111827" rx="12" />
+
+    {/* Title */}
+    <text x="425" y="28" textAnchor="middle" fill="#93c5fd" fontSize="16" fontWeight="bold">Data Cleaning Pipeline</text>
+
+    {/* Raw Data */}
+    <rect x="25" y="55" width="100" height="70" rx="8" fill="url(#rawDataGrad)" filter="url(#cleanShadow)" />
+    <text x="75" y="85" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Raw Data</text>
+    <text x="75" y="105" textAnchor="middle" fill="#d1d5db" fontSize="9">Messy, incomplete</text>
+
+    {/* Arrow to step 1 */}
+    <line x1="130" y1="90" x2="165" y2="90" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#cleanArrow)" />
+
+    {/* Step 1: Missing Values */}
+    <rect x="170" y="45" width="140" height="90" rx="8" fill="url(#cleanGrad1)" filter="url(#cleanShadow)" />
+    <text x="240" y="70" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Missing Values</text>
+    <line x1="185" y1="80" x2="295" y2="80" stroke="rgba(255,255,255,0.3)" />
+    <text x="190" y="98" fill="#fecaca" fontSize="9">- df.dropna()</text>
+    <text x="190" y="112" fill="#fecaca" fontSize="9">- df.fillna(value)</text>
+    <text x="190" y="126" fill="#fecaca" fontSize="9">- interpolate()</text>
+
+    {/* Arrow to step 2 */}
+    <line x1="315" y1="90" x2="350" y2="90" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#cleanArrow)" />
+
+    {/* Step 2: Outliers */}
+    <rect x="355" y="45" width="140" height="90" rx="8" fill="url(#cleanGrad2)" filter="url(#cleanShadow)" />
+    <text x="425" y="70" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Outliers</text>
+    <line x1="370" y1="80" x2="480" y2="80" stroke="rgba(255,255,255,0.3)" />
+    <text x="365" y="98" fill="#fef3c7" fontSize="9">- Z-score method</text>
+    <text x="365" y="112" fill="#fef3c7" fontSize="9">- IQR method</text>
+    <text x="365" y="126" fill="#fef3c7" fontSize="9">- clip() values</text>
+
+    {/* Arrow to step 3 */}
+    <line x1="500" y1="90" x2="535" y2="90" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#cleanArrow)" />
+
+    {/* Step 3: Encoding */}
+    <rect x="540" y="45" width="140" height="90" rx="8" fill="url(#cleanGrad3)" filter="url(#cleanShadow)" />
+    <text x="610" y="70" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Encoding</text>
+    <line x1="555" y1="80" x2="665" y2="80" stroke="rgba(255,255,255,0.3)" />
+    <text x="550" y="98" fill="#bfdbfe" fontSize="9">- Label encoding</text>
+    <text x="550" y="112" fill="#bfdbfe" fontSize="9">- One-hot encoding</text>
+    <text x="550" y="126" fill="#bfdbfe" fontSize="9">- pd.get_dummies()</text>
+
+    {/* Arrow to step 4 */}
+    <line x1="685" y1="90" x2="720" y2="90" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#cleanArrow)" />
+
+    {/* Step 4: Scaling */}
+    <rect x="725" y="45" width="100" height="90" rx="8" fill="url(#cleanGrad4)" filter="url(#cleanShadow)" />
+    <text x="775" y="70" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Scaling</text>
+    <line x1="735" y1="80" x2="815" y2="80" stroke="rgba(255,255,255,0.3)" />
+    <text x="735" y="98" fill="#a7f3d0" fontSize="9">- StandardScaler</text>
+    <text x="735" y="112" fill="#a7f3d0" fontSize="9">- MinMaxScaler</text>
+    <text x="735" y="126" fill="#a7f3d0" fontSize="9">- normalize()</text>
+
+    {/* Clean Data */}
+    <rect x="375" y="160" width="100" height="55" rx="8" fill="url(#cleanDataGrad)" filter="url(#cleanShadow)" />
+    <text x="425" y="185" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Clean Data</text>
+    <text x="425" y="202" textAnchor="middle" fill="#bbf7d0" fontSize="9">Ready for ML</text>
+
+    {/* Arrow down from scaling to clean data */}
+    <path d="M775,140 L775,187 L480,187" fill="none" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#cleanArrow)" />
+
+    {/* Additional info boxes */}
+    <rect x="25" y="230" width="250" height="75" rx="6" fill="#1f2937" stroke="#374151" />
+    <text x="40" y="252" fill="#ef4444" fontSize="11" fontWeight="bold">Missing Values Strategies:</text>
+    <text x="40" y="270" fill="#d1d5db" fontSize="9">- Drop: Remove rows/columns with NaN</text>
+    <text x="40" y="285" fill="#d1d5db" fontSize="9">- Fill: Mean, median, mode, or constant</text>
+    <text x="40" y="300" fill="#d1d5db" fontSize="9">- Interpolate: Estimate based on neighbors</text>
+
+    <rect x="300" y="230" width="250" height="75" rx="6" fill="#1f2937" stroke="#374151" />
+    <text x="315" y="252" fill="#f59e0b" fontSize="11" fontWeight="bold">Outlier Detection:</text>
+    <text x="315" y="270" fill="#d1d5db" fontSize="9">- Z-score: |z| greater than 3 are outliers</text>
+    <text x="315" y="285" fill="#d1d5db" fontSize="9">- IQR: Below Q1-1.5*IQR or above Q3+1.5*IQR</text>
+    <text x="315" y="300" fill="#d1d5db" fontSize="9">- Visual: Box plots, scatter plots</text>
+
+    <rect x="575" y="230" width="250" height="75" rx="6" fill="#1f2937" stroke="#374151" />
+    <text x="590" y="252" fill="#10b981" fontSize="11" fontWeight="bold">Scaling Methods:</text>
+    <text x="590" y="270" fill="#d1d5db" fontSize="9">- Standard: (x - mean) / std (z-score)</text>
+    <text x="590" y="285" fill="#d1d5db" fontSize="9">- MinMax: (x - min) / (max - min) to [0,1]</text>
+    <text x="590" y="300" fill="#d1d5db" fontSize="9">- Robust: Uses median and IQR</text>
+  </svg>
+)
+
+// SVG Diagram: Visualization Types Guide
+const VisualizationTypesDiagram = () => (
+  <svg viewBox="0 0 850 420" style={{ width: '100%', maxWidth: '850px', height: 'auto', margin: '1rem auto', display: 'block' }}>
+    <defs>
+      <linearGradient id="vizBarGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+        <stop offset="0%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#60a5fa" />
+      </linearGradient>
+      <linearGradient id="vizLineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#10b981" />
+        <stop offset="100%" stopColor="#34d399" />
+      </linearGradient>
+      <linearGradient id="vizScatterGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" />
+        <stop offset="100%" stopColor="#a78bfa" />
+      </linearGradient>
+      <linearGradient id="vizHistGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+        <stop offset="0%" stopColor="#f59e0b" />
+        <stop offset="100%" stopColor="#fbbf24" />
+      </linearGradient>
+      <linearGradient id="vizPieGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ec4899" />
+        <stop offset="100%" stopColor="#f472b6" />
+      </linearGradient>
+    </defs>
+
+    {/* Background */}
+    <rect x="0" y="0" width="850" height="420" fill="#111827" rx="12" />
+
+    {/* Title */}
+    <text x="425" y="28" textAnchor="middle" fill="#93c5fd" fontSize="16" fontWeight="bold">When to Use Different Chart Types</text>
+
+    {/* Bar Chart */}
+    <rect x="25" y="50" width="155" height="165" rx="8" fill="#1f2937" stroke="#3b82f6" strokeWidth="2" />
+    <text x="102" y="72" textAnchor="middle" fill="#60a5fa" fontSize="12" fontWeight="bold">Bar Chart</text>
+
+    {/* Mini bar chart */}
+    <rect x="45" y="85" width="25" height="60" rx="2" fill="url(#vizBarGrad)" />
+    <rect x="75" y="95" width="25" height="50" rx="2" fill="url(#vizBarGrad)" />
+    <rect x="105" y="75" width="25" height="70" rx="2" fill="url(#vizBarGrad)" />
+    <rect x="135" y="105" width="25" height="40" rx="2" fill="url(#vizBarGrad)" />
+    <line x1="40" y1="150" x2="165" y2="150" stroke="#4b5563" strokeWidth="1" />
+
+    <text x="102" y="170" textAnchor="middle" fill="#9ca3af" fontSize="9">Compare categories</text>
+    <text x="102" y="183" textAnchor="middle" fill="#6b7280" fontSize="8">Sales by region,</text>
+    <text x="102" y="195" textAnchor="middle" fill="#6b7280" fontSize="8">counts by group</text>
+    <text x="102" y="207" textAnchor="middle" fill="#3b82f6" fontSize="8">plt.bar() / sns.barplot()</text>
+
+    {/* Line Chart */}
+    <rect x="190" y="50" width="155" height="165" rx="8" fill="#1f2937" stroke="#10b981" strokeWidth="2" />
+    <text x="267" y="72" textAnchor="middle" fill="#34d399" fontSize="12" fontWeight="bold">Line Chart</text>
+
+    {/* Mini line chart */}
+    <polyline points="210,130 230,110 250,120 270,95 290,100 310,80 330,90" fill="none" stroke="url(#vizLineGrad)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+    <circle cx="210" cy="130" r="3" fill="#34d399" />
+    <circle cx="250" cy="120" r="3" fill="#34d399" />
+    <circle cx="290" cy="100" r="3" fill="#34d399" />
+    <circle cx="330" cy="90" r="3" fill="#34d399" />
+    <line x1="205" y1="145" x2="335" y2="145" stroke="#4b5563" strokeWidth="1" />
+
+    <text x="267" y="170" textAnchor="middle" fill="#9ca3af" fontSize="9">Trends over time</text>
+    <text x="267" y="183" textAnchor="middle" fill="#6b7280" fontSize="8">Stock prices, metrics</text>
+    <text x="267" y="195" textAnchor="middle" fill="#6b7280" fontSize="8">over time periods</text>
+    <text x="267" y="207" textAnchor="middle" fill="#10b981" fontSize="8">plt.plot() / sns.lineplot()</text>
+
+    {/* Scatter Plot */}
+    <rect x="355" y="50" width="155" height="165" rx="8" fill="#1f2937" stroke="#8b5cf6" strokeWidth="2" />
+    <text x="432" y="72" textAnchor="middle" fill="#a78bfa" fontSize="12" fontWeight="bold">Scatter Plot</text>
+
+    {/* Mini scatter plot */}
+    <circle cx="380" cy="125" r="4" fill="url(#vizScatterGrad)" />
+    <circle cx="395" cy="110" r="5" fill="url(#vizScatterGrad)" />
+    <circle cx="415" cy="100" r="4" fill="url(#vizScatterGrad)" />
+    <circle cx="430" cy="115" r="6" fill="url(#vizScatterGrad)" />
+    <circle cx="450" cy="90" r="4" fill="url(#vizScatterGrad)" />
+    <circle cx="465" cy="105" r="5" fill="url(#vizScatterGrad)" />
+    <circle cx="480" cy="85" r="4" fill="url(#vizScatterGrad)" />
+    <circle cx="420" cy="130" r="3" fill="url(#vizScatterGrad)" />
+    <circle cx="460" cy="120" r="4" fill="url(#vizScatterGrad)" />
+    <line x1="370" y1="145" x2="495" y2="145" stroke="#4b5563" strokeWidth="1" />
+    <line x1="370" y1="145" x2="370" y2="80" stroke="#4b5563" strokeWidth="1" />
+
+    <text x="432" y="170" textAnchor="middle" fill="#9ca3af" fontSize="9">Relationships</text>
+    <text x="432" y="183" textAnchor="middle" fill="#6b7280" fontSize="8">Correlation between</text>
+    <text x="432" y="195" textAnchor="middle" fill="#6b7280" fontSize="8">two variables</text>
+    <text x="432" y="207" textAnchor="middle" fill="#8b5cf6" fontSize="8">plt.scatter() / sns.scatterplot()</text>
+
+    {/* Histogram */}
+    <rect x="520" y="50" width="155" height="165" rx="8" fill="#1f2937" stroke="#f59e0b" strokeWidth="2" />
+    <text x="597" y="72" textAnchor="middle" fill="#fbbf24" fontSize="12" fontWeight="bold">Histogram</text>
+
+    {/* Mini histogram */}
+    <rect x="540" y="125" width="18" height="20" rx="1" fill="url(#vizHistGrad)" />
+    <rect x="560" y="105" width="18" height="40" rx="1" fill="url(#vizHistGrad)" />
+    <rect x="580" y="85" width="18" height="60" rx="1" fill="url(#vizHistGrad)" />
+    <rect x="600" y="95" width="18" height="50" rx="1" fill="url(#vizHistGrad)" />
+    <rect x="620" y="110" width="18" height="35" rx="1" fill="url(#vizHistGrad)" />
+    <rect x="640" y="130" width="18" height="15" rx="1" fill="url(#vizHistGrad)" />
+    <line x1="535" y1="148" x2="665" y2="148" stroke="#4b5563" strokeWidth="1" />
+
+    <text x="597" y="170" textAnchor="middle" fill="#9ca3af" fontSize="9">Distribution</text>
+    <text x="597" y="183" textAnchor="middle" fill="#6b7280" fontSize="8">Frequency of values,</text>
+    <text x="597" y="195" textAnchor="middle" fill="#6b7280" fontSize="8">shape of data</text>
+    <text x="597" y="207" textAnchor="middle" fill="#f59e0b" fontSize="8">plt.hist() / sns.histplot()</text>
+
+    {/* Pie Chart */}
+    <rect x="685" y="50" width="140" height="165" rx="8" fill="#1f2937" stroke="#ec4899" strokeWidth="2" />
+    <text x="755" y="72" textAnchor="middle" fill="#f472b6" fontSize="12" fontWeight="bold">Pie Chart</text>
+
+    {/* Mini pie chart */}
+    <circle cx="755" cy="115" r="35" fill="#1f2937" stroke="#374151" />
+    <path d="M755,115 L755,80 A35,35 0 0,1 785,100 Z" fill="#ec4899" />
+    <path d="M755,115 L785,100 A35,35 0 0,1 780,145 Z" fill="#8b5cf6" />
+    <path d="M755,115 L780,145 A35,35 0 0,1 730,145 Z" fill="#3b82f6" />
+    <path d="M755,115 L730,145 A35,35 0 0,1 755,80 Z" fill="#10b981" />
+
+    <text x="755" y="170" textAnchor="middle" fill="#9ca3af" fontSize="9">Proportions</text>
+    <text x="755" y="183" textAnchor="middle" fill="#6b7280" fontSize="8">Parts of a whole,</text>
+    <text x="755" y="195" textAnchor="middle" fill="#6b7280" fontSize="8">market share</text>
+    <text x="755" y="207" textAnchor="middle" fill="#ec4899" fontSize="8">plt.pie()</text>
+
+    {/* Additional chart types */}
+    <rect x="25" y="230" width="260" height="175" rx="8" fill="#1f2937" stroke="#374151" />
+    <text x="155" y="255" textAnchor="middle" fill="#93c5fd" fontSize="12" fontWeight="bold">More Chart Types</text>
+
+    <text x="40" y="280" fill="#60a5fa" fontSize="10" fontWeight="bold">Box Plot</text>
+    <text x="40" y="295" fill="#9ca3af" fontSize="9">Compare distributions, find outliers</text>
+    <text x="40" y="308" fill="#6b7280" fontSize="8">sns.boxplot() / plt.boxplot()</text>
+
+    <text x="40" y="330" fill="#34d399" fontSize="10" fontWeight="bold">Heatmap</text>
+    <text x="40" y="345" fill="#9ca3af" fontSize="9">Correlation matrices, 2D data density</text>
+    <text x="40" y="358" fill="#6b7280" fontSize="8">sns.heatmap()</text>
+
+    <text x="40" y="380" fill="#f472b6" fontSize="10" fontWeight="bold">Violin Plot</text>
+    <text x="40" y="395" fill="#9ca3af" fontSize="9">Distribution shape + box plot combined</text>
+
+    {/* Decision guide */}
+    <rect x="300" y="230" width="525" height="175" rx="8" fill="#1f2937" stroke="#374151" />
+    <text x="562" y="255" textAnchor="middle" fill="#93c5fd" fontSize="12" fontWeight="bold">Quick Decision Guide</text>
+
+    <text x="320" y="280" fill="#d1d5db" fontSize="10">Comparing categories?</text>
+    <text x="520" y="280" fill="#3b82f6" fontSize="10" fontWeight="bold">Bar Chart</text>
+
+    <text x="320" y="302" fill="#d1d5db" fontSize="10">Showing change over time?</text>
+    <text x="520" y="302" fill="#10b981" fontSize="10" fontWeight="bold">Line Chart</text>
+
+    <text x="320" y="324" fill="#d1d5db" fontSize="10">Exploring relationship between 2 variables?</text>
+    <text x="620" y="324" fill="#8b5cf6" fontSize="10" fontWeight="bold">Scatter Plot</text>
+
+    <text x="320" y="346" fill="#d1d5db" fontSize="10">Understanding data distribution?</text>
+    <text x="570" y="346" fill="#f59e0b" fontSize="10" fontWeight="bold">Histogram</text>
+
+    <text x="320" y="368" fill="#d1d5db" fontSize="10">Showing parts of a whole?</text>
+    <text x="520" y="368" fill="#ec4899" fontSize="10" fontWeight="bold">Pie Chart</text>
+
+    <text x="320" y="390" fill="#d1d5db" fontSize="10">Comparing distributions across groups?</text>
+    <text x="600" y="390" fill="#22d3ee" fontSize="10" fontWeight="bold">Box/Violin Plot</text>
+  </svg>
+)
+
 function DataScience({ onBack, breadcrumb }) {
   const [selectedSection, setSelectedSection] = useState(null)
 
@@ -1088,11 +1690,12 @@ plt.show()`
           language="python"
           style={vscDarkPlus}
           customStyle={{
-            borderRadius: '0.5rem',
-            padding: '1.25rem',
+            margin: 0,
+            borderRadius: '0.375rem',
             fontSize: '0.875rem',
-            border: '1px solid #374151',
-            backgroundColor: '#1a1a2e'
+            background: 'none',
+            backgroundColor: 'transparent',
+            padding: 0
           }}
           showLineNumbers={true}
         >
@@ -1171,6 +1774,28 @@ plt.show()`
               </div>
             </div>
 
+            {/* Section-specific diagrams */}
+            {selectedSection === 'numpy-basics' && (
+              <div style={{ marginBottom: '2rem' }}>
+                <NumpyArrayDiagram />
+              </div>
+            )}
+            {selectedSection === 'pandas-dataframes' && (
+              <div style={{ marginBottom: '2rem' }}>
+                <PandasDataFrameDiagram />
+              </div>
+            )}
+            {selectedSection === 'data-visualization' && (
+              <div style={{ marginBottom: '2rem' }}>
+                <VisualizationTypesDiagram />
+              </div>
+            )}
+            {selectedSection === 'data-cleaning' && (
+              <div style={{ marginBottom: '2rem' }}>
+                <DataCleaningDiagram />
+              </div>
+            )}
+
             {section.topics.map(topic => renderTopicContent(topic))}
           </div>
         </div>
@@ -1215,7 +1840,7 @@ plt.show()`
 
         <Breadcrumb breadcrumb={breadcrumb} />
 
-        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <div style={{ textAlign: 'left', marginBottom: '3rem' }}>
           <h1 style={{
             fontSize: '2.5rem',
             fontWeight: 'bold',
@@ -1235,6 +1860,17 @@ plt.show()`
           }}>
             Comprehensive guide to NumPy, Pandas, Matplotlib, Seaborn, and statistical analysis in Python
           </p>
+        </div>
+
+        {/* Data Science Workflow Diagram */}
+        <div style={{
+          background: 'linear-gradient(to right, #1f2937, #111827)',
+          borderRadius: '0.75rem',
+          padding: '1.5rem',
+          marginBottom: '2rem',
+          border: '1px solid #374151'
+        }}>
+          <DataScienceWorkflowDiagram />
         </div>
 
         <div style={{
@@ -1342,10 +1978,12 @@ plt.show()`
             language="python"
             style={vscDarkPlus}
             customStyle={{
-              borderRadius: '0.5rem',
-              padding: '1.25rem',
+              margin: 0,
+              borderRadius: '0.375rem',
               fontSize: '0.875rem',
-              border: '1px solid #374151'
+              background: 'none',
+              backgroundColor: 'transparent',
+              padding: 0
             }}
           >
 {`# Data Science Stack

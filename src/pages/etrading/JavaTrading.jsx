@@ -276,6 +276,80 @@ const SpringMicroservicesDiagram = () => (
   </svg>
 )
 
+// GC-Free Programming Diagram
+const GCFreeDiagram = () => (
+  <svg viewBox="0 0 700 200" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">GC-Free Programming Techniques</text>
+    <rect x="50" y="45" width="180" height="65" rx="6" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="140" y="68" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">❌ Allocation Sources</text>
+    <text x="140" y="85" textAnchor="middle" fill="#fecaca" fontSize="8">Boxing (int → Integer)</text>
+    <text x="140" y="100" textAnchor="middle" fill="#fecaca" fontSize="8">String concatenation</text>
+    <rect x="260" y="45" width="180" height="65" rx="6" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="350" y="68" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">✓ GC-Free Techniques</text>
+    <text x="350" y="85" textAnchor="middle" fill="#bbf7d0" fontSize="8">Object pooling</text>
+    <text x="350" y="100" textAnchor="middle" fill="#bbf7d0" fontSize="8">Flyweight pattern</text>
+    <rect x="470" y="45" width="180" height="65" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="560" y="68" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Off-Heap Memory</text>
+    <text x="560" y="85" textAnchor="middle" fill="#bfdbfe" fontSize="8">DirectByteBuffer</text>
+    <text x="560" y="100" textAnchor="middle" fill="#bfdbfe" fontSize="8">Unsafe / Foreign Memory</text>
+    <rect x="100" y="130" width="500" height="55" rx="6" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6"/>
+    <text x="350" y="152" textAnchor="middle" fill="#a78bfa" fontSize="11" fontWeight="bold">Target: Zero Allocations in Hot Path</text>
+    <text x="350" y="172" textAnchor="middle" fill="#64748b" fontSize="9">Pre-allocate everything • Reuse objects • Avoid varargs, lambdas, autoboxing</text>
+  </svg>
+)
+
+// Cache Line Diagram
+const CacheLineDiagram = () => (
+  <svg viewBox="0 0 700 200" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Cache-Friendly Data Layout (64-byte cache lines)</text>
+    <rect x="50" y="45" width="280" height="70" rx="6" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="190" y="68" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">❌ Array of Objects (cache misses)</text>
+    {[0,1,2,3].map((i) => (
+      <g key={i}>
+        <rect x={70 + i * 65} y="80" width="50" height="25" rx="3" fill="#ef4444"/>
+        <text x={95 + i * 65} y="97" textAnchor="middle" fill="white" fontSize="7">ptr→obj</text>
+      </g>
+    ))}
+    <rect x="370" y="45" width="280" height="70" rx="6" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="510" y="68" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">✓ Struct of Arrays (cache hits)</text>
+    <rect x="390" y="80" width="240" height="25" rx="3" fill="#22c55e"/>
+    <text x="510" y="97" textAnchor="middle" fill="white" fontSize="8">long[] prices | long[] quantities</text>
+    <rect x="100" y="135" width="500" height="50" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6"/>
+    <text x="350" y="155" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">@Contended for false sharing prevention</text>
+    <text x="350" y="172" textAnchor="middle" fill="#64748b" fontSize="9">Pad fields to separate cache lines • Align hot data • Minimize pointer chasing</text>
+  </svg>
+)
+
+// Mechanical Sympathy Diagram
+const MechanicalSympathyDiagram = () => (
+  <svg viewBox="0 0 700 200" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">CPU & Memory Hierarchy for Low Latency</text>
+    <rect x="50" y="45" width="100" height="40" rx="4" fill="#ef4444"/>
+    <text x="100" y="62" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">L1 Cache</text>
+    <text x="100" y="77" textAnchor="middle" fill="#fecaca" fontSize="7">~1ns • 32KB</text>
+    <rect x="170" y="45" width="100" height="40" rx="4" fill="#f59e0b"/>
+    <text x="220" y="62" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">L2 Cache</text>
+    <text x="220" y="77" textAnchor="middle" fill="#fef3c7" fontSize="7">~4ns • 256KB</text>
+    <rect x="290" y="45" width="100" height="40" rx="4" fill="#22c55e"/>
+    <text x="340" y="62" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">L3 Cache</text>
+    <text x="340" y="77" textAnchor="middle" fill="#bbf7d0" fontSize="7">~12ns • 8MB</text>
+    <rect x="410" y="45" width="100" height="40" rx="4" fill="#3b82f6"/>
+    <text x="460" y="62" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">RAM</text>
+    <text x="460" y="77" textAnchor="middle" fill="#bfdbfe" fontSize="7">~100ns</text>
+    <rect x="530" y="45" width="100" height="40" rx="4" fill="#8b5cf6"/>
+    <text x="580" y="62" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Disk/SSD</text>
+    <text x="580" y="77" textAnchor="middle" fill="#ddd6fe" fontSize="7">~10μs-10ms</text>
+    <rect x="100" y="105" width="500" height="80" rx="6" fill="rgba(34, 197, 94, 0.1)" stroke="#22c55e"/>
+    <text x="350" y="125" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">Low Latency Techniques</text>
+    <text x="200" y="145" textAnchor="middle" fill="#94a3b8" fontSize="8">• CPU pinning (isolcpus)</text>
+    <text x="350" y="145" textAnchor="middle" fill="#94a3b8" fontSize="8">• NUMA-aware allocation</text>
+    <text x="500" y="145" textAnchor="middle" fill="#94a3b8" fontSize="8">• Busy-spin vs blocking</text>
+    <text x="200" y="165" textAnchor="middle" fill="#94a3b8" fontSize="8">• Branch prediction hints</text>
+    <text x="350" y="165" textAnchor="middle" fill="#94a3b8" fontSize="8">• Prefetch instructions</text>
+    <text x="500" y="165" textAnchor="middle" fill="#94a3b8" fontSize="8">• Lock-free algorithms</text>
+  </svg>
+)
+
 function JavaTrading({ onBack }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
@@ -739,6 +813,210 @@ public class Order {
         this.price = 0;
     }
 }` }
+      ]
+    },
+    {
+      id: 'gc-free', name: 'GC-Free Programming', icon: '🚀', color: '#ec4899', diagram: GCFreeDiagram,
+      description: 'Zero-allocation techniques for ultra-low latency trading',
+      details: [
+        { name: 'Allocation Avoidance', explanation: 'GC pauses are unacceptable in trading. Avoid all allocations in the hot path. Common sources: boxing, String concat, varargs, lambdas, iterators. Use primitive types, pre-allocated buffers, and flyweight patterns.',
+          codeExample: `// GC-Free Order Processing
+public class GCFreeOrderHandler {
+    // Pre-allocated reusable objects
+    private final MutableDirectBuffer buffer = new UnsafeBuffer(
+        ByteBuffer.allocateDirect(4096));
+    private final OrderDecoder decoder = new OrderDecoder();
+    private final StringBuilder symbolBuilder = new StringBuilder(32);
+
+    // Primitive arrays instead of collections
+    private final long[] orderIds = new long[10000];
+    private final long[] prices = new long[10000];
+    private final long[] quantities = new long[10000];
+    private int orderCount = 0;
+
+    // Avoid boxing - use primitive specializations
+    private final LongLongHashMap orderLookup = new LongLongHashMap();
+
+    public void processOrder(long orderId, long price, long qty) {
+        // No allocation in this method
+        int idx = orderCount++;
+        orderIds[idx] = orderId;
+        prices[idx] = price;
+        quantities[idx] = qty;
+        orderLookup.put(orderId, idx);
+    }
+
+    // Avoid String allocation for symbol lookup
+    public void lookupSymbol(CharSequence symbol) {
+        symbolBuilder.setLength(0);
+        symbolBuilder.append(symbol);  // Reuse StringBuilder
+        // Use CharSequence-based map lookup
+    }
+
+    // Avoid iterator allocation
+    public void iterateOrders() {
+        for (int i = 0; i < orderCount; i++) {
+            processOrderAt(orderIds[i], prices[i], quantities[i]);
+        }
+    }
+}` },
+        { name: 'Cache-Friendly Design', diagram: CacheLineDiagram, explanation: 'Modern CPUs are memory-bound. Cache misses cost 100x vs cache hits. Use Struct of Arrays (SoA) instead of Array of Structs (AoS). Align data to cache lines. Use @Contended to prevent false sharing.',
+          codeExample: `// Cache-Friendly Order Book
+public class CacheFriendlyOrderBook {
+    // Struct of Arrays - cache-friendly layout
+    // All prices in contiguous memory = prefetch works
+    private final long[] bidPrices = new long[MAX_LEVELS];
+    private final long[] bidQuantities = new long[MAX_LEVELS];
+    private final long[] askPrices = new long[MAX_LEVELS];
+    private final long[] askQuantities = new long[MAX_LEVELS];
+    private int bidCount = 0;
+    private int askCount = 0;
+
+    // Compare to: PriceLevel[] levels (pointer chasing, cache misses)
+
+    // Prevent false sharing between threads
+    @sun.misc.Contended
+    private volatile long lastUpdateNanos;
+
+    @sun.misc.Contended
+    private volatile long messageCount;
+
+    // Process all bids - excellent cache utilization
+    public long getTotalBidQuantity() {
+        long total = 0;
+        // Sequential memory access = hardware prefetch
+        for (int i = 0; i < bidCount; i++) {
+            total += bidQuantities[i];
+        }
+        return total;
+    }
+
+    // Binary search on sorted array - cache efficient
+    public int findPriceLevel(long price, boolean isBid) {
+        long[] prices = isBid ? bidPrices : askPrices;
+        int count = isBid ? bidCount : askCount;
+        return Arrays.binarySearch(prices, 0, count, price);
+    }
+}
+
+// Cache line padding for concurrent access
+public class PaddedAtomicLong {
+    // 64 bytes = typical cache line size
+    private long p1, p2, p3, p4, p5, p6, p7;
+    private volatile long value;
+    private long p8, p9, p10, p11, p12, p13, p14;
+}` },
+        { name: 'Mechanical Sympathy', diagram: MechanicalSympathyDiagram, explanation: 'Understand hardware to write fast code. CPU affinity pins threads to cores. NUMA-aware allocation keeps memory local. Busy-spin avoids context switch overhead. Branch-free code for predictable performance.',
+          codeExample: `// Low-Latency Thread Configuration
+public class LowLatencyThreading {
+
+    // Pin thread to specific CPU core
+    public static void pinToCore(int coreId) {
+        // Linux: taskset or Affinity library
+        Affinity.setAffinity(1L << coreId);
+    }
+
+    // Busy-spin waiting (no OS context switch)
+    public class BusySpinWaitStrategy implements WaitStrategy {
+        @Override
+        public long waitFor(long sequence, Sequence cursor,
+                           Sequence dependentSequence,
+                           SequenceBarrier barrier) {
+            long availableSequence;
+            while ((availableSequence = dependentSequence.get()) < sequence) {
+                Thread.onSpinWait();  // CPU hint for spin-wait
+            }
+            return availableSequence;
+        }
+    }
+
+    // Branch-free min/max (avoid branch misprediction)
+    public static long branchFreeMin(long a, long b) {
+        return b ^ ((a ^ b) & -(a < b ? 1L : 0L));
+    }
+
+    // Prefetch hints for upcoming data access
+    public void prefetchOrderBook(long[] prices, int startIdx) {
+        // JVM may inline to prefetch instructions
+        Unsafe.getUnsafe().prefetchReadStatic(
+            prices, Unsafe.ARRAY_LONG_BASE_OFFSET + startIdx * 8L);
+    }
+
+    // Lock-free single-writer pattern
+    public class SingleWriterRingBuffer {
+        private final long[] buffer;
+        private volatile long writePos = 0;
+        private long cachedReadPos = 0;
+
+        // Only one writer thread - no CAS needed
+        public boolean offer(long value) {
+            long currentWrite = writePos;
+            if (currentWrite - cachedReadPos >= buffer.length) {
+                cachedReadPos = readPos;  // Refresh cached read position
+                if (currentWrite - cachedReadPos >= buffer.length) {
+                    return false;  // Buffer full
+                }
+            }
+            buffer[(int)(currentWrite & (buffer.length - 1))] = value;
+            writePos = currentWrite + 1;  // Volatile write publishes
+            return true;
+        }
+    }
+}` },
+        { name: 'GC Tuning for Trading', explanation: 'When you cannot eliminate GC, minimize its impact. Use ZGC or Shenandoah for sub-millisecond pauses. Size heap to avoid frequent GCs. Pre-touch memory to avoid page faults. Monitor with GC logs and JFR.',
+          codeExample: `// JVM Flags for Low-Latency Trading
+// Zero pause GC (Java 15+)
+// -XX:+UseZGC -XX:+ZGenerational
+// -Xms16g -Xmx16g  (Fixed heap, no resizing)
+// -XX:+AlwaysPreTouch  (Pre-fault pages)
+// -XX:+UseNUMA  (NUMA-aware allocation)
+
+// Or Shenandoah for sub-ms pauses
+// -XX:+UseShenandoahGC
+// -XX:ShenandoahGCHeuristics=compact
+
+// GC-Free validation with JFR
+public class GCFreeValidator {
+
+    public void runWithGCMonitoring(Runnable task) {
+        // Before
+        long gcCountBefore = getGCCount();
+        long allocBefore = getAllocatedBytes();
+
+        // Run task
+        for (int i = 0; i < 1_000_000; i++) {
+            task.run();
+        }
+
+        // After
+        long gcCountAfter = getGCCount();
+        long allocAfter = getAllocatedBytes();
+
+        if (gcCountAfter > gcCountBefore) {
+            throw new AssertionError("GC occurred during test!");
+        }
+        if (allocAfter > allocBefore) {
+            System.err.println("Allocated: " + (allocAfter - allocBefore) + " bytes");
+        }
+    }
+
+    private long getGCCount() {
+        return ManagementFactory.getGarbageCollectorMXBeans()
+            .stream()
+            .mapToLong(GarbageCollectorMXBean::getCollectionCount)
+            .sum();
+    }
+
+    private long getAllocatedBytes() {
+        return ((com.sun.management.ThreadMXBean)
+            ManagementFactory.getThreadMXBean())
+            .getThreadAllocatedBytes(Thread.currentThread().getId());
+    }
+}
+
+// Epsilon GC for testing (no-op GC)
+// -XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC
+// Use to verify zero-allocation code` }
       ]
     }
   ]

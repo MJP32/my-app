@@ -1054,7 +1054,7 @@ print(f"7 / -3 = {divide(7, -3)}")    # -2`
               </h3>
               <p style={{
                 color: '#d1d5db',
-                textAlign: 'center',
+                textAlign: 'left',
                 fontSize: '0.875rem'
               }}>
                 Click to explore bitwise operations and techniques
@@ -1203,10 +1203,12 @@ print(f"7 / -3 = {divide(7, -3)}")    # -2`
                           language="python"
                           style={vscDarkPlus}
                           customStyle={{
-                            padding: '1.5rem',
-                            borderRadius: '0.5rem',
-                            fontSize: '0.9rem',
-                            border: '1px solid #3b82f6'
+                            margin: 0,
+                            borderRadius: '0.375rem',
+                            fontSize: '0.875rem',
+                            background: 'none',
+                            backgroundColor: 'transparent',
+                            padding: 0
                           }}
                         >
                           {section.code}

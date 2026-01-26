@@ -1,689 +1,793 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 
-const SyntaxHighlighter = ({ code }) => {
-  const highlightCode = (code) => {
-    let highlighted = code
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
+// =============================================================================
+// COLORS CONFIGURATION
+// =============================================================================
 
-    const protectedContent = []
-    let placeholder = 0
-
-    highlighted = highlighted.replace(/(#.*$|\/\/.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
-      const id = `___COMMENT_${placeholder++}___`
-      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
-      return id
-    })
-
-    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
-      const id = `___STRING_${placeholder++}___`
-      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
-      return id
-    })
-
-    highlighted = highlighted
-      .replace(/\b(datasource|dashboard|panel|query|visualization|alert|notification|provisioning|interval|format|transform|legend|threshold|annotation)\b/g, '<span style="color: #c586c0;">$1</span>')
-      .replace(/\b(prometheus|graphite|elasticsearch|influxdb|mysql|postgres|cloudwatch|azure|loki|tempo|sum|avg|rate|increase)\b/gi, '<span style="color: #569cd6;">$1</span>')
-      .replace(/\b(\d+\.?\d*[smhd]?)\b/g, '<span style="color: #b5cea8;">$1</span>')
-
-    protectedContent.forEach(({ id, replacement }) => {
-      highlighted = highlighted.replace(id, replacement)
-    })
-
-    return highlighted
-  }
-
-  return (
-    <pre style={{
-      margin: 0,
-      fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
-      fontSize: '0.85rem',
-      lineHeight: '1.6',
-      color: '#d4d4d4',
-      whiteSpace: 'pre',
-      overflowX: 'auto',
-      textAlign: 'left',
-      padding: 0
-    }}>
-      <code dangerouslySetInnerHTML={{ __html: highlightCode(code) }} />
-    </pre>
-  )
+const GRAFANA_COLORS = {
+  primary: '#f57c00',
+  primaryHover: '#ff9800',
+  bg: 'rgba(245, 124, 0, 0.1)',
+  border: 'rgba(245, 124, 0, 0.3)',
+  arrow: '#f57c00',
+  hoverBg: 'rgba(245, 124, 0, 0.2)',
+  topicBg: 'rgba(245, 124, 0, 0.2)'
 }
 
-function Grafana({ onBack, breadcrumb }) {
-  const [selectedTopic, setSelectedTopic] = useState(null)
+const SUBTOPIC_COLORS = [
+  { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },
+  { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' },
+  { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' },
+  { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)' },
+  { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)' },
+  { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
+]
 
-  const topics = [
+// =============================================================================
+// DIAGRAM COMPONENTS
+// =============================================================================
+
+// Grafana Dashboard Structure Diagram
+const GrafanaDashboardDiagram = () => (
+  <svg viewBox="0 0 700 200" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowGrafana" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#f57c00" />
+      </marker>
+    </defs>
+
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Grafana Dashboard Structure</text>
+
+    {/* Dashboard container */}
+    <rect x="50" y="40" width="600" height="145" rx="8" fill="rgba(245, 124, 0, 0.1)" stroke="#f57c00" strokeWidth="2"/>
+    <text x="70" y="60" fill="#f57c00" fontSize="11" fontWeight="bold">Dashboard: Application Performance</text>
+
+    {/* Row 1 - Panels */}
+    <rect x="70" y="70" width="180" height="50" rx="4" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="1.5"/>
+    <text x="160" y="92" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Graph Panel</text>
+    <text x="160" y="108" textAnchor="middle" fill="#fcd34d" fontSize="7">Request Rate</text>
+
+    <rect x="260" y="70" width="100" height="50" rx="4" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="1.5"/>
+    <text x="310" y="92" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Stat Panel</text>
+    <text x="310" y="108" textAnchor="middle" fill="#86efac" fontSize="7">Error %</text>
+
+    <rect x="370" y="70" width="100" height="50" rx="4" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="1.5"/>
+    <text x="420" y="92" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Gauge</text>
+    <text x="420" y="108" textAnchor="middle" fill="#c4b5fd" fontSize="7">CPU Usage</text>
+
+    <rect x="480" y="70" width="150" height="50" rx="4" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" strokeWidth="1.5"/>
+    <text x="555" y="92" textAnchor="middle" fill="#f472b6" fontSize="9" fontWeight="bold">Table Panel</text>
+    <text x="555" y="108" textAnchor="middle" fill="#f9a8d4" fontSize="7">Top Endpoints</text>
+
+    {/* Row 2 - More Panels */}
+    <rect x="70" y="130" width="280" height="45" rx="4" fill="rgba(6, 182, 212, 0.3)" stroke="#06b6d4" strokeWidth="1.5"/>
+    <text x="210" y="152" textAnchor="middle" fill="#22d3ee" fontSize="9" fontWeight="bold">Time Series Panel</text>
+    <text x="210" y="166" textAnchor="middle" fill="#67e8f9" fontSize="7">Latency P50/P95/P99</text>
+
+    <rect x="360" y="130" width="270" height="45" rx="4" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="1.5"/>
+    <text x="495" y="152" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">Heatmap Panel</text>
+    <text x="495" y="166" textAnchor="middle" fill="#fca5a5" fontSize="7">Response Time Distribution</text>
+  </svg>
+)
+
+// Data Sources Feeding Grafana Diagram
+const DataSourceDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowDS" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#f57c00" />
+      </marker>
+    </defs>
+
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Multiple Data Sources Feeding Grafana</text>
+
+    {/* Data sources on left */}
+    <rect x="30" y="45" width="110" height="35" rx="4" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="1.5"/>
+    <text x="85" y="67" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">Prometheus</text>
+
+    <rect x="30" y="90" width="110" height="35" rx="4" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="1.5"/>
+    <text x="85" y="112" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Loki</text>
+
+    <rect x="30" y="135" width="110" height="35" rx="4" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="1.5"/>
+    <text x="85" y="157" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">InfluxDB</text>
+
+    {/* More data sources */}
+    <rect x="560" y="45" width="110" height="35" rx="4" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="1.5"/>
+    <text x="615" y="67" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Elasticsearch</text>
+
+    <rect x="560" y="90" width="110" height="35" rx="4" fill="rgba(6, 182, 212, 0.3)" stroke="#06b6d4" strokeWidth="1.5"/>
+    <text x="615" y="112" textAnchor="middle" fill="#22d3ee" fontSize="9" fontWeight="bold">CloudWatch</text>
+
+    <rect x="560" y="135" width="110" height="35" rx="4" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" strokeWidth="1.5"/>
+    <text x="615" y="157" textAnchor="middle" fill="#f472b6" fontSize="9" fontWeight="bold">MySQL</text>
+
+    {/* Grafana in center */}
+    <rect x="250" y="70" width="200" height="70" rx="8" fill="rgba(245, 124, 0, 0.3)" stroke="#f57c00" strokeWidth="2"/>
+    <text x="350" y="100" textAnchor="middle" fill="#f57c00" fontSize="12" fontWeight="bold">Grafana</text>
+    <text x="350" y="120" textAnchor="middle" fill="#ff9800" fontSize="8">Unified Visualization</text>
+
+    {/* Arrows */}
+    <line x1="140" y1="62" x2="245" y2="95" stroke="#f87171" strokeWidth="1.5"/>
+    <line x1="140" y1="107" x2="245" y2="105" stroke="#fbbf24" strokeWidth="1.5"/>
+    <line x1="140" y1="152" x2="245" y2="115" stroke="#4ade80" strokeWidth="1.5"/>
+    <line x1="555" y1="62" x2="455" y2="95" stroke="#a78bfa" strokeWidth="1.5"/>
+    <line x1="555" y1="107" x2="455" y2="105" stroke="#22d3ee" strokeWidth="1.5"/>
+    <line x1="555" y1="152" x2="455" y2="115" stroke="#f472b6" strokeWidth="1.5"/>
+  </svg>
+)
+
+// Alerting Flow Diagram
+const AlertingFlowDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowAlert" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#f57c00" />
+      </marker>
+    </defs>
+
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Grafana Alerting Flow</text>
+
+    {/* Alert Rule */}
+    <rect x="30" y="60" width="120" height="60" rx="6" fill="rgba(245, 124, 0, 0.3)" stroke="#f57c00" strokeWidth="2"/>
+    <text x="90" y="85" textAnchor="middle" fill="#f57c00" fontSize="10" fontWeight="bold">Alert Rule</text>
+    <text x="90" y="102" textAnchor="middle" fill="#ff9800" fontSize="7">Condition Check</text>
+    <text x="90" y="115" textAnchor="middle" fill="#ff9800" fontSize="7">Every 1m</text>
+
+    {/* Evaluation */}
+    <rect x="180" y="60" width="120" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="240" y="85" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Evaluate</text>
+    <text x="240" y="102" textAnchor="middle" fill="#fcd34d" fontSize="7">Query Data</text>
+    <text x="240" y="115" textAnchor="middle" fill="#fcd34d" fontSize="7">Check Threshold</text>
+
+    {/* Alert State */}
+    <rect x="330" y="60" width="120" height="60" rx="6" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="390" y="85" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">Alert State</text>
+    <text x="390" y="102" textAnchor="middle" fill="#fca5a5" fontSize="7">Pending/Firing</text>
+    <text x="390" y="115" textAnchor="middle" fill="#fca5a5" fontSize="7">for: 5m</text>
+
+    {/* Notification Policy */}
+    <rect x="480" y="60" width="120" height="60" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="540" y="85" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Route</text>
+    <text x="540" y="102" textAnchor="middle" fill="#c4b5fd" fontSize="7">Match Labels</text>
+    <text x="540" y="115" textAnchor="middle" fill="#c4b5fd" fontSize="7">Group Alerts</text>
+
+    {/* Contact Points */}
+    <rect x="550" y="135" width="60" height="35" rx="4" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="580" y="157" textAnchor="middle" fill="#4ade80" fontSize="8">Slack</text>
+
+    <rect x="480" y="135" width="60" height="35" rx="4" fill="rgba(6, 182, 212, 0.3)" stroke="#06b6d4" strokeWidth="1"/>
+    <text x="510" y="157" textAnchor="middle" fill="#22d3ee" fontSize="8">Email</text>
+
+    <rect x="620" y="135" width="60" height="35" rx="4" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" strokeWidth="1"/>
+    <text x="650" y="157" textAnchor="middle" fill="#f472b6" fontSize="8">PagerDuty</text>
+
+    {/* Arrows */}
+    <line x1="150" y1="90" x2="175" y2="90" stroke="#64748b" strokeWidth="1.5" markerEnd="url(#arrowAlert)"/>
+    <line x1="300" y1="90" x2="325" y2="90" stroke="#64748b" strokeWidth="1.5" markerEnd="url(#arrowAlert)"/>
+    <line x1="450" y1="90" x2="475" y2="90" stroke="#64748b" strokeWidth="1.5" markerEnd="url(#arrowAlert)"/>
+    <line x1="510" y1="120" x2="510" y2="130" stroke="#64748b" strokeWidth="1.5"/>
+    <line x1="540" y1="120" x2="580" y2="130" stroke="#64748b" strokeWidth="1.5"/>
+    <line x1="570" y1="120" x2="650" y2="130" stroke="#64748b" strokeWidth="1.5"/>
+  </svg>
+)
+
+// Templating and Variables Diagram
+const TemplatingDiagram = () => (
+  <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Dashboard Templating with Variables</text>
+
+    {/* Variable Dropdowns */}
+    <rect x="50" y="45" width="600" height="40" rx="4" fill="rgba(30, 41, 59, 0.8)" stroke="#475569" strokeWidth="1"/>
+    <text x="70" y="70" fill="#94a3b8" fontSize="9">Variables:</text>
+
+    <rect x="130" y="52" width="100" height="26" rx="3" fill="rgba(245, 124, 0, 0.3)" stroke="#f57c00" strokeWidth="1"/>
+    <text x="180" y="70" textAnchor="middle" fill="#f57c00" fontSize="8">$datasource</text>
+
+    <rect x="240" y="52" width="100" height="26" rx="3" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="290" y="70" textAnchor="middle" fill="#4ade80" fontSize="8">$environment</text>
+
+    <rect x="350" y="52" width="100" height="26" rx="3" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="400" y="70" textAnchor="middle" fill="#fbbf24" fontSize="8">$service</text>
+
+    <rect x="460" y="52" width="100" height="26" rx="3" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="510" y="70" textAnchor="middle" fill="#a78bfa" fontSize="8">$instance</text>
+
+    {/* Query with variables */}
+    <rect x="50" y="100" width="600" height="65" rx="6" fill="rgba(15, 23, 42, 0.9)" stroke="#334155" strokeWidth="1"/>
+    <text x="70" y="120" fill="#94a3b8" fontSize="9">Query using variables:</text>
+    <text x="70" y="140" fill="#f87171" fontSize="9" fontFamily="monospace">rate(http_requests_total{'{'}</text>
+    <text x="230" y="140" fill="#4ade80" fontSize="9" fontFamily="monospace">env="$environment"</text>
+    <text x="380" y="140" fill="#fbbf24" fontSize="9" fontFamily="monospace">, service="$service"</text>
+    <text x="530" y="140" fill="#f87171" fontSize="9" fontFamily="monospace">{'}'}[5m])</text>
+    <text x="70" y="158" fill="#64748b" fontSize="8">Variables dynamically filter data across all panels</text>
+  </svg>
+)
+
+// Provisioning Diagram
+const ProvisioningDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowProv" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#f57c00" />
+      </marker>
+    </defs>
+
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Grafana Provisioning Architecture</text>
+
+    {/* Config Files */}
+    <rect x="50" y="45" width="150" height="80" rx="6" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="125" y="70" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Config Files</text>
+    <text x="125" y="88" textAnchor="middle" fill="#fcd34d" fontSize="8">dashboards.yaml</text>
+    <text x="125" y="103" textAnchor="middle" fill="#fcd34d" fontSize="8">datasources.yaml</text>
+    <text x="125" y="118" textAnchor="middle" fill="#fcd34d" fontSize="8">alerting.yaml</text>
+
+    {/* Grafana Instance */}
+    <rect x="280" y="45" width="180" height="80" rx="8" fill="rgba(245, 124, 0, 0.3)" stroke="#f57c00" strokeWidth="2"/>
+    <text x="370" y="75" textAnchor="middle" fill="#f57c00" fontSize="12" fontWeight="bold">Grafana</text>
+    <text x="370" y="95" textAnchor="middle" fill="#ff9800" fontSize="8">/provisioning/</text>
+    <text x="370" y="110" textAnchor="middle" fill="#ff9800" fontSize="8">Auto-reload on change</text>
+
+    {/* Terraform */}
+    <rect x="540" y="40" width="100" height="45" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="590" y="60" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Terraform</text>
+    <text x="590" y="77" textAnchor="middle" fill="#c4b5fd" fontSize="8">grafana_*</text>
+
+    {/* Kubernetes */}
+    <rect x="540" y="95" width="100" height="45" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="590" y="115" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">K8s</text>
+    <text x="590" y="132" textAnchor="middle" fill="#86efac" fontSize="8">ConfigMaps</text>
+
+    {/* Git */}
+    <rect x="700" y="55" width="80" height="60" rx="6" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="740" y="80" textAnchor="middle" fill="#f472b6" fontSize="10" fontWeight="bold">Git</text>
+    <text x="740" y="98" textAnchor="middle" fill="#fbcfe8" fontSize="8">Version</text>
+    <text x="740" y="111" textAnchor="middle" fill="#fbcfe8" fontSize="8">Control</text>
+
+    {/* Arrows */}
+    <path d="M 200 85 L 275 85" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrowProv)"/>
+    <path d="M 460 70 L 535 60" stroke="#64748b" strokeWidth="1.5" strokeDasharray="3"/>
+    <path d="M 460 100 L 535 115" stroke="#64748b" strokeWidth="1.5" strokeDasharray="3"/>
+    <path d="M 640 85 L 695 85" stroke="#64748b" strokeWidth="1.5" strokeDasharray="3"/>
+
+    {/* Footer */}
+    <rect x="100" y="150" width="600" height="35" rx="4" fill="rgba(34, 197, 94, 0.1)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="400" y="172" textAnchor="middle" fill="#4ade80" fontSize="9">Infrastructure as Code: Dashboards, Data Sources, Alerts all versioned and reproducible</text>
+  </svg>
+)
+
+// Panel Types Diagram
+const PanelTypesDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Grafana Panel Types</text>
+
+    {/* Row 1 */}
+    <rect x="50" y="45" width="140" height="65" rx="6" fill="rgba(245, 124, 0, 0.2)" stroke="#f57c00" strokeWidth="2"/>
+    <text x="120" y="70" textAnchor="middle" fill="#f57c00" fontSize="10" fontWeight="bold">Time Series</text>
+    <text x="120" y="88" textAnchor="middle" fill="#ff9800" fontSize="7">Line/Area Charts</text>
+    <text x="120" y="100" textAnchor="middle" fill="#ff9800" fontSize="7">Multiple queries</text>
+
+    <rect x="210" y="45" width="140" height="65" rx="6" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="280" y="70" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Stat</text>
+    <text x="280" y="88" textAnchor="middle" fill="#86efac" fontSize="7">Single value</text>
+    <text x="280" y="100" textAnchor="middle" fill="#86efac" fontSize="7">Thresholds</text>
+
+    <rect x="370" y="45" width="140" height="65" rx="6" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="440" y="70" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Gauge</text>
+    <text x="440" y="88" textAnchor="middle" fill="#c4b5fd" fontSize="7">Progress indicator</text>
+    <text x="440" y="100" textAnchor="middle" fill="#c4b5fd" fontSize="7">Min/Max ranges</text>
+
+    <rect x="530" y="45" width="140" height="65" rx="6" fill="rgba(236, 72, 153, 0.2)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="600" y="70" textAnchor="middle" fill="#f472b6" fontSize="10" fontWeight="bold">Bar Chart</text>
+    <text x="600" y="88" textAnchor="middle" fill="#fbcfe8" fontSize="7">Comparisons</text>
+    <text x="600" y="100" textAnchor="middle" fill="#fbcfe8" fontSize="7">Horizontal/Vertical</text>
+
+    {/* Row 2 */}
+    <rect x="130" y="125" width="140" height="65" rx="6" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="200" y="150" textAnchor="middle" fill="#22d3ee" fontSize="10" fontWeight="bold">Table</text>
+    <text x="200" y="168" textAnchor="middle" fill="#67e8f9" fontSize="7">Tabular data</text>
+    <text x="200" y="180" textAnchor="middle" fill="#67e8f9" fontSize="7">Sorting/filtering</text>
+
+    <rect x="290" y="125" width="140" height="65" rx="6" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="360" y="150" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">Heatmap</text>
+    <text x="360" y="168" textAnchor="middle" fill="#fca5a5" fontSize="7">Distribution</text>
+    <text x="360" y="180" textAnchor="middle" fill="#fca5a5" fontSize="7">Time buckets</text>
+
+    <rect x="450" y="125" width="140" height="65" rx="6" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="520" y="150" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Logs</text>
+    <text x="520" y="168" textAnchor="middle" fill="#fcd34d" fontSize="7">Log messages</text>
+    <text x="520" y="180" textAnchor="middle" fill="#fcd34d" fontSize="7">Search/Filter</text>
+  </svg>
+)
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
+
+function Grafana({ onBack, onPrevious, onNext, previousName, nextName, breadcrumb }) {
+  const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
+  const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+
+  // =============================================================================
+  // CONCEPTS DATA
+  // =============================================================================
+
+  const concepts = [
     {
-      id: 1,
+      id: 'dashboards',
       name: 'Grafana Dashboards',
-      icon: '📈',
+      icon: '📊',
       color: '#f57c00',
-      description: 'Creating and customizing dashboards',
-      content: {
-        explanation: 'Grafana is an open-source analytics and visualization platform that transforms time-series data into insightful dashboards. It supports multiple data sources, provides rich visualization options, and enables real-time monitoring. Dashboards combine panels with graphs, stats, tables, and custom visualizations.',
-        keyPoints: [
-          'Panels: Individual visualization units (Graph, Stat, Table, Gauge)',
-          'Rows: Group related panels together',
-          'Variables: Dynamic dashboard parameters',
-          'Templating: Create reusable dashboard templates',
-          'Time Range: Flexible time selection and refresh',
-          'Annotations: Mark events on time series',
-          'Sharing: Export, snapshot, embed dashboards',
-          'Themes: Light and dark mode support'
-        ],
-        codeExample: `# Dashboard JSON Structure
+      description: 'Panel types: Time series, Stat, Gauge, Bar chart, Table, Heatmap, Logs. Row-based layout with drag-drop. JSON model for version control.',
+      diagram: GrafanaDashboardDiagram,
+      details: [
+        {
+          name: 'Dashboard Basics & Panels',
+          diagram: PanelTypesDiagram,
+          explanation: 'Grafana is an open-source analytics and visualization platform that transforms time-series data into insightful dashboards. Dashboards are the primary way to display data in Grafana, consisting of one or more panels arranged in rows. Panels are the building blocks - common types include Graph/Time Series for line charts, Stat for single values with thresholds, Gauge for showing progress, Table for tabular data, Heatmap for distribution visualization, Bar chart for comparisons, and Logs for log data. Each panel can have its own data source and queries.',
+          codeExample: `// Dashboard JSON Structure
 {
   "dashboard": {
+    "id": null,
+    "uid": "app-performance",
     "title": "Application Performance",
-    "tags": ["app", "production"],
+    "tags": ["production", "api"],
     "timezone": "browser",
+    "schemaVersion": 38,
     "refresh": "30s",
-
-    "panels": [
-      {
-        "id": 1,
-        "title": "Request Rate",
-        "type": "graph",
-        "datasource": "Prometheus",
-        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
-
-        "targets": [
-          {
-            "expr": "sum(rate(http_requests_total[5m])) by (job)",
-            "legendFormat": "{{job}}",
-            "refId": "A"
-          }
-        ],
-
-        "fieldConfig": {
-          "defaults": {
-            "unit": "reqps",
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {"value": null, "color": "green"},
-                {"value": 80, "color": "yellow"},
-                {"value": 100, "color": "red"}
-              ]
-            }
-          }
-        },
-
-        "options": {
-          "legend": {"displayMode": "table", "placement": "bottom"},
-          "tooltip": {"mode": "multi"}
-        }
-      },
-
-      {
-        "id": 2,
-        "title": "Error Rate",
-        "type": "stat",
-        "datasource": "Prometheus",
-        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
-
-        "targets": [
-          {
-            "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) / sum(rate(http_requests_total[5m])) * 100",
-            "refId": "A"
-          }
-        ],
-
-        "fieldConfig": {
-          "defaults": {
-            "unit": "percent",
-            "decimals": 2,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {"value": null, "color": "green"},
-                {"value": 1, "color": "yellow"},
-                {"value": 5, "color": "red"}
-              ]
-            }
-          }
-        }
-      }
-    ],
-
-    "templating": {
-      "list": [
-        {
-          "name": "datasource",
-          "type": "datasource",
-          "query": "prometheus"
-        },
-        {
-          "name": "job",
-          "type": "query",
-          "datasource": "Prometheus",
-          "query": "label_values(up, job)",
-          "multi": true,
-          "includeAll": true
-        },
-        {
-          "name": "instance",
-          "type": "query",
-          "datasource": "Prometheus",
-          "query": "label_values(up{job=\"$job\"}, instance)"
-        }
-      ]
-    },
-
-    "annotations": {
-      "list": [
-        {
-          "name": "Deployments",
-          "datasource": "Prometheus",
-          "expr": "ALERTS{alertname=\"DeploymentEvent\"}",
-          "iconColor": "blue",
-          "enable": true
-        }
-      ]
-    },
-
     "time": {
       "from": "now-6h",
       "to": "now"
     },
+    "panels": [],
+    "templating": { "list": [] },
+    "annotations": { "list": [] }
+  },
+  "folderId": 0,
+  "folderUid": "prod-dashboards",
+  "overwrite": false
+}
 
-    "timepicker": {
-      "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h"]
+// Time Series Panel JSON
+{
+  "id": 1,
+  "type": "timeseries",
+  "title": "Request Rate",
+  "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+  "datasource": { "type": "prometheus", "uid": "prometheus" },
+  "targets": [
+    {
+      "expr": "rate(http_requests_total{job=\\"api\\"}[5m])",
+      "legendFormat": "{{method}} {{path}}",
+      "refId": "A"
     }
+  ],
+  "fieldConfig": {
+    "defaults": {
+      "color": { "mode": "palette-classic" },
+      "custom": {
+        "drawStyle": "line",
+        "lineWidth": 2,
+        "fillOpacity": 10
+      },
+      "unit": "reqps"
+    }
+  }
+}`
+        },
+        {
+          name: 'Variables & Templating',
+          diagram: TemplatingDiagram,
+          explanation: 'Variables make dashboards dynamic and reusable. Types include: Query variables (populated from data source), Custom variables (predefined values), Datasource variables (switch between data sources), Interval variables (time granularity). Variables appear as dropdowns and can be used in queries with $variable syntax. They enable filtering and reuse across environments and services.',
+          codeExample: `// Template Variables Configuration
+{
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": { "text": "Prometheus", "value": "prometheus" },
+        "hide": 0
+      },
+      {
+        "name": "environment",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "$datasource" },
+        "query": "label_values(up, env)",
+        "refresh": 2,
+        "sort": 1,
+        "multi": false,
+        "includeAll": true,
+        "allValue": ".*"
+      },
+      {
+        "name": "service",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "$datasource" },
+        "query": "label_values(up{env=~\\"$environment\\"}, service)",
+        "refresh": 2,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true
+      },
+      {
+        "name": "interval",
+        "type": "interval",
+        "query": "1m,5m,15m,1h,6h,1d",
+        "current": { "text": "5m", "value": "5m" },
+        "auto": true,
+        "auto_min": "1m"
+      }
+    ]
   }
 }
 
-# Provisioning Dashboard (YAML)
-# provisioning/dashboards/dashboard.yml
-apiVersion: 1
-
-providers:
-  - name: 'default'
-    orgId: 1
-    folder: ''
-    type: file
-    disableDeletion: false
-    updateIntervalSeconds: 10
-    options:
-      path: /etc/grafana/dashboards
-
-# Docker Compose with Grafana
-version: '3'
-services:
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-piechart-panel
-    volumes:
-      - grafana-data:/var/lib/grafana
-      - ./provisioning:/etc/grafana/provisioning
-      - ./dashboards:/etc/grafana/dashboards
-    networks:
-      - monitoring
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    networks:
-      - monitoring
-
-volumes:
-  grafana-data:
-
-networks:
-  monitoring:`
+// Using Variables in PromQL
+rate(http_requests_total{env=~"$environment", service=~"$service"}[$interval])`
+        },
+        {
+          name: 'Annotations & Sharing',
+          explanation: 'Annotations mark events on time series graphs - deployments, incidents, or other significant events. They can be created manually or from data sources and are shared across panels. Dashboards can be shared via link (with current time range and variables), snapshot (static export), embed (iframe for external sites), or export as JSON for version control. Public dashboards allow anonymous viewing.',
+          codeExample: `// Annotations Configuration
+{
+  "annotations": {
+    "list": [
+      {
+        "name": "Deployments",
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "enable": true,
+        "iconColor": "#2196F3",
+        "expr": "changes(deployment_timestamp{app=~\\"$service\\"}[1m]) > 0",
+        "titleFormat": "Deployment",
+        "textFormat": "{{app}} deployed version {{version}}",
+        "tagKeys": "app,version",
+        "type": "dashboard"
+      },
+      {
+        "name": "Incidents",
+        "datasource": { "type": "loki", "uid": "loki" },
+        "enable": true,
+        "iconColor": "#F44336",
+        "expr": "{job=\\"incidents\\"} |= \\"severity=critical\\"",
+        "titleFormat": "Incident",
+        "type": "dashboard"
       }
+    ]
+  }
+}
+
+// Embed Panel in External Site
+<iframe
+  src="https://grafana.example.com/d-solo/app-performance/
+    application-performance?orgId=1&panelId=1&from=now-6h&to=now&theme=dark"
+  width="800"
+  height="400"
+  frameborder="0">
+</iframe>
+
+// Public Dashboard Configuration
+{
+  "uid": "app-performance",
+  "isPublic": true,
+  "publicDashboard": {
+    "isEnabled": true,
+    "annotationsEnabled": false,
+    "timeSelectionEnabled": true
+  }
+}`
+        }
+      ]
     },
     {
-      id: 2,
+      id: 'data-sources',
       name: 'Data Sources & Queries',
       icon: '🔗',
       color: '#1976d2',
-      description: 'Connecting and querying data sources',
-      content: {
-        explanation: 'Grafana supports numerous data sources including Prometheus, InfluxDB, Elasticsearch, MySQL, PostgreSQL, and cloud providers. Each data source has a specific query editor optimized for its query language. Grafana transforms raw queries into beautiful visualizations.',
-        keyPoints: [
-          'Prometheus: PromQL queries for time-series metrics',
-          'InfluxDB: Flux or InfluxQL for measurements',
-          'Elasticsearch: Lucene queries for logs',
-          'MySQL/PostgreSQL: SQL queries for relational data',
-          'Cloud Monitoring: AWS CloudWatch, Azure Monitor, GCP',
-          'Loki: LogQL for log aggregation',
-          'Mixed Data Source: Combine multiple sources in one panel',
-          'Query Variables: Dynamic queries with template variables'
-        ],
-        codeExample: `# Prometheus Data Source Configuration
-# provisioning/datasources/prometheus.yml
+      description: 'Native support for Prometheus, Loki, InfluxDB, Elasticsearch, CloudWatch, MySQL/PostgreSQL. Mixed data source queries in single panel.',
+      diagram: DataSourceDiagram,
+      details: [
+        {
+          name: 'Prometheus & PromQL',
+          explanation: 'Prometheus is the most common data source for Grafana, using PromQL for queries. Example queries: rate(http_requests_total[5m]) for request rate, histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) for P95 latency. Supports instant and range queries. Prometheus alerting rules can be visualized and exemplar traces can link to distributed tracing systems.',
+          codeExample: `# Prometheus Data Source Provisioning
+# /etc/grafana/provisioning/datasources/prometheus.yaml
 apiVersion: 1
-
 datasources:
   - name: Prometheus
     type: prometheus
     access: proxy
     url: http://prometheus:9090
     isDefault: true
-    jsonData:
-      httpMethod: POST
-      timeInterval: 30s
     editable: false
-
-  - name: Loki
-    type: loki
-    access: proxy
-    url: http://loki:3100
     jsonData:
-      maxLines: 1000
+      timeInterval: "15s"
+      httpMethod: POST
+      exemplarTraceIdDestinations:
+        - name: traceID
+          datasourceUid: tempo
 
-  - name: MySQL
-    type: mysql
-    url: mysql:3306
-    database: myapp
-    user: grafana
-    secureJsonData:
-      password: secret
-
-# Prometheus Queries in Dashboard
-# CPU Usage
-100 - (avg by (instance) (
-  rate(node_cpu_seconds_total{mode="idle"}[5m])
-) * 100)
-
-# Memory Usage
-(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)
-/ node_memory_MemTotal_bytes * 100
-
+# Common PromQL Queries
 # Request Rate
-rate(http_requests_total[5m])
+rate(http_requests_total{job="api"}[5m])
 
 # Error Rate Percentage
 sum(rate(http_requests_total{status=~"5.."}[5m]))
-/ sum(rate(http_requests_total[5m])) * 100
+  / sum(rate(http_requests_total[5m])) * 100
 
 # P95 Latency
 histogram_quantile(0.95,
   sum(rate(http_request_duration_seconds_bucket[5m])) by (le)
 )
 
-# Loki Queries (LogQL)
-# Filter logs by label
-{job="webapp", level="error"}
+# CPU Usage by Instance
+100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
 
-# Count errors per minute
-sum(count_over_time({job="webapp", level="error"}[1m]))
+# Memory Usage
+(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)
+  / node_memory_MemTotal_bytes * 100`
+        },
+        {
+          name: 'Loki & SQL Databases',
+          explanation: 'Loki is Grafana\'s log aggregation system using LogQL. Filter logs by label: {job="webapp"}. Pattern matching: {job="webapp"} |= "error". Metrics from logs: sum(count_over_time({job="webapp"}[1m])). For SQL databases (MySQL, PostgreSQL), use time-based queries with $__timeFilter() macro and $__timeGroup() for grouping. Table transformations are available for both.',
+          codeExample: `# Loki Data Source Provisioning
+apiVersion: 1
+datasources:
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    jsonData:
+      maxLines: 1000
+      derivedFields:
+        - name: TraceID
+          matcherRegex: "traceID=(\\\\w+)"
+          url: '$\${__value.raw}'
+          datasourceUid: tempo
 
-# Extract and count specific pattern
-sum(count_over_time({job="webapp"} |= "timeout" [5m])) by (host)
+# LogQL Query Examples
+{job="webapp", env="production"}
+{job="webapp"} |= "error"
+{job="webapp"} | json | level="error"
+sum(rate({job="webapp"} |= "error" [5m])) by (service)
 
-# MySQL Query Example
+# PostgreSQL Data Source
+datasources:
+  - name: PostgreSQL
+    type: postgres
+    url: postgres-server:5432
+    database: metrics_db
+    user: grafana_reader
+    secureJsonData:
+      password: \${PG_PASSWORD}
+    jsonData:
+      sslmode: require
+      postgresVersion: 1500
+
+# SQL Query with Macros
 SELECT
-  UNIX_TIMESTAMP(timestamp) as time_sec,
-  metric_value,
-  metric_name
-FROM metrics
-WHERE
-  timestamp BETWEEN FROM_UNIXTIME($__from) AND FROM_UNIXTIME($__to)
-  AND metric_name = 'cpu_usage'
-ORDER BY timestamp
-
-# Elasticsearch Query
-{
-  "query": {
-    "bool": {
-      "filter": [
-        {"range": {"@timestamp": {"gte": "$__from", "lte": "$__to"}}},
-        {"term": {"level": "error"}}
-      ]
-    }
-  },
-  "aggs": {
-    "errors_over_time": {
-      "date_histogram": {
-        "field": "@timestamp",
-        "interval": "$__interval"
-      }
-    }
-  }
-}
-
-# InfluxDB Query (Flux)
-from(bucket: "metrics")
-  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
-  |> filter(fn: (r) => r["_measurement"] == "cpu")
-  |> filter(fn: (r) => r["_field"] == "usage_idle")
-  |> aggregateWindow(every: v.windowPeriod, fn: mean)
+  $__timeGroup(created_at, $__interval) AS time,
+  service_name AS metric,
+  avg(response_time_ms) AS value
+FROM api_requests
+WHERE $__timeFilter(created_at)
+  AND environment = '$environment'
+GROUP BY 1, 2
+ORDER BY 1`
+        },
+        {
+          name: 'Cloud & Mixed Sources',
+          explanation: 'Native support for AWS CloudWatch, Azure Monitor, and Google Cloud Monitoring. Query metrics and logs from cloud services using IAM roles or service accounts. Panels can query multiple data sources simultaneously using Mixed mode - each query can target a different source. Transformations can join data from multiple queries for correlating metrics across systems.',
+          codeExample: `# AWS CloudWatch Data Source
+apiVersion: 1
+datasources:
+  - name: CloudWatch
+    type: cloudwatch
+    jsonData:
+      authType: default  # Uses IAM role
+      defaultRegion: us-east-1
+      customMetricsNamespaces: "CustomApp,MyService"
+      assumeRoleArn: arn:aws:iam::123456789:role/GrafanaCloudWatch
 
 # CloudWatch Query
 {
+  "region": "us-east-1",
   "namespace": "AWS/EC2",
   "metricName": "CPUUtilization",
-  "dimensions": {
-    "InstanceId": ["$instance"]
-  },
-  "statistic": "Average",
+  "dimensions": { "InstanceId": ["i-1234567890abcdef0"] },
+  "statistics": ["Average"],
   "period": "300"
 }
 
-# Mixed Data Source Example
-# Panel with multiple data sources
+# Mixed Data Source Panel
 {
+  "datasource": { "type": "mixed", "uid": "-- Mixed --" },
   "targets": [
     {
-      "datasource": "Prometheus",
-      "expr": "rate(requests[5m])",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "expr": "rate(http_requests_total[5m])",
+      "legendFormat": "Request Rate (Prometheus)",
       "refId": "A"
     },
     {
-      "datasource": "MySQL",
-      "rawSql": "SELECT * FROM orders WHERE created_at > NOW() - INTERVAL 5 MINUTE",
+      "datasource": { "type": "cloudwatch", "uid": "cloudwatch" },
+      "namespace": "AWS/ApplicationELB",
+      "metricName": "RequestCount",
+      "legendFormat": "Request Count (CloudWatch)",
       "refId": "B"
     }
-  ]
-}
-
-# Transform Query Results
-# Using Grafana transformations
-{
+  ],
   "transformations": [
-    {
-      "id": "organize",
-      "options": {
-        "excludeByName": {"Time": false},
-        "renameByName": {"Value": "Request Rate"}
-      }
-    },
-    {
-      "id": "calculateField",
-      "options": {
-        "mode": "binary",
-        "reduce": {"reducer": "sum"}
-      }
-    }
+    { "id": "merge", "options": {} }
   ]
 }`
-      }
+        }
+      ]
     },
     {
-      id: 3,
+      id: 'alerting',
       name: 'Alerting',
       icon: '🔔',
       color: '#d32f2f',
-      description: 'Alert rules and notification channels',
-      content: {
-        explanation: 'Grafana Alerting (Grafana 8+) provides unified alerting across all data sources. It evaluates alert rules at regular intervals, manages alert states, and routes notifications to various channels. Supports multi-dimensional alerts, silences, and notification policies for comprehensive alerting workflows.',
-        keyPoints: [
-          'Alert Rules: Define conditions using queries',
-          'Contact Points: Notification destinations (email, Slack, PagerDuty)',
-          'Notification Policies: Route alerts based on labels',
-          'Silences: Temporarily mute alerts',
-          'Alert States: Normal, Pending, Alerting, NoData, Error',
-          'Alert Groups: Group related alerts',
-          'Provisioning: Configure alerts as code',
-          'Alert History: Track alert state changes'
-        ],
-        codeExample: `# Alert Rule Configuration (YAML Provisioning)
-# provisioning/alerting/alert_rules.yml
+      description: 'Unified alerting with contact points (Slack/PagerDuty/Email). Silences for maintenance, notification policies for routing, alert groups for correlation.',
+      diagram: AlertingFlowDiagram,
+      details: [
+        {
+          name: 'Alert Rules & States',
+          explanation: 'Alert rules define conditions using queries with evaluation interval (how often to check) and "for" duration (how long condition must be true). Multiple conditions can be combined with AND/OR. Alerts have states: Normal (condition not met), Pending (condition met, waiting for "for" duration), Alerting/Firing (condition sustained), NoData (query returned no data), Error (query failed). Configure NoData and Error handling per rule.',
+          codeExample: `# Alert Rule Provisioning YAML
 apiVersion: 1
-
 groups:
-  - name: application_alerts
-    folder: Application
+  - orgId: 1
+    name: api-alerts
+    folder: Production Alerts
     interval: 1m
     rules:
-      - uid: high_error_rate
+      - uid: high-error-rate
         title: High Error Rate
-        condition: A
+        condition: C
         data:
           - refId: A
-            queryType: ''
-            relativeTimeRange:
-              from: 300
-              to: 0
             datasourceUid: prometheus
             model:
-              expr: |
-                sum(rate(http_requests_total{status=~"5.."}[5m]))
-                / sum(rate(http_requests_total[5m])) * 100 > 5
-              refId: A
-        noDataState: NoData
-        execErrState: Error
+              expr: sum(rate(http_requests_total{status=~"5.."}[5m]))
+          - refId: B
+            datasourceUid: prometheus
+            model:
+              expr: sum(rate(http_requests_total[5m]))
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: math
+              expression: ($A / $B) * 100 > 5
         for: 5m
         annotations:
-          description: "Error rate is {{ $values.A }}%"
-          summary: "High error rate detected"
+          summary: "Error rate is {{ $values.C }}%"
+          description: "Error rate exceeded 5% threshold"
         labels:
           severity: critical
-          team: backend
-
-      - uid: high_cpu
-        title: High CPU Usage
-        condition: A
-        data:
-          - refId: A
-            datasourceUid: prometheus
-            model:
-              expr: |
-                100 - (avg by (instance) (
-                  rate(node_cpu_seconds_total{mode="idle"}[5m])
-                ) * 100) > 80
-        for: 10m
-        annotations:
-          description: "CPU usage on {{ $labels.instance }} is {{ $values.A }}%"
-        labels:
-          severity: warning
-
-# Contact Points Configuration
-# provisioning/alerting/contact_points.yml
+          team: platform
+        noDataState: NoData    # Options: OK, NoData, Alerting
+        execErrState: Error    # Options: OK, Error, Alerting`
+        },
+        {
+          name: 'Contact Points & Routing',
+          explanation: 'Contact points define where alerts are sent - Email, Slack, PagerDuty, OpsGenie, Microsoft Teams, Webhook, and more. Configure message templates with alert labels and annotations. Notification policies route alerts to contact points based on labels using tree structure with nested routes. Configure group_by to batch related alerts, and timing: group_wait, group_interval, repeat_interval.',
+          codeExample: `# Contact Points Provisioning
 apiVersion: 1
-
 contactPoints:
-  - name: email-alerts
+  - orgId: 1
+    name: platform-team
     receivers:
-      - uid: email-1
-        type: email
-        settings:
-          addresses: team@example.com
-        disableResolveMessage: false
-
-  - name: slack-critical
-    receivers:
-      - uid: slack-1
+      - uid: slack-platform
         type: slack
         settings:
-          url: https://hooks.slack.com/services/YOUR/WEBHOOK
-          recipient: '#alerts-critical'
-          title: 'Grafana Alert'
+          recipient: "#platform-alerts"
+          token: \${SLACK_TOKEN}
           text: |
             {{ range .Alerts }}
-            **Alert:** {{ .Labels.alertname }}
-            **Status:** {{ .Status }}
-            **Description:** {{ .Annotations.description }}
+            *{{ .Labels.alertname }}*
+            Status: {{ .Status }}
+            Severity: {{ .Labels.severity }}
             {{ end }}
-
-  - name: pagerduty
-    receivers:
-      - uid: pd-1
+      - uid: pagerduty-platform
         type: pagerduty
         settings:
-          integrationKey: YOUR_PAGERDUTY_KEY
-          severity: critical
-
-  - name: webhook
-    receivers:
-      - uid: webhook-1
-        type: webhook
-        settings:
-          url: http://myservice:8080/alerts
-          httpMethod: POST
+          integrationKey: \${PAGERDUTY_KEY}
+          severity: "{{ .CommonLabels.severity }}"
 
 # Notification Policies
-# provisioning/alerting/notification_policies.yml
 apiVersion: 1
-
 policies:
-  - receiver: email-alerts
-    group_by: ['alertname', 'cluster']
+  - orgId: 1
+    receiver: default-receiver
+    group_by: ['alertname', 'service']
     group_wait: 30s
     group_interval: 5m
-    repeat_interval: 12h
-
+    repeat_interval: 4h
     routes:
-      # Critical alerts to PagerDuty
-      - receiver: pagerduty
+      - receiver: pagerduty-oncall
         matchers:
           - severity = critical
-        continue: true
-
-      # Backend team alerts to Slack
-      - receiver: slack-critical
+        group_wait: 0s
+        repeat_interval: 1h
+      - receiver: slack-warnings
         matchers:
-          - team = backend
-        group_by: ['alertname']
-
-      # All other alerts to email
-      - receiver: email-alerts
-
-# Silence Configuration
-# Create silence via API
-curl -X POST http://localhost:3000/api/alertmanager/grafana/api/v2/silences \\
-  -H "Content-Type: application/json" \\
-  -u admin:admin \\
-  -d '{
-    "matchers": [
-      {"name": "alertname", "value": "HighCPU", "isRegex": false},
-      {"name": "instance", "value": "server1", "isRegex": false}
-    ],
-    "startsAt": "2024-01-01T00:00:00Z",
-    "endsAt": "2024-01-01T02:00:00Z",
-    "createdBy": "admin",
-    "comment": "Planned maintenance"
-  }'
-
-# Alert Rule via API
-curl -X POST http://localhost:3000/api/ruler/grafana/api/v1/rules/application \\
-  -H "Content-Type: application/json" \\
-  -u admin:admin \\
-  -d '{
-    "name": "high_memory",
-    "interval": "1m",
-    "rules": [
-      {
-        "grafana_alert": {
-          "title": "High Memory Usage",
-          "condition": "A",
-          "data": [{
-            "refId": "A",
-            "queryType": "",
-            "relativeTimeRange": {"from": 300, "to": 0},
-            "datasourceUid": "prometheus",
-            "model": {
-              "expr": "(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 90",
-              "refId": "A"
-            }
-          }],
-          "noDataState": "NoData",
-          "execErrState": "Error"
+          - severity = warning
+        repeat_interval: 12h`
         },
-        "for": "5m",
-        "annotations": {
-          "description": "Memory usage is high on {{ $labels.instance }}"
-        },
-        "labels": {
-          "severity": "warning"
-        }
-      }
-    ]
-  }'
+        {
+          name: 'Silences & Provisioning',
+          explanation: 'Silences temporarily mute alerts during maintenance windows. Match alerts by labels, set start/end time. Silences don\'t prevent alert evaluation, just notification. Define alerts as code using YAML files in provisioning/alerting/ directory for rules, contact points, notification policies. Version control and automated deployment with GitOps. Test alerts in staging before production.',
+          codeExample: `# Create Silence via API
+# POST /api/alertmanager/grafana/api/v2/silences
+{
+  "matchers": [
+    { "name": "service", "value": "api-gateway", "isEqual": true },
+    { "name": "env", "value": "production", "isEqual": true }
+  ],
+  "startsAt": "2024-01-15T00:00:00Z",
+  "endsAt": "2024-01-15T04:00:00Z",
+  "createdBy": "platform-team",
+  "comment": "Scheduled maintenance for API gateway upgrade"
+}
 
-# Test Contact Point
-curl -X POST http://localhost:3000/api/alertmanager/grafana/config/api/v1/receivers/test \\
-  -H "Content-Type: application/json" \\
-  -u admin:admin \\
-  -d '{
-    "receivers": [{
-      "name": "test",
-      "grafana_managed_receiver_configs": [{
-        "type": "slack",
-        "settings": {
-          "url": "https://hooks.slack.com/services/YOUR/WEBHOOK"
+# Mute Time Intervals
+apiVersion: 1
+muteTimes:
+  - orgId: 1
+    name: nights-and-weekends
+    time_intervals:
+      - times:
+          - start_time: "22:00"
+            end_time: "06:00"
+        weekdays: ["monday:friday"]
+      - weekdays: ["saturday", "sunday"]
+
+# Complete Provisioning Structure
+/etc/grafana/provisioning/alerting/
+├── alert-rules.yaml
+├── contactpoints.yaml
+├── policies.yaml
+└── mute-times.yaml`
         }
-      }]
-    }],
-    "alert": {
-      "annotations": {"description": "Test alert"},
-      "labels": {"alertname": "TestAlert"}
-    }
-  }'`
-      }
+      ]
     },
     {
-      id: 4,
+      id: 'provisioning',
       name: 'Provisioning & Automation',
       icon: '⚙️',
       color: '#388e3c',
-      description: 'Infrastructure as Code for Grafana',
-      content: {
-        explanation: 'Grafana provisioning enables configuration as code, allowing dashboards, data sources, alerts, and plugins to be version controlled and automatically deployed. This approach ensures consistency across environments, simplifies disaster recovery, and enables GitOps workflows.',
-        keyPoints: [
-          'Dashboard Provisioning: Auto-load dashboards from files',
-          'Data Source Provisioning: Configure sources via YAML',
-          'Alert Provisioning: Define alerts as code',
-          'Plugin Provisioning: Auto-install required plugins',
-          'API: Programmatic configuration management',
-          'Terraform Provider: Infrastructure as Code',
-          'Environment Variables: Dynamic configuration',
-          'Version Control: Track configuration changes'
-        ],
-        codeExample: `# Complete Provisioning Structure
-/etc/grafana/
-├── grafana.ini
-└── provisioning/
-    ├── dashboards/
-    │   ├── dashboard.yml
-    │   └── dashboards/
-    │       ├── app-metrics.json
-    │       └── system-metrics.json
-    ├── datasources/
-    │   ├── prometheus.yml
-    │   └── loki.yml
-    ├── plugins/
-    │   └── plugins.yml
-    ├── alerting/
-    │   ├── alert_rules.yml
-    │   ├── contact_points.yml
-    │   └── notification_policies.yml
-    └── notifiers/
-        └── notifiers.yml
-
-# Dashboard Provisioning
-# provisioning/dashboards/dashboard.yml
+      description: 'YAML-based dashboard and data source provisioning. Terraform provider for resource management. Docker/Kubernetes deployment with ConfigMaps.',
+      diagram: ProvisioningDiagram,
+      details: [
+        {
+          name: 'Dashboard & Data Source Provisioning',
+          explanation: 'Auto-load dashboards from files in provisioning/dashboards/. Configure folder, update interval, and source path. Dashboard JSON files are automatically loaded. Set disableDeletion to protect dashboards, allowUiUpdates enables editing. For data sources, configure via YAML in provisioning/datasources/ with type, URL, access mode, and authentication. Use environment variables for secrets.',
+          codeExample: `# Dashboard Provisioning
+# /etc/grafana/provisioning/dashboards/default.yaml
 apiVersion: 1
-
 providers:
-  - name: 'production-dashboards'
+  - name: 'default'
     orgId: 1
     folder: 'Production'
+    folderUid: 'production'
     type: file
-    disableDeletion: false
-    updateIntervalSeconds: 10
-    allowUiUpdates: true
+    disableDeletion: true
+    allowUiUpdates: false
+    updateIntervalSeconds: 30
     options:
-      path: /etc/grafana/provisioning/dashboards
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: true
 
 # Data Source Provisioning
-# provisioning/datasources/datasources.yml
+# /etc/grafana/provisioning/datasources/datasources.yaml
 apiVersion: 1
+deleteDatasources:
+  - name: Old-Prometheus
+    orgId: 1
 
 datasources:
   - name: Prometheus
@@ -691,114 +795,43 @@ datasources:
     access: proxy
     url: http://prometheus:9090
     isDefault: true
-    jsonData:
-      httpMethod: POST
-      timeInterval: 30s
-      queryTimeout: 60s
-    version: 1
     editable: false
-
-  - name: Loki
-    type: loki
-    access: proxy
-    url: http://loki:3100
+    uid: prometheus
     jsonData:
-      maxLines: 1000
-
-  - name: Tempo
-    type: tempo
-    access: proxy
-    url: http://tempo:3200
+      timeInterval: "15s"
+      httpMethod: POST
+      manageAlerts: true
 
   - name: PostgreSQL
     type: postgres
     url: postgres:5432
-    database: grafana
+    database: app_db
     user: grafana
     secureJsonData:
-      password: \${POSTGRES_PASSWORD}
-    jsonData:
-      sslmode: disable
-      maxOpenConns: 10
-      maxIdleConns: 5
-
-# Plugin Provisioning
-# provisioning/plugins/plugins.yml
-apiVersion: 1
-
-apps:
-  - type: grafana-clock-panel
-  - type: grafana-piechart-panel
-  - type: grafana-worldmap-panel
-
-# grafana.ini Configuration
-[server]
-protocol = http
-http_port = 3000
-domain = grafana.example.com
-root_url = %(protocol)s://%(domain)s/
-
-[database]
-type = postgres
-host = postgres:5432
-name = grafana
-user = grafana
-password = \${POSTGRES_PASSWORD}
-
-[security]
-admin_user = \${ADMIN_USER}
-admin_password = \${ADMIN_PASSWORD}
-secret_key = \${SECRET_KEY}
-
-[auth]
-disable_login_form = false
-
-[auth.anonymous]
-enabled = false
-
-[auth.generic_oauth]
-enabled = true
-name = OAuth
-client_id = \${OAUTH_CLIENT_ID}
-client_secret = \${OAUTH_CLIENT_SECRET}
-auth_url = https://oauth.example.com/authorize
-token_url = https://oauth.example.com/token
-
-[smtp]
-enabled = true
-host = smtp.example.com:587
-user = grafana@example.com
-password = \${SMTP_PASSWORD}
-from_address = grafana@example.com
-
-# Dockerfile with Provisioning
-FROM grafana/grafana:latest
-
-# Copy provisioning files
-COPY provisioning/ /etc/grafana/provisioning/
-
-# Install plugins
-RUN grafana-cli plugins install grafana-clock-panel && \\
-    grafana-cli plugins install grafana-piechart-panel
-
-# Environment variables
-ENV GF_SECURITY_ADMIN_USER=admin
-ENV GF_SECURITY_ADMIN_PASSWORD=\${ADMIN_PASSWORD}
-ENV GF_INSTALL_PLUGINS=grafana-clock-panel
-
-# Terraform Grafana Provider
+      password: \${PG_PASSWORD}`
+        },
+        {
+          name: 'Terraform Provider',
+          explanation: 'Manage Grafana resources with Terraform using the grafana provider. Create data sources, dashboards, folders, alert rules programmatically. grafana_dashboard resource accepts JSON config, grafana_data_source for connections. Supports organizational units and state management for drift detection. Integrates with CI/CD pipelines for GitOps workflows.',
+          codeExample: `# Terraform Grafana Provider
 terraform {
   required_providers {
     grafana = {
-      source = "grafana/grafana"
-      version = "~> 1.40"
+      source  = "grafana/grafana"
+      version = "~> 2.0"
     }
   }
 }
 
 provider "grafana" {
-  url  = "http://localhost:3000"
-  auth = "admin:admin"
+  url  = "https://grafana.example.com"
+  auth = var.grafana_api_key
+}
+
+# Create Folder
+resource "grafana_folder" "production" {
+  title = "Production"
+  uid   = "production"
 }
 
 # Create Data Source
@@ -808,219 +841,519 @@ resource "grafana_data_source" "prometheus" {
   url  = "http://prometheus:9090"
 
   json_data_encoded = jsonencode({
-    httpMethod = "POST"
-    timeInterval = "30s"
+    httpMethod   = "POST"
+    manageAlerts = true
   })
 }
 
-# Create Dashboard
-resource "grafana_dashboard" "metrics" {
-  config_json = file("dashboards/metrics.json")
-  folder      = grafana_folder.monitoring.id
+# Create Dashboard from JSON
+resource "grafana_dashboard" "api_performance" {
+  folder      = grafana_folder.production.id
+  config_json = file("dashboards/api-performance.json")
+  overwrite   = true
 }
 
-# Create Alert Rule
-resource "grafana_rule_group" "alerts" {
-  name             = "application_alerts"
-  folder_uid       = grafana_folder.monitoring.uid
-  interval_seconds = 60
-
-  rule {
-    name = "high_error_rate"
-    condition = "A"
-
-    data {
-      ref_id = "A"
-      query_type = ""
-      relative_time_range {
-        from = 600
-        to   = 0
-      }
-      datasource_uid = grafana_data_source.prometheus.uid
-      model = jsonencode({
-        expr = "rate(http_errors[5m]) > 0.05"
-      })
-    }
-
-    for         = "5m"
-    annotations = {
-      description = "Error rate is high"
-    }
-    labels = {
-      severity = "critical"
-    }
-  }
+# Service Account for API access
+resource "grafana_service_account" "automation" {
+  name = "automation"
+  role = "Editor"
 }
 
-# API Usage Examples
-# Create Dashboard via API
-curl -X POST http://localhost:3000/api/dashboards/db \\
-  -H "Content-Type: application/json" \\
-  -H "Authorization: Bearer \${API_KEY}" \\
-  -d @dashboard.json
+resource "grafana_service_account_token" "automation" {
+  name               = "automation-token"
+  service_account_id = grafana_service_account.automation.id
+}`
+        },
+        {
+          name: 'Docker & Kubernetes',
+          explanation: 'Official Docker image: grafana/grafana. Mount volumes for persistence and provisioning. Use ConfigMaps for provisioning in Kubernetes. Helm chart available for deployment. Environment variables for configuration override grafana.ini settings using GF_SECTION_KEY=value pattern. Init containers can prepare dashboards.',
+          codeExample: `# Docker Compose Configuration
+version: '3.8'
+services:
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=\${GRAFANA_ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=https://grafana.example.com
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./provisioning:/etc/grafana/provisioning
+      - ./dashboards:/var/lib/grafana/dashboards
+    restart: unless-stopped
 
-# Get All Dashboards
-curl http://localhost:3000/api/search \\
-  -H "Authorization: Bearer \${API_KEY}"
+# Kubernetes Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:10.2.0
+          ports:
+            - containerPort: 3000
+          env:
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-secrets
+                  key: admin-password
+          volumeMounts:
+            - name: datasources
+              mountPath: /etc/grafana/provisioning/datasources
+            - name: dashboards
+              mountPath: /var/lib/grafana/dashboards
+      volumes:
+        - name: datasources
+          configMap:
+            name: grafana-datasources
+        - name: dashboards
+          configMap:
+            name: grafana-dashboards
 
-# Create Data Source
-curl -X POST http://localhost:3000/api/datasources \\
-  -H "Content-Type: application/json" \\
-  -H "Authorization: Bearer \${API_KEY}" \\
-  -d '{
-    "name": "Prometheus",
-    "type": "prometheus",
-    "url": "http://prometheus:9090",
-    "access": "proxy",
-    "isDefault": true
-  }'
-
-# Create API Key
-curl -X POST http://localhost:3000/api/auth/keys \\
-  -H "Content-Type: application/json" \\
-  -u admin:admin \\
-  -d '{
-    "name": "automation-key",
-    "role": "Admin"
-  }'`
-      }
+# Helm Installation
+helm install grafana grafana/grafana \\
+  --set adminPassword=secret \\
+  --set persistence.enabled=true`
+        }
+      ]
     }
   ]
 
+  // =============================================================================
+  // NAVIGATION HANDLERS
+  // =============================================================================
+
+  const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
+
+  const handlePreviousConcept = () => {
+    if (selectedConceptIndex > 0) {
+      setSelectedConceptIndex(selectedConceptIndex - 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  const handleNextConcept = () => {
+    if (selectedConceptIndex < concepts.length - 1) {
+      setSelectedConceptIndex(selectedConceptIndex + 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  // =============================================================================
+  // BREADCRUMB CONFIGURATION
+  // =============================================================================
+
+  const buildBreadcrumbStack = () => {
+    const stack = [
+      { name: 'DevOps', icon: '🛠️', onClick: onBack }
+    ]
+
+    if (selectedConcept) {
+      stack.push({ name: 'Grafana', icon: '📊', onClick: () => { setSelectedConceptIndex(null); setSelectedDetailIndex(0) } })
+      stack.push({ name: selectedConcept.name, icon: selectedConcept.icon })
+    } else {
+      stack.push({ name: 'Grafana', icon: '📊' })
+    }
+
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index) => {
+    const stack = buildBreadcrumbStack()
+    if (stack[index].onClick) {
+      stack[index].onClick()
+    }
+  }
+
+  // =============================================================================
+  // KEYBOARD NAVIGATION
+  // =============================================================================
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        if (selectedConceptIndex !== null) {
+          setSelectedConceptIndex(null)
+          setSelectedDetailIndex(0)
+        } else {
+          onBack()
+        }
+      } else if (e.key === 'ArrowLeft' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handlePreviousConcept()
+      } else if (e.key === 'ArrowRight' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handleNextConcept()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConceptIndex, onBack])
+
+  // =============================================================================
+  // STYLES
+  // =============================================================================
+
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f172a 0%, #78350f 50%, #0f172a 100%)',
+    padding: '2rem',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
+  }
+
+  const headerStyle = {
+    maxWidth: '1400px',
+    margin: '0 auto 2rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '1rem'
+  }
+
+  const titleStyle = {
+    fontSize: '2.5rem',
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #ff9800, #f57c00)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    margin: 0
+  }
+
+  const backButtonStyle = {
+    padding: '0.75rem 1.5rem',
+    background: 'rgba(245, 124, 0, 0.2)',
+    border: '1px solid rgba(245, 124, 0, 0.3)',
+    borderRadius: '0.5rem',
+    color: '#f57c00',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    transition: 'all 0.2s'
+  }
+
+  const navButtonStyle = {
+    padding: '0.75rem 1.25rem',
+    background: 'rgba(16, 185, 129, 0.2)',
+    border: '1px solid rgba(16, 185, 129, 0.3)',
+    borderRadius: '0.5rem',
+    color: '#4ade80',
+    cursor: 'pointer',
+    fontSize: '0.95rem',
+    transition: 'all 0.2s',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem'
+  }
+
+  // =============================================================================
+  // RENDER
+  // =============================================================================
+
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
-      <div style={{ marginBottom: '2rem' }}>
-        <button
-          onClick={onBack}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            fontWeight: '600',
-            backgroundColor: '#2563eb',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
-        >
-          ← Back to DevOps
-        </button>
-
-        <h1 style={{
-          fontSize: '2.5rem',
-          fontWeight: '800',
-          color: 'white',
-          margin: '1rem 0 0.5rem 0'
-        }}>
-          Grafana
-        </h1>
-        <p style={{ fontSize: '1.1rem', color: '#9ca3af', margin: 0 }}>
-          Open-source analytics and monitoring platform
-        </p>
-      </div>
-
-      <Breadcrumb breadcrumb={breadcrumb} />
-
-      {!selectedTopic ? (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '1.5rem'
-        }}>
-          {topics.map((topic) => (
-            <button
-              key={topic.id}
-              onClick={() => setSelectedTopic(topic)}
-              style={{
-                backgroundColor: '#1f2937',
-                padding: '2rem',
-                borderRadius: '12px',
-                border: `3px solid ${topic.color}`,
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                textAlign: 'left',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)'
-                e.currentTarget.style.boxShadow = `0 0 0 4px ${topic.color}40, 0 12px 24px rgba(0,0,0,0.4)`
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)'
-              }}
-            >
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{topic.icon}</div>
-              <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: 'white', marginBottom: '0.5rem' }}>
-                {topic.name}
-              </h3>
-              <p style={{ fontSize: '0.95rem', color: '#9ca3af', lineHeight: '1.6' }}>
-                {topic.description}
-              </p>
-            </button>
-          ))}
-        </div>
-      ) : (
-        <div>
+    <div style={containerStyle}>
+      <div style={headerStyle}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <button
-            onClick={() => setSelectedTopic(null)}
-            style={{
-              padding: '0.5rem 1rem',
-              fontSize: '0.9rem',
-              fontWeight: '600',
-              backgroundColor: selectedTopic.color,
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              marginBottom: '1.5rem',
-              transition: 'all 0.2s ease'
+            style={backButtonStyle}
+            onClick={onBack}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = 'rgba(245, 124, 0, 0.3)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = 'rgba(245, 124, 0, 0.2)'
+              e.currentTarget.style.transform = 'translateY(0)'
             }}
           >
-            ← Back to Categories
+            ← Back to DevOps
           </button>
+          <h1 style={titleStyle}>Grafana</h1>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {onPrevious && (
+            <button
+              style={navButtonStyle}
+              onClick={onPrevious}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.3)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              ← {previousName}
+            </button>
+          )}
+          {onNext && (
+            <button
+              style={navButtonStyle}
+              onClick={onNext}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.3)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              {nextName} →
+            </button>
+          )}
+        </div>
+      </div>
 
-          <div style={{
-            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
-            padding: '2rem',
-            borderRadius: '12px',
-            border: `3px solid ${selectedTopic.color}`,
-            marginBottom: '2rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-              <div style={{ fontSize: '3rem' }}>{selectedTopic.icon}</div>
-              <h2 style={{ fontSize: '2rem', fontWeight: '800', color: 'white', margin: 0 }}>
-                {selectedTopic.name}
-              </h2>
-            </div>
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          colors={GRAFANA_COLORS}
+        />
+      </div>
 
-            <div style={{ fontSize: '1.05rem', color: '#9ca3af', lineHeight: '1.8', marginBottom: '1.5rem' }}>
-              {selectedTopic.content.explanation}
-            </div>
-
-            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: 'white', marginBottom: '1rem' }}>
-              Key Points:
-            </h3>
-            <ul style={{ color: '#9ca3af', lineHeight: '1.8', marginBottom: '2rem' }}>
-              {selectedTopic.content.keyPoints.map((point, index) => (
-                <li key={index} style={{ marginBottom: '0.5rem' }}>{point}</li>
-              ))}
-            </ul>
-
-            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: 'white', marginBottom: '1rem' }}>
-              Code Example:
-            </h3>
-            <div style={{
-              backgroundColor: '#1e1e1e',
+      {/* Concept Cards Grid */}
+      <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gap: '1.5rem'
+      }}>
+        {concepts.map((concept, index) => (
+          <div
+            key={concept.id}
+            onClick={() => setSelectedConceptIndex(index)}
+            style={{
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: '1rem',
               padding: '1.5rem',
-              borderRadius: '8px',
-              overflow: 'auto'
-            }}>
-              <SyntaxHighlighter code={selectedTopic.content.codeExample} />
+              border: `1px solid ${concept.color}40`,
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = `0 20px 40px ${concept.color}20`
+              e.currentTarget.style.borderColor = concept.color
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.borderColor = `${concept.color}40`
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
+              <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
             </div>
+            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
+            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+              {concept.details.length} topics • Click to explore
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Modal for Selected Concept */}
+      {selectedConcept && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '2rem'
+          }}
+          onClick={() => setSelectedConceptIndex(null)}
+        >
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              maxWidth: '1200px',
+              maxHeight: '92vh',
+              overflow: 'auto',
+              border: `1px solid ${selectedConcept.color}40`
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Breadcrumb */}
+            <Breadcrumb
+              breadcrumbStack={buildBreadcrumbStack()}
+              onBreadcrumbClick={handleBreadcrumbClick}
+              colors={GRAFANA_COLORS}
+            />
+
+            {/* Modal Header with Navigation */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1.5rem',
+              paddingBottom: '1rem',
+              borderBottom: '1px solid #334155'
+            }}>
+              <h2 style={{
+                color: selectedConcept.color,
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '1.25rem'
+              }}>
+                <span>{selectedConcept.icon}</span>
+                {selectedConcept.name}
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button
+                  onClick={handlePreviousConcept}
+                  disabled={selectedConceptIndex === 0}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >←</button>
+                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>
+                  {selectedConceptIndex + 1}/{concepts.length}
+                </span>
+                <button
+                  onClick={handleNextConcept}
+                  disabled={selectedConceptIndex === concepts.length - 1}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >→</button>
+                <button
+                  onClick={() => setSelectedConceptIndex(null)}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: '#f87171',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    marginLeft: '0.5rem'
+                  }}
+                >✕</button>
+              </div>
+            </div>
+
+            {/* Subtopic Tabs */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {selectedConcept.details.map((detail, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedDetailIndex(i)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)',
+                    border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`,
+                    borderRadius: '0.5rem',
+                    color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: selectedDetailIndex === i ? '600' : '400',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {detail.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Selected Subtopic Content */}
+            {(() => {
+              const detail = selectedConcept.details[selectedDetailIndex]
+              const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
+              return (
+                <div>
+                  {/* Diagram */}
+                  {DiagramComponent && (
+                    <div style={{
+                      background: 'rgba(15, 23, 42, 0.6)',
+                      borderRadius: '0.75rem',
+                      padding: '1rem',
+                      marginBottom: '1.5rem',
+                      border: '1px solid #334155'
+                    }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
+
+                  {/* Detail Name */}
+                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>
+                    {detail.name}
+                  </h3>
+
+                  {/* Explanation */}
+                  <p style={{
+                    color: '#e2e8f0',
+                    lineHeight: '1.8',
+                    marginBottom: '1rem',
+                    background: colorScheme.bg,
+                    border: `1px solid ${colorScheme.border}`,
+                    borderRadius: '0.5rem',
+                    padding: '1rem',
+                    textAlign: 'left'
+                  }}>
+                    {detail.explanation}
+                  </p>
+
+                  {/* Code Example */}
+                  {detail.codeExample && (
+                    <SyntaxHighlighter
+                      language="yaml"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        padding: '1rem',
+                        margin: 0,
+                        borderRadius: '0.5rem',
+                        fontSize: '0.8rem',
+                        border: '1px solid #334155',
+                        background: '#0f172a'
+                      }}
+                      codeTagProps={{ style: { background: 'transparent' } }}
+                    >
+                      {detail.codeExample}
+                    </SyntaxHighlighter>
+                  )}
+                </div>
+              )
+            })()}
+
           </div>
         </div>
       )}

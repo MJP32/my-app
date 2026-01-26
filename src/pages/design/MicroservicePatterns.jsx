@@ -1,195 +1,413 @@
-import { useState, useEffect, useRef } from 'react'
-import { useModalFocus } from '../../hooks/useModalFocus'
+/**
+ * Microservice Patterns - Tab Template Format
+ *
+ * A comprehensive guide to microservice architecture patterns including
+ * API Gateway, Circuit Breaker, Service Discovery, Saga, CQRS, Event Sourcing, and Sidecar.
+ */
+
+import { useState, useEffect } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 
-// Simple syntax highlighter for Java code
-const SyntaxHighlighter = ({ code }) => {
-  const highlightJava = (code) => {
-    let highlighted = code
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
+// =============================================================================
+// COLORS CONFIGURATION
+// =============================================================================
 
-    // Store protected content with placeholders
-    const protectedContent = []
-    let placeholder = 0
-
-    // Protect comments first
-    highlighted = highlighted.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
-      const id = `___COMMENT_${placeholder++}___`
-      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
-      return id
-    })
-
-    // Protect strings
-    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
-      const id = `___STRING_${placeholder++}___`
-      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
-      return id
-    })
-
-    // Apply syntax highlighting to remaining code
-    highlighted = highlighted
-      // Keywords - purple
-      .replace(/\b(public|private|protected|static|final|class|interface|extends|implements|new|return|if|else|for|while|do|switch|case|break|continue|try|catch|finally|throw|throws|import|package|void|abstract|synchronized|volatile|transient|native|strictfp|super|this|null)\b/g, '<span style="color: #c586c0;">$1</span>')
-
-      // Boolean and primitives - blue
-      .replace(/\b(true|false|int|double|float|long|short|byte|char|boolean)\b/g, '<span style="color: #569cd6;">$1</span>')
-
-      // Types and classes - light green
-      .replace(/\b(String|List|ArrayList|LinkedList|HashMap|TreeMap|HashSet|TreeSet|Map|Set|Queue|Deque|Collection|Arrays|Collections|Thread|Runnable|Executor|ExecutorService|CompletableFuture|Stream|Optional|Path|Files|Pattern|Matcher|StringBuilder|StringBuffer|Integer|Double|Float|Long|Short|Byte|Character|Boolean|Object|System|Math|Scanner|BufferedReader|FileReader|FileWriter|PrintWriter|InputStream|OutputStream|Exception|RuntimeException|IOException|SQLException|WeakReference|SoftReference|PhantomReference|ReferenceQueue)\b/g, '<span style="color: #4ec9b0;">$1</span>')
-
-      // Annotations - yellow
-      .replace(/(@\w+)/g, '<span style="color: #dcdcaa;">$1</span>')
-
-      // Numbers - light green
-      .replace(/\b(\d+\.?\d*[fLdD]?)\b/g, '<span style="color: #b5cea8;">$1</span>')
-
-      // Method calls - yellow
-      .replace(/\b([a-z_]\w*)\s*\(/g, '<span style="color: #dcdcaa;">$1</span>(')
-
-    // Restore protected content
-    protectedContent.forEach(({ id, replacement }) => {
-      highlighted = highlighted.replace(id, replacement)
-    })
-
-    return highlighted
-  }
-
-  return (
-    <pre style={{
-      margin: 0,
-      fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
-      fontSize: '0.85rem',
-      lineHeight: '1.6',
-      color: '#d4d4d4',
-      whiteSpace: 'pre',
-      overflowX: 'auto',
-      textAlign: 'left',
-      padding: 0
-    }}>
-      <code dangerouslySetInnerHTML={{ __html: highlightJava(code) }} />
-    </pre>
-  )
+const TOPIC_COLORS = {
+  primary: '#a78bfa',
+  primaryHover: '#c4b5fd',
+  bg: 'rgba(139, 92, 246, 0.1)',
+  border: 'rgba(139, 92, 246, 0.3)',
+  arrow: '#8b5cf6',
+  hoverBg: 'rgba(139, 92, 246, 0.2)',
+  topicBg: 'rgba(139, 92, 246, 0.2)'
 }
 
-function MicroservicePatterns({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
-  const [selectedConcept, setSelectedConcept] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
-  // Comprehensive modal focus management
-  const { modalRef, firstFocusableRef } = useModalFocus(onBack)
+const SUBTOPIC_COLORS = [
+  { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },
+  { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' },
+  { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' },
+  { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)' },
+  { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)' },
+  { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
+]
 
-  const toggleSection = (sectionKey) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [sectionKey]: !prev[sectionKey]
-    }))
-  }
+// =============================================================================
+// DIAGRAM COMPONENTS
+// =============================================================================
 
-  const parseCodeSections = (code) => {
-    const sections = []
-    const lines = code.split('\n')
-    let currentSection = null
-    let currentContent = []
+const APIGatewayDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="apiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2"/>
+        <stop offset="100%" stopColor="#1e40af" stopOpacity="0.1"/>
+      </linearGradient>
+      <marker id="arrowAPI" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#10b981"/>
+      </marker>
+    </defs>
+    <rect x="5" y="5" width="690" height="150" rx="10" fill="url(#apiGrad)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="350" y="25" textAnchor="middle" fill="#60a5fa" fontSize="14" fontWeight="bold">API Gateway Pattern</text>
+    <rect x="20" y="45" width="80" height="100" rx="6" fill="#1e3a5f" stroke="#10b981" strokeWidth="2"/>
+    <text x="60" y="70" textAnchor="middle" fill="#34d399" fontSize="9" fontWeight="bold">Clients</text>
+    <rect x="30" y="80" width="60" height="20" rx="3" fill="#374151"/>
+    <text x="60" y="94" textAnchor="middle" fill="#94a3b8" fontSize="7">Web</text>
+    <rect x="30" y="105" width="60" height="20" rx="3" fill="#374151"/>
+    <text x="60" y="119" textAnchor="middle" fill="#94a3b8" fontSize="7">Mobile</text>
+    <rect x="30" y="130" width="60" height="10" rx="2" fill="#374151"/>
+    <text x="60" y="138" textAnchor="middle" fill="#94a3b8" fontSize="6">IoT</text>
+    <path d="M100 95 L150 95" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowAPI)"/>
+    <rect x="150" y="40" width="150" height="110" rx="6" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="225" y="60" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">API Gateway</text>
+    <text x="225" y="78" textAnchor="middle" fill="#94a3b8" fontSize="7">Authentication</text>
+    <text x="225" y="93" textAnchor="middle" fill="#94a3b8" fontSize="7">Rate Limiting</text>
+    <text x="225" y="108" textAnchor="middle" fill="#94a3b8" fontSize="7">Load Balancing</text>
+    <text x="225" y="123" textAnchor="middle" fill="#94a3b8" fontSize="7">Request Routing</text>
+    <text x="225" y="138" textAnchor="middle" fill="#6b7280" fontSize="6">Kong/AWS API GW</text>
+    <path d="M300 70 L340 70" stroke="#3b82f6" strokeWidth="1.5"/>
+    <path d="M300 95 L340 95" stroke="#3b82f6" strokeWidth="1.5"/>
+    <path d="M300 120 L340 120" stroke="#3b82f6" strokeWidth="1.5"/>
+    <rect x="340" y="45" width="90" height="35" rx="4" fill="#374151" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="385" y="67" textAnchor="middle" fill="#fbbf24" fontSize="8">User Service</text>
+    <rect x="340" y="85" width="90" height="35" rx="4" fill="#374151" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="385" y="107" textAnchor="middle" fill="#a78bfa" fontSize="8">Order Service</text>
+    <rect x="340" y="125" width="90" height="20" rx="4" fill="#374151" stroke="#ec4899" strokeWidth="1"/>
+    <text x="385" y="139" textAnchor="middle" fill="#f472b6" fontSize="8">Payment Service</text>
+    <rect x="450" y="45" width="130" height="100" rx="6" fill="#1e3a5f" stroke="#ef4444" strokeWidth="2"/>
+    <text x="515" y="63" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">Benefits</text>
+    <text x="515" y="80" textAnchor="middle" fill="#94a3b8" fontSize="7">Single entry point</text>
+    <text x="515" y="95" textAnchor="middle" fill="#94a3b8" fontSize="7">Cross-cutting concerns</text>
+    <text x="515" y="110" textAnchor="middle" fill="#94a3b8" fontSize="7">Protocol translation</text>
+    <text x="515" y="125" textAnchor="middle" fill="#94a3b8" fontSize="7">Response aggregation</text>
+    <text x="515" y="140" textAnchor="middle" fill="#6b7280" fontSize="6">API composition</text>
+    <rect x="600" y="45" width="80" height="100" rx="6" fill="#1e3a5f" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="640" y="63" textAnchor="middle" fill="#22d3ee" fontSize="9" fontWeight="bold">Concerns</text>
+    <text x="640" y="80" textAnchor="middle" fill="#94a3b8" fontSize="7">SPOF risk</text>
+    <text x="640" y="95" textAnchor="middle" fill="#94a3b8" fontSize="7">Latency</text>
+    <text x="640" y="110" textAnchor="middle" fill="#94a3b8" fontSize="7">Complexity</text>
+    <text x="640" y="125" textAnchor="middle" fill="#6b7280" fontSize="6">Scale it!</text>
+  </svg>
+)
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
+const CircuitBreakerDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="cbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ef4444" stopOpacity="0.2"/>
+        <stop offset="100%" stopColor="#dc2626" stopOpacity="0.1"/>
+      </linearGradient>
+      <marker id="arrowCB" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/></marker>
+      <marker id="arrowCB2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/></marker>
+      <marker id="arrowCB3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#10b981"/></marker>
+      <marker id="arrowCB4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/></marker>
+    </defs>
+    <rect x="5" y="5" width="690" height="150" rx="10" fill="url(#cbGrad)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="350" y="25" textAnchor="middle" fill="#f87171" fontSize="14" fontWeight="bold">Circuit Breaker Pattern</text>
+    <rect x="20" y="45" width="140" height="100" rx="6" fill="#1e3a5f" stroke="#10b981" strokeWidth="2"/>
+    <text x="90" y="63" textAnchor="middle" fill="#34d399" fontSize="10" fontWeight="bold">CLOSED</text>
+    <text x="90" y="80" textAnchor="middle" fill="#94a3b8" fontSize="8">Normal operation</text>
+    <text x="90" y="95" textAnchor="middle" fill="#94a3b8" fontSize="7">Requests pass through</text>
+    <text x="90" y="110" textAnchor="middle" fill="#94a3b8" fontSize="7">Count failures</text>
+    <text x="90" y="130" textAnchor="middle" fill="#6b7280" fontSize="6">threshold: 5 failures</text>
+    <path d="M160 75 L200 55" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#arrowCB)"/>
+    <text x="180" y="55" textAnchor="middle" fill="#fbbf24" fontSize="7">failures</text>
+    <rect x="200" y="35" width="140" height="55" rx="6" fill="#1e3a5f" stroke="#ef4444" strokeWidth="2"/>
+    <text x="270" y="55" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">OPEN</text>
+    <text x="270" y="72" textAnchor="middle" fill="#94a3b8" fontSize="8">Fail fast, no calls</text>
+    <text x="270" y="85" textAnchor="middle" fill="#6b7280" fontSize="6">timeout: 30 seconds</text>
+    <path d="M340 62 L380 62" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrowCB2)"/>
+    <text x="360" y="55" textAnchor="middle" fill="#60a5fa" fontSize="7">timeout</text>
+    <rect x="380" y="35" width="140" height="55" rx="6" fill="#1e3a5f" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="450" y="55" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">HALF-OPEN</text>
+    <text x="450" y="72" textAnchor="middle" fill="#94a3b8" fontSize="8">Test with limited calls</text>
+    <text x="450" y="85" textAnchor="middle" fill="#6b7280" fontSize="6">1 test request</text>
+    <path d="M450 90 L450 110 L90 110 L90 100" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowCB3)"/>
+    <text x="270" y="120" textAnchor="middle" fill="#34d399" fontSize="7">success - CLOSED</text>
+    <path d="M520 62 L560 62 L560 45 L270 45 L270 35" stroke="#ef4444" strokeWidth="2" markerEnd="url(#arrowCB4)"/>
+    <text x="415" y="40" textAnchor="middle" fill="#f87171" fontSize="7">failure - OPEN</text>
+    <rect x="540" y="75" width="140" height="70" rx="6" fill="#1e3a5f" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="610" y="93" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Implementation</text>
+    <text x="610" y="110" textAnchor="middle" fill="#94a3b8" fontSize="7">Resilience4j</text>
+    <text x="610" y="125" textAnchor="middle" fill="#94a3b8" fontSize="7">Hystrix (deprecated)</text>
+    <text x="610" y="140" textAnchor="middle" fill="#6b7280" fontSize="6">Spring Cloud Circuit Breaker</text>
+  </svg>
+)
 
-      if (line.includes('// ═══════════════════════════════════════════════════════════════════════════')) {
-        if (currentSection) {
-          sections.push({
-            title: currentSection,
-            code: currentContent.join('\n')
-          })
-          currentContent = []
-        }
+const ServiceDiscoveryDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="sdGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" stopOpacity="0.2"/>
+        <stop offset="100%" stopColor="#059669" stopOpacity="0.1"/>
+      </linearGradient>
+      <marker id="arrowSD" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/></marker>
+      <marker id="arrowSD2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#10b981"/></marker>
+      <marker id="arrowSD3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/></marker>
+    </defs>
+    <rect x="5" y="5" width="690" height="150" rx="10" fill="url(#sdGrad)" stroke="#10b981" strokeWidth="2"/>
+    <text x="350" y="25" textAnchor="middle" fill="#34d399" fontSize="14" fontWeight="bold">Service Discovery Pattern</text>
+    <rect x="20" y="45" width="200" height="100" rx="6" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="120" y="63" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Service Registry</text>
+    <text x="120" y="80" textAnchor="middle" fill="#94a3b8" fontSize="8">Eureka / Consul / Zookeeper</text>
+    <rect x="30" y="90" width="85" height="20" rx="3" fill="#374151"/>
+    <text x="72" y="104" textAnchor="middle" fill="#94a3b8" fontSize="6">user-svc: 10.0.0.1:8080</text>
+    <rect x="125" y="90" width="85" height="20" rx="3" fill="#374151"/>
+    <text x="167" y="104" textAnchor="middle" fill="#94a3b8" fontSize="6">order-svc: 10.0.0.2:8081</text>
+    <rect x="30" y="115" width="180" height="20" rx="3" fill="#374151"/>
+    <text x="120" y="129" textAnchor="middle" fill="#94a3b8" fontSize="6">payment-svc: 10.0.0.3:8082, 10.0.0.4:8082</text>
+    <rect x="260" y="45" width="100" height="50" rx="6" fill="#1e3a5f" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="310" y="65" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Service A</text>
+    <text x="310" y="80" textAnchor="middle" fill="#94a3b8" fontSize="7">Needs Service B</text>
+    <path d="M260 70 L220 70" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4" markerEnd="url(#arrowSD)"/>
+    <text x="240" y="62" textAnchor="middle" fill="#fbbf24" fontSize="6">1. Query</text>
+    <path d="M220 75 L260 75" stroke="#10b981" strokeWidth="1.5" markerEnd="url(#arrowSD2)"/>
+    <text x="240" y="85" textAnchor="middle" fill="#34d399" fontSize="6">2. Address</text>
+    <rect x="400" y="45" width="100" height="50" rx="6" fill="#1e3a5f" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="450" y="65" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Service B</text>
+    <text x="450" y="80" textAnchor="middle" fill="#94a3b8" fontSize="7">10.0.0.5:8083</text>
+    <path d="M360 70 L400 70" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrowSD3)"/>
+    <text x="380" y="62" textAnchor="middle" fill="#60a5fa" fontSize="6">3. Call</text>
+    <path d="M450 95 L450 115 L120 115" stroke="#ec4899" strokeWidth="1.5" strokeDasharray="4"/>
+    <text x="280" y="130" textAnchor="middle" fill="#f472b6" fontSize="6">Heartbeat / Registration</text>
+    <rect x="530" y="40" width="150" height="55" rx="6" fill="#1e3a5f" stroke="#ef4444" strokeWidth="2"/>
+    <text x="605" y="58" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">Client-Side LB</text>
+    <text x="605" y="75" textAnchor="middle" fill="#94a3b8" fontSize="7">Ribbon / LoadBalancer</text>
+    <text x="605" y="88" textAnchor="middle" fill="#6b7280" fontSize="6">Service picks instance</text>
+    <rect x="530" y="100" width="150" height="45" rx="6" fill="#1e3a5f" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="605" y="118" textAnchor="middle" fill="#22d3ee" fontSize="9" fontWeight="bold">Server-Side LB</text>
+    <text x="605" y="133" textAnchor="middle" fill="#94a3b8" fontSize="7">Registry routes requests</text>
+  </svg>
+)
 
-        if (i + 1 < lines.length && lines[i + 1].includes('// ✦')) {
-          currentSection = lines[i + 1].replace('// ✦', '').trim()
-          i += 2
-          continue
-        }
-      }
+const SagaPatternDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="sagaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.2"/>
+        <stop offset="100%" stopColor="#d97706" stopOpacity="0.1"/>
+      </linearGradient>
+      <marker id="arrowSaga" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#10b981"/></marker>
+      <marker id="arrowSaga2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/></marker>
+    </defs>
+    <rect x="5" y="5" width="690" height="150" rx="10" fill="url(#sagaGrad)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="350" y="25" textAnchor="middle" fill="#fbbf24" fontSize="14" fontWeight="bold">Saga Pattern - Distributed Transactions</text>
+    <rect x="20" y="45" width="95" height="50" rx="6" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="67" y="65" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">T1: Order</text>
+    <text x="67" y="82" textAnchor="middle" fill="#94a3b8" fontSize="7">Create Order</text>
+    <path d="M115 70 L140 70" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowSaga)"/>
+    <rect x="140" y="45" width="95" height="50" rx="6" fill="#1e3a5f" stroke="#10b981" strokeWidth="2"/>
+    <text x="187" y="65" textAnchor="middle" fill="#34d399" fontSize="9" fontWeight="bold">T2: Payment</text>
+    <text x="187" y="82" textAnchor="middle" fill="#94a3b8" fontSize="7">Process Payment</text>
+    <path d="M235 70 L260 70" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowSaga)"/>
+    <rect x="260" y="45" width="95" height="50" rx="6" fill="#1e3a5f" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="307" y="65" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">T3: Inventory</text>
+    <text x="307" y="82" textAnchor="middle" fill="#94a3b8" fontSize="7">Reserve Stock</text>
+    <path d="M355 70 L380 70" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowSaga)"/>
+    <rect x="380" y="45" width="95" height="50" rx="6" fill="#1e3a5f" stroke="#ec4899" strokeWidth="2"/>
+    <text x="427" y="65" textAnchor="middle" fill="#f472b6" fontSize="9" fontWeight="bold">T4: Shipping</text>
+    <text x="427" y="82" textAnchor="middle" fill="#94a3b8" fontSize="7">Create Shipment</text>
+    <text x="250" y="108" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">Compensation (Rollback)</text>
+    <path d="M427 100 L427 120 L67 120 L67 95" stroke="#ef4444" strokeWidth="2" strokeDasharray="4" markerEnd="url(#arrowSaga2)"/>
+    <rect x="85" y="115" width="75" height="25" rx="3" fill="#374151" stroke="#ef4444" strokeWidth="1"/>
+    <text x="122" y="131" textAnchor="middle" fill="#f87171" fontSize="6">Cancel Order</text>
+    <rect x="175" y="115" width="75" height="25" rx="3" fill="#374151" stroke="#ef4444" strokeWidth="1"/>
+    <text x="212" y="131" textAnchor="middle" fill="#f87171" fontSize="6">Refund</text>
+    <rect x="265" y="115" width="75" height="25" rx="3" fill="#374151" stroke="#ef4444" strokeWidth="1"/>
+    <text x="302" y="131" textAnchor="middle" fill="#f87171" fontSize="6">Release Stock</text>
+    <rect x="495" y="40" width="90" height="55" rx="6" fill="#1e3a5f" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="540" y="58" textAnchor="middle" fill="#22d3ee" fontSize="8" fontWeight="bold">Choreography</text>
+    <text x="540" y="73" textAnchor="middle" fill="#94a3b8" fontSize="6">Events trigger</text>
+    <text x="540" y="85" textAnchor="middle" fill="#94a3b8" fontSize="6">next steps</text>
+    <rect x="600" y="40" width="85" height="55" rx="6" fill="#1e3a5f" stroke="#84cc16" strokeWidth="2"/>
+    <text x="642" y="58" textAnchor="middle" fill="#a3e635" fontSize="8" fontWeight="bold">Orchestration</text>
+    <text x="642" y="73" textAnchor="middle" fill="#94a3b8" fontSize="6">Central</text>
+    <text x="642" y="85" textAnchor="middle" fill="#94a3b8" fontSize="6">coordinator</text>
+    <rect x="495" y="100" width="190" height="45" rx="6" fill="#1e3a5f" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="590" y="118" textAnchor="middle" fill="#fbbf24" fontSize="8" fontWeight="bold">Eventual Consistency</text>
+    <text x="590" y="133" textAnchor="middle" fill="#94a3b8" fontSize="7">No distributed locks, compensate on failure</text>
+  </svg>
+)
 
-      if (currentSection) {
-        currentContent.push(line)
-      }
-    }
+const CQRSDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="cqrsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.2"/>
+        <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.1"/>
+      </linearGradient>
+      <marker id="arrowCQRS" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#10b981"/></marker>
+      <marker id="arrowCQRS2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/></marker>
+      <marker id="arrowCQRS3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#ef4444"/></marker>
+      <marker id="arrowCQRS4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#06b6d4"/></marker>
+    </defs>
+    <rect x="5" y="5" width="690" height="150" rx="10" fill="url(#cqrsGrad)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="350" y="25" textAnchor="middle" fill="#a78bfa" fontSize="14" fontWeight="bold">CQRS - Command Query Responsibility Segregation</text>
+    <rect x="20" y="45" width="80" height="50" rx="6" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="60" y="70" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Client</text>
+    <text x="60" y="85" textAnchor="middle" fill="#94a3b8" fontSize="7">UI / API</text>
+    <path d="M100 55 L140 55" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowCQRS)"/>
+    <text x="120" y="48" textAnchor="middle" fill="#34d399" fontSize="7">Commands</text>
+    <path d="M100 85 L140 85" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#arrowCQRS2)"/>
+    <text x="120" y="95" textAnchor="middle" fill="#fbbf24" fontSize="7">Queries</text>
+    <rect x="140" y="35" width="130" height="35" rx="6" fill="#1e3a5f" stroke="#10b981" strokeWidth="2"/>
+    <text x="205" y="50" textAnchor="middle" fill="#34d399" fontSize="9" fontWeight="bold">Command Handler</text>
+    <text x="205" y="63" textAnchor="middle" fill="#94a3b8" fontSize="7">Write operations</text>
+    <rect x="140" y="75" width="130" height="35" rx="6" fill="#1e3a5f" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="205" y="90" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Query Handler</text>
+    <text x="205" y="103" textAnchor="middle" fill="#94a3b8" fontSize="7">Read operations</text>
+    <path d="M270 52 L310 52" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowCQRS)"/>
+    <path d="M270 92 L310 92" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#arrowCQRS2)"/>
+    <rect x="310" y="35" width="100" height="35" rx="6" fill="#1e3a5f" stroke="#ef4444" strokeWidth="2"/>
+    <text x="360" y="50" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">Write Model</text>
+    <text x="360" y="63" textAnchor="middle" fill="#94a3b8" fontSize="7">Normalized</text>
+    <rect x="310" y="75" width="100" height="35" rx="6" fill="#1e3a5f" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="360" y="90" textAnchor="middle" fill="#22d3ee" fontSize="9" fontWeight="bold">Read Model</text>
+    <text x="360" y="103" textAnchor="middle" fill="#94a3b8" fontSize="7">Denormalized</text>
+    <path d="M410 52 L450 52" stroke="#ef4444" strokeWidth="2" markerEnd="url(#arrowCQRS3)"/>
+    <path d="M410 92 L450 92" stroke="#06b6d4" strokeWidth="2" markerEnd="url(#arrowCQRS4)"/>
+    <rect x="450" y="35" width="85" height="35" rx="6" fill="#374151" stroke="#ef4444" strokeWidth="1"/>
+    <text x="492" y="55" textAnchor="middle" fill="#f87171" fontSize="8">Write DB</text>
+    <text x="492" y="67" textAnchor="middle" fill="#6b7280" fontSize="6">PostgreSQL</text>
+    <rect x="450" y="75" width="85" height="35" rx="6" fill="#374151" stroke="#06b6d4" strokeWidth="1"/>
+    <text x="492" y="95" textAnchor="middle" fill="#22d3ee" fontSize="8">Read DB</text>
+    <text x="492" y="107" textAnchor="middle" fill="#6b7280" fontSize="6">MongoDB/ES</text>
+    <path d="M492 70 L492 75" stroke="#ec4899" strokeWidth="1.5" strokeDasharray="3"/>
+    <text x="520" y="72" textAnchor="middle" fill="#f472b6" fontSize="5">Sync</text>
+    <rect x="555" y="40" width="130" height="105" rx="6" fill="#1e3a5f" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="620" y="58" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Benefits</text>
+    <text x="620" y="75" textAnchor="middle" fill="#94a3b8" fontSize="7">Independent scaling</text>
+    <text x="620" y="90" textAnchor="middle" fill="#94a3b8" fontSize="7">Optimized models</text>
+    <text x="620" y="105" textAnchor="middle" fill="#94a3b8" fontSize="7">Eventual consistency</text>
+    <text x="620" y="120" textAnchor="middle" fill="#94a3b8" fontSize="7">Complex queries</text>
+    <text x="620" y="138" textAnchor="middle" fill="#6b7280" fontSize="6">Event Sourcing pair</text>
+  </svg>
+)
 
-    if (currentSection && currentContent.length > 0) {
-      sections.push({
-        title: currentSection,
-        code: currentContent.join('\n')
-      })
-    }
+const EventSourcingDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="esGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ec4899" stopOpacity="0.2"/>
+        <stop offset="100%" stopColor="#db2777" stopOpacity="0.1"/>
+      </linearGradient>
+      <marker id="arrowES" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/></marker>
+      <marker id="arrowES2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/></marker>
+    </defs>
+    <rect x="5" y="5" width="690" height="150" rx="10" fill="url(#esGrad)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="350" y="25" textAnchor="middle" fill="#f472b6" fontSize="14" fontWeight="bold">Event Sourcing Pattern</text>
+    <rect x="20" y="45" width="90" height="50" rx="6" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="65" y="65" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Command</text>
+    <text x="65" y="80" textAnchor="middle" fill="#94a3b8" fontSize="7">CreateOrder</text>
+    <path d="M110 70 L140 70" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrowES)"/>
+    <rect x="140" y="40" width="300" height="60" rx="6" fill="#1e3a5f" stroke="#10b981" strokeWidth="2"/>
+    <text x="290" y="58" textAnchor="middle" fill="#34d399" fontSize="10" fontWeight="bold">Event Store (Append-only Log)</text>
+    <rect x="150" y="65" width="70" height="25" rx="3" fill="#374151"/>
+    <text x="185" y="82" textAnchor="middle" fill="#94a3b8" fontSize="6">OrderCreated</text>
+    <rect x="225" y="65" width="70" height="25" rx="3" fill="#374151"/>
+    <text x="260" y="82" textAnchor="middle" fill="#94a3b8" fontSize="6">ItemAdded</text>
+    <rect x="300" y="65" width="70" height="25" rx="3" fill="#374151"/>
+    <text x="335" y="82" textAnchor="middle" fill="#94a3b8" fontSize="6">PaymentReceived</text>
+    <rect x="375" y="65" width="55" height="25" rx="3" fill="#374151"/>
+    <text x="402" y="82" textAnchor="middle" fill="#94a3b8" fontSize="5">...</text>
+    <path d="M290 100 L290 115" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#arrowES2)"/>
+    <text x="320" y="112" textAnchor="middle" fill="#fbbf24" fontSize="7">Replay Events</text>
+    <rect x="200" y="115" width="180" height="35" rx="6" fill="#1e3a5f" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="290" y="132" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Current State (Projection)</text>
+    <text x="290" y="145" textAnchor="middle" fill="#94a3b8" fontSize="7">Materialized View</text>
+    <rect x="460" y="40" width="120" height="105" rx="6" fill="#1e3a5f" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="520" y="58" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Benefits</text>
+    <text x="520" y="75" textAnchor="middle" fill="#94a3b8" fontSize="7">Full audit trail</text>
+    <text x="520" y="90" textAnchor="middle" fill="#94a3b8" fontSize="7">Time travel</text>
+    <text x="520" y="105" textAnchor="middle" fill="#94a3b8" fontSize="7">Rebuild state</text>
+    <text x="520" y="120" textAnchor="middle" fill="#94a3b8" fontSize="7">Event replay</text>
+    <text x="520" y="138" textAnchor="middle" fill="#6b7280" fontSize="6">CQRS synergy</text>
+    <rect x="595" y="40" width="90" height="105" rx="6" fill="#1e3a5f" stroke="#ef4444" strokeWidth="2"/>
+    <text x="640" y="58" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">Challenges</text>
+    <text x="640" y="78" textAnchor="middle" fill="#94a3b8" fontSize="7">Complexity</text>
+    <text x="640" y="93" textAnchor="middle" fill="#94a3b8" fontSize="7">Event schema</text>
+    <text x="640" y="108" textAnchor="middle" fill="#94a3b8" fontSize="7">Storage growth</text>
+    <text x="640" y="123" textAnchor="middle" fill="#94a3b8" fontSize="7">Snapshots</text>
+    <text x="640" y="138" textAnchor="middle" fill="#6b7280" fontSize="6">EventStoreDB</text>
+  </svg>
+)
 
-    return sections
-  }
+const SidecarDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="sidecarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.2"/>
+        <stop offset="100%" stopColor="#0891b2" stopOpacity="0.1"/>
+      </linearGradient>
+    </defs>
+    <rect x="5" y="5" width="690" height="150" rx="10" fill="url(#sidecarGrad)" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="350" y="25" textAnchor="middle" fill="#22d3ee" fontSize="14" fontWeight="bold">Sidecar Pattern</text>
+    <rect x="20" y="40" width="280" height="105" rx="6" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="160" y="58" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Pod / Container Group</text>
+    <rect x="35" y="68" width="120" height="70" rx="6" fill="#374151" stroke="#10b981" strokeWidth="2"/>
+    <text x="95" y="88" textAnchor="middle" fill="#34d399" fontSize="9" fontWeight="bold">Main App</text>
+    <text x="95" y="105" textAnchor="middle" fill="#94a3b8" fontSize="7">Business Logic</text>
+    <text x="95" y="120" textAnchor="middle" fill="#94a3b8" fontSize="7">Java/Node/Go</text>
+    <rect x="165" y="68" width="120" height="70" rx="6" fill="#374151" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="225" y="88" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Sidecar</text>
+    <text x="225" y="105" textAnchor="middle" fill="#94a3b8" fontSize="7">Cross-cutting</text>
+    <text x="225" y="120" textAnchor="middle" fill="#94a3b8" fontSize="7">Envoy/Fluentd</text>
+    <path d="M155 103 L165 103" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="160" y="95" textAnchor="middle" fill="#a78bfa" fontSize="6">localhost</text>
+    <rect x="320" y="40" width="180" height="105" rx="6" fill="#1e3a5f" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="410" y="58" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Sidecar Use Cases</text>
+    <text x="410" y="78" textAnchor="middle" fill="#94a3b8" fontSize="8">Service Mesh (Envoy)</text>
+    <text x="410" y="93" textAnchor="middle" fill="#94a3b8" fontSize="8">Logging (Fluentd/Filebeat)</text>
+    <text x="410" y="108" textAnchor="middle" fill="#94a3b8" fontSize="8">Metrics (Prometheus)</text>
+    <text x="410" y="123" textAnchor="middle" fill="#94a3b8" fontSize="8">Security (mTLS)</text>
+    <text x="410" y="138" textAnchor="middle" fill="#6b7280" fontSize="7">Config sync, Secrets</text>
+    <rect x="520" y="40" width="165" height="105" rx="6" fill="#1e3a5f" stroke="#ec4899" strokeWidth="2"/>
+    <text x="602" y="58" textAnchor="middle" fill="#f472b6" fontSize="10" fontWeight="bold">Benefits</text>
+    <text x="602" y="78" textAnchor="middle" fill="#94a3b8" fontSize="7">Language agnostic</text>
+    <text x="602" y="93" textAnchor="middle" fill="#94a3b8" fontSize="7">Independent lifecycle</text>
+    <text x="602" y="108" textAnchor="middle" fill="#94a3b8" fontSize="7">Separation of concerns</text>
+    <text x="602" y="123" textAnchor="middle" fill="#94a3b8" fontSize="7">Consistent infrastructure</text>
+    <text x="602" y="138" textAnchor="middle" fill="#6b7280" fontSize="6">Istio, Linkerd, Dapr</text>
+  </svg>
+)
 
-  const microservicePatterns = [
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
+
+function MicroservicePatterns({ onBack, breadcrumb }) {
+  const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
+  const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+
+  // =============================================================================
+  // CONCEPTS DATA
+  // =============================================================================
+
+  const concepts = [
     {
+      id: 'api-gateway',
       name: 'API Gateway',
       icon: '🚪',
-      explanation: `Single entry point for all client requests that routes to appropriate microservices. Handles cross-cutting concerns like authentication, authorization, rate limiting, request/response transformation, and protocol translation. Reduces client complexity by providing unified interface and aggregating responses from multiple services. Essential for microservices architectures to simplify client communication.
+      color: '#3b82f6',
+      description: 'Single entry point for all client requests that routes to appropriate microservices. Handles cross-cutting concerns like authentication, rate limiting, and protocol translation.',
+      diagram: APIGatewayDiagram,
+      details: [
+        {
+          name: 'Gateway Configuration',
+          explanation: `API Gateway serves as the single entry point for all client requests, routing them to appropriate microservices. It handles cross-cutting concerns like authentication, authorization, rate limiting, request/response transformation, and protocol translation.
 
 Key Benefits:
-• Single entry point for all clients (mobile, web, third-party)
-• Centralized authentication and authorization
-• Request routing and load balancing
-• Response aggregation (Backend for Frontend pattern)
-• Protocol translation (REST to gRPC)
-• Rate limiting and throttling
-• Request/response transformation
-• SSL termination and security enforcement
+- Single entry point for all clients (mobile, web, third-party)
+- Centralized authentication and authorization
+- Request routing and load balancing
+- Response aggregation (Backend for Frontend pattern)
+- Protocol translation (REST to gRPC)
+- Rate limiting and throttling
+- SSL termination and security enforcement
 
-Technologies: Kong, NGINX, AWS API Gateway, Azure API Management, Spring Cloud Gateway, Netflix Zuul, Istio/Envoy service mesh integration.`,
-      diagram: () => (
-        <svg viewBox="0 0 700 400" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '2rem auto', display: 'block' }}>
-          <defs>
-            <linearGradient id="apiGatewayGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#4f46e5', stopOpacity: 1 }} />
-            </linearGradient>
-            <linearGradient id="serviceBoxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#818cf8', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
-            </linearGradient>
-            <marker id="arrow1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <polygon points="0 0, 10 3, 0 6" fill="#6366f1" />
-            </marker>
-          </defs>
-          <rect x="50" y="20" width="100" height="50" rx="8" fill="#e0e7ff" stroke="#6366f1" strokeWidth="2" />
-          <text x="100" y="50" fontSize="14" fontWeight="600" fill="#6366f1" textAnchor="middle">Mobile</text>
-          <rect x="200" y="20" width="100" height="50" rx="8" fill="#e0e7ff" stroke="#6366f1" strokeWidth="2" />
-          <text x="250" y="50" fontSize="14" fontWeight="600" fill="#6366f1" textAnchor="middle">Web</text>
-          <rect x="350" y="20" width="100" height="50" rx="8" fill="#e0e7ff" stroke="#6366f1" strokeWidth="2" />
-          <text x="400" y="50" fontSize="14" fontWeight="600" fill="#6366f1" textAnchor="middle">Desktop</text>
-          <rect x="150" y="130" width="200" height="80" rx="12" fill="url(#apiGatewayGrad)" stroke="#4f46e5" strokeWidth="3" />
-          <text x="250" y="165" fontSize="18" fontWeight="bold" fill="white" textAnchor="middle">API Gateway</text>
-          <text x="250" y="190" fontSize="12" fill="white" opacity="0.9" textAnchor="middle">Route • Auth • Rate Limit</text>
-          <line x1="100" y1="70" x2="200" y2="130" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow1)" />
-          <line x1="250" y1="70" x2="250" y2="130" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow1)" />
-          <line x1="400" y1="70" x2="300" y2="130" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow1)" />
-          <rect x="50" y="280" width="120" height="60" rx="8" fill="url(#serviceBoxGrad)" />
-          <text x="110" y="310" fontSize="14" fontWeight="600" fill="white" textAnchor="middle">User Service</text>
-          <rect x="210" y="280" width="120" height="60" rx="8" fill="url(#serviceBoxGrad)" />
-          <text x="270" y="310" fontSize="14" fontWeight="600" fill="white" textAnchor="middle">Order Service</text>
-          <rect x="370" y="280" width="130" height="60" rx="8" fill="url(#serviceBoxGrad)" />
-          <text x="435" y="305" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">Payment</text>
-          <text x="435" y="325" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">Service</text>
-          <line x1="200" y1="210" x2="110" y2="280" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow1)" />
-          <line x1="250" y1="210" x2="270" y2="280" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow1)" />
-          <line x1="300" y1="210" x2="435" y2="280" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow1)" />
-          <text x="250" y="380" fontSize="12" fill="#6b7280" textAnchor="middle" fontStyle="italic">
-            Single entry point routing to multiple microservices
-          </text>
-        </svg>
-      ),
-      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Spring Cloud Gateway Configuration
-// ═══════════════════════════════════════════════════════════════════════════
-
-// API Gateway with Spring Cloud Gateway
+Technologies: Kong, NGINX, AWS API Gateway, Azure API Management, Spring Cloud Gateway, Netflix Zuul.`,
+          codeExample: `// Spring Cloud Gateway Configuration
 @SpringBootApplication
 public class ApiGatewayApplication {
   public static void main(String[] args) {
@@ -216,13 +434,19 @@ spring:
             - Path=/api/orders/**
           filters:
             - AddRequestHeader=X-Service, order-service
-*/
+*/`
+        },
+        {
+          name: 'Authentication Filter',
+          explanation: `Custom authentication filters validate JWT tokens before routing requests to downstream services. The filter extracts the token from the Authorization header, validates it, and either allows the request to proceed or returns an error.
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Custom Filters and Authentication
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Custom authentication filter
+Key Features:
+- JWT token extraction from headers
+- Token validation and verification
+- User context propagation to services
+- Error handling for invalid/expired tokens
+- Integration with identity providers`,
+          codeExample: `// Custom authentication filter
 @Component
 public class AuthenticationFilter implements GatewayFilter {
 
@@ -251,13 +475,18 @@ public class AuthenticationFilter implements GatewayFilter {
     return chain.filter(exchange);
   }
 }
-// Output: Validates JWT token before routing to services
+// Output: Validates JWT token before routing to services`
+        },
+        {
+          name: 'Rate Limiting & Circuit Breaker',
+          explanation: `Rate limiting protects services from being overwhelmed by too many requests. Combined with circuit breakers, the gateway can fail fast and provide fallback responses when downstream services are unavailable.
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Rate Limiting and Circuit Breaker
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Rate limiting filter
+Configuration Options:
+- Redis-based rate limiter for distributed systems
+- Key resolver for per-user or per-IP limits
+- Circuit breaker fallback URIs
+- Configurable thresholds and timeouts`,
+          codeExample: `// Rate limiting filter with circuit breaker
 @Configuration
 public class GatewayConfig {
 
@@ -278,7 +507,7 @@ public class GatewayConfig {
 
   @Bean
   public RedisRateLimiter redisRateLimiter() {
-    return new RedisRateLimiter(10, 20); // 10 requests per second, burst 20
+    return new RedisRateLimiter(10, 20); // 10 requests/sec, burst 20
   }
 
   @Bean
@@ -287,13 +516,18 @@ public class GatewayConfig {
       exchange.getRequest().getRemoteAddress().getAddress().getHostAddress()
     );
   }
-}
+}`
+        },
+        {
+          name: 'Response Aggregation',
+          explanation: `The Backend for Frontend (BFF) pattern aggregates responses from multiple services into a single response. This reduces client complexity and network round trips by combining data from user, order, and preference services.
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Request Aggregation Pattern
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Backend for Frontend - Aggregate responses
+Benefits:
+- Reduced client complexity
+- Fewer network round trips
+- Optimized responses for specific clients
+- Server-side data transformation`,
+          codeExample: `// Backend for Frontend - Aggregate responses
 @RestController
 @RequestMapping("/api/aggregate")
 public class AggregationController {
@@ -331,77 +565,27 @@ public class AggregationController {
   }
 }
 // Output: Single response with user, orders, and preferences data`
+        }
+      ]
     },
     {
+      id: 'circuit-breaker',
       name: 'Circuit Breaker',
       icon: '🔌',
-      explanation: `Prevents cascading failures by monitoring service calls and stopping requests to failing services. Implements three states: Closed (normal operation), Open (failing fast), and Half-Open (testing recovery). Provides fallback mechanisms for graceful degradation when services are unavailable. Essential for building resilient microservices that handle failures gracefully.
+      color: '#ef4444',
+      description: 'Prevents cascading failures by monitoring service calls and stopping requests to failing services. Implements three states: Closed, Open, and Half-Open.',
+      diagram: CircuitBreakerDiagram,
+      details: [
+        {
+          name: 'Resilience4j Setup',
+          explanation: `Circuit breaker pattern prevents cascading failures by monitoring service calls and stopping requests to failing services. It implements three states:
 
-Circuit States:
-• Closed: Normal operation, all requests pass through
-• Open: Threshold exceeded, fail fast without calling service (return fallback)
-• Half-Open: After timeout, test if service recovered with limited requests
+- CLOSED: Normal operation, requests pass through, failures counted
+- OPEN: Threshold exceeded, fail fast without calling service
+- HALF-OPEN: After timeout, test if service recovered with limited requests
 
-Key Features:
-• Failure detection and threshold monitoring
-• Automatic state transitions
-• Fallback mechanisms (cached data, default responses)
-• Health checks and automatic recovery
-• Metrics and monitoring integration
-• Prevent cascading failures across services
-
-Implementation: Resilience4j, Spring Cloud Circuit Breaker, Istio/Envoy service mesh, Netflix Hystrix (deprecated).`,
-      diagram: () => (
-        <svg viewBox="0 0 700 450" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '2rem auto', display: 'block' }}>
-          <defs>
-            <linearGradient id="closedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
-            </linearGradient>
-            <linearGradient id="openGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#ef4444', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#dc2626', stopOpacity: 1 }} />
-            </linearGradient>
-            <linearGradient id="halfOpenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
-            </linearGradient>
-            <marker id="arrow2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <polygon points="0 0, 10 3, 0 6" fill="#6b7280" />
-            </marker>
-          </defs>
-          <rect x="50" y="50" width="150" height="100" rx="12" fill="url(#closedGrad)" stroke="#059669" strokeWidth="3" />
-          <text x="125" y="85" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">CLOSED</text>
-          <text x="125" y="110" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Normal Operation</text>
-          <text x="125" y="130" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Requests Pass</text>
-          <rect x="275" y="50" width="150" height="100" rx="12" fill="url(#openGrad)" stroke="#dc2626" strokeWidth="3" />
-          <text x="350" y="85" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">OPEN</text>
-          <text x="350" y="110" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Failures Detected</text>
-          <text x="350" y="130" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Fail Fast</text>
-          <rect x="162" y="250" width="150" height="100" rx="12" fill="url(#halfOpenGrad)" stroke="#d97706" strokeWidth="3" />
-          <text x="237" y="285" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">HALF-OPEN</text>
-          <text x="237" y="310" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Testing Recovery</text>
-          <text x="237" y="330" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Limited Requests</text>
-          <line x1="200" y1="100" x2="275" y2="100" stroke="#6b7280" strokeWidth="2" markerEnd="url(#arrow2)" />
-          <text x="237" y="90" fontSize="10" fill="#374151" textAnchor="middle">Threshold</text>
-          <text x="237" y="105" fontSize="10" fill="#374151" textAnchor="middle">Exceeded</text>
-          <line x1="350" y1="150" x2="280" y2="250" stroke="#6b7280" strokeWidth="2" markerEnd="url(#arrow2)" />
-          <text x="330" y="210" fontSize="10" fill="#374151" textAnchor="middle">After</text>
-          <text x="330" y="225" fontSize="10" fill="#374151" textAnchor="middle">Timeout</text>
-          <line x1="190" y1="300" x2="125" y2="150" stroke="#6b7280" strokeWidth="2" markerEnd="url(#arrow2)" />
-          <text x="140" y="220" fontSize="10" fill="#374151" textAnchor="middle">Success</text>
-          <line x1="284" y1="300" x2="350" y2="150" stroke="#6b7280" strokeWidth="2" markerEnd="url(#arrow2)" />
-          <text x="335" y="220" fontSize="10" fill="#374151" textAnchor="middle">Failure</text>
-          <text x="237" y="420" fontSize="12" fill="#6b7280" textAnchor="middle" fontStyle="italic">
-            Circuit Breaker State Machine - Prevents Cascading Failures
-          </text>
-        </svg>
-      ),
-      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Resilience4j Circuit Breaker Setup
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Add Resilience4j dependency
+Configuration includes sliding window size, failure rate threshold, wait duration, and permitted calls in half-open state.`,
+          codeExample: `// Add Resilience4j dependency
 /*
 <dependency>
   <groupId>org.springframework.cloud</groupId>
@@ -423,13 +607,18 @@ resilience4j:
         failureRateThreshold: 50
         slowCallRateThreshold: 50
         slowCallDurationThreshold: 2s
-*/
+*/`
+        },
+        {
+          name: 'Circuit Breaker with Fallback',
+          explanation: `When the circuit breaker opens, fallback methods provide graceful degradation. Instead of failing completely, the service returns a cached response, default value, or queues the request for later processing.
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Circuit Breaker with Fallback
-// ═══════════════════════════════════════════════════════════════════════════
-
-@Service
+Fallback Strategies:
+- Return cached data
+- Return default response
+- Queue request for retry
+- Return partial data`,
+          codeExample: `@Service
 public class PaymentService {
 
   @Autowired
@@ -466,13 +655,19 @@ public class PaymentService {
     return fallback;
   }
 }
-// Output: Returns fallback when payment service fails
+// Output: Returns fallback when payment service fails`
+        },
+        {
+          name: 'Annotation-Based Circuit Breaker',
+          explanation: `Resilience4j provides annotation-based configuration for circuit breakers. Combine @CircuitBreaker with @Retry and @TimeLimiter for comprehensive resilience.
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Annotation-Based Circuit Breaker
-// ═══════════════════════════════════════════════════════════════════════════
-
-@Service
+Annotations:
+- @CircuitBreaker: Main circuit breaker logic
+- @Retry: Automatic retry on failure
+- @TimeLimiter: Timeout handling
+- @RateLimiter: Request rate limiting
+- @Bulkhead: Concurrent call limiting`,
+          codeExample: `@Service
 public class OrderService {
 
   @Autowired
@@ -497,13 +692,18 @@ public class OrderService {
     fallbackOrder.setStatus("UNAVAILABLE");
     return CompletableFuture.completedFuture(fallbackOrder);
   }
-}
+}`
+        },
+        {
+          name: 'Events and Monitoring',
+          explanation: `Circuit breaker events enable monitoring and alerting. Listen to state transitions to send alerts when circuits open, and track error counts for metrics dashboards.
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Circuit Breaker Events and Monitoring
-// ═══════════════════════════════════════════════════════════════════════════
-
-@Component
+Monitoring Integration:
+- Actuator endpoints for status
+- Event listeners for alerts
+- Metrics for Prometheus/Grafana
+- Health indicators`,
+          codeExample: `@Component
 public class CircuitBreakerEventListener {
 
   @EventListener
@@ -527,8 +727,7 @@ public class CircuitBreakerEventListener {
   }
 }
 
-// Actuator endpoint for circuit breaker status
-// GET /actuator/circuitbreakers
+// Actuator endpoint: GET /actuator/circuitbreakers
 /*
 {
   "circuitBreakers": {
@@ -542,76 +741,28 @@ public class CircuitBreakerEventListener {
   }
 }
 */`
+        }
+      ]
     },
     {
+      id: 'service-discovery',
       name: 'Service Discovery',
       icon: '🔍',
-      explanation: `Enables automatic detection and location of service instances in a microservices architecture. Services register themselves with a central registry on startup and deregister on shutdown. Clients query the registry to find available service instances, enabling dynamic scaling and load balancing. Essential for cloud-native applications where service instances are constantly changing.
+      color: '#10b981',
+      description: 'Enables automatic detection and location of service instances in a microservices architecture. Services register themselves with a central registry.',
+      diagram: ServiceDiscoveryDiagram,
+      details: [
+        {
+          name: 'Eureka Server Setup',
+          explanation: `Service discovery enables automatic detection and location of service instances. Services register themselves with a central registry on startup and deregister on shutdown.
 
 Discovery Patterns:
-• Client-Side Discovery: Client queries registry and selects instance (Netflix Eureka, Ribbon)
-• Server-Side Discovery: Load balancer queries registry and routes (AWS ELB, Kubernetes Service)
-• Service Mesh: Platform-level discovery with sidecar proxies (Istio, Linkerd)
+- Client-Side: Client queries registry and selects instance (Eureka, Ribbon)
+- Server-Side: Load balancer queries registry and routes (AWS ELB, K8s)
+- Service Mesh: Platform-level discovery (Istio, Linkerd)
 
-Key Features:
-• Dynamic service registration and deregistration
-• Health checks and automatic instance removal
-• Load balancing across service instances
-• Metadata and versioning support
-• Multi-datacenter awareness
-• Integration with service mesh
-
-Technologies: Netflix Eureka, Consul, etcd, ZooKeeper, Kubernetes Service Discovery, AWS Cloud Map.`,
-      diagram: () => (
-        <svg viewBox="0 0 800 450" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '2rem auto', display: 'block' }}>
-          <defs>
-            <linearGradient id="registryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#4f46e5', stopOpacity: 1 }} />
-            </linearGradient>
-            <linearGradient id="serviceInstGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#818cf8', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
-            </linearGradient>
-            <marker id="arrow3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <polygon points="0 0, 10 3, 0 6" fill="#6366f1" />
-            </marker>
-          </defs>
-          <rect x="300" y="20" width="200" height="80" rx="12" fill="url(#registryGrad)" stroke="#4f46e5" strokeWidth="3" />
-          <text x="400" y="55" fontSize="18" fontWeight="bold" fill="white" textAnchor="middle">Service Registry</text>
-          <text x="400" y="80" fontSize="12" fill="white" opacity="0.9" textAnchor="middle">Eureka • Consul</text>
-          <rect x="50" y="180" width="140" height="70" rx="8" fill="url(#serviceInstGrad)" stroke="#6366f1" strokeWidth="2" />
-          <text x="120" y="210" fontSize="14" fontWeight="600" fill="white" textAnchor="middle">Service A</text>
-          <text x="120" y="230" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Instance 1</text>
-          <rect x="220" y="180" width="140" height="70" rx="8" fill="url(#serviceInstGrad)" stroke="#6366f1" strokeWidth="2" />
-          <text x="290" y="210" fontSize="14" fontWeight="600" fill="white" textAnchor="middle">Service A</text>
-          <text x="290" y="230" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Instance 2</text>
-          <rect x="440" y="180" width="140" height="70" rx="8" fill="url(#serviceInstGrad)" stroke="#6366f1" strokeWidth="2" />
-          <text x="510" y="210" fontSize="14" fontWeight="600" fill="white" textAnchor="middle">Service B</text>
-          <text x="510" y="230" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Instance 1</text>
-          <rect x="610" y="180" width="140" height="70" rx="8" fill="url(#serviceInstGrad)" stroke="#6366f1" strokeWidth="2" />
-          <text x="680" y="210" fontSize="14" fontWeight="600" fill="white" textAnchor="middle">Service B</text>
-          <text x="680" y="230" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Instance 2</text>
-          <line x1="120" y1="180" x2="350" y2="100" stroke="#10b981" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrow3)" />
-          <text x="200" y="135" fontSize="10" fill="#10b981" fontWeight="600">Register</text>
-          <line x1="290" y1="180" x2="380" y2="100" stroke="#10b981" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrow3)" />
-          <line x1="510" y1="180" x2="420" y2="100" stroke="#10b981" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrow3)" />
-          <line x1="680" y1="180" x2="450" y2="100" stroke="#10b981" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrow3)" />
-          <rect x="320" y="330" width="160" height="70" rx="8" fill="#e0e7ff" stroke="#6366f1" strokeWidth="2" />
-          <text x="400" y="360" fontSize="15" fontWeight="600" fill="#6366f1" textAnchor="middle">Client Service</text>
-          <text x="400" y="380" fontSize="11" fill="#6b7280" textAnchor="middle">Query Registry</text>
-          <line x1="400" y1="100" x2="400" y2="330" stroke="#f59e0b" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrow3)" />
-          <text x="420" y="220" fontSize="10" fill="#f59e0b" fontWeight="600">Discover</text>
-          <text x="400" y="430" fontSize="12" fill="#6b7280" textAnchor="middle" fontStyle="italic">
-            Service Registry with Dynamic Registration and Discovery
-          </text>
-        </svg>
-      ),
-      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Eureka Server Setup
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Eureka Server
+Technologies: Netflix Eureka, Consul, etcd, ZooKeeper, Kubernetes Service Discovery.`,
+          codeExample: `// Eureka Server
 @SpringBootApplication
 @EnableEurekaServer
 public class EurekaServerApplication {
@@ -632,13 +783,18 @@ eureka:
   server:
     enableSelfPreservation: false
 */
-// Output: Eureka dashboard at http://localhost:8761
+// Output: Eureka dashboard at http://localhost:8761`
+        },
+        {
+          name: 'Service Registration',
+          explanation: `Services register with Eureka on startup, providing metadata like hostname, port, and health check URL. Lease renewal keeps registrations active, while lease expiration removes unhealthy instances.
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Service Registration (Client)
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Service registration with Eureka
+Registration Options:
+- Hostname or IP preference
+- Lease renewal interval
+- Lease expiration duration
+- Custom metadata`,
+          codeExample: `// Service registration with Eureka
 @SpringBootApplication
 @EnableEurekaClient
 public class UserServiceApplication {
@@ -668,13 +824,18 @@ eureka:
       version: 1.0
       environment: production
 */
-// Output: USER-SERVICE registered with Eureka
+// Output: USER-SERVICE registered with Eureka`
+        },
+        {
+          name: 'Load Balancing',
+          explanation: `Spring Cloud LoadBalancer provides client-side load balancing. The @LoadBalanced annotation enables service name resolution and automatic instance selection.
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Service Discovery and Load Balancing
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Client-side load balancing with Spring Cloud LoadBalancer
+Load Balancing Strategies:
+- Round Robin (default)
+- Random
+- Weighted
+- Least Connections`,
+          codeExample: `// Client-side load balancing with Spring Cloud LoadBalancer
 @Configuration
 public class LoadBalancerConfig {
 
@@ -706,63 +867,18 @@ public class OrderService {
     );
   }
 }
-// Output: Automatically discovers and load balances across USER-SERVICE instances
+// Output: Automatically discovers and load balances across USER-SERVICE instances`
+        },
+        {
+          name: 'Discovery Client API',
+          explanation: `The DiscoveryClient API provides programmatic access to the service registry. Query available services, get instance details, and implement custom routing logic.
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Health Checks and Custom Metadata
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Custom health check
-@Component
-public class CustomHealthCheck implements HealthIndicator {
-
-  @Override
-  public Health health() {
-    boolean databaseUp = checkDatabaseConnection();
-    boolean cacheUp = checkCacheConnection();
-
-    if (databaseUp && cacheUp) {
-      return Health.up()
-        .withDetail("database", "connected")
-        .withDetail("cache", "connected")
-        .build();
-    }
-    return Health.down()
-      .withDetail("database", databaseUp ? "connected" : "down")
-      .withDetail("cache", cacheUp ? "connected" : "down")
-      .build();
-  }
-
-  private boolean checkDatabaseConnection() {
-    return true; // Check database
-  }
-
-  private boolean checkCacheConnection() {
-    return true; // Check cache
-  }
-}
-
-// Programmatic instance metadata
-@Component
-public class EurekaInstanceConfigurer {
-
-  @Autowired
-  private EurekaInstanceConfig eurekaInstanceConfig;
-
-  @PostConstruct
-  public void addMetadata() {
-    Map<String, String> metadata = eurekaInstanceConfig.getMetadataMap();
-    metadata.put("region", "us-east-1");
-    metadata.put("zone", "us-east-1a");
-    metadata.put("capabilities", "payments,notifications");
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Discovery Client API
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Using DiscoveryClient API directly
+Use Cases:
+- Custom load balancing
+- Service health monitoring
+- Dynamic configuration
+- Service topology visualization`,
+          codeExample: `// Using DiscoveryClient API directly
 @Service
 public class ServiceDiscoveryHelper {
 
@@ -791,170 +907,94 @@ public class ServiceDiscoveryHelper {
   }
 }
 // Output: Lists all registered service instances with details`
+        }
+      ]
     },
     {
+      id: 'saga-pattern',
       name: 'Saga Pattern',
       icon: '🔄',
-      explanation: `Manages distributed transactions across multiple microservices using a sequence of local transactions with compensating actions. Unlike traditional two-phase commit, sagas provide eventual consistency through either orchestration (centralized coordinator) or choreography (event-driven). Essential for complex business processes that span multiple services like order processing, payment, inventory, and shipping.
+      color: '#f59e0b',
+      description: 'Manages distributed transactions across multiple microservices using a sequence of local transactions with compensating actions for rollback.',
+      diagram: SagaPatternDiagram,
+      details: [
+        {
+          name: 'Orchestration-Based Saga',
+          explanation: `Saga pattern manages distributed transactions using a sequence of local transactions with compensating actions. Unlike two-phase commit, sagas provide eventual consistency.
 
 Saga Types:
-• Orchestration-Based: Central coordinator (Saga Execution Coordinator) manages the workflow
-• Choreography-Based: Services coordinate through events, no central controller
+- Orchestration: Central coordinator manages the workflow
+- Choreography: Services coordinate through events
 
 Compensating Transactions:
-• Semantic undo operations (not ACID rollback)
-• RefundPayment compensates ChargePayment
-• CancelReservation compensates ReserveInventory
-• Must be idempotent and handle partial failures
-
-Use Cases: E-commerce checkout, travel booking, financial transactions, order fulfillment, multi-step workflows.
-
-Technologies: Axon Framework, Eventuate, Camunda, Apache Camel, Spring Cloud, custom implementations.`,
-      diagram: () => (
-        <svg viewBox="0 0 750 450" style={{ width: '100%', maxWidth: '750px', height: 'auto', margin: '2rem auto', display: 'block' }}>
-          <defs>
-            <linearGradient id="sagaOrcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#4f46e5', stopOpacity: 1 }} />
-            </linearGradient>
-            <linearGradient id="sagaStepGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#818cf8', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
-            </linearGradient>
-            <marker id="arrow4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <polygon points="0 0, 10 3, 0 6" fill="#6366f1" />
-            </marker>
-            <marker id="arrowComp" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <polygon points="0 0, 10 3, 0 6" fill="#ef4444" />
-            </marker>
-          </defs>
-          <text x="375" y="30" fontSize="16" fontWeight="bold" fill="#6366f1" textAnchor="middle">Orchestration-Based Saga</text>
-          <rect x="280" y="50" width="190" height="70" rx="10" fill="url(#sagaOrcGrad)" stroke="#4f46e5" strokeWidth="2" />
-          <text x="375" y="80" fontSize="15" fontWeight="bold" fill="white" textAnchor="middle">Saga Coordinator</text>
-          <text x="375" y="100" fontSize="11" fill="white" opacity="0.9" textAnchor="middle">Controls Workflow</text>
-          <rect x="50" y="200" width="130" height="60" rx="8" fill="url(#sagaStepGrad)" />
-          <text x="115" y="225" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">Reserve</text>
-          <text x="115" y="245" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">Inventory</text>
-          <rect x="220" y="200" width="130" height="60" rx="8" fill="url(#sagaStepGrad)" />
-          <text x="285" y="225" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">Process</text>
-          <text x="285" y="245" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">Payment</text>
-          <rect x="390" y="200" width="130" height="60" rx="8" fill="url(#sagaStepGrad)" />
-          <text x="455" y="225" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">Schedule</text>
-          <text x="455" y="245" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">Shipping</text>
-          <rect x="560" y="200" width="130" height="60" rx="8" fill="url(#sagaStepGrad)" />
-          <text x="625" y="230" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">Complete</text>
-          <line x1="320" y1="120" x2="115" y2="200" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow4)" />
-          <line x1="360" y1="120" x2="285" y2="200" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow4)" />
-          <line x1="400" y1="120" x2="455" y2="200" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow4)" />
-          <line x1="440" y1="120" x2="625" y2="200" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow4)" />
-          <text x="230" y="175" fontSize="10" fill="#6366f1" fontWeight="600">Step 1</text>
-          <text x="315" y="175" fontSize="10" fill="#6366f1" fontWeight="600">Step 2</text>
-          <text x="460" y="175" fontSize="10" fill="#6366f1" fontWeight="600">Step 3</text>
-          <text x="545" y="175" fontSize="10" fill="#6366f1" fontWeight="600">Step 4</text>
-          <rect x="50" y="330" width="130" height="55" rx="8" fill="#fee2e2" stroke="#ef4444" strokeWidth="2" />
-          <text x="115" y="355" fontSize="12" fontWeight="600" fill="#ef4444" textAnchor="middle">Cancel</text>
-          <text x="115" y="372" fontSize="12" fontWeight="600" fill="#ef4444" textAnchor="middle">Inventory</text>
-          <rect x="220" y="330" width="130" height="55" rx="8" fill="#fee2e2" stroke="#ef4444" strokeWidth="2" />
-          <text x="285" y="355" fontSize="12" fontWeight="600" fill="#ef4444" textAnchor="middle">Refund</text>
-          <text x="285" y="372" fontSize="12" fontWeight="600" fill="#ef4444" textAnchor="middle">Payment</text>
-          <line x1="115" y1="260" x2="115" y2="330" stroke="#ef4444" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowComp)" />
-          <line x1="285" y1="260" x2="285" y2="330" stroke="#ef4444" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowComp)" />
-          <text x="50" y="320" fontSize="10" fill="#ef4444" fontWeight="600">Compensate</text>
-          <text x="220" y="320" fontSize="10" fill="#ef4444" fontWeight="600">Compensate</text>
-          <text x="375" y="430" fontSize="12" fill="#6b7280" textAnchor="middle" fontStyle="italic">
-            Orchestrated Transaction with Compensating Actions
-          </text>
-        </svg>
-      ),
-      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Orchestration-Based Saga with State Machine
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Saga coordinator using state machine
+- Semantic undo (not ACID rollback)
+- Must be idempotent
+- Handle partial failures`,
+          codeExample: `// Saga coordinator using state machine
 @Service
 public class OrderSagaOrchestrator {
 
   @Autowired
   private InventoryService inventoryService;
-
   @Autowired
   private PaymentService paymentService;
-
   @Autowired
   private ShippingService shippingService;
-
-  @Autowired
-  private SagaStateRepository sagaStateRepository;
 
   public OrderResult processOrder(Order order) {
     SagaState saga = new SagaState(order.getId());
     saga.setState("STARTED");
-    sagaStateRepository.save(saga);
 
     try {
       // Step 1: Reserve Inventory
       saga.setState("RESERVING_INVENTORY");
       ReservationResult reservation = inventoryService.reserveItems(order.getItems());
       saga.setReservationId(reservation.getId());
-      sagaStateRepository.save(saga);
 
       // Step 2: Process Payment
       saga.setState("PROCESSING_PAYMENT");
       PaymentResult payment = paymentService.chargePayment(order.getPaymentInfo());
       saga.setPaymentId(payment.getId());
-      sagaStateRepository.save(saga);
 
       // Step 3: Schedule Shipping
       saga.setState("SCHEDULING_SHIPPING");
       ShippingResult shipping = shippingService.scheduleShipping(order.getShippingAddress());
-      saga.setShippingId(shipping.getId());
-      sagaStateRepository.save(saga);
 
-      // Success
       saga.setState("COMPLETED");
-      sagaStateRepository.save(saga);
       return new OrderResult(true, "Order completed successfully");
 
     } catch (Exception e) {
-      // Compensate in reverse order
       compensate(saga);
       return new OrderResult(false, "Order failed: " + e.getMessage());
     }
   }
 
   private void compensate(SagaState saga) {
-    saga.setState("COMPENSATING");
-
-    if (saga.getShippingId() != null) {
-      shippingService.cancelShipping(saga.getShippingId());
-    }
-
-    if (saga.getPaymentId() != null) {
-      paymentService.refundPayment(saga.getPaymentId());
-    }
-
-    if (saga.getReservationId() != null) {
-      inventoryService.releaseReservation(saga.getReservationId());
-    }
-
-    saga.setState("COMPENSATED");
-    sagaStateRepository.save(saga);
+    if (saga.getShippingId() != null) shippingService.cancelShipping(saga.getShippingId());
+    if (saga.getPaymentId() != null) paymentService.refundPayment(saga.getPaymentId());
+    if (saga.getReservationId() != null) inventoryService.releaseReservation(saga.getReservationId());
   }
-}
+}`
+        },
+        {
+          name: 'Choreography-Based Saga',
+          explanation: `In choreography, services coordinate through events without a central coordinator. Each service publishes events that trigger the next step in the saga.
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Choreography-Based Saga with Events
-// ═══════════════════════════════════════════════════════════════════════════
+Benefits:
+- Loose coupling between services
+- No single point of failure
+- Better scalability
 
-// Event-driven saga with Kafka/RabbitMQ
+Challenges:
+- Harder to track saga state
+- Complex failure handling
+- Distributed debugging`,
+          codeExample: `// Event-driven saga with Kafka
 @Service
 public class OrderEventHandler {
 
   @Autowired
   private KafkaTemplate<String, Object> kafkaTemplate;
-
-  @Autowired
-  private OrderRepository orderRepository;
 
   // Step 1: Create order and publish event
   public void createOrder(Order order) {
@@ -962,9 +1002,7 @@ public class OrderEventHandler {
     orderRepository.save(order);
 
     OrderCreatedEvent event = new OrderCreatedEvent(
-      order.getId(),
-      order.getItems(),
-      order.getTotalAmount()
+      order.getId(), order.getItems(), order.getTotalAmount()
     );
     kafkaTemplate.send("order-events", event);
   }
@@ -972,79 +1010,54 @@ public class OrderEventHandler {
   // Step 2: Listen to inventory reserved event
   @KafkaListener(topics = "inventory-events")
   public void handleInventoryReserved(InventoryReservedEvent event) {
-    System.out.println("Inventory reserved: " + event.getOrderId());
-
-    // Trigger payment
     PaymentRequestEvent paymentEvent = new PaymentRequestEvent(
-      event.getOrderId(),
-      event.getAmount()
+      event.getOrderId(), event.getAmount()
     );
     kafkaTemplate.send("payment-events", paymentEvent);
-  }
-
-  // Step 3: Listen to payment processed event
-  @KafkaListener(topics = "payment-events")
-  public void handlePaymentProcessed(PaymentProcessedEvent event) {
-    System.out.println("Payment processed: " + event.getOrderId());
-
-    // Trigger shipping
-    ShippingRequestEvent shippingEvent = new ShippingRequestEvent(
-      event.getOrderId(),
-      event.getAddress()
-    );
-    kafkaTemplate.send("shipping-events", shippingEvent);
   }
 
   // Handle failures - compensate
   @KafkaListener(topics = "payment-failed-events")
   public void handlePaymentFailed(PaymentFailedEvent event) {
-    System.out.println("Payment failed, compensating: " + event.getOrderId());
-
-    // Release inventory
-    InventoryReleaseEvent releaseEvent = new InventoryReleaseEvent(
-      event.getOrderId()
-    );
+    InventoryReleaseEvent releaseEvent = new InventoryReleaseEvent(event.getOrderId());
     kafkaTemplate.send("inventory-events", releaseEvent);
 
-    // Update order status
     Order order = orderRepository.findById(event.getOrderId()).get();
     order.setStatus("FAILED");
     orderRepository.save(order);
   }
-}
+}`
+        },
+        {
+          name: 'State Persistence & Recovery',
+          explanation: `Saga state must be persisted for recovery from failures. A recovery service periodically checks for stuck sagas and either retries or compensates them.
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Saga State Persistence and Recovery
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Saga state entity
+Recovery Strategies:
+- Timeout-based recovery
+- Retry with exponential backoff
+- Dead letter queue for failed sagas
+- Manual intervention alerts`,
+          codeExample: `// Saga state entity
 @Entity
 @Table(name = "saga_state")
 public class SagaState {
   @Id
   private String sagaId;
-
   private String orderId;
   private String state;
   private String reservationId;
   private String paymentId;
   private String shippingId;
-
   private LocalDateTime startTime;
   private LocalDateTime lastUpdateTime;
 
   @ElementCollection
   private List<String> completedSteps = new ArrayList<>();
-
-  // Getters and setters
 }
 
 // Saga recovery service
 @Service
 public class SagaRecoveryService {
-
-  @Autowired
-  private SagaStateRepository sagaStateRepository;
 
   @Scheduled(fixedDelay = 60000) // Every minute
   public void recoverStuckSagas() {
@@ -1058,8 +1071,6 @@ public class SagaRecoveryService {
 
     for (SagaState saga : stuckSagas) {
       System.out.println("Recovering stuck saga: " + saga.getSagaId());
-
-      // Retry or compensate based on state
       if (saga.getState().startsWith("PROCESSING")) {
         retrySaga(saga);
       } else {
@@ -1067,21 +1078,18 @@ public class SagaRecoveryService {
       }
     }
   }
+}`
+        },
+        {
+          name: 'Idempotent Operations',
+          explanation: `Saga operations must be idempotent to handle retries safely. Use idempotency keys to prevent duplicate processing of the same request.
 
-  private void retrySaga(SagaState saga) {
-    // Retry logic based on current state
-  }
-
-  private void compensateSaga(SagaState saga) {
-    // Compensate completed steps
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Idempotent Operations and Deduplication
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Idempotent payment service
+Implementation:
+- Store idempotency key with result
+- Check for existing result before processing
+- Return cached result for duplicates
+- Time-limited idempotency (e.g., 24 hours)`,
+          codeExample: `// Idempotent payment service
 @Service
 public class IdempotentPaymentService {
 
@@ -1121,96 +1129,32 @@ public class IdempotentPaymentService {
     paymentRepository.save(payment);
   }
 }`
+        }
+      ]
     },
     {
+      id: 'cqrs',
       name: 'CQRS',
       icon: '📊',
-      explanation: `Command Query Responsibility Segregation separates read and write operations into distinct models. Commands change state without returning data, while queries return data without changing state. Enables independent optimization and scaling of read and write workloads. Often combined with Event Sourcing for event-driven architectures.
+      color: '#8b5cf6',
+      description: 'Command Query Responsibility Segregation separates read and write operations into distinct models for independent optimization and scaling.',
+      diagram: CQRSDiagram,
+      details: [
+        {
+          name: 'Command Model (Write Side)',
+          explanation: `CQRS separates read and write operations into distinct models. Commands change state without returning data, while queries return data without changing state.
 
 Key Principles:
-• Commands: State changes, business logic validation, domain events
-• Queries: Read-optimized models, denormalized views, no business logic
-• Different databases for reads and writes (polyglot persistence)
-• Eventual consistency between command and query models
-
-Benefits:
-• Independent scaling of reads and writes
-• Optimized data models for each use case
-• Better security (separate read/write permissions)
-• Multiple specialized read models from same data
-• Simplified queries with denormalized views
-
-Technologies: Axon Framework, Event Store, Kafka, separate RDBMS/NoSQL databases, materialized views, search engines (Elasticsearch).`,
-      diagram: () => (
-        <svg viewBox="0 0 750 400" style={{ width: '100%', maxWidth: '750px', height: 'auto', margin: '2rem auto', display: 'block' }}>
-          <defs>
-            <linearGradient id="commandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#4f46e5', stopOpacity: 1 }} />
-            </linearGradient>
-            <linearGradient id="queryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
-            </linearGradient>
-            <marker id="arrow5" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <polygon points="0 0, 10 3, 0 6" fill="#6366f1" />
-            </marker>
-            <marker id="arrowSync" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <polygon points="0 0, 10 3, 0 6" fill="#f59e0b" />
-            </marker>
-          </defs>
-          <text x="375" y="30" fontSize="18" fontWeight="bold" fill="#6366f1" textAnchor="middle">CQRS Pattern</text>
-          <rect x="50" y="70" width="280" height="100" rx="12" fill="url(#commandGrad)" stroke="#4f46e5" strokeWidth="3" />
-          <text x="190" y="105" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">Command Side (Write)</text>
-          <text x="190" y="130" fontSize="12" fill="white" opacity="0.9" textAnchor="middle">Business Logic</text>
-          <text x="190" y="150" fontSize="12" fill="white" opacity="0.9" textAnchor="middle">State Changes</text>
-          <rect x="420" y="70" width="280" height="100" rx="12" fill="url(#queryGrad)" stroke="#059669" strokeWidth="3" />
-          <text x="560" y="105" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">Query Side (Read)</text>
-          <text x="560" y="130" fontSize="12" fill="white" opacity="0.9" textAnchor="middle">Optimized Views</text>
-          <text x="560" y="150" fontSize="12" fill="white" opacity="0.9" textAnchor="middle">Denormalized Data</text>
-          <rect x="80" y="230" width="220" height="60" rx="8" fill="#ddd6fe" stroke="#6366f1" strokeWidth="2" />
-          <text x="190" y="255" fontSize="14" fontWeight="600" fill="#6366f1" textAnchor="middle">Write Database</text>
-          <text x="190" y="275" fontSize="11" fill="#6b7280" textAnchor="middle">PostgreSQL • MySQL</text>
-          <rect x="450" y="230" width="220" height="60" rx="8" fill="#d1fae5" stroke="#10b981" strokeWidth="2" />
-          <text x="560" y="255" fontSize="14" fontWeight="600" fill="#10b981" textAnchor="middle">Read Database</text>
-          <text x="560" y="275" fontSize="11" fill="#6b7280" textAnchor="middle">MongoDB • Elasticsearch</text>
-          <line x1="190" y1="170" x2="190" y2="230" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrow5)" />
-          <line x1="560" y1="170" x2="560" y2="230" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrow5)" />
-          <line x1="300" y1="260" x2="450" y2="260" stroke="#f59e0b" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrowSync)" />
-          <text x="375" y="250" fontSize="11" fill="#f59e0b" fontWeight="600">Event</text>
-          <text x="375" y="265" fontSize="11" fill="#f59e0b" fontWeight="600">Sync</text>
-          <rect x="50" y="330" width="110" height="40" rx="6" fill="#e0e7ff" stroke="#6366f1" strokeWidth="1.5" />
-          <text x="105" y="355" fontSize="12" fontWeight="600" fill="#6366f1" textAnchor="middle">CreateOrder</text>
-          <rect x="180" y="330" width="110" height="40" rx="6" fill="#e0e7ff" stroke="#6366f1" strokeWidth="1.5" />
-          <text x="235" y="355" fontSize="12" fontWeight="600" fill="#6366f1" textAnchor="middle">UpdateUser</text>
-          <rect x="470" y="330" width="100" height="40" rx="6" fill="#d1fae5" stroke="#10b981" strokeWidth="1.5" />
-          <text x="520" y="355" fontSize="12" fontWeight="600" fill="#10b981" textAnchor="middle">GetOrders</text>
-          <rect x="590" y="330" width="100" height="40" rx="6" fill="#d1fae5" stroke="#10b981" strokeWidth="1.5" />
-          <text x="640" y="355" fontSize="12" fontWeight="600" fill="#10b981" textAnchor="middle">GetUsers</text>
-          <text x="375" y="395" fontSize="12" fill="#6b7280" textAnchor="middle" fontStyle="italic">
-            Separate models for Write and Read operations
-          </text>
-        </svg>
-      ),
-      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Command Model (Write Side)
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Command - represents state change intent
+- Commands: State changes, business logic validation, domain events
+- Queries: Read-optimized models, denormalized views, no business logic
+- Different databases for reads and writes (polyglot persistence)
+- Eventual consistency between models`,
+          codeExample: `// Command - represents state change intent
 public class CreateOrderCommand {
   private final String orderId;
   private final String customerId;
   private final List<OrderItem> items;
   private final BigDecimal totalAmount;
-
-  // Constructor, getters
-}
-
-public class UpdateOrderStatusCommand {
-  private final String orderId;
-  private final String newStatus;
-
-  // Constructor, getters
 }
 
 // Command Handler - processes commands
@@ -1219,7 +1163,6 @@ public class OrderCommandHandler {
 
   @Autowired
   private OrderRepository orderRepository;
-
   @Autowired
   private EventPublisher eventPublisher;
 
@@ -1242,62 +1185,30 @@ public class OrderCommandHandler {
 
     // Publish domain event
     OrderCreatedEvent event = new OrderCreatedEvent(
-      order.getId(),
-      order.getCustomerId(),
-      order.getItems(),
-      order.getTotalAmount(),
-      LocalDateTime.now()
+      order.getId(), order.getCustomerId(),
+      order.getItems(), order.getTotalAmount(), LocalDateTime.now()
     );
     eventPublisher.publish(event);
   }
+}`
+        },
+        {
+          name: 'Query Model (Read Side)',
+          explanation: `The query side uses denormalized models optimized for specific read patterns. Query handlers return DTOs without business logic.
 
-  @Transactional
-  public void handle(UpdateOrderStatusCommand command) {
-    Order order = orderRepository.findById(command.getOrderId())
-      .orElseThrow(() -> new OrderNotFoundException());
-
-    order.updateStatus(command.getNewStatus());
-    orderRepository.save(order);
-
-    eventPublisher.publish(new OrderStatusUpdatedEvent(
-      order.getId(),
-      command.getNewStatus(),
-      LocalDateTime.now()
-    ));
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Query Model (Read Side)
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Query DTOs - optimized for reads
+Benefits:
+- Optimized for specific query patterns
+- No joins required (denormalized)
+- Can use different database (NoSQL, search)
+- Independent scaling`,
+          codeExample: `// Query DTOs - optimized for reads
 public class OrderSummaryDto {
   private String orderId;
-  private String customerName;
+  private String customerName;  // Denormalized
   private String status;
   private BigDecimal totalAmount;
   private LocalDateTime createdAt;
   private int itemCount;
-
-  // Getters and setters
-}
-
-public class CustomerOrderHistoryDto {
-  private String customerId;
-  private String customerName;
-  private List<OrderSummaryDto> orders;
-  private BigDecimal totalSpent;
-
-  // Getters and setters
-}
-
-// Query Repository - denormalized read model
-@Repository
-public interface OrderQueryRepository extends JpaRepository<OrderReadModel, String> {
-  List<OrderReadModel> findByCustomerId(String customerId);
-  List<OrderReadModel> findByStatus(String status);
-  List<OrderReadModel> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 }
 
 // Query Handler
@@ -1310,7 +1221,6 @@ public class OrderQueryHandler {
   public OrderSummaryDto getOrderSummary(String orderId) {
     OrderReadModel model = queryRepository.findById(orderId)
       .orElseThrow(() -> new OrderNotFoundException());
-
     return mapToSummaryDto(model);
   }
 
@@ -1319,40 +1229,29 @@ public class OrderQueryHandler {
 
     CustomerOrderHistoryDto dto = new CustomerOrderHistoryDto();
     dto.setCustomerId(customerId);
-    dto.setCustomerName(orders.get(0).getCustomerName());
-    dto.setOrders(orders.stream()
-      .map(this::mapToSummaryDto)
-      .collect(Collectors.toList()));
+    dto.setOrders(orders.stream().map(this::mapToSummaryDto).collect(Collectors.toList()));
     dto.setTotalSpent(orders.stream()
       .map(OrderReadModel::getTotalAmount)
       .reduce(BigDecimal.ZERO, BigDecimal::add));
-
     return dto;
   }
+}`
+        },
+        {
+          name: 'Event-Driven Synchronization',
+          explanation: `Event listeners update the read model when domain events are published. This creates eventual consistency between write and read models.
 
-  private OrderSummaryDto mapToSummaryDto(OrderReadModel model) {
-    OrderSummaryDto dto = new OrderSummaryDto();
-    dto.setOrderId(model.getId());
-    dto.setCustomerName(model.getCustomerName());
-    dto.setStatus(model.getStatus());
-    dto.setTotalAmount(model.getTotalAmount());
-    dto.setCreatedAt(model.getCreatedAt());
-    dto.setItemCount(model.getItemCount());
-    return dto;
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Event-Driven Synchronization
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Event listener updates read model
+Projection Strategies:
+- Async event handling
+- Idempotent projections
+- Replay capability
+- Multiple read models from same events`,
+          codeExample: `// Event listener updates read model
 @Service
 public class OrderReadModelProjection {
 
   @Autowired
   private OrderQueryRepository queryRepository;
-
   @Autowired
   private CustomerService customerService;
 
@@ -1365,7 +1264,7 @@ public class OrderReadModelProjection {
     OrderReadModel readModel = new OrderReadModel();
     readModel.setId(event.getOrderId());
     readModel.setCustomerId(event.getCustomerId());
-    readModel.setCustomerName(customer.getName());
+    readModel.setCustomerName(customer.getName());  // Denormalized!
     readModel.setCustomerEmail(customer.getEmail());
     readModel.setStatus("PENDING");
     readModel.setTotalAmount(event.getTotalAmount());
@@ -1374,28 +1273,29 @@ public class OrderReadModelProjection {
 
     // Save to read database (could be different DB)
     queryRepository.save(readModel);
-
     System.out.println("Read model updated for order: " + event.getOrderId());
   }
 
   @EventListener
   @Async
   public void on(OrderStatusUpdatedEvent event) {
-    OrderReadModel readModel = queryRepository.findById(event.getOrderId())
-      .orElseThrow();
-
+    OrderReadModel readModel = queryRepository.findById(event.getOrderId()).orElseThrow();
     readModel.setStatus(event.getNewStatus());
     readModel.setLastModifiedAt(event.getTimestamp());
-
     queryRepository.save(readModel);
   }
-}
+}`
+        },
+        {
+          name: 'Separate Controllers',
+          explanation: `Separate controllers for commands and queries make the CQRS separation explicit in the API design. Commands return 202 Accepted (async processing), queries return 200 OK with data.
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Separate Controllers for Commands and Queries
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Command Controller - write operations
+API Design:
+- POST/PUT for commands (return 202)
+- GET for queries (return 200)
+- Different endpoints or paths
+- Clear separation of concerns`,
+          codeExample: `// Command Controller - write operations
 @RestController
 @RequestMapping("/api/orders/commands")
 public class OrderCommandController {
@@ -1411,25 +1311,8 @@ public class OrderCommandController {
       request.getItems(),
       request.getTotalAmount()
     );
-
     commandHandler.handle(command);
-
     return ResponseEntity.accepted().build(); // 202 Accepted
-  }
-
-  @PutMapping("/{orderId}/status")
-  public ResponseEntity<Void> updateStatus(
-      @PathVariable String orderId,
-      @RequestBody UpdateStatusRequest request) {
-
-    UpdateOrderStatusCommand command = new UpdateOrderStatusCommand(
-      orderId,
-      request.getNewStatus()
-    );
-
-    commandHandler.handle(command);
-
-    return ResponseEntity.accepted().build();
   }
 }
 
@@ -1444,91 +1327,38 @@ public class OrderQueryController {
   @GetMapping("/{orderId}")
   public ResponseEntity<OrderSummaryDto> getOrder(@PathVariable String orderId) {
     OrderSummaryDto order = queryHandler.getOrderSummary(orderId);
-    return ResponseEntity.ok(order);
+    return ResponseEntity.ok(order);  // 200 OK with data
   }
 
   @GetMapping("/customer/{customerId}")
   public ResponseEntity<CustomerOrderHistoryDto> getCustomerOrders(
       @PathVariable String customerId) {
-    CustomerOrderHistoryDto history = queryHandler
-      .getCustomerOrderHistory(customerId);
-    return ResponseEntity.ok(history);
+    return ResponseEntity.ok(queryHandler.getCustomerOrderHistory(customerId));
   }
-}
-// Output: Commands return 202 Accepted, Queries return 200 OK with data`
+}`
+        }
+      ]
     },
     {
+      id: 'event-sourcing',
       name: 'Event Sourcing',
       icon: '📜',
-      explanation: `Stores all changes to application state as a sequence of immutable events rather than just the current state. Events are facts that happened in the past and cannot be changed. Current state is derived by replaying events from the event store. Provides complete audit trail, temporal queries, and ability to rebuild state at any point in time.
+      color: '#ec4899',
+      description: 'Stores all changes to application state as a sequence of immutable events. Current state is derived by replaying events from the event store.',
+      diagram: EventSourcingDiagram,
+      details: [
+        {
+          name: 'Domain Events',
+          explanation: `Event sourcing stores all changes as a sequence of immutable events. Events are facts that happened and cannot be changed. Current state is derived by replaying events.
 
 Core Concepts:
-• Event Store: Append-only log of domain events (OrderCreated, ItemAdded, OrderShipped)
-• Event Replay: Rebuild aggregate state by replaying events in sequence
-• Snapshots: Performance optimization, periodic state captures
-• Projections: Derive read models from event stream
+- Event Store: Append-only log of domain events
+- Event Replay: Rebuild state by replaying events
+- Snapshots: Performance optimization
+- Projections: Derive read models from events
 
-Benefits:
-• Complete audit trail and history
-• Time travel - query state at any point
-• Event-driven integration
-• Debugging and troubleshooting
-• What-if analysis and replay
-
-Challenges: Complexity, eventual consistency, event versioning, query difficulty, steep learning curve.
-
-Technologies: Event Store DB, Axon Framework, Kafka, custom implementations, Greg Young's Event Store.`,
-      diagram: () => (
-        <svg viewBox="0 0 800 400" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '2rem auto', display: 'block' }}>
-          <defs>
-            <linearGradient id="eventStoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#4f46e5', stopOpacity: 1 }} />
-            </linearGradient>
-            <linearGradient id="eventGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#818cf8', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
-            </linearGradient>
-            <marker id="arrow6" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <polygon points="0 0, 10 3, 0 6" fill="#6366f1" />
-            </marker>
-          </defs>
-          <text x="400" y="30" fontSize="18" fontWeight="bold" fill="#6366f1" textAnchor="middle">Event Sourcing Pattern</text>
-          <rect x="50" y="60" width="700" height="120" rx="10" fill="url(#eventStoreGrad)" stroke="#4f46e5" strokeWidth="3" />
-          <text x="400" y="90" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">Event Store - Append-Only Log</text>
-          <rect x="70" y="110" width="130" height="50" rx="6" fill="url(#eventGrad)" />
-          <text x="135" y="135" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">Event 1:</text>
-          <text x="135" y="150" fontSize="10" fill="white" opacity="0.9" textAnchor="middle">OrderCreated</text>
-          <rect x="220" y="110" width="130" height="50" rx="6" fill="url(#eventGrad)" />
-          <text x="285" y="135" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">Event 2:</text>
-          <text x="285" y="150" fontSize="10" fill="white" opacity="0.9" textAnchor="middle">ItemAdded</text>
-          <rect x="370" y="110" width="130" height="50" rx="6" fill="url(#eventGrad)" />
-          <text x="435" y="135" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">Event 3:</text>
-          <text x="435" y="150" fontSize="10" fill="white" opacity="0.9" textAnchor="middle">PaymentMade</text>
-          <rect x="520" y="110" width="130" height="50" rx="6" fill="url(#eventGrad)" />
-          <text x="585" y="135" fontSize="11" fontWeight="600" fill="white" textAnchor="middle">Event 4:</text>
-          <text x="585" y="150" fontSize="10" fill="white" opacity="0.9" textAnchor="middle">OrderShipped</text>
-          <text x="680" y="140" fontSize="18" fontWeight="bold" fill="white" textAnchor="middle">→</text>
-          <line x1="400" y1="180" x2="400" y2="230" stroke="#6366f1" strokeWidth="3" markerEnd="url(#arrow6)" />
-          <text x="420" y="210" fontSize="12" fill="#6366f1" fontWeight="600">Replay Events</text>
-          <rect x="250" y="250" width="300" height="80" rx="10" fill="#e0e7ff" stroke="#6366f1" strokeWidth="2" />
-          <text x="400" y="280" fontSize="15" fontWeight="bold" fill="#6366f1" textAnchor="middle">Current State</text>
-          <text x="400" y="305" fontSize="12" fill="#6b7280" textAnchor="middle">Order: Shipped</text>
-          <text x="400" y="322" fontSize="12" fill="#6b7280" textAnchor="middle">Items: [Product A], Payment: Completed</text>
-          <rect x="600" y="250" width="150" height="80" rx="10" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2" />
-          <text x="675" y="280" fontSize="13" fontWeight="bold" fill="#f59e0b" textAnchor="middle">Snapshot</text>
-          <text x="675" y="302" fontSize="10" fill="#6b7280" textAnchor="middle">(Performance</text>
-          <text x="675" y="318" fontSize="10" fill="#6b7280" textAnchor="middle">Optimization)</text>
-          <text x="400" y="380" fontSize="12" fill="#6b7280" textAnchor="middle" fontStyle="italic">
-            Event Stream → Current State (Complete Audit Trail)
-          </text>
-        </svg>
-      ),
-      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Domain Events Definition
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Domain events - immutable facts
+Benefits: Full audit trail, time travel, debugging, what-if analysis.`,
+          codeExample: `// Domain events - immutable facts
 public class OrderCreatedEvent {
   private final String orderId;
   private final String customerId;
@@ -1552,7 +1382,6 @@ public class ItemAddedEvent {
   private final int quantity;
   private final BigDecimal price;
   private final LocalDateTime timestamp;
-
   // Constructor and getters only
 }
 
@@ -1560,41 +1389,31 @@ public class OrderShippedEvent {
   private final String orderId;
   private final String trackingNumber;
   private final LocalDateTime timestamp;
-
   // Constructor and getters only
-}
+}`
+        },
+        {
+          name: 'Event Store Implementation',
+          explanation: `The event store persists events with aggregate ID, type, data (JSON), timestamp, and version. Events are loaded and saved through a service that also publishes events for projections.
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Event Store Implementation
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Event store entity
+Storage Options:
+- Relational database (PostgreSQL, MySQL)
+- Event Store DB (specialized)
+- Kafka (with compaction disabled)
+- Custom implementations`,
+          codeExample: `// Event store entity
 @Entity
 @Table(name = "event_store")
 public class StoredEvent {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long sequence;
-
   private String aggregateId;
   private String eventType;
-
   @Lob
-  private String eventData; // JSON serialized event
-
+  private String eventData; // JSON serialized
   private LocalDateTime timestamp;
   private Long version;
-
-  // Getters and setters
-}
-
-// Event store repository
-@Repository
-public interface EventStoreRepository extends JpaRepository<StoredEvent, Long> {
-  List<StoredEvent> findByAggregateIdOrderByVersionAsc(String aggregateId);
-  List<StoredEvent> findByAggregateIdAndVersionGreaterThanOrderByVersionAsc(
-    String aggregateId, Long version
-  );
 }
 
 // Event store service
@@ -1603,26 +1422,20 @@ public class EventStore {
 
   @Autowired
   private EventStoreRepository repository;
-
   @Autowired
   private ObjectMapper objectMapper;
-
-  @Autowired
-  private ApplicationEventPublisher eventPublisher;
 
   @Transactional
   public void saveEvent(String aggregateId, Object event) {
     StoredEvent storedEvent = new StoredEvent();
     storedEvent.setAggregateId(aggregateId);
     storedEvent.setEventType(event.getClass().getSimpleName());
-    storedEvent.setEventData(serializeEvent(event));
+    storedEvent.setEventData(objectMapper.writeValueAsString(event));
     storedEvent.setTimestamp(LocalDateTime.now());
     storedEvent.setVersion(getNextVersion(aggregateId));
 
     repository.save(storedEvent);
-
-    // Publish event for projections
-    eventPublisher.publishEvent(event);
+    eventPublisher.publishEvent(event);  // For projections
   }
 
   public List<Object> getEvents(String aggregateId) {
@@ -1631,45 +1444,24 @@ public class EventStore {
       .map(this::deserializeEvent)
       .collect(Collectors.toList());
   }
+}`
+        },
+        {
+          name: 'Event-Sourced Aggregate',
+          explanation: `Aggregates rebuild their state by replaying events. The apply() method handles each event type, and command methods generate new events.
 
-  private String serializeEvent(Object event) {
-    try {
-      return objectMapper.writeValueAsString(event);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to serialize event", e);
-    }
-  }
-
-  private Object deserializeEvent(StoredEvent stored) {
-    try {
-      Class<?> eventClass = Class.forName("com.example.events." + stored.getEventType());
-      return objectMapper.readValue(stored.getEventData(), eventClass);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to deserialize event", e);
-    }
-  }
-
-  private Long getNextVersion(String aggregateId) {
-    return repository.findByAggregateIdOrderByVersionAsc(aggregateId)
-      .stream()
-      .mapToLong(StoredEvent::getVersion)
-      .max()
-      .orElse(0L) + 1;
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Event-Sourced Aggregate
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Aggregate root - state from events
+Aggregate Pattern:
+- Replay events to rebuild state
+- Apply events to change state
+- Generate events from commands
+- Track uncommitted events`,
+          codeExample: `// Aggregate root - state from events
 public class Order {
   private String id;
   private String customerId;
   private List<OrderItem> items = new ArrayList<>();
   private String status;
   private BigDecimal totalAmount = BigDecimal.ZERO;
-
   private List<Object> uncommittedEvents = new ArrayList<>();
 
   // Replay events to rebuild state
@@ -1689,117 +1481,33 @@ public class Order {
     } else if (event instanceof ItemAddedEvent) {
       ItemAddedEvent e = (ItemAddedEvent) event;
       this.items.add(new OrderItem(e.getProductId(), e.getQuantity(), e.getPrice()));
-      this.totalAmount = this.totalAmount.add(e.getPrice().multiply(
-        BigDecimal.valueOf(e.getQuantity())
-      ));
+      this.totalAmount = this.totalAmount.add(
+        e.getPrice().multiply(BigDecimal.valueOf(e.getQuantity())));
     } else if (event instanceof OrderShippedEvent) {
       this.status = "SHIPPED";
     }
   }
 
-  // Command methods that generate events
-  public void create(String customerId) {
-    OrderCreatedEvent event = new OrderCreatedEvent(
-      this.id,
-      customerId,
-      LocalDateTime.now()
-    );
-    apply(event);
-    uncommittedEvents.add(event);
-  }
-
+  // Command methods generate events
   public void addItem(String productId, int quantity, BigDecimal price) {
-    ItemAddedEvent event = new ItemAddedEvent(
-      this.id,
-      productId,
-      quantity,
-      price,
-      LocalDateTime.now()
-    );
+    ItemAddedEvent event = new ItemAddedEvent(this.id, productId, quantity, price, LocalDateTime.now());
     apply(event);
     uncommittedEvents.add(event);
   }
+}`
+        },
+        {
+          name: 'Snapshots for Performance',
+          explanation: `Snapshots capture aggregate state periodically to avoid replaying all events. Load from snapshot, then replay only events after the snapshot version.
 
-  public List<Object> getUncommittedEvents() {
-    return uncommittedEvents;
-  }
-
-  public void markEventsAsCommitted() {
-    uncommittedEvents.clear();
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Aggregate Repository with Event Sourcing
-// ═══════════════════════════════════════════════════════════════════════════
-
-@Service
-public class OrderRepository {
-
-  @Autowired
-  private EventStore eventStore;
-
-  public Order findById(String orderId) {
-    List<Object> events = eventStore.getEvents(orderId);
-
-    if (events.isEmpty()) {
-      return null;
-    }
-
-    Order order = new Order();
-    order.replay(events);
-    return order;
-  }
-
-  @Transactional
-  public void save(Order order) {
-    List<Object> events = order.getUncommittedEvents();
-
-    for (Object event : events) {
-      eventStore.saveEvent(order.getId(), event);
-    }
-
-    order.markEventsAsCommitted();
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Snapshots for Performance
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Snapshot entity
-@Entity
-@Table(name = "snapshots")
-public class Snapshot {
-  @Id
-  private String aggregateId;
-
-  @Lob
-  private String state;
-
-  private Long version;
-  private LocalDateTime timestamp;
-
-  // Getters and setters
-}
-
-// Snapshot repository
-@Repository
-public interface SnapshotRepository extends JpaRepository<Snapshot, String> {
-}
-
-// Enhanced repository with snapshots
+Snapshot Strategies:
+- Every N events (e.g., 100)
+- Time-based (e.g., daily)
+- On-demand for hot aggregates
+- Background snapshot generation`,
+          codeExample: `// Enhanced repository with snapshots
 @Service
 public class OptimizedOrderRepository {
-
-  @Autowired
-  private EventStore eventStore;
-
-  @Autowired
-  private SnapshotRepository snapshotRepository;
-
-  @Autowired
-  private ObjectMapper objectMapper;
 
   private static final int SNAPSHOT_FREQUENCY = 100;
 
@@ -1842,110 +1550,36 @@ public class OptimizedOrderRepository {
   private void createSnapshot(Order order, Long version) {
     Snapshot snapshot = new Snapshot();
     snapshot.setAggregateId(order.getId());
-    snapshot.setState(serializeOrder(order));
+    snapshot.setState(objectMapper.writeValueAsString(order));
     snapshot.setVersion(version);
-    snapshot.setTimestamp(LocalDateTime.now());
-
     snapshotRepository.save(snapshot);
-    System.out.println("Snapshot created at version: " + version);
-  }
-
-  private String serializeOrder(Order order) {
-    try {
-      return objectMapper.writeValueAsString(order);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to serialize snapshot", e);
-    }
-  }
-
-  private Order deserializeSnapshot(Snapshot snapshot) {
-    try {
-      return objectMapper.readValue(snapshot.getState(), Order.class);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to deserialize snapshot", e);
-    }
   }
 }
-// Output: Snapshots reduce event replay time for long event streams`
+// Output: Snapshots reduce event replay time`
+        }
+      ]
     },
     {
+      id: 'sidecar',
       name: 'Sidecar Pattern',
       icon: '🛸',
-      explanation: `Deploys a helper component alongside the main application in the same host/pod to provide supporting features. The sidecar runs in a separate process but shares resources with the main application. Decouples cross-cutting concerns from application code, enabling polyglot microservices. Foundation for service mesh architectures.
+      color: '#06b6d4',
+      description: 'Deploys a helper component alongside the main application to provide cross-cutting concerns. Foundation for service mesh architectures.',
+      diagram: SidecarDiagram,
+      details: [
+        {
+          name: 'Kubernetes Sidecar',
+          explanation: `Sidecar pattern deploys helper components alongside the main application in the same pod. The sidecar shares resources with the main app and handles cross-cutting concerns.
 
-Common Use Cases:
-• Service mesh proxies (Envoy, Linkerd)
-• Logging and monitoring agents
-• Configuration watchers and reloaders
-• Security enforcers and authentication
-• Circuit breakers and retry logic
-• Protocol translation and TLS termination
-• Service discovery clients
+Use Cases:
+- Service mesh proxies (Envoy)
+- Logging agents (Fluentd, Filebeat)
+- Metrics collectors (Prometheus)
+- Security (mTLS, authentication)
+- Config watchers
 
-Benefits:
-• Technology agnostic (works with any language)
-• Reusable across all services
-• Independent versioning and updates
-• Reduces application complexity
-• Centralized configuration
-• Consistent behavior across services
-
-Deployment: Kubernetes sidecar containers, Docker Compose multi-container, same lifecycle management.`,
-      diagram: () => (
-        <svg viewBox="0 0 700 450" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '2rem auto', display: 'block' }}>
-          <defs>
-            <linearGradient id="podGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#e0e7ff', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#c7d2fe', stopOpacity: 1 }} />
-            </linearGradient>
-            <linearGradient id="mainAppGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#4f46e5', stopOpacity: 1 }} />
-            </linearGradient>
-            <linearGradient id="sidecarAppGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#818cf8', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#6366f1', stopOpacity: 1 }} />
-            </linearGradient>
-            <marker id="arrow7" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <polygon points="0 0, 10 3, 0 6" fill="#6366f1" />
-            </marker>
-          </defs>
-          <text x="350" y="30" fontSize="18" fontWeight="bold" fill="#6366f1" textAnchor="middle">Sidecar Pattern - Kubernetes Pod</text>
-          <rect x="50" y="60" width="600" height="330" rx="15" fill="url(#podGrad)" stroke="#6366f1" strokeWidth="3" strokeDasharray="10,5" />
-          <text x="350" y="90" fontSize="14" fontWeight="600" fill="#6366f1" textAnchor="middle">Pod (Shared Resources & Network)</text>
-          <rect x="100" y="120" width="220" height="230" rx="12" fill="url(#mainAppGrad)" stroke="#4f46e5" strokeWidth="3" />
-          <text x="210" y="155" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">Main Application</text>
-          <text x="210" y="180" fontSize="12" fill="white" opacity="0.9" textAnchor="middle">Business Logic</text>
-          <rect x="120" y="200" width="180" height="40" rx="6" fill="#e0e7ff" stroke="#6366f1" strokeWidth="1.5" />
-          <text x="210" y="225" fontSize="11" fontWeight="600" fill="#6366f1" textAnchor="middle">Core Functionality</text>
-          <rect x="120" y="255" width="180" height="40" rx="6" fill="#e0e7ff" stroke="#6366f1" strokeWidth="1.5" />
-          <text x="210" y="280" fontSize="11" fontWeight="600" fill="#6366f1" textAnchor="middle">REST API</text>
-          <rect x="120" y="310" width="180" height="30" rx="6" fill="#e0e7ff" stroke="#6366f1" strokeWidth="1.5" />
-          <text x="210" y="330" fontSize="10" fontWeight="600" fill="#6366f1" textAnchor="middle">Port: 8080</text>
-          <rect x="380" y="120" width="220" height="230" rx="12" fill="url(#sidecarAppGrad)" stroke="#6366f1" strokeWidth="3" />
-          <text x="490" y="155" fontSize="16" fontWeight="bold" fill="white" textAnchor="middle">Sidecar Container</text>
-          <text x="490" y="180" fontSize="12" fill="white" opacity="0.9" textAnchor="middle">Cross-Cutting Concerns</text>
-          <rect x="400" y="200" width="180" height="30" rx="6" fill="#ddd6fe" stroke="#6366f1" strokeWidth="1.5" />
-          <text x="490" y="220" fontSize="10" fontWeight="600" fill="#4f46e5" textAnchor="middle">Logging Agent</text>
-          <rect x="400" y="240" width="180" height="30" rx="6" fill="#ddd6fe" stroke="#6366f1" strokeWidth="1.5" />
-          <text x="490" y="260" fontSize="10" fontWeight="600" fill="#4f46e5" textAnchor="middle">Metrics Collector</text>
-          <rect x="400" y="280" width="180" height="30" rx="6" fill="#ddd6fe" stroke="#6366f1" strokeWidth="1.5" />
-          <text x="490" y="300" fontSize="10" fontWeight="600" fill="#4f46e5" textAnchor="middle">Service Mesh Proxy</text>
-          <rect x="400" y="320" width="180" height="20" rx="4" fill="#ddd6fe" stroke="#6366f1" strokeWidth="1.5" />
-          <text x="490" y="334" fontSize="9" fontWeight="600" fill="#4f46e5" textAnchor="middle">Config Watcher</text>
-          <line x1="320" y1="250" x2="380" y2="250" stroke="#6366f1" strokeWidth="2" strokeDasharray="5,5" markerEnd="url(#arrow7)" />
-          <text x="350" y="240" fontSize="10" fill="#6366f1" fontWeight="600">Shared</text>
-          <text x="350" y="253" fontSize="10" fill="#6366f1" fontWeight="600">Volume</text>
-          <text x="350" y="420" fontSize="12" fill="#6b7280" textAnchor="middle" fontStyle="italic">
-            Main App + Sidecar sharing same Pod resources
-          </text>
-        </svg>
-      ),
-      codeExample: `// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Kubernetes Sidecar Container Configuration
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Kubernetes Deployment with Sidecar
+Benefits: Language agnostic, independent lifecycle, separation of concerns.`,
+          codeExample: `// Kubernetes Deployment with Sidecar
 /*
 apiVersion: apps/v1
 kind: Deployment
@@ -1954,9 +1588,6 @@ metadata:
 spec:
   replicas: 3
   template:
-    metadata:
-      labels:
-        app: order-service
     spec:
       containers:
       # Main application container
@@ -1983,23 +1614,24 @@ spec:
         image: envoyproxy/envoy:latest
         ports:
         - containerPort: 9901
-        volumeMounts:
-        - name: envoy-config
-          mountPath: /etc/envoy
 
       volumes:
       - name: shared-logs
         emptyDir: {}
-      - name: envoy-config
-        configMap:
-          name: envoy-config
-*/
+*/`
+        },
+        {
+          name: 'Main App Communication',
+          explanation: `The main application is unaware of the sidecar's existence. It makes local calls that the sidecar intercepts and handles transparently.
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Main Application with Sidecar Communication
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Main application - unaware of sidecar
+Sidecar Responsibilities:
+- Request logging and tracing
+- Metrics collection
+- Authentication/authorization
+- Retries and circuit breaking
+- Load balancing
+- TLS encryption`,
+          codeExample: `// Main application - unaware of sidecar
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
@@ -2017,16 +1649,6 @@ public class OrderController {
     // - Authentication (via service mesh)
     return orderService.getOrder(id);
   }
-
-  @PostMapping
-  public Order createOrder(@RequestBody CreateOrderRequest request) {
-    // Sidecar automatically:
-    // - Adds correlation ID
-    // - Enforces rate limits
-    // - Handles retries
-    // - Circuit breaking
-    return orderService.createOrder(request);
-  }
 }
 
 // Service calls go through sidecar proxy
@@ -2036,11 +1658,8 @@ public class OrderService {
   // Call other services via localhost sidecar
   private static final String INVENTORY_SERVICE = "http://localhost:15001/api/inventory";
 
-  @Autowired
-  private RestTemplate restTemplate;
-
   public Order createOrder(CreateOrderRequest request) {
-    // Sidecar intercepts this call and:
+    // Sidecar intercepts and:
     // 1. Resolves service discovery
     // 2. Load balances across instances
     // 3. Handles TLS encryption
@@ -2050,19 +1669,24 @@ public class OrderService {
       InventoryResponse.class
     );
 
-    // Create order logic
     Order order = new Order();
     order.setId(UUID.randomUUID().toString());
-    order.setProductId(request.getProductId());
     return order;
   }
-}
+}`
+        },
+        {
+          name: 'Envoy Proxy Configuration',
+          explanation: `Envoy is a popular sidecar proxy for service mesh. It handles routing, load balancing, health checks, and observability.
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Envoy Proxy Sidecar Configuration
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Envoy sidecar configuration (envoy.yaml)
+Envoy Features:
+- HTTP/gRPC routing
+- Automatic retries
+- Circuit breaking
+- Rate limiting
+- mTLS encryption
+- Distributed tracing`,
+          codeExample: `// Envoy sidecar configuration (envoy.yaml)
 /*
 static_resources:
   listeners:
@@ -2075,10 +1699,7 @@ static_resources:
     - filters:
       - name: envoy.filters.network.http_connection_manager
         typed_config:
-          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
-          stat_prefix: ingress_http
           route_config:
-            name: local_route
             virtual_hosts:
             - name: inventory_service
               domains: ["*"]
@@ -2087,8 +1708,6 @@ static_resources:
                   prefix: "/api/inventory"
                 route:
                   cluster: inventory_cluster
-          http_filters:
-          - name: envoy.filters.http.router
 
   clusters:
   - name: inventory_cluster
@@ -2096,7 +1715,6 @@ static_resources:
     type: STRICT_DNS
     lb_policy: ROUND_ROBIN
     load_assignment:
-      cluster_name: inventory_cluster
       endpoints:
       - lb_endpoints:
         - endpoint:
@@ -2104,79 +1722,18 @@ static_resources:
               socket_address:
                 address: inventory-service.default.svc.cluster.local
                 port_value: 8080
-*/
+*/`
+        },
+        {
+          name: 'Config Watcher Sidecar',
+          explanation: `A config watcher sidecar monitors configuration files and triggers application reloads when changes are detected.
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Logging Sidecar Implementation
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Docker Compose with logging sidecar
-/*
-version: '3.8'
-
-services:
-  # Main application
-  order-service:
-    image: order-service:1.0
-    ports:
-      - "8080:8080"
-    volumes:
-      - shared-logs:/var/log/app
-    environment:
-      - LOG_PATH=/var/log/app/application.log
-
-  # Logging sidecar
-  fluentd:
-    image: fluentd:latest
-    volumes:
-      - shared-logs:/var/log/app
-      - ./fluentd.conf:/fluentd/etc/fluent.conf
-    depends_on:
-      - order-service
-    environment:
-      - ELASTICSEARCH_HOST=elasticsearch
-      - ELASTICSEARCH_PORT=9200
-
-volumes:
-  shared-logs:
-*/
-
-// Fluentd configuration (fluentd.conf)
-/*
-<source>
-  @type tail
-  path /var/log/app/*.log
-  pos_file /var/log/app/fluentd.pos
-  tag app.logs
-  <parse>
-    @type json
-    time_key timestamp
-    time_format %Y-%m-%dT%H:%M:%S.%L%z
-  </parse>
-</source>
-
-<filter app.logs>
-  @type record_transformer
-  <record>
-    service_name "order-service"
-    environment "production"
-  </record>
-</filter>
-
-<match app.logs>
-  @type elasticsearch
-  host \#{ENV['ELASTICSEARCH_HOST']}
-  port \#{ENV['ELASTICSEARCH_PORT']}
-  logstash_format true
-  logstash_prefix app-logs
-</match>
-*/
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ✦ Config Watcher Sidecar
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Config watcher sidecar - watches for config changes
+Use Cases:
+- Dynamic configuration updates
+- Secret rotation
+- Feature flag changes
+- Certificate renewal`,
+          codeExample: `// Config watcher sidecar
 public class ConfigWatcherSidecar {
 
   private static final String SHARED_CONFIG_PATH = "/etc/config/application.yml";
@@ -2186,11 +1743,7 @@ public class ConfigWatcherSidecar {
     WatchService watchService = FileSystems.getDefault().newWatchService();
     Path configDir = Paths.get("/etc/config");
 
-    configDir.register(
-      watchService,
-      StandardWatchEventKinds.ENTRY_MODIFY
-    );
-
+    configDir.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
     System.out.println("Config watcher sidecar started");
 
     while (true) {
@@ -2200,7 +1753,6 @@ public class ConfigWatcherSidecar {
         if (event.context().toString().equals("application.yml")) {
           System.out.println("Config file changed, reloading app...");
 
-          // Trigger app reload via HTTP
           HttpClient client = HttpClient.newHttpClient();
           HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(APP_RELOAD_URL))
@@ -2208,501 +1760,417 @@ public class ConfigWatcherSidecar {
             .build();
 
           HttpResponse<String> response = client.send(
-            request,
-            HttpResponse.BodyHandlers.ofString()
+            request, HttpResponse.BodyHandlers.ofString()
           );
-
           System.out.println("App reload response: " + response.statusCode());
         }
       }
-
       key.reset();
     }
   }
-}
-
-// Kubernetes ConfigMap mount for sidecar
-/*
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: app-config
-data:
-  application.yml: |
-    server:
-      port: 8080
-    app:
-      feature:
-        enabled: true
----
-apiVersion: apps/v1
-kind: Deployment
-spec:
-  template:
-    spec:
-      containers:
-      - name: order-service
-        volumeMounts:
-        - name: config
-          mountPath: /etc/config
-
-      - name: config-watcher
-        image: config-watcher:latest
-        volumeMounts:
-        - name: config
-          mountPath: /etc/config
-
-      volumes:
-      - name: config
-        configMap:
-          name: app-config
-*/`
+}`
+        }
+      ]
     }
   ]
 
-  // Use ref to access current selectedConcept in event handler
-  const selectedConceptRef = useRef(selectedConcept)
-  useEffect(() => {
-    selectedConceptRef.current = selectedConcept
-  }, [selectedConcept])
+  // =============================================================================
+  // NAVIGATION HANDLERS
+  // =============================================================================
 
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      const currentSelectedConcept = selectedConceptRef.current
+  const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 
-      // Handle Escape to go back
-      if (e.key === 'Escape') {
-        if (currentSelectedConcept) {
-          e.preventDefault()
-          e.stopImmediatePropagation()
-          setSelectedConcept(null)
-          return
-        }
-      }
+  const handlePreviousConcept = () => {
+    if (selectedConceptIndex > 0) {
+      setSelectedConceptIndex(selectedConceptIndex - 1)
+      setSelectedDetailIndex(0)
     }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
-
-  const handleConceptClick = (concept) => {
-    setSelectedConcept(concept)
   }
 
+  const handleNextConcept = () => {
+    if (selectedConceptIndex < concepts.length - 1) {
+      setSelectedConceptIndex(selectedConceptIndex + 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  // =============================================================================
+  // BREADCRUMB CONFIGURATION
+  // =============================================================================
+
+  const buildBreadcrumbStack = () => {
+    const stack = [
+      { name: 'Design', icon: '🎨', page: 'Design' },
+      { name: 'Microservice Patterns', icon: '🏗️', page: 'Microservice Patterns' }
+    ]
+    if (selectedConcept) {
+      stack.push({ name: selectedConcept.name, icon: selectedConcept.icon })
+    }
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index) => {
+    if (index === 0) {
+      onBack()
+    } else if (index === 1 && selectedConcept) {
+      setSelectedConceptIndex(null)
+    }
+  }
+
+  // =============================================================================
+  // KEYBOARD NAVIGATION
+  // =============================================================================
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        if (selectedConcept) {
+          setSelectedConceptIndex(null)
+        } else {
+          onBack()
+        }
+      } else if (e.key === 'ArrowLeft' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handlePreviousConcept()
+      } else if (e.key === 'ArrowRight' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handleNextConcept()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConceptIndex, onBack])
+
+  // =============================================================================
+  // STYLES
+  // =============================================================================
+
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f172a 0%, #312e81 50%, #0f172a 100%)',
+    padding: '2rem',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
+  }
+
+  const headerStyle = {
+    maxWidth: '1400px',
+    margin: '0 auto 2rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '1rem'
+  }
+
+  const titleStyle = {
+    fontSize: '2.5rem',
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #a78bfa, #8b5cf6)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    margin: 0
+  }
+
+  const backButtonStyle = {
+    padding: '0.75rem 1.5rem',
+    background: 'rgba(139, 92, 246, 0.2)',
+    border: '1px solid rgba(139, 92, 246, 0.3)',
+    borderRadius: '0.5rem',
+    color: '#a78bfa',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    transition: 'all 0.2s'
+  }
+
+  // =============================================================================
+  // RENDER
+  // =============================================================================
 
   return (
-    <div
-      ref={modalRef}
-      onClick={(e) => e.stopPropagation()}
-      style={{
-        padding: '2rem',
-        maxWidth: '1600px',
-        margin: '0 auto',
-        minHeight: '100vh',
-        background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
-        color: 'white',
-        borderRadius: '16px',
-        boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.15)',
-        border: '3px solid rgba(147, 51, 234, 0.4)'
-      }}>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '2rem',
-        gap: '1rem',
-        flexWrap: 'wrap'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button
-            ref={firstFocusableRef}
-            onClick={onBack}
-            style={{
-              padding: '0.75rem 1.5rem',
-              fontSize: '1rem',
-              fontWeight: '600',
-              backgroundColor: '#2563eb',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(147, 51, 234, 0.3)'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7e22ce'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-          >
-            ← Back to Design
-          </button>
-          <div>
-            <h1 style={{
-              fontSize: '2.5rem',
-              fontWeight: '800',
-              color: 'white',
-              margin: 0,
-              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-            }}>
-              🏗️ Microservice Patterns
-            </h1>
-            {currentSubcategory && (
-              <span style={{
-                padding: '0.25rem 0.75rem',
-                fontSize: '0.85rem',
-                fontWeight: '600',
-                backgroundColor: '#374151',
-                color: '#9ca3af',
-                borderRadius: '6px',
-                marginTop: '0.25rem',
-                display: 'inline-block'
-              }}>
-                {currentSubcategory}
-              </span>
-            )}
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-          {onPrevious && (
-            <button
-              onClick={onPrevious}
-              style={{
-                padding: '0.75rem 1.25rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: '#8b5cf6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
-            >
-              ← {previousName}
-            </button>
-          )}
-          {onNext && (
-            <button
-              onClick={onNext}
-              style={{
-                padding: '0.75rem 1.25rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: '#8b5cf6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8b5cf6'}
-            >
-              {nextName} →
-            </button>
-          )}
-        </div>
+    <div style={containerStyle}>
+      {/* Header */}
+      <div style={headerStyle}>
+        <h1 style={titleStyle}>Microservice Patterns</h1>
+        <button
+          style={backButtonStyle}
+          onClick={onBack}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = 'rgba(139, 92, 246, 0.3)'
+            e.currentTarget.style.transform = 'translateY(-2px)'
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'rgba(139, 92, 246, 0.2)'
+            e.currentTarget.style.transform = 'translateY(0)'
+          }}
+        >
+          ← Back to Design
+        </button>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      {/* Breadcrumb */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          colors={TOPIC_COLORS}
+        />
+      </div>
 
+      {/* Introduction */}
       <div style={{
-        backgroundColor: '#1f2937',
-        padding: '2.5rem 10rem',
-        borderRadius: '16px',
-        border: '3px solid #374151',
-        marginBottom: '2rem'
+        maxWidth: '1400px',
+        margin: '0 auto 2rem',
+        background: 'rgba(15, 23, 42, 0.8)',
+        borderRadius: '1rem',
+        padding: '1.5rem',
+        border: '1px solid rgba(139, 92, 246, 0.3)'
       }}>
         <p style={{
-          fontSize: '1.3rem',
-          color: '#9ca3af',
-          fontWeight: '500',
-          margin: 0,
+          color: '#94a3b8',
           lineHeight: '1.8',
-          textAlign: 'center'
+          margin: 0,
+          textAlign: 'center',
+          fontSize: '1.1rem'
         }}>
           Microservice patterns are proven architectural solutions for building distributed systems.
           These patterns address common challenges like service communication, data management, resilience, and deployment.
         </p>
       </div>
 
-
+      {/* Concept Cards Grid */}
       <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
         display: 'grid',
-        gridTemplateColumns: selectedConcept ? '350px 1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '2rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gap: '1.5rem'
       }}>
-        {!selectedConcept ? (
-          microservicePatterns.map((pattern, idx) => (
-            <div
-              key={idx}
-              onClick={() => handleConceptClick(pattern)}
-              style={{
-                backgroundColor: '#1f2937',
-                padding: '2rem',
-                borderRadius: '12px',
-                border: '2px solid #374151',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                height: '200px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#374151'
-                e.currentTarget.style.borderColor = '#6366f1'
-                e.currentTarget.style.transform = 'translateY(-4px)'
-                e.currentTarget.style.boxShadow = '0 8px 16px rgba(99, 102, 241, 0.2)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#1f2937'
-                e.currentTarget.style.borderColor = '#374151'
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
-            >
-              <div>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{pattern.icon}</div>
-                <h3 style={{
-                  fontSize: '1.3rem',
-                  fontWeight: '700',
-                  color: 'white',
-                  margin: '0 0 0.5rem 0'
-                }}>
-                  {pattern.name}
-                </h3>
-                <p style={{
-                  fontSize: '0.9rem',
-                  color: '#9ca3af',
-                  margin: 0,
-                  lineHeight: '1.5'
-                }}>
-                  {pattern.explanation.substring(0, 100)}...
-                </p>
-              </div>
-              <div style={{
-                fontSize: '0.85rem',
-                fontWeight: '600',
-                color: '#6366f1',
-                marginTop: '1rem'
-              }}>
-                Click to explore →
-              </div>
+        {concepts.map((concept, index) => (
+          <div
+            key={concept.id}
+            onClick={() => setSelectedConceptIndex(index)}
+            style={{
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              border: `1px solid ${concept.color}40`,
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = `0 20px 40px ${concept.color}20`
+              e.currentTarget.style.borderColor = concept.color
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.borderColor = `${concept.color}40`
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
+              <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
             </div>
-          ))
-        ) : (
-          <>
-            <div>
-              <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: 'white',
-                marginBottom: '1.5rem'
-              }}>
-                Microservice Patterns
-              </h3>
-              <div style={{ display: 'grid', gap: '1rem' }}>
-                {microservicePatterns.map((pattern, idx) => (
-                  <div
-                    key={idx}
-                    onClick={() => handleConceptClick(pattern)}
-                    style={{
-                      backgroundColor: selectedConcept?.name === pattern.name
-                        ? '#374151'
-                        : '#1f2937',
-                      padding: '1rem',
-                      borderRadius: '8px',
-                      border: selectedConcept?.name === pattern.name
-                        ? '3px solid #6366f1'
-                        : '2px solid #374151',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (selectedConcept?.name !== pattern.name) {
-                        e.currentTarget.style.backgroundColor = '#374151'
-                        e.currentTarget.style.borderColor = '#6366f1'
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (selectedConcept?.name !== pattern.name) {
-                        e.currentTarget.style.backgroundColor = '#1f2937'
-                        e.currentTarget.style.borderColor = '#374151'
-                      }
-                    }}
-                  >
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem'
-                    }}>
-                      <span style={{ fontSize: '1.5rem' }}>{pattern.icon}</span>
-                      <div style={{
-                        fontSize: '1rem',
-                        fontWeight: '700',
-                        color: selectedConcept?.name === pattern.name ? '#6366f1' : 'white'
-                      }}>
-                        {pattern.name}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
+            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+              {concept.details.length} topics - Click to explore
             </div>
+          </div>
+        ))}
+      </div>
 
-            <div>
-              <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: '#6366f1',
-                marginBottom: '1.5rem',
+      {/* Modal for Selected Concept */}
+      {selectedConcept && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '2rem'
+          }}
+          onClick={() => setSelectedConceptIndex(null)}
+        >
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              maxWidth: '1200px',
+              width: '100%',
+              maxHeight: '92vh',
+              overflow: 'auto',
+              border: `1px solid ${selectedConcept.color}40`
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Breadcrumb */}
+            <Breadcrumb
+              breadcrumbStack={buildBreadcrumbStack()}
+              onBreadcrumbClick={handleBreadcrumbClick}
+              colors={TOPIC_COLORS}
+            />
+
+            {/* Modal Header with Navigation */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1.5rem',
+              paddingBottom: '1rem',
+              borderBottom: '1px solid #334155'
+            }}>
+              <h2 style={{
+                color: selectedConcept.color,
+                margin: 0,
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.75rem'
+                gap: '0.5rem',
+                fontSize: '1.25rem'
               }}>
-                <span style={{ fontSize: '2rem' }}>{selectedConcept.icon}</span>
+                <span>{selectedConcept.icon}</span>
                 {selectedConcept.name}
-              </h3>
-
-              {selectedConcept.diagram && (
-                <div style={{
-                  backgroundColor: '#1f2937',
-                  padding: '2rem',
-                  borderRadius: '12px',
-                  border: '2px solid #374151',
-                  marginBottom: '1.5rem'
-                }}>
-                  {selectedConcept.diagram()}
-                </div>
-              )}
-
-              <div style={{
-                backgroundColor: '#1f2937',
-                padding: '1.5rem',
-                borderRadius: '12px',
-                border: '2px solid #374151',
-                marginBottom: '1.5rem'
-              }}>
-                <p style={{
-                  fontSize: '1rem',
-                  color: '#9ca3af',
-                  fontWeight: '500',
-                  margin: 0,
-                  lineHeight: '1.7',
-                  whiteSpace: 'pre-line',
-                  textAlign: 'justify'
-                }}>
-                  {selectedConcept.explanation}
-                </p>
-              </div>
-
-              <div>
-                <h4 style={{
-                  fontSize: '1.1rem',
-                  fontWeight: '700',
-                  color: 'white',
-                  margin: '0 0 1rem 0'
-                }}>
-                  💻 Code Examples
-                </h4>
-                {(() => {
-                  const sections = parseCodeSections(selectedConcept.codeExample)
-                  if (sections.length === 0) {
-                    return (
-                      <div style={{
-                        backgroundColor: '#1e293b',
-                        padding: '1.5rem',
-                        borderRadius: '12px',
-                        border: '2px solid #334155'
-                      }}>
-                        <SyntaxHighlighter code={selectedConcept.codeExample} />
-                      </div>
-                    )
-                  }
-                  return (
-                    <div style={{ display: 'grid', gap: '1rem' }}>
-                      {sections.map((section, index) => {
-                        const sectionKey = `${selectedConcept.name}-${index}`
-                        const isExpanded = expandedSections[sectionKey]
-                        return (
-                          <div
-                            key={index}
-                            style={{
-                              backgroundColor: '#1f2937',
-                              borderRadius: '12px',
-                              border: '2px solid #374151',
-                              overflow: 'hidden'
-                            }}
-                          >
-                            <button
-                              onClick={() => toggleSection(sectionKey)}
-                              style={{
-                                width: '100%',
-                                padding: '1.25rem',
-                                backgroundColor: isExpanded ? '#374151' : '#1f2937',
-                                border: 'none',
-                                borderBottom: isExpanded ? '2px solid #374151' : 'none',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                transition: 'all 0.2s ease',
-                                textAlign: 'left'
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = '#374151'
-                              }}
-                              onMouseLeave={(e) => {
-                                if (!isExpanded) {
-                                  e.currentTarget.style.backgroundColor = '#1f2937'
-                                }
-                              }}
-                            >
-                              <span style={{
-                                fontSize: '1.05rem',
-                                fontWeight: '700',
-                                color: 'white'
-                              }}>
-                                {section.title}
-                              </span>
-                              <span style={{
-                                fontSize: '1.5rem',
-                                color: '#6366f1',
-                                transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                                transition: 'transform 0.2s ease'
-                              }}>
-                                ▼
-                              </span>
-                            </button>
-                            {isExpanded && (
-                              <div style={{
-                                backgroundColor: '#1e293b',
-                                padding: '1.5rem'
-                              }}>
-                                <SyntaxHighlighter code={section.code} />
-                              </div>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )
-                })()}
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button
+                  onClick={handlePreviousConcept}
+                  disabled={selectedConceptIndex === 0}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >←</button>
+                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>
+                  {selectedConceptIndex + 1}/{concepts.length}
+                </span>
+                <button
+                  onClick={handleNextConcept}
+                  disabled={selectedConceptIndex === concepts.length - 1}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >→</button>
+                <button
+                  onClick={() => setSelectedConceptIndex(null)}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: '#f87171',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    marginLeft: '0.5rem'
+                  }}
+                >✕</button>
               </div>
             </div>
-          </>
-        )}
-      </div>
+
+            {/* Subtopic Tabs */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {selectedConcept.details.map((detail, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedDetailIndex(i)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)',
+                    border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`,
+                    borderRadius: '0.5rem',
+                    color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: selectedDetailIndex === i ? '600' : '400',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {detail.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Selected Subtopic Content */}
+            {(() => {
+              const detail = selectedConcept.details[selectedDetailIndex]
+              const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = selectedConcept.diagram
+              return (
+                <div>
+                  {/* Diagram */}
+                  {DiagramComponent && (
+                    <div style={{
+                      background: 'rgba(15, 23, 42, 0.6)',
+                      borderRadius: '0.75rem',
+                      padding: '1rem',
+                      marginBottom: '1.5rem',
+                      border: '1px solid #334155'
+                    }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
+
+                  {/* Detail Name */}
+                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>
+                    {detail.name}
+                  </h3>
+
+                  {/* Explanation */}
+                  <div style={{
+                    color: '#e2e8f0',
+                    lineHeight: '1.8',
+                    marginBottom: '1rem',
+                    background: colorScheme.bg,
+                    border: `1px solid ${colorScheme.border}`,
+                    borderRadius: '0.5rem',
+                    padding: '1rem',
+                    textAlign: 'left',
+                    whiteSpace: 'pre-line'
+                  }}>
+                    {detail.explanation}
+                  </div>
+
+                  {/* Code Example */}
+                  {detail.codeExample && (
+                    <SyntaxHighlighter
+                      language="java"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        padding: '1rem',
+                        margin: 0,
+                        borderRadius: '0.5rem',
+                        fontSize: '0.8rem',
+                        border: '1px solid #334155',
+                        background: '#0f172a'
+                      }}
+                      codeTagProps={{ style: { background: 'transparent' } }}
+                    >
+                      {detail.codeExample}
+                    </SyntaxHighlighter>
+                  )}
+                </div>
+              )
+            })()}
+
+          </div>
+        </div>
+      )}
     </div>
   )
 }

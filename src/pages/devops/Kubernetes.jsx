@@ -1,295 +1,484 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 
-// Simple syntax highlighter for YAML and kubectl commands
-const SyntaxHighlighter = ({ code }) => {
-  const highlightCode = (code) => {
-    let highlighted = code
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-
-    const protectedContent = []
-    let placeholder = 0
-
-    // Protect comments
-    highlighted = highlighted.replace(/(#.*$|\/\/.*$|\/\*[\s\S]*?\*\/)/gm, (match) => {
-      const id = `___COMMENT_${placeholder++}___`
-      protectedContent.push({ id, replacement: `<span style="color: #6a9955; font-style: italic;">${match}</span>` })
-      return id
-    })
-
-    // Protect strings
-    highlighted = highlighted.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
-      const id = `___STRING_${placeholder++}___`
-      protectedContent.push({ id, replacement: `<span style="color: #ce9178;">${match}</span>` })
-      return id
-    })
-
-    // YAML/Kubernetes keywords
-    highlighted = highlighted
-      .replace(/\b(apiVersion|kind|metadata|spec|status|name|namespace|labels|annotations|selector|replicas|template|containers|image|ports|containerPort|env|volumeMounts|volumes|resources|limits|requests|strategy|type|matchLabels|data|stringData|rules|subjects|roleRef|verbs|apiGroups)\b/g, '<span style="color: #c586c0;">$1</span>')
-      .replace(/\b(kubectl|get|create|apply|delete|describe|logs|exec|port-forward|rollout|scale|expose|run|top|drain|cordon|uncordon|taint)\b/g, '<span style="color: #569cd6;">$1</span>')
-      .replace(/\b(Pod|Deployment|Service|ConfigMap|Secret|Ingress|PersistentVolume|PersistentVolumeClaim|StatefulSet|DaemonSet|Job|CronJob|Namespace|Node|ReplicaSet|HorizontalPodAutoscaler|NetworkPolicy|Role|ClusterRole|RoleBinding|ClusterRoleBinding|ServiceAccount)\b/g, '<span style="color: #4ec9b0;">$1</span>')
-      .replace(/\b(\d+\.?\d*)\b/g, '<span style="color: #b5cea8;">$1</span>')
-      .replace(/(\$\w+|\$\{[^}]+\})/g, '<span style="color: #4ec9b0;">$1</span>')
-      .replace(/(--[\w-]+)/g, '<span style="color: #dcdcaa;">$1</span>')
-      .replace(/^(\s*-\s)/gm, '<span style="color: #569cd6;">$1</span>')
-
-    protectedContent.forEach(({ id, replacement }) => {
-      highlighted = highlighted.replace(id, replacement)
-    })
-
-    return highlighted
-  }
-
-  return (
-    <pre style={{
-      margin: 0,
-      fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
-      fontSize: '0.85rem',
-      lineHeight: '1.6',
-      color: '#d4d4d4',
-      whiteSpace: 'pre',
-      overflowX: 'auto',
-      textAlign: 'left',
-      padding: 0
-    }}>
-      <code dangerouslySetInnerHTML={{ __html: highlightCode(code) }} />
-    </pre>
-  )
+// Kubernetes themed colors (K8s blue)
+const K8S_COLORS = {
+  primary: '#326ce5',
+  primaryHover: '#5b8def',
+  bg: 'rgba(50, 108, 229, 0.1)',
+  border: 'rgba(50, 108, 229, 0.3)',
+  arrow: '#326ce5',
+  hoverBg: 'rgba(50, 108, 229, 0.2)',
+  topicBg: 'rgba(50, 108, 229, 0.2)'
 }
 
-function Kubernetes({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
-  const [selectedTopic, setSelectedTopic] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
+// Background colors for subtopic descriptions
+const SUBTOPIC_COLORS = [
+  { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },
+  { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' },
+  { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' },
+  { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)' },
+  { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)' },
+  { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },
+]
 
-  const toggleSection = (sectionId) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [sectionId]: !prev[sectionId]
-    }))
-  }
+// Diagram Components for Kubernetes Topics
+const K8sBasicsDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="k8sGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2"/>
+        <stop offset="100%" stopColor="#1e40af" stopOpacity="0.1"/>
+      </linearGradient>
+    </defs>
+    <rect x="5" y="5" width="690" height="150" rx="10" fill="url(#k8sGrad)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="350" y="25" textAnchor="middle" fill="#60a5fa" fontSize="14" fontWeight="bold">Kubernetes Architecture</text>
+    <rect x="20" y="35" width="200" height="110" rx="6" fill="#1e3a5f" stroke="#10b981" strokeWidth="2"/>
+    <text x="120" y="52" textAnchor="middle" fill="#34d399" fontSize="11" fontWeight="bold">Control Plane</text>
+    <rect x="30" y="60" width="85" height="25" rx="3" fill="#374151" stroke="#3b82f6" strokeWidth="1"/>
+    <text x="72" y="76" textAnchor="middle" fill="#60a5fa" fontSize="8">API Server</text>
+    <rect x="125" y="60" width="85" height="25" rx="3" fill="#374151" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="167" y="76" textAnchor="middle" fill="#fbbf24" fontSize="8">etcd</text>
+    <rect x="30" y="90" width="85" height="25" rx="3" fill="#374151" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="72" y="106" textAnchor="middle" fill="#a78bfa" fontSize="8">Scheduler</text>
+    <rect x="125" y="90" width="85" height="25" rx="3" fill="#374151" stroke="#ec4899" strokeWidth="1"/>
+    <text x="167" y="106" textAnchor="middle" fill="#f472b6" fontSize="8">Controller Mgr</text>
+    <rect x="30" y="120" width="180" height="20" rx="3" fill="#374151"/>
+    <text x="120" y="134" textAnchor="middle" fill="#94a3b8" fontSize="7">Cloud Controller Manager</text>
+    <path d="M220 90 L250 90" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowK8s)"/>
+    <rect x="250" y="35" width="200" height="110" rx="6" fill="#1e3a5f" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="350" y="52" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">Worker Node 1</text>
+    <rect x="260" y="60" width="85" height="25" rx="3" fill="#374151" stroke="#3b82f6" strokeWidth="1"/>
+    <text x="302" y="76" textAnchor="middle" fill="#60a5fa" fontSize="8">kubelet</text>
+    <rect x="355" y="60" width="85" height="25" rx="3" fill="#374151" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="397" y="76" textAnchor="middle" fill="#a78bfa" fontSize="8">kube-proxy</text>
+    <rect x="260" y="90" width="180" height="50" rx="3" fill="#374151" stroke="#ef4444" strokeWidth="1"/>
+    <text x="350" y="108" textAnchor="middle" fill="#f87171" fontSize="9">Container Runtime</text>
+    <text x="350" y="125" textAnchor="middle" fill="#94a3b8" fontSize="7">containerd / CRI-O</text>
+    <rect x="470" y="35" width="210" height="110" rx="6" fill="#1e3a5f" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="575" y="52" textAnchor="middle" fill="#a78bfa" fontSize="11" fontWeight="bold">Worker Node 2</text>
+    <rect x="480" y="60" width="90" height="35" rx="3" fill="#374151" stroke="#10b981" strokeWidth="1"/>
+    <text x="525" y="75" textAnchor="middle" fill="#34d399" fontSize="8">Pod</text>
+    <text x="525" y="88" textAnchor="middle" fill="#6b7280" fontSize="6">nginx</text>
+    <rect x="580" y="60" width="90" height="35" rx="3" fill="#374151" stroke="#10b981" strokeWidth="1"/>
+    <text x="625" y="75" textAnchor="middle" fill="#34d399" fontSize="8">Pod</text>
+    <text x="625" y="88" textAnchor="middle" fill="#6b7280" fontSize="6">api</text>
+    <rect x="480" y="100" width="190" height="40" rx="3" fill="#374151"/>
+    <text x="575" y="118" textAnchor="middle" fill="#94a3b8" fontSize="8">Container Runtime + kubelet</text>
+    <text x="575" y="132" textAnchor="middle" fill="#6b7280" fontSize="7">kube-proxy for networking</text>
+    <defs>
+      <marker id="arrowK8s" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#10b981"/></marker>
+    </defs>
+  </svg>
+)
 
-  // Parse code into sections
-  const parseCodeSections = (code) => {
-    const sections = []
-    const lines = code.split('\n')
-    let currentSection = null
-    let currentCode = []
+const PodDeploymentDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="podGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" stopOpacity="0.2"/>
+        <stop offset="100%" stopColor="#059669" stopOpacity="0.1"/>
+      </linearGradient>
+    </defs>
+    <rect x="5" y="5" width="690" height="150" rx="10" fill="url(#podGrad)" stroke="#10b981" strokeWidth="2"/>
+    <text x="350" y="25" textAnchor="middle" fill="#34d399" fontSize="14" fontWeight="bold">Deployment - ReplicaSet - Pods</text>
+    <rect x="20" y="40" width="120" height="70" rx="6" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="80" y="60" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Deployment</text>
+    <text x="80" y="78" textAnchor="middle" fill="#94a3b8" fontSize="8">replicas: 3</text>
+    <text x="80" y="93" textAnchor="middle" fill="#94a3b8" fontSize="8">strategy: Rolling</text>
+    <text x="80" y="105" textAnchor="middle" fill="#6b7280" fontSize="7">Declarative updates</text>
+    <path d="M140 75 L170 75" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrowPod)"/>
+    <rect x="170" y="40" width="120" height="70" rx="6" fill="#1e3a5f" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="230" y="60" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">ReplicaSet</text>
+    <text x="230" y="78" textAnchor="middle" fill="#94a3b8" fontSize="8">Maintains desired</text>
+    <text x="230" y="93" textAnchor="middle" fill="#94a3b8" fontSize="8">pod count</text>
+    <text x="230" y="105" textAnchor="middle" fill="#6b7280" fontSize="7">Self-healing</text>
+    <path d="M290 75 L320 75" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#arrowPod2)"/>
+    <rect x="320" y="35" width="200" height="115" rx="6" fill="#1e3a5f" stroke="#10b981" strokeWidth="2"/>
+    <text x="420" y="52" textAnchor="middle" fill="#34d399" fontSize="10" fontWeight="bold">Pods (3 replicas)</text>
+    <rect x="330" y="60" width="55" height="40" rx="3" fill="#374151" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="357" y="78" textAnchor="middle" fill="#a78bfa" fontSize="7">Pod 1</text>
+    <text x="357" y="92" textAnchor="middle" fill="#6b7280" fontSize="6">10.0.0.1</text>
+    <rect x="392" y="60" width="55" height="40" rx="3" fill="#374151" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="419" y="78" textAnchor="middle" fill="#a78bfa" fontSize="7">Pod 2</text>
+    <text x="419" y="92" textAnchor="middle" fill="#6b7280" fontSize="6">10.0.0.2</text>
+    <rect x="455" y="60" width="55" height="40" rx="3" fill="#374151" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="482" y="78" textAnchor="middle" fill="#a78bfa" fontSize="7">Pod 3</text>
+    <text x="482" y="92" textAnchor="middle" fill="#6b7280" fontSize="6">10.0.0.3</text>
+    <rect x="330" y="105" width="180" height="35" rx="3" fill="#374151"/>
+    <text x="420" y="120" textAnchor="middle" fill="#94a3b8" fontSize="7">Containers share network & storage</text>
+    <text x="420" y="133" textAnchor="middle" fill="#6b7280" fontSize="6">Smallest deployable unit</text>
+    <rect x="540" y="40" width="140" height="105" rx="6" fill="#1e3a5f" stroke="#ec4899" strokeWidth="2"/>
+    <text x="610" y="58" textAnchor="middle" fill="#f472b6" fontSize="9" fontWeight="bold">Rolling Update</text>
+    <text x="610" y="78" textAnchor="middle" fill="#94a3b8" fontSize="7">maxSurge: 25%</text>
+    <text x="610" y="93" textAnchor="middle" fill="#94a3b8" fontSize="7">maxUnavailable: 25%</text>
+    <text x="610" y="110" textAnchor="middle" fill="#6b7280" fontSize="7">Zero-downtime</text>
+    <text x="610" y="125" textAnchor="middle" fill="#6b7280" fontSize="7">deployments</text>
+    <text x="610" y="140" textAnchor="middle" fill="#34d399" fontSize="7">Rollback support</text>
+    <defs>
+      <marker id="arrowPod" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/></marker>
+      <marker id="arrowPod2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/></marker>
+    </defs>
+  </svg>
+)
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
-      // Check for section headers (lines with ═ and ✦)
-      if (line.includes('═══════') && lines[i + 1]?.includes('✦')) {
-        // Save previous section
-        if (currentSection) {
-          sections.push({
-            title: currentSection,
-            code: currentCode.join('\n')
-          })
-        }
-        // Start new section
-        const titleLine = lines[i + 1]
-        currentSection = titleLine.replace(/#\s*✦\s*/g, '').trim()
-        currentCode = []
-        continue
-      }
+const ServiceNetworkingDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="svcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.2"/>
+        <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.1"/>
+      </linearGradient>
+    </defs>
+    <rect x="5" y="5" width="690" height="150" rx="10" fill="url(#svcGrad)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="350" y="25" textAnchor="middle" fill="#a78bfa" fontSize="14" fontWeight="bold">Kubernetes Service Types</text>
+    <rect x="20" y="40" width="130" height="105" rx="6" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="85" y="58" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">ClusterIP</text>
+    <text x="85" y="75" textAnchor="middle" fill="#94a3b8" fontSize="8">Internal only</text>
+    <rect x="30" y="82" width="110" height="25" rx="3" fill="#374151"/>
+    <text x="85" y="98" textAnchor="middle" fill="#60a5fa" fontSize="7">10.96.0.1:80</text>
+    <text x="85" y="120" textAnchor="middle" fill="#94a3b8" fontSize="7">Service discovery</text>
+    <text x="85" y="135" textAnchor="middle" fill="#6b7280" fontSize="6">DNS: svc.ns.cluster</text>
+    <rect x="165" y="40" width="130" height="105" rx="6" fill="#1e3a5f" stroke="#10b981" strokeWidth="2"/>
+    <text x="230" y="58" textAnchor="middle" fill="#34d399" fontSize="10" fontWeight="bold">NodePort</text>
+    <text x="230" y="75" textAnchor="middle" fill="#94a3b8" fontSize="8">Node IP exposed</text>
+    <rect x="175" y="82" width="110" height="25" rx="3" fill="#374151"/>
+    <text x="230" y="98" textAnchor="middle" fill="#34d399" fontSize="7">NodeIP:30000-32767</text>
+    <text x="230" y="120" textAnchor="middle" fill="#94a3b8" fontSize="7">External access</text>
+    <text x="230" y="135" textAnchor="middle" fill="#6b7280" fontSize="6">Dev/testing</text>
+    <rect x="310" y="40" width="130" height="105" rx="6" fill="#1e3a5f" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="375" y="58" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">LoadBalancer</text>
+    <text x="375" y="75" textAnchor="middle" fill="#94a3b8" fontSize="8">Cloud LB</text>
+    <rect x="320" y="82" width="110" height="25" rx="3" fill="#374151"/>
+    <text x="375" y="98" textAnchor="middle" fill="#fbbf24" fontSize="7">External IP</text>
+    <text x="375" y="120" textAnchor="middle" fill="#94a3b8" fontSize="7">AWS ELB/ALB</text>
+    <text x="375" y="135" textAnchor="middle" fill="#6b7280" fontSize="6">GCP/Azure LB</text>
+    <rect x="455" y="40" width="115" height="105" rx="6" fill="#1e3a5f" stroke="#ec4899" strokeWidth="2"/>
+    <text x="512" y="58" textAnchor="middle" fill="#f472b6" fontSize="10" fontWeight="bold">Ingress</text>
+    <text x="512" y="75" textAnchor="middle" fill="#94a3b8" fontSize="8">L7 routing</text>
+    <rect x="465" y="82" width="95" height="25" rx="3" fill="#374151"/>
+    <text x="512" y="98" textAnchor="middle" fill="#f472b6" fontSize="7">Host/Path rules</text>
+    <text x="512" y="120" textAnchor="middle" fill="#94a3b8" fontSize="7">TLS termination</text>
+    <text x="512" y="135" textAnchor="middle" fill="#6b7280" fontSize="6">nginx/traefik</text>
+    <rect x="585" y="40" width="95" height="105" rx="6" fill="#1e3a5f" stroke="#ef4444" strokeWidth="2"/>
+    <text x="632" y="58" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">NetworkPolicy</text>
+    <text x="632" y="78" textAnchor="middle" fill="#94a3b8" fontSize="7">Ingress rules</text>
+    <text x="632" y="93" textAnchor="middle" fill="#94a3b8" fontSize="7">Egress rules</text>
+    <text x="632" y="110" textAnchor="middle" fill="#94a3b8" fontSize="7">Pod selectors</text>
+    <text x="632" y="127" textAnchor="middle" fill="#6b7280" fontSize="6">Namespace</text>
+    <text x="632" y="140" textAnchor="middle" fill="#6b7280" fontSize="6">isolation</text>
+  </svg>
+)
 
-      // Skip separator lines
-      if (line.includes('═══════')) {
-        continue
-      }
+const ConfigSecretsDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="cfgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.2"/>
+        <stop offset="100%" stopColor="#d97706" stopOpacity="0.1"/>
+      </linearGradient>
+    </defs>
+    <rect x="5" y="5" width="690" height="150" rx="10" fill="url(#cfgGrad)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="350" y="25" textAnchor="middle" fill="#fbbf24" fontSize="14" fontWeight="bold">ConfigMaps & Secrets</text>
+    <rect x="20" y="40" width="180" height="105" rx="6" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="110" y="58" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">ConfigMap</text>
+    <text x="110" y="75" textAnchor="middle" fill="#94a3b8" fontSize="8">Non-sensitive config</text>
+    <rect x="30" y="82" width="160" height="55" rx="3" fill="#374151"/>
+    <text x="110" y="98" textAnchor="middle" fill="#60a5fa" fontSize="7">APP_ENV=production</text>
+    <text x="110" y="112" textAnchor="middle" fill="#60a5fa" fontSize="7">LOG_LEVEL=info</text>
+    <text x="110" y="126" textAnchor="middle" fill="#6b7280" fontSize="6">Plain text storage</text>
+    <rect x="220" y="40" width="180" height="105" rx="6" fill="#1e3a5f" stroke="#ef4444" strokeWidth="2"/>
+    <text x="310" y="58" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">Secret</text>
+    <text x="310" y="75" textAnchor="middle" fill="#94a3b8" fontSize="8">Sensitive data</text>
+    <rect x="230" y="82" width="160" height="55" rx="3" fill="#374151"/>
+    <text x="310" y="98" textAnchor="middle" fill="#f87171" fontSize="7">DB_PASSWORD=***</text>
+    <text x="310" y="112" textAnchor="middle" fill="#f87171" fontSize="7">API_KEY=***</text>
+    <text x="310" y="126" textAnchor="middle" fill="#6b7280" fontSize="6">Base64 encoded</text>
+    <rect x="420" y="40" width="130" height="105" rx="6" fill="#1e3a5f" stroke="#10b981" strokeWidth="2"/>
+    <text x="485" y="58" textAnchor="middle" fill="#34d399" fontSize="10" fontWeight="bold">Mount Options</text>
+    <text x="485" y="80" textAnchor="middle" fill="#94a3b8" fontSize="8">Env variables</text>
+    <text x="485" y="95" textAnchor="middle" fill="#94a3b8" fontSize="8">Volume files</text>
+    <text x="485" y="110" textAnchor="middle" fill="#94a3b8" fontSize="8">Command args</text>
+    <text x="485" y="130" textAnchor="middle" fill="#6b7280" fontSize="7">Hot reload supported</text>
+    <rect x="565" y="40" width="120" height="105" rx="6" fill="#1e3a5f" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="625" y="58" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Best Practices</text>
+    <text x="625" y="78" textAnchor="middle" fill="#94a3b8" fontSize="7">External Secrets</text>
+    <text x="625" y="93" textAnchor="middle" fill="#94a3b8" fontSize="7">Vault integration</text>
+    <text x="625" y="108" textAnchor="middle" fill="#94a3b8" fontSize="7">RBAC for Secrets</text>
+    <text x="625" y="123" textAnchor="middle" fill="#94a3b8" fontSize="7">Encryption at rest</text>
+    <text x="625" y="138" textAnchor="middle" fill="#6b7280" fontSize="6">SOPS/Sealed</text>
+  </svg>
+)
 
-      // Add code to current section
-      if (currentSection) {
-        currentCode.push(line)
-      }
-    }
+const PersistentStorageDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="pvGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ec4899" stopOpacity="0.2"/>
+        <stop offset="100%" stopColor="#db2777" stopOpacity="0.1"/>
+      </linearGradient>
+    </defs>
+    <rect x="5" y="5" width="690" height="150" rx="10" fill="url(#pvGrad)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="350" y="25" textAnchor="middle" fill="#f472b6" fontSize="14" fontWeight="bold">Persistent Storage Flow</text>
+    <rect x="20" y="40" width="130" height="70" rx="6" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="85" y="58" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Pod</text>
+    <rect x="30" y="68" width="110" height="35" rx="3" fill="#374151"/>
+    <text x="85" y="85" textAnchor="middle" fill="#94a3b8" fontSize="8">volumeMounts:</text>
+    <text x="85" y="98" textAnchor="middle" fill="#6b7280" fontSize="7">/data/app</text>
+    <path d="M150 75 L180 75" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrowPV)"/>
+    <rect x="180" y="40" width="130" height="70" rx="6" fill="#1e3a5f" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="245" y="55" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">PVC</text>
+    <text x="245" y="70" textAnchor="middle" fill="#94a3b8" fontSize="7">PersistentVolumeClaim</text>
+    <rect x="190" y="78" width="110" height="25" rx="3" fill="#374151"/>
+    <text x="245" y="95" textAnchor="middle" fill="#fbbf24" fontSize="7">10Gi, RWO</text>
+    <path d="M310 75 L340 75" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#arrowPV2)"/>
+    <rect x="340" y="40" width="130" height="70" rx="6" fill="#1e3a5f" stroke="#10b981" strokeWidth="2"/>
+    <text x="405" y="55" textAnchor="middle" fill="#34d399" fontSize="9" fontWeight="bold">PV</text>
+    <text x="405" y="70" textAnchor="middle" fill="#94a3b8" fontSize="7">PersistentVolume</text>
+    <rect x="350" y="78" width="110" height="25" rx="3" fill="#374151"/>
+    <text x="405" y="95" textAnchor="middle" fill="#34d399" fontSize="7">10Gi, Bound</text>
+    <path d="M470 75 L500 75" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowPV3)"/>
+    <rect x="500" y="35" width="180" height="80" rx="6" fill="#1e3a5f" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="590" y="53" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Storage Backend</text>
+    <text x="590" y="73" textAnchor="middle" fill="#94a3b8" fontSize="7">AWS EBS / GCE PD / Azure</text>
+    <text x="590" y="88" textAnchor="middle" fill="#94a3b8" fontSize="7">NFS / Ceph / Local</text>
+    <text x="590" y="103" textAnchor="middle" fill="#6b7280" fontSize="6">CSI Drivers</text>
+    <rect x="20" y="120" width="130" height="30" rx="4" fill="#1e3a5f" stroke="#ef4444" strokeWidth="1"/>
+    <text x="85" y="139" textAnchor="middle" fill="#f87171" fontSize="8">StorageClass</text>
+    <rect x="180" y="120" width="130" height="30" rx="4" fill="#1e3a5f" stroke="#06b6d4" strokeWidth="1"/>
+    <text x="245" y="139" textAnchor="middle" fill="#22d3ee" fontSize="8">Dynamic Provisioning</text>
+    <rect x="340" y="120" width="130" height="30" rx="4" fill="#1e3a5f" stroke="#ec4899" strokeWidth="1"/>
+    <text x="405" y="139" textAnchor="middle" fill="#f472b6" fontSize="8">Access Modes</text>
+    <rect x="500" y="120" width="180" height="30" rx="4" fill="#1e3a5f" stroke="#fbbf24" strokeWidth="1"/>
+    <text x="590" y="139" textAnchor="middle" fill="#fbbf24" fontSize="8">RWO / RWX / ROX</text>
+    <defs>
+      <marker id="arrowPV" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#3b82f6"/></marker>
+      <marker id="arrowPV2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"/></marker>
+      <marker id="arrowPV3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#10b981"/></marker>
+    </defs>
+  </svg>
+)
 
-    // Add last section
-    if (currentSection && currentCode.length > 0) {
-      sections.push({
-        title: currentSection,
-        code: currentCode.join('\n')
-      })
-    }
+const AutoScalingDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="hpaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.2"/>
+        <stop offset="100%" stopColor="#0891b2" stopOpacity="0.1"/>
+      </linearGradient>
+    </defs>
+    <rect x="5" y="5" width="690" height="150" rx="10" fill="url(#hpaGrad)" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="350" y="25" textAnchor="middle" fill="#22d3ee" fontSize="14" fontWeight="bold">Kubernetes Auto-Scaling</text>
+    <rect x="20" y="40" width="150" height="105" rx="6" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="95" y="55" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">HPA</text>
+    <text x="95" y="68" textAnchor="middle" fill="#94a3b8" fontSize="7">Horizontal Pod Autoscaler</text>
+    <rect x="30" y="75" width="130" height="60" rx="3" fill="#374151"/>
+    <text x="95" y="90" textAnchor="middle" fill="#60a5fa" fontSize="7">CPU &gt; 80% scale up</text>
+    <text x="95" y="105" textAnchor="middle" fill="#60a5fa" fontSize="7">CPU &lt; 50% scale down</text>
+    <text x="95" y="120" textAnchor="middle" fill="#6b7280" fontSize="6">min: 2, max: 10</text>
+    <text x="95" y="132" textAnchor="middle" fill="#6b7280" fontSize="6">Custom metrics</text>
+    <rect x="190" y="40" width="150" height="105" rx="6" fill="#1e3a5f" stroke="#10b981" strokeWidth="2"/>
+    <text x="265" y="55" textAnchor="middle" fill="#34d399" fontSize="9" fontWeight="bold">VPA</text>
+    <text x="265" y="68" textAnchor="middle" fill="#94a3b8" fontSize="7">Vertical Pod Autoscaler</text>
+    <rect x="200" y="75" width="130" height="60" rx="3" fill="#374151"/>
+    <text x="265" y="90" textAnchor="middle" fill="#34d399" fontSize="7">Adjusts CPU/Memory</text>
+    <text x="265" y="105" textAnchor="middle" fill="#34d399" fontSize="7">requests & limits</text>
+    <text x="265" y="120" textAnchor="middle" fill="#6b7280" fontSize="6">Right-sizing pods</text>
+    <text x="265" y="132" textAnchor="middle" fill="#6b7280" fontSize="6">Cost optimization</text>
+    <rect x="360" y="40" width="150" height="105" rx="6" fill="#1e3a5f" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="435" y="55" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Cluster Autoscaler</text>
+    <text x="435" y="68" textAnchor="middle" fill="#94a3b8" fontSize="7">Node-level scaling</text>
+    <rect x="370" y="75" width="130" height="60" rx="3" fill="#374151"/>
+    <text x="435" y="90" textAnchor="middle" fill="#fbbf24" fontSize="7">Pending pods add nodes</text>
+    <text x="435" y="105" textAnchor="middle" fill="#fbbf24" fontSize="7">Idle nodes remove</text>
+    <text x="435" y="120" textAnchor="middle" fill="#6b7280" fontSize="6">Cloud provider</text>
+    <text x="435" y="132" textAnchor="middle" fill="#6b7280" fontSize="6">integration</text>
+    <rect x="530" y="40" width="150" height="105" rx="6" fill="#1e3a5f" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="605" y="55" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Resource Quotas</text>
+    <text x="605" y="68" textAnchor="middle" fill="#94a3b8" fontSize="7">Namespace limits</text>
+    <rect x="540" y="75" width="130" height="60" rx="3" fill="#374151"/>
+    <text x="605" y="90" textAnchor="middle" fill="#a78bfa" fontSize="7">requests.cpu: 10</text>
+    <text x="605" y="105" textAnchor="middle" fill="#a78bfa" fontSize="7">limits.memory: 20Gi</text>
+    <text x="605" y="120" textAnchor="middle" fill="#6b7280" fontSize="6">LimitRanges for</text>
+    <text x="605" y="132" textAnchor="middle" fill="#6b7280" fontSize="6">pod defaults</text>
+  </svg>
+)
 
-    return sections
-  }
+const HealthProbesDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="probeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ef4444" stopOpacity="0.2"/>
+        <stop offset="100%" stopColor="#dc2626" stopOpacity="0.1"/>
+      </linearGradient>
+    </defs>
+    <rect x="5" y="5" width="690" height="150" rx="10" fill="url(#probeGrad)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="350" y="25" textAnchor="middle" fill="#f87171" fontSize="14" fontWeight="bold">Kubernetes Health Probes</text>
+    <rect x="20" y="40" width="150" height="105" rx="6" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="95" y="58" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Liveness Probe</text>
+    <text x="95" y="78" textAnchor="middle" fill="#94a3b8" fontSize="8">Is container alive?</text>
+    <rect x="30" y="85" width="130" height="50" rx="3" fill="#374151"/>
+    <text x="95" y="102" textAnchor="middle" fill="#60a5fa" fontSize="7">Fail = Restart container</text>
+    <text x="95" y="117" textAnchor="middle" fill="#6b7280" fontSize="6">Detect deadlocks</text>
+    <text x="95" y="130" textAnchor="middle" fill="#6b7280" fontSize="6">Recover from crashes</text>
+    <rect x="190" y="40" width="150" height="105" rx="6" fill="#1e3a5f" stroke="#10b981" strokeWidth="2"/>
+    <text x="265" y="58" textAnchor="middle" fill="#34d399" fontSize="10" fontWeight="bold">Readiness Probe</text>
+    <text x="265" y="78" textAnchor="middle" fill="#94a3b8" fontSize="8">Ready for traffic?</text>
+    <rect x="200" y="85" width="130" height="50" rx="3" fill="#374151"/>
+    <text x="265" y="102" textAnchor="middle" fill="#34d399" fontSize="7">Fail = Remove from LB</text>
+    <text x="265" y="117" textAnchor="middle" fill="#6b7280" fontSize="6">Graceful startup</text>
+    <text x="265" y="130" textAnchor="middle" fill="#6b7280" fontSize="6">Dependency checks</text>
+    <rect x="360" y="40" width="150" height="105" rx="6" fill="#1e3a5f" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="435" y="58" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Startup Probe</text>
+    <text x="435" y="78" textAnchor="middle" fill="#94a3b8" fontSize="8">App started?</text>
+    <rect x="370" y="85" width="130" height="50" rx="3" fill="#374151"/>
+    <text x="435" y="102" textAnchor="middle" fill="#fbbf24" fontSize="7">Slow startup apps</text>
+    <text x="435" y="117" textAnchor="middle" fill="#6b7280" fontSize="6">Disables liveness</text>
+    <text x="435" y="130" textAnchor="middle" fill="#6b7280" fontSize="6">until ready</text>
+    <rect x="530" y="40" width="150" height="105" rx="6" fill="#1e3a5f" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="605" y="55" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Probe Types</text>
+    <text x="605" y="75" textAnchor="middle" fill="#94a3b8" fontSize="8">HTTP GET</text>
+    <text x="605" y="92" textAnchor="middle" fill="#94a3b8" fontSize="8">TCP Socket</text>
+    <text x="605" y="109" textAnchor="middle" fill="#94a3b8" fontSize="8">Exec command</text>
+    <text x="605" y="128" textAnchor="middle" fill="#6b7280" fontSize="7">initialDelaySeconds</text>
+    <text x="605" y="140" textAnchor="middle" fill="#6b7280" fontSize="7">periodSeconds</text>
+  </svg>
+)
 
-  const kubernetesTopics = [
+const ProductionBestPracticesDiagram = () => (
+  <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="prodGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#10b981" stopOpacity="0.2"/>
+        <stop offset="100%" stopColor="#059669" stopOpacity="0.1"/>
+      </linearGradient>
+    </defs>
+    <rect x="5" y="5" width="690" height="150" rx="10" fill="url(#prodGrad)" stroke="#10b981" strokeWidth="2"/>
+    <text x="350" y="25" textAnchor="middle" fill="#34d399" fontSize="14" fontWeight="bold">Production Best Practices</text>
+    <rect x="20" y="40" width="130" height="105" rx="6" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="85" y="58" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Security</text>
+    <text x="85" y="78" textAnchor="middle" fill="#94a3b8" fontSize="7">RBAC policies</text>
+    <text x="85" y="93" textAnchor="middle" fill="#94a3b8" fontSize="7">Network policies</text>
+    <text x="85" y="108" textAnchor="middle" fill="#94a3b8" fontSize="7">Pod security</text>
+    <text x="85" y="123" textAnchor="middle" fill="#94a3b8" fontSize="7">Image scanning</text>
+    <text x="85" y="138" textAnchor="middle" fill="#6b7280" fontSize="6">Non-root, readonly</text>
+    <rect x="165" y="40" width="130" height="105" rx="6" fill="#1e3a5f" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="230" y="58" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Reliability</text>
+    <text x="230" y="78" textAnchor="middle" fill="#94a3b8" fontSize="7">Pod Disruption</text>
+    <text x="230" y="93" textAnchor="middle" fill="#94a3b8" fontSize="7">Affinity rules</text>
+    <text x="230" y="108" textAnchor="middle" fill="#94a3b8" fontSize="7">Topology spread</text>
+    <text x="230" y="123" textAnchor="middle" fill="#94a3b8" fontSize="7">Multi-AZ deploy</text>
+    <text x="230" y="138" textAnchor="middle" fill="#6b7280" fontSize="6">HA configuration</text>
+    <rect x="310" y="40" width="130" height="105" rx="6" fill="#1e3a5f" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="375" y="58" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Observability</text>
+    <text x="375" y="78" textAnchor="middle" fill="#94a3b8" fontSize="7">Prometheus</text>
+    <text x="375" y="93" textAnchor="middle" fill="#94a3b8" fontSize="7">Grafana dashboards</text>
+    <text x="375" y="108" textAnchor="middle" fill="#94a3b8" fontSize="7">Centralized logs</text>
+    <text x="375" y="123" textAnchor="middle" fill="#94a3b8" fontSize="7">Distributed tracing</text>
+    <text x="375" y="138" textAnchor="middle" fill="#6b7280" fontSize="6">EFK/Loki/Jaeger</text>
+    <rect x="455" y="40" width="115" height="105" rx="6" fill="#1e3a5f" stroke="#ec4899" strokeWidth="2"/>
+    <text x="512" y="58" textAnchor="middle" fill="#f472b6" fontSize="9" fontWeight="bold">GitOps</text>
+    <text x="512" y="78" textAnchor="middle" fill="#94a3b8" fontSize="7">ArgoCD</text>
+    <text x="512" y="93" textAnchor="middle" fill="#94a3b8" fontSize="7">Flux</text>
+    <text x="512" y="108" textAnchor="middle" fill="#94a3b8" fontSize="7">Kustomize</text>
+    <text x="512" y="123" textAnchor="middle" fill="#94a3b8" fontSize="7">Helm charts</text>
+    <text x="512" y="138" textAnchor="middle" fill="#6b7280" fontSize="6">Declarative CD</text>
+    <rect x="585" y="40" width="95" height="105" rx="6" fill="#1e3a5f" stroke="#ef4444" strokeWidth="2"/>
+    <text x="632" y="58" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">Costs</text>
+    <text x="632" y="78" textAnchor="middle" fill="#94a3b8" fontSize="7">Right-sizing</text>
+    <text x="632" y="93" textAnchor="middle" fill="#94a3b8" fontSize="7">Spot instances</text>
+    <text x="632" y="108" textAnchor="middle" fill="#94a3b8" fontSize="7">Autoscaling</text>
+    <text x="632" y="123" textAnchor="middle" fill="#94a3b8" fontSize="7">Kubecost</text>
+    <text x="632" y="138" textAnchor="middle" fill="#6b7280" fontSize="6">FinOps</text>
+  </svg>
+)
+
+function Kubernetes({ onBack, onPrevious, onNext, previousName, nextName, breadcrumb }) {
+  const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
+  const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+
+  const concepts = [
     {
-      id: 1,
+      id: 'basics',
       name: 'Kubernetes Basics',
-      icon: '⚙️',
+      icon: '☸️',
       color: '#3b82f6',
-      description: 'Fundamental Kubernetes architecture and concepts',
-      content: {
-        explanation: 'Kubernetes is an open-source container orchestration platform that automates deployment, scaling, and management of containerized applications. It provides a declarative approach where you define the desired state, and Kubernetes continuously works to maintain that state across a cluster of machines.',
-        keyPoints: [
-          'Control Plane - Master components that manage cluster state (API Server, Scheduler, Controller Manager, etcd)',
-          'Nodes - Worker machines running containerized applications with kubelet and container runtime',
-          'Pods - Smallest deployable units containing one or more containers sharing network and storage',
-          'Namespaces - Virtual clusters for resource isolation and multi-tenancy',
-          'Declarative Configuration - Define desired state using YAML manifests',
-          'kubectl - Command-line tool for interacting with Kubernetes clusters',
-          'etcd - Distributed key-value store for cluster configuration and state',
-          'Controllers - Control loops that continuously reconcile actual state with desired state'
-        ],
-        codeExample: `# ═══════════════════════════════════════════════════════════
-# ✦ Kubernetes Architecture Overview
-# ═══════════════════════════════════════════════════════════
-# Kubernetes Architecture Components:
-# Control Plane:
-#   - kube-apiserver: REST API for cluster management
-#   - etcd: Cluster state storage
-#   - kube-scheduler: Assigns Pods to Nodes
-#   - kube-controller-manager: Runs controller processes
-#   - cloud-controller-manager: Cloud provider integrations
-#
-# Node Components:
-#   - kubelet: Agent ensuring containers run in Pods
-#   - kube-proxy: Network proxy for Service abstraction
-#   - Container Runtime: Docker, containerd, CRI-O
-
-# Install kubectl
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-kubectl version --client
-
-# Configure kubectl context
-kubectl config view
-kubectl config current-context
-kubectl config use-context my-cluster
-kubectl config set-context --current --namespace=my-namespace
-
-# ═══════════════════════════════════════════════════════════
-# ✦ Cluster Information and Resource Discovery
-# ═══════════════════════════════════════════════════════════
-# Basic cluster information
+      description: 'Control plane components: API Server, etcd, Scheduler, Controller Manager. Worker nodes run kubelet, kube-proxy, and container runtime (containerd/CRI-O). Namespaces enable multi-tenancy isolation.',
+      diagram: K8sBasicsDiagram,
+      details: [
+        {
+          name: 'Architecture Overview',
+          explanation: 'Kubernetes is an open-source container orchestration platform that automates deployment, scaling, and management of containerized applications. The Control Plane (master) manages cluster state through API Server, Scheduler, Controller Manager, and etcd. Worker Nodes run containerized applications with kubelet and container runtime.',
+          codeExample: `# View cluster information
 kubectl cluster-info
-kubectl get nodes
+
+# Get all nodes in the cluster
 kubectl get nodes -o wide
-kubectl describe node node-name
 
-# Component status
+# Describe a specific node
+kubectl describe node <node-name>
+
+# View cluster component status
 kubectl get componentstatuses
-kubectl get all --all-namespaces
 
-# Common kubectl commands
-kubectl get pods                           # List pods in current namespace
-kubectl get pods -n kube-system           # List pods in specific namespace
-kubectl get pods --all-namespaces         # List all pods
-kubectl get pods -o wide                  # Show more details
-kubectl get pods -w                       # Watch for changes
-kubectl get pods --show-labels            # Show labels
+# Check API server health
+kubectl get --raw='/healthz'
 
-# ═══════════════════════════════════════════════════════════
-# ✦ Resource Management and Operations
-# ═══════════════════════════════════════════════════════════
-# Describe resources (detailed info)
-kubectl describe pod pod-name
-kubectl describe node node-name
-kubectl describe service service-name
+# View all resources in cluster
+kubectl api-resources`
+        },
+        {
+          name: 'Control Plane Components',
+          explanation: 'API Server (kube-apiserver) is the REST API for cluster management. etcd stores all cluster state as a distributed key-value store. Scheduler assigns Pods to Nodes based on resource requirements. Controller Manager runs control loops that reconcile actual vs desired state. Cloud Controller Manager handles cloud provider integrations.',
+          codeExample: `# View control plane pods
+kubectl get pods -n kube-system
 
-# Create resources
-kubectl create namespace dev
-kubectl create deployment nginx --image=nginx:latest
-kubectl create service clusterip my-svc --tcp=80:80
+# Check API server logs
+kubectl logs -n kube-system kube-apiserver-<node>
 
-# Apply configurations (declarative)
-kubectl apply -f deployment.yaml
-kubectl apply -f ./configs/
-kubectl apply -k ./kustomize-dir
+# View scheduler configuration
+kubectl get configmap -n kube-system kube-scheduler
 
-# Delete resources
-kubectl delete pod pod-name
-kubectl delete deployment deployment-name
-kubectl delete -f deployment.yaml
-kubectl delete namespace dev
+# Check controller manager status
+kubectl get pods -n kube-system -l component=kube-controller-manager
 
-# ═══════════════════════════════════════════════════════════
-# ✦ Debugging and Troubleshooting
-# ═══════════════════════════════════════════════════════════
-# Logs and debugging
-kubectl logs pod-name
-kubectl logs pod-name -c container-name   # Multi-container pod
-kubectl logs -f pod-name                  # Follow logs
-kubectl logs --tail=100 pod-name          # Last 100 lines
-kubectl logs --since=1h pod-name          # Last hour
+# etcd cluster health (on control plane node)
+etcdctl endpoint health
 
-# Execute commands in containers
-kubectl exec pod-name -- ls /app
-kubectl exec -it pod-name -- bash
-kubectl exec -it pod-name -c container-name -- sh
+# View etcd members
+etcdctl member list`
+        },
+        {
+          name: 'Node Components',
+          explanation: 'Kubelet is the agent ensuring containers run in Pods on each node. Kube-proxy maintains network rules for Service abstraction. Container Runtime (containerd, CRI-O) actually runs containers. Nodes can be added/removed dynamically based on workload demands.',
+          codeExample: `# Check kubelet status (on node)
+systemctl status kubelet
 
-# Port forwarding (access pod locally)
-kubectl port-forward pod/pod-name 8080:80
-kubectl port-forward service/my-service 8080:80
+# View kubelet logs
+journalctl -u kubelet -f
 
-# Copy files
-kubectl cp pod-name:/path/to/file ./local-file
-kubectl cp ./local-file pod-name:/path/to/file
+# Check kube-proxy pods
+kubectl get pods -n kube-system -l k8s-app=kube-proxy
 
-# Resource usage
-kubectl top nodes
-kubectl top pods
-kubectl top pods --containers
+# View kube-proxy configuration
+kubectl get configmap kube-proxy -n kube-system -o yaml
 
-# ═══════════════════════════════════════════════════════════
-# ✦ Labels, Namespaces, and Output Formats
-# ═══════════════════════════════════════════════════════════
-# Labels and selectors
-kubectl get pods -l app=nginx
-kubectl get pods -l 'environment in (prod,staging)'
-kubectl label pods pod-name tier=backend
-kubectl label pods pod-name env-              # Remove label
+# Check container runtime (containerd)
+crictl info
+crictl ps
 
-# Namespaces
-kubectl get namespaces
-kubectl create namespace production
-kubectl delete namespace staging
+# Cordon node (prevent scheduling)
+kubectl cordon <node-name>
 
-# Working with multiple resources
-kubectl get pods,services,deployments
-kubectl get all
-kubectl delete all --all -n namespace-name
-
-# Output formats
-kubectl get pods -o json
-kubectl get pods -o yaml
-kubectl get pods -o wide
-kubectl get pods -o jsonpath='{.items[*].metadata.name}'
-
-# Quick reference
-kubectl api-resources                      # List all resource types
-kubectl explain pod                        # Documentation for resource
-kubectl explain pod.spec.containers        # Nested field docs`
-      }
-    },
-    {
-      id: 2,
-      name: 'Pods & Deployments',
-      icon: '📦',
-      color: '#10b981',
-      description: 'Pod lifecycle and Deployment strategies',
-      content: {
-        explanation: 'Pods are the fundamental unit in Kubernetes, encapsulating one or more containers with shared networking and storage. Deployments provide declarative updates for Pods and ReplicaSets, enabling rolling updates, rollbacks, and scaling with zero-downtime deployments.',
-        keyPoints: [
-          'Pod Lifecycle - Pending, Running, Succeeded, Failed, Unknown phases with init containers',
-          'ReplicaSets - Ensure specified number of pod replicas are running at all times',
-          'Deployments - Declarative updates for Pods with rolling update strategies',
-          'Rolling Updates - Gradually replace old pods with new ones for zero downtime',
-          'Rollbacks - Revert to previous deployment versions when issues occur',
-          'Labels and Selectors - Key-value pairs for grouping and selecting resources',
-          'Pod Templates - Specifications defining how pods should be created',
-          'Deployment Strategies - RollingUpdate (default) and Recreate strategies'
-        ],
-        codeExample: `# ═══════════════════════════════════════════════════════════
-# ✦ Pod Definitions and Configurations
-# ═══════════════════════════════════════════════════════════
-# Simple Pod manifest
+# Drain node for maintenance
+kubectl drain <node-name> --ignore-daemonsets`
+        },
+        {
+          name: 'Pods and Namespaces',
+          explanation: 'Pods are the smallest deployable units containing one or more containers sharing network and storage. Namespaces provide virtual clusters for resource isolation and multi-tenancy. Labels and annotations provide metadata for organizing and selecting resources.',
+          codeExample: `# Simple Pod manifest
 apiVersion: v1
 kind: Pod
 metadata:
@@ -297,757 +486,673 @@ metadata:
   namespace: default
   labels:
     app: nginx
-    tier: frontend
+    environment: dev
   annotations:
-    description: "Simple nginx web server"
+    description: "Demo nginx pod"
 spec:
   containers:
   - name: nginx
-    image: nginx:1.25-alpine
+    image: nginx:1.25
     ports:
     - containerPort: 80
-      name: http
-      protocol: TCP
-    env:
-    - name: ENVIRONMENT
-      value: "production"
-    resources:
-      requests:
-        memory: "64Mi"
-        cpu: "250m"
-      limits:
-        memory: "128Mi"
-        cpu: "500m"
-    livenessProbe:
-      httpGet:
-        path: /
-        port: 80
-      initialDelaySeconds: 30
-      periodSeconds: 10
-    readinessProbe:
-      httpGet:
-        path: /
-        port: 80
-      initialDelaySeconds: 5
-      periodSeconds: 5
 
-# Pod with multiple containers (sidecar pattern)
+---
+# Create namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: development
+  labels:
+    environment: dev
+
+# kubectl commands
+kubectl create namespace production
+kubectl get namespaces
+kubectl get pods -n development
+kubectl get pods --all-namespaces
+kubectl get pods -l app=nginx`
+        },
+        {
+          name: 'kubectl Basics',
+          explanation: 'kubectl is the CLI for interacting with Kubernetes clusters. Common commands: get (list resources), describe (detailed info), apply -f (create/update from YAML), delete (remove resources), logs (view container logs), exec (run commands in containers), port-forward (local access).',
+          codeExample: `# List resources
+kubectl get pods
+kubectl get pods -o wide
+kubectl get pods -o yaml
+kubectl get all -n default
+
+# Describe resources
+kubectl describe pod nginx-pod
+kubectl describe service my-service
+
+# Create/Update resources
+kubectl apply -f deployment.yaml
+kubectl apply -f ./manifests/
+
+# Delete resources
+kubectl delete pod nginx-pod
+kubectl delete -f deployment.yaml
+
+# View logs
+kubectl logs nginx-pod
+kubectl logs nginx-pod -c container-name
+kubectl logs -f nginx-pod --tail=100
+
+# Execute commands in container
+kubectl exec -it nginx-pod -- /bin/bash
+kubectl exec nginx-pod -- cat /etc/nginx/nginx.conf
+
+# Port forwarding
+kubectl port-forward pod/nginx-pod 8080:80
+kubectl port-forward service/my-service 8080:80
+
+# Copy files
+kubectl cp nginx-pod:/var/log/nginx/access.log ./access.log`
+        }
+      ]
+    },
+    {
+      id: 'pods-deployments',
+      name: 'Pods & Deployments',
+      icon: '📦',
+      color: '#10b981',
+      description: 'Deployment strategies: Rolling updates (maxSurge/maxUnavailable), ReplicaSets for pod scaling (min: 1, max: unlimited), and revision history for instant rollback. Zero-downtime deployments.',
+      diagram: PodDeploymentDiagram,
+      details: [
+        {
+          name: 'Pod Lifecycle',
+          explanation: 'Pods transition through phases: Pending (scheduled but not running), Running (at least one container running), Succeeded (all containers completed successfully), Failed (all containers terminated, at least one failed), Unknown (state cannot be determined). Init containers run before main containers for setup tasks.',
+          codeExample: `# Pod with init container
 apiVersion: v1
 kind: Pod
 metadata:
-  name: app-with-sidecar
+  name: myapp-pod
 spec:
+  initContainers:
+  - name: init-db-check
+    image: busybox:1.28
+    command: ['sh', '-c',
+      'until nslookup mydb; do echo waiting for db; sleep 2; done']
+  - name: init-download-config
+    image: busybox:1.28
+    command: ['wget', '-O', '/config/app.conf', 'http://config-server/app.conf']
+    volumeMounts:
+    - name: config-volume
+      mountPath: /config
   containers:
-  - name: app
-    image: my-app:1.0.0
-    ports:
-    - containerPort: 8080
+  - name: myapp
+    image: myapp:1.0
     volumeMounts:
-    - name: shared-logs
-      mountPath: /var/log/app
-  - name: log-shipper
-    image: fluentd:latest
-    volumeMounts:
-    - name: shared-logs
-      mountPath: /var/log/app
-      readOnly: true
+    - name: config-volume
+      mountPath: /etc/app
   volumes:
-  - name: shared-logs
+  - name: config-volume
     emptyDir: {}
 
-# ═══════════════════════════════════════════════════════════
-# ✦ Deployment Manifests and Strategies
-# ═══════════════════════════════════════════════════════════
-# Deployment manifest - Production ready
-apiVersion: apps/v1
+# Check pod phase
+kubectl get pod myapp-pod -o jsonpath='{.status.phase}'
+
+# Watch pod lifecycle
+kubectl get pods -w`
+        },
+        {
+          name: 'Deployments',
+          explanation: 'Deployments provide declarative updates for Pods and ReplicaSets. They enable rolling updates with zero downtime, automatic rollbacks, and scaling. Key fields: replicas (desired pod count), selector (pod matching), strategy (RollingUpdate or Recreate), template (pod specification).',
+          codeExample: `apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: web-app
-  namespace: production
+  name: nginx-deployment
   labels:
-    app: web-app
-    version: v1.0.0
+    app: nginx
 spec:
-  # Number of pod replicas
   replicas: 3
-
-  # Selector for pods managed by this deployment
   selector:
     matchLabels:
-      app: web-app
-
-  # Rolling update strategy
+      app: nginx
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 1        # Max pods above desired count
-      maxUnavailable: 0  # Max pods unavailable during update
-
-  # Minimum time for pod to be ready
-  minReadySeconds: 10
-
-  # Number of old ReplicaSets to retain
-  revisionHistoryLimit: 10
-
-  # Pod template
+      maxSurge: 25%
+      maxUnavailable: 25%
   template:
     metadata:
       labels:
-        app: web-app
-        version: v1.0.0
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8080"
+        app: nginx
     spec:
-      # Service account for RBAC
-      serviceAccountName: web-app-sa
-
-      # Init container - runs before main containers
-      initContainers:
-      - name: init-db
-        image: busybox:1.36
-        command: ['sh', '-c']
-        args:
-        - |
-          until nc -z postgres 5432; do
-            echo "Waiting for database..."
-            sleep 2
-          done
-
       containers:
-      - name: web-app
-        image: myregistry.io/web-app:1.0.0
-        imagePullPolicy: IfNotPresent
-
+      - name: nginx
+        image: nginx:1.25
         ports:
-        - name: http
-          containerPort: 8080
-          protocol: TCP
-
-        env:
-        - name: SPRING_PROFILES_ACTIVE
-          value: "production"
-        - name: DB_HOST
-          value: "postgres.database.svc.cluster.local"
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: db-credentials
-              key: password
-
+        - containerPort: 80
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "500m"
+            memory: "64Mi"
+            cpu: "250m"
           limits:
-            memory: "1Gi"
-            cpu: "1000m"
-
-        livenessProbe:
-          httpGet:
-            path: /actuator/health/liveness
-            port: 8080
-          initialDelaySeconds: 60
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-
-        readinessProbe:
-          httpGet:
-            path: /actuator/health/readiness
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 3
-
-        volumeMounts:
-        - name: config
-          mountPath: /app/config
-          readOnly: true
-        - name: logs
-          mountPath: /app/logs
-
-      volumes:
-      - name: config
-        configMap:
-          name: app-config
-      - name: logs
-        emptyDir: {}
-
-      # Node affinity - prefer specific nodes
-      affinity:
-        nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            preference:
-              matchExpressions:
-              - key: node-type
-                operator: In
-                values:
-                - application
-
-      # Tolerations for taints
-      tolerations:
-      - key: "dedicated"
-        operator: "Equal"
-        value: "application"
-        effect: "NoSchedule"
-
-# ═══════════════════════════════════════════════════════════
-# ✦ Deployment Management Commands
-# ═══════════════════════════════════════════════════════════
-# Create deployment
-kubectl create deployment nginx --image=nginx:1.25
-
-# Apply manifest
-kubectl apply -f deployment.yaml
+            memory: "128Mi"
+            cpu: "500m"
 
 # Scale deployment
-kubectl scale deployment web-app --replicas=5
-kubectl autoscale deployment web-app --min=3 --max=10 --cpu-percent=80
+kubectl scale deployment nginx-deployment --replicas=5
 
-# Update image (rolling update)
-kubectl set image deployment/web-app web-app=myregistry.io/web-app:1.1.0
-kubectl set image deployment/web-app web-app=myregistry.io/web-app:1.1.0 --record
-
-# Rollout status
-kubectl rollout status deployment/web-app
-kubectl rollout history deployment/web-app
-kubectl rollout history deployment/web-app --revision=2
-
-# Rollback deployment
-kubectl rollout undo deployment/web-app
-kubectl rollout undo deployment/web-app --to-revision=2
-
-# Pause/Resume rollout
-kubectl rollout pause deployment/web-app
-kubectl rollout resume deployment/web-app
-
-# Restart deployment (recreate all pods)
-kubectl rollout restart deployment/web-app
-
-# ReplicaSet (managed by Deployment)
-kubectl get replicasets
-kubectl describe replicaset web-app-6b4d5f7c8d
-
-# Delete deployment
-kubectl delete deployment web-app
-
-# Recreate strategy (downtime acceptable)
-apiVersion: apps/v1
+# Update image
+kubectl set image deployment/nginx-deployment nginx=nginx:1.26`
+        },
+        {
+          name: 'Rolling Updates',
+          explanation: 'Rolling updates gradually replace old pods with new ones. Configure with maxSurge (max pods above desired during update) and maxUnavailable (max pods that can be unavailable). minReadySeconds ensures new pods are stable before continuing. revisionHistoryLimit controls rollback versions retained.',
+          codeExample: `apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: maintenance-app
+  name: web-app
 spec:
-  replicas: 3
+  replicas: 4
   strategy:
-    type: Recreate  # All old pods terminated before new ones created
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1          # Max 5 pods during update
+      maxUnavailable: 0    # Always keep 4 available
+  minReadySeconds: 10      # Wait 10s before continuing
+  revisionHistoryLimit: 5  # Keep 5 old ReplicaSets
   selector:
     matchLabels:
-      app: maintenance-app
+      app: web
   template:
     metadata:
       labels:
-        app: maintenance-app
+        app: web
     spec:
       containers:
-      - name: app
-        image: maintenance-app:1.0.0
+      - name: web
+        image: web-app:v2
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
 
-# Blue-Green Deployment (using labels)
-# Deploy green version
-kubectl apply -f green-deployment.yaml
-# Test green version
-kubectl port-forward deployment/app-green 8080:8080
-# Switch service to green
-kubectl patch service app-service -p '{"spec":{"selector":{"version":"green"}}}'
-# Remove blue version
-kubectl delete deployment app-blue`
-      }
+# Watch rollout progress
+kubectl rollout status deployment/web-app
+
+# Pause rollout (for canary testing)
+kubectl rollout pause deployment/web-app
+
+# Resume rollout
+kubectl rollout resume deployment/web-app`
+        },
+        {
+          name: 'ReplicaSets',
+          explanation: 'ReplicaSets maintain a stable set of replica Pods running at any time. They ensure the specified number of pods are running and replace failed pods automatically. Deployments manage ReplicaSets - you rarely interact with them directly. Use label selectors to identify which pods to manage.',
+          codeExample: `# ReplicaSet (usually managed by Deployment)
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: frontend
+    matchExpressions:
+      - {key: environment, operator: In, values: [prod, staging]}
+  template:
+    metadata:
+      labels:
+        tier: frontend
+        environment: prod
+    spec:
+      containers:
+      - name: php-redis
+        image: gcr.io/google-samples/gb-frontend:v4
+        ports:
+        - containerPort: 80
+
+# View ReplicaSets
+kubectl get rs
+kubectl get rs -o wide
+
+# Describe ReplicaSet
+kubectl describe rs frontend
+
+# View ReplicaSet managed by Deployment
+kubectl get rs -l app=nginx`
+        },
+        {
+          name: 'Rollbacks',
+          explanation: 'Rollback to previous versions when issues occur. Use kubectl rollout undo deployment/name to revert to previous revision. Check history with rollout history. Specify revision with --to-revision=N. Pause/resume rollouts with rollout pause/resume for canary-style deployments.',
+          codeExample: `# View rollout history
+kubectl rollout history deployment/nginx-deployment
+
+# View specific revision
+kubectl rollout history deployment/nginx-deployment --revision=2
+
+# Rollback to previous revision
+kubectl rollout undo deployment/nginx-deployment
+
+# Rollback to specific revision
+kubectl rollout undo deployment/nginx-deployment --to-revision=2
+
+# Add change-cause annotation for history
+kubectl annotate deployment/nginx-deployment \\
+  kubernetes.io/change-cause="Updated to nginx 1.26"
+
+# Or use --record flag (deprecated but still works)
+kubectl set image deployment/nginx-deployment \\
+  nginx=nginx:1.26 --record
+
+# Check rollout status
+kubectl rollout status deployment/nginx-deployment
+
+# Restart all pods (trigger new rollout)
+kubectl rollout restart deployment/nginx-deployment`
+        }
+      ]
     },
     {
-      id: 3,
+      id: 'services-networking',
       name: 'Services & Networking',
       icon: '🌐',
       color: '#f59e0b',
-      description: 'Service discovery and networking patterns',
-      content: {
-        explanation: 'Kubernetes Services provide stable networking endpoints for accessing Pods. Services abstract pod IP addresses and provide load balancing, service discovery via DNS, and various access patterns through different service types. Network Policies control traffic flow between pods for enhanced security.',
-        keyPoints: [
-          'ClusterIP - Internal-only service accessible within cluster (default)',
-          'NodePort - Exposes service on each node at a static port (30000-32767)',
-          'LoadBalancer - Cloud provider load balancer for external access',
-          'ExternalName - Maps service to external DNS name (CNAME)',
-          'Service Discovery - Automatic DNS records for service-to-service communication',
-          'Endpoints - Track IP addresses of pods backing a service',
-          'Ingress - HTTP/HTTPS routing to services with SSL termination',
-          'Network Policies - Firewall rules controlling pod-to-pod traffic'
-        ],
-        codeExample: `# ═══════════════════════════════════════════════════════════
-# ✦ Service Types and Configurations
-# ═══════════════════════════════════════════════════════════
-# ClusterIP Service (internal only)
-apiVersion: v1
+      description: 'Service types: ClusterIP (internal), NodePort (30000-32767), LoadBalancer (cloud providers), ExternalName (DNS CNAME). Ingress for L7 routing, NetworkPolicy for pod firewalls.',
+      diagram: ServiceNetworkingDiagram,
+      details: [
+        {
+          name: 'ClusterIP Service',
+          explanation: 'Default service type providing internal-only access within the cluster. Provides stable IP and DNS name (service.namespace.svc.cluster.local). Load balances traffic across pod endpoints. Use for internal microservice communication. Session affinity available with sessionAffinity: ClientIP.',
+          codeExample: `apiVersion: v1
 kind: Service
 metadata:
   name: backend-service
-  namespace: production
-  labels:
-    app: backend
+  namespace: default
 spec:
-  type: ClusterIP
+  type: ClusterIP  # Default type
   selector:
     app: backend
-    tier: api
   ports:
   - name: http
+    port: 80         # Service port
+    targetPort: 8080 # Container port
     protocol: TCP
-    port: 8080        # Service port
-    targetPort: 8080  # Container port
-  - name: metrics
-    protocol: TCP
+  - name: grpc
     port: 9090
     targetPort: 9090
-  sessionAffinity: ClientIP
+  sessionAffinity: ClientIP  # Sticky sessions
   sessionAffinityConfig:
     clientIP:
-      timeoutSeconds: 10800
+      timeoutSeconds: 10800  # 3 hours
 
-# NodePort Service (external access via node IPs)
+# Access within cluster
+# DNS: backend-service.default.svc.cluster.local
+# Short: backend-service (same namespace)
+
+# Verify service endpoints
+kubectl get endpoints backend-service
+kubectl describe service backend-service`
+        },
+        {
+          name: 'NodePort & LoadBalancer',
+          explanation: 'NodePort exposes service on each node at a static port (30000-32767) for external access during development. LoadBalancer provisions cloud provider load balancer (AWS ELB/ALB, GCP LB, Azure LB) for production external access. Both build on ClusterIP functionality.',
+          codeExample: `# NodePort Service
 apiVersion: v1
 kind: Service
 metadata:
   name: frontend-nodeport
-  namespace: production
 spec:
   type: NodePort
   selector:
     app: frontend
   ports:
-  - protocol: TCP
-    port: 80
+  - port: 80
     targetPort: 8080
-    nodePort: 30080  # Optional: specify port (30000-32767)
+    nodePort: 30080  # Optional: auto-assigned if omitted
 
-# LoadBalancer Service (cloud provider LB)
+# Access: <any-node-ip>:30080
+
+---
+# LoadBalancer Service (Cloud providers)
 apiVersion: v1
 kind: Service
 metadata:
-  name: web-loadbalancer
-  namespace: production
+  name: frontend-lb
   annotations:
+    # AWS-specific annotations
     service.beta.kubernetes.io/aws-load-balancer-type: nlb
     service.beta.kubernetes.io/aws-load-balancer-internal: "false"
 spec:
   type: LoadBalancer
   selector:
-    app: web
+    app: frontend
   ports:
-  - name: http
-    protocol: TCP
-    port: 80
-    targetPort: 8080
-  - name: https
-    protocol: TCP
-    port: 443
+  - port: 443
     targetPort: 8443
-  loadBalancerSourceRanges:
-  - 10.0.0.0/8
-  - 192.168.0.0/16
+  loadBalancerSourceRanges:  # Restrict access
+  - "10.0.0.0/8"
+  - "203.0.113.0/24"
 
-# ExternalName Service (DNS CNAME)
-apiVersion: v1
-kind: Service
-metadata:
-  name: external-database
-  namespace: production
-spec:
-  type: ExternalName
-  externalName: my-database.rds.amazonaws.com
-
-# Headless Service (no ClusterIP, direct pod IPs)
-apiVersion: v1
-kind: Service
-metadata:
-  name: stateful-headless
-spec:
-  clusterIP: None
-  selector:
-    app: stateful-app
-  ports:
-  - protocol: TCP
-    port: 3306
-    targetPort: 3306
-
-# Service with multiple selectors
-apiVersion: v1
-kind: Service
-metadata:
-  name: multi-version-service
-spec:
-  selector:
-    app: my-app
-    # Routes to pods with both labels
-  ports:
-  - port: 80
-    targetPort: 8080
-
-# ═══════════════════════════════════════════════════════════
-# ✦ Ingress and HTTP Routing
-# ═══════════════════════════════════════════════════════════
-# Ingress - HTTP/HTTPS routing
-apiVersion: networking.k8s.io/v1
+# Get external IP
+kubectl get svc frontend-lb -w`
+        },
+        {
+          name: 'Ingress',
+          explanation: 'Ingress provides HTTP/HTTPS routing to services with host and path-based rules. Supports TLS termination with certificates. Requires an Ingress Controller (nginx, traefik, HAProxy). Use annotations for controller-specific configuration like rate limiting, rewrite rules, and authentication.',
+          codeExample: `apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: app-ingress
-  namespace: production
   annotations:
-    kubernetes.io/ingress.class: nginx
-    cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/rate-limit: "100"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
+  ingressClassName: nginx
   tls:
   - hosts:
-    - app.example.com
     - api.example.com
-    secretName: app-tls-cert
+    - www.example.com
+    secretName: tls-secret
   rules:
-  - host: app.example.com
+  - host: api.example.com
+    http:
+      paths:
+      - path: /v1
+        pathType: Prefix
+        backend:
+          service:
+            name: api-v1
+            port:
+              number: 80
+      - path: /v2
+        pathType: Prefix
+        backend:
+          service:
+            name: api-v2
+            port:
+              number: 80
+  - host: www.example.com
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: frontend-service
+            name: frontend
             port:
-              number: 80
-  - host: api.example.com
-    http:
-      paths:
-      - path: /api/v1
-        pathType: Prefix
-        backend:
-          service:
-            name: backend-service
-            port:
-              number: 8080
-      - path: /api/v2
-        pathType: Prefix
-        backend:
-          service:
-            name: backend-v2-service
-            port:
-              number: 8080
+              number: 80`
+        },
+        {
+          name: 'Service Discovery',
+          explanation: 'Kubernetes provides automatic DNS for service discovery. Services get DNS records: service.namespace.svc.cluster.local. Pods can use short names within same namespace. Environment variables also injected: SERVICE_HOST, SERVICE_PORT. Headless services (clusterIP: None) return pod IPs directly.',
+          codeExample: `# Headless Service (for StatefulSets, direct pod access)
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-headless
+spec:
+  clusterIP: None  # Headless
+  selector:
+    app: mysql
+  ports:
+  - port: 3306
 
-# ═══════════════════════════════════════════════════════════
-# ✦ Network Policies and Security
-# ═══════════════════════════════════════════════════════════
-# Network Policy - Default deny all ingress
+# Returns pod IPs directly:
+# mysql-0.mysql-headless.default.svc.cluster.local
+# mysql-1.mysql-headless.default.svc.cluster.local
+
+---
+# ExternalName Service (CNAME alias)
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-db
+spec:
+  type: ExternalName
+  externalName: db.legacy-system.example.com
+
+# DNS resolution in cluster
+# nslookup my-service.default.svc.cluster.local
+
+# Environment variables injected into pods
+# MY_SERVICE_SERVICE_HOST=10.96.0.100
+# MY_SERVICE_SERVICE_PORT=80
+# MY_SERVICE_PORT=tcp://10.96.0.100:80`
+        },
+        {
+          name: 'Network Policies',
+          explanation: 'Network Policies control pod-to-pod traffic like firewall rules. Specify allowed ingress (incoming) and egress (outgoing) traffic. Use podSelector to target pods, namespaceSelector for cross-namespace rules. Default deny policies recommended for production security. Requires CNI plugin support (Calico, Cilium).',
+          codeExample: `# Default deny all ingress
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: default-deny-ingress
   namespace: production
 spec:
-  podSelector: {}
+  podSelector: {}  # Apply to all pods
   policyTypes:
   - Ingress
 
-# Network Policy - Allow specific ingress
+---
+# Allow specific ingress traffic
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: backend-allow-frontend
-  namespace: production
+  name: api-network-policy
 spec:
   podSelector:
     matchLabels:
-      app: backend
+      app: api
   policyTypes:
   - Ingress
   - Egress
   ingress:
-  # Allow from frontend pods
-  - from:
-    - podSelector:
-        matchLabels:
-          app: frontend
-    ports:
-    - protocol: TCP
-      port: 8080
-  # Allow from ingress controller
   - from:
     - namespaceSelector:
         matchLabels:
-          name: ingress-nginx
+          name: frontend
+    - podSelector:
+        matchLabels:
+          role: monitoring
     ports:
     - protocol: TCP
       port: 8080
   egress:
-  # Allow to database
   - to:
     - podSelector:
         matchLabels:
-          app: postgres
+          app: database
     ports:
     - protocol: TCP
       port: 5432
-  # Allow DNS
-  - to:
+  - to:  # Allow DNS
     - namespaceSelector: {}
-      podSelector:
-        matchLabels:
-          k8s-app: kube-dns
     ports:
     - protocol: UDP
-      port: 53
-
-# ═══════════════════════════════════════════════════════════
-# ✦ Service Management Commands
-# ═══════════════════════════════════════════════════════════
-# Create service
-kubectl create service clusterip my-service --tcp=80:8080
-kubectl expose deployment nginx --port=80 --target-port=8080
-
-# Get services
-kubectl get services
-kubectl get svc -o wide
-kubectl describe service my-service
-
-# Service endpoints
-kubectl get endpoints my-service
-kubectl describe endpoints my-service
-
-# DNS testing
-kubectl run -it --rm debug --image=busybox --restart=Never -- nslookup my-service
-kubectl run -it --rm debug --image=curlimages/curl --restart=Never -- curl http://my-service:80
-
-# Service DNS format
-# <service-name>.<namespace>.svc.cluster.local
-# Example: backend-service.production.svc.cluster.local
-
-# Port forwarding
-kubectl port-forward service/my-service 8080:80
-
-# Ingress commands
-kubectl get ingress
-kubectl describe ingress app-ingress
-
-# Network policy commands
-kubectl get networkpolicies
-kubectl describe networkpolicy backend-allow-frontend
-
-# Test network connectivity
-kubectl run test-pod --rm -it --image=busybox -- sh
-# Inside pod:
-# wget -O- http://service-name:port
-# nc -zv service-name port
-
-# Service topology (prefer local endpoints)
-apiVersion: v1
-kind: Service
-metadata:
-  name: local-preferred
-spec:
-  topologyKeys:
-  - "kubernetes.io/hostname"
-  - "topology.kubernetes.io/zone"
-  - "*"
-  selector:
-    app: my-app
-  ports:
-  - port: 80`
-      }
+      port: 53`
+        }
+      ]
     },
     {
-      id: 4,
+      id: 'config-secrets',
       name: 'ConfigMaps & Secrets',
       icon: '🔐',
       color: '#8b5cf6',
-      description: 'Configuration and secrets management',
-      content: {
-        explanation: 'ConfigMaps store non-confidential configuration data as key-value pairs, while Secrets store sensitive information like passwords and tokens. Both can be consumed as environment variables, command-line arguments, or mounted as files in containers, enabling separation of configuration from application code.',
-        keyPoints: [
-          'ConfigMaps - Store configuration data separately from container images',
-          'Secrets - Base64-encoded storage for sensitive data (not encryption)',
-          'Environment Variables - Inject config/secrets as container environment variables',
-          'Volume Mounts - Mount config/secrets as files in container filesystem',
-          'Secret Types - Opaque (default), TLS, Docker registry credentials, service accounts',
-          'Immutable ConfigMaps/Secrets - Cannot be changed, preventing accidental updates',
-          'External Secrets - Integrate with external secret managers (Vault, AWS Secrets Manager)',
-          'Best Practices - Encrypt at rest, use RBAC, rotate secrets regularly'
-        ],
-        codeExample: `# ═══════════════════════════════════════════════════════════
-# ✦ ConfigMap Definitions and Usage
-# ═══════════════════════════════════════════════════════════
-# ConfigMap - Literal values
+      description: 'ConfigMaps: plain-text key-value config (1MB max). Secrets: base64-encoded sensitive data (type: Opaque/tls/dockerconfigjson). Mount as env vars or volumes. Enable encryption at rest for production.',
+      diagram: ConfigSecretsDiagram,
+      details: [
+        {
+          name: 'ConfigMaps',
+          explanation: 'ConfigMaps store non-confidential configuration data as key-value pairs. Create from literals (--from-literal), files (--from-file), or directories. Supports multi-line config files and JSON/YAML structures. Changes can trigger pod restarts when mounted as volumes (with proper setup).',
+          codeExample: `# ConfigMap from YAML
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: app-config
-  namespace: production
 data:
   # Simple key-value pairs
-  database.host: "postgres.database.svc.cluster.local"
-  database.port: "5432"
-  log.level: "info"
-  feature.enabled: "true"
+  APP_ENV: production
+  LOG_LEVEL: info
+  MAX_CONNECTIONS: "100"
 
-  # Multi-line configuration file
-  application.properties: |
-    server.port=8080
-    spring.datasource.url=jdbc:postgresql://postgres:5432/mydb
-    spring.jpa.hibernate.ddl-auto=validate
-    logging.level.root=INFO
-    logging.level.com.myapp=DEBUG
-
-  # JSON configuration
-  app.json: |
-    {
-      "server": {
-        "port": 8080,
-        "host": "0.0.0.0"
-      },
-      "database": {
-        "max_connections": 100,
-        "timeout": 30
+  # Multi-line config file
+  nginx.conf: |
+    server {
+      listen 80;
+      server_name localhost;
+      location / {
+        root /usr/share/nginx/html;
       }
     }
 
-# ConfigMap from file
-# kubectl create configmap nginx-config --from-file=nginx.conf
+  # JSON configuration
+  settings.json: |
+    {
+      "debug": false,
+      "timeout": 30
+    }
 
-# ConfigMap from directory
-# kubectl create configmap app-config --from-file=./config/
+# Create from command line
+kubectl create configmap app-config \\
+  --from-literal=APP_ENV=production \\
+  --from-literal=LOG_LEVEL=info
 
-# ConfigMap from literal
-# kubectl create configmap app-config --from-literal=key1=value1 --from-literal=key2=value2
+# Create from file
+kubectl create configmap nginx-config \\
+  --from-file=nginx.conf
 
-# Immutable ConfigMap (cannot be modified)
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: static-config
-immutable: true
-data:
-  config.yaml: |
-    version: 1.0.0
-    feature: enabled
-
-# ═══════════════════════════════════════════════════════════
-# ✦ Secret Definitions and Types
-# ═══════════════════════════════════════════════════════════
-# Secret - Opaque (generic)
+# Create from directory
+kubectl create configmap configs --from-file=./config-dir/`
+        },
+        {
+          name: 'Secrets',
+          explanation: 'Secrets store sensitive data like passwords, tokens, and keys. Values are base64-encoded (not encrypted by default). Types include Opaque (generic), kubernetes.io/tls (certificates), kubernetes.io/dockerconfigjson (registry credentials). Enable encryption at rest for production security.',
+          codeExample: `# Generic Secret (Opaque)
 apiVersion: v1
 kind: Secret
 metadata:
   name: db-credentials
-  namespace: production
 type: Opaque
-data:
-  # Base64 encoded values
-  username: YWRtaW4=              # "admin"
-  password: c3VwZXJzZWNyZXQxMjM=  # "supersecret123"
+stringData:  # Plain text (auto base64 encoded)
+  username: admin
+  password: secretpassword123
+data:  # Base64 encoded
+  api-key: YXBpLWtleS12YWx1ZQ==
 
-# Create secret from literal
-# kubectl create secret generic db-credentials \\
-#   --from-literal=username=admin \\
-#   --from-literal=password=supersecret123
-
-# Create secret from file
-# kubectl create secret generic ssl-cert \\
-#   --from-file=tls.crt=./cert.crt \\
-#   --from-file=tls.key=./cert.key
-
+---
 # TLS Secret
 apiVersion: v1
 kind: Secret
 metadata:
   name: tls-secret
-  namespace: production
 type: kubernetes.io/tls
 data:
-  tls.crt: LS0tLS1CRUdJTi...  # Base64 encoded certificate
-  tls.key: LS0tLS1CRUdJTi...  # Base64 encoded private key
+  tls.crt: <base64-encoded-cert>
+  tls.key: <base64-encoded-key>
 
-# Docker registry secret
+---
+# Docker Registry Secret
 apiVersion: v1
 kind: Secret
 metadata:
-  name: docker-registry-secret
+  name: regcred
 type: kubernetes.io/dockerconfigjson
 data:
-  .dockerconfigjson: eyJhdXRocyI6eyJteXJlZ2lzdHJ5LmNvbSI6eyJ1c2VybmFtZSI6ImFkbWluIiwicGFzc3dvcmQiOiJzZWNyZXQiLCJhdXRoIjoiWVdSdGFXNDZjMlZqY21WMCJ9fX0=
+  .dockerconfigjson: <base64-encoded-docker-config>
+
+# Create from command line
+kubectl create secret generic db-creds \\
+  --from-literal=username=admin \\
+  --from-literal=password=secret
+
+# Create TLS secret
+kubectl create secret tls my-tls \\
+  --cert=tls.crt --key=tls.key
 
 # Create docker registry secret
-# kubectl create secret docker-registry docker-registry-secret \\
-#   --docker-server=myregistry.com \\
-#   --docker-username=admin \\
-#   --docker-password=secret \\
-#   --docker-email=admin@example.com
-
-# ═══════════════════════════════════════════════════════════
-# ✦ Using ConfigMaps and Secrets in Pods
-# ═══════════════════════════════════════════════════════════
-# Using ConfigMap and Secret in Pod - Environment variables
-apiVersion: v1
+kubectl create secret docker-registry regcred \\
+  --docker-server=registry.example.com \\
+  --docker-username=user \\
+  --docker-password=pass`
+        },
+        {
+          name: 'Environment Variables',
+          explanation: 'Inject ConfigMap/Secret values as container environment variables. Use valueFrom with configMapKeyRef or secretKeyRef for single values. Use envFrom to import all keys as environment variables. Prefix option available to avoid naming conflicts.',
+          codeExample: `apiVersion: v1
 kind: Pod
 metadata:
   name: app-pod
 spec:
   containers:
   - name: app
-    image: my-app:1.0.0
+    image: myapp:1.0
     env:
-    # Single value from ConfigMap
-    - name: DATABASE_HOST
+    # Static environment variable
+    - name: APP_NAME
+      value: "my-application"
+
+    # From ConfigMap - single key
+    - name: LOG_LEVEL
       valueFrom:
         configMapKeyRef:
           name: app-config
-          key: database.host
+          key: LOG_LEVEL
 
-    # Single value from Secret
-    - name: DATABASE_PASSWORD
+    # From Secret - single key
+    - name: DB_PASSWORD
       valueFrom:
         secretKeyRef:
           name: db-credentials
           key: password
 
-    # All keys from ConfigMap as env vars
+    # Pod metadata as env
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+
+    # Resource limits as env
+    - name: MEMORY_LIMIT
+      valueFrom:
+        resourceFieldRef:
+          resource: limits.memory
+
+    # Import all keys from ConfigMap
     envFrom:
     - configMapRef:
         name: app-config
+      prefix: CFG_  # Optional prefix
 
-    # All keys from Secret as env vars
+    # Import all keys from Secret
     - secretRef:
         name: db-credentials
-
-# Using ConfigMap and Secret - Volume mounts
-apiVersion: v1
+      prefix: DB_`
+        },
+        {
+          name: 'Volume Mounts',
+          explanation: 'Mount ConfigMaps/Secrets as files in container filesystem. Entire ConfigMap becomes directory with files for each key. Use subPath to mount specific keys as individual files. Secret files default to 0644 permissions, customize with defaultMode. Volume mounts enable hot-reload for config changes.',
+          codeExample: `apiVersion: v1
 kind: Pod
 metadata:
-  name: app-with-volumes
+  name: app-pod
 spec:
   containers:
   - name: app
-    image: my-app:1.0.0
+    image: myapp:1.0
     volumeMounts:
-    # Mount entire ConfigMap as files
+    # Mount entire ConfigMap as directory
     - name: config-volume
       mountPath: /etc/config
       readOnly: true
 
-    # Mount specific ConfigMap key as file
-    - name: app-properties
-      mountPath: /app/config/application.properties
-      subPath: application.properties
-      readOnly: true
+    # Mount specific key as file (subPath)
+    - name: config-volume
+      mountPath: /etc/nginx/nginx.conf
+      subPath: nginx.conf
 
-    # Mount Secret as files
+    # Mount Secret
     - name: secret-volume
       mountPath: /etc/secrets
       readOnly: true
@@ -1057,77 +1162,39 @@ spec:
   - name: config-volume
     configMap:
       name: app-config
-
-  # ConfigMap with specific items
-  - name: app-properties
-    configMap:
-      name: app-config
+      # Optional: select specific keys
       items:
-      - key: application.properties
-        path: application.properties
+      - key: nginx.conf
+        path: nginx.conf
+        mode: 0644
+      defaultMode: 0644
 
   # Secret volume
   - name: secret-volume
     secret:
       secretName: db-credentials
-      defaultMode: 0400
+      defaultMode: 0400  # Read-only for owner
+      # Optional: select specific keys
+      items:
+      - key: password
+        path: db-password
 
-# Deployment with ConfigMap and Secret
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: web-app
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: web-app
-  template:
-    metadata:
-      labels:
-        app: web-app
-    spec:
-      # Use docker registry secret for private images
-      imagePullSecrets:
-      - name: docker-registry-secret
+# ConfigMap changes auto-update mounted files
+# (may take up to 1 minute to sync)`
+        },
+        {
+          name: 'External Secrets',
+          explanation: 'External Secrets Operator (ESO) integrates with external secret managers. Supports AWS Secrets Manager, HashiCorp Vault, Azure Key Vault, GCP Secret Manager. ExternalSecret CRD syncs external secrets to Kubernetes Secrets. Enables automatic rotation and centralized secret management.',
+          codeExample: `# Install External Secrets Operator
+helm repo add external-secrets https://charts.external-secrets.io
+helm install external-secrets external-secrets/external-secrets
 
-      containers:
-      - name: web-app
-        image: myregistry.com/web-app:1.0.0
-        env:
-        - name: DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: app-config
-              key: database.host
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: db-credentials
-              key: password
-        volumeMounts:
-        - name: config
-          mountPath: /app/config
-        - name: tls
-          mountPath: /app/certs
-
-      volumes:
-      - name: config
-        configMap:
-          name: app-config
-      - name: tls
-        secret:
-          secretName: tls-secret
-
-# ═══════════════════════════════════════════════════════════
-# ✦ External Secrets and Management
-# ═══════════════════════════════════════════════════════════
-# External Secrets Operator (ESO) - AWS Secrets Manager
+---
+# SecretStore (AWS Secrets Manager)
 apiVersion: external-secrets.io/v1beta1
 kind: SecretStore
 metadata:
-  name: aws-secrets-manager
-  namespace: production
+  name: aws-secrets
 spec:
   provider:
     aws:
@@ -1138,199 +1205,125 @@ spec:
           serviceAccountRef:
             name: external-secrets-sa
 
+---
+# ExternalSecret
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
-  name: database-credentials
-  namespace: production
+  name: db-credentials
 spec:
-  refreshInterval: 1h
+  refreshInterval: 1h  # Sync every hour
   secretStoreRef:
-    name: aws-secrets-manager
+    name: aws-secrets
     kind: SecretStore
   target:
-    name: db-credentials
+    name: db-secret  # K8s Secret name
     creationPolicy: Owner
   data:
   - secretKey: password
     remoteRef:
-      key: production/database/password
+      key: prod/database
+      property: password
+  - secretKey: username
+    remoteRef:
+      key: prod/database
+      property: username
 
-# HashiCorp Vault integration
-apiVersion: external-secrets.io/v1beta1
-kind: SecretStore
-metadata:
-  name: vault-backend
-spec:
-  provider:
-    vault:
-      server: "https://vault.example.com"
-      path: "secret"
-      version: "v2"
-      auth:
-        kubernetes:
-          mountPath: "kubernetes"
-          role: "my-app"
-
-# ═══════════════════════════════════════════════════════════
-# ✦ ConfigMap and Secret Commands
-# ═══════════════════════════════════════════════════════════
-# View ConfigMaps
-kubectl get configmaps
-kubectl describe configmap app-config
-kubectl get configmap app-config -o yaml
-
-# View Secrets (values are hidden by default)
-kubectl get secrets
-kubectl describe secret db-credentials
-kubectl get secret db-credentials -o yaml
-
-# Decode secret value
-kubectl get secret db-credentials -o jsonpath='{.data.password}' | base64 -d
-
-# Edit ConfigMap/Secret
-kubectl edit configmap app-config
-kubectl edit secret db-credentials
-
-# Delete ConfigMap/Secret
-kubectl delete configmap app-config
-kubectl delete secret db-credentials
-
-# Best practices:
-# 1. Never commit secrets to version control
-# 2. Use external secret managers for production
-# 3. Enable encryption at rest for etcd
-# 4. Use RBAC to restrict secret access
-# 5. Rotate secrets regularly
-# 6. Use immutable ConfigMaps for critical config
-# 7. Prefer volume mounts over env vars for secrets
-# 8. Use separate secrets per environment`
-      }
+# Vault SecretStore example
+# apiVersion: external-secrets.io/v1beta1
+# kind: SecretStore
+# spec:
+#   provider:
+#     vault:
+#       server: "https://vault.example.com"
+#       path: "secret"
+#       auth:
+#         kubernetes:
+#           mountPath: "kubernetes"
+#           role: "demo"`
+        }
+      ]
     },
     {
-      id: 5,
+      id: 'storage',
       name: 'Persistent Storage',
       icon: '💾',
       color: '#ec4899',
-      description: 'Volumes and persistent data management',
-      content: {
-        explanation: 'Kubernetes provides various storage options for persisting data beyond pod lifecycles. PersistentVolumes (PV) represent cluster storage resources, while PersistentVolumeClaims (PVC) are requests for storage. StatefulSets manage stateful applications with stable network identities and persistent storage.',
-        keyPoints: [
-          'PersistentVolume (PV) - Cluster-level storage resource independent of pods',
-          'PersistentVolumeClaim (PVC) - Request for storage by a pod or deployment',
-          'StorageClass - Dynamic provisioning of PVs with different performance characteristics',
-          'Volume Access Modes - ReadWriteOnce (RWO), ReadOnlyMany (ROX), ReadWriteMany (RWX)',
-          'StatefulSets - Ordered deployment and scaling with stable identities',
-          'Dynamic Provisioning - Automatic PV creation on PVC creation',
-          'Volume Types - HostPath, NFS, AWS EBS, Azure Disk, GCE PD, Ceph, etc.',
-          'Volume Reclaim Policy - Retain, Delete, or Recycle when PVC deleted'
-        ],
-        codeExample: `# ═══════════════════════════════════════════════════════════
-# ✦ PersistentVolume Definitions
-# ═══════════════════════════════════════════════════════════
-# PersistentVolume - Manual provisioning
-apiVersion: v1
+      description: 'PVC requests capacity (e.g., 10Gi) bound to PV. StorageClasses enable dynamic provisioning via CSI drivers. Access modes: RWO/RWX/ROX. StatefulSets use VolumeClaimTemplates for ordered pod storage.',
+      diagram: PersistentStorageDiagram,
+      details: [
+        {
+          name: 'PersistentVolumes',
+          explanation: 'PersistentVolumes (PV) are cluster-level storage resources independent of pods. Administrators provision PVs with specific capacity, access modes, and storage class. Supports various backends: NFS, AWS EBS, Azure Disk, GCE PD, Ceph, local storage. Reclaim policies: Retain, Delete, or Recycle.',
+          codeExample: `apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: pv-nfs
+  name: pv-nfs-data
   labels:
     type: nfs
 spec:
   capacity:
-    storage: 10Gi
-  volumeMode: Filesystem
+    storage: 100Gi
   accessModes:
-  - ReadWriteMany      # Multiple pods can mount read-write
+    - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: nfs
+  storageClassName: nfs-storage
   mountOptions:
-  - hard
-  - nfsvers=4.1
+    - hard
+    - nfsvers=4.1
   nfs:
-    server: nfs-server.example.com
-    path: /exported/path
+    server: 10.0.0.100
+    path: /exports/data
 
-# PersistentVolume - AWS EBS
+---
+# Local PersistentVolume
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: pv-aws-ebs
+  name: local-pv
 spec:
   capacity:
-    storage: 20Gi
-  volumeMode: Filesystem
+    storage: 50Gi
   accessModes:
-  - ReadWriteOnce      # Single pod mount
+    - ReadWriteOnce
   persistentVolumeReclaimPolicy: Delete
-  storageClassName: gp3
-  awsElasticBlockStore:
-    volumeID: vol-0123456789abcdef
-    fsType: ext4
+  storageClassName: local-storage
+  local:
+    path: /mnt/disks/ssd1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - worker-node-1
 
-# PersistentVolumeClaim - Request storage
-apiVersion: v1
+# View PersistentVolumes
+kubectl get pv
+kubectl describe pv pv-nfs-data`
+        },
+        {
+          name: 'PersistentVolumeClaims',
+          explanation: 'PersistentVolumeClaims (PVC) are requests for storage by pods. Specify required capacity, access modes, and storage class. Kubernetes binds PVC to suitable PV. Pods reference PVCs in volume definitions. PVCs enable portable storage requests across different cluster environments.',
+          codeExample: `apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: data-pvc
-  namespace: production
+  name: app-data-pvc
+  namespace: default
 spec:
   accessModes:
-  - ReadWriteOnce
-  volumeMode: Filesystem
+    - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
-  storageClassName: fast-ssd
-  selector:
+      storage: 20Gi
+  storageClassName: gp3  # AWS gp3 storage class
+  selector:  # Optional: select specific PV
     matchLabels:
       type: ssd
 
-# ═══════════════════════════════════════════════════════════
-# ✦ StorageClass and Dynamic Provisioning
-# ═══════════════════════════════════════════════════════════
-# StorageClass - Dynamic provisioning (AWS EBS)
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: fast-ssd
-  annotations:
-    storageclass.kubernetes.io/is-default-class: "false"
-provisioner: kubernetes.io/aws-ebs
-parameters:
-  type: gp3
-  iops: "3000"
-  throughput: "125"
-  encrypted: "true"
-  kmsKeyId: arn:aws:kms:us-east-1:123456789:key/abc-123
-volumeBindingMode: WaitForFirstConsumer  # Delay binding until pod scheduled
-allowVolumeExpansion: true
-reclaimPolicy: Delete
-
-# StorageClass - Azure Disk
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: azure-disk-premium
-provisioner: kubernetes.io/azure-disk
-parameters:
-  storageaccounttype: Premium_LRS
-  kind: Managed
-allowVolumeExpansion: true
-reclaimPolicy: Delete
-
-# StorageClass - GCE Persistent Disk
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: gce-pd-ssd
-provisioner: kubernetes.io/gce-pd
-parameters:
-  type: pd-ssd
-  replication-type: regional-pd
-allowVolumeExpansion: true
-reclaimPolicy: Delete
-
-# Pod using PVC
+---
+# Using PVC in a Pod
 apiVersion: v1
 kind: Pod
 metadata:
@@ -1338,915 +1331,145 @@ metadata:
 spec:
   containers:
   - name: app
-    image: nginx:latest
+    image: myapp:1.0
     volumeMounts:
-    - name: data
-      mountPath: /usr/share/nginx/html
-  volumes:
-  - name: data
-    persistentVolumeClaim:
-      claimName: data-pvc
-
-# Deployment with PVC
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: web-app
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: web-app
-  template:
-    metadata:
-      labels:
-        app: web-app
-    spec:
-      containers:
-      - name: web
-        image: web-app:1.0.0
-        volumeMounts:
-        - name: uploads
-          mountPath: /app/uploads
-      volumes:
-      - name: uploads
-        persistentVolumeClaim:
-          claimName: shared-uploads-pvc
-
-# ═══════════════════════════════════════════════════════════
-# ✦ StatefulSet and Persistent Storage
-# ═══════════════════════════════════════════════════════════
-# StatefulSet - For stateful applications
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: postgres
-  namespace: database
-spec:
-  serviceName: postgres-headless
-  replicas: 3
-  selector:
-    matchLabels:
-      app: postgres
-  template:
-    metadata:
-      labels:
-        app: postgres
-    spec:
-      containers:
-      - name: postgres
-        image: postgres:15-alpine
-        ports:
-        - containerPort: 5432
-          name: postgres
-        env:
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: postgres-credentials
-              key: password
-        - name: PGDATA
-          value: /var/lib/postgresql/data/pgdata
-        volumeMounts:
-        - name: data
-          mountPath: /var/lib/postgresql/data
-        resources:
-          requests:
-            memory: 1Gi
-            cpu: 500m
-          limits:
-            memory: 2Gi
-            cpu: 1000m
-
-  # VolumeClaimTemplates - Creates PVC for each replica
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes:
-      - ReadWriteOnce
-      storageClassName: fast-ssd
-      resources:
-        requests:
-          storage: 50Gi
-
-# Headless Service for StatefulSet
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgres-headless
-  namespace: database
-spec:
-  clusterIP: None
-  selector:
-    app: postgres
-  ports:
-  - port: 5432
-    targetPort: 5432
-
-# StatefulSet - Redis Cluster
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: redis
-spec:
-  serviceName: redis-headless
-  replicas: 6
-  selector:
-    matchLabels:
-      app: redis
-  template:
-    metadata:
-      labels:
-        app: redis
-    spec:
-      containers:
-      - name: redis
-        image: redis:7-alpine
-        command:
-        - redis-server
-        - --cluster-enabled
-        - "yes"
-        - --cluster-config-file
-        - /data/nodes.conf
-        - --cluster-node-timeout
-        - "5000"
-        - --appendonly
-        - "yes"
-        ports:
-        - containerPort: 6379
-          name: client
-        - containerPort: 16379
-          name: gossip
-        volumeMounts:
-        - name: data
-          mountPath: /data
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes:
-      - ReadWriteOnce
-      resources:
-        requests:
-          storage: 10Gi
-
-# Volume types - EmptyDir (temporary)
-apiVersion: v1
-kind: Pod
-metadata:
-  name: pod-with-emptydir
-spec:
-  containers:
-  - name: app
-    image: nginx
-    volumeMounts:
-    - name: cache
-      mountPath: /cache
-  volumes:
-  - name: cache
-    emptyDir:
-      sizeLimit: 1Gi
-      medium: Memory  # Use RAM
-
-# Volume types - HostPath (node local storage)
-apiVersion: v1
-kind: Pod
-metadata:
-  name: pod-with-hostpath
-spec:
-  containers:
-  - name: app
-    image: nginx
-    volumeMounts:
-    - name: host-data
+    - name: data-volume
       mountPath: /data
   volumes:
-  - name: host-data
-    hostPath:
-      path: /mnt/data
-      type: DirectoryOrCreate
+  - name: data-volume
+    persistentVolumeClaim:
+      claimName: app-data-pvc
 
-# Volume types - NFS
-apiVersion: v1
-kind: Pod
-metadata:
-  name: pod-with-nfs
-spec:
-  containers:
-  - name: app
-    image: nginx
-    volumeMounts:
-    - name: nfs-storage
-      mountPath: /shared
-  volumes:
-  - name: nfs-storage
-    nfs:
-      server: nfs-server.example.com
-      path: /exports/shared
-
-# ═══════════════════════════════════════════════════════════
-# ✦ Storage Management Commands
-# ═══════════════════════════════════════════════════════════
-# Get PersistentVolumes
-kubectl get pv
-kubectl describe pv pv-name
-
-# Get PersistentVolumeClaims
+# View PVCs
 kubectl get pvc
-kubectl describe pvc data-pvc
+kubectl describe pvc app-data-pvc
 
-# Get StorageClasses
-kubectl get storageclass
-kubectl describe storageclass fast-ssd
-
-# StatefulSet commands
-kubectl get statefulsets
-kubectl describe statefulset postgres
-kubectl scale statefulset postgres --replicas=5
-kubectl rollout status statefulset postgres
-
-# Delete StatefulSet (keep PVCs)
-kubectl delete statefulset postgres --cascade=orphan
-
-# Volume expansion
-kubectl edit pvc data-pvc
-# Increase storage size in spec.resources.requests.storage
-# Note: Requires StorageClass with allowVolumeExpansion: true
-
-# Volume snapshot (requires CSI driver)
-apiVersion: snapshot.storage.k8s.io/v1
-kind: VolumeSnapshot
+# Check binding status
+kubectl get pvc app-data-pvc -o jsonpath='{.status.phase}'`
+        },
+        {
+          name: 'StorageClasses',
+          explanation: 'StorageClasses enable dynamic provisioning of PersistentVolumes. Define provisioner (CSI driver), parameters (disk type, IOPS), and reclaim policy. volumeBindingMode: WaitForFirstConsumer delays binding until pod scheduled. allowVolumeExpansion enables online volume resizing.',
+          codeExample: `# AWS EBS StorageClass (gp3)
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
 metadata:
-  name: data-snapshot
-spec:
-  volumeSnapshotClassName: csi-snapclass
-  source:
-    persistentVolumeClaimName: data-pvc
+  name: gp3-encrypted
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: ebs.csi.aws.com
+parameters:
+  type: gp3
+  iops: "3000"
+  throughput: "125"
+  encrypted: "true"
+  fsType: ext4
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer
 
-# Restore from snapshot
+---
+# GCP PD StorageClass
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: pd-ssd
+provisioner: pd.csi.storage.gke.io
+parameters:
+  type: pd-ssd
+  replication-type: regional-pd
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+
+---
+# NFS StorageClass (with provisioner)
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-client
+provisioner: cluster.local/nfs-client-provisioner
+parameters:
+  archiveOnDelete: "false"
+
+# List storage classes
+kubectl get sc`
+        },
+        {
+          name: 'Access Modes',
+          explanation: 'ReadWriteOnce (RWO): Single node can mount read-write. ReadOnlyMany (ROX): Multiple nodes can mount read-only. ReadWriteMany (RWX): Multiple nodes can mount read-write. Not all storage backends support all modes. Choose based on application requirements and storage capabilities.',
+          codeExample: `# RWO - ReadWriteOnce (single node read-write)
+# Used for: Databases, single-instance apps
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: restored-pvc
+  name: database-pvc
 spec:
-  dataSource:
-    name: data-snapshot
-    kind: VolumeSnapshot
-    apiGroup: snapshot.storage.k8s.io
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce  # Only one node can mount
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: gp3
+
+---
+# RWX - ReadWriteMany (multi-node read-write)
+# Used for: Shared file storage, CMS, logs
+# Requires NFS, EFS, Azure Files, or similar
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: shared-files-pvc
+spec:
+  accessModes:
+    - ReadWriteMany  # Multiple nodes can mount
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: efs-sc
+
+---
+# ROX - ReadOnlyMany (multi-node read-only)
+# Used for: Shared config, static content
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: static-content-pvc
+spec:
+  accessModes:
+    - ReadOnlyMany
   resources:
     requests:
       storage: 10Gi
 
-# Backup PVC data
-kubectl run backup --rm -i --tty --image=busybox \\
-  --overrides='{"spec":{"containers":[{"name":"backup","image":"busybox","stdin":true,"tty":true,"volumeMounts":[{"name":"data","mountPath":"/data"}]}],"volumes":[{"name":"data","persistentVolumeClaim":{"claimName":"data-pvc"}}]}}' \\
-  -- tar czf - /data > backup.tar.gz
-
-# Restore PVC data
-kubectl run restore --rm -i --image=busybox \\
-  --overrides='{"spec":{"containers":[{"name":"restore","image":"busybox","stdin":true,"volumeMounts":[{"name":"data","mountPath":"/data"}]}],"volumes":[{"name":"data","persistentVolumeClaim":{"claimName":"data-pvc"}}]}}' \\
-  < backup.tar.gz -- tar xzf - -C /
-
-# Access modes:
-# ReadWriteOnce (RWO) - Single node mount read-write
-# ReadOnlyMany (ROX) - Many nodes mount read-only
-# ReadWriteMany (RWX) - Many nodes mount read-write`
-      }
-    },
-    {
-      id: 6,
-      name: 'Auto-Scaling & Resources',
-      icon: '📊',
-      color: '#06b6d4',
-      description: 'Scaling and resource management',
-      content: {
-        explanation: 'Kubernetes provides multiple auto-scaling mechanisms to handle varying workloads. HPA scales pod replicas based on metrics, VPA adjusts container resource requests/limits, and Cluster Autoscaler adds/removes nodes. Resource requests and limits ensure QoS and prevent resource contention.',
-        keyPoints: [
-          'Horizontal Pod Autoscaler (HPA) - Automatically scales pod replicas based on CPU, memory, or custom metrics',
-          'Vertical Pod Autoscaler (VPA) - Adjusts CPU and memory requests/limits for containers',
-          'Cluster Autoscaler - Adds or removes cluster nodes based on resource demand',
-          'Resource Requests - Minimum resources guaranteed for container scheduling',
-          'Resource Limits - Maximum resources container can consume',
-          'Quality of Service (QoS) - Guaranteed, Burstable, BestEffort classes',
-          'Metrics Server - Collects resource metrics from kubelets',
-          'Custom Metrics - Scale based on application-specific metrics (queue depth, RPS)'
-        ],
-        codeExample: `# ═══════════════════════════════════════════════════════════
-# ✦ Metrics Server and Resource Monitoring
-# ═══════════════════════════════════════════════════════════
-# Install Metrics Server (required for HPA)
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-
-# Verify Metrics Server
-kubectl get deployment metrics-server -n kube-system
-kubectl top nodes
-kubectl top pods --all-namespaces
-
-# Deployment with resource requests and limits
-apiVersion: apps/v1
-kind: Deployment
+# Storage backend support:
+# AWS EBS: RWO only
+# AWS EFS: RWX, RWO, ROX
+# GCP PD: RWO, ROX
+# Azure Disk: RWO only
+# Azure Files: RWX, RWO, ROX
+# NFS: RWX, RWO, ROX`
+        },
+        {
+          name: 'StatefulSets',
+          explanation: 'StatefulSets manage stateful applications with stable network identities and persistent storage. Pods get predictable names (app-0, app-1). VolumeClaimTemplates create unique PVC per replica. Ordered deployment and scaling. Headless Service provides DNS for each pod. Use for databases, message queues, distributed systems.',
+          codeExample: `apiVersion: v1
+kind: Service
 metadata:
-  name: web-app
+  name: mysql
 spec:
-  replicas: 3
+  clusterIP: None  # Headless service
   selector:
-    matchLabels:
-      app: web-app
-  template:
-    metadata:
-      labels:
-        app: web-app
-    spec:
-      containers:
-      - name: web
-        image: web-app:1.0.0
-        resources:
-          requests:
-            memory: "256Mi"   # Minimum guaranteed
-            cpu: "250m"       # 0.25 CPU cores
-          limits:
-            memory: "512Mi"   # Maximum allowed
-            cpu: "500m"       # 0.5 CPU cores
-        ports:
-        - containerPort: 8080
-
-# ═══════════════════════════════════════════════════════════
-# ✦ Horizontal Pod Autoscaler Configuration
-# ═══════════════════════════════════════════════════════════
-# HorizontalPodAutoscaler - CPU based
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: web-app-hpa
-  namespace: production
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: web-app
-  minReplicas: 3
-  maxReplicas: 10
-  metrics:
-  # Scale based on CPU utilization
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70  # Target 70% CPU
-  # Scale based on memory utilization
-  - type: Resource
-    resource:
-      name: memory
-      target:
-        type: Utilization
-        averageUtilization: 80  # Target 80% memory
-  behavior:
-    scaleDown:
-      stabilizationWindowSeconds: 300  # Wait 5 min before scaling down
-      policies:
-      - type: Percent
-        value: 50          # Scale down max 50% of current replicas
-        periodSeconds: 60  # Per minute
-      - type: Pods
-        value: 2           # Or max 2 pods per minute
-        periodSeconds: 60
-      selectPolicy: Min    # Use slower policy
-    scaleUp:
-      stabilizationWindowSeconds: 0  # Scale up immediately
-      policies:
-      - type: Percent
-        value: 100         # Double replicas
-        periodSeconds: 15  # Every 15 seconds
-      - type: Pods
-        value: 4           # Or add 4 pods
-        periodSeconds: 15
-      selectPolicy: Max    # Use faster policy
-
-# HPA with custom metrics (using Prometheus)
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: custom-metrics-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: api-server
-  minReplicas: 2
-  maxReplicas: 20
-  metrics:
-  # CPU utilization
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 60
-  # Custom metric - requests per second
-  - type: Pods
-    pods:
-      metric:
-        name: http_requests_per_second
-      target:
-        type: AverageValue
-        averageValue: "1000"
-  # Custom metric - queue depth
-  - type: Object
-    object:
-      metric:
-        name: queue_depth
-      describedObject:
-        apiVersion: v1
-        kind: Service
-        name: message-queue
-      target:
-        type: Value
-        value: "30"
-
-# Create HPA using kubectl
-kubectl autoscale deployment web-app --cpu-percent=70 --min=3 --max=10
-
-# HPA commands
-kubectl get hpa
-kubectl describe hpa web-app-hpa
-kubectl delete hpa web-app-hpa
-
-# Watch HPA in real-time
-kubectl get hpa -w
-
-# VerticalPodAutoscaler (VPA)
-apiVersion: autoscaling.k8s.io/v1
-kind: VerticalPodAutoscaler
-metadata:
-  name: web-app-vpa
-spec:
-  targetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: web-app
-  updatePolicy:
-    updateMode: "Auto"  # Auto, Recreate, Initial, Off
-  resourcePolicy:
-    containerPolicies:
-    - containerName: web
-      minAllowed:
-        cpu: 100m
-        memory: 128Mi
-      maxAllowed:
-        cpu: 2
-        memory: 2Gi
-      controlledResources:
-      - cpu
-      - memory
-
-# VPA modes:
-# - "Off": Only recommendations, no auto-updates
-# - "Initial": Set resources on pod creation only
-# - "Recreate": Update running pods (requires restart)
-# - "Auto": Recreate + update new pods
-
-# VPA commands
-kubectl get vpa
-kubectl describe vpa web-app-vpa
-
-# ═══════════════════════════════════════════════════════════
-# ✦ Quality of Service and Resource Quotas
-# ═══════════════════════════════════════════════════════════
-# Quality of Service (QoS) Classes
-
-# 1. Guaranteed - Highest priority
-# Requests == Limits for all containers
-apiVersion: v1
-kind: Pod
-metadata:
-  name: guaranteed-pod
-spec:
-  containers:
-  - name: app
-    image: nginx
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "500m"
-      limits:
-        memory: "256Mi"
-        cpu: "500m"
-
-# 2. Burstable - Medium priority
-# Requests < Limits, or only requests set
-apiVersion: v1
-kind: Pod
-metadata:
-  name: burstable-pod
-spec:
-  containers:
-  - name: app
-    image: nginx
-    resources:
-      requests:
-        memory: "128Mi"
-        cpu: "250m"
-      limits:
-        memory: "512Mi"
-        cpu: "1000m"
-
-# 3. BestEffort - Lowest priority
-# No requests or limits set
-apiVersion: v1
-kind: Pod
-metadata:
-  name: besteffort-pod
-spec:
-  containers:
-  - name: app
-    image: nginx
-    # No resources specified
-
-# LimitRange - Set default limits per namespace
-apiVersion: v1
-kind: LimitRange
-metadata:
-  name: resource-limits
-  namespace: production
-spec:
-  limits:
-  # Container limits
-  - type: Container
-    max:
-      cpu: "2"
-      memory: "2Gi"
-    min:
-      cpu: "100m"
-      memory: "64Mi"
-    default:
-      cpu: "500m"
-      memory: "512Mi"
-    defaultRequest:
-      cpu: "250m"
-      memory: "256Mi"
-  # Pod limits
-  - type: Pod
-    max:
-      cpu: "4"
-      memory: "4Gi"
-  # PVC limits
-  - type: PersistentVolumeClaim
-    max:
-      storage: "100Gi"
-    min:
-      storage: "1Gi"
-
-# ResourceQuota - Limit total resources per namespace
-apiVersion: v1
-kind: ResourceQuota
-metadata:
-  name: compute-quota
-  namespace: development
-spec:
-  hard:
-    requests.cpu: "10"         # Total CPU requests
-    requests.memory: "20Gi"    # Total memory requests
-    limits.cpu: "20"           # Total CPU limits
-    limits.memory: "40Gi"      # Total memory limits
-    pods: "50"                 # Max pods
-    services: "10"             # Max services
-    persistentvolumeclaims: "10"  # Max PVCs
-    requests.storage: "100Gi"  # Total storage
-
-# ResourceQuota - Object count limits
-apiVersion: v1
-kind: ResourceQuota
-metadata:
-  name: object-quota
-  namespace: development
-spec:
-  hard:
-    configmaps: "20"
-    secrets: "20"
-    services.loadbalancers: "2"
-    services.nodeports: "5"
-
-# PriorityClass - Pod scheduling priority
-apiVersion: scheduling.k8s.io/v1
-kind: PriorityClass
-metadata:
-  name: high-priority
-value: 1000000
-globalDefault: false
-description: "High priority for critical applications"
-
-# Use PriorityClass in Pod
-apiVersion: v1
-kind: Pod
-metadata:
-  name: critical-app
-spec:
-  priorityClassName: high-priority
-  containers:
-  - name: app
-    image: critical-app:1.0.0
-
-# Cluster Autoscaler (cloud provider specific)
-# AWS example - uses node groups
-# Configure via cloud provider settings
-# Nodes scaled based on pending pods
-
-# Check resource usage
-kubectl top nodes
-kubectl top pods -n production
-kubectl top pods --containers -n production
-
-# Describe node to see allocatable resources
-kubectl describe node node-name
-
-# View pod resource usage
-kubectl describe pod pod-name
-
-# Stress test for HPA
-kubectl run -it load-generator --rm --image=busybox --restart=Never -- /bin/sh -c "while sleep 0.01; do wget -q -O- http://web-app; done"
-
-# Monitor HPA behavior
-watch kubectl get hpa
-
-# PodDisruptionBudget - Ensure availability during disruptions
-apiVersion: policy/v1
-kind: PodDisruptionBudget
-metadata:
-  name: web-app-pdb
-spec:
-  minAvailable: 2  # At least 2 pods must be available
-  # OR
-  # maxUnavailable: 1  # At most 1 pod can be unavailable
-  selector:
-    matchLabels:
-      app: web-app
-
-# Resource best practices:
-# 1. Always set requests for scheduling
-# 2. Set limits to prevent resource hogging
-# 3. Use HPA for stateless apps
-# 4. Use VPA for right-sizing resources
-# 5. Monitor actual usage and adjust
-# 6. Use PodDisruptionBudgets for HA
-# 7. Set ResourceQuotas per namespace
-# 8. Use appropriate QoS classes`
-      }
-    },
-    {
-      id: 7,
-      name: 'Health Checks & Probes',
-      icon: '🏥',
-      color: '#84cc16',
-      description: 'Application health monitoring',
-      content: {
-        explanation: 'Kubernetes uses probes to monitor container health and readiness. Liveness probes detect and restart unhealthy containers, readiness probes control traffic routing, and startup probes handle slow-starting containers. Proper probe configuration is critical for application reliability and zero-downtime deployments.',
-        keyPoints: [
-          'Liveness Probe - Detects when container is unhealthy and needs restart',
-          'Readiness Probe - Determines when container is ready to accept traffic',
-          'Startup Probe - Delays liveness/readiness checks for slow-starting apps',
-          'HTTP Probes - Check HTTP endpoints for status codes (200-399 = success)',
-          'TCP Probes - Test if TCP port is accepting connections',
-          'Exec Probes - Run command inside container, exit code 0 = success',
-          'Graceful Shutdown - PreStop hooks and termination grace period',
-          'Probe Configuration - initialDelaySeconds, periodSeconds, timeoutSeconds, failureThreshold'
-        ],
-        codeExample: `# ═══════════════════════════════════════════════════════════
-# ✦ Probe Types and Lifecycle Management
-# ═══════════════════════════════════════════════════════════
-# Comprehensive Deployment with all probe types
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: web-app
-  namespace: production
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: web-app
-  template:
-    metadata:
-      labels:
-        app: web-app
-    spec:
-      containers:
-      - name: web
-        image: web-app:1.0.0
-        ports:
-        - name: http
-          containerPort: 8080
-
-        # Liveness Probe - HTTP GET
-        # Kubelet restarts container if this fails
-        livenessProbe:
-          httpGet:
-            path: /actuator/health/liveness
-            port: 8080
-            httpHeaders:
-            - name: X-Health-Check
-              value: liveness
-          initialDelaySeconds: 60    # Wait 60s after start
-          periodSeconds: 10          # Check every 10s
-          timeoutSeconds: 5          # Timeout after 5s
-          failureThreshold: 3        # Restart after 3 failures
-          successThreshold: 1        # Consider healthy after 1 success
-
-        # Readiness Probe - HTTP GET
-        # Removes from Service endpoints if fails
-        readinessProbe:
-          httpGet:
-            path: /actuator/health/readiness
-            port: 8080
-          initialDelaySeconds: 30    # Wait 30s after start
-          periodSeconds: 5           # Check every 5s
-          timeoutSeconds: 3          # Timeout after 3s
-          failureThreshold: 3        # Remove after 3 failures
-          successThreshold: 1        # Add back after 1 success
-
-        # Startup Probe - HTTP GET
-        # Delays liveness/readiness until app starts
-        # Useful for slow-starting applications
-        startupProbe:
-          httpGet:
-            path: /actuator/health/startup
-            port: 8080
-          initialDelaySeconds: 0
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 30       # 30 * 10s = 5 min max startup time
-          successThreshold: 1
-
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "1Gi"
-            cpu: "1000m"
-
-        # Lifecycle hooks
-        lifecycle:
-          # PostStart - runs after container starts
-          postStart:
-            exec:
-              command:
-              - /bin/sh
-              - -c
-              - echo "Container started at $(date)" > /tmp/startup.log
-
-          # PreStop - runs before container stops
-          # Allows graceful shutdown
-          preStop:
-            exec:
-              command:
-              - /bin/sh
-              - -c
-              - |
-                # Graceful shutdown script
-                echo "Shutting down gracefully..."
-                # Stop accepting new requests
-                touch /tmp/shutdown
-                # Wait for existing requests to complete
-                sleep 15
-                # Cleanup
-                rm -f /tmp/*.tmp
-
-      # Termination grace period (default: 30s)
-      terminationGracePeriodSeconds: 60
-
-# ═══════════════════════════════════════════════════════════
-# ✦ Alternative Probe Methods
-# ═══════════════════════════════════════════════════════════
-# Liveness Probe - TCP Socket
-apiVersion: v1
-kind: Pod
-metadata:
-  name: tcp-liveness
-spec:
-  containers:
-  - name: redis
-    image: redis:7-alpine
-    ports:
-    - containerPort: 6379
-    livenessProbe:
-      tcpSocket:
-        port: 6379
-      initialDelaySeconds: 15
-      periodSeconds: 20
-      timeoutSeconds: 5
-      failureThreshold: 3
-
-# Liveness Probe - Exec Command
-apiVersion: v1
-kind: Pod
-metadata:
-  name: exec-liveness
-spec:
-  containers:
-  - name: postgres
-    image: postgres:15-alpine
-    env:
-    - name: POSTGRES_PASSWORD
-      value: secret
-    livenessProbe:
-      exec:
-        command:
-        - /bin/sh
-        - -c
-        - pg_isready -U postgres
-      initialDelaySeconds: 30
-      periodSeconds: 10
-      timeoutSeconds: 5
-      failureThreshold: 3
-    readinessProbe:
-      exec:
-        command:
-        - /bin/sh
-        - -c
-        - psql -U postgres -c "SELECT 1"
-      initialDelaySeconds: 10
-      periodSeconds: 5
-
-# Readiness Probe - gRPC
-apiVersion: v1
-kind: Pod
-metadata:
-  name: grpc-readiness
-spec:
-  containers:
-  - name: grpc-app
-    image: grpc-app:1.0.0
-    ports:
-    - containerPort: 50051
-    readinessProbe:
-      grpc:
-        port: 50051
-        service: health  # gRPC health service
-      initialDelaySeconds: 10
-      periodSeconds: 5
-
-# Spring Boot Actuator health endpoints
-# application.properties:
-# management.endpoint.health.probes.enabled=true
-# management.health.livenessState.enabled=true
-# management.health.readinessState.enabled=true
-
-# Custom health check endpoint (Node.js example)
-/*
-const express = require('express');
-const app = express();
-
-let isReady = false;
-let isHealthy = true;
-
-// Startup logic
-setTimeout(() => {
-  isReady = true;
-  console.log('Application ready');
-}, 30000);
-
-// Liveness endpoint
-app.get('/health/liveness', (req, res) => {
-  if (isHealthy) {
-    res.status(200).send('OK');
-  } else {
-    res.status(503).send('Unhealthy');
-  }
-});
-
-// Readiness endpoint
-app.get('/health/readiness', (req, res) => {
-  if (isReady) {
-    res.status(200).send('Ready');
-  } else {
-    res.status(503).send('Not Ready');
-  }
-});
-
-// Startup endpoint
-app.get('/health/startup', (req, res) => {
-  if (isReady) {
-    res.status(200).send('Started');
-  } else {
-    res.status(503).send('Starting...');
-  }
-});
-
-app.listen(8080);
-*/
-
-# Database with readiness probe
+    app: mysql
+  ports:
+  - port: 3306
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: mysql
 spec:
-  serviceName: mysql
-  replicas: 1
+  serviceName: mysql  # Headless service name
+  replicas: 3
   selector:
     matchLabels:
       app: mysql
@@ -2258,31 +1481,14 @@ spec:
       containers:
       - name: mysql
         image: mysql:8.0
-        env:
-        - name: MYSQL_ROOT_PASSWORD
-          value: rootpass
         ports:
         - containerPort: 3306
-        livenessProbe:
-          exec:
-            command:
-            - mysqladmin
-            - ping
-            - -h
-            - localhost
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-        readinessProbe:
-          exec:
-            command:
-            - mysql
-            - -h
-            - 127.0.0.1
-            - -e
-            - "SELECT 1"
-          initialDelaySeconds: 10
-          periodSeconds: 5
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: password
         volumeMounts:
         - name: data
           mountPath: /var/lib/mysql
@@ -2290,159 +1496,619 @@ spec:
   - metadata:
       name: data
     spec:
-      accessModes:
-      - ReadWriteOnce
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: gp3
       resources:
         requests:
-          storage: 10Gi
+          storage: 50Gi
 
-# Nginx with custom health check
+# Pod DNS names:
+# mysql-0.mysql.default.svc.cluster.local
+# mysql-1.mysql.default.svc.cluster.local
+# mysql-2.mysql.default.svc.cluster.local
+
+# PVCs created:
+# data-mysql-0, data-mysql-1, data-mysql-2`
+        }
+      ]
+    },
+    {
+      id: 'autoscaling',
+      name: 'Auto-Scaling & Resources',
+      icon: '📊',
+      color: '#06b6d4',
+      description: 'HPA: scales 1-1000+ replicas on CPU/memory thresholds. VPA: right-sizes requests/limits. Cluster Autoscaler: adds nodes (1000m=1 CPU). Resource quotas limit per-namespace. QoS: Guaranteed/Burstable/BestEffort.',
+      diagram: AutoScalingDiagram,
+      details: [
+        {
+          name: 'Horizontal Pod Autoscaler',
+          explanation: 'HPA automatically scales pod replicas based on CPU, memory, or custom metrics. Configure target utilization (e.g., 70% CPU). Set min/max replicas for bounds. Behavior settings control scale-up/down rates and stabilization windows. Requires Metrics Server for resource metrics.',
+          codeExample: `apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: web-app-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: web-app
+  minReplicas: 2
+  maxReplicas: 20
+  metrics:
+  # CPU-based scaling
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  # Memory-based scaling
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: AverageValue
+        averageValue: 500Mi
+  # Custom metric (e.g., requests per second)
+  - type: Pods
+    pods:
+      metric:
+        name: http_requests_per_second
+      target:
+        type: AverageValue
+        averageValue: 1000
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+
+# Create HPA via CLI
+kubectl autoscale deployment web-app \\
+  --min=2 --max=10 --cpu-percent=70
+
+# View HPA status
+kubectl get hpa
+kubectl describe hpa web-app-hpa`
+        },
+        {
+          name: 'Vertical Pod Autoscaler',
+          explanation: 'VPA adjusts CPU and memory requests/limits for containers. Modes: Off (recommendations only), Initial (set on creation), Recreate (update running pods), Auto. Helps right-size resources based on actual usage. Cannot run with HPA on same metrics. Useful for optimizing resource allocation.',
+          codeExample: `# Install VPA (from autoscaler repo)
+# kubectl apply -f vpa-v0.14.0/vpa-rbac.yaml
+# kubectl apply -f vpa-v0.14.0/vpa.yaml
+
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: app-vpa
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-app
+  updatePolicy:
+    updateMode: "Auto"  # Off, Initial, Recreate, Auto
+  resourcePolicy:
+    containerPolicies:
+    - containerName: '*'
+      minAllowed:
+        cpu: 100m
+        memory: 50Mi
+      maxAllowed:
+        cpu: 2
+        memory: 2Gi
+      controlledResources: ["cpu", "memory"]
+      controlledValues: RequestsAndLimits
+
+---
+# Recommendation-only mode (safe for production)
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: app-vpa-recommend
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-app
+  updatePolicy:
+    updateMode: "Off"  # Only provide recommendations
+
+# View VPA recommendations
+kubectl describe vpa app-vpa`
+        },
+        {
+          name: 'Cluster Autoscaler',
+          explanation: 'Cluster Autoscaler adds/removes nodes based on pod scheduling needs. Adds nodes when pods are pending due to insufficient resources. Removes underutilized nodes after configurable cool-down. Integrates with cloud provider node groups/pools. Consider with HPA for full auto-scaling.',
+          codeExample: `# Cluster Autoscaler Deployment (AWS EKS example)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx
+  name: cluster-autoscaler
+  namespace: kube-system
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: nginx
+      app: cluster-autoscaler
   template:
     metadata:
       labels:
-        app: nginx
+        app: cluster-autoscaler
     spec:
+      serviceAccountName: cluster-autoscaler
       containers:
-      - name: nginx
-        image: nginx:alpine
-        ports:
-        - containerPort: 80
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 10
-          periodSeconds: 5
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 5
-          periodSeconds: 3
-        lifecycle:
-          preStop:
-            exec:
-              command:
-              - /bin/sh
-              - -c
-              - nginx -s quit; while killall -0 nginx; do sleep 1; done
+      - name: cluster-autoscaler
+        image: k8s.gcr.io/autoscaling/cluster-autoscaler:v1.28.0
+        command:
+        - ./cluster-autoscaler
+        - --v=4
+        - --cloud-provider=aws
+        - --skip-nodes-with-local-storage=false
+        - --expander=least-waste
+        - --node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/<cluster-name>
+        - --balance-similar-node-groups
+        - --scale-down-delay-after-add=10m
+        - --scale-down-unneeded-time=10m
+        - --scale-down-utilization-threshold=0.5
 
-# ═══════════════════════════════════════════════════════════
-# ✦ Health Check Best Practices
-# ═══════════════════════════════════════════════════════════
-# Debugging failed probes
-# View pod events
-kubectl describe pod pod-name
+# Node group annotations for scaling
+# AWS ASG tags:
+# k8s.io/cluster-autoscaler/enabled: true
+# k8s.io/cluster-autoscaler/<cluster-name>: owned
 
-# Check probe configuration
-kubectl get pod pod-name -o yaml | grep -A 10 "livenessProbe\\|readinessProbe"
+# View autoscaler logs
+kubectl logs -n kube-system -l app=cluster-autoscaler
 
-# View container logs
-kubectl logs pod-name
-kubectl logs pod-name --previous  # Previous crashed container
+# Check for pending pods
+kubectl get pods --field-selector=status.phase=Pending`
+        },
+        {
+          name: 'Resource Requests & Limits',
+          explanation: 'Requests: Minimum resources guaranteed for scheduling. Limits: Maximum resources container can consume. CPU measured in millicores (1000m = 1 core). Memory in bytes (Mi, Gi). Always set requests for proper scheduling. Limits prevent resource hogging but can cause throttling/OOMKill.',
+          codeExample: `apiVersion: v1
+kind: Pod
+metadata:
+  name: resource-demo
+spec:
+  containers:
+  - name: app
+    image: myapp:1.0
+    resources:
+      # Guaranteed minimum resources
+      requests:
+        cpu: "250m"      # 0.25 CPU cores
+        memory: "256Mi"  # 256 mebibytes
+        ephemeral-storage: "1Gi"
+      # Maximum allowed resources
+      limits:
+        cpu: "1"         # 1 CPU core (1000m)
+        memory: "512Mi"  # 512 mebibytes
+        ephemeral-storage: "2Gi"
 
-# Test health endpoint manually
-kubectl exec -it pod-name -- curl http://localhost:8080/health
+# CPU units:
+# 1 = 1 vCPU/core
+# 1000m = 1 CPU
+# 100m = 0.1 CPU (100 millicores)
 
-# Port-forward and test locally
-kubectl port-forward pod/pod-name 8080:8080
-curl http://localhost:8080/health
+# Memory units:
+# E, P, T, G, M, K (decimal)
+# Ei, Pi, Ti, Gi, Mi, Ki (binary)
+# 128974848 (bytes)
+# 129e6, 129M (megabytes)
+# 128Mi (mebibytes)
 
-# Common probe issues:
-# 1. initialDelaySeconds too short
-# 2. timeoutSeconds too short
-# 3. failureThreshold too low
-# 4. Probe endpoint too slow
-# 5. No graceful shutdown handling
+# View resource usage
+kubectl top pods
+kubectl top nodes
 
-# Probe timing recommendations:
-# Fast-starting apps:
-#   - Liveness: initialDelaySeconds=30, periodSeconds=10
-#   - Readiness: initialDelaySeconds=10, periodSeconds=5
+# Describe pod resources
+kubectl describe pod resource-demo | grep -A 5 "Limits\\|Requests"`
+        },
+        {
+          name: 'Quality of Service',
+          explanation: 'QoS classes determine eviction priority. Guaranteed: requests equal limits for all containers (highest priority). Burstable: requests less than limits. BestEffort: no requests or limits set (lowest priority, first evicted). Use Guaranteed for critical workloads, Burstable for general apps.',
+          codeExample: `# Guaranteed QoS - requests = limits
+apiVersion: v1
+kind: Pod
+metadata:
+  name: guaranteed-pod
+spec:
+  containers:
+  - name: app
+    image: myapp:1.0
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "256Mi"
+      limits:
+        cpu: "500m"      # Same as request
+        memory: "256Mi"  # Same as request
 
-# Slow-starting apps:
-#   - Use startupProbe with high failureThreshold
-#   - Liveness: initialDelaySeconds=120, periodSeconds=10
-#   - Readiness: initialDelaySeconds=60, periodSeconds=5
+---
+# Burstable QoS - requests < limits
+apiVersion: v1
+kind: Pod
+metadata:
+  name: burstable-pod
+spec:
+  containers:
+  - name: app
+    image: myapp:1.0
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+      limits:
+        cpu: "500m"      # Higher than request
+        memory: "512Mi"  # Higher than request
 
-# Databases:
-#   - Liveness: initialDelaySeconds=60, periodSeconds=10
-#   - Readiness: initialDelaySeconds=30, periodSeconds=5
+---
+# BestEffort QoS - no requests/limits
+apiVersion: v1
+kind: Pod
+metadata:
+  name: besteffort-pod
+spec:
+  containers:
+  - name: app
+    image: myapp:1.0
+    # No resources specified
 
-# Best practices:
-# 1. Always implement readiness probes
-# 2. Use liveness probes carefully (avoid restart loops)
-# 3. Use startup probes for slow apps
-# 4. Keep probe endpoints lightweight
-# 5. Don't check dependencies in liveness probes
-# 6. Implement graceful shutdown with preStop hooks
-# 7. Set appropriate terminationGracePeriodSeconds
-# 8. Monitor probe failures in production
+# Check QoS class
+kubectl get pod guaranteed-pod -o jsonpath='{.status.qosClass}'
 
-# Graceful shutdown example (Go)
-/*
-func main() {
-    srv := &http.Server{Addr: ":8080"}
+# Eviction order (under memory pressure):
+# 1. BestEffort pods
+# 2. Burstable pods exceeding requests
+# 3. Guaranteed pods (last resort)`
+        },
+        {
+          name: 'Resource Quotas',
+          explanation: 'ResourceQuotas limit total resources per namespace. Set limits on CPU, memory, storage, object counts. LimitRanges set default and min/max per container. PriorityClasses control scheduling priority. PodDisruptionBudgets ensure availability during disruptions (minAvailable or maxUnavailable).',
+          codeExample: `# ResourceQuota
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: compute-quota
+  namespace: development
+spec:
+  hard:
+    requests.cpu: "10"
+    requests.memory: 20Gi
+    limits.cpu: "20"
+    limits.memory: 40Gi
+    persistentvolumeclaims: "10"
+    pods: "50"
+    services: "20"
+    secrets: "50"
+    configmaps: "50"
 
-    go func() {
-        if err := srv.ListenAndServe(); err != nil {
-            log.Fatal(err)
+---
+# LimitRange - defaults and constraints
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: limit-range
+  namespace: development
+spec:
+  limits:
+  - type: Container
+    default:
+      cpu: "500m"
+      memory: "256Mi"
+    defaultRequest:
+      cpu: "100m"
+      memory: "128Mi"
+    min:
+      cpu: "50m"
+      memory: "64Mi"
+    max:
+      cpu: "2"
+      memory: "2Gi"
+  - type: PersistentVolumeClaim
+    min:
+      storage: 1Gi
+    max:
+      storage: 100Gi
+
+---
+# PodDisruptionBudget
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: app-pdb
+spec:
+  minAvailable: 2  # Or use maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: web
+
+# View quotas
+kubectl get resourcequota -n development
+kubectl describe resourcequota compute-quota -n development`
         }
-    }()
-
-    // Wait for interrupt signal
-    quit := make(chan os.Signal, 1)
-    signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
-    <-quit
-
-    // Graceful shutdown
-    ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-    defer cancel()
-    if err := srv.Shutdown(ctx); err != nil {
-        log.Fatal(err)
-    }
-}
-*/`
-      }
+      ]
     },
     {
-      id: 8,
+      id: 'health-probes',
+      name: 'Health Checks & Probes',
+      icon: '🏥',
+      color: '#84cc16',
+      description: 'Liveness probe (restart on failure), Readiness probe (remove from LB), Startup probe (delay checks). Types: HTTP/TCP/Exec/gRPC. Config: initialDelaySeconds, periodSeconds, failureThreshold (3+).',
+      diagram: HealthProbesDiagram,
+      details: [
+        {
+          name: 'Liveness Probes',
+          explanation: 'Liveness probes detect when a container is unhealthy and needs restart. Kubelet restarts container after failureThreshold consecutive failures. Use for detecting deadlocks, unrecoverable states. Do NOT check external dependencies in liveness probes - this can cause cascading restarts.',
+          codeExample: `apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-demo
+spec:
+  containers:
+  - name: app
+    image: myapp:1.0
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+        httpHeaders:
+        - name: X-Custom-Header
+          value: liveness-check
+      initialDelaySeconds: 15   # Wait before first probe
+      periodSeconds: 10         # Check every 10 seconds
+      timeoutSeconds: 3         # Timeout per probe
+      failureThreshold: 3       # Restart after 3 failures
+      successThreshold: 1       # 1 success to be healthy
+
+---
+# Liveness with exec command
+apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-exec
+spec:
+  containers:
+  - name: app
+    image: myapp:1.0
+    livenessProbe:
+      exec:
+        command:
+        - cat
+        - /tmp/healthy
+      initialDelaySeconds: 5
+      periodSeconds: 5
+
+# Warning: Don't check external dependencies
+# Bad:  Check database connection (cascading failures)
+# Good: Check internal application state only`
+        },
+        {
+          name: 'Readiness Probes',
+          explanation: 'Readiness probes determine when a container is ready to accept traffic. Failed probe removes pod from Service endpoints. Use for startup checks, dependency validation, graceful load shedding. Critical for zero-downtime deployments - pod must be ready before receiving traffic.',
+          codeExample: `apiVersion: v1
+kind: Pod
+metadata:
+  name: readiness-demo
+spec:
+  containers:
+  - name: app
+    image: myapp:1.0
+    ports:
+    - containerPort: 8080
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      timeoutSeconds: 2
+      successThreshold: 1
+      failureThreshold: 3
+
+---
+# Combined liveness and readiness
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: web
+        image: web:1.0
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 10
+
+# Readiness can check dependencies
+# OK: Check database, cache, external services
+# Pod removed from service until ready`
+        },
+        {
+          name: 'Startup Probes',
+          explanation: 'Startup probes delay liveness/readiness checks for slow-starting applications. Use failureThreshold * periodSeconds to set maximum startup time. Once successful, liveness and readiness probes take over. Prevents liveness probe from killing slow-starting containers.',
+          codeExample: `apiVersion: v1
+kind: Pod
+metadata:
+  name: slow-starting-app
+spec:
+  containers:
+  - name: app
+    image: legacy-app:1.0
+    ports:
+    - containerPort: 8080
+    # Startup probe for slow-starting apps
+    startupProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 0
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 30     # 30 * 10 = 300s max startup
+      successThreshold: 1
+    # Liveness probe (runs after startup succeeds)
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      periodSeconds: 10
+      failureThreshold: 3
+    # Readiness probe (runs after startup succeeds)
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      periodSeconds: 5
+      failureThreshold: 3
+
+# Without startup probe, liveness could kill
+# slow-starting app before it's ready
+
+# Max startup time calculation:
+# failureThreshold * periodSeconds = max time
+# 30 * 10s = 300 seconds (5 minutes)`
+        },
+        {
+          name: 'Probe Types',
+          explanation: 'HTTP GET: Check endpoint returns 200-399 status. TCP Socket: Test if port accepts connections. Exec: Run command in container, exit code 0 = success. gRPC: Check gRPC health service. Configure initialDelaySeconds, periodSeconds, timeoutSeconds, successThreshold, failureThreshold.',
+          codeExample: `# HTTP GET Probe
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+    scheme: HTTPS  # HTTP or HTTPS
+    httpHeaders:
+    - name: Authorization
+      value: Bearer token123
+
+---
+# TCP Socket Probe
+livenessProbe:
+  tcpSocket:
+    port: 3306
+  initialDelaySeconds: 15
+  periodSeconds: 10
+
+---
+# Exec Probe
+livenessProbe:
+  exec:
+    command:
+    - /bin/sh
+    - -c
+    - pg_isready -U postgres -h localhost
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+---
+# gRPC Probe (K8s 1.24+)
+livenessProbe:
+  grpc:
+    port: 50051
+    service: ""  # Empty uses default health check
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
+# Probe configuration fields:
+# initialDelaySeconds: Wait before first probe (default 0)
+# periodSeconds: Frequency of probes (default 10)
+# timeoutSeconds: Probe timeout (default 1)
+# successThreshold: Successes to be healthy (default 1)
+# failureThreshold: Failures before action (default 3)`
+        },
+        {
+          name: 'Graceful Shutdown',
+          explanation: 'PreStop hooks run before container termination for cleanup. terminationGracePeriodSeconds (default 30s) allows time for graceful shutdown. SIGTERM sent first, then SIGKILL after grace period. Applications should handle SIGTERM, drain connections, complete in-flight requests.',
+          codeExample: `apiVersion: v1
+kind: Pod
+metadata:
+  name: graceful-app
+spec:
+  terminationGracePeriodSeconds: 60  # Max shutdown time
+  containers:
+  - name: app
+    image: myapp:1.0
+    lifecycle:
+      preStop:
+        exec:
+          command:
+          - /bin/sh
+          - -c
+          - |
+            echo "Shutting down..."
+            sleep 5  # Wait for LB to stop sending traffic
+            /app/drain-connections.sh
+            echo "Shutdown complete"
+      # Or use HTTP hook
+      # preStop:
+      #   httpGet:
+      #     path: /shutdown
+      #     port: 8080
+
+# Shutdown sequence:
+# 1. Pod marked Terminating
+# 2. Removed from Service endpoints
+# 3. preStop hook executes
+# 4. SIGTERM sent to container
+# 5. Wait terminationGracePeriodSeconds
+# 6. SIGKILL sent if still running
+
+# Application best practices:
+# - Handle SIGTERM signal
+# - Stop accepting new connections
+# - Complete in-flight requests
+# - Close database connections
+# - Flush logs and metrics
+
+# Java example (Spring Boot):
+# server.shutdown=graceful
+# spring.lifecycle.timeout-per-shutdown-phase=30s`
+        }
+      ]
+    },
+    {
+      id: 'production',
       name: 'Production Best Practices',
       icon: '🚀',
       color: '#ef4444',
-      description: 'Security, monitoring, and operational excellence',
-      content: {
-        explanation: 'Production Kubernetes requires robust security with RBAC, network policies, and Pod Security Standards. Monitoring with Prometheus and Grafana provides observability, while centralized logging with ELK stack enables troubleshooting. GitOps practices ensure reproducible deployments, and proper high availability design prevents outages.',
-        keyPoints: [
-          'RBAC - Role-Based Access Control for fine-grained permissions',
-          'Network Policies - Micro-segmentation and pod-to-pod firewall rules',
-          'Pod Security Standards - Enforce security best practices (Privileged, Baseline, Restricted)',
-          'Resource Quotas - Prevent resource exhaustion per namespace',
-          'Monitoring - Prometheus and Grafana for metrics and alerting',
-          'Logging - Centralized logging with ELK/EFK stack or cloud solutions',
-          'GitOps - Infrastructure as Code with ArgoCD or Flux',
-          'High Availability - Multi-zone deployments, PodDisruptionBudgets, backup strategies'
-        ],
-        codeExample: `# ═══════════════════════════════════════════════════════════
-# ✦ RBAC Configuration
-# ═══════════════════════════════════════════════════════════
-# RBAC - ServiceAccount
+      description: 'RBAC with least privilege. Pod Security Standards (Privileged/Baseline/Restricted). Prometheus + Grafana. EFK/Loki logs. GitOps (ArgoCD/Flux). Multi-AZ, PodDisruptionBudgets, Velero backups.',
+      diagram: ProductionBestPracticesDiagram,
+      details: [
+        {
+          name: 'RBAC Security',
+          explanation: 'Role-Based Access Control limits who can do what. ServiceAccounts for pod identities. Roles/ClusterRoles define permissions (verbs on resources). RoleBindings/ClusterRoleBindings assign roles to subjects. Follow least privilege principle. Audit with kubectl auth can-i.',
+          codeExample: `# ServiceAccount
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: app-service-account
   namespace: production
 
-# RBAC - Role (namespace-scoped)
+---
+# Role (namespace-scoped)
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -2456,7 +2122,8 @@ rules:
   resources: ["configmaps"]
   verbs: ["get", "list"]
 
-# RBAC - RoleBinding
+---
+# RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -2471,75 +2138,25 @@ roleRef:
   name: pod-reader
   apiGroup: rbac.authorization.k8s.io
 
-# RBAC - ClusterRole (cluster-wide)
+---
+# ClusterRole (cluster-wide)
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: cluster-admin-custom
+  name: node-viewer
 rules:
 - apiGroups: [""]
-  resources: ["*"]
-  verbs: ["*"]
-- apiGroups: ["apps"]
-  resources: ["deployments", "statefulsets", "daemonsets"]
-  verbs: ["*"]
-- apiGroups: ["batch"]
-  resources: ["jobs", "cronjobs"]
-  verbs: ["*"]
+  resources: ["nodes"]
+  verbs: ["get", "list", "watch"]
 
-# RBAC - ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: admin-binding
-subjects:
-- kind: User
-  name: admin@example.com
-  apiGroup: rbac.authorization.k8s.io
-roleRef:
-  kind: ClusterRole
-  name: cluster-admin-custom
-  apiGroup: rbac.authorization.k8s.io
-
-# RBAC - Developer role (limited permissions)
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: developer
-  namespace: development
-rules:
-- apiGroups: ["", "apps", "batch"]
-  resources: ["pods", "pods/log", "deployments", "services", "configmaps", "jobs"]
-  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-- apiGroups: [""]
-  resources: ["pods/exec", "pods/port-forward"]
-  verbs: ["create"]
-
-# Use ServiceAccount in Deployment
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: app
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: myapp
-  template:
-    metadata:
-      labels:
-        app: myapp
-    spec:
-      serviceAccountName: app-service-account
-      automountServiceAccountToken: true
-      containers:
-      - name: app
-        image: app:1.0.0
-
-# ═══════════════════════════════════════════════════════════
-# ✦ Security Policies and Network Controls
-# ═══════════════════════════════════════════════════════════
-# Pod Security Standards - Restricted (most secure)
+# Check permissions
+kubectl auth can-i list pods --as=system:serviceaccount:production:app-service-account
+kubectl auth can-i --list --as=developer@example.com`
+        },
+        {
+          name: 'Network Security',
+          explanation: 'Default deny NetworkPolicies for all namespaces. Allow only necessary ingress/egress traffic. Pod Security Standards: Privileged (unrestricted), Baseline (minimal restrictions), Restricted (hardened). Use namespace labels for enforcement. Scan images for vulnerabilities.',
+          codeExample: `# Pod Security Standards (via namespace labels)
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -2549,177 +2166,102 @@ metadata:
     pod-security.kubernetes.io/audit: restricted
     pod-security.kubernetes.io/warn: restricted
 
-# NetworkPolicy - Default deny all
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: default-deny-all
-  namespace: production
-spec:
-  podSelector: {}
-  policyTypes:
-  - Ingress
-  - Egress
-
-# NetworkPolicy - Allow specific traffic
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: app-network-policy
-  namespace: production
-spec:
-  podSelector:
-    matchLabels:
-      app: web-app
-  policyTypes:
-  - Ingress
-  - Egress
-  ingress:
-  # Allow from ingress controller
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: ingress-nginx
-    ports:
-    - protocol: TCP
-      port: 8080
-  # Allow from same namespace
-  - from:
-    - podSelector:
-        matchLabels:
-          tier: frontend
-    ports:
-    - protocol: TCP
-      port: 8080
-  egress:
-  # Allow to database
-  - to:
-    - podSelector:
-        matchLabels:
-          app: postgres
-    ports:
-    - protocol: TCP
-      port: 5432
-  # Allow DNS
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          name: kube-system
-    ports:
-    - protocol: UDP
-      port: 53
-  # Allow external HTTPS
-  - to:
-    - namespaceSelector: {}
-    ports:
-    - protocol: TCP
-      port: 443
-
-# ResourceQuota - Namespace limits
+---
+# Secure Pod configuration
 apiVersion: v1
-kind: ResourceQuota
+kind: Pod
 metadata:
-  name: production-quota
-  namespace: production
+  name: secure-app
 spec:
-  hard:
-    requests.cpu: "100"
-    requests.memory: "200Gi"
-    limits.cpu: "200"
-    limits.memory: "400Gi"
-    pods: "100"
-    services: "50"
-    services.loadbalancers: "5"
-    persistentvolumeclaims: "50"
-    requests.storage: "500Gi"
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: app
+    image: myapp:1.0
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+        - ALL
+    volumeMounts:
+    - name: tmp
+      mountPath: /tmp
+  volumes:
+  - name: tmp
+    emptyDir: {}
 
-# LimitRange - Default resource constraints
-apiVersion: v1
-kind: LimitRange
-metadata:
-  name: default-limits
-  namespace: production
-spec:
-  limits:
-  - default:
-      cpu: "500m"
-      memory: "512Mi"
-    defaultRequest:
-      cpu: "250m"
-      memory: "256Mi"
-    max:
-      cpu: "2"
-      memory: "2Gi"
-    min:
-      cpu: "100m"
-      memory: "64Mi"
-    type: Container
+# Image scanning with Trivy
+# trivy image myapp:1.0
 
-# PodDisruptionBudget - Ensure availability
-apiVersion: policy/v1
-kind: PodDisruptionBudget
-metadata:
-  name: app-pdb
-  namespace: production
-spec:
-  minAvailable: 2
-  selector:
-    matchLabels:
-      app: web-app
-
-# ═══════════════════════════════════════════════════════════
-# ✦ Monitoring and Alerting
-# ═══════════════════════════════════════════════════════════
-# Prometheus ServiceMonitor (with Prometheus Operator)
+# Admission controllers for security:
+# - OPA Gatekeeper
+# - Kyverno`
+        },
+        {
+          name: 'Monitoring & Alerting',
+          explanation: 'Prometheus for metrics collection with ServiceMonitors. Grafana for visualization and dashboards. PrometheusRules for alerting on conditions. Key metrics: CPU/memory usage, error rates, latency, pod restarts. Alert on SLO violations, not just thresholds.',
+          codeExample: `# ServiceMonitor (for Prometheus Operator)
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: app-metrics
-  namespace: production
+  name: app-monitor
+  labels:
+    release: prometheus
 spec:
   selector:
     matchLabels:
-      app: web-app
+      app: my-app
   endpoints:
   - port: metrics
+    path: /metrics
     interval: 30s
-    path: /actuator/prometheus
 
-# Prometheus rules - Alerting
+---
+# PrometheusRule for alerting
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: app-alerts
-  namespace: production
 spec:
   groups:
-  - name: app
-    interval: 30s
+  - name: app.rules
     rules:
     - alert: HighErrorRate
-      expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
+      expr: |
+        sum(rate(http_requests_total{status=~"5.."}[5m]))
+        / sum(rate(http_requests_total[5m])) > 0.05
       for: 5m
       labels:
         severity: critical
       annotations:
         summary: "High error rate detected"
-        description: "Error rate is {{ $value }} errors/sec"
-
-    - alert: PodCrashLooping
-      expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
-      for: 5m
+        description: "Error rate is {{ $value | humanizePercentage }}"
+    - alert: PodRestartingFrequently
+      expr: |
+        increase(kube_pod_container_status_restarts_total[1h]) > 3
+      for: 10m
       labels:
         severity: warning
-      annotations:
-        summary: "Pod is crash looping"
-        description: "Pod {{ $labels.pod }} is restarting"
 
-# Fluentd DaemonSet - Log collection
+# Install Prometheus stack
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm install prometheus prometheus-community/kube-prometheus-stack`
+        },
+        {
+          name: 'Centralized Logging',
+          explanation: 'EFK/ELK stack (Elasticsearch, Fluentd/Filebeat, Kibana) for log aggregation. Or use cloud solutions: AWS CloudWatch, GCP Logging, Azure Monitor. DaemonSet log collectors on each node. Structured logging (JSON) enables better searching and analysis.',
+          codeExample: `# Fluentd DaemonSet (simplified)
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: fluentd
-  namespace: kube-system
+  namespace: logging
 spec:
   selector:
     matchLabels:
@@ -2735,27 +2277,127 @@ spec:
         image: fluent/fluentd-kubernetes-daemonset:v1-debian-elasticsearch
         env:
         - name: FLUENT_ELASTICSEARCH_HOST
-          value: "elasticsearch.logging.svc.cluster.local"
+          value: "elasticsearch.logging.svc"
         - name: FLUENT_ELASTICSEARCH_PORT
           value: "9200"
         volumeMounts:
         - name: varlog
           mountPath: /var/log
-        - name: varlibdockercontainers
+        - name: containers
           mountPath: /var/lib/docker/containers
           readOnly: true
       volumes:
       - name: varlog
         hostPath:
           path: /var/log
-      - name: varlibdockercontainers
+      - name: containers
         hostPath:
           path: /var/lib/docker/containers
 
-# ═══════════════════════════════════════════════════════════
-# ✦ High Availability and Backup Strategies
-# ═══════════════════════════════════════════════════════════
-# Backup - Velero CronJob
+# Structured logging in application
+# {"timestamp":"2024-01-15T10:30:00Z",
+#  "level":"INFO",
+#  "message":"Request processed",
+#  "request_id":"abc-123",
+#  "duration_ms":45}
+
+# View logs
+kubectl logs -n production deployment/app -f --tail=100
+kubectl logs -n production -l app=web --all-containers`
+        },
+        {
+          name: 'GitOps & CI/CD',
+          explanation: 'GitOps: Git as single source of truth for deployments. ArgoCD or Flux for continuous deployment. Kustomize for environment-specific overlays. Helm for packaged applications. Automated sync ensures cluster matches Git state. Enables audit trail and rollback.',
+          codeExample: `# ArgoCD Application
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/org/app-manifests
+    targetRevision: main
+    path: overlays/production
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        maxDuration: 3m
+
+---
+# Kustomize overlay structure
+# base/
+#   deployment.yaml
+#   service.yaml
+#   kustomization.yaml
+# overlays/
+#   production/
+#     kustomization.yaml
+#     patches/
+#       replicas.yaml
+
+# overlays/production/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../../base
+namespace: production
+patches:
+- path: patches/replicas.yaml
+images:
+- name: myapp
+  newTag: v2.0.0
+
+# Install ArgoCD
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml`
+        },
+        {
+          name: 'High Availability',
+          explanation: 'Multi-zone deployments with pod anti-affinity. PodDisruptionBudgets ensure availability during maintenance. Topology spread constraints distribute pods evenly. Regular backups with Velero. Test disaster recovery procedures. Document runbooks for incident response.',
+          codeExample: `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+spec:
+  replicas: 6
+  template:
+    spec:
+      # Spread across zones
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: web
+      # Anti-affinity: don't colocate on same node
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: web
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: web
+        image: web:1.0
+
+---
+# Velero backup schedule
 apiVersion: velero.io/v1
 kind: Schedule
 metadata:
@@ -2767,258 +2409,181 @@ spec:
     includedNamespaces:
     - production
     - staging
-    excludedResources:
-    - events
-    - events.events.k8s.io
-    storageLocation: default
+    storageLocation: aws-backup
     ttl: 720h  # 30 days
 
-# Multi-zone Deployment
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: ha-app
-spec:
-  replicas: 6
-  selector:
-    matchLabels:
-      app: ha-app
-  template:
-    metadata:
-      labels:
-        app: ha-app
-    spec:
-      affinity:
-        # Spread pods across zones
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchLabels:
-                  app: ha-app
-              topologyKey: topology.kubernetes.io/zone
-        # Spread pods across nodes
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 50
-            podAffinityTerm:
-              labelSelector:
-                matchLabels:
-                  app: ha-app
-              topologyKey: kubernetes.io/hostname
-      containers:
-      - name: app
-        image: ha-app:1.0.0
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "1Gi"
-            cpu: "1000m"
+# Install Velero
+velero install --provider aws \\
+  --bucket my-backup-bucket \\
+  --secret-file ./credentials
 
-# GitOps - ArgoCD Application
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: production-app
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/myorg/k8s-manifests
-    targetRevision: main
-    path: production
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: production
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-    - CreateNamespace=true
+# Create backup
+velero backup create prod-backup --include-namespaces production
 
-# ═══════════════════════════════════════════════════════════
-# ✦ Production Operations and Checklist
-# ═══════════════════════════════════════════════════════════
-# Check RBAC
-kubectl auth can-i create pods --as=system:serviceaccount:production:app-sa
-
-# Audit security
-kubectl get psp  # Pod Security Policies
-kubectl get networkpolicies --all-namespaces
-
-# Check resource usage
-kubectl top nodes
-kubectl top pods --all-namespaces --sort-by=memory
-
-# View resource quotas
-kubectl get resourcequota --all-namespaces
-kubectl describe quota production-quota -n production
-
-# Check pod distribution
-kubectl get pods -o wide --all-namespaces | grep Running
-
-# View events
-kubectl get events --all-namespaces --sort-by='.lastTimestamp'
-
-# Best practices summary:
-# 1. Use namespaces for isolation
-# 2. Implement RBAC with least privilege
-# 3. Enable Pod Security Standards
-# 4. Apply NetworkPolicies for micro-segmentation
-# 5. Set ResourceQuotas and LimitRanges
-# 6. Configure PodDisruptionBudgets
-# 7. Implement monitoring and alerting
-# 8. Centralize logging
-# 9. Use GitOps for deployments
-# 10. Regular backups with Velero
-# 11. Multi-zone deployment for HA
-# 12. Implement proper health checks
-# 13. Use secrets management (Vault/AWS Secrets)
-# 14. Enable audit logging
-# 15. Regular security scanning
-# 16. Implement CI/CD pipelines
-# 17. Document runbooks
-# 18. Practice disaster recovery`
-      }
+# Restore
+velero restore create --from-backup prod-backup`
+        }
+      ]
     }
   ]
 
-  // Use ref to access current state in event handler
-  const selectedTopicRef = useRef(selectedTopic)
-  useEffect(() => {
-    selectedTopicRef.current = selectedTopic
-  }, [selectedTopic])
+  const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
 
-  // Keyboard navigation
+  // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
-        if (selectedTopicRef.current) {
-          e.preventDefault()
-          e.stopImmediatePropagation()
-          setSelectedTopic(null)
-          return
+        e.preventDefault()
+        e.stopPropagation()
+        if (selectedConceptIndex !== null) {
+          setSelectedConceptIndex(null)
+          setSelectedDetailIndex(0)
+        } else {
+          onBack()
         }
       }
     }
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConceptIndex, onBack])
+
+  const handlePreviousConcept = () => {
+    if (selectedConceptIndex > 0) {
+      setSelectedConceptIndex(selectedConceptIndex - 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  const handleNextConcept = () => {
+    if (selectedConceptIndex < concepts.length - 1) {
+      setSelectedConceptIndex(selectedConceptIndex + 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  const buildBreadcrumbStack = () => {
+    const stack = [
+      { name: 'DevOps', icon: '🔧', onClick: onBack }
+    ]
+
+    if (selectedConcept) {
+      stack.push({ name: 'Kubernetes', icon: '☸️', onClick: () => { setSelectedConceptIndex(null); setSelectedDetailIndex(0) } })
+      stack.push({ name: selectedConcept.name, icon: selectedConcept.icon })
+    } else {
+      stack.push({ name: 'Kubernetes', icon: '☸️' })
+    }
+
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index) => {
+    const stack = buildBreadcrumbStack()
+    if (stack[index].onClick) {
+      stack[index].onClick()
+    }
+  }
+
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%)',
+    padding: '2rem',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
+  }
+
+  const headerStyle = {
+    maxWidth: '1400px',
+    margin: '0 auto 2rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '1rem'
+  }
+
+  const titleStyle = {
+    fontSize: '2.5rem',
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #93c5fd, #60a5fa)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    margin: 0
+  }
+
+  const backButtonStyle = {
+    padding: '0.75rem 1.5rem',
+    background: 'rgba(59, 130, 246, 0.2)',
+    border: '1px solid rgba(59, 130, 246, 0.3)',
+    borderRadius: '0.5rem',
+    color: '#60a5fa',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    transition: 'all 0.2s'
+  }
+
+  const navButtonStyle = {
+    padding: '0.75rem 1.25rem',
+    background: 'rgba(16, 185, 129, 0.2)',
+    border: '1px solid rgba(16, 185, 129, 0.3)',
+    borderRadius: '0.5rem',
+    color: '#4ade80',
+    cursor: 'pointer',
+    fontSize: '0.95rem',
+    transition: 'all 0.2s',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem'
+  }
 
   return (
-    <div style={{
-      padding: '2rem',
-      maxWidth: '95%',
-      margin: '120px auto 0',
-      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
-      borderRadius: '16px',
-      boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.5)',
-      border: '3px solid rgba(59, 130, 246, 0.4)'
-    }}>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '2rem',
-        gap: '1rem',
-        flexWrap: 'wrap'
-      }}>
+    <div style={containerStyle}>
+      <div style={headerStyle}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <button
+            style={backButtonStyle}
             onClick={onBack}
-            style={{
-              padding: '0.75rem 1.5rem',
-              fontSize: '1rem',
-              fontWeight: '600',
-              backgroundColor: '#3b82f6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.3)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)'
+              e.currentTarget.style.transform = 'translateY(0)'
+            }}
           >
             ← Back to DevOps
           </button>
-          <div>
-            <h1 style={{
-              fontSize: '2.5rem',
-              fontWeight: '800',
-              color: 'white',
-              margin: 0,
-              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-            }}>
-              ☸️ Kubernetes
-            </h1>
-            {currentSubcategory && (
-              <span style={{
-                padding: '0.25rem 0.75rem',
-                fontSize: '0.85rem',
-                fontWeight: '600',
-                backgroundColor: '#374151',
-                color: '#93c5fd',
-                borderRadius: '6px',
-                marginTop: '0.25rem',
-                display: 'inline-block'
-              }}>
-                {currentSubcategory}
-              </span>
-            )}
-          </div>
+          <h1 style={titleStyle}>Kubernetes</h1>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           {onPrevious && (
             <button
+              style={navButtonStyle}
               onClick={onPrevious}
-              style={{
-                padding: '0.75rem 1.25rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.3)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
             >
               ← {previousName}
             </button>
           )}
           {onNext && (
             <button
+              style={navButtonStyle}
               onClick={onNext}
-              style={{
-                padding: '0.75rem 1.25rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.3)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
             >
               {nextName} →
             </button>
@@ -3026,401 +2591,148 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
         </div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
-
-      <div style={{
-        backgroundColor: '#1f2937',
-        padding: '2.5rem 10rem',
-        borderRadius: '16px',
-        border: '3px solid #374151',
-        marginBottom: '2rem'
-      }}>
-        <p style={{
-          fontSize: '1.3rem',
-          color: '#9ca3af',
-          fontWeight: '500',
-          margin: 0,
-          lineHeight: '1.8',
-          textAlign: 'center'
-        }}>
-          Comprehensive Kubernetes guide covering architecture fundamentals, deployments, services, configuration management,
-          persistent storage, auto-scaling, health checks, and production best practices for container orchestration.
-        </p>
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          colors={K8S_COLORS}
+        />
       </div>
 
       <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
         display: 'grid',
-        gridTemplateColumns: selectedTopic ? '350px 1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '2rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gap: '1.5rem'
       }}>
-        {!selectedTopic ? (
-          // Topic Grid View
-          kubernetesTopics.map((topic) => (
-            <div
-              key={topic.id}
-              onClick={() => setSelectedTopic(topic)}
-              style={{
-                backgroundColor: '#1f2937',
-                padding: '2rem',
-                borderRadius: '12px',
-                border: '2px solid #374151',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                height: '200px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#374151'
-                e.currentTarget.style.borderColor = topic.color
-                e.currentTarget.style.transform = 'translateY(-4px)'
-                e.currentTarget.style.boxShadow = `0 8px 16px ${topic.color}33`
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#1f2937'
-                e.currentTarget.style.borderColor = '#374151'
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
-            >
-              <div>
-                <div style={{
-                  fontSize: '3rem',
-                  marginBottom: '1rem'
-                }}>
-                  {topic.icon}
-                </div>
-                <h3 style={{
-                  fontSize: '1.3rem',
-                  fontWeight: '700',
-                  color: topic.color,
-                  margin: '0 0 0.5rem 0'
-                }}>
-                  {topic.name}
-                </h3>
-                <p style={{
-                  fontSize: '0.9rem',
-                  color: '#9ca3af',
-                  margin: 0,
-                  lineHeight: '1.5'
-                }}>
-                  {topic.description}
-                </p>
-              </div>
-              <div style={{
-                fontSize: '0.85rem',
-                fontWeight: '600',
-                color: topic.color,
-                marginTop: '1rem'
-              }}>
-                Click to explore →
-              </div>
+        {concepts.map((concept, index) => (
+          <div
+            key={concept.id}
+            onClick={() => setSelectedConceptIndex(index)}
+            style={{
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              border: `1px solid ${concept.color}40`,
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = `0 20px 40px ${concept.color}20`
+              e.currentTarget.style.borderColor = concept.color
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.borderColor = `${concept.color}40`
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
+              <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
             </div>
-          ))
-        ) : (
-          <>
-            {/* Topic List */}
-            <div>
-              <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: 'white',
-                marginBottom: '1.5rem'
-              }}>
-                Kubernetes Topics
-              </h3>
-              <div style={{
-                display: 'grid',
-                gap: '1rem'
-              }}>
-                {kubernetesTopics.map((topic) => (
-                  <div
-                    key={topic.id}
-                    onClick={() => setSelectedTopic(topic)}
-                    style={{
-                      backgroundColor: selectedTopic?.id === topic.id
-                        ? `${topic.color}20`
-                        : '#1f2937',
-                      padding: '1rem',
-                      borderRadius: '8px',
-                      border: selectedTopic?.id === topic.id
-                        ? `3px solid ${topic.color}`
-                        : '2px solid #374151',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (selectedTopic?.id !== topic.id) {
-                        e.currentTarget.style.backgroundColor = '#374151'
-                        e.currentTarget.style.borderColor = '#4b5563'
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (selectedTopic?.id !== topic.id) {
-                        e.currentTarget.style.backgroundColor = '#1f2937'
-                        e.currentTarget.style.borderColor = '#374151'
-                      }
-                    }}
-                  >
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem'
-                    }}>
-                      <span style={{ fontSize: '1.5rem' }}>{topic.icon}</span>
-                      <div style={{
-                        fontSize: '1rem',
-                        fontWeight: '700',
-                        color: selectedTopic?.id === topic.id ? topic.color : 'white'
-                      }}>
-                        {topic.name}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
+            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+              {concept.details.length} topics - Click to explore
             </div>
-
-            {/* Topic Content */}
-            <div>
-              <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: selectedTopic.color,
-                marginBottom: '1.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem'
-              }}>
-                <span style={{ fontSize: '2rem' }}>{selectedTopic.icon}</span>
-                {selectedTopic.name}
-              </h3>
-
-              {/* Explanation */}
-              <div style={{
-                backgroundColor: '#1f2937',
-                padding: '1.5rem',
-                borderRadius: '12px',
-                border: `2px solid ${selectedTopic.color}50`,
-                marginBottom: '1.5rem'
-              }}>
-                <p style={{
-                  fontSize: '1rem',
-                  color: '#d1d5db',
-                  fontWeight: '500',
-                  margin: 0,
-                  lineHeight: '1.7',
-                  textAlign: 'justify'
-                }}>
-                  {selectedTopic.content.explanation}
-                </p>
-              </div>
-
-              {/* Key Points */}
-              <div style={{
-                backgroundColor: '#1f2937',
-                padding: '1.5rem',
-                borderRadius: '12px',
-                border: `2px solid ${selectedTopic.color}50`,
-                marginBottom: '1.5rem'
-              }}>
-                <h4 style={{
-                  fontSize: '1.1rem',
-                  fontWeight: '700',
-                  color: selectedTopic.color,
-                  margin: '0 0 1rem 0'
-                }}>
-                  📌 Key Points
-                </h4>
-                <div style={{
-                  display: 'grid',
-                  gap: '0.75rem'
-                }}>
-                  {selectedTopic.content.keyPoints.map((point, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '0.5rem',
-                        padding: '0.75rem',
-                        backgroundColor: '#374151',
-                        borderRadius: '6px',
-                        fontSize: '0.9rem',
-                        color: '#d1d5db',
-                        lineHeight: '1.6'
-                      }}
-                    >
-                      <span style={{
-                        color: selectedTopic.color,
-                        fontWeight: '700',
-                        fontSize: '1.2rem',
-                        lineHeight: '1'
-                      }}>
-                        •
-                      </span>
-                      {point}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Code Examples with Dropdowns */}
-              <h3 style={{
-                fontSize: '1.2rem',
-                fontWeight: '700',
-                color: selectedTopic.color,
-                margin: '0 0 1.5rem 0',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}>
-                <div style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  backgroundColor: selectedTopic.color
-                }} />
-                Implementation Details
-              </h3>
-
-              {parseCodeSections(selectedTopic.content.codeExample).map((section, index) => {
-                const sectionId = `section-${index}`
-                const isExpanded = expandedSections[sectionId]
-
-                return (
-                  <div
-                    key={index}
-                    style={{
-                      backgroundColor: '#1f2937',
-                      border: '1px solid #374151',
-                      borderRadius: '12px',
-                      marginBottom: '1rem',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    {/* Section Header */}
-                    <button
-                      onClick={() => toggleSection(sectionId)}
-                      style={{
-                        width: '100%',
-                        padding: '1rem 1.5rem',
-                        backgroundColor: isExpanded ? `${selectedTopic.color}20` : '#1f2937',
-                        border: 'none',
-                        borderBottom: isExpanded ? '1px solid #374151' : 'none',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = `${selectedTopic.color}30`
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = isExpanded ? `${selectedTopic.color}20` : '#1f2937'
-                      }}
-                    >
-                      <span style={{
-                        fontSize: '1rem',
-                        fontWeight: '600',
-                        color: selectedTopic.color,
-                        textAlign: 'left'
-                      }}>
-                        {section.title}
-                      </span>
-                      <span style={{
-                        fontSize: '1.2rem',
-                        color: selectedTopic.color,
-                        transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.2s ease'
-                      }}>
-                        ▼
-                      </span>
-                    </button>
-
-                    {/* Section Content */}
-                    {isExpanded && (
-                      <div style={{
-                        backgroundColor: '#1e293b',
-                        padding: '1.5rem',
-                        maxHeight: '600px',
-                        overflowY: 'auto'
-                      }}>
-                        <SyntaxHighlighter code={section.code} />
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-
-              {/* Expand/Collapse all button */}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                gap: '1rem',
-                marginTop: '1.5rem'
-              }}>
-                <button
-                  onClick={() => {
-                    const allExpanded = {}
-                    parseCodeSections(selectedTopic.content.codeExample).forEach((_, index) => {
-                      allExpanded[`section-${index}`] = true
-                    })
-                    setExpandedSections(allExpanded)
-                  }}
-                  style={{
-                    padding: '0.75rem 1.5rem',
-                    fontSize: '0.95rem',
-                    fontWeight: '600',
-                    backgroundColor: selectedTopic.color,
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.opacity = '0.9'
-                    e.currentTarget.style.transform = 'translateY(-2px)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.opacity = '1'
-                    e.currentTarget.style.transform = 'translateY(0)'
-                  }}
-                >
-                  Expand All
-                </button>
-                <button
-                  onClick={() => setExpandedSections({})}
-                  style={{
-                    padding: '0.75rem 1.5rem',
-                    fontSize: '0.95rem',
-                    fontWeight: '600',
-                    backgroundColor: '#2563eb',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.opacity = '0.9'
-                    e.currentTarget.style.transform = 'translateY(-2px)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.opacity = '1'
-                    e.currentTarget.style.transform = 'translateY(0)'
-                  }}
-                >
-                  Collapse All
-                </button>
-              </div>
-            </div>
-          </>
-        )}
+          </div>
+        ))}
       </div>
+
+      {/* Concept Detail Modal */}
+      {selectedConcept && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '2rem'
+          }}
+          onClick={() => setSelectedConceptIndex(null)}
+        >
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              maxWidth: '1200px',
+              maxHeight: '92vh',
+              overflow: 'auto',
+              border: `1px solid ${selectedConcept.color}40`
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Breadcrumb */}
+            <Breadcrumb
+              breadcrumbStack={buildBreadcrumbStack()}
+              onBreadcrumbClick={handleBreadcrumbClick}
+              colors={K8S_COLORS}
+            />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid #334155' }}>
+              <h2 style={{ color: selectedConcept.color, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.25rem' }}>
+                <span>{selectedConcept.icon}</span>
+                {selectedConcept.name}
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button onClick={handlePreviousConcept} disabled={selectedConceptIndex === 0} style={{ padding: '0.4rem 0.75rem', background: 'rgba(100, 116, 139, 0.2)', border: '1px solid rgba(100, 116, 139, 0.3)', borderRadius: '0.375rem', color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8', cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer', fontSize: '0.8rem' }}>←</button>
+                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>{selectedConceptIndex + 1}/{concepts.length}</span>
+                <button onClick={handleNextConcept} disabled={selectedConceptIndex === concepts.length - 1} style={{ padding: '0.4rem 0.75rem', background: 'rgba(100, 116, 139, 0.2)', border: '1px solid rgba(100, 116, 139, 0.3)', borderRadius: '0.375rem', color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8', cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer', fontSize: '0.8rem' }}>→</button>
+                <button onClick={() => setSelectedConceptIndex(null)} style={{ padding: '0.4rem 0.75rem', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '0.375rem', color: '#f87171', cursor: 'pointer', fontSize: '0.8rem', marginLeft: '0.5rem' }}>✕</button>
+              </div>
+            </div>
+
+            {/* Subtopic Tabs */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {selectedConcept.details.map((detail, i) => (
+                <button key={i} onClick={() => setSelectedDetailIndex(i)} style={{ padding: '0.5rem 1rem', background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)', border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`, borderRadius: '0.5rem', color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8', cursor: 'pointer', fontSize: '0.85rem', fontWeight: selectedDetailIndex === i ? '600' : '400', transition: 'all 0.2s' }}>{detail.name}</button>
+              ))}
+            </div>
+
+            {/* Selected Subtopic Content */}
+            {(() => {
+              const detail = selectedConcept.details[selectedDetailIndex]
+              const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = selectedConcept.diagram
+              return (
+                <div>
+                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>{detail.name}</h3>
+                  {DiagramComponent && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
+                  <p style={{ color: '#e2e8f0', lineHeight: '1.8', marginBottom: '1rem', background: colorScheme.bg, border: `1px solid ${colorScheme.border}`, borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>{detail.explanation}</p>
+                  {detail.codeExample && (
+                    <SyntaxHighlighter
+                      language="yaml"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        padding: '1rem',
+                        margin: 0,
+                        borderRadius: '0.5rem',
+                        fontSize: '0.8rem',
+                        border: '1px solid #334155',
+                        background: '#0f172a'
+                      }}
+                      codeTagProps={{ style: { background: 'transparent' } }}
+                    >
+                      {detail.codeExample}
+                    </SyntaxHighlighter>
+                  )}
+                </div>
+              )
+            })()}
+
+          </div>
+        </div>
+      )}
     </div>
   )
 }

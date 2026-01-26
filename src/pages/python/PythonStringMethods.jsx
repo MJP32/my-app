@@ -1440,10 +1440,12 @@ def safe_encode(text, encoding='utf-8'):
                   language="python"
                   style={vscDarkPlus}
                   customStyle={{
-                    padding: '1.5rem',
-                    borderRadius: '0.5rem',
-                    fontSize: '0.9rem',
-                    border: '1px solid #3b82f6'
+                    margin: 0,
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    background: 'none',
+                    backgroundColor: 'transparent',
+                    padding: 0
                   }}
                 >
                   {section.code}
@@ -1532,10 +1534,12 @@ def safe_encode(text, encoding='utf-8'):
                     language="python"
                     style={vscDarkPlus}
                     customStyle={{
-                      padding: '1.5rem',
-                      borderRadius: '0.5rem',
-                      fontSize: '0.9rem',
-                      border: '1px solid #3b82f6'
+                      margin: 0,
+                      borderRadius: '0.375rem',
+                      fontSize: '0.875rem',
+                      background: 'none',
+                      backgroundColor: 'transparent',
+                      padding: 0
                     }}
                   >
                     {section.code}
@@ -1615,7 +1619,7 @@ def safe_encode(text, encoding='utf-8'):
       <p style={{
         fontSize: '1.2rem',
         color: '#d1d5db',
-        textAlign: 'center',
+        textAlign: 'left',
         marginBottom: '3rem',
         lineHeight: '1.8'
       }}>

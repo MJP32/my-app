@@ -174,6 +174,7 @@ import JavaTrading from './pages/etrading/JavaTrading.jsx'
 import RiskManagement from './pages/etrading/RiskManagement.jsx'
 import PriceContribution from './pages/etrading/PriceContribution.jsx'
 import DistributedSystems from './pages/etrading/DistributedSystems.jsx'
+import DisruptorPattern from './pages/etrading/DisruptorPattern.jsx'
 
 // Algorithm pages - lazy loaded for better performance
 const Arrays = lazy(() => import('./pages/algorithms/Arrays.jsx'))
@@ -3775,6 +3776,16 @@ function App() {
         }}
       />
     }
+    if (selectedOption === 'Disruptor Pattern') {
+      return <DisruptorPattern
+        onBack={() => setSelectedOptionAndRef('eTrading')}
+        breadcrumb={{
+          section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
+          topic: 'Disruptor Pattern',
+          colors: BREADCRUMB_COLORS.eTrading
+        }}
+      />
+    }
     if (selectedOption === 'Var/CVar') {
       return (
         <div ref={componentContainerRef}>
@@ -4445,147 +4456,147 @@ function App() {
     }
     // System Design Concepts
     if (selectedOption === 'Load Balancing') {
-      return <LoadBalancing onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Concepts', onClick: () => goToMyProjectsCategory('system-design-concepts') },
+      return <LoadBalancing onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
+        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Load Balancing',
-        colors: BREADCRUMB_COLORS['My Projects']
+        colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Caching Strategies') {
-      return <CachingStrategies onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Concepts', onClick: () => goToMyProjectsCategory('system-design-concepts') },
+      return <CachingStrategies onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
+        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Caching Strategies',
-        colors: BREADCRUMB_COLORS['My Projects']
+        colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Database Sharding') {
-      return <DatabaseSharding onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Concepts', onClick: () => goToMyProjectsCategory('system-design-concepts') },
+      return <DatabaseSharding onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
+        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Database Sharding',
-        colors: BREADCRUMB_COLORS['My Projects']
+        colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'CAP Theorem') {
-      return <CAPTheorem onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Concepts', onClick: () => goToMyProjectsCategory('system-design-concepts') },
+      return <CAPTheorem onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
+        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'CAP Theorem',
-        colors: BREADCRUMB_COLORS['My Projects']
+        colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Consistency Patterns') {
-      return <ConsistencyPatterns onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Concepts', onClick: () => goToMyProjectsCategory('system-design-concepts') },
+      return <ConsistencyPatterns onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
+        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Consistency Patterns',
-        colors: BREADCRUMB_COLORS['My Projects']
+        colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'API Design') {
-      return <APIDesign onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Concepts', onClick: () => goToMyProjectsCategory('system-design-concepts') },
+      return <APIDesign onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
+        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'API Design & REST',
-        colors: BREADCRUMB_COLORS['My Projects']
+        colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Message Queues') {
-      return <MessageQueues onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Concepts', onClick: () => goToMyProjectsCategory('system-design-concepts') },
+      return <MessageQueues onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
+        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Message Queues',
-        colors: BREADCRUMB_COLORS['My Projects']
+        colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'CDN') {
-      return <CDN onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Concepts', onClick: () => goToMyProjectsCategory('system-design-concepts') },
+      return <CDN onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
+        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Content Delivery Network',
-        colors: BREADCRUMB_COLORS['My Projects']
+        colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Database Replication') {
-      return <DatabaseReplication onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Concepts', onClick: () => goToMyProjectsCategory('system-design-concepts') },
+      return <DatabaseReplication onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
+        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Database Replication',
-        colors: BREADCRUMB_COLORS['My Projects']
+        colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Scaling') {
-      return <Scaling onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Concepts', onClick: () => goToMyProjectsCategory('system-design-concepts') },
+      return <Scaling onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
+        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Horizontal vs Vertical Scaling',
-        colors: BREADCRUMB_COLORS['My Projects']
+        colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Proxies') {
-      return <Proxies onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Concepts', onClick: () => goToMyProjectsCategory('system-design-concepts') },
+      return <Proxies onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
+        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Proxies & Reverse Proxies',
-        colors: BREADCRUMB_COLORS['My Projects']
+        colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Data Partitioning') {
-      return <DataPartitioning onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Concepts', onClick: () => goToMyProjectsCategory('system-design-concepts') },
+      return <DataPartitioning onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
+        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Data Partitioning',
-        colors: BREADCRUMB_COLORS['My Projects']
+        colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'SQL vs NoSQL') {
-      return <SQLvsNoSQL onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Concepts', onClick: () => goToMyProjectsCategory('system-design-concepts') },
+      return <SQLvsNoSQL onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
+        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'SQL vs NoSQL',
-        colors: BREADCRUMB_COLORS['My Projects']
+        colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Consistent Hashing') {
-      return <ConsistentHashing onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Concepts', onClick: () => goToMyProjectsCategory('system-design-concepts') },
+      return <ConsistentHashing onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
+        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Consistent Hashing',
-        colors: BREADCRUMB_COLORS['My Projects']
+        colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'WebSockets') {
-      return <WebSockets onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Concepts', onClick: () => goToMyProjectsCategory('system-design-concepts') },
+      return <WebSockets onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
+        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Long Polling vs WebSockets',
-        colors: BREADCRUMB_COLORS['My Projects']
+        colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Blob Storage') {
-      return <BlobStorage onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Concepts', onClick: () => goToMyProjectsCategory('system-design-concepts') },
+      return <BlobStorage onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
+        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Blob Storage',
-        colors: BREADCRUMB_COLORS['My Projects']
+        colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Microservices') {
-      return <Microservices onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Concepts', onClick: () => goToMyProjectsCategory('system-design-concepts') },
+      return <Microservices onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
+        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Microservices Architecture',
-        colors: BREADCRUMB_COLORS['My Projects']
+        colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Event-Driven') {
-      return <EventDriven onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Concepts', onClick: () => goToMyProjectsCategory('system-design-concepts') },
+      return <EventDriven onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
+        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+        category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Event-Driven Architecture',
-        colors: BREADCRUMB_COLORS['My Projects']
+        colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Solace') {

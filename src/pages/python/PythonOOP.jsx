@@ -3,6 +3,361 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 
+// SVG Diagram Components
+
+// 1. ClassObjectDiagram - Shows relationship between Class (blueprint) and Objects (instances)
+const ClassObjectDiagram = () => (
+  <svg viewBox="0 0 500 320" style={{ width: '100%', maxWidth: '500px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="classGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3776ab" />
+        <stop offset="100%" stopColor="#1e4f7a" />
+      </linearGradient>
+      <linearGradient id="objectGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#059669" />
+        <stop offset="100%" stopColor="#047857" />
+      </linearGradient>
+      <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#60a5fa" />
+      </marker>
+    </defs>
+
+    {/* Class (Blueprint) Box */}
+    <rect x="150" y="20" width="200" height="100" rx="8" fill="url(#classGradient)" stroke="#60a5fa" strokeWidth="2" />
+    <text x="250" y="50" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">Class: Person</text>
+    <text x="250" y="70" textAnchor="middle" fill="#93c5fd" fontSize="11">(Blueprint)</text>
+    <line x1="160" y1="80" x2="340" y2="80" stroke="#60a5fa" strokeWidth="1" />
+    <text x="170" y="100" fill="#d1d5db" fontSize="11">name, age</text>
+    <text x="170" y="115" fill="#d1d5db" fontSize="11">introduce()</text>
+
+    {/* Arrows from Class to Objects */}
+    <path d="M 200 120 L 100 170" stroke="#60a5fa" strokeWidth="2" fill="none" markerEnd="url(#arrowhead)" strokeDasharray="5,3" />
+    <path d="M 250 120 L 250 170" stroke="#60a5fa" strokeWidth="2" fill="none" markerEnd="url(#arrowhead)" strokeDasharray="5,3" />
+    <path d="M 300 120 L 400 170" stroke="#60a5fa" strokeWidth="2" fill="none" markerEnd="url(#arrowhead)" strokeDasharray="5,3" />
+
+    <text x="145" y="150" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">creates</text>
+    <text x="250" y="150" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">creates</text>
+    <text x="355" y="150" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">creates</text>
+
+    {/* Object 1 */}
+    <rect x="20" y="180" width="160" height="80" rx="8" fill="url(#objectGradient)" stroke="#34d399" strokeWidth="2" />
+    <text x="100" y="205" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Object: person1</text>
+    <line x1="30" y1="215" x2="170" y2="215" stroke="#34d399" strokeWidth="1" />
+    <text x="40" y="235" fill="#d1d5db" fontSize="10">name = "Alice"</text>
+    <text x="40" y="250" fill="#d1d5db" fontSize="10">age = 30</text>
+
+    {/* Object 2 */}
+    <rect x="170" y="180" width="160" height="80" rx="8" fill="url(#objectGradient)" stroke="#34d399" strokeWidth="2" />
+    <text x="250" y="205" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Object: person2</text>
+    <line x1="180" y1="215" x2="320" y2="215" stroke="#34d399" strokeWidth="1" />
+    <text x="190" y="235" fill="#d1d5db" fontSize="10">name = "Bob"</text>
+    <text x="190" y="250" fill="#d1d5db" fontSize="10">age = 25</text>
+
+    {/* Object 3 */}
+    <rect x="320" y="180" width="160" height="80" rx="8" fill="url(#objectGradient)" stroke="#34d399" strokeWidth="2" />
+    <text x="400" y="205" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Object: person3</text>
+    <line x1="330" y1="215" x2="470" y2="215" stroke="#34d399" strokeWidth="1" />
+    <text x="340" y="235" fill="#d1d5db" fontSize="10">name = "Charlie"</text>
+    <text x="340" y="250" fill="#d1d5db" fontSize="10">age = 35</text>
+
+    {/* Legend */}
+    <rect x="20" y="280" width="460" height="30" rx="4" fill="#1f2937" stroke="#374151" strokeWidth="1" />
+    <rect x="30" y="288" width="14" height="14" fill="url(#classGradient)" rx="2" />
+    <text x="50" y="299" fill="#d1d5db" fontSize="10">Class (Blueprint)</text>
+    <rect x="160" y="288" width="14" height="14" fill="url(#objectGradient)" rx="2" />
+    <text x="180" y="299" fill="#d1d5db" fontSize="10">Objects (Instances)</text>
+    <line x1="310" y1="295" x2="340" y2="295" stroke="#60a5fa" strokeWidth="2" strokeDasharray="5,3" />
+    <text x="350" y="299" fill="#d1d5db" fontSize="10">Instantiation</text>
+  </svg>
+)
+
+// 2. InheritanceDiagram - Class hierarchy with parent and child classes
+const InheritanceDiagram = () => (
+  <svg viewBox="0 0 500 350" style={{ width: '100%', maxWidth: '500px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="parentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3776ab" />
+        <stop offset="100%" stopColor="#1e4f7a" />
+      </linearGradient>
+      <linearGradient id="childGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#059669" />
+        <stop offset="100%" stopColor="#047857" />
+      </linearGradient>
+      <marker id="inheritArrow" markerWidth="12" markerHeight="12" refX="6" refY="6" orient="auto">
+        <path d="M 0 0 L 12 6 L 0 12 z" fill="none" stroke="#fbbf24" strokeWidth="1.5" />
+      </marker>
+    </defs>
+
+    {/* Parent Class - Animal */}
+    <rect x="175" y="20" width="150" height="90" rx="8" fill="url(#parentGradient)" stroke="#60a5fa" strokeWidth="2" />
+    <text x="250" y="45" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Animal</text>
+    <text x="250" y="60" textAnchor="middle" fill="#93c5fd" fontSize="10">(Parent Class)</text>
+    <line x1="185" y1="68" x2="315" y2="68" stroke="#60a5fa" strokeWidth="1" />
+    <text x="195" y="85" fill="#d1d5db" fontSize="10">name, species</text>
+    <text x="195" y="100" fill="#d1d5db" fontSize="10">make_sound()</text>
+
+    {/* Inheritance Arrows */}
+    <path d="M 200 110 L 100 160" stroke="#fbbf24" strokeWidth="2" fill="none" markerEnd="url(#inheritArrow)" />
+    <path d="M 300 110 L 400 160" stroke="#fbbf24" strokeWidth="2" fill="none" markerEnd="url(#inheritArrow)" />
+
+    <text x="140" y="145" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">inherits</text>
+    <text x="360" y="145" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">inherits</text>
+
+    {/* Child Class - Dog */}
+    <rect x="20" y="170" width="160" height="100" rx="8" fill="url(#childGradient)" stroke="#34d399" strokeWidth="2" />
+    <text x="100" y="195" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Dog</text>
+    <text x="100" y="210" textAnchor="middle" fill="#6ee7b7" fontSize="10">(Child Class)</text>
+    <line x1="30" y1="218" x2="170" y2="218" stroke="#34d399" strokeWidth="1" />
+    <text x="40" y="235" fill="#d1d5db" fontSize="10">breed</text>
+    <text x="40" y="250" fill="#34d399" fontSize="10">make_sound() → "Woof!"</text>
+    <text x="40" y="265" fill="#d1d5db" fontSize="10">fetch()</text>
+
+    {/* Child Class - Cat */}
+    <rect x="320" y="170" width="160" height="100" rx="8" fill="url(#childGradient)" stroke="#34d399" strokeWidth="2" />
+    <text x="400" y="195" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Cat</text>
+    <text x="400" y="210" textAnchor="middle" fill="#6ee7b7" fontSize="10">(Child Class)</text>
+    <line x1="330" y1="218" x2="470" y2="218" stroke="#34d399" strokeWidth="1" />
+    <text x="340" y="235" fill="#d1d5db" fontSize="10">color</text>
+    <text x="340" y="250" fill="#34d399" fontSize="10">make_sound() → "Meow!"</text>
+    <text x="340" y="265" fill="#d1d5db" fontSize="10">scratch()</text>
+
+    {/* super() call illustration */}
+    <rect x="140" y="290" width="220" height="50" rx="6" fill="#1f2937" stroke="#60a5fa" strokeWidth="1" strokeDasharray="4,2" />
+    <text x="250" y="310" textAnchor="middle" fill="#93c5fd" fontSize="11" fontWeight="bold">super().__init__(name, species)</text>
+    <text x="250" y="328" textAnchor="middle" fill="#9ca3af" fontSize="10">Calls parent constructor</text>
+
+    {/* Legend */}
+    <rect x="20" y="290" width="100" height="50" rx="4" fill="#1f2937" stroke="#374151" strokeWidth="1" />
+    <text x="70" y="310" textAnchor="middle" fill="#9ca3af" fontSize="9">Legend:</text>
+    <path d="M 30 325 L 55 325" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#inheritArrow)" />
+    <text x="65" y="328" fill="#d1d5db" fontSize="9">extends</text>
+  </svg>
+)
+
+// 3. PolymorphismDiagram - Same method name, different implementations
+const PolymorphismDiagram = () => (
+  <svg viewBox="0 0 500 340" style={{ width: '100%', maxWidth: '500px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="polyBaseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3776ab" />
+        <stop offset="100%" stopColor="#1e4f7a" />
+      </linearGradient>
+      <linearGradient id="polyImplGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#059669" />
+        <stop offset="100%" stopColor="#047857" />
+      </linearGradient>
+      <linearGradient id="polyImplGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#7c3aed" />
+        <stop offset="100%" stopColor="#5b21b6" />
+      </linearGradient>
+      <linearGradient id="polyImplGradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#dc2626" />
+        <stop offset="100%" stopColor="#b91c1c" />
+      </linearGradient>
+    </defs>
+
+    {/* Title */}
+    <text x="250" y="20" textAnchor="middle" fill="#fbbf24" fontSize="14" fontWeight="bold">Same Method, Different Behaviors</text>
+
+    {/* Abstract Base - Shape */}
+    <rect x="175" y="35" width="150" height="70" rx="8" fill="url(#polyBaseGradient)" stroke="#60a5fa" strokeWidth="2" />
+    <text x="250" y="60" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Shape (ABC)</text>
+    <line x1="185" y1="70" x2="315" y2="70" stroke="#60a5fa" strokeWidth="1" />
+    <text x="250" y="90" textAnchor="middle" fill="#fbbf24" fontSize="11" fontStyle="italic">@abstractmethod area()</text>
+
+    {/* Arrows to implementations */}
+    <path d="M 200 105 L 80 145" stroke="#60a5fa" strokeWidth="1.5" fill="none" />
+    <path d="M 250 105 L 250 145" stroke="#60a5fa" strokeWidth="1.5" fill="none" />
+    <path d="M 300 105 L 420 145" stroke="#60a5fa" strokeWidth="1.5" fill="none" />
+
+    {/* Rectangle implementation */}
+    <rect x="15" y="150" width="130" height="75" rx="8" fill="url(#polyImplGradient1)" stroke="#34d399" strokeWidth="2" />
+    <text x="80" y="175" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Rectangle</text>
+    <line x1="25" y1="183" x2="135" y2="183" stroke="#34d399" strokeWidth="1" />
+    <text x="80" y="200" textAnchor="middle" fill="#6ee7b7" fontSize="10">area():</text>
+    <text x="80" y="215" textAnchor="middle" fill="#d1d5db" fontSize="9">width * height</text>
+
+    {/* Circle implementation */}
+    <rect x="185" y="150" width="130" height="75" rx="8" fill="url(#polyImplGradient2)" stroke="#a78bfa" strokeWidth="2" />
+    <text x="250" y="175" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Circle</text>
+    <line x1="195" y1="183" x2="305" y2="183" stroke="#a78bfa" strokeWidth="1" />
+    <text x="250" y="200" textAnchor="middle" fill="#c4b5fd" fontSize="10">area():</text>
+    <text x="250" y="215" textAnchor="middle" fill="#d1d5db" fontSize="9">3.14 * r^2</text>
+
+    {/* Triangle implementation */}
+    <rect x="355" y="150" width="130" height="75" rx="8" fill="url(#polyImplGradient3)" stroke="#f87171" strokeWidth="2" />
+    <text x="420" y="175" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Triangle</text>
+    <line x1="365" y1="183" x2="475" y2="183" stroke="#f87171" strokeWidth="1" />
+    <text x="420" y="200" textAnchor="middle" fill="#fca5a5" fontSize="10">area():</text>
+    <text x="420" y="215" textAnchor="middle" fill="#d1d5db" fontSize="9">0.5 * b * h</text>
+
+    {/* Polymorphic call illustration */}
+    <rect x="60" y="245" width="380" height="85" rx="8" fill="#1f2937" stroke="#fbbf24" strokeWidth="2" />
+    <text x="250" y="268" textAnchor="middle" fill="#fbbf24" fontSize="12" fontWeight="bold">Polymorphic Call</text>
+    <text x="100" y="290" fill="#93c5fd" fontSize="11" fontFamily="monospace">shapes = [Rectangle(), Circle(), Triangle()]</text>
+    <text x="100" y="308" fill="#93c5fd" fontSize="11" fontFamily="monospace">for shape in shapes:</text>
+    <text x="100" y="323" fill="#34d399" fontSize="11" fontFamily="monospace">    print(shape.area())  # Different result!</text>
+  </svg>
+)
+
+// 4. EncapsulationDiagram - Public, protected, private attributes visualization
+const EncapsulationDiagram = () => (
+  <svg viewBox="0 0 500 320" style={{ width: '100%', maxWidth: '500px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="publicGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#059669" />
+        <stop offset="100%" stopColor="#047857" />
+      </linearGradient>
+      <linearGradient id="protectedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#d97706" />
+        <stop offset="100%" stopColor="#b45309" />
+      </linearGradient>
+      <linearGradient id="privateGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#dc2626" />
+        <stop offset="100%" stopColor="#b91c1c" />
+      </linearGradient>
+      <linearGradient id="classBoxGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3776ab" />
+        <stop offset="100%" stopColor="#1e4f7a" />
+      </linearGradient>
+    </defs>
+
+    {/* Main Class Box */}
+    <rect x="100" y="20" width="300" height="230" rx="10" fill="url(#classBoxGradient)" stroke="#60a5fa" strokeWidth="2" />
+    <text x="250" y="45" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">BankAccount</text>
+    <line x1="110" y1="55" x2="390" y2="55" stroke="#60a5fa" strokeWidth="1" />
+
+    {/* Public Section */}
+    <rect x="115" y="65" width="270" height="50" rx="6" fill="url(#publicGradient)" stroke="#34d399" strokeWidth="1.5" />
+    <circle cx="130" cy="80" r="8" fill="#34d399" />
+    <text x="130" y="84" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">P</text>
+    <text x="145" y="80" fill="white" fontSize="11" fontWeight="bold">Public</text>
+    <text x="145" y="95" fill="#d1d5db" fontSize="10">self.owner</text>
+    <text x="145" y="108" fill="#9ca3af" fontSize="9">Accessible everywhere</text>
+
+    {/* Protected Section */}
+    <rect x="115" y="125" width="270" height="50" rx="6" fill="url(#protectedGradient)" stroke="#fbbf24" strokeWidth="1.5" />
+    <circle cx="130" cy="140" r="8" fill="#fbbf24" />
+    <text x="130" y="144" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">_</text>
+    <text x="145" y="140" fill="white" fontSize="11" fontWeight="bold">Protected (Convention)</text>
+    <text x="145" y="155" fill="#d1d5db" fontSize="10">self._internal_id</text>
+    <text x="145" y="168" fill="#9ca3af" fontSize="9">Subclass access (by convention)</text>
+
+    {/* Private Section */}
+    <rect x="115" y="185" width="270" height="55" rx="6" fill="url(#privateGradient)" stroke="#f87171" strokeWidth="1.5" />
+    <circle cx="130" cy="200" r="8" fill="#f87171" />
+    <text x="130" y="204" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">__</text>
+    <text x="145" y="200" fill="white" fontSize="11" fontWeight="bold">Private (Name Mangling)</text>
+    <text x="145" y="215" fill="#d1d5db" fontSize="10">self.__balance</text>
+    <text x="145" y="228" fill="#9ca3af" fontSize="9">Class-only (mangled to _BankAccount__balance)</text>
+
+    {/* External Access Indicators */}
+    <text x="420" y="90" fill="#34d399" fontSize="20">✓</text>
+    <text x="420" y="150" fill="#fbbf24" fontSize="20">⚠</text>
+    <text x="420" y="210" fill="#f87171" fontSize="20">✗</text>
+
+    {/* Legend */}
+    <rect x="100" y="260" width="300" height="50" rx="6" fill="#1f2937" stroke="#374151" strokeWidth="1" />
+    <text x="250" y="278" textAnchor="middle" fill="#9ca3af" fontSize="10">Access from Outside Class:</text>
+    <text x="140" y="298" fill="#34d399" fontSize="10">✓ Direct</text>
+    <text x="230" y="298" fill="#fbbf24" fontSize="10">⚠ Discouraged</text>
+    <text x="330" y="298" fill="#f87171" fontSize="10">✗ Mangled</text>
+  </svg>
+)
+
+// 5. MRODiagram - Method Resolution Order in multiple inheritance
+const MRODiagram = () => (
+  <svg viewBox="0 0 500 380" style={{ width: '100%', maxWidth: '500px', height: 'auto' }}>
+    <defs>
+      <linearGradient id="mroBaseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3776ab" />
+        <stop offset="100%" stopColor="#1e4f7a" />
+      </linearGradient>
+      <linearGradient id="mroMidGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#7c3aed" />
+        <stop offset="100%" stopColor="#5b21b6" />
+      </linearGradient>
+      <linearGradient id="mroChildGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#059669" />
+        <stop offset="100%" stopColor="#047857" />
+      </linearGradient>
+      <marker id="mroArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24" />
+      </marker>
+    </defs>
+
+    {/* Title */}
+    <text x="250" y="20" textAnchor="middle" fill="#60a5fa" fontSize="14" fontWeight="bold">Diamond Problem & MRO</text>
+
+    {/* Class A (Top) */}
+    <rect x="200" y="35" width="100" height="55" rx="8" fill="url(#mroBaseGradient)" stroke="#60a5fa" strokeWidth="2" />
+    <text x="250" y="55" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">A</text>
+    <text x="250" y="72" textAnchor="middle" fill="#93c5fd" fontSize="10">method()</text>
+    <circle cx="250" cy="35" r="12" fill="#fbbf24" stroke="#fbbf24" strokeWidth="2" />
+    <text x="250" y="39" textAnchor="middle" fill="#1f2937" fontSize="10" fontWeight="bold">4</text>
+
+    {/* Inheritance lines from A to B and C */}
+    <path d="M 225 90 L 145 125" stroke="#60a5fa" strokeWidth="1.5" fill="none" />
+    <path d="M 275 90 L 355 125" stroke="#60a5fa" strokeWidth="1.5" fill="none" />
+
+    {/* Class B */}
+    <rect x="75" y="130" width="100" height="55" rx="8" fill="url(#mroMidGradient)" stroke="#a78bfa" strokeWidth="2" />
+    <text x="125" y="150" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">B(A)</text>
+    <text x="125" y="167" textAnchor="middle" fill="#c4b5fd" fontSize="10">method()</text>
+    <circle cx="125" cy="130" r="12" fill="#fbbf24" stroke="#fbbf24" strokeWidth="2" />
+    <text x="125" y="134" textAnchor="middle" fill="#1f2937" fontSize="10" fontWeight="bold">2</text>
+
+    {/* Class C */}
+    <rect x="325" y="130" width="100" height="55" rx="8" fill="url(#mroMidGradient)" stroke="#a78bfa" strokeWidth="2" />
+    <text x="375" y="150" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">C(A)</text>
+    <text x="375" y="167" textAnchor="middle" fill="#c4b5fd" fontSize="10">method()</text>
+    <circle cx="375" cy="130" r="12" fill="#fbbf24" stroke="#fbbf24" strokeWidth="2" />
+    <text x="375" y="134" textAnchor="middle" fill="#1f2937" fontSize="10" fontWeight="bold">3</text>
+
+    {/* Inheritance lines from B and C to D */}
+    <path d="M 145 185 L 225 220" stroke="#60a5fa" strokeWidth="1.5" fill="none" />
+    <path d="M 355 185 L 275 220" stroke="#60a5fa" strokeWidth="1.5" fill="none" />
+
+    {/* Class D (Bottom) */}
+    <rect x="200" y="225" width="100" height="55" rx="8" fill="url(#mroChildGradient)" stroke="#34d399" strokeWidth="2" />
+    <text x="250" y="245" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">D(B, C)</text>
+    <text x="250" y="262" textAnchor="middle" fill="#6ee7b7" fontSize="10">inherits method()</text>
+    <circle cx="250" cy="225" r="12" fill="#fbbf24" stroke="#fbbf24" strokeWidth="2" />
+    <text x="250" y="229" textAnchor="middle" fill="#1f2937" fontSize="10" fontWeight="bold">1</text>
+
+    {/* MRO Path */}
+    <rect x="30" y="295" width="440" height="75" rx="8" fill="#1f2937" stroke="#fbbf24" strokeWidth="2" />
+    <text x="250" y="315" textAnchor="middle" fill="#fbbf24" fontSize="12" fontWeight="bold">Method Resolution Order (C3 Linearization)</text>
+
+    {/* MRO Sequence */}
+    <rect x="50" y="325" width="40" height="30" rx="4" fill="url(#mroChildGradient)" />
+    <text x="70" y="345" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">D</text>
+
+    <path d="M 95 340 L 115 340" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#mroArrow)" />
+
+    <rect x="120" y="325" width="40" height="30" rx="4" fill="url(#mroMidGradient)" />
+    <text x="140" y="345" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">B</text>
+
+    <path d="M 165 340 L 185 340" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#mroArrow)" />
+
+    <rect x="190" y="325" width="40" height="30" rx="4" fill="url(#mroMidGradient)" />
+    <text x="210" y="345" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">C</text>
+
+    <path d="M 235 340 L 255 340" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#mroArrow)" />
+
+    <rect x="260" y="325" width="40" height="30" rx="4" fill="url(#mroBaseGradient)" />
+    <text x="280" y="345" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">A</text>
+
+    <path d="M 305 340 L 325 340" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#mroArrow)" />
+
+    <rect x="330" y="325" width="60" height="30" rx="4" fill="#374151" />
+    <text x="360" y="345" textAnchor="middle" fill="#9ca3af" fontSize="11">object</text>
+
+    {/* Result note */}
+    <text x="430" y="345" fill="#34d399" fontSize="10">→ B wins!</text>
+  </svg>
+)
+
 const PythonOOP = ({ onBack, breadcrumb }) => {
   const [selectedConcept, setSelectedConcept] = useState(null)
 
@@ -30,6 +385,7 @@ const PythonOOP = ({ onBack, breadcrumb }) => {
     {
       name: 'Classes & Objects',
       icon: '🏗️',
+      diagram: ClassObjectDiagram,
       explanation: `Basic class definition and object instantiation:
 
 • **Class**: Blueprint for creating objects
@@ -190,6 +546,7 @@ conn1.close()  # Active: 1`
     {
       name: 'Inheritance',
       icon: '🧬',
+      diagram: InheritanceDiagram,
       explanation: `Inheritance allows classes to inherit attributes and methods from parent classes:
 
 • **Single Inheritance**: Inherit from one parent
@@ -292,6 +649,7 @@ print(circle.describe())  # A red Circle with area 153.93804`
     {
       name: 'Multiple Inheritance & MRO',
       icon: '🌳',
+      diagram: MRODiagram,
       explanation: `Multiple inheritance allows a class to inherit from multiple parent classes:
 
 • **Multiple Inheritance**:
@@ -396,6 +754,7 @@ print(user.to_json())  # {"username": "alice", "email": "alice@example.com"}`
     {
       name: 'Encapsulation & Properties',
       icon: '🔒',
+      diagram: EncapsulationDiagram,
       explanation: `Encapsulation controls access to class internals:
 
 • **Name Mangling**:
@@ -892,6 +1251,7 @@ print(f"Price: \${price}")  # Price: $16.5`
     {
       name: 'Abstract Classes & Interfaces',
       icon: '🎭',
+      diagram: PolymorphismDiagram,
       explanation: `Abstract Base Classes (ABC) define interfaces and enforce method implementation:
 
 • **ABC Module**:
@@ -1849,7 +2209,7 @@ if __name__ == "__main__":
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: 'bold',
-                textAlign: 'center',
+                textAlign: 'left',
                 marginBottom: '0.75rem',
                 color: '#93c5fd'
               }}>
@@ -1857,7 +2217,7 @@ if __name__ == "__main__":
               </h3>
               <p style={{
                 color: '#d1d5db',
-                textAlign: 'center',
+                textAlign: 'left',
                 fontSize: '0.875rem'
               }}>
                 Click to explore OOP concepts in Python
@@ -1970,6 +2330,37 @@ if __name__ == "__main__":
                   </div>
                 </div>
 
+                {/* Diagram Section - Only rendered if concept has a diagram */}
+                {selectedConcept.diagram && (
+                  <div style={{
+                    background: '#1f2937',
+                    borderRadius: '0.5rem',
+                    padding: '1.5rem',
+                    marginBottom: '1.5rem',
+                    border: '1px solid #3b82f6'
+                  }}>
+                    <h3 style={{
+                      fontSize: '1.25rem',
+                      fontWeight: '600',
+                      marginBottom: '1rem',
+                      color: '#93c5fd'
+                    }}>
+                      Visual Diagram
+                    </h3>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      background: '#111827',
+                      borderRadius: '0.5rem',
+                      padding: '1.5rem',
+                      border: '1px solid #374151'
+                    }}>
+                      {React.createElement(selectedConcept.diagram)}
+                    </div>
+                  </div>
+                )}
+
                 <div style={{
                   background: '#1f2937',
                   borderRadius: '0.5rem',
@@ -2008,11 +2399,12 @@ if __name__ == "__main__":
                           language="python"
                           style={vscDarkPlus}
                           customStyle={{
-                            padding: '1.5rem',
-                            borderRadius: '0.5rem',
-                            fontSize: '0.9rem',
-                            border: '1px solid #3b82f6',
-                            margin: 0
+                            margin: 0,
+                            borderRadius: '0.375rem',
+                            fontSize: '0.875rem',
+                            background: 'none',
+                            backgroundColor: 'transparent',
+                            padding: 0
                           }}
                         >
                           {section.code}

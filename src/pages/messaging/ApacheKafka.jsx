@@ -1,31 +1,300 @@
 import { useState, useEffect } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 
-function ApacheKafka({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, breadcrumb }) {
-  const [selectedConcept, setSelectedConcept] = useState(null)
+// =============================================================================
+// COLORS CONFIGURATION
+// =============================================================================
 
-  // Handle Escape key for modal navigation
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        e.stopPropagation() // Prevent event from reaching parent handlers
+const KAFKA_COLORS = {
+  primary: '#f43f5e',           // Pink
+  primaryHover: '#fb7185',      // Lighter pink
+  bg: 'rgba(244, 63, 94, 0.1)', // Pink background with transparency
+  border: 'rgba(244, 63, 94, 0.3)', // Pink border
+  arrow: '#f43f5e',             // Pink arrow
+  hoverBg: 'rgba(244, 63, 94, 0.2)', // Pink hover background
+  topicBg: 'rgba(244, 63, 94, 0.2)'  // Pink topic background
+}
 
-        if (selectedConcept) {
-          // If viewing a concept, go back to concept list
-          setSelectedConcept(null)
-        } else {
-          // If on concept list, close the modal
-          onBack()
-        }
-      }
-    }
+const SUBTOPIC_COLORS = [
+  { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },    // blue
+  { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' },      // green
+  { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' },    // amber
+  { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)' },    // purple
+  { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)' },    // pink
+  { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },      // cyan
+]
 
-    document.addEventListener('keydown', handleEscape)
-    return () => {
-      document.removeEventListener('keydown', handleEscape)
-    }
-  }, [selectedConcept, onBack])
+// =============================================================================
+// DIAGRAM COMPONENTS
+// =============================================================================
+
+// Kafka Producer Diagram
+const ProducerDiagram = () => (
+  <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+      </marker>
+    </defs>
+
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Kafka Producer Architecture</text>
+
+    <rect x="50" y="45" width="120" height="60" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="110" y="70" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Producer</text>
+    <text x="110" y="88" textAnchor="middle" fill="#93c5fd" fontSize="8">send(record)</text>
+
+    <rect x="220" y="45" width="120" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="280" y="65" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Serializer</text>
+    <text x="280" y="82" textAnchor="middle" fill="#fcd34d" fontSize="8">Key + Value</text>
+    <text x="280" y="96" textAnchor="middle" fill="#fcd34d" fontSize="8">JSON/Avro</text>
+
+    <rect x="390" y="45" width="120" height="60" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="450" y="65" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Partitioner</text>
+    <text x="450" y="82" textAnchor="middle" fill="#c4b5fd" fontSize="8">hash(key)</text>
+    <text x="450" y="96" textAnchor="middle" fill="#c4b5fd" fontSize="8">round-robin</text>
+
+    <rect x="560" y="45" width="120" height="60" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="620" y="65" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Record Batch</text>
+    <text x="620" y="82" textAnchor="middle" fill="#86efac" fontSize="8">Compression</text>
+    <text x="620" y="96" textAnchor="middle" fill="#86efac" fontSize="8">linger.ms</text>
+
+    <rect x="560" y="120" width="180" height="45" rx="6" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="650" y="140" textAnchor="middle" fill="#f472b6" fontSize="10" fontWeight="bold">Kafka Broker</text>
+    <text x="650" y="155" textAnchor="middle" fill="#fbcfe8" fontSize="8">Topic Partitions</text>
+
+    <path d="M 170 75 L 215 75" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+    <path d="M 340 75 L 385 75" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+    <path d="M 510 75 L 555 75" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+    <path d="M 620 105 L 620 115" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+  </svg>
+)
+
+// Kafka Cluster Diagram
+const ClusterDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Kafka Cluster Architecture</text>
+
+    <rect x="50" y="45" width="100" height="130" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="100" y="65" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Broker 1</text>
+    <rect x="60" y="75" width="80" height="25" rx="3" fill="rgba(34, 197, 94, 0.4)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="100" y="92" textAnchor="middle" fill="#4ade80" fontSize="8">P0 (Leader)</text>
+    <rect x="60" y="105" width="80" height="25" rx="3" fill="rgba(245, 158, 11, 0.4)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="100" y="122" textAnchor="middle" fill="#fbbf24" fontSize="8">P1 (Replica)</text>
+    <rect x="60" y="135" width="80" height="25" rx="3" fill="rgba(139, 92, 246, 0.4)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="100" y="152" textAnchor="middle" fill="#a78bfa" fontSize="8">P2 (Replica)</text>
+
+    <rect x="180" y="45" width="100" height="130" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="230" y="65" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Broker 2</text>
+    <rect x="190" y="75" width="80" height="25" rx="3" fill="rgba(34, 197, 94, 0.4)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="230" y="92" textAnchor="middle" fill="#4ade80" fontSize="8">P0 (Replica)</text>
+    <rect x="190" y="105" width="80" height="25" rx="3" fill="rgba(245, 158, 11, 0.4)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="230" y="122" textAnchor="middle" fill="#fbbf24" fontSize="8">P1 (Leader)</text>
+    <rect x="190" y="135" width="80" height="25" rx="3" fill="rgba(139, 92, 246, 0.4)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="230" y="152" textAnchor="middle" fill="#a78bfa" fontSize="8">P2 (Replica)</text>
+
+    <rect x="310" y="45" width="100" height="130" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="360" y="65" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Broker 3</text>
+    <rect x="320" y="75" width="80" height="25" rx="3" fill="rgba(34, 197, 94, 0.4)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="360" y="92" textAnchor="middle" fill="#4ade80" fontSize="8">P0 (Replica)</text>
+    <rect x="320" y="105" width="80" height="25" rx="3" fill="rgba(245, 158, 11, 0.4)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="360" y="122" textAnchor="middle" fill="#fbbf24" fontSize="8">P1 (Replica)</text>
+    <rect x="320" y="135" width="80" height="25" rx="3" fill="rgba(139, 92, 246, 0.4)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="360" y="152" textAnchor="middle" fill="#a78bfa" fontSize="8">P2 (Leader)</text>
+
+    <rect x="480" y="70" width="120" height="80" rx="6" fill="rgba(236, 72, 153, 0.2)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="540" y="95" textAnchor="middle" fill="#f472b6" fontSize="10" fontWeight="bold">ZooKeeper/</text>
+    <text x="540" y="112" textAnchor="middle" fill="#f472b6" fontSize="10" fontWeight="bold">KRaft</text>
+    <text x="540" y="135" textAnchor="middle" fill="#fbcfe8" fontSize="8">Metadata</text>
+
+    <rect x="650" y="45" width="120" height="130" rx="6" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="710" y="70" textAnchor="middle" fill="#22d3ee" fontSize="10" fontWeight="bold">Topic: orders</text>
+    <text x="710" y="95" textAnchor="middle" fill="#a5f3fc" fontSize="8">Partitions: 3</text>
+    <text x="710" y="115" textAnchor="middle" fill="#a5f3fc" fontSize="8">Replication: 3</text>
+    <text x="710" y="135" textAnchor="middle" fill="#a5f3fc" fontSize="8">Retention: 7d</text>
+  </svg>
+)
+
+// Kafka Consumer Diagram
+const ConsumerDiagram = () => (
+  <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Kafka Consumer Group</text>
+
+    <rect x="50" y="50" width="150" height="110" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="125" y="70" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Topic: orders</text>
+    <rect x="60" y="80" width="60" height="25" rx="3" fill="rgba(34, 197, 94, 0.4)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="90" y="97" textAnchor="middle" fill="#4ade80" fontSize="8">P0</text>
+    <rect x="60" y="110" width="60" height="25" rx="3" fill="rgba(245, 158, 11, 0.4)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="90" y="127" textAnchor="middle" fill="#fbbf24" fontSize="8">P1</text>
+    <rect x="130" y="80" width="60" height="25" rx="3" fill="rgba(139, 92, 246, 0.4)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="160" y="97" textAnchor="middle" fill="#a78bfa" fontSize="8">P2</text>
+    <rect x="130" y="110" width="60" height="25" rx="3" fill="rgba(236, 72, 153, 0.4)" stroke="#ec4899" strokeWidth="1"/>
+    <text x="160" y="127" textAnchor="middle" fill="#f472b6" fontSize="8">P3</text>
+
+    <rect x="300" y="40" width="200" height="120" rx="8" fill="rgba(100, 116, 139, 0.1)" stroke="#64748b" strokeWidth="2"/>
+    <text x="400" y="60" textAnchor="middle" fill="#94a3b8" fontSize="10" fontWeight="bold">Consumer Group: order-service</text>
+    <rect x="320" y="75" width="70" height="35" rx="4" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="1"/>
+    <text x="355" y="97" textAnchor="middle" fill="#4ade80" fontSize="8">Consumer 1</text>
+    <rect x="320" y="115" width="70" height="35" rx="4" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="355" y="137" textAnchor="middle" fill="#fbbf24" fontSize="8">Consumer 2</text>
+    <rect x="410" y="75" width="70" height="35" rx="4" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="1"/>
+    <text x="445" y="97" textAnchor="middle" fill="#a78bfa" fontSize="8">Consumer 3</text>
+
+    <path d="M 200 92 L 315 92" stroke="#22c55e" strokeWidth="2"/>
+    <path d="M 200 122 L 315 132" stroke="#f59e0b" strokeWidth="2"/>
+    <path d="M 200 92 L 405 92" stroke="#8b5cf6" strokeWidth="2"/>
+
+    <rect x="580" y="65" width="180" height="70" rx="6" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" strokeWidth="2"/>
+    <text x="670" y="90" textAnchor="middle" fill="#22d3ee" fontSize="10" fontWeight="bold">Offset Management</text>
+    <text x="670" y="110" textAnchor="middle" fill="#a5f3fc" fontSize="8">__consumer_offsets</text>
+    <text x="670" y="125" textAnchor="middle" fill="#a5f3fc" fontSize="8">auto.commit / manual</text>
+  </svg>
+)
+
+// Kafka Streams Diagram
+const StreamsDiagram = () => (
+  <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Kafka Streams Processing</text>
+
+    <rect x="50" y="50" width="100" height="55" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="100" y="75" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Source</text>
+    <text x="100" y="92" textAnchor="middle" fill="#93c5fd" fontSize="8">Input Topic</text>
+
+    <rect x="190" y="50" width="100" height="55" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="240" y="75" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Filter</text>
+    <text x="240" y="92" textAnchor="middle" fill="#fcd34d" fontSize="8">Predicate</text>
+
+    <rect x="330" y="50" width="100" height="55" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="380" y="75" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Map</text>
+    <text x="380" y="92" textAnchor="middle" fill="#86efac" fontSize="8">Transform</text>
+
+    <rect x="470" y="50" width="100" height="55" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="520" y="75" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Aggregate</text>
+    <text x="520" y="92" textAnchor="middle" fill="#c4b5fd" fontSize="8">GroupByKey</text>
+
+    <rect x="610" y="50" width="100" height="55" rx="6" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" strokeWidth="2"/>
+    <text x="660" y="75" textAnchor="middle" fill="#f472b6" fontSize="10" fontWeight="bold">Sink</text>
+    <text x="660" y="92" textAnchor="middle" fill="#fbcfe8" fontSize="8">Output Topic</text>
+
+    <path d="M 150 77 L 185 77" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+    <path d="M 290 77 L 325 77" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+    <path d="M 430 77 L 465 77" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+    <path d="M 570 77 L 605 77" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+
+    <rect x="250" y="125" width="300" height="40" rx="6" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" strokeWidth="1"/>
+    <text x="400" y="145" textAnchor="middle" fill="#22d3ee" fontSize="9" fontWeight="bold">State Store (RocksDB) - Windowed aggregations, Joins</text>
+  </svg>
+)
+
+// Schema Registry Diagram
+const SchemaRegistryDiagram = () => (
+  <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Confluent Schema Registry</text>
+
+    <rect x="50" y="50" width="120" height="60" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="110" y="75" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Producer</text>
+    <text x="110" y="92" textAnchor="middle" fill="#93c5fd" fontSize="8">Avro Serializer</text>
+
+    <rect x="300" y="40" width="200" height="80" rx="8" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="400" y="65" textAnchor="middle" fill="#a78bfa" fontSize="11" fontWeight="bold">Schema Registry</text>
+    <text x="400" y="85" textAnchor="middle" fill="#c4b5fd" fontSize="8">Version Control</text>
+    <text x="400" y="100" textAnchor="middle" fill="#c4b5fd" fontSize="8">Compatibility Check</text>
+    <text x="400" y="115" textAnchor="middle" fill="#c4b5fd" fontSize="8">BACKWARD/FORWARD/FULL</text>
+
+    <rect x="630" y="50" width="120" height="60" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="690" y="75" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Consumer</text>
+    <text x="690" y="92" textAnchor="middle" fill="#86efac" fontSize="8">Avro Deserializer</text>
+
+    <rect x="300" y="135" width="200" height="35" rx="4" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="1"/>
+    <text x="400" y="157" textAnchor="middle" fill="#fbbf24" fontSize="9">Kafka: _schemas topic</text>
+
+    <path d="M 170 70 L 295 70" stroke="#64748b" strokeWidth="2"/>
+    <text x="230" y="62" textAnchor="middle" fill="#94a3b8" fontSize="8">Register/Get Schema</text>
+    <path d="M 505 70 L 625 70" stroke="#64748b" strokeWidth="2"/>
+    <text x="565" y="62" textAnchor="middle" fill="#94a3b8" fontSize="8">Get Schema</text>
+    <path d="M 400 120 L 400 130" stroke="#64748b" strokeWidth="1" strokeDasharray="3"/>
+  </svg>
+)
+
+// Kafka Connect Diagram
+const ConnectDiagram = () => (
+  <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Kafka Connect Architecture</text>
+
+    <rect x="50" y="50" width="140" height="100" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="120" y="72" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Source Systems</text>
+    <text x="120" y="92" textAnchor="middle" fill="#93c5fd" fontSize="8">MySQL, PostgreSQL</text>
+    <text x="120" y="107" textAnchor="middle" fill="#93c5fd" fontSize="8">MongoDB, S3</text>
+    <text x="120" y="122" textAnchor="middle" fill="#93c5fd" fontSize="8">APIs, Files</text>
+
+    <rect x="250" y="50" width="120" height="100" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="310" y="72" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Source</text>
+    <text x="310" y="87" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Connectors</text>
+    <text x="310" y="107" textAnchor="middle" fill="#fcd34d" fontSize="8">Debezium CDC</text>
+    <text x="310" y="122" textAnchor="middle" fill="#fcd34d" fontSize="8">JDBC Source</text>
+
+    <rect x="420" y="50" width="120" height="100" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="480" y="72" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Kafka</text>
+    <text x="480" y="92" textAnchor="middle" fill="#86efac" fontSize="8">Topics</text>
+    <text x="480" y="112" textAnchor="middle" fill="#86efac" fontSize="8">Connect Cluster</text>
+
+    <rect x="590" y="50" width="120" height="100" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="650" y="72" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Sink</text>
+    <text x="650" y="87" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Connectors</text>
+    <text x="650" y="107" textAnchor="middle" fill="#c4b5fd" fontSize="8">Elasticsearch</text>
+    <text x="650" y="122" textAnchor="middle" fill="#c4b5fd" fontSize="8">HDFS, S3</text>
+
+    <path d="M 190 100 L 245 100" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+    <path d="M 370 100 L 415 100" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+    <path d="M 540 100 L 585 100" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+  </svg>
+)
+
+// Kafka Monitoring Diagram
+const MonitoringDiagram = () => (
+  <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Kafka Monitoring Stack</text>
+
+    <rect x="50" y="50" width="140" height="80" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="120" y="75" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Kafka Cluster</text>
+    <text x="120" y="95" textAnchor="middle" fill="#93c5fd" fontSize="8">JMX Metrics</text>
+    <text x="120" y="110" textAnchor="middle" fill="#93c5fd" fontSize="8">Broker metrics</text>
+
+    <rect x="240" y="50" width="140" height="80" rx="6" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="310" y="75" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">Prometheus</text>
+    <text x="310" y="95" textAnchor="middle" fill="#fca5a5" fontSize="8">JMX Exporter</text>
+    <text x="310" y="110" textAnchor="middle" fill="#fca5a5" fontSize="8">kafka_* metrics</text>
+
+    <rect x="430" y="50" width="140" height="80" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="500" y="75" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Grafana</text>
+    <text x="500" y="95" textAnchor="middle" fill="#fcd34d" fontSize="8">Dashboards</text>
+    <text x="500" y="110" textAnchor="middle" fill="#fcd34d" fontSize="8">Alerts</text>
+
+    <rect x="620" y="50" width="140" height="80" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="690" y="75" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Key Metrics</text>
+    <text x="690" y="92" textAnchor="middle" fill="#c4b5fd" fontSize="8">Consumer Lag</text>
+    <text x="690" y="105" textAnchor="middle" fill="#c4b5fd" fontSize="8">Throughput</text>
+    <text x="690" y="118" textAnchor="middle" fill="#c4b5fd" fontSize="8">ISR Count</text>
+
+    <path d="M 190 90 L 235 90" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+    <path d="M 380 90 L 425 90" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+    <path d="M 570 90 L 615 90" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)"/>
+  </svg>
+)
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
+
+function ApacheKafka({ onBack, breadcrumb }) {
+  // State for modal navigation
+  const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
+  const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+
+  // =============================================================================
+  // CONCEPTS DATA
+  // =============================================================================
 
   const concepts = [
     {
@@ -34,6 +303,7 @@ function ApacheKafka({ onBack, onPrevious, onNext, previousName, nextName, curre
       icon: '📤',
       color: '#3b82f6',
       description: 'High-performance message producers with batching, compression, partitioning strategies, and delivery guarantees',
+      diagram: ProducerDiagram,
       details: [
         {
           name: 'High Throughput APIs',
@@ -193,6 +463,7 @@ try {
       icon: '🏗️',
       color: '#10b981',
       description: 'Distributed broker architecture with partitioning, replication, leader election, and log management',
+      diagram: ClusterDiagram,
       details: [
         {
           name: 'Distributed Brokers',
@@ -226,6 +497,7 @@ try {
       icon: '📥',
       color: '#8b5cf6',
       description: 'Consumer groups with offset management, parallel processing, and rebalancing strategies',
+      diagram: ConsumerDiagram,
       details: [
         {
           name: 'Consumer Groups',
@@ -366,6 +638,7 @@ try {
       icon: '🌊',
       color: '#ef4444',
       description: 'Stream processing library with stateful operations, windowing, joins, and exactly-once semantics',
+      diagram: StreamsDiagram,
       details: [
         {
           name: 'Stateful Processing',
@@ -506,6 +779,7 @@ tumblingSum
       icon: '📋',
       color: '#f59e0b',
       description: 'Centralized schema management with evolution, versioning, and compatibility enforcement',
+      diagram: SchemaRegistryDiagram,
       details: [
         {
           name: 'Schema Evolution',
@@ -592,6 +866,7 @@ KafkaConsumer<String, GenericRecord> consumer = new KafkaConsumer<>(consumerProp
       icon: '🔌',
       color: '#14b8a6',
       description: 'Scalable data integration framework with source and sink connectors for external systems',
+      diagram: ConnectDiagram,
       details: [
         {
           name: 'Source Connectors',
@@ -674,6 +949,7 @@ Content-Type: application/json
       icon: '📊',
       color: '#6366f1',
       description: 'Operational monitoring with JMX metrics, lag tracking, health checks, and alerting',
+      diagram: MonitoringDiagram,
       details: [
         {
           name: 'JMX Metrics',
@@ -699,361 +975,380 @@ Content-Type: application/json
     }
   ]
 
+  // =============================================================================
+  // NAVIGATION HANDLERS
+  // =============================================================================
+
+  const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
+
+  const handlePreviousConcept = () => {
+    if (selectedConceptIndex > 0) {
+      setSelectedConceptIndex(selectedConceptIndex - 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  const handleNextConcept = () => {
+    if (selectedConceptIndex < concepts.length - 1) {
+      setSelectedConceptIndex(selectedConceptIndex + 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  // =============================================================================
+  // BREADCRUMB CONFIGURATION
+  // =============================================================================
+
+  const buildBreadcrumbStack = () => {
+    const stack = [
+      { name: 'Messaging', icon: '📨', page: 'Messaging' },
+      { name: 'Apache Kafka', icon: '📤', page: 'Apache Kafka' }
+    ]
+    if (selectedConcept) {
+      stack.push({ name: selectedConcept.name, icon: selectedConcept.icon })
+    }
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index, item) => {
+    if (index === 0) {
+      onBack()  // Go back to Messaging main page
+    } else if (index === 1 && selectedConcept) {
+      setSelectedConceptIndex(null)  // Close modal, stay on Kafka page
+    }
+  }
+
+  // =============================================================================
+  // KEYBOARD NAVIGATION
+  // =============================================================================
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        if (selectedConcept) {
+          setSelectedConceptIndex(null)
+        } else {
+          onBack()
+        }
+      } else if (e.key === 'ArrowLeft' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handlePreviousConcept()
+      } else if (e.key === 'ArrowRight' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handleNextConcept()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConceptIndex, onBack])
+
+  // =============================================================================
+  // STYLES
+  // =============================================================================
+
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f172a 0%, #831843 50%, #0f172a 100%)',
+    padding: '2rem',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
+  }
+
+  const headerStyle = {
+    maxWidth: '1400px',
+    margin: '0 auto 2rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '1rem'
+  }
+
+  const titleStyle = {
+    fontSize: '2.5rem',
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #f43f5e, #ec4899)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    margin: 0
+  }
+
+  const backButtonStyle = {
+    padding: '0.75rem 1.5rem',
+    background: 'rgba(244, 63, 94, 0.2)',
+    border: '1px solid rgba(244, 63, 94, 0.3)',
+    borderRadius: '0.5rem',
+    color: '#f43f5e',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    transition: 'all 0.2s'
+  }
+
+  // =============================================================================
+  // RENDER
+  // =============================================================================
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
-      color: 'white',
-      padding: '1.5rem'
-    }}>
-      <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '2rem',
-        gap: '1rem',
-        flexWrap: 'wrap'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button
-            onClick={onBack}
-            style={{
-              padding: '0.75rem 1.5rem',
-              fontSize: '1rem',
-              fontWeight: '600',
-              backgroundColor: '#f59e0b',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d97706'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f59e0b'}
-          >
-            ← Back to Messaging
-          </button>
-          <div>
-            <h1 style={{
-              fontSize: '2.5rem',
-              fontWeight: '800',
-              background: 'linear-gradient(to right, #fcd34d, #f59e0b)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              margin: 0,
-              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-            }}>
-              Apache Kafka
-            </h1>
-            {currentSubcategory && (
-              <span style={{
-                padding: '0.25rem 0.75rem',
-                fontSize: '0.85rem',
-                fontWeight: '600',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
-                borderRadius: '6px',
-                marginTop: '0.25rem',
-                display: 'inline-block'
-              }}>
-                {currentSubcategory}
-              </span>
-            )}
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-          {onPrevious && (
-            <button
-              onClick={onPrevious}
-              style={{
-                padding: '0.75rem 1.25rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
-            >
-              ← {previousName}
-            </button>
-          )}
-          {onNext && (
-            <button
-              onClick={onNext}
-              style={{
-                padding: '0.75rem 1.25rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
-            >
-              {nextName} →
-            </button>
-          )}
-        </div>
+    <div style={containerStyle}>
+      {/* Header with title and back button */}
+      <div style={headerStyle}>
+        <h1 style={titleStyle}>Apache Kafka</h1>
+        <button
+          style={backButtonStyle}
+          onClick={onBack}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = 'rgba(244, 63, 94, 0.3)'
+            e.currentTarget.style.transform = 'translateY(-2px)'
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'rgba(244, 63, 94, 0.2)'
+            e.currentTarget.style.transform = 'translateY(0)'
+          }}
+        >
+          ← Back to Messaging
+        </button>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      {/* Breadcrumb navigation */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          colors={KAFKA_COLORS}
+        />
+      </div>
 
-      <p style={{
-        fontSize: '1.2rem',
-        color: '#9ca3af',
-        textAlign: 'center',
-        marginBottom: '3rem',
-        lineHeight: '1.8'
-      }}>
-        Distributed event streaming platform for high-throughput, fault-tolerant messaging systems. Covers producers,
-        consumers, cluster architecture, stream processing, schema management, data integration, and operational monitoring.
-      </p>
-
+      {/* Concept Cards Grid */}
       <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
         display: 'grid',
-        gridTemplateColumns: selectedConcept ? '350px 1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '2rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gap: '1.5rem'
       }}>
-        {selectedConcept ? (
-          <>
-            {/* Sidebar */}
+        {concepts.map((concept, index) => (
+          <div
+            key={concept.id}
+            onClick={() => setSelectedConceptIndex(index)}
+            style={{
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              border: `1px solid ${concept.color}40`,
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = `0 20px 40px ${concept.color}20`
+              e.currentTarget.style.borderColor = concept.color
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.borderColor = `${concept.color}40`
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
+              <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
+            </div>
+            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
+            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+              {concept.details.length} topics • Click to explore
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Modal for Selected Concept */}
+      {selectedConcept && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '2rem'
+          }}
+          onClick={() => setSelectedConceptIndex(null)}
+        >
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              maxWidth: '1200px',
+              maxHeight: '92vh',
+              overflow: 'auto',
+              border: `1px solid ${selectedConcept.color}40`
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Breadcrumb */}
+            <Breadcrumb
+              breadcrumbStack={buildBreadcrumbStack()}
+              onBreadcrumbClick={handleBreadcrumbClick}
+              colors={KAFKA_COLORS}
+            />
+
+            {/* Modal Header with Navigation */}
             <div style={{
               display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1.5rem',
+              paddingBottom: '1rem',
+              borderBottom: '1px solid #334155'
             }}>
-              <button
-                onClick={() => setSelectedConcept(null)}
-                style={{
-                  padding: '0.75rem',
-                  fontSize: '0.95rem',
-                  fontWeight: '600',
-                  backgroundColor: '#3b82f6',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  marginBottom: '0.5rem'
-                }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#2563eb'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#3b82f6'}
-              >
-                ← Back to Categories
-              </button>
-              {concepts.map((concept) => (
-                <div
-                  key={concept.id}
-                  onClick={() => setSelectedConcept(concept)}
-                  style={{
-                    padding: '1rem',
-                    backgroundColor: selectedConcept.id === concept.id ? concept.color + '20' : '#1f2937',
-                    border: `2px solid ${selectedConcept.id === concept.id ? concept.color : '#374151'}`,
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (selectedConcept.id !== concept.id) {
-                      e.currentTarget.style.backgroundColor = concept.color + '10'
-                      e.currentTarget.style.borderColor = concept.color
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (selectedConcept.id !== concept.id) {
-                      e.currentTarget.style.backgroundColor = '#1f2937'
-                      e.currentTarget.style.borderColor = '#374151'
-                    }
-                  }}
-                >
-                  <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{concept.icon}</div>
-                  <div style={{
-                    fontSize: '0.9rem',
-                    fontWeight: '600',
-                    color: 'white'
-                  }}>
-                    {concept.name}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Main content */}
-            <div>
-              <div style={{
-                backgroundColor: '#1f2937',
-                padding: '2rem',
-                borderRadius: '12px',
-                border: `3px solid ${selectedConcept.color}40`,
-                marginBottom: '2rem'
-              }}>
-                <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>{selectedConcept.icon}</div>
-                <h2 style={{
-                  fontSize: '2rem',
-                  fontWeight: '800',
-                  color: 'white',
-                  marginBottom: '1rem'
-                }}>
-                  {selectedConcept.name}
-                </h2>
-                <p style={{
-                  fontSize: '1.1rem',
-                  color: '#9ca3af',
-                  lineHeight: '1.8'
-                }}>
-                  {selectedConcept.description}
-                </p>
-              </div>
-
-              <div style={{
-                display: 'grid',
-                gap: '1.5rem'
-              }}>
-                {selectedConcept.details.map((detail, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      backgroundColor: '#1f2937',
-                      padding: '1.5rem',
-                      borderRadius: '12px',
-                      border: `2px solid #374151`,
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                    }}
-                  >
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem',
-                      marginBottom: '0.75rem'
-                    }}>
-                      <div style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '50%',
-                        backgroundColor: selectedConcept.color,
-                        color: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '0.9rem',
-                        fontWeight: '700'
-                      }}>
-                        {index + 1}
-                      </div>
-                      <h3 style={{
-                        fontSize: '1.1rem',
-                        fontWeight: '700',
-                        color: 'white',
-                        margin: 0
-                      }}>
-                        {detail.name}
-                      </h3>
-                    </div>
-                    <p style={{
-                      fontSize: '1rem',
-                      color: '#9ca3af',
-                      lineHeight: '1.7',
-                      margin: 0
-                    }}>
-                      {detail.explanation}
-                    </p>
-                    {detail.codeExample && (
-                      <pre style={{
-                        backgroundColor: '#1e293b',
-                        color: '#e2e8f0',
-                        padding: '1.5rem',
-                        borderRadius: '8px',
-                        overflow: 'auto',
-                        fontSize: '0.875rem',
-                        lineHeight: '1.6',
-                        marginTop: '1rem',
-                        border: `2px solid ${selectedConcept.color}40`
-                      }}>
-                        <code>{detail.codeExample}</code>
-                      </pre>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </>
-        ) : (
-          concepts.map((concept) => (
-            <div
-              key={concept.id}
-              onClick={() => setSelectedConcept(concept)}
-              style={{
-                backgroundColor: '#1f2937',
-                padding: '2rem',
-                borderRadius: '12px',
-                border: `3px solid #374151`,
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                transform: 'translateY(0)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)'
-                e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.15)'
-                e.currentTarget.style.borderColor = concept.color
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'none'
-                e.currentTarget.style.borderColor = '#374151'
-              }}
-            >
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{concept.icon}</div>
-              <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: 'white',
-                marginBottom: '0.75rem'
-              }}>
-                {concept.name}
-              </h3>
-              <p style={{
-                fontSize: '0.95rem',
-                color: '#9ca3af',
-                lineHeight: '1.6',
-                marginBottom: '1rem'
-              }}>
-                {concept.description}
-              </p>
-              <div style={{
+              <h2 style={{
+                color: selectedConcept.color,
+                margin: 0,
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                fontSize: '0.9rem',
-                color: concept.color,
-                fontWeight: '600'
+                fontSize: '1.25rem'
               }}>
-                <span>Learn more</span>
-                <span>→</span>
+                <span>{selectedConcept.icon}</span>
+                {selectedConcept.name}
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button
+                  onClick={handlePreviousConcept}
+                  disabled={selectedConceptIndex === 0}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >←</button>
+                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>
+                  {selectedConceptIndex + 1}/{concepts.length}
+                </span>
+                <button
+                  onClick={handleNextConcept}
+                  disabled={selectedConceptIndex === concepts.length - 1}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >→</button>
+                <button
+                  onClick={() => setSelectedConceptIndex(null)}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: '#f87171',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    marginLeft: '0.5rem'
+                  }}
+                >✕</button>
               </div>
             </div>
-          ))
-        )}
-      </div>
-      </div>
+
+            {/* Subtopic Tabs */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {selectedConcept.details.map((detail, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedDetailIndex(i)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)',
+                    border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`,
+                    borderRadius: '0.5rem',
+                    color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: selectedDetailIndex === i ? '600' : '400',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {detail.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Selected Subtopic Content */}
+            {(() => {
+              const detail = selectedConcept.details[selectedDetailIndex]
+              const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              const DiagramComponent = detail.diagram || selectedConcept.diagram
+              return (
+                <div>
+                  {/* Diagram */}
+                  {DiagramComponent && (
+                    <div style={{
+                      background: 'rgba(15, 23, 42, 0.6)',
+                      borderRadius: '0.75rem',
+                      padding: '1rem',
+                      marginBottom: '1.5rem',
+                      border: '1px solid #334155'
+                    }}>
+                      <DiagramComponent />
+                    </div>
+                  )}
+
+                  {/* Detail Name */}
+                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>
+                    {detail.name}
+                  </h3>
+
+                  {/* Explanation */}
+                  <p style={{
+                    color: '#e2e8f0',
+                    lineHeight: '1.8',
+                    marginBottom: '1rem',
+                    background: colorScheme.bg,
+                    border: `1px solid ${colorScheme.border}`,
+                    borderRadius: '0.5rem',
+                    padding: '1rem',
+                    textAlign: 'left'
+                  }}>
+                    {detail.explanation}
+                  </p>
+
+                  {/* Code Example */}
+                  {detail.codeExample && (
+                    <SyntaxHighlighter
+                      language="java"
+                      style={vscDarkPlus}
+                      customStyle={{
+                        padding: '1rem',
+                        margin: 0,
+                        borderRadius: '0.5rem',
+                        fontSize: '0.8rem',
+                        border: '1px solid #334155',
+                        background: '#0f172a'
+                      }}
+                      codeTagProps={{ style: { background: 'transparent' } }}
+                    >
+                      {detail.codeExample}
+                    </SyntaxHighlighter>
+                  )}
+                </div>
+              )
+            })()}
+
+          </div>
+        </div>
+      )}
     </div>
   )
 }

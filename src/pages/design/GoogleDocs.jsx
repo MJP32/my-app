@@ -1,6 +1,662 @@
 import React, { useState } from 'react';
 import Breadcrumb from '../../components/Breadcrumb';
 
+// SVG Diagram Components
+
+// 1. High-Level Architecture Diagram: Clients -> WebSocket Gateway -> Collaboration Service -> Storage
+const GoogleDocsArchitectureDiagram = () => (
+  <svg viewBox="0 0 900 500" className="w-full h-auto">
+    <defs>
+      <linearGradient id="archClientGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#4285F4', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#1a73e8', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="archGatewayGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#34A853', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#1e8e3e', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="archServiceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#FBBC04', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#f9ab00', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="archStorageGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#EA4335', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#d93025', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="archArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <polygon points="0 0, 10 3, 0 6" fill="#9ca3af" />
+      </marker>
+      <filter id="archShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3" />
+      </filter>
+    </defs>
+
+    {/* Title */}
+    <text x="450" y="30" fontSize="18" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">
+      Google Docs High-Level Architecture
+    </text>
+
+    {/* Clients Layer */}
+    <g filter="url(#archShadow)">
+      <rect x="30" y="60" width="120" height="80" fill="url(#archClientGrad)" rx="10" />
+      <text x="90" y="95" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">Web Client</text>
+      <text x="90" y="115" fontSize="10" fill="#e3f2fd" textAnchor="middle">React Editor</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="30" y="160" width="120" height="80" fill="url(#archClientGrad)" rx="10" />
+      <text x="90" y="195" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">Mobile Client</text>
+      <text x="90" y="215" fontSize="10" fill="#e3f2fd" textAnchor="middle">iOS / Android</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="30" y="260" width="120" height="80" fill="url(#archClientGrad)" rx="10" />
+      <text x="90" y="295" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">Desktop Client</text>
+      <text x="90" y="315" fontSize="10" fill="#e3f2fd" textAnchor="middle">Electron App</text>
+    </g>
+
+    {/* Client Label */}
+    <text x="90" y="370" fontSize="14" fontWeight="bold" fill="#4285F4" textAnchor="middle">CLIENTS</text>
+
+    {/* WebSocket Gateway */}
+    <g filter="url(#archShadow)">
+      <rect x="220" y="120" width="160" height="160" fill="url(#archGatewayGrad)" rx="12" />
+      <text x="300" y="160" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">WebSocket</text>
+      <text x="300" y="180" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">Gateway</text>
+      <line x1="240" y1="195" x2="360" y2="195" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
+      <text x="300" y="215" fontSize="10" fill="#e8f5e9" textAnchor="middle">Connection Manager</text>
+      <text x="300" y="232" fontSize="10" fill="#e8f5e9" textAnchor="middle">Session Handler</text>
+      <text x="300" y="249" fontSize="10" fill="#e8f5e9" textAnchor="middle">Load Balancer</text>
+      <text x="300" y="266" fontSize="10" fill="#e8f5e9" textAnchor="middle">Heartbeat Monitor</text>
+    </g>
+    <text x="300" y="310" fontSize="14" fontWeight="bold" fill="#34A853" textAnchor="middle">GATEWAY</text>
+
+    {/* Collaboration Service */}
+    <g filter="url(#archShadow)">
+      <rect x="450" y="80" width="180" height="240" fill="url(#archServiceGrad)" rx="12" />
+      <text x="540" y="115" fontSize="14" fontWeight="bold" fill="#5d4037" textAnchor="middle">Collaboration</text>
+      <text x="540" y="135" fontSize="14" fontWeight="bold" fill="#5d4037" textAnchor="middle">Service</text>
+      <line x1="470" y1="150" x2="610" y2="150" stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
+      <text x="540" y="175" fontSize="11" fill="#5d4037" textAnchor="middle">OT Engine</text>
+      <text x="540" y="195" fontSize="11" fill="#5d4037" textAnchor="middle">Conflict Resolver</text>
+      <text x="540" y="215" fontSize="11" fill="#5d4037" textAnchor="middle">Presence Tracker</text>
+      <text x="540" y="235" fontSize="11" fill="#5d4037" textAnchor="middle">Cursor Sync</text>
+      <text x="540" y="255" fontSize="11" fill="#5d4037" textAnchor="middle">Version Manager</text>
+      <text x="540" y="275" fontSize="11" fill="#5d4037" textAnchor="middle">History Service</text>
+      <text x="540" y="295" fontSize="11" fill="#5d4037" textAnchor="middle">Permissions</text>
+    </g>
+    <text x="540" y="345" fontSize="14" fontWeight="bold" fill="#FBBC04" textAnchor="middle">SERVICE</text>
+
+    {/* Storage Layer */}
+    <g filter="url(#archShadow)">
+      <rect x="700" y="60" width="170" height="70" fill="url(#archStorageGrad)" rx="8" />
+      <text x="785" y="90" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">Document DB</text>
+      <text x="785" y="110" fontSize="10" fill="#ffcdd2" textAnchor="middle">PostgreSQL / Spanner</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="700" y="150" width="170" height="70" fill="url(#archStorageGrad)" rx="8" />
+      <text x="785" y="180" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">Cache Layer</text>
+      <text x="785" y="200" fontSize="10" fill="#ffcdd2" textAnchor="middle">Redis Cluster</text>
+    </g>
+    <g filter="url(#archShadow)">
+      <rect x="700" y="240" width="170" height="70" fill="url(#archStorageGrad)" rx="8" />
+      <text x="785" y="270" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">Object Storage</text>
+      <text x="785" y="290" fontSize="10" fill="#ffcdd2" textAnchor="middle">GCS / S3</text>
+    </g>
+    <text x="785" y="340" fontSize="14" fontWeight="bold" fill="#EA4335" textAnchor="middle">STORAGE</text>
+
+    {/* Arrows */}
+    <path d="M 150 100 L 210 175" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#archArrow)" />
+    <path d="M 150 200 L 210 200" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#archArrow)" />
+    <path d="M 150 300 L 210 225" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#archArrow)" />
+
+    <path d="M 380 200 L 440 200" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#archArrow)" />
+
+    <path d="M 630 120 L 690 95" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#archArrow)" />
+    <path d="M 630 200 L 690 185" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#archArrow)" />
+    <path d="M 630 280 L 690 275" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#archArrow)" />
+
+    {/* Bidirectional Labels */}
+    <text x="175" y="140" fontSize="9" fill="#9ca3af" textAnchor="middle">WS</text>
+    <text x="410" y="190" fontSize="9" fill="#9ca3af" textAnchor="middle">Events</text>
+    <text x="665" y="140" fontSize="9" fill="#9ca3af" textAnchor="middle">R/W</text>
+
+    {/* Flow Description */}
+    <rect x="30" y="400" width="840" height="80" fill="rgba(66, 133, 244, 0.1)" rx="8" stroke="#4285F4" strokeWidth="1" />
+    <text x="450" y="425" fontSize="12" fontWeight="bold" fill="#4285F4" textAnchor="middle">Data Flow</text>
+    <text x="450" y="445" fontSize="11" fill="#9ca3af" textAnchor="middle">
+      1. Client connects via WebSocket  |  2. Gateway routes to Service  |  3. OT transforms applied
+    </text>
+    <text x="450" y="465" fontSize="11" fill="#9ca3af" textAnchor="middle">
+      4. Changes persisted to DB  |  5. Broadcast to all connected clients  |  6. Cache updated
+    </text>
+  </svg>
+);
+
+// 2. Operational Transform Diagram showing conflict resolution
+const OperationalTransformDiagram = () => (
+  <svg viewBox="0 0 900 550" className="w-full h-auto">
+    <defs>
+      <linearGradient id="otUserAGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#4285F4', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#1a73e8', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="otUserBGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#34A853', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#1e8e3e', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="otServerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#FBBC04', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#f9ab00', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="otConflictGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#EA4335', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#d93025', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="otArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <polygon points="0 0, 10 3, 0 6" fill="#9ca3af" />
+      </marker>
+      <marker id="otArrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <polygon points="0 0, 10 3, 0 6" fill="#4285F4" />
+      </marker>
+      <marker id="otArrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <polygon points="0 0, 10 3, 0 6" fill="#34A853" />
+      </marker>
+    </defs>
+
+    {/* Title */}
+    <text x="450" y="30" fontSize="18" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">
+      Operational Transform - Conflict Resolution
+    </text>
+
+    {/* Timeline */}
+    <line x1="100" y1="80" x2="100" y2="480" stroke="#4285F4" strokeWidth="3" />
+    <line x1="450" y1="80" x2="450" y2="480" stroke="#FBBC04" strokeWidth="3" />
+    <line x1="800" y1="80" x2="800" y2="480" stroke="#34A853" strokeWidth="3" />
+
+    {/* Labels */}
+    <rect x="40" y="50" width="120" height="30" fill="url(#otUserAGrad)" rx="6" />
+    <text x="100" y="70" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">User A (Alice)</text>
+
+    <rect x="390" y="50" width="120" height="30" fill="url(#otServerGrad)" rx="6" />
+    <text x="450" y="70" fontSize="12" fontWeight="bold" fill="#5d4037" textAnchor="middle">OT Server</text>
+
+    <rect x="740" y="50" width="120" height="30" fill="url(#otUserBGrad)" rx="6" />
+    <text x="800" y="70" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">User B (Bob)</text>
+
+    {/* Initial State */}
+    <rect x="300" y="95" width="300" height="35" fill="#1f2937" stroke="#374151" strokeWidth="2" rx="6" />
+    <text x="450" y="118" fontSize="12" fill="#9ca3af" textAnchor="middle">Initial: "Hello World" (v0)</text>
+
+    {/* User A types at t1 */}
+    <rect x="20" y="150" width="160" height="50" fill="rgba(66, 133, 244, 0.2)" stroke="#4285F4" strokeWidth="2" rx="6" />
+    <text x="100" y="172" fontSize="11" fill="#4285F4" textAnchor="middle">t1: Insert "X" at pos 5</text>
+    <text x="100" y="190" fontSize="10" fill="#93c5fd" textAnchor="middle">"HelloX World"</text>
+
+    {/* User B types at t1 (concurrent) */}
+    <rect x="720" y="150" width="160" height="50" fill="rgba(52, 168, 83, 0.2)" stroke="#34A853" strokeWidth="2" rx="6" />
+    <text x="800" y="172" fontSize="11" fill="#34A853" textAnchor="middle">t1: Insert "Y" at pos 11</text>
+    <text x="800" y="190" fontSize="10" fill="#86efac" textAnchor="middle">"Hello WorldY"</text>
+
+    {/* Operations sent to server */}
+    <path d="M 180 175 L 390 230" stroke="#4285F4" strokeWidth="2" markerEnd="url(#otArrowBlue)" />
+    <text x="270" y="195" fontSize="10" fill="#4285F4" textAnchor="middle">Op A: ins(5,"X")</text>
+
+    <path d="M 720 175 L 510 230" stroke="#34A853" strokeWidth="2" markerEnd="url(#otArrowGreen)" />
+    <text x="630" y="195" fontSize="10" fill="#34A853" textAnchor="middle">Op B: ins(11,"Y")</text>
+
+    {/* Server receives - conflict detected */}
+    <rect x="350" y="220" width="200" height="60" fill="url(#otConflictGrad)" rx="8" />
+    <text x="450" y="245" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">Conflict Detected!</text>
+    <text x="450" y="265" fontSize="10" fill="#ffcdd2" textAnchor="middle">Both ops based on v0</text>
+
+    {/* Transform Operations */}
+    <rect x="350" y="300" width="200" height="80" fill="url(#otServerGrad)" rx="8" />
+    <text x="450" y="325" fontSize="12" fontWeight="bold" fill="#5d4037" textAnchor="middle">OT Transform</text>
+    <text x="450" y="345" fontSize="10" fill="#5d4037" textAnchor="middle">Apply A first: ins(5,"X")</text>
+    <text x="450" y="360" fontSize="10" fill="#5d4037" textAnchor="middle">Transform B: ins(5,"X") + ins(11,"Y")</text>
+    <text x="450" y="375" fontSize="10" fill="#5d4037" textAnchor="middle">= ins(12,"Y") (position shifted!)</text>
+
+    {/* Transformed ops sent back */}
+    <path d="M 390 360 L 180 400" stroke="#4285F4" strokeWidth="2" strokeDasharray="5,3" markerEnd="url(#otArrowBlue)" />
+    <text x="260" y="390" fontSize="9" fill="#4285F4" textAnchor="middle">ACK + Op B'</text>
+
+    <path d="M 510 360 L 720 400" stroke="#34A853" strokeWidth="2" strokeDasharray="5,3" markerEnd="url(#otArrowGreen)" />
+    <text x="640" y="390" fontSize="9" fill="#34A853" textAnchor="middle">ACK + Op A</text>
+
+    {/* Final converged state */}
+    <rect x="20" y="410" width="160" height="50" fill="rgba(66, 133, 244, 0.2)" stroke="#4285F4" strokeWidth="2" rx="6" />
+    <text x="100" y="432" fontSize="11" fill="#4285F4" textAnchor="middle">Apply B' (transformed)</text>
+    <text x="100" y="450" fontSize="10" fill="#93c5fd" textAnchor="middle">"HelloX WorldY"</text>
+
+    <rect x="720" y="410" width="160" height="50" fill="rgba(52, 168, 83, 0.2)" stroke="#34A853" strokeWidth="2" rx="6" />
+    <text x="800" y="432" fontSize="11" fill="#34A853" textAnchor="middle">Apply A</text>
+    <text x="800" y="450" fontSize="10" fill="#86efac" textAnchor="middle">"HelloX WorldY"</text>
+
+    {/* Final State Box */}
+    <rect x="300" y="480" width="300" height="50" fill="rgba(52, 168, 83, 0.3)" stroke="#34A853" strokeWidth="2" rx="8" />
+    <text x="450" y="503" fontSize="13" fontWeight="bold" fill="#34A853" textAnchor="middle">Converged: "HelloX WorldY" (v2)</text>
+    <text x="450" y="520" fontSize="10" fill="#86efac" textAnchor="middle">All clients have identical state</text>
+
+    {/* Legend */}
+    <rect x="30" y="495" width="180" height="40" fill="#1f2937" stroke="#374151" strokeWidth="1" rx="4" />
+    <text x="40" y="512" fontSize="10" fill="#9ca3af">Key: OT adjusts positions so</text>
+    <text x="40" y="526" fontSize="10" fill="#9ca3af">concurrent ops don't conflict</text>
+  </svg>
+);
+
+// 3. Presence and Cursors Diagram showing multiple users editing
+const PresenceAndCursorsDiagram = () => (
+  <svg viewBox="0 0 900 400" className="w-full h-auto">
+    <defs>
+      <linearGradient id="presDocGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#374151', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#1f2937', stopOpacity: 1 }} />
+      </linearGradient>
+      <filter id="presShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="4" stdDeviation="4" floodOpacity="0.4" />
+      </filter>
+    </defs>
+
+    {/* Title */}
+    <text x="450" y="30" fontSize="18" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">
+      Presence System - Multi-User Cursor Tracking
+    </text>
+
+    {/* Document Canvas */}
+    <rect x="50" y="50" width="600" height="280" fill="url(#presDocGrad)" rx="12" filter="url(#presShadow)" stroke="#4b5563" strokeWidth="2" />
+
+    {/* Document Header */}
+    <rect x="50" y="50" width="600" height="40" fill="#4b5563" rx="12" />
+    <rect x="50" y="70" width="600" height="20" fill="#4b5563" />
+    <text x="70" y="78" fontSize="14" fontWeight="bold" fill="#f3f4f6">Untitled Document</text>
+
+    {/* Collaborator avatars in header */}
+    <circle cx="550" cy="70" r="14" fill="#4285F4" />
+    <text x="550" y="75" fontSize="10" fontWeight="bold" fill="white" textAnchor="middle">A</text>
+    <circle cx="580" cy="70" r="14" fill="#34A853" />
+    <text x="580" y="75" fontSize="10" fontWeight="bold" fill="white" textAnchor="middle">B</text>
+    <circle cx="610" cy="70" r="14" fill="#EA4335" />
+    <text x="610" y="75" fontSize="10" fontWeight="bold" fill="white" textAnchor="middle">C</text>
+
+    {/* Document Text Lines */}
+    <text x="70" y="120" fontSize="14" fill="#e5e7eb" fontFamily="monospace">The quick brown fox jumps over the lazy dog.</text>
+    <text x="70" y="150" fontSize="14" fill="#e5e7eb" fontFamily="monospace">Lorem ipsum dolor sit amet, consectetur</text>
+    <text x="70" y="180" fontSize="14" fill="#e5e7eb" fontFamily="monospace">adipiscing elit. Sed do eiusmod tempor</text>
+    <text x="70" y="210" fontSize="14" fill="#e5e7eb" fontFamily="monospace">incididunt ut labore et dolore magna aliqua.</text>
+    <text x="70" y="240" fontSize="14" fill="#e5e7eb" fontFamily="monospace">Ut enim ad minim veniam, quis nostrud.</text>
+    <text x="70" y="270" fontSize="14" fill="#e5e7eb" fontFamily="monospace">Duis aute irure dolor in reprehenderit.</text>
+    <text x="70" y="300" fontSize="14" fill="#e5e7eb" fontFamily="monospace">Excepteur sint occaecat cupidatat non.</text>
+
+    {/* User A Cursor - Blue */}
+    <line x1="165" y1="107" x2="165" y2="125" stroke="#4285F4" strokeWidth="2" />
+    <rect x="165" y="95" width="50" height="14" fill="#4285F4" rx="2" />
+    <text x="170" y="105" fontSize="9" fill="white">Alice</text>
+
+    {/* User B Cursor - Green */}
+    <line x1="295" y1="167" x2="295" y2="185" stroke="#34A853" strokeWidth="2" />
+    <rect x="295" y="155" width="40" height="14" fill="#34A853" rx="2" />
+    <text x="300" y="165" fontSize="9" fill="white">Bob</text>
+
+    {/* User C Selection Highlight - Red */}
+    <rect x="70" y="225" width="200" height="18" fill="rgba(234, 67, 53, 0.3)" />
+    <line x1="270" y1="223" x2="270" y2="245" stroke="#EA4335" strokeWidth="2" />
+    <rect x="270" y="211" width="55" height="14" fill="#EA4335" rx="2" />
+    <text x="275" y="221" fontSize="9" fill="white">Charlie</text>
+
+    {/* Presence Panel on Right */}
+    <rect x="680" y="50" width="190" height="280" fill="#1f2937" rx="12" stroke="#374151" strokeWidth="2" />
+    <text x="775" y="80" fontSize="14" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">Active Users (3)</text>
+    <line x1="695" y1="95" x2="855" y2="95" stroke="#374151" strokeWidth="1" />
+
+    {/* User A */}
+    <circle cx="715" cy="125" r="15" fill="#4285F4" />
+    <text x="715" y="130" fontSize="11" fontWeight="bold" fill="white" textAnchor="middle">A</text>
+    <text x="745" y="122" fontSize="12" fill="#e5e7eb">Alice Chen</text>
+    <text x="745" y="138" fontSize="10" fill="#9ca3af">Editing line 1</text>
+    <circle cx="850" cy="125" r="5" fill="#4ade80" />
+
+    {/* User B */}
+    <circle cx="715" cy="180" r="15" fill="#34A853" />
+    <text x="715" y="185" fontSize="11" fontWeight="bold" fill="white" textAnchor="middle">B</text>
+    <text x="745" y="177" fontSize="12" fill="#e5e7eb">Bob Smith</text>
+    <text x="745" y="193" fontSize="10" fill="#9ca3af">Editing line 3</text>
+    <circle cx="850" cy="180" r="5" fill="#4ade80" />
+
+    {/* User C */}
+    <circle cx="715" cy="235" r="15" fill="#EA4335" />
+    <text x="715" y="240" fontSize="11" fontWeight="bold" fill="white" textAnchor="middle">C</text>
+    <text x="745" y="232" fontSize="12" fill="#e5e7eb">Charlie Kim</text>
+    <text x="745" y="248" fontSize="10" fill="#9ca3af">Selecting text</text>
+    <circle cx="850" cy="235" r="5" fill="#4ade80" />
+
+    {/* Typing indicator */}
+    <rect x="695" y="270" width="160" height="45" fill="rgba(66, 133, 244, 0.1)" rx="6" stroke="#4285F4" strokeWidth="1" strokeDasharray="3,3" />
+    <text x="775" y="290" fontSize="10" fill="#4285F4" textAnchor="middle">Alice is typing...</text>
+    <circle cx="745" cy="303" r="3" fill="#4285F4">
+      <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="760" cy="303" r="3" fill="#4285F4">
+      <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite" begin="0.2s" />
+    </circle>
+    <circle cx="775" cy="303" r="3" fill="#4285F4">
+      <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite" begin="0.4s" />
+    </circle>
+
+    {/* Data Flow Description */}
+    <rect x="50" y="350" width="820" height="40" fill="rgba(52, 168, 83, 0.1)" rx="6" stroke="#34A853" strokeWidth="1" />
+    <text x="460" y="375" fontSize="11" fill="#9ca3af" textAnchor="middle">
+      Cursor positions broadcast via WebSocket every 50ms | Presence updates via Redis Pub/Sub | Color-coded per user
+    </text>
+  </svg>
+);
+
+// 4. Document Storage Diagram showing how documents are stored and versioned
+const DocumentStorageDiagram = () => (
+  <svg viewBox="0 0 900 500" className="w-full h-auto">
+    <defs>
+      <linearGradient id="storeDocGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#4285F4', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#1a73e8', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="storeOpsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#34A853', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#1e8e3e', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="storeSnapGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#FBBC04', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#f9ab00', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="storeArchiveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#EA4335', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#d93025', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="storeArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <polygon points="0 0, 10 3, 0 6" fill="#9ca3af" />
+      </marker>
+      <filter id="storeShadow" x="-10%" y="-10%" width="120%" height="120%">
+        <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3" />
+      </filter>
+    </defs>
+
+    {/* Title */}
+    <text x="450" y="30" fontSize="18" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">
+      Document Storage Architecture
+    </text>
+
+    {/* Hot Storage - Redis */}
+    <rect x="30" y="60" width="250" height="180" fill="#1f2937" rx="12" stroke="#4285F4" strokeWidth="2" filter="url(#storeShadow)" />
+    <rect x="30" y="60" width="250" height="40" fill="url(#storeDocGrad)" rx="12" />
+    <rect x="30" y="85" width="250" height="15" fill="url(#storeDocGrad)" />
+    <text x="155" y="88" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">Hot Storage (Redis)</text>
+
+    <text x="50" y="125" fontSize="11" fill="#9ca3af">Active Documents Cache</text>
+    <rect x="50" y="135" width="210" height="25" fill="#374151" rx="4" />
+    <text x="60" y="152" fontSize="10" fill="#60a5fa" fontFamily="monospace">doc:123 → current_content</text>
+
+    <rect x="50" y="165" width="210" height="25" fill="#374151" rx="4" />
+    <text x="60" y="182" fontSize="10" fill="#60a5fa" fontFamily="monospace">doc:123:cursors → [user_positions]</text>
+
+    <rect x="50" y="195" width="210" height="25" fill="#374151" rx="4" />
+    <text x="60" y="212" fontSize="10" fill="#60a5fa" fontFamily="monospace">doc:123:presence → [online_users]</text>
+
+    <text x="155" y="235" fontSize="10" fill="#4285F4" textAnchor="middle">TTL: 30 min | LRU eviction</text>
+
+    {/* Primary Storage - PostgreSQL */}
+    <rect x="320" y="60" width="260" height="180" fill="#1f2937" rx="12" stroke="#34A853" strokeWidth="2" filter="url(#storeShadow)" />
+    <rect x="320" y="60" width="260" height="40" fill="url(#storeOpsGrad)" rx="12" />
+    <rect x="320" y="85" width="260" height="15" fill="url(#storeOpsGrad)" />
+    <text x="450" y="88" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">Primary DB (PostgreSQL)</text>
+
+    <text x="340" y="125" fontSize="11" fill="#9ca3af">Documents Table</text>
+    <rect x="340" y="135" width="220" height="40" fill="#374151" rx="4" />
+    <text x="350" y="152" fontSize="9" fill="#86efac" fontFamily="monospace">id | title | content | owner_id</text>
+    <text x="350" y="167" fontSize="9" fill="#86efac" fontFamily="monospace">version | created | updated</text>
+
+    <text x="340" y="195" fontSize="11" fill="#9ca3af">Operations Log Table</text>
+    <rect x="340" y="205" width="220" height="25" fill="#374151" rx="4" />
+    <text x="350" y="222" fontSize="9" fill="#86efac" fontFamily="monospace">doc_id | op_type | position | data | v</text>
+
+    {/* Snapshot Storage */}
+    <rect x="620" y="60" width="250" height="180" fill="#1f2937" rx="12" stroke="#FBBC04" strokeWidth="2" filter="url(#storeShadow)" />
+    <rect x="620" y="60" width="250" height="40" fill="url(#storeSnapGrad)" rx="12" />
+    <rect x="620" y="85" width="250" height="15" fill="url(#storeSnapGrad)" />
+    <text x="745" y="88" fontSize="14" fontWeight="bold" fill="#5d4037" textAnchor="middle">Snapshots (GCS/S3)</text>
+
+    <text x="640" y="125" fontSize="11" fill="#9ca3af">Full Document Snapshots</text>
+    <g>
+      <rect x="640" y="135" width="70" height="80" fill="#374151" rx="4" />
+      <text x="675" y="160" fontSize="10" fill="#fde68a" textAnchor="middle">v100</text>
+      <text x="675" y="175" fontSize="8" fill="#9ca3af" textAnchor="middle">50KB</text>
+      <text x="675" y="200" fontSize="8" fill="#6b7280" textAnchor="middle">Jan 1</text>
+    </g>
+    <g>
+      <rect x="720" y="135" width="70" height="80" fill="#374151" rx="4" />
+      <text x="755" y="160" fontSize="10" fill="#fde68a" textAnchor="middle">v200</text>
+      <text x="755" y="175" fontSize="8" fill="#9ca3af" textAnchor="middle">52KB</text>
+      <text x="755" y="200" fontSize="8" fill="#6b7280" textAnchor="middle">Jan 15</text>
+    </g>
+    <g>
+      <rect x="800" y="135" width="50" height="80" fill="#374151" rx="4" />
+      <text x="825" y="175" fontSize="16" fill="#6b7280" textAnchor="middle">...</text>
+    </g>
+
+    <text x="745" y="235" fontSize="10" fill="#FBBC04" textAnchor="middle">Every 100 ops | Compressed</text>
+
+    {/* Archive Storage */}
+    <rect x="320" y="280" width="260" height="120" fill="#1f2937" rx="12" stroke="#EA4335" strokeWidth="2" filter="url(#storeShadow)" />
+    <rect x="320" y="280" width="260" height="35" fill="url(#storeArchiveGrad)" rx="12" />
+    <rect x="320" y="300" width="260" height="15" fill="url(#storeArchiveGrad)" />
+    <text x="450" y="305" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">Cold Archive (Glacier)</text>
+
+    <text x="340" y="340" fontSize="11" fill="#9ca3af">Older Versions (90+ days)</text>
+    <text x="340" y="360" fontSize="10" fill="#fca5a5">Compressed snapshots + diff chains</text>
+    <text x="340" y="380" fontSize="10" fill="#fca5a5">Retrieval: minutes to hours</text>
+
+    {/* Data Flow Arrows */}
+    <path d="M 155 240 L 155 260 L 320 300" stroke="#9ca3af" strokeWidth="2" strokeDasharray="5,3" markerEnd="url(#storeArrow)" />
+    <text x="200" y="285" fontSize="9" fill="#6b7280">Evicted</text>
+
+    <path d="M 450 240 L 450 275" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#storeArrow)" />
+    <text x="475" y="265" fontSize="9" fill="#6b7280">Archive</text>
+
+    <path d="M 745 240 L 580 290" stroke="#9ca3af" strokeWidth="2" strokeDasharray="5,3" markerEnd="url(#storeArrow)" />
+
+    <path d="M 280 150 L 310 150" stroke="#4ade80" strokeWidth="2" markerEnd="url(#storeArrow)" />
+    <text x="295" y="140" fontSize="9" fill="#4ade80">Persist</text>
+
+    <path d="M 580 150 L 610 150" stroke="#fde68a" strokeWidth="2" markerEnd="url(#storeArrow)" />
+    <text x="595" y="140" fontSize="9" fill="#fde68a">Snapshot</text>
+
+    {/* Legend */}
+    <rect x="30" y="420" width="840" height="65" fill="rgba(66, 133, 244, 0.1)" rx="8" stroke="#374151" strokeWidth="1" />
+    <text x="450" y="445" fontSize="12" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">Storage Strategy</text>
+    <text x="450" y="465" fontSize="10" fill="#9ca3af" textAnchor="middle">
+      Hot (Redis): Active docs, ~1GB/server | Warm (PostgreSQL): All docs + ops log, sharded by doc_id
+    </text>
+    <text x="450" y="480" fontSize="10" fill="#9ca3af" textAnchor="middle">
+      Cold (GCS): Snapshots every 100 ops | Archive (Glacier): Docs inactive 90+ days
+    </text>
+  </svg>
+);
+
+// 5. Revision History Diagram showing how revision history and undo/redo work
+const RevisionHistoryDiagram = () => (
+  <svg viewBox="0 0 900 480" className="w-full h-auto">
+    <defs>
+      <linearGradient id="revMainGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style={{ stopColor: '#4285F4', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#34A853', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="revSnapGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#FBBC04', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#f9ab00', stopOpacity: 1 }} />
+      </linearGradient>
+      <linearGradient id="revDiffGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#34A853', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#1e8e3e', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="revArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <polygon points="0 0, 10 3, 0 6" fill="#9ca3af" />
+      </marker>
+      <marker id="revArrowGreen" markerWidth="8" markerHeight="8" refX="7" refY="2.5" orient="auto">
+        <polygon points="0 0, 8 2.5, 0 5" fill="#34A853" />
+      </marker>
+      <filter id="revShadow" x="-10%" y="-10%" width="120%" height="120%">
+        <feDropShadow dx="1" dy="2" stdDeviation="2" floodOpacity="0.3" />
+      </filter>
+    </defs>
+
+    {/* Title */}
+    <text x="450" y="30" fontSize="18" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">
+      Revision History & Undo/Redo System
+    </text>
+
+    {/* Timeline */}
+    <line x1="50" y1="100" x2="850" y2="100" stroke="url(#revMainGrad)" strokeWidth="4" />
+
+    {/* Version markers */}
+    {/* v0 - Initial */}
+    <g filter="url(#revShadow)">
+      <circle cx="100" cy="100" r="20" fill="url(#revSnapGrad)" stroke="#f59e0b" strokeWidth="2" />
+      <text x="100" y="105" fontSize="10" fontWeight="bold" fill="#5d4037" textAnchor="middle">v0</text>
+    </g>
+    <text x="100" y="145" fontSize="10" fill="#FBBC04" textAnchor="middle">Snapshot</text>
+    <text x="100" y="160" fontSize="9" fill="#9ca3af" textAnchor="middle">"Hello"</text>
+
+    {/* v1-v99 - Diffs */}
+    <g filter="url(#revShadow)">
+      <circle cx="200" cy="100" r="12" fill="url(#revDiffGrad)" stroke="#059669" strokeWidth="1" />
+      <text x="200" y="104" fontSize="8" fill="white" textAnchor="middle">v1</text>
+    </g>
+    <text x="200" y="135" fontSize="8" fill="#34A853" textAnchor="middle">+World</text>
+
+    <g filter="url(#revShadow)">
+      <circle cx="260" cy="100" r="12" fill="url(#revDiffGrad)" stroke="#059669" strokeWidth="1" />
+      <text x="260" y="104" fontSize="8" fill="white" textAnchor="middle">v2</text>
+    </g>
+    <text x="260" y="135" fontSize="8" fill="#34A853" textAnchor="middle">+!</text>
+
+    <text x="320" y="105" fontSize="16" fill="#6b7280">...</text>
+
+    <g filter="url(#revShadow)">
+      <circle cx="380" cy="100" r="12" fill="url(#revDiffGrad)" stroke="#059669" strokeWidth="1" />
+      <text x="380" y="104" fontSize="8" fill="white" textAnchor="middle">v99</text>
+    </g>
+
+    {/* v100 - Snapshot */}
+    <g filter="url(#revShadow)">
+      <circle cx="450" cy="100" r="20" fill="url(#revSnapGrad)" stroke="#f59e0b" strokeWidth="2" />
+      <text x="450" y="105" fontSize="10" fontWeight="bold" fill="#5d4037" textAnchor="middle">v100</text>
+    </g>
+    <text x="450" y="145" fontSize="10" fill="#FBBC04" textAnchor="middle">Snapshot</text>
+    <text x="450" y="160" fontSize="9" fill="#9ca3af" textAnchor="middle">Full doc</text>
+
+    {/* v101+ */}
+    <g filter="url(#revShadow)">
+      <circle cx="540" cy="100" r="12" fill="url(#revDiffGrad)" stroke="#059669" strokeWidth="1" />
+      <text x="540" y="104" fontSize="8" fill="white" textAnchor="middle">v101</text>
+    </g>
+
+    <text x="600" y="105" fontSize="16" fill="#6b7280">...</text>
+
+    <g filter="url(#revShadow)">
+      <circle cx="660" cy="100" r="12" fill="url(#revDiffGrad)" stroke="#059669" strokeWidth="1" />
+      <text x="660" y="104" fontSize="8" fill="white" textAnchor="middle">v150</text>
+    </g>
+
+    {/* Current version */}
+    <g filter="url(#revShadow)">
+      <circle cx="750" cy="100" r="18" fill="#4285F4" stroke="#1d4ed8" strokeWidth="3" />
+      <text x="750" y="105" fontSize="9" fontWeight="bold" fill="white" textAnchor="middle">v151</text>
+    </g>
+    <text x="750" y="145" fontSize="10" fill="#4285F4" textAnchor="middle">Current</text>
+    <rect x="800" y="85" width="50" height="30" fill="#4285F4" rx="4" />
+    <text x="825" y="105" fontSize="9" fill="white" textAnchor="middle">HEAD</text>
+
+    {/* Undo/Redo Section */}
+    <rect x="50" y="190" width="380" height="140" fill="#1f2937" rx="12" stroke="#4285F4" strokeWidth="2" />
+    <text x="240" y="215" fontSize="14" fontWeight="bold" fill="#4285F4" textAnchor="middle">Undo Stack (Per User)</text>
+
+    <g>
+      <rect x="70" y="235" width="80" height="35" fill="#374151" rx="4" />
+      <text x="110" y="255" fontSize="9" fill="#60a5fa" textAnchor="middle">Op: ins(5,"X")</text>
+      <text x="110" y="268" fontSize="8" fill="#9ca3af" textAnchor="middle">inverse: del(5,1)</text>
+    </g>
+    <g>
+      <rect x="160" y="235" width="80" height="35" fill="#374151" rx="4" />
+      <text x="200" y="255" fontSize="9" fill="#60a5fa" textAnchor="middle">Op: del(0,5)</text>
+      <text x="200" y="268" fontSize="8" fill="#9ca3af" textAnchor="middle">inverse: ins(0,"Hello")</text>
+    </g>
+    <g>
+      <rect x="250" y="235" width="80" height="35" fill="#374151" rx="4" />
+      <text x="290" y="255" fontSize="9" fill="#60a5fa" textAnchor="middle">Op: ins(0,"Hi")</text>
+      <text x="290" y="268" fontSize="8" fill="#9ca3af" textAnchor="middle">inverse: del(0,2)</text>
+    </g>
+    <g>
+      <rect x="340" y="235" width="70" height="35" fill="#4285F4" rx="4" stroke="#60a5fa" strokeWidth="2" />
+      <text x="375" y="255" fontSize="9" fill="white" textAnchor="middle">Latest</text>
+      <text x="375" y="268" fontSize="8" fill="#bfdbfe" textAnchor="middle">TOP</text>
+    </g>
+
+    <text x="240" y="295" fontSize="10" fill="#9ca3af" textAnchor="middle">Ctrl+Z applies inverse of top operation</text>
+    <path d="M 375 275 C 375 295, 340 305, 300 305" stroke="#f87171" strokeWidth="2" markerEnd="url(#revArrow)" strokeDasharray="4,2" />
+    <text x="350" y="315" fontSize="9" fill="#f87171">Undo</text>
+
+    {/* Redo Section */}
+    <rect x="470" y="190" width="380" height="140" fill="#1f2937" rx="12" stroke="#34A853" strokeWidth="2" />
+    <text x="660" y="215" fontSize="14" fontWeight="bold" fill="#34A853" textAnchor="middle">Redo Stack (Per User)</text>
+
+    <g>
+      <rect x="490" y="235" width="80" height="35" fill="#374151" rx="4" />
+      <text x="530" y="255" fontSize="9" fill="#86efac" textAnchor="middle">Undone Op 1</text>
+      <text x="530" y="268" fontSize="8" fill="#9ca3af" textAnchor="middle">ready to redo</text>
+    </g>
+    <g>
+      <rect x="580" y="235" width="80" height="35" fill="#374151" rx="4" />
+      <text x="620" y="255" fontSize="9" fill="#86efac" textAnchor="middle">Undone Op 2</text>
+      <text x="620" y="268" fontSize="8" fill="#9ca3af" textAnchor="middle">ready to redo</text>
+    </g>
+    <g>
+      <rect x="670" y="235" width="60" height="35" fill="#374151" rx="4" stroke="#34A853" strokeWidth="1" strokeDasharray="3,3" />
+      <text x="700" y="258" fontSize="10" fill="#6b7280" textAnchor="middle">empty</text>
+    </g>
+
+    <text x="660" y="295" fontSize="10" fill="#9ca3af" textAnchor="middle">Ctrl+Y re-applies undone operation</text>
+    <path d="M 530 270 C 530 295, 570 305, 615 305" stroke="#4ade80" strokeWidth="2" markerEnd="url(#revArrowGreen)" strokeDasharray="4,2" />
+    <text x="555" y="315" fontSize="9" fill="#4ade80">Redo</text>
+
+    {/* Restore Version Section */}
+    <rect x="50" y="350" width="800" height="110" fill="rgba(251, 188, 4, 0.1)" rx="12" stroke="#FBBC04" strokeWidth="2" />
+    <text x="450" y="380" fontSize="14" fontWeight="bold" fill="#FBBC04" textAnchor="middle">Restoring a Previous Version</text>
+
+    <g>
+      <rect x="80" y="400" width="140" height="45" fill="#374151" rx="6" />
+      <text x="150" y="420" fontSize="10" fill="#fde68a" textAnchor="middle">1. Find nearest snapshot</text>
+      <text x="150" y="435" fontSize="9" fill="#9ca3af" textAnchor="middle">e.g., v100 for restoring v125</text>
+    </g>
+    <path d="M 220 422 L 260 422" stroke="#FBBC04" strokeWidth="2" markerEnd="url(#revArrow)" />
+
+    <g>
+      <rect x="270" y="400" width="140" height="45" fill="#374151" rx="6" />
+      <text x="340" y="420" fontSize="10" fill="#fde68a" textAnchor="middle">2. Apply diffs forward</text>
+      <text x="340" y="435" fontSize="9" fill="#9ca3af" textAnchor="middle">v100→v101→...→v125</text>
+    </g>
+    <path d="M 410 422 L 450 422" stroke="#FBBC04" strokeWidth="2" markerEnd="url(#revArrow)" />
+
+    <g>
+      <rect x="460" y="400" width="140" height="45" fill="#374151" rx="6" />
+      <text x="530" y="420" fontSize="10" fill="#fde68a" textAnchor="middle">3. Reconstruct doc</text>
+      <text x="530" y="435" fontSize="9" fill="#9ca3af" textAnchor="middle">Full content at v125</text>
+    </g>
+    <path d="M 600 422 L 640 422" stroke="#FBBC04" strokeWidth="2" markerEnd="url(#revArrow)" />
+
+    <g>
+      <rect x="650" y="400" width="180" height="45" fill="#34A853" rx="6" />
+      <text x="740" y="420" fontSize="10" fill="white" textAnchor="middle">4. Create new version</text>
+      <text x="740" y="435" fontSize="9" fill="#d1fae5" textAnchor="middle">v152 = restored from v125</text>
+    </g>
+  </svg>
+);
+
 export default function GoogleDocs({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -184,170 +840,18 @@ export default function GoogleDocs({ onBack, breadcrumb }) {
             <div>
               <h2 className="text-2xl font-bold text-white mb-6">High-Level Architecture</h2>
               <div className="bg-gray-800 rounded-2xl p-6 border-2 border-gray-700 shadow-lg">
-                <svg viewBox="0 0 1000 700" className="w-full h-auto">
-                  <defs>
-                    <linearGradient id="clientGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
-                      <stop offset="100%" style={{ stopColor: '#2563eb', stopOpacity: 1 }} />
-                    </linearGradient>
-                    <linearGradient id="wsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
-                      <stop offset="100%" style={{ stopColor: '#059669', stopOpacity: 1 }} />
-                    </linearGradient>
-                    <linearGradient id="serviceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
-                      <stop offset="100%" style={{ stopColor: '#7c3aed', stopOpacity: 1 }} />
-                    </linearGradient>
-                    <linearGradient id="dbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 1 }} />
-                      <stop offset="100%" style={{ stopColor: '#d97706', stopOpacity: 1 }} />
-                    </linearGradient>
-                    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                      <polygon points="0 0, 10 3, 0 6" fill="#9ca3af" />
-                    </marker>
-                  </defs>
-
-                  {/* Title */}
-                  <text x="500" y="30" fontSize="20" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">
-                    Google Docs System Architecture
-                  </text>
-
-                  {/* Clients */}
-                  <g>
-                    <rect x="50" y="80" width="140" height="80" fill="url(#clientGrad)" stroke="#2563eb" strokeWidth="2" rx="8" />
-                    <text x="120" y="110" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">Client A</text>
-                    <text x="120" y="130" fontSize="12" fill="white" textAnchor="middle">(Web/Mobile)</text>
-                    <text x="120" y="145" fontSize="11" fill="#dbeafe" textAnchor="middle">Real-time Editor</text>
-                  </g>
-
-                  <g>
-                    <rect x="230" y="80" width="140" height="80" fill="url(#clientGrad)" stroke="#2563eb" strokeWidth="2" rx="8" />
-                    <text x="300" y="110" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">Client B</text>
-                    <text x="300" y="130" fontSize="12" fill="white" textAnchor="middle">(Web/Mobile)</text>
-                    <text x="300" y="145" fontSize="11" fill="#dbeafe" textAnchor="middle">Real-time Editor</text>
-                  </g>
-
-                  <g>
-                    <rect x="410" y="80" width="140" height="80" fill="url(#clientGrad)" stroke="#2563eb" strokeWidth="2" rx="8" />
-                    <text x="480" y="110" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">Client C</text>
-                    <text x="480" y="130" fontSize="12" fill="white" textAnchor="middle">(Web/Mobile)</text>
-                    <text x="480" y="145" fontSize="11" fill="#dbeafe" textAnchor="middle">Real-time Editor</text>
-                  </g>
-
-                  {/* Load Balancer */}
-                  <rect x="200" y="210" width="200" height="50" fill="#6366f1" stroke="#4f46e5" strokeWidth="2" rx="6" />
-                  <text x="300" y="240" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">Load Balancer / API Gateway</text>
-
-                  {/* WebSocket Servers */}
-                  <text x="300" y="310" fontSize="16" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">WebSocket Server Cluster</text>
-
-                  <g>
-                    <rect x="80" y="330" width="130" height="70" fill="url(#wsGrad)" stroke="#059669" strokeWidth="2" rx="6" />
-                    <text x="145" y="355" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">WS Server 1</text>
-                    <text x="145" y="372" fontSize="11" fill="white" textAnchor="middle">Sticky Sessions</text>
-                    <text x="145" y="387" fontSize="10" fill="#d1fae5" textAnchor="middle">Doc: 123, 456...</text>
-                  </g>
-
-                  <g>
-                    <rect x="235" y="330" width="130" height="70" fill="url(#wsGrad)" stroke="#059669" strokeWidth="2" rx="6" />
-                    <text x="300" y="355" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">WS Server 2</text>
-                    <text x="300" y="372" fontSize="11" fill="white" textAnchor="middle">Sticky Sessions</text>
-                    <text x="300" y="387" fontSize="10" fill="#d1fae5" textAnchor="middle">Doc: 789, 101...</text>
-                  </g>
-
-                  <g>
-                    <rect x="390" y="330" width="130" height="70" fill="url(#wsGrad)" stroke="#059669" strokeWidth="2" rx="6" />
-                    <text x="455" y="355" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">WS Server N</text>
-                    <text x="455" y="372" fontSize="11" fill="white" textAnchor="middle">Sticky Sessions</text>
-                    <text x="455" y="387" fontSize="10" fill="#d1fae5" textAnchor="middle">Doc: 112...</text>
-                  </g>
-
-                  {/* Message Queue/Pub-Sub */}
-                  <rect x="590" y="200" width="170" height="200" fill="#fbbf24" stroke="#f59e0b" strokeWidth="2" rx="6" />
-                  <text x="675" y="225" fontSize="14" fontWeight="bold" fill="#78350f" textAnchor="middle">Message Queue</text>
-                  <text x="675" y="245" fontSize="12" fill="#78350f" textAnchor="middle">(Pub/Sub)</text>
-                  <line x1="600" y1="250" x2="750" y2="250" stroke="#78350f" strokeWidth="1" />
-                  <text x="675" y="275" fontSize="11" fill="#78350f" textAnchor="middle">Kafka / RabbitMQ</text>
-                  <text x="675" y="295" fontSize="10" fill="#78350f" textAnchor="middle">Topics:</text>
-                  <text x="675" y="312" fontSize="10" fill="#78350f" textAnchor="middle">• doc_edits</text>
-                  <text x="675" y="327" fontSize="10" fill="#78350f" textAnchor="middle">• cursor_updates</text>
-                  <text x="675" y="342" fontSize="10" fill="#78350f" textAnchor="middle">• presence</text>
-                  <text x="675" y="365" fontSize="11" fontWeight="600" fill="#78350f" textAnchor="middle">Broadcast edits to</text>
-                  <text x="675" y="382" fontSize="11" fontWeight="600" fill="#78350f" textAnchor="middle">all WS servers</text>
-
-                  {/* Backend Services */}
-                  <text x="300" y="460" fontSize="16" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">Backend Services</text>
-
-                  <g>
-                    <rect x="50" y="480" width="140" height="60" fill="url(#serviceGrad)" stroke="#7c3aed" strokeWidth="2" rx="6" />
-                    <text x="120" y="502" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">Document</text>
-                    <text x="120" y="518" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">Service</text>
-                    <text x="120" y="532" fontSize="10" fill="#ede9fe" textAnchor="middle">CRUD operations</text>
-                  </g>
-
-                  <g>
-                    <rect x="220" y="480" width="140" height="60" fill="url(#serviceGrad)" stroke="#7c3aed" strokeWidth="2" rx="6" />
-                    <text x="290" y="502" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">OT/CRDT</text>
-                    <text x="290" y="518" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">Service</text>
-                    <text x="290" y="532" fontSize="10" fill="#ede9fe" textAnchor="middle">Conflict resolution</text>
-                  </g>
-
-                  <g>
-                    <rect x="390" y="480" width="140" height="60" fill="url(#serviceGrad)" stroke="#7c3aed" strokeWidth="2" rx="6" />
-                    <text x="460" y="502" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">Version History</text>
-                    <text x="460" y="518" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">Service</text>
-                    <text x="460" y="532" fontSize="10" fill="#ede9fe" textAnchor="middle">Snapshots & diffs</text>
-                  </g>
-
-                  {/* Storage Layer */}
-                  <text x="300" y="600" fontSize="16" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">Storage Layer</text>
-
-                  <g>
-                    <rect x="50" y="620" width="140" height="60" fill="url(#dbGrad)" stroke="#d97706" strokeWidth="2" rx="6" />
-                    <text x="120" y="642" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">PostgreSQL /</text>
-                    <text x="120" y="658" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">MongoDB</text>
-                    <text x="120" y="672" fontSize="10" fill="#fef3c7" textAnchor="middle">Documents</text>
-                  </g>
-
-                  <g>
-                    <rect x="220" y="620" width="140" height="60" fill="url(#dbGrad)" stroke="#d97706" strokeWidth="2" rx="6" />
-                    <text x="290" y="642" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">Redis</text>
-                    <text x="290" y="658" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">Cache</text>
-                    <text x="290" y="672" fontSize="10" fill="#fef3c7" textAnchor="middle">Active docs cache</text>
-                  </g>
-
-                  <g>
-                    <rect x="390" y="620" width="140" height="60" fill="url(#dbGrad)" stroke="#d97706" strokeWidth="2" rx="6" />
-                    <text x="460" y="642" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">Object Storage</text>
-                    <text x="460" y="658" fontSize="12" fontWeight="600" fill="white" textAnchor="middle">(S3/GCS)</text>
-                    <text x="460" y="672" fontSize="10" fill="#fef3c7" textAnchor="middle">History snapshots</text>
-                  </g>
-
-                  {/* CDN */}
-                  <rect x="800" y="80" width="150" height="80" fill="#4338ca" stroke="#6366f1" strokeWidth="2" rx="6" />
-                  <text x="875" y="110" fontSize="13" fontWeight="600" fill="white" textAnchor="middle">CDN</text>
-                  <text x="875" y="130" fontSize="11" fill="#c7d2fe" textAnchor="middle">Static Assets</text>
-                  <text x="875" y="145" fontSize="10" fill="#a5b4fc" textAnchor="middle">Editor JS/CSS</text>
-
-                  {/* Arrows */}
-                  <path d="M 120 160 L 240 210" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#arrow)" />
-                  <path d="M 300 160 L 300 210" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#arrow)" />
-                  <path d="M 480 160 L 360 210" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#arrow)" />
-
-                  <path d="M 210 260 L 145 330" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#arrow)" />
-                  <path d="M 300 260 L 300 330" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#arrow)" />
-                  <path d="M 390 260 L 455 330" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#arrow)" />
-
-                  <path d="M 520 365 L 590 300" stroke="#9ca3af" strokeWidth="2" strokeDasharray="5,5" />
-                  <path d="M 300 400 L 675 400" stroke="#9ca3af" strokeWidth="2" strokeDasharray="5,5" />
-                  <path d="M 145 400 L 145 480" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#arrow)" />
-
-                  <path d="M 120 540 L 120 620" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#arrow)" />
-                  <path d="M 290 540 L 290 620" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#arrow)" />
-                  <path d="M 460 540 L 460 620" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#arrow)" />
-                </svg>
+                <GoogleDocsArchitectureDiagram />
               </div>
             </div>
+
+            {/* Presence & Cursors Diagram */}
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-6">Multi-User Presence & Cursor Tracking</h2>
+              <div className="bg-gray-800 rounded-2xl p-6 border-2 border-gray-700 shadow-lg">
+                <PresenceAndCursorsDiagram />
+              </div>
+            </div>
+
           </div>
         )}
 
@@ -519,6 +1023,22 @@ export default function GoogleDocs({ onBack, breadcrumb }) {
                 </ul>
               </div>
             </div>
+
+            {/* Document Storage Architecture Diagram */}
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold text-white mb-6">Document Storage Architecture</h2>
+              <div className="bg-gray-800 rounded-2xl p-6 border-2 border-gray-700 shadow-lg">
+                <DocumentStorageDiagram />
+              </div>
+            </div>
+
+            {/* Revision History & Undo/Redo Diagram */}
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold text-white mb-6">Revision History & Undo/Redo System</h2>
+              <div className="bg-gray-800 rounded-2xl p-6 border-2 border-gray-700 shadow-lg">
+                <RevisionHistoryDiagram />
+              </div>
+            </div>
           </div>
         )}
 
@@ -586,6 +1106,14 @@ export default function GoogleDocs({ onBack, breadcrumb }) {
                     Total Latency: ~100-200ms end-to-end
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* OT Visual Diagram */}
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-6">Operational Transform - Visual Timeline</h2>
+              <div className="bg-gray-800 rounded-2xl p-6 border-2 border-gray-700 shadow-lg">
+                <OperationalTransformDiagram />
               </div>
             </div>
 

@@ -409,10 +409,12 @@ print(list(flatten(matrix)))  # [1, 2, 3, 4, 5, 6, 7, 8, 9]`
                       language="python"
                       style={vscDarkPlus}
                       customStyle={{
-                        padding: '1.5rem',
-                        borderRadius: '0.5rem',
-                        fontSize: '0.9rem',
-                        border: '1px solid #3b82f6'
+                        margin: 0,
+                        borderRadius: '0.375rem',
+                        fontSize: '0.875rem',
+                        background: 'none',
+                        backgroundColor: 'transparent',
+                        padding: 0
                       }}
                     >
                       {section.code}
@@ -492,12 +494,11 @@ print(list(flatten(matrix)))  # [1, 2, 3, 4, 5, 6, 7, 8, 9]`
 
         <Breadcrumb breadcrumb={activeBreadcrumb} />
 
-        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <div style={{ textAlign: 'left', marginBottom: '3rem' }}>
           <p style={{
             fontSize: '1.2rem',
             color: '#d1d5db',
-            maxWidth: '800px',
-            margin: '0 auto'
+            maxWidth: '800px'
           }}>
             Master Python's itertools for efficient iteration patterns. Build complex iterators from simple building blocks.
           </p>
@@ -550,7 +551,7 @@ print(list(flatten(matrix)))  # [1, 2, 3, 4, 5, 6, 7, 8, 9]`
               </h3>
               <p style={{
                 color: '#d1d5db',
-                textAlign: 'center',
+                textAlign: 'left',
                 fontSize: '0.875rem'
               }}>
                 {concept.description}

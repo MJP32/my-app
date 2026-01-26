@@ -990,18 +990,20 @@ Regular insertion sort
             <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem', color: '#93c5fd' }}>
               How It Works
             </h3>
-            <pre style={{
-              backgroundColor: '#111827',
-              padding: '1rem',
-              borderRadius: '0.5rem',
-              overflow: 'auto',
-              fontSize: '0.85rem',
-              lineHeight: '1.6',
-              color: '#d1d5db',
-              fontFamily: 'monospace'
-            }}>
+            <SyntaxHighlighter
+              language="text"
+              style={customTheme}
+              customStyle={{
+                margin: 0,
+                borderRadius: '0.375rem',
+                fontSize: '0.875rem',
+                background: 'none',
+                backgroundColor: 'transparent',
+                padding: 0
+              }}
+            >
               {algorithm.visualization}
-            </pre>
+            </SyntaxHighlighter>
           </div>
 
           {/* Code Implementation */}
@@ -1036,10 +1038,12 @@ Regular insertion sort
                     language="python"
                     style={customTheme}
                     customStyle={{
-                      padding: '1.5rem',
-                      borderRadius: '0.5rem',
-                      fontSize: '0.9rem',
-                      border: '1px solid #3b82f6'
+                      margin: 0,
+                      borderRadius: '0.375rem',
+                      fontSize: '0.875rem',
+                      background: 'none',
+                      backgroundColor: 'transparent',
+                      padding: 0
                     }}
                   >
                     {section.code}
@@ -1110,7 +1114,7 @@ Regular insertion sort
         <p style={{
           fontSize: '1.2rem',
           color: '#d1d5db',
-          textAlign: 'center',
+          textAlign: 'left',
           marginBottom: '3rem',
           lineHeight: '1.8'
         }}>
