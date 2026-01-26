@@ -23,7 +23,7 @@ const MinHeapDiagram = () => (
     </defs>
 
     {/* Title */}
-    <text x="250" y="25" textAnchor="middle" fill="#93c5fd" fontSize="16" fontWeight="bold">Min-Heap: Parent &lt; Children</text>
+    <text x="250" y="25" textAnchor="middle" fill="#93c5fd" fontSize="16" fontWeight="bold">{`Min-Heap: Parent &lt; Children`}</text>
 
     {/* Edges */}
     <line x1="250" y1="70" x2="150" y2="130" stroke="#4b5563" strokeWidth="3"/>
@@ -59,10 +59,10 @@ const MinHeapDiagram = () => (
     <text x="410" y="241" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">6</text>
 
     {/* Property annotations */}
-    <text x="100" y="295" textAnchor="middle" fill="#fbbf24" fontSize="11">1 &lt; 3</text>
-    <text x="200" y="295" textAnchor="middle" fill="#fbbf24" fontSize="11">1 &lt; 5</text>
-    <text x="300" y="295" textAnchor="middle" fill="#fbbf24" fontSize="11">3 &lt; 7,9</text>
-    <text x="400" y="295" textAnchor="middle" fill="#fbbf24" fontSize="11">5 &lt; 8,6</text>
+    <text x="100" y="295" textAnchor="middle" fill="#fbbf24" fontSize="11">{`1 &lt; 3`}</text>
+    <text x="200" y="295" textAnchor="middle" fill="#fbbf24" fontSize="11">{`1 &lt; 5`}</text>
+    <text x="300" y="295" textAnchor="middle" fill="#fbbf24" fontSize="11">{`3 &lt; 7,9`}</text>
+    <text x="400" y="295" textAnchor="middle" fill="#fbbf24" fontSize="11">{`5 &lt; 8,6`}</text>
   </svg>
 )
 
@@ -167,7 +167,7 @@ const HeappushDiagram = () => (
     <line x1="175" y1="140" x2="215" y2="140" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead)"/>
 
     {/* Step 2: Swap with parent */}
-    <text x="300" y="55" textAnchor="middle" fill="#9ca3af" fontSize="12">Step 2: Swap (2 &lt; 5)</text>
+    <text x="300" y="55" textAnchor="middle" fill="#9ca3af" fontSize="12">{`Step 2: Swap (2 &lt; 5)`}</text>
 
     <line x1="300" y1="90" x2="260" y2="130" stroke="#4b5563" strokeWidth="2"/>
     <line x1="300" y1="90" x2="340" y2="130" stroke="#4b5563" strokeWidth="2"/>
@@ -193,7 +193,7 @@ const HeappushDiagram = () => (
     <line x1="375" y1="140" x2="415" y2="140" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead)"/>
 
     {/* Step 3: Done (no more swaps needed) */}
-    <text x="500" y="55" textAnchor="middle" fill="#9ca3af" fontSize="12">Step 3: Done (2 &gt; 1)</text>
+    <text x="500" y="55" textAnchor="middle" fill="#9ca3af" fontSize="12">{`Step 3: Done (2 &gt; 1)`}</text>
 
     <line x1="500" y1="90" x2="460" y2="130" stroke="#4b5563" strokeWidth="2"/>
     <line x1="500" y1="90" x2="540" y2="130" stroke="#4b5563" strokeWidth="2"/>
@@ -304,7 +304,7 @@ const HeappopDiagram = () => (
     <line x1="375" y1="145" x2="415" y2="145" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#popArrow)"/>
 
     {/* Step 3: Done */}
-    <text x="500" y="55" textAnchor="middle" fill="#9ca3af" fontSize="11">Step 3: Done (6 &lt; 7,9)</text>
+    <text x="500" y="55" textAnchor="middle" fill="#9ca3af" fontSize="11">{`Step 3: Done (6 &lt; 7,9)`}</text>
 
     <line x1="500" y1="95" x2="460" y2="135" stroke="#4b5563" strokeWidth="2"/>
     <line x1="500" y1="95" x2="540" y2="135" stroke="#4b5563" strokeWidth="2"/>

@@ -65,7 +65,7 @@ const TextBlocksDiagram = () => (
     <text x="440" y="115" textAnchor="middle" fill="#94a3b8" fontSize="9">Line1</text>
     <text x="440" y="130" textAnchor="middle" fill="#94a3b8" fontSize="9">Line2</text>
     <text x="440" y="145" textAnchor="middle" fill="#94a3b8" fontSize="9">"""</text>
-    <text x="440" y="165" textAnchor="middle" fill="#10b981" fontSize="9">Clean & readable</text>
+    <text x="440" y="165" textAnchor="middle" fill="#10b981" fontSize="9">{`Clean & readable`}</text>
 
     <rect x="580" y="60" width="180" height="100" rx="8" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
     <text x="670" y="85" textAnchor="middle" fill="#60a5fa" fontSize="11" fontWeight="bold">Use Cases</text>
@@ -207,8 +207,8 @@ const PatternMatchingDiagram = () => (
     <rect x="340" y="50" width="200" height="130" rx="8" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" strokeWidth="2"/>
     <text x="440" y="75" textAnchor="middle" fill="#10b981" fontSize="11" fontWeight="bold">Switch Expression</text>
     <text x="440" y="100" textAnchor="middle" fill="#d1d5db" fontSize="9" fontFamily="monospace">switch (result) {'{'}</text>
-    <text x="440" y="115" textAnchor="middle" fill="#d1d5db" fontSize="9" fontFamily="monospace">  case Success s -{'>'} ...</text>
-    <text x="440" y="130" textAnchor="middle" fill="#d1d5db" fontSize="9" fontFamily="monospace">  case Failure f -{'>'} ...</text>
+    <text x="440" y="115" textAnchor="middle" fill="#d1d5db" fontSize="9" fontFamily="monospace">{`  case Success s -{'>'} ...`}</text>
+    <text x="440" y="130" textAnchor="middle" fill="#d1d5db" fontSize="9" fontFamily="monospace">{`  case Failure f -{'>'} ...`}</text>
     <text x="440" y="145" textAnchor="middle" fill="#d1d5db" fontSize="9" fontFamily="monospace">{'}'}</text>
     <text x="440" y="170" textAnchor="middle" fill="#10b981" fontSize="9">Exhaustive!</text>
 

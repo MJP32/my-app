@@ -54,7 +54,7 @@ const RESTPrinciplesDiagram = () => (
 // HTTP Methods Diagram
 const HTTPMethodsDiagram = () => (
   <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
-    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">HTTP Methods & Idempotency</text>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`HTTP Methods & Idempotency`}</text>
     <rect x="50" y="50" width="100" height="60" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
     <text x="100" y="75" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">GET</text>
     <text x="100" y="92" textAnchor="middle" fill="#bbf7d0" fontSize="8">Read • Safe</text>
@@ -90,8 +90,8 @@ const ResourceDesignDiagram = () => (
     <text x="250" y="90" fill="#64748b" fontSize="9">→ Single Resource (GET, PUT, DELETE)</text>
     <text x="70" y="110" fill="#f59e0b" fontSize="10" fontFamily="monospace">/api/v1/users/123/orders</text>
     <text x="300" y="110" fill="#64748b" fontSize="9">→ Nested Collection</text>
-    <text x="70" y="130" fill="#8b5cf6" fontSize="10" fontFamily="monospace">/api/v1/users?status=active&amp;page=1</text>
-    <text x="380" y="130" fill="#64748b" fontSize="9">→ Filtering & Pagination</text>
+    <text x="70" y="130" fill="#8b5cf6" fontSize="10" fontFamily="monospace">{`/api/v1/users?status=active&amp;page=1`}</text>
+    <text x="380" y="130" fill="#64748b" fontSize="9">{`→ Filtering & Pagination`}</text>
     <text x="350" y="155" textAnchor="middle" fill="#64748b" fontSize="9">Nouns not verbs • Plural names • Hierarchical nesting</text>
   </svg>
 )

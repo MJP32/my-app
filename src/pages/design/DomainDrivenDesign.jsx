@@ -552,7 +552,7 @@ const LayeredArchitectureDiagram = () => (
 
     <rect x="10" y="270" width="75" height="100" rx="6" fill="rgba(245, 158, 11, 0.15)" stroke="#f59e0b" strokeWidth="1" />
     <text x="47" y="300" fontSize="9" fill="#fbbf24" textAnchor="middle">Business</text>
-    <text x="47" y="315" fontSize="9" fill="#fbbf24" textAnchor="middle">Rules &</text>
+    <text x="47" y="315" fontSize="9" fill="#fbbf24" textAnchor="middle">{`Rules &`}</text>
     <text x="47" y="330" fontSize="9" fill="#fbbf24" textAnchor="middle">Logic</text>
     <text x="47" y="350" fontSize="8" fill="#f59e0b" textAnchor="middle">(No deps!)</text>
 

@@ -120,7 +120,7 @@ const YouTubeArchitectureDiagram = () => (
     {/* Processing Time Labels */}
     <rect x="200" y="320" width="500" height="50" rx="8" fill="#dc2626" fillOpacity="0.2" stroke="#ef4444" strokeWidth="1" />
     <text x="450" y="345" fontSize="12" fontWeight="bold" fill="#ef4444" textAnchor="middle">End-to-End Pipeline</text>
-    <text x="450" y="360" fontSize="10" fill="#fca5a5" textAnchor="middle">Upload: 1-5 min | Transcode: 5-30 min | CDN: Instant | Playback: &lt;2s start</text>
+    <text x="450" y="360" fontSize="10" fill="#fca5a5" textAnchor="middle">{`Upload: 1-5 min | Transcode: 5-30 min | CDN: Instant | Playback: &lt;2s start`}</text>
   </svg>
 );
 
@@ -446,9 +446,9 @@ const CDNArchitectureDiagram = () => (
 
     {/* Stats at bottom */}
     <rect x="200" y="475" width="500" height="20" rx="4" fill="#dc2626" fillOpacity="0.2" />
-    <text x="450" y="489" fontSize="10" fill="#fca5a5" textAnchor="middle">
+    <text x="450" y="489" fontSize="10" fill="#fca5a5" textAnchor="middle">{`
       Cache Hit Rate: 95% | Bandwidth: 100+ Tbps | Video Start Time: &lt;2s | Pre-warming for Viral Content
-    </text>
+    `}</text>
   </svg>
 );
 
@@ -545,13 +545,13 @@ const RecommendationSystemDiagram = () => (
 
       <rect x="445" y="150" width="150" height="35" rx="4" fill="#1f2937" stroke="#374151" />
       <text x="520" y="165" fontSize="9" fontWeight="bold" fill="#fca5a5" textAnchor="middle">Ranking Model</text>
-      <text x="520" y="178" fontSize="8" fill="#9ca3af" textAnchor="middle">Wide & Deep Learning</text>
+      <text x="520" y="178" fontSize="8" fill="#9ca3af" textAnchor="middle">{`Wide & Deep Learning`}</text>
 
       <path d="M 520 185 L 520 195" stroke="#6b7280" strokeWidth="1" />
 
       <rect x="445" y="195" width="150" height="35" rx="4" fill="#1f2937" stroke="#374151" />
       <text x="520" y="210" fontSize="9" fontWeight="bold" fill="#fca5a5" textAnchor="middle">Re-ranking Layer</text>
-      <text x="520" y="223" fontSize="8" fill="#9ca3af" textAnchor="middle">Diversity & Freshness</text>
+      <text x="520" y="223" fontSize="8" fill="#9ca3af" textAnchor="middle">{`Diversity & Freshness`}</text>
 
       <text x="520" y="255" fontSize="9" fill="#fecaca" textAnchor="middle">Millions of Parameters</text>
       <text x="520" y="270" fontSize="9" fill="#fecaca" textAnchor="middle">Billions of Examples</text>
@@ -677,7 +677,7 @@ const LiveStreamingDiagram = () => (
       <line x1="190" y1="115" x2="300" y2="115" stroke="white" strokeOpacity="0.3" />
       <text x="245" y="135" fontSize="9" fill="#fed7aa" textAnchor="middle">RTMP Servers</text>
       <text x="245" y="150" fontSize="9" fill="#fed7aa" textAnchor="middle">Global PoPs</text>
-      <text x="245" y="165" fontSize="9" fill="#fed7aa" textAnchor="middle">Auth & Validate</text>
+      <text x="245" y="165" fontSize="9" fill="#fed7aa" textAnchor="middle">{`Auth & Validate`}</text>
       <text x="245" y="180" fontSize="9" fill="#fdba74" textAnchor="middle">Nearest Edge</text>
     </g>
 
@@ -739,7 +739,7 @@ const LiveStreamingDiagram = () => (
 
     {/* Live Chat Section */}
     <rect x="30" y="220" width="400" height="90" rx="10" fill="#1f2937" stroke="#ef4444" strokeWidth="2" />
-    <text x="230" y="245" fontSize="12" fontWeight="bold" fill="#ef4444" textAnchor="middle">LIVE CHAT & INTERACTIONS</text>
+    <text x="230" y="245" fontSize="12" fontWeight="bold" fill="#ef4444" textAnchor="middle">{`LIVE CHAT & INTERACTIONS`}</text>
     <line x1="45" y1="255" x2="415" y2="255" stroke="#374151" />
 
     <g>
@@ -754,13 +754,13 @@ const LiveStreamingDiagram = () => (
     </g>
     <g>
       <rect x="290" y="265" width="110" height="35" rx="4" fill="#22c55e" fillOpacity="0.2" stroke="#22c55e" />
-      <text x="345" y="285" fontSize="9" fontWeight="bold" fill="#22c55e" textAnchor="middle">Polls/Q&A</text>
+      <text x="345" y="285" fontSize="9" fontWeight="bold" fill="#22c55e" textAnchor="middle">{`Polls/Q&A`}</text>
       <text x="345" y="295" fontSize="8" fill="#86efac" textAnchor="middle">Engagement</text>
     </g>
 
     {/* DVR/Recording Section */}
     <rect x="450" y="220" width="440" height="90" rx="10" fill="#1f2937" stroke="#3b82f6" strokeWidth="2" />
-    <text x="670" y="245" fontSize="12" fontWeight="bold" fill="#3b82f6" textAnchor="middle">DVR & RECORDING</text>
+    <text x="670" y="245" fontSize="12" fontWeight="bold" fill="#3b82f6" textAnchor="middle">{`DVR & RECORDING`}</text>
     <line x1="465" y1="255" x2="875" y2="255" stroke="#374151" />
 
     <g>
@@ -1088,7 +1088,7 @@ export default function YouTube({ onBack, breadcrumb }) {
                   <text x="1075" y="395" fontSize="10" fill="#fecaca" textAnchor="middle">AWS CloudFront</text>
 
                   {/* Storage Layer */}
-                  <text x="400" y="490" fontSize="16" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">Storage & Database Layer</text>
+                  <text x="400" y="490" fontSize="16" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">{`Storage & Database Layer`}</text>
 
                   <g>
                     <rect x="50" y="510" width="180" height="80" fill="url(#storageGrad)" stroke="#d97706" strokeWidth="2" rx="6" />

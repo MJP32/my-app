@@ -207,7 +207,7 @@ const SegmentsDiagram = () => (
     <text x="405" y="252" fill="#94a3b8" fontSize="9">Synchronized</text>
 
     <rect x="520" y="240" width="15" height="15" rx="2" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899"/>
-    <text x="545" y="252" fill="#94a3b8" fontSize="9">TreeBin (>=8 nodes)</text>
+    <text x="545" y="252" fill="#94a3b8" fontSize="9">{`TreeBin (>=8 nodes)`}</text>
   </svg>
 )
 

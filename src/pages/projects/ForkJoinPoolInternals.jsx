@@ -296,7 +296,7 @@ const TaskTypeDiagram = () => (
 
     {/* ForkJoinTask */}
     <rect x="300" y="45" width="200" height="40" rx="6" fill="#ec4899" stroke="#f472b6" strokeWidth="2"/>
-    <text x="400" y="70" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">ForkJoinTask&lt;V&gt;</text>
+    <text x="400" y="70" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`ForkJoinTask&lt;V&gt;`}</text>
 
     {/* Lines to children */}
     <line x1="350" y1="85" x2="200" y2="115" stroke="#64748b" strokeWidth="2"/>
@@ -304,7 +304,7 @@ const TaskTypeDiagram = () => (
 
     {/* RecursiveTask */}
     <rect x="100" y="115" width="200" height="50" rx="6" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
-    <text x="200" y="137" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">RecursiveTask&lt;V&gt;</text>
+    <text x="200" y="137" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`RecursiveTask&lt;V&gt;`}</text>
     <text x="200" y="155" textAnchor="middle" fill="#bfdbfe" fontSize="9">Returns a result</text>
 
     {/* RecursiveAction */}

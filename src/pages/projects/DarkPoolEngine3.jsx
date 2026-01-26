@@ -160,7 +160,7 @@ export default function DarkPoolEngine3({ onBack, breadcrumb }) {
           <text x="980" y="455" textAnchor="middle" fill="white" fontSize="13">Coherence</text>
 
           <rect x="50" y="520" width="1100" height="60" fill="url(#cyanGradient)" rx="8" />
-          <text x="600" y="555" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">Layer 6: Compliance & Audit (Reg ATS)</text>
+          <text x="600" y="555" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">{`Layer 6: Compliance & Audit (Reg ATS)`}</text>
 
           <rect x="50" y="600" width="1100" height="80" fill="url(#darkBlueGradient)" rx="8" />
           <text x="600" y="625" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">Layer 7: Real-time Monitoring</text>

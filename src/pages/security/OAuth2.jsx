@@ -41,7 +41,7 @@ const OAuth2FlowDiagram = () => (
     <text x="320" y="150" textAnchor="middle" fill="#4ade80" fontSize="8">Client Credentials</text>
     <text x="460" y="150" textAnchor="middle" fill="#fbbf24" fontSize="8">PKCE (mobile/SPA)</text>
     <text x="600" y="150" textAnchor="middle" fill="#f472b6" fontSize="8">Refresh Token</text>
-    <text x="400" y="170" textAnchor="middle" fill="#64748b" fontSize="8">Implicit & Password grants deprecated in OAuth 2.1</text>
+    <text x="400" y="170" textAnchor="middle" fill="#64748b" fontSize="8">{`Implicit & Password grants deprecated in OAuth 2.1`}</text>
   </svg>
 )
 

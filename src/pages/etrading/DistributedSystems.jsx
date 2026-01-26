@@ -186,7 +186,7 @@ const StateMachineRepDiagram = () => (
 // Quorum Systems Diagram
 const QuorumDiagram = () => (
   <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
-    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Quorum-Based Consistency (W + R &gt; N)</text>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`Quorum-Based Consistency (W + R &gt; N)`}</text>
     <rect x="50" y="50" width="180" height="90" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
     <text x="140" y="70" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Write Quorum (W=3)</text>
     <circle cx="90" cy="110" r="20" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>

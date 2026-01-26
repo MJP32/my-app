@@ -41,12 +41,12 @@ const CICDPipelineDiagram = () => (
     {/* Build */}
     <rect x="130" y="60" width="90" height="60" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
     <text x="175" y="85" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Build</text>
-    <text x="175" y="100" textAnchor="middle" fill="#bbf7d0" fontSize="8">Compile & Package</text>
+    <text x="175" y="100" textAnchor="middle" fill="#bbf7d0" fontSize="8">{`Compile & Package`}</text>
 
     {/* Test */}
     <rect x="240" y="60" width="90" height="60" rx="6" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
     <text x="285" y="85" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Test</text>
-    <text x="285" y="100" textAnchor="middle" fill="#fef3c7" fontSize="8">Unit & Integration</text>
+    <text x="285" y="100" textAnchor="middle" fill="#fef3c7" fontSize="8">{`Unit & Integration`}</text>
 
     {/* Quality */}
     <rect x="350" y="60" width="90" height="60" rx="6" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
@@ -162,7 +162,7 @@ const ArtifactFlowDiagram = () => (
     <rect x="200" y="55" width="120" height="70" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
     <text x="260" y="80" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Build System</text>
     <text x="260" y="100" textAnchor="middle" fill="#86efac" fontSize="8">Maven/Gradle</text>
-    <text x="260" y="115" textAnchor="middle" fill="#86efac" fontSize="7">Compile & Test</text>
+    <text x="260" y="115" textAnchor="middle" fill="#86efac" fontSize="7">{`Compile & Test`}</text>
 
     {/* Artifact Repository */}
     <rect x="370" y="55" width="120" height="70" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>

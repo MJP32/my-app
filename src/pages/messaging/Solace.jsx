@@ -115,11 +115,11 @@ const MessageVPNDiagram = () => (
 // Queues and Topics Diagram
 const QueuesTopicsDiagram = () => (
   <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
-    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Solace Topics & Queues</text>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`Solace Topics & Queues`}</text>
 
     <rect x="50" y="45" width="320" height="120" rx="6" fill="rgba(139, 92, 246, 0.1)" stroke="#8b5cf6" strokeWidth="2"/>
     <text x="210" y="68" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Topic Subscriptions (Pub/Sub)</text>
-    <text x="210" y="88" textAnchor="middle" fill="#c4b5fd" fontSize="8">orders/&gt;  (wildcard)</text>
+    <text x="210" y="88" textAnchor="middle" fill="#c4b5fd" fontSize="8">{`orders/&gt;  (wildcard)`}</text>
     <text x="210" y="105" textAnchor="middle" fill="#c4b5fd" fontSize="8">orders/*/created</text>
     <rect x="70" y="115" width="120" height="35" rx="4" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="1"/>
     <text x="130" y="137" textAnchor="middle" fill="#4ade80" fontSize="8">Subscriber A</text>
@@ -170,7 +170,7 @@ const PersistentDiagram = () => (
 // Replay Diagram
 const ReplayDiagram = () => (
   <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
-    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Message Replay & Time Travel</text>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`Message Replay & Time Travel`}</text>
 
     <rect x="50" y="50" width="200" height="70" rx="6" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" strokeWidth="2"/>
     <text x="150" y="75" textAnchor="middle" fill="#22d3ee" fontSize="10" fontWeight="bold">Replay Log</text>

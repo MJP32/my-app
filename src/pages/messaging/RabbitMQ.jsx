@@ -148,7 +148,7 @@ const QueuesDiagram = () => (
 // Bindings Diagram
 const BindingsDiagram = () => (
   <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
-    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">RabbitMQ Bindings & Routing</text>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`RabbitMQ Bindings & Routing`}</text>
 
     <rect x="150" y="50" width="140" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
     <text x="220" y="75" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">Exchange</text>
@@ -215,7 +215,7 @@ const ClusteringDiagram = () => (
 // Management Diagram
 const ManagementDiagram = () => (
   <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
-    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">RabbitMQ Management & Monitoring</text>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`RabbitMQ Management & Monitoring`}</text>
 
     <rect x="50" y="50" width="160" height="100" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
     <text x="130" y="75" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Management UI</text>

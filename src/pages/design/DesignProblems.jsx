@@ -93,7 +93,7 @@ const ArrayListDiagram = () => (
     <text x="185" y="93" fontSize="12" fill="white" textAnchor="middle">C</text>
     <rect x="215" y="65" width="50" height="45" rx="4" fill="url(#arrayGrad)" stroke="#7c3aed" strokeWidth="2" />
     <text x="240" y="93" fontSize="12" fill="white" textAnchor="middle">D</text>
-    <text x="320" y="93" fontSize="24" fill="#f59e0b" textAnchor="middle">-></text>
+    <text x="320" y="93" fontSize="24" fill="#f59e0b" textAnchor="middle">{`->`}</text>
     <text x="320" y="120" fontSize="10" fill="#9ca3af" textAnchor="middle">resize(2x)</text>
     <text x="420" y="55" fontSize="11" fontWeight="600" fill="#9ca3af">New Array (capacity=8)</text>
     <rect x="420" y="65" width="40" height="45" rx="4" fill="url(#newArrayGrad)" stroke="#059669" strokeWidth="2" />

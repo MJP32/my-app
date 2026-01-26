@@ -183,7 +183,7 @@ const OpenConnectDiagram = () => (
 
     {/* ISP Network Box */}
     <rect x="420" y="40" width="360" height="130" rx="10" fill="url(#ispGrad)" stroke="#22c55e" strokeWidth="2" fillOpacity="0.2"/>
-    <text x="600" y="60" textAnchor="middle" fill="#22c55e" fontSize="12" fontWeight="bold">ISP Network (e.g., Comcast, AT&T)</text>
+    <text x="600" y="60" textAnchor="middle" fill="#22c55e" fontSize="12" fontWeight="bold">{`ISP Network (e.g., Comcast, AT&T)`}</text>
 
     {/* OCA Appliances */}
     <rect x="450" y="75" width="100" height="80" rx="6" fill="url(#ocaGrad)" stroke="#f87171" strokeWidth="2"/>
@@ -292,7 +292,7 @@ const VideoEncodingDiagram = () => (
     <text x="410" y="167" textAnchor="middle" fill="#60a5fa" fontSize="8">360p: 500-800 Kbps</text>
 
     <text x="410" y="195" textAnchor="middle" fill="#fef3c7" fontSize="8">Codecs: H.264, H.265, VP9, AV1</text>
-    <text x="410" y="210" textAnchor="middle" fill="#fef3c7" fontSize="7">Per-title & per-shot optimization</text>
+    <text x="410" y="210" textAnchor="middle" fill="#fef3c7" fontSize="7">{`Per-title & per-shot optimization`}</text>
     <text x="410" y="225" textAnchor="middle" fill="#fef3c7" fontSize="7">DRM encryption (Widevine, FairPlay)</text>
 
     <path d="M520 140 L550 140" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrowEnc)"/>
@@ -429,7 +429,7 @@ const RecommendationDiagram = () => (
     <text x="115" y="124" textAnchor="middle" fill="#94a3b8" fontSize="8">Search Queries</text>
     <text x="115" y="140" textAnchor="middle" fill="#94a3b8" fontSize="8">Browse Patterns</text>
     <text x="115" y="156" textAnchor="middle" fill="#94a3b8" fontSize="8">Skip/Rewind Behavior</text>
-    <text x="115" y="172" textAnchor="middle" fill="#94a3b8" fontSize="8">Device & Time of Day</text>
+    <text x="115" y="172" textAnchor="middle" fill="#94a3b8" fontSize="8">{`Device & Time of Day`}</text>
 
     <path d="M200 120 L230 120" stroke="#ec4899" strokeWidth="2" markerEnd="url(#arrowRec)"/>
 
@@ -465,7 +465,7 @@ const RecommendationDiagram = () => (
 
     {/* Ranking */}
     <rect x="640" y="50" width="140" height="140" rx="8" fill="#1e3a5f" stroke="#10b981" strokeWidth="2"/>
-    <text x="710" y="72" textAnchor="middle" fill="#34d399" fontSize="11" fontWeight="bold">Ranking & Output</text>
+    <text x="710" y="72" textAnchor="middle" fill="#34d399" fontSize="11" fontWeight="bold">{`Ranking & Output`}</text>
     <text x="710" y="95" textAnchor="middle" fill="#94a3b8" fontSize="8">Top-N Generation</text>
     <text x="710" y="113" textAnchor="middle" fill="#94a3b8" fontSize="8">Context Re-ranking</text>
     <text x="710" y="131" textAnchor="middle" fill="#94a3b8" fontSize="8">Diversity Optimization</text>
@@ -599,7 +599,7 @@ const ScalabilityDiagram = () => (
     <rect x="30" y="50" width="220" height="90" rx="8" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="2"/>
     <text x="140" y="75" textAnchor="middle" fill="#60a5fa" fontSize="11" fontWeight="bold">Auto Scaling Groups</text>
     <text x="140" y="95" textAnchor="middle" fill="#94a3b8" fontSize="8">Min: 10 | Max: 1000 instances</text>
-    <text x="140" y="112" textAnchor="middle" fill="#94a3b8" fontSize="8">Scale on CPU > 70%</text>
+    <text x="140" y="112" textAnchor="middle" fill="#94a3b8" fontSize="8">{`Scale on CPU > 70%`}</text>
     <text x="140" y="128" textAnchor="middle" fill="#6b7280" fontSize="7">EC2 Spot + On-Demand mix</text>
 
     <path d="M250 95 L280 95" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowScale)"/>

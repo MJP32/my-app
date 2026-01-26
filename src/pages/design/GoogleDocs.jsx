@@ -506,9 +506,9 @@ const RevisionHistoryDiagram = () => (
     </defs>
 
     {/* Title */}
-    <text x="450" y="30" fontSize="18" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">
+    <text x="450" y="30" fontSize="18" fontWeight="bold" fill="#f3f4f6" textAnchor="middle">{`
       Revision History & Undo/Redo System
-    </text>
+    `}</text>
 
     {/* Timeline */}
     <line x1="50" y1="100" x2="850" y2="100" stroke="url(#revMainGrad)" strokeWidth="4" />

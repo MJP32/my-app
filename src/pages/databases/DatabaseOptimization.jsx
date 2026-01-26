@@ -44,10 +44,10 @@ const QueryOptDiagram = () => (
 // Indexing Strategies Diagram
 const IndexingDiagram = () => (
   <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
-    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Index Types & Usage</text>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`Index Types & Usage`}</text>
     <rect x="50" y="45" width="150" height="55" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
     <text x="125" y="67" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">B-Tree</text>
-    <text x="125" y="85" textAnchor="middle" fill="#86efac" fontSize="7">Range & equality</text>
+    <text x="125" y="85" textAnchor="middle" fill="#86efac" fontSize="7">{`Range & equality`}</text>
     <rect x="220" y="45" width="150" height="55" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
     <text x="295" y="67" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Composite</text>
     <text x="295" y="85" textAnchor="middle" fill="#93c5fd" fontSize="7">Multi-column</text>
@@ -82,7 +82,7 @@ const ExecPlansDiagram = () => (
     <line x1="170" y1="80" x2="195" y2="80" stroke="#4ade80" strokeWidth="2"/>
     <line x1="340" y1="80" x2="365" y2="80" stroke="#4ade80" strokeWidth="2"/>
     <line x1="510" y1="80" x2="535" y2="80" stroke="#4ade80" strokeWidth="2"/>
-    <text x="350" y="130" textAnchor="middle" fill="#64748b" fontSize="9">Index Seek > Index Scan > Table Scan • Compare estimated vs actual rows</text>
+    <text x="350" y="130" textAnchor="middle" fill="#64748b" fontSize="9">{`Index Seek > Index Scan > Table Scan • Compare estimated vs actual rows`}</text>
   </svg>
 )
 
@@ -122,7 +122,7 @@ const ProfilingDiagram = () => (
     <text x="560" y="72" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">System Views</text>
     <text x="560" y="90" textAnchor="middle" fill="#fcd34d" fontSize="7">pg_stat / sys.dm_</text>
     <text x="560" y="105" textAnchor="middle" fill="#fcd34d" fontSize="7">Real-time metrics</text>
-    <text x="350" y="145" textAnchor="middle" fill="#64748b" fontSize="9">Baseline → Identify anomalies → Root cause analysis → Fix & verify</text>
+    <text x="350" y="145" textAnchor="middle" fill="#64748b" fontSize="9">{`Baseline → Identify anomalies → Root cause analysis → Fix & verify`}</text>
   </svg>
 )
 

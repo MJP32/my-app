@@ -358,7 +358,7 @@ const RedirectFlowDiagram = () => (
     <g filter="url(#redirShadow)">
       <rect x="660" y="160" width="180" height="55" rx="8" fill="#10b981" />
       <text x="750" y="185" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Cache Hit - Fast Path</text>
-      <text x="750" y="203" textAnchor="middle" fill="#d1fae5" fontSize="9">Return long URL in &lt;5ms</text>
+      <text x="750" y="203" textAnchor="middle" fill="#d1fae5" fontSize="9">{`Return long URL in &lt;5ms`}</text>
     </g>
 
     {/* Cache Miss Path */}
@@ -596,7 +596,7 @@ const AnalyticsDiagram = () => (
     <rect x="0" y="0" width="900" height="500" fill="#1f2937" rx="12" />
 
     {/* Title */}
-    <text x="450" y="35" textAnchor="middle" fill="#f3f4f6" fontSize="18" fontWeight="bold">Analytics & Click Tracking Pipeline</text>
+    <text x="450" y="35" textAnchor="middle" fill="#f3f4f6" fontSize="18" fontWeight="bold">{`Analytics & Click Tracking Pipeline`}</text>
 
     {/* Click Event */}
     <g filter="url(#analShadow)">
@@ -936,7 +936,7 @@ export default function TinyURL({ onBack, breadcrumb }) {
 
                     <rect x="270" y="390" width="180" height="100" fill="#f59e0b" rx="8"/>
                     <text x="360" y="425" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Redirect Service</text>
-                    <text x="360" y="445" textAnchor="middle" fill="white" fontSize="11">Lookup & Redirect</text>
+                    <text x="360" y="445" textAnchor="middle" fill="white" fontSize="11">{`Lookup & Redirect`}</text>
                     <text x="360" y="465" textAnchor="middle" fill="white" fontSize="11">Cache First</text>
 
                     <rect x="490" y="390" width="180" height="100" fill="#ef4444" rx="8"/>

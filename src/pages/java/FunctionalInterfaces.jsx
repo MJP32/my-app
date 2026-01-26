@@ -50,9 +50,9 @@ const FunctionDiagram = () => (
       </linearGradient>
     </defs>
 
-    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">
+    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">{`
       Function&lt;T, R&gt; - Transform Input to Output
-    </text>
+    `}</text>
 
     {/* Input T */}
     <rect x="80" y="70" width="120" height="70" rx="10" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
@@ -61,7 +61,7 @@ const FunctionDiagram = () => (
 
     {/* Function Box */}
     <rect x="300" y="60" width="200" height="90" rx="12" fill="url(#funcGrad)" stroke="#d946ef" strokeWidth="2"/>
-    <text x="400" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Function&lt;T, R&gt;</text>
+    <text x="400" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">{`Function&lt;T, R&gt;`}</text>
     <text x="400" y="115" textAnchor="middle" fill="#fce7f3" fontSize="12">R apply(T t)</text>
     <text x="400" y="135" textAnchor="middle" fill="#f5d0fe" fontSize="10">andThen() | compose()</text>
 
@@ -79,9 +79,9 @@ const FunctionDiagram = () => (
     <text x="547" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">output</text>
 
     {/* Example */}
-    <text x="400" y="180" textAnchor="middle" fill="#94a3b8" fontSize="11" fontStyle="italic">
+    <text x="400" y="180" textAnchor="middle" fill="#94a3b8" fontSize="11" fontStyle="italic">{`
       Example: s -&gt; s.length() transforms String to Integer
-    </text>
+    `}</text>
   </svg>
 )
 
@@ -94,9 +94,9 @@ const ConsumerDiagram = () => (
       </marker>
     </defs>
 
-    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">
+    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">{`
       Consumer&lt;T&gt; - Consume Input, No Output
-    </text>
+    `}</text>
 
     {/* Input T */}
     <rect x="100" y="70" width="140" height="70" rx="10" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
@@ -105,7 +105,7 @@ const ConsumerDiagram = () => (
 
     {/* Consumer Box */}
     <rect x="320" y="60" width="200" height="90" rx="12" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
-    <text x="420" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Consumer&lt;T&gt;</text>
+    <text x="420" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">{`Consumer&lt;T&gt;`}</text>
     <text x="420" y="115" textAnchor="middle" fill="#fef3c7" fontSize="12">void accept(T t)</text>
     <text x="420" y="135" textAnchor="middle" fill="#fde68a" fontSize="10">andThen()</text>
 
@@ -121,9 +121,9 @@ const ConsumerDiagram = () => (
     <rect x="350" y="160" width="140" height="30" rx="6" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="1"/>
     <text x="420" y="180" textAnchor="middle" fill="#f87171" fontSize="11">Side Effect!</text>
 
-    <text x="400" y="195" textAnchor="middle" fill="#94a3b8" fontSize="10" fontStyle="italic">
+    <text x="400" y="195" textAnchor="middle" fill="#94a3b8" fontSize="10" fontStyle="italic">{`
       Example: s -&gt; System.out.println(s)
-    </text>
+    `}</text>
   </svg>
 )
 
@@ -136,9 +136,9 @@ const SupplierDiagram = () => (
       </marker>
     </defs>
 
-    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">
+    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">{`
       Supplier&lt;T&gt; - No Input, Produce Output
-    </text>
+    `}</text>
 
     {/* No input */}
     <rect x="100" y="80" width="100" height="50" rx="8" fill="#374151" stroke="#4b5563" strokeWidth="2" strokeDasharray="5,3"/>
@@ -146,7 +146,7 @@ const SupplierDiagram = () => (
 
     {/* Supplier Box */}
     <rect x="280" y="60" width="200" height="90" rx="12" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
-    <text x="380" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Supplier&lt;T&gt;</text>
+    <text x="380" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">{`Supplier&lt;T&gt;`}</text>
     <text x="380" y="115" textAnchor="middle" fill="#dcfce7" fontSize="12">T get()</text>
     <text x="380" y="135" textAnchor="middle" fill="#bbf7d0" fontSize="10">Factory Pattern</text>
 
@@ -163,9 +163,9 @@ const SupplierDiagram = () => (
     <text x="630" y="160" textAnchor="middle" fill="#94a3b8" fontSize="10">Lazy evaluation</text>
     <text x="630" y="175" textAnchor="middle" fill="#94a3b8" fontSize="10">Object factories</text>
 
-    <text x="300" y="185" textAnchor="middle" fill="#94a3b8" fontSize="10" fontStyle="italic">
+    <text x="300" y="185" textAnchor="middle" fill="#94a3b8" fontSize="10" fontStyle="italic">{`
       Example: () -&gt; Math.random()
-    </text>
+    `}</text>
   </svg>
 )
 
@@ -178,9 +178,9 @@ const PredicateDiagram = () => (
       </marker>
     </defs>
 
-    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">
+    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">{`
       Predicate&lt;T&gt; - Test Input, Return Boolean
-    </text>
+    `}</text>
 
     {/* Input T */}
     <rect x="80" y="70" width="120" height="70" rx="10" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
@@ -189,7 +189,7 @@ const PredicateDiagram = () => (
 
     {/* Predicate Box */}
     <rect x="280" y="55" width="200" height="100" rx="12" fill="#06b6d4" stroke="#22d3ee" strokeWidth="2"/>
-    <text x="380" y="85" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Predicate&lt;T&gt;</text>
+    <text x="380" y="85" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">{`Predicate&lt;T&gt;`}</text>
     <text x="380" y="110" textAnchor="middle" fill="#cffafe" fontSize="12">boolean test(T t)</text>
     <text x="380" y="135" textAnchor="middle" fill="#a5f3fc" fontSize="10">and() | or() | negate()</text>
 
@@ -207,9 +207,9 @@ const PredicateDiagram = () => (
     <line x1="480" y1="125" x2="575" y2="132" stroke="#ef4444" strokeWidth="2" markerEnd="url(#predArrow)"/>
 
     {/* Example */}
-    <text x="400" y="190" textAnchor="middle" fill="#94a3b8" fontSize="11" fontStyle="italic">
+    <text x="400" y="190" textAnchor="middle" fill="#94a3b8" fontSize="11" fontStyle="italic">{`
       Example: n -&gt; n % 2 == 0 tests if number is even
-    </text>
+    `}</text>
     <text x="400" y="210" textAnchor="middle" fill="#64748b" fontSize="10">
       Used in Stream.filter(), Collection.removeIf()
     </text>
@@ -255,9 +255,9 @@ const CustomInterfaceDiagram = () => (
     <text x="400" y="210" textAnchor="middle" fill="#94a3b8" fontSize="11">Object methods override (allowed)</text>
 
     {/* Lambda arrow */}
-    <text x="400" y="255" textAnchor="middle" fill="#94a3b8" fontSize="12">
+    <text x="400" y="255" textAnchor="middle" fill="#94a3b8" fontSize="12">{`
       Enables: Calculator calc = (a, b) -&gt; a + b;
-    </text>
+    `}</text>
 
     {/* Side notes */}
     <text x="680" y="130" textAnchor="start" fill="#22c55e" fontSize="10">Exactly 1</text>
@@ -274,13 +274,13 @@ const OptionalDiagram = () => (
       </marker>
     </defs>
 
-    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">
+    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">{`
       Optional&lt;T&gt; - Functional Operations on Nullable Values
-    </text>
+    `}</text>
 
     {/* Optional container */}
     <rect x="150" y="50" width="150" height="80" rx="12" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
-    <text x="225" y="80" textAnchor="middle" fill="#c4b5fd" fontSize="12" fontWeight="bold">Optional&lt;T&gt;</text>
+    <text x="225" y="80" textAnchor="middle" fill="#c4b5fd" fontSize="12" fontWeight="bold">{`Optional&lt;T&gt;`}</text>
     <text x="225" y="100" textAnchor="middle" fill="#a78bfa" fontSize="10">of() | ofNullable()</text>
     <text x="225" y="115" textAnchor="middle" fill="#a78bfa" fontSize="10">empty()</text>
 
@@ -378,9 +378,9 @@ const ComposableApisDiagram = () => (
     <rect x="530" y="155" width="130" height="35" rx="6" fill="rgba(217, 70, 239, 0.2)" stroke="#d946ef" strokeWidth="1"/>
     <text x="595" y="177" textAnchor="middle" fill="#e879f9" fontSize="10">Supplier factories</text>
 
-    <text x="400" y="210" textAnchor="middle" fill="#64748b" fontSize="10" fontStyle="italic">
+    <text x="400" y="210" textAnchor="middle" fill="#64748b" fontSize="10" fontStyle="italic">{`
       Query.select("name").from("users").where(age &gt; 18).execute()
-    </text>
+    `}</text>
   </svg>
 )
 
@@ -399,33 +399,33 @@ const BiFunctionDiagram = () => (
 
     {/* BiFunction */}
     <rect x="50" y="50" width="200" height="70" rx="10" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
-    <text x="150" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">BiFunction&lt;T, U, R&gt;</text>
+    <text x="150" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`BiFunction&lt;T, U, R&gt;`}</text>
     <text x="150" y="95" textAnchor="middle" fill="#ddd6fe" fontSize="10">R apply(T t, U u)</text>
-    <text x="150" y="110" textAnchor="middle" fill="#c4b5fd" fontSize="9">(T, U) -&gt; R</text>
+    <text x="150" y="110" textAnchor="middle" fill="#c4b5fd" fontSize="9">{`(T, U) -&gt; R`}</text>
 
     {/* BinaryOperator */}
     <rect x="300" y="50" width="200" height="70" rx="10" fill="#d946ef" stroke="#e879f9" strokeWidth="2"/>
-    <text x="400" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">BinaryOperator&lt;T&gt;</text>
+    <text x="400" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`BinaryOperator&lt;T&gt;`}</text>
     <text x="400" y="95" textAnchor="middle" fill="#fce7f3" fontSize="10">T apply(T t1, T t2)</text>
-    <text x="400" y="110" textAnchor="middle" fill="#f5d0fe" fontSize="9">(T, T) -&gt; T</text>
+    <text x="400" y="110" textAnchor="middle" fill="#f5d0fe" fontSize="9">{`(T, T) -&gt; T`}</text>
 
     {/* BiConsumer */}
     <rect x="550" y="50" width="200" height="70" rx="10" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
-    <text x="650" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">BiConsumer&lt;T, U&gt;</text>
+    <text x="650" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`BiConsumer&lt;T, U&gt;`}</text>
     <text x="650" y="95" textAnchor="middle" fill="#fef3c7" fontSize="10">void accept(T t, U u)</text>
-    <text x="650" y="110" textAnchor="middle" fill="#fde68a" fontSize="9">(T, U) -&gt; void</text>
+    <text x="650" y="110" textAnchor="middle" fill="#fde68a" fontSize="9">{`(T, U) -&gt; void`}</text>
 
     {/* BiPredicate */}
     <rect x="175" y="140" width="200" height="70" rx="10" fill="#06b6d4" stroke="#22d3ee" strokeWidth="2"/>
-    <text x="275" y="165" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">BiPredicate&lt;T, U&gt;</text>
+    <text x="275" y="165" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`BiPredicate&lt;T, U&gt;`}</text>
     <text x="275" y="185" textAnchor="middle" fill="#cffafe" fontSize="10">boolean test(T t, U u)</text>
-    <text x="275" y="200" textAnchor="middle" fill="#a5f3fc" fontSize="9">(T, U) -&gt; boolean</text>
+    <text x="275" y="200" textAnchor="middle" fill="#a5f3fc" fontSize="9">{`(T, U) -&gt; boolean`}</text>
 
     {/* UnaryOperator */}
     <rect x="425" y="140" width="200" height="70" rx="10" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
-    <text x="525" y="165" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">UnaryOperator&lt;T&gt;</text>
+    <text x="525" y="165" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`UnaryOperator&lt;T&gt;`}</text>
     <text x="525" y="185" textAnchor="middle" fill="#dcfce7" fontSize="10">T apply(T t)</text>
-    <text x="525" y="200" textAnchor="middle" fill="#bbf7d0" fontSize="9">T -&gt; T (same type)</text>
+    <text x="525" y="200" textAnchor="middle" fill="#bbf7d0" fontSize="9">{`T -&gt; T (same type)`}</text>
 
     {/* Relationship arrows */}
     <line x1="300" y1="85" x2="255" y2="85" stroke="#64748b" strokeWidth="1" strokeDasharray="3,3"/>

@@ -415,9 +415,9 @@ const GroupChatDiagram = () => (
 const PresenceSystemDiagram = () => (
   <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
     <SvgDefs />
-    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`
       Presence System - Online Status & Last Seen
-    </text>
+    `}</text>
 
     {/* Online User */}
     <rect x="50" y="50" width="100" height="80" rx="8" fill="#0f172a" stroke="#25d366" strokeWidth="2" />
@@ -461,9 +461,9 @@ const PresenceSystemDiagram = () => (
 const ScalingDiagram = () => (
   <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
     <SvgDefs />
-    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`
       WhatsApp Scale & Infrastructure
-    </text>
+    `}</text>
 
     {/* Scale numbers */}
     <rect x="50" y="50" width="140" height="70" rx="8" fill="url(#whatsappGreen)" />
@@ -502,9 +502,9 @@ const ScalingDiagram = () => (
 const MediaServiceDiagram = () => (
   <svg viewBox="0 0 800 180" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
     <SvgDefs />
-    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`
       Media Upload & CDN Delivery
-    </text>
+    `}</text>
 
     {/* Client */}
     <rect x="50" y="60" width="100" height="60" rx="8" fill="url(#whatsappGreen)" />

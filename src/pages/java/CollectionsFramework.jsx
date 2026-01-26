@@ -56,22 +56,22 @@ const CollectionsHierarchyDiagram = () => (
 
     {/* Iterable - Top Level */}
     <rect x="375" y="45" width="150" height="40" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
-    <text x="450" y="70" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Iterable&lt;E&gt;</text>
+    <text x="450" y="70" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`Iterable&lt;E&gt;`}</text>
 
     {/* Collection Interface */}
     <rect x="375" y="110" width="150" height="40" rx="8" fill="#6366f1" stroke="#818cf8" strokeWidth="2"/>
-    <text x="450" y="135" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Collection&lt;E&gt;</text>
+    <text x="450" y="135" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`Collection&lt;E&gt;`}</text>
     <line x1="450" y1="85" x2="450" y2="105" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#arrow-hierarchy)"/>
 
     {/* List, Set, Queue */}
     <rect x="100" y="180" width="120" height="40" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
-    <text x="160" y="205" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">List&lt;E&gt;</text>
+    <text x="160" y="205" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`List&lt;E&gt;`}</text>
 
     <rect x="390" y="180" width="120" height="40" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
-    <text x="450" y="205" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Set&lt;E&gt;</text>
+    <text x="450" y="205" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`Set&lt;E&gt;`}</text>
 
     <rect x="680" y="180" width="120" height="40" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
-    <text x="740" y="205" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Queue&lt;E&gt;</text>
+    <text x="740" y="205" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`Queue&lt;E&gt;`}</text>
 
     {/* Lines from Collection to List, Set, Queue */}
     <line x1="375" y1="130" x2="160" y2="130" stroke="#64748b" strokeWidth="1" strokeDasharray="5,5"/>
@@ -124,7 +124,7 @@ const CollectionsHierarchyDiagram = () => (
 
     {/* Map Interface (Separate hierarchy) */}
     <rect x="40" y="330" width="120" height="40" rx="8" fill="#ec4899" stroke="#f472b6" strokeWidth="2"/>
-    <text x="100" y="355" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Map&lt;K,V&gt;</text>
+    <text x="100" y="355" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`Map&lt;K,V&gt;`}</text>
 
     <rect x="180" y="330" width="85" height="35" rx="6" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" strokeWidth="1"/>
     <text x="222" y="352" textAnchor="middle" fill="#f472b6" fontSize="10">HashMap</text>
@@ -263,27 +263,27 @@ const MapDiagram = () => (
     <line x1="220" y1="227" x2="235" y2="210" stroke="#8b5cf6" strokeWidth="1"/>
     <line x1="220" y1="227" x2="235" y2="240" stroke="#8b5cf6" strokeWidth="1"/>
 
-    <text x="280" y="265" textAnchor="middle" fill="#64748b" fontSize="8">(Tree when &gt;8 nodes)</text>
+    <text x="280" y="265" textAnchor="middle" fill="#64748b" fontSize="8">{`(Tree when &gt;8 nodes)`}</text>
 
     {/* Hash Function Box */}
     <rect x="450" y="60" width="300" height="120" rx="8" fill="rgba(15, 23, 42, 0.6)" stroke="#334155" strokeWidth="1"/>
     <text x="600" y="85" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">Hash Function Process</text>
 
     <text x="480" y="110" fill="#94a3b8" fontSize="9">1. key.hashCode()</text>
-    <text x="630" y="110" fill="#60a5fa" fontSize="9">-&gt; int hash</text>
+    <text x="630" y="110" fill="#60a5fa" fontSize="9">{`-&gt; int hash`}</text>
 
-    <text x="480" y="130" fill="#94a3b8" fontSize="9">2. hash ^ (hash &gt;&gt;&gt; 16)</text>
+    <text x="480" y="130" fill="#94a3b8" fontSize="9">{`2. hash ^ (hash &gt;&gt;&gt; 16)`}</text>
     <text x="680" y="130" fill="#22c55e" fontSize="9">spread bits</text>
 
-    <text x="480" y="150" fill="#94a3b8" fontSize="9">3. (n-1) & hash</text>
-    <text x="650" y="150" fill="#f472b6" fontSize="9">-&gt; bucket index</text>
+    <text x="480" y="150" fill="#94a3b8" fontSize="9">{`3. (n-1) & hash`}</text>
+    <text x="650" y="150" fill="#f472b6" fontSize="9">{`-&gt; bucket index`}</text>
 
     {/* Key Properties */}
     <rect x="450" y="200" width="300" height="100" rx="8" fill="rgba(15, 23, 42, 0.6)" stroke="#334155" strokeWidth="1"/>
     <text x="600" y="225" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">Key Requirements</text>
 
     <text x="480" y="250" fill="#94a3b8" fontSize="9">- Immutable keys preferred</text>
-    <text x="480" y="270" fill="#94a3b8" fontSize="9">- Override hashCode() & equals()</text>
+    <text x="480" y="270" fill="#94a3b8" fontSize="9">{`- Override hashCode() & equals()`}</text>
     <text x="480" y="290" fill="#94a3b8" fontSize="9">- Consistent hash = same bucket</text>
   </svg>
 )
@@ -478,13 +478,13 @@ const LRUCacheDiagram = () => (
       <g key={k}>
         <rect x="50" y={90 + i * 35} width="50" height="25" rx="4" fill="rgba(236, 72, 153, 0.2)" stroke="#ec4899"/>
         <text x="75" y={107 + i * 35} textAnchor="middle" fill="#f472b6" fontSize="9">{k}</text>
-        <text x="150" y={107 + i * 35} textAnchor="middle" fill="#64748b" fontSize="8">-&gt;</text>
+        <text x="150" y={107 + i * 35} textAnchor="middle" fill="#64748b" fontSize="8">{`-&gt;`}</text>
       </g>
     ))}
 
     {/* Doubly Linked List */}
     <rect x="200" y="50" width="570" height="180" rx="8" fill="rgba(59, 130, 246, 0.1)" stroke="#3b82f6" strokeWidth="2"/>
-    <text x="485" y="75" textAnchor="middle" fill="#60a5fa" fontSize="11" fontWeight="bold">Doubly Linked List (MRU -&gt; LRU)</text>
+    <text x="485" y="75" textAnchor="middle" fill="#60a5fa" fontSize="11" fontWeight="bold">{`Doubly Linked List (MRU -&gt; LRU)`}</text>
 
     {/* Head sentinel */}
     <rect x="220" y="110" width="60" height="50" rx="6" fill="rgba(100, 116, 139, 0.3)" stroke="#64748b"/>

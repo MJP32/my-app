@@ -157,7 +157,7 @@ const WindowFunctionsDiagram = () => (
 // Replication Diagram
 const ReplicationDiagram = () => (
   <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
-    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Database Replication & High Availability</text>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`Database Replication & High Availability`}</text>
     <rect x="250" y="45" width="200" height="55" rx="6" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
     <text x="350" y="72" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Primary (Master)</text>
     <text x="350" y="90" textAnchor="middle" fill="#bfdbfe" fontSize="8">Handles all writes</text>

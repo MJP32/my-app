@@ -194,7 +194,7 @@ function MediHealth({ onBack, breadcrumb }) {
 
             {/* Layer 7: Monitoring */}
             <rect x="50" y="600" width="1100" height="80" fill="url(#blueGradient)" rx="8" />
-            <text x="600" y="625" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">Layer 7: Monitoring & Observability</text>
+            <text x="600" y="625" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">{`Layer 7: Monitoring & Observability`}</text>
             <text x="300" y="655" textAnchor="middle" fill="white" fontSize="14">📊 Prometheus</text>
             <text x="600" y="655" textAnchor="middle" fill="white" fontSize="14">📈 Grafana</text>
             <text x="900" y="655" textAnchor="middle" fill="white" fontSize="14">🔍 ELK Stack</text>

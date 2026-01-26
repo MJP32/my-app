@@ -55,7 +55,7 @@ const PerformanceTuningDiagram = () => (
     <text x="250" y="92" textAnchor="middle" fill="#93c5fd" fontSize="7">Execution path</text>
     <rect x="330" y="50" width="120" height="55" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
     <text x="390" y="75" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">Optimizer</text>
-    <text x="390" y="92" textAnchor="middle" fill="#c4b5fd" fontSize="7">Hints & stats</text>
+    <text x="390" y="92" textAnchor="middle" fill="#c4b5fd" fontSize="7">{`Hints & stats`}</text>
     <rect x="470" y="50" width="120" height="55" rx="6" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="2"/>
     <text x="530" y="75" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Indexing</text>
     <text x="530" y="92" textAnchor="middle" fill="#86efac" fontSize="7">B-tree/Bitmap</text>
@@ -174,7 +174,7 @@ const AdvancedFeaturesDiagram = () => (
 // Oracle Cloud & Exadata Diagram
 const CloudExadataDiagram = () => (
   <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
-    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Oracle Cloud & Exadata</text>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`Oracle Cloud & Exadata`}</text>
     <rect x="50" y="50" width="180" height="80" rx="6" fill="rgba(99, 102, 241, 0.3)" stroke="#6366f1" strokeWidth="2"/>
     <text x="140" y="72" textAnchor="middle" fill="#818cf8" fontSize="10" fontWeight="bold">Autonomous DB</text>
     <text x="140" y="92" textAnchor="middle" fill="#a5b4fc" fontSize="8">Self-driving</text>

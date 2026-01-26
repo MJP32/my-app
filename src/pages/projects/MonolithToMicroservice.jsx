@@ -269,7 +269,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
                   <text x="80" y="563" fontSize="11" fill="#6b7280">• Observability Setup</text>
 
                   <text x="330" y="530" fontSize="13" fill="#6b7280" fontWeight="600">Phase 2 (Q2-Q3)</text>
-                  <text x="330" y="548" fontSize="11" fill="#6b7280">• Migrate Risk &amp; Portfolio</text>
+                  <text x="330" y="548" fontSize="11" fill="#6b7280">{`• Migrate Risk &amp; Portfolio`}</text>
                   <text x="330" y="563" fontSize="11" fill="#6b7280">• Parallel Running</text>
 
                   <text x="600" y="530" fontSize="13" fill="#6b7280" fontWeight="600">Phase 3 (Q3-Q4)</text>

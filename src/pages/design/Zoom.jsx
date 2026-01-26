@@ -308,7 +308,7 @@ const WebRTCDiagram = () => (
     </defs>
 
     <rect width="900" height="500" fill="#1F2937" rx="10" />
-    <text x="450" y="30" textAnchor="middle" fill="#F9FAFB" fontSize="18" fontWeight="bold">WebRTC Signaling & Media Transport</text>
+    <text x="450" y="30" textAnchor="middle" fill="#F9FAFB" fontSize="18" fontWeight="bold">{`WebRTC Signaling & Media Transport`}</text>
 
     {/* Peer A */}
     <g>

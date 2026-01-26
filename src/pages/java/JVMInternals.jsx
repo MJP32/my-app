@@ -231,9 +231,9 @@ const ClassLoaderDiagram = () => (
       </marker>
     </defs>
 
-    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="16" fontWeight="bold">
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="16" fontWeight="bold">{`
       ClassLoader Hierarchy & Delegation
-    </text>
+    `}</text>
 
     {/* Bootstrap ClassLoader */}
     <rect x="250" y="50" width="300" height="55" rx="10" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
@@ -610,7 +610,7 @@ const GarbageCollectionDiagram = () => (
     <rect x="670" y="85" width="30" height="30" rx="4" fill="#f59e0b"/>
     <rect x="710" y="85" width="30" height="30" rx="4" fill="#f59e0b"/>
     <rect x="750" y="85" width="30" height="30" rx="4" fill="rgba(245, 158, 11, 0.3)"/>
-    <text x="720" y="140" textAnchor="middle" fill="#94a3b8" fontSize="9">Tenured objects (age >= threshold)</text>
+    <text x="720" y="140" textAnchor="middle" fill="#94a3b8" fontSize="9">{`Tenured objects (age >= threshold)`}</text>
     <text x="720" y="158" textAnchor="middle" fill="#fcd34d" fontSize="8">Promotion from survivor space</text>
 
     {/* Promotion arrow */}
@@ -631,7 +631,7 @@ const GarbageCollectionDiagram = () => (
     <text x="160" y="290" fill="#94a3b8" fontSize="9">Region-based, balanced</text>
 
     <text x="50" y="310" fill="#60a5fa" fontSize="10">ZGC/Shenandoah</text>
-    <text x="185" y="310" fill="#94a3b8" fontSize="9">Low latency (&lt;10ms)</text>
+    <text x="185" y="310" fill="#94a3b8" fontSize="9">{`Low latency (&lt;10ms)`}</text>
 
     {/* GC Roots */}
     <rect x="310" y="200" width="260" height="130" rx="8" fill="rgba(139, 92, 246, 0.1)" stroke="#8b5cf6" strokeWidth="1.5"/>

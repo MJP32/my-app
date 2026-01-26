@@ -224,7 +224,7 @@ const MonitoringDiagram = () => (
     <text x="350" y="92" textAnchor="middle" fill="#fcd34d" fontSize="8">ELK / Splunk</text>
     <text x="350" y="108" textAnchor="middle" fill="#fcd34d" fontSize="8">Errors: 12</text>
     <text x="350" y="124" textAnchor="middle" fill="#fcd34d" fontSize="8">Warnings: 45</text>
-    <text x="350" y="140" textAnchor="middle" fill="#fcd34d" fontSize="8">Search & Analyze</text>
+    <text x="350" y="140" textAnchor="middle" fill="#fcd34d" fontSize="8">{`Search & Analyze`}</text>
 
     {/* Alerts Panel */}
     <rect x="470" y="50" width="180" height="110" rx="6" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" strokeWidth="1"/>
@@ -270,7 +270,7 @@ const RollbackDiagram = () => (
     <text x="525" y="50" fill="#4ade80" fontSize="8">Yes</text>
     <text x="525" y="135" fill="#f87171" fontSize="8">No</text>
 
-    <text x="350" y="160" textAnchor="middle" fill="#64748b" fontSize="9">Triggers: Error rate > 5%, Latency > 500ms, Health check failures</text>
+    <text x="350" y="160" textAnchor="middle" fill="#64748b" fontSize="9">{`Triggers: Error rate > 5%, Latency > 500ms, Health check failures`}</text>
   </svg>
 )
 

@@ -103,7 +103,7 @@ const PubSubDiagram = () => (
         <polygon points="0 0, 10 3.5, 0 7" fill="#4ade80" />
       </marker>
     </defs>
-    <text x="350" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Aeron Publication & Subscription</text>
+    <text x="350" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`Aeron Publication & Subscription`}</text>
     {/* Publisher */}
     <rect x="50" y="70" width="100" height="100" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
     <text x="100" y="100" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Publisher</text>
@@ -244,7 +244,7 @@ const RaftConsensusDiagram = () => (
 // Snapshots Diagram
 const SnapshotsDiagram = () => (
   <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
-    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Cluster Snapshots & Recovery</text>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`Cluster Snapshots & Recovery`}</text>
     <rect x="50" y="50" width="200" height="55" rx="4" fill="#3b82f6"/>
     <text x="150" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Snapshot</text>
     <text x="150" y="90" textAnchor="middle" fill="#bfdbfe" fontSize="8">Periodic state capture</text>

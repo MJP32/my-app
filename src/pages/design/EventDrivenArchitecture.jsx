@@ -109,7 +109,7 @@ const EventDrivenOverviewDiagram = () => (
     <path d="M570,275 Q640,292 710,292" fill="none" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowOrange)" />
 
     <text x="260" y="370" fontSize="11" fill="#9ca3af" textAnchor="middle">Publish Events</text>
-    <text x="640" y="370" fontSize="11" fill="#9ca3af" textAnchor="middle">Subscribe & Consume</text>
+    <text x="640" y="370" fontSize="11" fill="#9ca3af" textAnchor="middle">{`Subscribe & Consume`}</text>
   </svg>
 )
 
@@ -411,7 +411,7 @@ const EventBrokerComparisonDiagram = () => (
     <text x="50" y="425" fontSize="10" fill="#9ca3af">Replayable messages</text>
 
     <text x="50" y="455" fontSize="11" fontWeight="600" fill="#14b8a6">Cons:</text>
-    <text x="50" y="475" fontSize="10" fill="#f87171">Complex setup & operations</text>
+    <text x="50" y="475" fontSize="10" fill="#f87171">{`Complex setup & operations`}</text>
     <text x="50" y="490" fontSize="10" fill="#f87171">No native routing patterns</text>
 
     <rect x="335" y="60" width="280" height="440" rx="12" fill="rgba(255, 102, 0, 0.1)" stroke="#ff6600" strokeWidth="2" />

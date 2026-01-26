@@ -53,7 +53,7 @@ const DataScienceWorkflowDiagram = () => (
     {/* Step 2: Data */}
     <rect x="200" y="60" width="130" height="80" rx="10" fill="url(#workflowGrad2)" filter="url(#workflowShadow)" />
     <text x="265" y="95" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Data</text>
-    <text x="265" y="115" textAnchor="middle" fill="#bfdbfe" fontSize="10">Collect & clean</text>
+    <text x="265" y="115" textAnchor="middle" fill="#bfdbfe" fontSize="10">{`Collect & clean`}</text>
     <text x="265" y="128" textAnchor="middle" fill="#bfdbfe" fontSize="10">data sources</text>
 
     {/* Arrow 2 */}
@@ -62,7 +62,7 @@ const DataScienceWorkflowDiagram = () => (
     {/* Step 3: Explore */}
     <rect x="370" y="60" width="130" height="80" rx="10" fill="url(#workflowGrad3)" filter="url(#workflowShadow)" />
     <text x="435" y="95" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Explore</text>
-    <text x="435" y="115" textAnchor="middle" fill="#a7f3d0" fontSize="10">EDA & visualize</text>
+    <text x="435" y="115" textAnchor="middle" fill="#a7f3d0" fontSize="10">{`EDA & visualize`}</text>
     <text x="435" y="128" textAnchor="middle" fill="#a7f3d0" fontSize="10">patterns</text>
 
     {/* Arrow 3 */}
@@ -71,7 +71,7 @@ const DataScienceWorkflowDiagram = () => (
     {/* Step 4: Model */}
     <rect x="540" y="60" width="130" height="80" rx="10" fill="url(#workflowGrad4)" filter="url(#workflowShadow)" />
     <text x="605" y="95" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Model</text>
-    <text x="605" y="115" textAnchor="middle" fill="#fde68a" fontSize="10">Build & evaluate</text>
+    <text x="605" y="115" textAnchor="middle" fill="#fde68a" fontSize="10">{`Build & evaluate`}</text>
     <text x="605" y="128" textAnchor="middle" fill="#fde68a" fontSize="10">ML models</text>
 
     {/* Arrow 4 */}
@@ -80,7 +80,7 @@ const DataScienceWorkflowDiagram = () => (
     {/* Step 5: Communicate */}
     <rect x="710" y="60" width="150" height="80" rx="10" fill="url(#workflowGrad5)" filter="url(#workflowShadow)" />
     <text x="785" y="95" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Communicate</text>
-    <text x="785" y="115" textAnchor="middle" fill="#fbcfe8" fontSize="10">Share insights &</text>
+    <text x="785" y="115" textAnchor="middle" fill="#fbcfe8" fontSize="10">{`Share insights &`}</text>
     <text x="785" y="128" textAnchor="middle" fill="#fbcfe8" fontSize="10">recommendations</text>
 
     {/* Iteration arrow */}

@@ -88,13 +88,13 @@ const RideShareArchitectureDiagram = () => (
     <g transform="translate(50, 320)">
       <rect width="130" height="70" rx="8" fill="url(#uberBlue)" filter="url(#shadow)"/>
       <text x="65" y="30" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">Ride Service</text>
-      <text x="65" y="48" textAnchor="middle" fill="#e3f2fd" fontSize="10">Booking & Status</text>
+      <text x="65" y="48" textAnchor="middle" fill="#e3f2fd" fontSize="10">{`Booking & Status`}</text>
     </g>
 
     <g transform="translate(200, 320)">
       <rect width="130" height="70" rx="8" fill="url(#uberBlue)" filter="url(#shadow)"/>
       <text x="65" y="30" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">Driver Service</text>
-      <text x="65" y="48" textAnchor="middle" fill="#e3f2fd" fontSize="10">Location & Avail</text>
+      <text x="65" y="48" textAnchor="middle" fill="#e3f2fd" fontSize="10">{`Location & Avail`}</text>
     </g>
 
     <g transform="translate(350, 320)">
@@ -130,7 +130,7 @@ const RideShareArchitectureDiagram = () => (
     <g transform="translate(240, 420)">
       <rect width="120" height="60" rx="8" fill="url(#uberPurple)" filter="url(#shadow)"/>
       <text x="60" y="28" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">Redis</text>
-      <text x="60" y="45" textAnchor="middle" fill="#ede7f6" fontSize="10">Cache & GEO</text>
+      <text x="60" y="45" textAnchor="middle" fill="#ede7f6" fontSize="10">{`Cache & GEO`}</text>
     </g>
 
     <g transform="translate(380, 420)">
@@ -305,7 +305,7 @@ const MatchingAlgorithmDiagram = () => (
       {/* Metrics */}
       <g transform="translate(20, 285)">
         <rect width="155" height="28" rx="4" fill="#2d2d2d"/>
-        <text x="78" y="19" textAnchor="middle" fill="#06c167" fontSize="11" fontWeight="bold">Latency: &lt;500ms</text>
+        <text x="78" y="19" textAnchor="middle" fill="#06c167" fontSize="11" fontWeight="bold">{`Latency: &lt;500ms`}</text>
       </g>
       <g transform="translate(185, 285)">
         <rect width="175" height="28" rx="4" fill="#2d2d2d"/>
@@ -729,7 +729,7 @@ const TripLifecycleDiagram = () => (
       <text x="20" y="25" textAnchor="middle" fill="#06c167" fontSize="14" fontWeight="bold">2</text>
       <text x="70" y="50" textAnchor="middle" fill="#ffffff" fontSize="13" fontWeight="bold">MATCH</text>
       <text x="70" y="70" textAnchor="middle" fill="#e8f5e9" fontSize="10">Find nearest driver</text>
-      <text x="70" y="85" textAnchor="middle" fill="#e8f5e9" fontSize="10">Score & assign</text>
+      <text x="70" y="85" textAnchor="middle" fill="#e8f5e9" fontSize="10">{`Score & assign`}</text>
     </g>
 
     {/* Arrow 2-3 */}

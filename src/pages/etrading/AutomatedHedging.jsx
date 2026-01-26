@@ -60,7 +60,7 @@ const GammaHedgingDiagram = () => (
     <rect x="470" y="50" width="180" height="60" rx="6" fill="#22c55e"/>
     <text x="560" y="75" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Hedge Cost</text>
     <text x="560" y="95" textAnchor="middle" fill="#bbf7d0" fontSize="8">Trade-off: frequency vs slippage</text>
-    <text x="350" y="145" textAnchor="middle" fill="#64748b" fontSize="10">Gamma P&L ≈ ½ × Γ × (ΔS)² - Rehedge when delta exceeds threshold</text>
+    <text x="350" y="145" textAnchor="middle" fill="#64748b" fontSize="10">{`Gamma P&L ≈ ½ × Γ × (ΔS)² - Rehedge when delta exceeds threshold`}</text>
   </svg>
 )
 
@@ -212,7 +212,7 @@ const CostOptimizationDiagram = () => (
     <text x="125" y="90" textAnchor="middle" fill="#fecaca" fontSize="8">Spread + Commission</text>
     <rect x="220" y="50" width="150" height="55" rx="4" fill="#f59e0b"/>
     <text x="295" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Basis Risk</text>
-    <text x="295" y="90" textAnchor="middle" fill="#fef3c7" fontSize="8">Correlation &lt; 1</text>
+    <text x="295" y="90" textAnchor="middle" fill="#fef3c7" fontSize="8">{`Correlation &lt; 1`}</text>
     <rect x="390" y="50" width="150" height="55" rx="4" fill="#3b82f6"/>
     <text x="465" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Capital Cost</text>
     <text x="465" y="90" textAnchor="middle" fill="#bfdbfe" fontSize="8">Margin requirements</text>
@@ -232,7 +232,7 @@ const NettingDiagram = () => (
     <text x="140" y="90" textAnchor="middle" fill="#fecaca" fontSize="8">Before netting</text>
     <rect x="260" y="50" width="180" height="55" rx="4" fill="#f59e0b"/>
     <text x="350" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Cross-Asset Net</text>
-    <text x="350" y="90" textAnchor="middle" fill="#fef3c7" fontSize="8">Corr > 0.8 offset</text>
+    <text x="350" y="90" textAnchor="middle" fill="#fef3c7" fontSize="8">{`Corr > 0.8 offset`}</text>
     <rect x="470" y="50" width="180" height="55" rx="4" fill="#22c55e"/>
     <text x="560" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Net Hedges: $3M</text>
     <text x="560" y="90" textAnchor="middle" fill="#bbf7d0" fontSize="8">70% cost savings</text>
@@ -268,13 +268,13 @@ const EffectivenessDiagram = () => (
     <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Hedge Effectiveness Measurement</text>
     <rect x="50" y="50" width="200" height="55" rx="4" fill="#3b82f6"/>
     <text x="150" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Effectiveness Ratio</text>
-    <text x="150" y="90" textAnchor="middle" fill="#bfdbfe" fontSize="8">-Hedge P&L / Hedged P&L</text>
+    <text x="150" y="90" textAnchor="middle" fill="#bfdbfe" fontSize="8">{`-Hedge P&L / Hedged P&L`}</text>
     <rect x="280" y="50" width="200" height="55" rx="4" fill="#22c55e"/>
     <text x="380" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Variance Reduction</text>
     <text x="380" y="90" textAnchor="middle" fill="#bbf7d0" fontSize="8">1 - σ²(combined)/σ²(hedged)</text>
     <rect x="510" y="50" width="140" height="55" rx="4" fill="#ef4444"/>
     <text x="580" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Alert Thresholds</text>
-    <text x="580" y="90" textAnchor="middle" fill="#fecaca" fontSize="8">0.8 &lt; ratio &lt; 1.25</text>
+    <text x="580" y="90" textAnchor="middle" fill="#fecaca" fontSize="8">{`0.8 &lt; ratio &lt; 1.25`}</text>
     <text x="350" y="130" textAnchor="middle" fill="#64748b" fontSize="9">Measure hourly | Alert on drift | Track by hedge relationship</text>
   </svg>
 )
@@ -295,7 +295,7 @@ const SlippageDiagram = () => (
     <rect x="560" y="50" width="100" height="55" rx="4" fill="#8b5cf6"/>
     <text x="610" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Impact</text>
     <text x="610" y="90" textAnchor="middle" fill="#ddd6fe" fontSize="8">Post-trade</text>
-    <text x="350" y="130" textAnchor="middle" fill="#64748b" fontSize="9">Daily analysis by: Underlying, Time of day, Size | Alert if avg > 5bps</text>
+    <text x="350" y="130" textAnchor="middle" fill="#64748b" fontSize="9">{`Daily analysis by: Underlying, Time of day, Size | Alert if avg > 5bps`}</text>
   </svg>
 )
 

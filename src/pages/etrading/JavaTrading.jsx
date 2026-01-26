@@ -106,7 +106,7 @@ const PrimitiveCollectionsDiagram = () => (
   <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
     <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Primitive vs Boxed Collections - Memory Usage</text>
     <rect x="50" y="45" width="250" height="80" rx="6" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="2"/>
-    <text x="175" y="68" textAnchor="middle" fill="#f87171" fontSize="11" fontWeight="bold">HashMap&lt;Long, Long&gt;</text>
+    <text x="175" y="68" textAnchor="middle" fill="#f87171" fontSize="11" fontWeight="bold">{`HashMap&lt;Long, Long&gt;`}</text>
     <text x="175" y="88" textAnchor="middle" fill="#fecaca" fontSize="9">1M entries: ~80MB</text>
     <text x="175" y="105" textAnchor="middle" fill="#fecaca" fontSize="8">Boxing overhead + object headers</text>
     <text x="175" y="118" textAnchor="middle" fill="#ef4444" fontSize="8">GC pressure from wrapper objects</text>
@@ -323,7 +323,7 @@ const CacheLineDiagram = () => (
 // Mechanical Sympathy Diagram
 const MechanicalSympathyDiagram = () => (
   <svg viewBox="0 0 700 200" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
-    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">CPU & Memory Hierarchy for Low Latency</text>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`CPU & Memory Hierarchy for Low Latency`}</text>
     <rect x="50" y="45" width="100" height="40" rx="4" fill="#ef4444"/>
     <text x="100" y="62" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">L1 Cache</text>
     <text x="100" y="77" textAnchor="middle" fill="#fecaca" fontSize="7">~1ns • 32KB</text>

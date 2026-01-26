@@ -462,7 +462,7 @@ const GatewayDiagram = () => (
 
 const ObservabilityDiagram = () => (
   <svg viewBox="0 0 800 220" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
-    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Observability Stack - Monitoring & Tracing</text>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`Observability Stack - Monitoring & Tracing`}</text>
 
     {/* Components */}
     <rect x="50" y="60" width="160" height="80" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
@@ -487,7 +487,7 @@ const ObservabilityDiagram = () => (
 
     {/* Alerts */}
     <rect x="200" y="160" width="400" height="40" rx="6" fill="rgba(239, 68, 68, 0.1)" stroke="#ef4444" strokeWidth="1"/>
-    <text x="400" y="185" textAnchor="middle" fill="#f87171" fontSize="10">Alerts: Latency &gt;500ms | Error Rate &gt;1% | CPU &gt;80% | PagerDuty Integration</text>
+    <text x="400" y="185" textAnchor="middle" fill="#f87171" fontSize="10">{`Alerts: Latency &gt;500ms | Error Rate &gt;1% | CPU &gt;80% | PagerDuty Integration`}</text>
   </svg>
 )
 

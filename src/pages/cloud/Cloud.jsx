@@ -71,10 +71,10 @@ const ServiceModelsDiagram = () => (
       <text x="150" y="138" textAnchor="middle" fill="white" fontSize="10">Applications</text>
 
       <rect x="70" y="155" width="160" height="30" rx="4" fill="rgba(0,0,0,0.3)" stroke="#60a5fa" strokeWidth="1"/>
-      <text x="150" y="173" textAnchor="middle" fill="white" fontSize="10">Data & Runtime</text>
+      <text x="150" y="173" textAnchor="middle" fill="white" fontSize="10">{`Data & Runtime`}</text>
 
       <rect x="70" y="190" width="160" height="30" rx="4" fill="rgba(255,255,255,0.2)" stroke="#60a5fa" strokeWidth="2"/>
-      <text x="150" y="208" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">OS & Middleware</text>
+      <text x="150" y="208" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">{`OS & Middleware`}</text>
 
       <rect x="70" y="225" width="160" height="25" rx="4" fill="rgba(255,255,255,0.2)" stroke="#60a5fa" strokeWidth="2"/>
       <text x="150" y="241" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Servers</text>
@@ -100,7 +100,7 @@ const ServiceModelsDiagram = () => (
       <text x="400" y="208" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Runtime</text>
 
       <rect x="320" y="225" width="160" height="25" rx="4" fill="rgba(255,255,255,0.2)" stroke="#4ade80" strokeWidth="2"/>
-      <text x="400" y="241" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Middleware & OS</text>
+      <text x="400" y="241" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">{`Middleware & OS`}</text>
 
       <rect x="320" y="253" width="160" height="20" rx="4" fill="rgba(255,255,255,0.2)" stroke="#4ade80" strokeWidth="2"/>
       <text x="400" y="267" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Infrastructure</text>
@@ -123,7 +123,7 @@ const ServiceModelsDiagram = () => (
       <text x="650" y="208" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Runtime</text>
 
       <rect x="570" y="225" width="160" height="25" rx="4" fill="rgba(255,255,255,0.2)" stroke="#fbbf24" strokeWidth="2"/>
-      <text x="650" y="241" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Middleware & OS</text>
+      <text x="650" y="241" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">{`Middleware & OS`}</text>
 
       <rect x="570" y="253" width="160" height="20" rx="4" fill="rgba(255,255,255,0.2)" stroke="#fbbf24" strokeWidth="2"/>
       <text x="650" y="267" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Infrastructure</text>
@@ -258,7 +258,7 @@ const CloudArchitectureDiagram = () => (
 
     {/* API Gateway Layer */}
     <rect x="50" y="130" width="700" height="50" rx="8" fill="url(#layerGrad)" stroke="#22c55e" strokeWidth="2"/>
-    <text x="400" y="150" textAnchor="middle" fill="#4ade80" fontSize="12" fontWeight="bold">API Gateway & Load Balancer</text>
+    <text x="400" y="150" textAnchor="middle" fill="#4ade80" fontSize="12" fontWeight="bold">{`API Gateway & Load Balancer`}</text>
     <text x="400" y="168" textAnchor="middle" fill="#94a3b8" fontSize="10">Request Routing, Authentication, Rate Limiting</text>
 
     {/* Arrow */}
@@ -303,7 +303,7 @@ const MultiCloudDiagram = () => (
     {/* Central Management */}
     <rect x="300" y="50" width="200" height="60" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
     <text x="400" y="75" textAnchor="middle" fill="#4ade80" fontSize="13" fontWeight="bold">Multi-Cloud Management</text>
-    <text x="400" y="93" textAnchor="middle" fill="#94a3b8" fontSize="10">Orchestration & Governance</text>
+    <text x="400" y="93" textAnchor="middle" fill="#94a3b8" fontSize="10">{`Orchestration & Governance`}</text>
 
     {/* Arrows to clouds */}
     <line x1="330" y1="110" x2="150" y2="160" stroke="#38bdf8" strokeWidth="2" markerEnd="url(#arrowMulti)"/>
@@ -340,7 +340,7 @@ const MultiCloudDiagram = () => (
     {/* Benefits */}
     <text x="400" y="295" textAnchor="middle" fill="#94a3b8" fontSize="12" fontWeight="bold">Key Benefits</text>
     <text x="200" y="315" textAnchor="middle" fill="#94a3b8" fontSize="10">Avoid vendor lock-in</text>
-    <text x="400" y="315" textAnchor="middle" fill="#94a3b8" fontSize="10">Optimize costs & performance</text>
+    <text x="400" y="315" textAnchor="middle" fill="#94a3b8" fontSize="10">{`Optimize costs & performance`}</text>
     <text x="600" y="315" textAnchor="middle" fill="#94a3b8" fontSize="10">Increase resilience</text>
   </svg>
 )
@@ -494,22 +494,22 @@ const SecurityDiagram = () => (
       <text x="100" y="70" textAnchor="start" fill="#94a3b8" fontSize="12" fontWeight="bold">Key Concepts:</text>
 
       <circle cx="50" cy="95" r="3" fill="#38bdf8"/>
-      <text x="60" y="99" fill="#94a3b8" fontSize="10">Identity & Access Management</text>
+      <text x="60" y="99" fill="#94a3b8" fontSize="10">{`Identity & Access Management`}</text>
 
       <circle cx="50" cy="115" r="3" fill="#38bdf8"/>
-      <text x="60" y="119" fill="#94a3b8" fontSize="10">Encryption (in-transit & at-rest)</text>
+      <text x="60" y="119" fill="#94a3b8" fontSize="10">{`Encryption (in-transit & at-rest)`}</text>
 
       <circle cx="50" cy="135" r="3" fill="#38bdf8"/>
-      <text x="60" y="139" fill="#94a3b8" fontSize="10">Security Groups & NACLs</text>
+      <text x="60" y="139" fill="#94a3b8" fontSize="10">{`Security Groups & NACLs`}</text>
 
       <circle cx="50" cy="155" r="3" fill="#38bdf8"/>
-      <text x="60" y="159" fill="#94a3b8" fontSize="10">Compliance & Auditing</text>
+      <text x="60" y="159" fill="#94a3b8" fontSize="10">{`Compliance & Auditing`}</text>
 
       <circle cx="50" cy="175" r="3" fill="#38bdf8"/>
       <text x="60" y="179" fill="#94a3b8" fontSize="10">Shared Responsibility Model</text>
 
       <circle cx="50" cy="195" r="3" fill="#38bdf8"/>
-      <text x="60" y="199" fill="#94a3b8" fontSize="10">Security Monitoring & Logging</text>
+      <text x="60" y="199" fill="#94a3b8" fontSize="10">{`Security Monitoring & Logging`}</text>
     </g>
 
     {/* Compliance */}
@@ -580,8 +580,8 @@ const CostOptimizationDiagram = () => (
     <g>
       <rect x="320" y="160" width="160" height="70" rx="8" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" strokeWidth="2"/>
       <text x="400" y="185" textAnchor="middle" fill="#22d3ee" fontSize="12" fontWeight="bold">Cost Monitoring</text>
-      <text x="400" y="203" textAnchor="middle" fill="#94a3b8" fontSize="9">Track & analyze</text>
-      <text x="400" y="218" textAnchor="middle" fill="#94a3b8" fontSize="9">Set budgets & alerts</text>
+      <text x="400" y="203" textAnchor="middle" fill="#94a3b8" fontSize="9">{`Track & analyze`}</text>
+      <text x="400" y="218" textAnchor="middle" fill="#94a3b8" fontSize="9">{`Set budgets & alerts`}</text>
     </g>
 
     {/* Resource Cleanup */}

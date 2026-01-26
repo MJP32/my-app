@@ -66,7 +66,7 @@ const LRUCacheArchitectureDiagram = () => (
     </defs>
     <text x="400" y="25" fontSize="14" fontWeight="700" fill="#e5e7eb" textAnchor="middle">LRU Cache Architecture: HashMap + Doubly Linked List</text>
     <rect x="30" y="50" width="200" height="200" rx="12" fill="#1f2937" stroke="url(#hashMapGradArch)" strokeWidth="3" />
-    <text x="130" y="75" fontSize="12" fontWeight="600" fill="#3b82f6" textAnchor="middle">HashMap&lt;K, Node&gt;</text>
+    <text x="130" y="75" fontSize="12" fontWeight="600" fill="#3b82f6" textAnchor="middle">{`HashMap&lt;K, Node&gt;`}</text>
     <text x="130" y="92" fontSize="10" fill="#9ca3af" textAnchor="middle">O(1) key lookup</text>
     <rect x="50" y="110" width="160" height="28" rx="4" fill="#374151" />
     <text x="60" y="128" fontSize="10" fill="#fbbf24">key: 1</text>

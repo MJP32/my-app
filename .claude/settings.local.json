@@ -115,7 +115,9 @@
       "Bash(git diff:*)",
       "Bash(npm test:*)",
       "Bash(python transform_agile.py:*)",
-      "Bash(python complete_transform.py:*)"
+      "Bash(python complete_transform.py:*)",
+      "Bash(python fix_jsx_text.py:*)",
+      "Bash(npm run build:no-snap:*)"
     ],
     "deny": [],
     "ask": []

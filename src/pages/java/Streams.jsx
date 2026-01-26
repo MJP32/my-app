@@ -125,7 +125,7 @@ const MapOperationDiagram = () => (
 
     {/* Transform function */}
     <rect x="280" y="55" width="140" height="50" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
-    <text x="350" y="75" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">map(x -&gt; x * 2)</text>
+    <text x="350" y="75" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`map(x -&gt; x * 2)`}</text>
     <text x="350" y="92" textAnchor="middle" fill="white" fontSize="10">Transform Function</text>
 
     {/* Arrows */}
@@ -175,7 +175,7 @@ const FilterOperationDiagram = () => (
 
     {/* Filter predicate */}
     <rect x="290" y="50" width="160" height="55" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
-    <text x="370" y="72" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">filter(x -&gt; x % 2 != 0)</text>
+    <text x="370" y="72" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`filter(x -&gt; x % 2 != 0)`}</text>
     <text x="370" y="90" textAnchor="middle" fill="white" fontSize="10">Keep odd numbers</text>
 
     {/* Arrows */}
@@ -226,11 +226,11 @@ const ReduceOperationDiagram = () => (
 
     {/* Accumulator box */}
     <rect x="290" y="45" width="200" height="70" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
-    <text x="390" y="70" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">reduce(0, (a,b) -&gt; a + b)</text>
+    <text x="390" y="70" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`reduce(0, (a,b) -&gt; a + b)`}</text>
     <text x="390" y="90" textAnchor="middle" fill="white" fontSize="10">Identity: 0, Accumulator: sum</text>
 
     {/* Steps */}
-    <text x="390" y="135" textAnchor="middle" fill="#94a3b8" fontSize="10">0 + 1 = 1 -&gt; 1 + 2 = 3 -&gt; 3 + 3 = 6 -&gt; 6 + 4 = 10</text>
+    <text x="390" y="135" textAnchor="middle" fill="#94a3b8" fontSize="10">{`0 + 1 = 1 -&gt; 1 + 2 = 3 -&gt; 3 + 3 = 6 -&gt; 6 + 4 = 10`}</text>
 
     {/* Arrow to result */}
     <line x1="490" y1="80" x2="560" y2="80" stroke="#f59e0b" strokeWidth="2" markerEnd="url(#reduceArrow)"/>
@@ -384,15 +384,15 @@ const ParallelStreamDiagram = () => (
     {/* Thread boxes */}
     <rect x="185" y="45" width="140" height="50" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
     <text x="255" y="67" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Thread 1</text>
-    <text x="255" y="83" textAnchor="middle" fill="white" fontSize="9">[1,2,3] -&gt; process</text>
+    <text x="255" y="83" textAnchor="middle" fill="white" fontSize="9">{`[1,2,3] -&gt; process`}</text>
 
     <rect x="185" y="100" width="140" height="50" rx="6" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
     <text x="255" y="122" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Thread 2</text>
-    <text x="255" y="138" textAnchor="middle" fill="white" fontSize="9">[4,5] -&gt; process</text>
+    <text x="255" y="138" textAnchor="middle" fill="white" fontSize="9">{`[4,5] -&gt; process`}</text>
 
     <rect x="185" y="155" width="140" height="50" rx="6" fill="#ec4899" stroke="#f472b6" strokeWidth="2"/>
     <text x="255" y="177" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Thread 3</text>
-    <text x="255" y="193" textAnchor="middle" fill="white" fontSize="9">[6,7,8] -&gt; process</text>
+    <text x="255" y="193" textAnchor="middle" fill="white" fontSize="9">{`[6,7,8] -&gt; process`}</text>
 
     {/* Fork/Join label */}
     <text x="150" y="220" textAnchor="middle" fill="#f59e0b" fontSize="10" fontWeight="bold">FORK</text>

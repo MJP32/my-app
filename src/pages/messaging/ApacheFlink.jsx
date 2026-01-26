@@ -93,11 +93,11 @@ const StatefulComputingDiagram = () => (
     <rect x="50" y="50" width="140" height="130" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
     <text x="120" y="72" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Keyed State</text>
     <rect x="60" y="85" width="120" height="25" rx="3" fill="rgba(34, 197, 94, 0.4)" stroke="#22c55e" strokeWidth="1"/>
-    <text x="120" y="102" textAnchor="middle" fill="#4ade80" fontSize="8">ValueState&lt;T&gt;</text>
+    <text x="120" y="102" textAnchor="middle" fill="#4ade80" fontSize="8">{`ValueState&lt;T&gt;`}</text>
     <rect x="60" y="115" width="120" height="25" rx="3" fill="rgba(245, 158, 11, 0.4)" stroke="#f59e0b" strokeWidth="1"/>
-    <text x="120" y="132" textAnchor="middle" fill="#fbbf24" fontSize="8">ListState&lt;T&gt;</text>
+    <text x="120" y="132" textAnchor="middle" fill="#fbbf24" fontSize="8">{`ListState&lt;T&gt;`}</text>
     <rect x="60" y="145" width="120" height="25" rx="3" fill="rgba(139, 92, 246, 0.4)" stroke="#8b5cf6" strokeWidth="1"/>
-    <text x="120" y="162" textAnchor="middle" fill="#a78bfa" fontSize="8">MapState&lt;K,V&gt;</text>
+    <text x="120" y="162" textAnchor="middle" fill="#a78bfa" fontSize="8">{`MapState&lt;K,V&gt;`}</text>
 
     <rect x="250" y="50" width="140" height="130" rx="6" fill="rgba(236, 72, 153, 0.2)" stroke="#ec4899" strokeWidth="2"/>
     <text x="320" y="72" textAnchor="middle" fill="#f472b6" fontSize="10" fontWeight="bold">State Backend</text>
@@ -128,7 +128,7 @@ const StatefulComputingDiagram = () => (
 
 const FaultToleranceDiagram = () => (
   <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
-    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Flink Checkpointing & Recovery</text>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`Flink Checkpointing & Recovery`}</text>
 
     <rect x="30" y="50" width="80" height="50" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
     <text x="70" y="72" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Source</text>
@@ -170,7 +170,7 @@ const TableSQLDiagram = () => (
         <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
       </marker>
     </defs>
-    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Flink Table API & SQL</text>
+    <text x="400" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`Flink Table API & SQL`}</text>
 
     <rect x="50" y="50" width="150" height="60" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
     <text x="125" y="75" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">SQL Query</text>
@@ -264,7 +264,7 @@ const ConnectorsDiagram = () => (
 
     <rect x="300" y="35" width="200" height="90" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
     <text x="400" y="58" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">Apache Flink</text>
-    <text x="400" y="78" textAnchor="middle" fill="#fcd34d" fontSize="8">Stream & Batch Processing</text>
+    <text x="400" y="78" textAnchor="middle" fill="#fcd34d" fontSize="8">{`Stream & Batch Processing`}</text>
     <rect x="320" y="88" width="70" height="25" rx="3" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="1"/>
     <text x="355" y="105" textAnchor="middle" fill="#a78bfa" fontSize="7">DataStream</text>
     <rect x="410" y="88" width="70" height="25" rx="3" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="1"/>

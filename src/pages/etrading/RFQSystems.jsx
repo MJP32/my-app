@@ -99,7 +99,7 @@ const AutoQuoteDiagram = () => (
     {/* Config */}
     <rect x="400" y="180" width="120" height="50" rx="6" fill="#ef4444" stroke="#f87171" strokeWidth="2"/>
     <text x="460" y="202" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Risk Limits</text>
-    <text x="460" y="218" textAnchor="middle" fill="#fecaca" fontSize="9">Size & notional</text>
+    <text x="460" y="218" textAnchor="middle" fill="#fecaca" fontSize="9">{`Size & notional`}</text>
     {/* Output */}
     <rect x="570" y="100" width="100" height="60" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
     <text x="620" y="125" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Quote</text>
@@ -111,7 +111,7 @@ const AutoQuoteDiagram = () => (
     <line x1="340" y1="130" x2="395" y2="205" stroke="#4ade80" strokeWidth="1.5"/>
     <line x1="340" y1="130" x2="565" y2="130" stroke="#4ade80" strokeWidth="2" markerEnd="url(#aqArrow)"/>
     {/* Latency */}
-    <text x="350" y="275" textAnchor="middle" fill="#64748b" fontSize="11">Target latency: &lt;10ms from RFQ receipt to quote response</text>
+    <text x="350" y="275" textAnchor="middle" fill="#64748b" fontSize="11">{`Target latency: &lt;10ms from RFQ receipt to quote response`}</text>
   </svg>
 )
 
@@ -188,14 +188,14 @@ const AutoQuoteEngineDiagram = () => (
     <rect x="570" y="50" width="100" height="45" rx="4" fill="#ef4444"/>
     <text x="620" y="77" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Quote</text>
     <text x="350" y="130" textAnchor="middle" fill="#64748b" fontSize="10">+ Inventory skew + Volatility adjustment</text>
-    <text x="350" y="150" textAnchor="middle" fill="#64748b" fontSize="9">Target response: &lt;100ms</text>
+    <text x="350" y="150" textAnchor="middle" fill="#64748b" fontSize="9">{`Target response: &lt;100ms`}</text>
   </svg>
 )
 
 // Quote Validity Diagram
 const QuoteValidityDiagram = () => (
   <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
-    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Quote Validity & Firmness</text>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`Quote Validity & Firmness`}</text>
     <rect x="50" y="50" width="180" height="50" rx="6" fill="#22c55e"/>
     <text x="140" y="72" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">FIRM (30s)</text>
     <text x="140" y="90" textAnchor="middle" fill="#bbf7d0" fontSize="8">Must honor if accepted</text>
@@ -249,7 +249,7 @@ const BloombergIntegrationDiagram = () => (
 // Client Tiering Diagram
 const ClientTieringDiagram = () => (
   <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
-    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Client Tiering & Spread Adjustment</text>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`Client Tiering & Spread Adjustment`}</text>
     <rect x="50" y="50" width="150" height="55" rx="4" fill="#22c55e"/>
     <text x="125" y="72" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Tier 1 (Platinum)</text>
     <text x="125" y="92" textAnchor="middle" fill="#bbf7d0" fontSize="8">0.8x spread multiplier</text>
@@ -451,7 +451,7 @@ const CriticalPathDiagram = () => (
         {i < 5 && <line x1={130 + i * 110} y1="72" x2={145 + i * 110} y2="72" stroke="#4ade80" strokeWidth="2"/>}
       </g>
     ))}
-    <text x="350" y="125" textAnchor="middle" fill="#4ade80" fontSize="10">Target: &lt;50ms liquid | &lt;100ms complex</text>
+    <text x="350" y="125" textAnchor="middle" fill="#4ade80" fontSize="10">{`Target: &lt;50ms liquid | &lt;100ms complex`}</text>
     <text x="350" y="145" textAnchor="middle" fill="#64748b" fontSize="9">Bottlenecks: DB queries, network hops, complex calculations</text>
   </svg>
 )
@@ -485,7 +485,7 @@ const AsyncDiagram = () => (
     <text x="140" y="72" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">CRITICAL PATH</text>
     <text x="140" y="90" textAnchor="middle" fill="#86efac" fontSize="8">RFQ → Quote (sync)</text>
     <rect x="260" y="50" width="180" height="55" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
-    <text x="350" y="72" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">FIRE & FORGET</text>
+    <text x="350" y="72" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">{`FIRE & FORGET`}</text>
     <text x="350" y="90" textAnchor="middle" fill="#fcd34d" fontSize="8">Logging, Metrics (async)</text>
     <rect x="470" y="50" width="180" height="55" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
     <text x="560" y="72" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">BATCH WRITE</text>

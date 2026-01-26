@@ -108,7 +108,7 @@ const PodDeploymentDiagram = () => (
     <text x="482" y="78" textAnchor="middle" fill="#a78bfa" fontSize="7">Pod 3</text>
     <text x="482" y="92" textAnchor="middle" fill="#6b7280" fontSize="6">10.0.0.3</text>
     <rect x="330" y="105" width="180" height="35" rx="3" fill="#374151"/>
-    <text x="420" y="120" textAnchor="middle" fill="#94a3b8" fontSize="7">Containers share network & storage</text>
+    <text x="420" y="120" textAnchor="middle" fill="#94a3b8" fontSize="7">{`Containers share network & storage`}</text>
     <text x="420" y="133" textAnchor="middle" fill="#6b7280" fontSize="6">Smallest deployable unit</text>
     <rect x="540" y="40" width="140" height="105" rx="6" fill="#1e3a5f" stroke="#ec4899" strokeWidth="2"/>
     <text x="610" y="58" textAnchor="middle" fill="#f472b6" fontSize="9" fontWeight="bold">Rolling Update</text>
@@ -181,7 +181,7 @@ const ConfigSecretsDiagram = () => (
       </linearGradient>
     </defs>
     <rect x="5" y="5" width="690" height="150" rx="10" fill="url(#cfgGrad)" stroke="#f59e0b" strokeWidth="2"/>
-    <text x="350" y="25" textAnchor="middle" fill="#fbbf24" fontSize="14" fontWeight="bold">ConfigMaps & Secrets</text>
+    <text x="350" y="25" textAnchor="middle" fill="#fbbf24" fontSize="14" fontWeight="bold">{`ConfigMaps & Secrets`}</text>
     <rect x="20" y="40" width="180" height="105" rx="6" fill="#1e3a5f" stroke="#3b82f6" strokeWidth="2"/>
     <text x="110" y="58" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">ConfigMap</text>
     <text x="110" y="75" textAnchor="middle" fill="#94a3b8" fontSize="8">Non-sensitive config</text>
@@ -275,8 +275,8 @@ const AutoScalingDiagram = () => (
     <text x="95" y="55" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">HPA</text>
     <text x="95" y="68" textAnchor="middle" fill="#94a3b8" fontSize="7">Horizontal Pod Autoscaler</text>
     <rect x="30" y="75" width="130" height="60" rx="3" fill="#374151"/>
-    <text x="95" y="90" textAnchor="middle" fill="#60a5fa" fontSize="7">CPU &gt; 80% scale up</text>
-    <text x="95" y="105" textAnchor="middle" fill="#60a5fa" fontSize="7">CPU &lt; 50% scale down</text>
+    <text x="95" y="90" textAnchor="middle" fill="#60a5fa" fontSize="7">{`CPU &gt; 80% scale up`}</text>
+    <text x="95" y="105" textAnchor="middle" fill="#60a5fa" fontSize="7">{`CPU &lt; 50% scale down`}</text>
     <text x="95" y="120" textAnchor="middle" fill="#6b7280" fontSize="6">min: 2, max: 10</text>
     <text x="95" y="132" textAnchor="middle" fill="#6b7280" fontSize="6">Custom metrics</text>
     <rect x="190" y="40" width="150" height="105" rx="6" fill="#1e3a5f" stroke="#10b981" strokeWidth="2"/>
@@ -284,7 +284,7 @@ const AutoScalingDiagram = () => (
     <text x="265" y="68" textAnchor="middle" fill="#94a3b8" fontSize="7">Vertical Pod Autoscaler</text>
     <rect x="200" y="75" width="130" height="60" rx="3" fill="#374151"/>
     <text x="265" y="90" textAnchor="middle" fill="#34d399" fontSize="7">Adjusts CPU/Memory</text>
-    <text x="265" y="105" textAnchor="middle" fill="#34d399" fontSize="7">requests & limits</text>
+    <text x="265" y="105" textAnchor="middle" fill="#34d399" fontSize="7">{`requests & limits`}</text>
     <text x="265" y="120" textAnchor="middle" fill="#6b7280" fontSize="6">Right-sizing pods</text>
     <text x="265" y="132" textAnchor="middle" fill="#6b7280" fontSize="6">Cost optimization</text>
     <rect x="360" y="40" width="150" height="105" rx="6" fill="#1e3a5f" stroke="#f59e0b" strokeWidth="2"/>

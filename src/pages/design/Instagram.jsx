@@ -132,7 +132,7 @@ const PhotoUploadDiagram = () => (
     </defs>
 
     <rect x="0" y="0" width="900" height="320" fill="#1a1a2e" rx="12" />
-    <text x="450" y="30" textAnchor="middle" fill="url(#uploadGrad2)" fontSize="18" fontWeight="bold">Image Upload & Processing Pipeline</text>
+    <text x="450" y="30" textAnchor="middle" fill="url(#uploadGrad2)" fontSize="18" fontWeight="bold">{`Image Upload & Processing Pipeline`}</text>
 
     <rect x="30" y="60" width="120" height="80" fill="url(#uploadGrad1)" rx="10" />
     <text x="90" y="95" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">1. Upload</text>
@@ -234,7 +234,7 @@ const DatabaseDesignDiagram = () => (
     <text x="750" y="115" textAnchor="middle" fill="#9ca3af" fontSize="10">Cache Layer</text>
     <text x="750" y="135" textAnchor="middle" fill="white" fontSize="9">Feed cache: 5min TTL</text>
     <text x="750" y="150" textAnchor="middle" fill="white" fontSize="9">Stories: sorted sets</text>
-    <text x="750" y="165" textAnchor="middle" fill="white" fontSize="9">Sessions & counters</text>
+    <text x="750" y="165" textAnchor="middle" fill="white" fontSize="9">{`Sessions & counters`}</text>
 
     <rect x="120" y="210" width="200" height="80" fill="#059669" rx="10" />
     <text x="220" y="245" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">S3 Object Storage</text>
@@ -347,7 +347,7 @@ const StoriesDiagram = () => (
 
     <rect x="690" y="330" width="180" height="40" fill="#374151" rx="6" />
     <text x="780" y="350" textAnchor="middle" fill="#06b6d4" fontSize="10" fontWeight="bold">Redis: Sorted Set</text>
-    <text x="780" y="365" textAnchor="middle" fill="#9ca3af" fontSize="8">stories:{'{user_id}'} -&gt; timestamp</text>
+    <text x="780" y="365" textAnchor="middle" fill="#9ca3af" fontSize="8">{`stories:{'{user_id}'} -&gt; timestamp`}</text>
 
     <path d="M 130 110 L 155 110" stroke="#E1306C" strokeWidth="2" fill="none" markerEnd="url(#arrowStory)" />
     <path d="M 260 110 L 285 110" stroke="#E1306C" strokeWidth="2" fill="none" markerEnd="url(#arrowStory)" />
@@ -456,7 +456,7 @@ const NotificationDiagram = () => (
 
     <rect x="300" y="60" width="130" height="60" fill="#3b82f6" rx="8" />
     <text x="365" y="85" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Notification Service</text>
-    <text x="365" y="100" textAnchor="middle" fill="white" fontSize="8">Batch & Dedupe</text>
+    <text x="365" y="100" textAnchor="middle" fill="white" fontSize="8">{`Batch & Dedupe`}</text>
 
     <rect x="480" y="40" width="100" height="45" fill="#10b981" rx="6" />
     <text x="530" y="60" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">FCM</text>

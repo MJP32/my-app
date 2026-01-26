@@ -226,7 +226,7 @@ const RingBufferInternalsDiagram = () => (
     <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">RingBuffer Internal Structure</text>
     
     <rect x="50" y="50" width="320" height="240" rx="8" fill="rgba(34, 197, 94, 0.1)" stroke="#22c55e" strokeWidth="2"/>
-    <text x="210" y="75" textAnchor="middle" fill="#4ade80" fontSize="12" fontWeight="bold">RingBuffer&lt;E&gt;</text>
+    <text x="210" y="75" textAnchor="middle" fill="#4ade80" fontSize="12" fontWeight="bold">{`RingBuffer&lt;E&gt;`}</text>
     
     <rect x="70" y="95" width="130" height="35" rx="4" fill="#3b82f6"/>
     <text x="135" y="117" textAnchor="middle" fill="white" fontSize="9">Object[] entries</text>
@@ -242,7 +242,7 @@ const RingBufferInternalsDiagram = () => (
     
     <rect x="70" y="190" width="280" height="80" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155"/>
     <text x="210" y="215" textAnchor="middle" fill="#94a3b8" fontSize="10">Index Calculation (Power of 2)</text>
-    <text x="210" y="235" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">index = sequence & indexMask</text>
+    <text x="210" y="235" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">{`index = sequence & indexMask`}</text>
     <text x="210" y="255" textAnchor="middle" fill="#64748b" fontSize="9">indexMask = bufferSize - 1</text>
     
     <rect x="420" y="50" width="330" height="240" rx="8" fill="rgba(59, 130, 246, 0.1)" stroke="#3b82f6" strokeWidth="2"/>
@@ -351,7 +351,7 @@ const SequenceBarrierDiagram = () => (
     <rect x="100" y="180" width="600" height="80" rx="6" fill="rgba(59, 130, 246, 0.1)" stroke="#3b82f6"/>
     <text x="400" y="205" textAnchor="middle" fill="#60a5fa" fontSize="11" fontWeight="bold">Barrier Coordination Flow</text>
     <text x="400" y="225" textAnchor="middle" fill="#94a3b8" fontSize="9">1. Consumer calls barrier.waitFor(nextSequence)</text>
-    <text x="400" y="240" textAnchor="middle" fill="#94a3b8" fontSize="9">2. Barrier checks cursor {'>'}= nextSequence using WaitStrategy</text>
+    <text x="400" y="240" textAnchor="middle" fill="#94a3b8" fontSize="9">{`2. Barrier checks cursor {'>'}= nextSequence using WaitStrategy`}</text>
     <text x="400" y="255" textAnchor="middle" fill="#94a3b8" fontSize="9">3. Returns available sequence, consumer processes events up to that point</text>
   </svg>
 )
@@ -398,7 +398,7 @@ const MemoryBarrierDiagram = () => (
 // False Sharing Diagram
 const FalseSharingDiagram = () => (
   <svg viewBox="0 0 800 280" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
-    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">False Sharing Problem & Solution</text>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`False Sharing Problem & Solution`}</text>
     
     <rect x="50" y="50" width="320" height="200" rx="8" fill="rgba(239, 68, 68, 0.1)" stroke="#ef4444" strokeWidth="2"/>
     <text x="210" y="75" textAnchor="middle" fill="#f87171" fontSize="12" fontWeight="bold">❌ False Sharing</text>
@@ -417,7 +417,7 @@ const FalseSharingDiagram = () => (
     
     <text x="210" y="170" textAnchor="middle" fill="#f87171" fontSize="9">Thread 1 writes Seq A</text>
     <text x="210" y="185" textAnchor="middle" fill="#f87171" fontSize="9">→ Invalidates entire cache line</text>
-    <text x="210" y="200" textAnchor="middle" fill="#f87171" fontSize="9">→ Thread 2 & 3 must reload!</text>
+    <text x="210" y="200" textAnchor="middle" fill="#f87171" fontSize="9">{`→ Thread 2 & 3 must reload!`}</text>
     <text x="210" y="220" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="bold">~100x slower</text>
     
     <rect x="430" y="50" width="320" height="200" rx="8" fill="rgba(34, 197, 94, 0.1)" stroke="#22c55e" strokeWidth="2"/>
@@ -475,7 +475,7 @@ const TradingIntegrationDiagram = () => (
     <text x="670" y="97" textAnchor="middle" fill="#a5f3fc" fontSize="8">Gateway</text>
     <line x1="600" y1="82" x2="625" y2="82" stroke="#4ade80" strokeWidth="2" markerEnd="url(#tradingArrow)"/>
     <rect x="150" y="140" width="500" height="55" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155"/>
-    <text x="400" y="165" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">End-to-End Latency: &lt;100μs (p99)</text>
+    <text x="400" y="165" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">{`End-to-End Latency: &lt;100μs (p99)`}</text>
     <text x="400" y="185" textAnchor="middle" fill="#64748b" fontSize="9">Based on LMAX Exchange - 6 million orders/second</text>
   </svg>
 )

@@ -442,9 +442,9 @@ const LowLatencyArchDiagram = () => (
     {/* Latency targets */}
     <rect x="180" y="160" width="400" height="60" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="2"/>
     <text x="380" y="185" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">Latency Targets</text>
-    <text x="250" y="205" fill="#64748b" fontSize="9">Network: &lt;1μs</text>
-    <text x="350" y="205" fill="#64748b" fontSize="9">Processing: &lt;10μs</text>
-    <text x="470" y="205" fill="#64748b" fontSize="9">End-to-end: &lt;50μs</text>
+    <text x="250" y="205" fill="#64748b" fontSize="9">{`Network: &lt;1μs`}</text>
+    <text x="350" y="205" fill="#64748b" fontSize="9">{`Processing: &lt;10μs`}</text>
+    <text x="470" y="205" fill="#64748b" fontSize="9">{`End-to-end: &lt;50μs`}</text>
   </svg>
 )
 

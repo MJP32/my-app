@@ -92,9 +92,9 @@ const PatternMatchingDiagram = () => (
     <line x1="170" y1="85" x2="230" y2="85" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrowPM)"/>
     <rect x="240" y="40" width="160" height="90" rx="8" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
     <text x="320" y="65" textAnchor="middle" fill="#60a5fa" fontSize="12" fontWeight="bold">switch (obj)</text>
-    <text x="320" y="85" textAnchor="middle" fill="#94a3b8" fontSize="10">case String s -&gt;</text>
-    <text x="320" y="100" textAnchor="middle" fill="#94a3b8" fontSize="10">case Integer i -&gt;</text>
-    <text x="320" y="115" textAnchor="middle" fill="#94a3b8" fontSize="10">case null -&gt;</text>
+    <text x="320" y="85" textAnchor="middle" fill="#94a3b8" fontSize="10">{`case String s -&gt;`}</text>
+    <text x="320" y="100" textAnchor="middle" fill="#94a3b8" fontSize="10">{`case Integer i -&gt;`}</text>
+    <text x="320" y="115" textAnchor="middle" fill="#94a3b8" fontSize="10">{`case null -&gt;`}</text>
     <line x1="400" y1="65" x2="470" y2="55" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrowPM)"/>
     <line x1="400" y1="85" x2="470" y2="85" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrowPM)"/>
     <line x1="400" y1="105" x2="470" y2="115" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrowPM)"/>
@@ -162,13 +162,13 @@ const SequencedCollectionsDiagram = () => (
       Sequenced Collections Hierarchy
     </text>
     <rect x="280" y="45" width="240" height="45" rx="8" fill="#10b981" stroke="#34d399" strokeWidth="2"/>
-    <text x="400" y="72" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">SequencedCollection&lt;E&gt;</text>
+    <text x="400" y="72" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`SequencedCollection&lt;E&gt;`}</text>
     <line x1="320" y1="90" x2="200" y2="120" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowSC)"/>
     <line x1="480" y1="90" x2="600" y2="120" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowSC)"/>
     <rect x="100" y="125" width="200" height="40" rx="6" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
-    <text x="200" y="150" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">SequencedSet&lt;E&gt;</text>
+    <text x="200" y="150" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`SequencedSet&lt;E&gt;`}</text>
     <rect x="500" y="125" width="200" height="40" rx="6" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
-    <text x="600" y="150" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">SequencedMap&lt;K,V&gt;</text>
+    <text x="600" y="150" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`SequencedMap&lt;K,V&gt;`}</text>
     <line x1="200" y1="165" x2="200" y2="185" stroke="#3b82f6" strokeWidth="2" markerEnd="url(#arrowSC)"/>
     <line x1="600" y1="165" x2="600" y2="185" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrowSC)"/>
     <rect x="80" y="190" width="100" height="25" rx="4" fill="rgba(59, 130, 246, 0.3)" stroke="#60a5fa" strokeWidth="1"/>

@@ -43,9 +43,9 @@ const VPCArchitectureDiagram = () => (
       </marker>
     </defs>
 
-    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`
       VPC Architecture with Public & Private Subnets
-    </text>
+    `}</text>
 
     {/* VPC Container */}
     <rect x="50" y="50" width="700" height="210" rx="8" fill="rgba(34, 197, 94, 0.1)" stroke="#22c55e" strokeWidth="2" strokeDasharray="5,5"/>
@@ -112,7 +112,7 @@ const LambdaFlowDiagram = () => (
 
     {/* Processing */}
     <rect x="450" y="80" width="120" height="50" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
-    <text x="510" y="100" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Process &</text>
+    <text x="510" y="100" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">{`Process &`}</text>
     <text x="510" y="115" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Execute</text>
 
     {/* Destination */}
@@ -146,9 +146,9 @@ const S3StorageDiagram = () => (
       </marker>
     </defs>
 
-    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`
       S3 Storage Classes & Lifecycle
-    </text>
+    `}</text>
 
     {/* S3 Standard */}
     <rect x="50" y="60" width="140" height="50" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
@@ -188,7 +188,7 @@ const S3StorageDiagram = () => (
     <rect x="50" y="140" width="710" height="80" rx="8" fill="rgba(255, 153, 0, 0.1)" stroke="#FF9900" strokeWidth="1"/>
     <text x="60" y="160" fill="#FF9900" fontSize="10" fontWeight="bold">Key Features:</text>
     <text x="70" y="180" fill="#94a3b8" fontSize="9">• 99.999999999% (11 9's) durability</text>
-    <text x="70" y="195" fill="#94a3b8" fontSize="9">• Versioning & MFA Delete</text>
+    <text x="70" y="195" fill="#94a3b8" fontSize="9">{`• Versioning & MFA Delete`}</text>
     <text x="70" y="210" fill="#94a3b8" fontSize="9">• Cross-Region Replication</text>
 
     <text x="320" y="180" fill="#94a3b8" fontSize="9">• Server-side encryption</text>
@@ -209,9 +209,9 @@ const EC2ArchitectureDiagram = () => (
       </marker>
     </defs>
 
-    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`
       EC2 with Auto Scaling & Load Balancing
-    </text>
+    `}</text>
 
     {/* Load Balancer */}
     <rect x="50" y="80" width="120" height="50" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>

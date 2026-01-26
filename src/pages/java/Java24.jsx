@@ -111,7 +111,7 @@ const ScopedValueDiagram = () => (
     <text x="600" y="107" textAnchor="middle" fill="#94a3b8" fontSize="10">where(key, value) - Bind</text>
 
     <rect x="470" y="125" width="260" height="25" rx="4" fill="#1e293b" stroke="#475569" strokeWidth="1"/>
-    <text x="600" y="142" textAnchor="middle" fill="#94a3b8" fontSize="10">.run(() -> ...) - Scoped execution</text>
+    <text x="600" y="142" textAnchor="middle" fill="#94a3b8" fontSize="10">{`.run(() -> ...) - Scoped execution`}</text>
 
     <rect x="470" y="160" width="260" height="25" rx="4" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="1"/>
     <text x="600" y="177" textAnchor="middle" fill="#86efac" fontSize="10">Automatic cleanup!</text>
@@ -157,9 +157,9 @@ const StreamGatherersDiagram = () => (
     <line x1="640" y1="80" x2="685" y2="80" stroke="#22c55e" strokeWidth="2" markerEnd="url(#arrowGreen)"/>
 
     <rect x="150" y="130" width="500" height="50" rx="8" fill="rgba(139, 92, 246, 0.1)" stroke="#8b5cf6" strokeWidth="1"/>
-    <text x="400" y="152" textAnchor="middle" fill="#a78bfa" fontSize="10">
+    <text x="400" y="152" textAnchor="middle" fill="#a78bfa" fontSize="10">{`
       [1,2,3,4,5,6] -&gt; windowFixed(2) -&gt; [[1,2], [3,4], [5,6]] -&gt; map(sum) -&gt; [3, 7, 11]
-    </text>
+    `}</text>
     <text x="400" y="170" textAnchor="middle" fill="#94a3b8" fontSize="9">Custom stateful operations in a single pipeline pass</text>
   </svg>
 )

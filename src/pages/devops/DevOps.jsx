@@ -69,7 +69,7 @@ const CICDPipelineDiagram = () => (
     <line x1="690" y1="90" x2="725" y2="90" stroke="#06b6d4" strokeWidth="2" markerEnd="url(#cicd-arrow)"/>
 
     <rect x="150" y="150" width="500" height="35" rx="6" fill="rgba(6, 182, 212, 0.15)" stroke="#06b6d4" strokeWidth="1"/>
-    <text x="400" y="172" textAnchor="middle" fill="#22d3ee" fontSize="11" fontWeight="bold">Continuous Feedback Loop - Monitoring & Alerting</text>
+    <text x="400" y="172" textAnchor="middle" fill="#22d3ee" fontSize="11" fontWeight="bold">{`Continuous Feedback Loop - Monitoring & Alerting`}</text>
   </svg>
 )
 
@@ -100,7 +100,7 @@ const DockerArchitectureDiagram = () => (
     <text x="395" y="110" textAnchor="middle" fill="white" fontSize="9">Containers</text>
     <text x="395" y="125" textAnchor="middle" fill="#bfdbfe" fontSize="8">Running</text>
     <rect x="265" y="145" width="170" height="45" rx="4" fill="#3b82f6"/>
-    <text x="350" y="165" textAnchor="middle" fill="white" fontSize="9">Networks & Volumes</text>
+    <text x="350" y="165" textAnchor="middle" fill="white" fontSize="9">{`Networks & Volumes`}</text>
     <text x="350" y="180" textAnchor="middle" fill="#bfdbfe" fontSize="8">bridge, overlay, bind mounts</text>
 
     <rect x="520" y="50" width="130" height="150" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
@@ -162,7 +162,7 @@ const KubernetesArchitectureDiagram = () => (
     <text x="595" y="230" textAnchor="middle" fill="#9ca3af" fontSize="8">ClusterIP | NodePort | LoadBalancer</text>
 
     <rect x="30" y="180" width="350" height="80" rx="8" fill="rgba(139, 92, 246, 0.15)" stroke="#8b5cf6" strokeWidth="2"/>
-    <text x="205" y="205" textAnchor="middle" fill="#a78bfa" fontSize="11" fontWeight="bold">kubectl & Config</text>
+    <text x="205" y="205" textAnchor="middle" fill="#a78bfa" fontSize="11" fontWeight="bold">{`kubectl & Config`}</text>
     <text x="205" y="225" textAnchor="middle" fill="#9ca3af" fontSize="9">Deployments | ConfigMaps | Secrets | HPA</text>
     <text x="205" y="245" textAnchor="middle" fill="#9ca3af" fontSize="9">Ingress | PersistentVolumes | RBAC</text>
   </svg>
@@ -311,7 +311,7 @@ const TeamCityDiagram = () => (
     <rect x="45" y="120" width="150" height="25" rx="4" fill="#3b82f6"/>
     <text x="120" y="137" textAnchor="middle" fill="white" fontSize="9">Build Configurations</text>
     <rect x="45" y="150" width="150" height="25" rx="4" fill="#3b82f6"/>
-    <text x="120" y="167" textAnchor="middle" fill="white" fontSize="9">Templates & Parameters</text>
+    <text x="120" y="167" textAnchor="middle" fill="white" fontSize="9">{`Templates & Parameters`}</text>
 
     <rect x="250" y="50" width="180" height="130" rx="8" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
     <text x="340" y="75" textAnchor="middle" fill="#a78bfa" fontSize="11" fontWeight="bold">Build Steps</text>
@@ -320,7 +320,7 @@ const TeamCityDiagram = () => (
     <rect x="265" y="120" width="150" height="25" rx="4" fill="#8b5cf6"/>
     <text x="340" y="137" textAnchor="middle" fill="white" fontSize="9">Maven/Gradle Runners</text>
     <rect x="265" y="150" width="150" height="25" rx="4" fill="#8b5cf6"/>
-    <text x="340" y="167" textAnchor="middle" fill="white" fontSize="9">Docker Build & Push</text>
+    <text x="340" y="167" textAnchor="middle" fill="white" fontSize="9">{`Docker Build & Push`}</text>
 
     <rect x="470" y="50" width="140" height="130" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
     <text x="540" y="75" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">Build Agents</text>
@@ -365,7 +365,7 @@ const GrafanaDashboardDiagram = () => (
 
     <rect x="610" y="50" width="160" height="130" rx="8" fill="rgba(236, 72, 153, 0.2)" stroke="#ec4899" strokeWidth="2"/>
     <text x="690" y="75" textAnchor="middle" fill="#f472b6" fontSize="11" fontWeight="bold">Features</text>
-    <text x="690" y="100" textAnchor="middle" fill="#9ca3af" fontSize="9">Variables & Templates</text>
+    <text x="690" y="100" textAnchor="middle" fill="#9ca3af" fontSize="9">{`Variables & Templates`}</text>
     <text x="690" y="120" textAnchor="middle" fill="#9ca3af" fontSize="9">Annotations</text>
     <text x="690" y="140" textAnchor="middle" fill="#9ca3af" fontSize="9">Alert Rules</text>
     <text x="690" y="160" textAnchor="middle" fill="#9ca3af" fontSize="9">Team Permissions</text>

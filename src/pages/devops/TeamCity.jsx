@@ -219,7 +219,7 @@ const TestingIntegrationDiagram = () => (
     <rect x="470" y="45" width="140" height="80" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
     <text x="540" y="68" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Test Analysis</text>
     <text x="540" y="88" textAnchor="middle" fill="#93c5fd" fontSize="8">Flaky test detection</text>
-    <text x="540" y="103" textAnchor="middle" fill="#93c5fd" fontSize="8">History & trends</text>
+    <text x="540" y="103" textAnchor="middle" fill="#93c5fd" fontSize="8">{`History & trends`}</text>
     <text x="540" y="118" textAnchor="middle" fill="#93c5fd" fontSize="8">Muted tests</text>
 
     {/* Coverage */}
@@ -265,7 +265,7 @@ const SecurityDiagram = () => (
 
     {/* Audit */}
     <rect x="530" y="50" width="140" height="65" rx="6" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
-    <text x="600" y="75" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Audit & Compliance</text>
+    <text x="600" y="75" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">{`Audit & Compliance`}</text>
     <text x="600" y="93" textAnchor="middle" fill="#c4b5fd" fontSize="8">Action audit log</text>
     <text x="600" y="108" textAnchor="middle" fill="#c4b5fd" fontSize="8">Change tracking</text>
 

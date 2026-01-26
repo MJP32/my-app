@@ -55,11 +55,11 @@ const AgilePrinciplesDiagram = () => (
 
     {/* Value 1 */}
     <rect x="30" y="50" width="160" height="50" rx="8" fill="#0891b2" stroke="#06b6d4" strokeWidth="2"/>
-    <text x="110" y="70" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Individuals &</text>
+    <text x="110" y="70" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">{`Individuals &`}</text>
     <text x="110" y="85" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Interactions</text>
     <text x="215" y="75" textAnchor="middle" fill="#64748b" fontSize="11">over</text>
     <rect x="240" y="50" width="160" height="50" rx="8" fill="#374151" stroke="#4b5563" strokeWidth="2"/>
-    <text x="320" y="70" textAnchor="middle" fill="#9ca3af" fontSize="10">Processes &</text>
+    <text x="320" y="70" textAnchor="middle" fill="#9ca3af" fontSize="10">{`Processes &`}</text>
     <text x="320" y="85" textAnchor="middle" fill="#9ca3af" fontSize="10">Tools</text>
 
     {/* Value 2 */}
@@ -252,7 +252,7 @@ const CeremoniesDiagram = () => (
     <rect x="400" y="50" width="150" height="70" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>
     <text x="475" y="75" textAnchor="middle" fill="#06b6d4" fontSize="11" fontWeight="bold">Sprint Review</text>
     <text x="475" y="92" textAnchor="middle" fill="#e2e8f0" fontSize="9">2 hours</text>
-    <text x="475" y="108" textAnchor="middle" fill="#94a3b8" fontSize="8">Demo & feedback</text>
+    <text x="475" y="108" textAnchor="middle" fill="#94a3b8" fontSize="8">{`Demo & feedback`}</text>
 
     {/* Retrospective */}
     <rect x="580" y="50" width="150" height="70" rx="6" fill="#1e3a5f" stroke="#0891b2" strokeWidth="2"/>

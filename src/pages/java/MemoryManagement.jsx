@@ -113,9 +113,9 @@ const GCGenerationsDiagram = () => (
       </marker>
     </defs>
 
-    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="16" fontWeight="bold">
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="16" fontWeight="bold">{`
       Object Lifecycle &amp; GC Process
-    </text>
+    `}</text>
 
     {/* Step 1: New Object */}
     <rect x="50" y="60" width="130" height="60" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
@@ -138,11 +138,11 @@ const GCGenerationsDiagram = () => (
     {/* Step 3: Survivors */}
     <rect x="390" y="60" width="130" height="60" rx="8" fill="#06b6d4" stroke="#22d3ee" strokeWidth="2"/>
     <text x="455" y="85" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">3. Survivor</text>
-    <text x="455" y="100" textAnchor="middle" fill="#cffafe" fontSize="9">S0 &lt;-&gt; S1, age++</text>
+    <text x="455" y="100" textAnchor="middle" fill="#cffafe" fontSize="9">{`S0 &lt;-&gt; S1, age++`}</text>
 
     {/* Arrow */}
     <path d="M 520 90 L 550 90" stroke="#eab308" strokeWidth="2" markerEnd="url(#gcArrow)" fill="none"/>
-    <text x="535" y="80" textAnchor="middle" fill="#94a3b8" fontSize="8">Age &gt; 15</text>
+    <text x="535" y="80" textAnchor="middle" fill="#94a3b8" fontSize="8">{`Age &gt; 15`}</text>
 
     {/* Step 4: Old Gen */}
     <rect x="560" y="60" width="130" height="60" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
@@ -256,7 +256,7 @@ const GCComparisonDiagram = () => (
     <text x="135" y="75" textAnchor="middle" fill="#d1d5db" fontSize="12" fontWeight="bold">Serial GC</text>
     <text x="135" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">Single-threaded</text>
     <text x="135" y="115" textAnchor="middle" fill="#9ca3af" fontSize="9">Pause: 10-100ms</text>
-    <text x="135" y="130" textAnchor="middle" fill="#9ca3af" fontSize="9">Best for: &lt;100MB heap</text>
+    <text x="135" y="130" textAnchor="middle" fill="#9ca3af" fontSize="9">{`Best for: &lt;100MB heap`}</text>
     <text x="135" y="145" textAnchor="middle" fill="#6b7280" fontSize="8">-XX:+UseSerialGC</text>
     <text x="135" y="160" textAnchor="middle" fill="#64748b" fontSize="8">Embedded/Small apps</text>
 
@@ -282,17 +282,17 @@ const GCComparisonDiagram = () => (
     <rect x="620" y="50" width="170" height="120" rx="8" fill="rgba(234, 179, 8, 0.2)" stroke="#eab308" strokeWidth="2"/>
     <text x="705" y="75" textAnchor="middle" fill="#fbbf24" fontSize="12" fontWeight="bold">ZGC</text>
     <text x="705" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">Ultra-low latency</text>
-    <text x="705" y="115" textAnchor="middle" fill="#eab308" fontSize="9">Pause: &lt;10ms</text>
+    <text x="705" y="115" textAnchor="middle" fill="#eab308" fontSize="9">{`Pause: &lt;10ms`}</text>
     <text x="705" y="130" textAnchor="middle" fill="#eab308" fontSize="9">Concurrent</text>
     <text x="705" y="145" textAnchor="middle" fill="#6b7280" fontSize="8">-XX:+UseZGC</text>
-    <text x="705" y="160" textAnchor="middle" fill="#64748b" fontSize="8">Trading, &gt;64GB</text>
+    <text x="705" y="160" textAnchor="middle" fill="#64748b" fontSize="8">{`Trading, &gt;64GB`}</text>
 
     {/* Decision Flow */}
     <text x="400" y="200" textAnchor="middle" fill="#e2e8f0" fontSize="14" fontWeight="bold">When to Use Which?</text>
 
     {/* Decision boxes */}
     <rect x="50" y="220" width="200" height="70" rx="6" fill="rgba(156, 163, 175, 0.1)" stroke="#6b7280" strokeWidth="1"/>
-    <text x="150" y="245" textAnchor="middle" fill="#9ca3af" fontSize="10" fontWeight="bold">Small heap &lt;100MB?</text>
+    <text x="150" y="245" textAnchor="middle" fill="#9ca3af" fontSize="10" fontWeight="bold">{`Small heap &lt;100MB?`}</text>
     <text x="150" y="265" textAnchor="middle" fill="#d1d5db" fontSize="11">Serial GC</text>
     <text x="150" y="280" textAnchor="middle" fill="#64748b" fontSize="8">Low overhead, simple</text>
 
@@ -307,7 +307,7 @@ const GCComparisonDiagram = () => (
     <text x="620" y="280" textAnchor="middle" fill="#64748b" fontSize="8">Predictable pauses, good default</text>
 
     <rect x="200" y="310" width="400" height="55" rx="6" fill="rgba(234, 179, 8, 0.1)" stroke="#eab308" strokeWidth="1"/>
-    <text x="400" y="335" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Ultra-low latency &lt;10ms? Large heap &gt;64GB?</text>
+    <text x="400" y="335" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">{`Ultra-low latency &lt;10ms? Large heap &gt;64GB?`}</text>
     <text x="400" y="352" textAnchor="middle" fill="#d1d5db" fontSize="11">ZGC or Shenandoah</text>
   </svg>
 )

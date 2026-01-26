@@ -117,14 +117,14 @@ const HashFunctionDiagram = () => (
     {/* hash() spread */}
     <rect x="330" y="60" width="120" height="50" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
     <text x="390" y="82" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">hash()</text>
-    <text x="390" y="97" textAnchor="middle" fill="#ddd6fe" fontSize="10">h ^ (h >>> 16)</text>
+    <text x="390" y="97" textAnchor="middle" fill="#ddd6fe" fontSize="10">{`h ^ (h >>> 16)`}</text>
 
     <line x1="450" y1="85" x2="485" y2="85" stroke="#22c55e" strokeWidth="2" markerEnd="url(#arrowGreen)"/>
 
     {/* Index calculation */}
     <rect x="490" y="60" width="130" height="50" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
-    <text x="555" y="82" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">(n-1) & hash</text>
-    <text x="555" y="97" textAnchor="middle" fill="#bbf7d0" fontSize="10">15 & 96355 = 3</text>
+    <text x="555" y="82" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`(n-1) & hash`}</text>
+    <text x="555" y="97" textAnchor="middle" fill="#bbf7d0" fontSize="10">{`15 & 96355 = 3`}</text>
 
     <line x1="620" y1="85" x2="655" y2="85" stroke="#22c55e" strokeWidth="2" markerEnd="url(#arrowGreen)"/>
 
@@ -134,12 +134,12 @@ const HashFunctionDiagram = () => (
     <text x="710" y="97" textAnchor="middle" fill="#fecaca" fontSize="10">Insert here</text>
 
     {/* Formula */}
-    <text x="400" y="145" textAnchor="middle" fill="#94a3b8" fontSize="11">
+    <text x="400" y="145" textAnchor="middle" fill="#94a3b8" fontSize="11">{`
       Why (n-1) & hash? Faster than modulo, works because n is power of 2
-    </text>
-    <text x="400" y="165" textAnchor="middle" fill="#64748b" fontSize="10">
+    `}</text>
+    <text x="400" y="165" textAnchor="middle" fill="#64748b" fontSize="10">{`
       n=16, n-1=15 (binary: 1111). hash & 1111 gives values 0-15
-    </text>
+    `}</text>
   </svg>
 )
 
@@ -189,13 +189,13 @@ const CollisionDiagram = () => (
     {/* Java 8+ tree note */}
     <rect x="520" y="90" width="250" height="90" rx="8" fill="rgba(239, 68, 68, 0.1)" stroke="rgba(239, 68, 68, 0.3)" strokeWidth="1"/>
     <text x="645" y="115" textAnchor="middle" fill="#f87171" fontSize="11" fontWeight="bold">Java 8+ Optimization</text>
-    <text x="645" y="135" textAnchor="middle" fill="#94a3b8" fontSize="10">When bucket size >= 8:</text>
-    <text x="645" y="150" textAnchor="middle" fill="#94a3b8" fontSize="10">Linked list -> Red-Black Tree</text>
-    <text x="645" y="165" textAnchor="middle" fill="#94a3b8" fontSize="10">O(n) -> O(log n) worst case</text>
+    <text x="645" y="135" textAnchor="middle" fill="#94a3b8" fontSize="10">{`When bucket size >= 8:`}</text>
+    <text x="645" y="150" textAnchor="middle" fill="#94a3b8" fontSize="10">{`Linked list -> Red-Black Tree`}</text>
+    <text x="645" y="165" textAnchor="middle" fill="#94a3b8" fontSize="10">{`O(n) -> O(log n) worst case`}</text>
 
-    <text x="250" y="210" textAnchor="middle" fill="#64748b" fontSize="11">
+    <text x="250" y="210" textAnchor="middle" fill="#64748b" fontSize="11">{`
       All three keys hash to same bucket index: (n-1) & hash = 5
-    </text>
+    `}</text>
   </svg>
 )
 
@@ -219,7 +219,7 @@ const TreeifyDiagram = () => (
 
     {/* Arrow */}
     <text x="400" y="90" textAnchor="middle" fill="#22c55e" fontSize="24">→</text>
-    <text x="400" y="110" textAnchor="middle" fill="#94a3b8" fontSize="9">size >= 8</text>
+    <text x="400" y="110" textAnchor="middle" fill="#94a3b8" fontSize="9">{`size >= 8`}</text>
 
     {/* After - Red-Black Tree */}
     <text x="600" y="55" textAnchor="middle" fill="#22c55e" fontSize="12" fontWeight="bold">After (Red-Black Tree)</text>
@@ -267,8 +267,8 @@ const TreeifyDiagram = () => (
     {/* Thresholds */}
     <rect x="40" y="150" width="280" height="70" rx="6" fill="rgba(249, 115, 22, 0.1)" stroke="rgba(249, 115, 22, 0.3)" strokeWidth="1"/>
     <text x="180" y="175" textAnchor="middle" fill="#fb923c" fontSize="11" fontWeight="bold">Thresholds</text>
-    <text x="180" y="195" textAnchor="middle" fill="#94a3b8" fontSize="10">TREEIFY_THRESHOLD = 8 (list -> tree)</text>
-    <text x="180" y="210" textAnchor="middle" fill="#94a3b8" fontSize="10">UNTREEIFY_THRESHOLD = 6 (tree -> list)</text>
+    <text x="180" y="195" textAnchor="middle" fill="#94a3b8" fontSize="10">{`TREEIFY_THRESHOLD = 8 (list -> tree)`}</text>
+    <text x="180" y="210" textAnchor="middle" fill="#94a3b8" fontSize="10">{`UNTREEIFY_THRESHOLD = 6 (tree -> list)`}</text>
   </svg>
 )
 
@@ -308,7 +308,7 @@ const ResizeDiagram = () => (
 
     {/* Arrow */}
     <text x="300" y="105" fill="#22c55e" fontSize="20">→</text>
-    <text x="300" y="125" textAnchor="middle" fill="#94a3b8" fontSize="9">size > threshold</text>
+    <text x="300" y="125" textAnchor="middle" fill="#94a3b8" fontSize="9">{`size > threshold`}</text>
     <text x="300" y="140" textAnchor="middle" fill="#94a3b8" fontSize="9">resize()</text>
 
     {/* New table */}
@@ -323,19 +323,19 @@ const ResizeDiagram = () => (
     {/* Redistributed nodes */}
     <rect x="340" y="110" width="45" height="30" rx="4" fill="#3b82f6" stroke="#60a5fa" strokeWidth="1"/>
     <text x="362" y="130" textAnchor="middle" fill="white" fontSize="9">h=4</text>
-    <text x="362" y="155" textAnchor="middle" fill="#64748b" fontSize="8">4&7=4</text>
+    <text x="362" y="155" textAnchor="middle" fill="#64748b" fontSize="8">{`4&7=4`}</text>
 
     <rect x="395" y="110" width="45" height="30" rx="4" fill="#22c55e" stroke="#4ade80" strokeWidth="1"/>
     <text x="417" y="130" textAnchor="middle" fill="white" fontSize="9">h=5</text>
-    <text x="417" y="155" textAnchor="middle" fill="#64748b" fontSize="8">5&7=5</text>
+    <text x="417" y="155" textAnchor="middle" fill="#64748b" fontSize="8">{`5&7=5`}</text>
 
     <rect x="450" y="110" width="45" height="30" rx="4" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="1"/>
     <text x="472" y="130" textAnchor="middle" fill="white" fontSize="9">h=10</text>
-    <text x="472" y="155" textAnchor="middle" fill="#64748b" fontSize="8">10&7=2</text>
+    <text x="472" y="155" textAnchor="middle" fill="#64748b" fontSize="8">{`10&7=2`}</text>
 
     <rect x="560" y="110" width="45" height="30" rx="4" fill="#f97316" stroke="#fb923c" strokeWidth="1"/>
     <text x="582" y="130" textAnchor="middle" fill="white" fontSize="9">h=7</text>
-    <text x="582" y="155" textAnchor="middle" fill="#64748b" fontSize="8">7&7=7</text>
+    <text x="582" y="155" textAnchor="middle" fill="#64748b" fontSize="8">{`7&7=7`}</text>
 
     {/* Formula box */}
     <rect x="40" y="180" width="720" height="80" rx="8" fill="rgba(59, 130, 246, 0.1)" stroke="rgba(59, 130, 246, 0.3)" strokeWidth="1"/>
@@ -343,9 +343,9 @@ const ResizeDiagram = () => (
     <text x="400" y="225" textAnchor="middle" fill="#94a3b8" fontSize="10">
       Entries either stay at same index OR move to (index + oldCapacity)
     </text>
-    <text x="400" y="245" textAnchor="middle" fill="#94a3b8" fontSize="10">
+    <text x="400" y="245" textAnchor="middle" fill="#94a3b8" fontSize="10">{`
       Check: (hash & oldCap) == 0 ? stay : move. No need to recalculate hash!
-    </text>
+    `}</text>
   </svg>
 )
 
@@ -357,7 +357,7 @@ const NodeDiagram = () => (
 
     {/* Main Node box */}
     <rect x="250" y="50" width="300" height="130" rx="10" fill="#1e293b" stroke="#f97316" strokeWidth="2"/>
-    <text x="400" y="75" textAnchor="middle" fill="#f97316" fontSize="12" fontWeight="bold">Node&lt;K,V&gt;</text>
+    <text x="400" y="75" textAnchor="middle" fill="#f97316" fontSize="12" fontWeight="bold">{`Node&lt;K,V&gt;`}</text>
 
     {/* Fields */}
     <rect x="270" y="90" width="120" height="35" rx="4" fill="#3b82f6" stroke="#60a5fa" strokeWidth="1"/>
@@ -405,7 +405,7 @@ const PutOperationDiagram = () => (
     {/* Step 2: Find index */}
     <rect x="200" y="50" width="140" height="50" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
     <text x="270" y="70" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">2. Find bucket</text>
-    <text x="270" y="87" textAnchor="middle" fill="#bbf7d0" fontSize="9">(n-1) & hash</text>
+    <text x="270" y="87" textAnchor="middle" fill="#bbf7d0" fontSize="9">{`(n-1) & hash`}</text>
 
     <line x1="340" y1="75" x2="365" y2="75" stroke="#22c55e" strokeWidth="2" markerEnd="url(#arrowPut)"/>
 
@@ -454,7 +454,7 @@ const PutOperationDiagram = () => (
     {/* Step 5: Check resize */}
     <rect x="30" y="290" width="200" height="45" rx="8" fill="#ef4444" stroke="#f87171" strokeWidth="2"/>
     <text x="130" y="310" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">5. Check threshold</text>
-    <text x="130" y="325" textAnchor="middle" fill="#fecaca" fontSize="9">if (size > threshold) resize()</text>
+    <text x="130" y="325" textAnchor="middle" fill="#fecaca" fontSize="9">{`if (size > threshold) resize()`}</text>
 
     <line x1="200" y1="195" x2="130" y2="195" stroke="#64748b" strokeWidth="1" strokeDasharray="3"/>
     <line x1="130" y1="195" x2="130" y2="285" stroke="#64748b" strokeWidth="1" strokeDasharray="3" markerEnd="url(#arrowPut)"/>
@@ -483,7 +483,7 @@ const GetOperationDiagram = () => (
     {/* Step 2 */}
     <rect x="190" y="50" width="130" height="50" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
     <text x="255" y="70" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">2. Find bucket</text>
-    <text x="255" y="87" textAnchor="middle" fill="#bbf7d0" fontSize="9">(n-1) & hash</text>
+    <text x="255" y="87" textAnchor="middle" fill="#bbf7d0" fontSize="9">{`(n-1) & hash`}</text>
 
     <line x1="320" y1="75" x2="345" y2="75" stroke="#22c55e" strokeWidth="2" markerEnd="url(#arrowGet)"/>
 
@@ -508,7 +508,7 @@ const GetOperationDiagram = () => (
     {/* Step 4 */}
     <rect x="510" y="50" width="130" height="50" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
     <text x="575" y="70" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">4. Compare key</text>
-    <text x="575" y="87" textAnchor="middle" fill="#ddd6fe" fontSize="9">hash & equals()</text>
+    <text x="575" y="87" textAnchor="middle" fill="#ddd6fe" fontSize="9">{`hash & equals()`}</text>
 
     {/* Match found */}
     <line x1="575" y1="100" x2="575" y2="130" stroke="#22c55e" strokeWidth="2"/>

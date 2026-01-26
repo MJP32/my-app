@@ -139,7 +139,7 @@ const TreasuryMMDiagram = () => (
 // IRS Fundamentals Diagram
 const IRSFundamentalsDiagram = () => (
   <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
-    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">IRS Standard Tenors & Conventions</text>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`IRS Standard Tenors & Conventions`}</text>
     {['2Y', '5Y', '10Y', '30Y'].map((tenor, i) => (
       <g key={i}>
         <rect x={80 + i * 150} y="50" width="120" height="55" rx="4" fill={['#22c55e', '#3b82f6', '#f59e0b', '#8b5cf6'][i]}/>
@@ -248,14 +248,14 @@ const DV01Diagram = () => (
     <rect x="370" y="50" width="280" height="60" rx="6" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
     <text x="510" y="75" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">Key Rate DV01</text>
     <text x="510" y="95" textAnchor="middle" fill="#94a3b8" fontSize="9">2Y, 5Y, 10Y, 30Y buckets</text>
-    <text x="350" y="135" textAnchor="middle" fill="#64748b" fontSize="9">Additive across positions | Used for hedging & limits | Parallel vs bucket risk</text>
+    <text x="350" y="135" textAnchor="middle" fill="#64748b" fontSize="9">{`Additive across positions | Used for hedging & limits | Parallel vs bucket risk`}</text>
   </svg>
 )
 
 // Duration Convexity Diagram
 const DurationConvexityDiagram = () => (
   <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
-    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Duration & Convexity</text>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`Duration & Convexity`}</text>
     <rect x="50" y="50" width="200" height="60" rx="4" fill="#3b82f6"/>
     <text x="150" y="72" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Modified Duration</text>
     <text x="150" y="92" textAnchor="middle" fill="#bfdbfe" fontSize="8">%ΔP / Δy (linear approx)</text>

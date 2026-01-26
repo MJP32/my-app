@@ -418,7 +418,7 @@ const SearchServiceDiagram = () => (
     <text x="670" y="215" textAnchor="middle" fill="#eab308" fontSize="13" fontWeight="bold">Autocomplete (Edge N-grams)</text>
 
     <rect x="490" y="230" width="90" height="28" rx="4" fill="#1e3a5f" stroke="#eab308" />
-    <text x="535" y="248" textAnchor="middle" fill="white" fontSize="9">lap -&gt; laptop</text>
+    <text x="535" y="248" textAnchor="middle" fill="white" fontSize="9">{`lap -&gt; laptop`}</text>
 
     <rect x="590" y="230" width="90" height="28" rx="4" fill="#1e3a5f" stroke="#eab308" />
     <text x="635" y="248" textAnchor="middle" fill="white" fontSize="9">Suggestions</text>
@@ -427,7 +427,7 @@ const SearchServiceDiagram = () => (
     <text x="735" y="248" textAnchor="middle" fill="white" fontSize="9">Popular</text>
 
     <rect x="150" y="300" width="600" height="60" rx="8" fill="#22c55e" fillOpacity="0.15" stroke="#22c55e" strokeWidth="2" />
-    <text x="450" y="325" textAnchor="middle" fill="#22c55e" fontSize="13" fontWeight="bold">Performance: &lt;200ms p95 | 10K QPS | 99.9% Availability</text>
+    <text x="450" y="325" textAnchor="middle" fill="#22c55e" fontSize="13" fontWeight="bold">{`Performance: &lt;200ms p95 | 10K QPS | 99.9% Availability`}</text>
     <text x="450" y="345" textAnchor="middle" fill="white" fontSize="10">Cached queries: ~50ms | Result caching: 10-min TTL</text>
   </svg>
 )

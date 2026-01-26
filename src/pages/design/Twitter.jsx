@@ -207,7 +207,7 @@ const FanOutDiagram = () => (
     <path d="M435 260 L400 290" stroke="#3B82F6" strokeWidth="2" fill="none"/>
     <path d="M495 260 L400 290" stroke="#3B82F6" strokeWidth="2" fill="none"/>
     <rect x="340" y="295" width="120" height="35" rx="6" fill="#6366F1"/>
-    <text x="400" y="318" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Merge & Sort</text>
+    <text x="400" y="318" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`Merge & Sort`}</text>
     <text x="400" y="355" textAnchor="middle" fill="#3B82F6" fontSize="10">Write: O(1) - instant</text>
     <text x="400" y="370" textAnchor="middle" fill="#3B82F6" fontSize="10">Read: O(n) following</text>
     <rect x="540" y="40" width="240" height="350" rx="8" fill="#78350F" fillOpacity="0.3" stroke="#F59E0B" strokeWidth="2"/>
@@ -298,7 +298,7 @@ const SocialGraphDiagram = () => (
     <text x="682" y="155" textAnchor="middle" fill="white" fontSize="8">[elonmusk, userB, ...]</text>
     <rect x="440" y="185" width="320" height="80" rx="6" fill="#10B981" fillOpacity="0.2" stroke="#10B981" strokeWidth="1"/>
     <text x="600" y="205" textAnchor="middle" fill="#6EE7B7" fontSize="12" fontWeight="bold">Option 2: Graph Database (Neo4j)</text>
-    <text x="600" y="230" textAnchor="middle" fill="#9CA3AF" fontSize="10" fontFamily="monospace">(UserA)-[:FOLLOWS]-&gt;(Celebrity)</text>
+    <text x="600" y="230" textAnchor="middle" fill="#9CA3AF" fontSize="10" fontFamily="monospace">{`(UserA)-[:FOLLOWS]-&gt;(Celebrity)`}</text>
     <text x="600" y="250" textAnchor="middle" fill="#9CA3AF" fontSize="10">Native graph queries, efficient traversal</text>
     <rect x="440" y="275" width="320" height="75" rx="6" fill="#F59E0B" fillOpacity="0.2" stroke="#F59E0B" strokeWidth="1"/>
     <text x="600" y="295" textAnchor="middle" fill="#FCD34D" fontSize="12" fontWeight="bold">Option 3: MySQL (Follow Table)</text>
@@ -336,7 +336,7 @@ const TrendsDetectionDiagram = () => (
     <polygon points="385,155 375,150 375,160" fill="#60A5FA"/>
     <rect x="390" y="130" width="130" height="50" rx="6" fill="#F59E0B"/>
     <text x="455" y="152" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Hashtag Extractor</text>
-    <text x="455" y="167" textAnchor="middle" fill="white" fontSize="9">Parse & Normalize</text>
+    <text x="455" y="167" textAnchor="middle" fill="white" fontSize="9">{`Parse & Normalize`}</text>
     <path d="M520 155 L560 155" stroke="#60A5FA" strokeWidth="2" fill="none"/>
     <polygon points="565,155 555,150 555,160" fill="#60A5FA"/>
     <rect x="570" y="130" width="100" height="50" rx="6" fill="#EC4899"/>

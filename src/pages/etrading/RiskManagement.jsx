@@ -61,10 +61,10 @@ const PreTradeRiskDiagram = () => (
 // Real-Time P&L Monitoring Diagram
 const PnLMonitoringDiagram = () => (
   <svg viewBox="0 0 700 250" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
-    <text x="350" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Real-Time P&L Monitoring</text>
+    <text x="350" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`Real-Time P&L Monitoring`}</text>
     {/* P&L chart simulation */}
     <rect x="50" y="50" width="400" height="150" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="2"/>
-    <text x="250" y="75" textAnchor="middle" fill="#64748b" fontSize="11">Intraday P&L</text>
+    <text x="250" y="75" textAnchor="middle" fill="#64748b" fontSize="11">{`Intraday P&L`}</text>
     {/* Grid lines */}
     <line x1="70" y1="100" x2="430" y2="100" stroke="#334155" strokeWidth="1" strokeDasharray="4"/>
     <line x1="70" y1="125" x2="430" y2="125" stroke="#334155" strokeWidth="1" strokeDasharray="4"/>
@@ -81,9 +81,9 @@ const PnLMonitoringDiagram = () => (
     {/* Metrics panel */}
     <rect x="480" y="50" width="180" height="150" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="2"/>
     <text x="570" y="75" textAnchor="middle" fill="#94a3b8" fontSize="11" fontWeight="bold">Risk Metrics</text>
-    <text x="500" y="100" fill="#4ade80" fontSize="10">Realized P&L:</text>
+    <text x="500" y="100" fill="#4ade80" fontSize="10">{`Realized P&L:`}</text>
     <text x="620" y="100" fill="#4ade80" fontSize="10">+$45K</text>
-    <text x="500" y="120" fill="#60a5fa" fontSize="10">Unrealized P&L:</text>
+    <text x="500" y="120" fill="#60a5fa" fontSize="10">{`Unrealized P&L:`}</text>
     <text x="620" y="120" fill="#60a5fa" fontSize="10">+$80K</text>
     <text x="500" y="140" fill="#94a3b8" fontSize="10">Position Count:</text>
     <text x="620" y="140" fill="#94a3b8" fontSize="10">127</text>
@@ -111,7 +111,7 @@ const VaRDiagram = () => (
     {/* Labels */}
     <text x="340" y="180" textAnchor="middle" fill="#64748b" fontSize="10">Expected Return Distribution</text>
     <text x="500" y="80" fill="#60a5fa" fontSize="10">95% of days</text>
-    <text x="500" y="95" fill="#60a5fa" fontSize="10">loss &lt; VaR</text>
+    <text x="500" y="95" fill="#60a5fa" fontSize="10">{`loss &lt; VaR`}</text>
   </svg>
 )
 
@@ -200,7 +200,7 @@ const KillSwitchDiagram = () => (
 // P&L Calculation Diagram
 const PnLCalcDiagram = () => (
   <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
-    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Real-Time P&L Calculation</text>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`Real-Time P&L Calculation`}</text>
     <rect x="50" y="50" width="120" height="70" rx="6" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
     <text x="110" y="70" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">Position</text>
     <text x="110" y="88" textAnchor="middle" fill="#93c5fd" fontSize="8">Qty: 1,000</text>
@@ -255,17 +255,17 @@ const StressTestDiagram = () => (
     <text x="120" y="70" textAnchor="middle" fill="#f87171" fontSize="9" fontWeight="bold">2008 Crisis</text>
     <text x="120" y="88" textAnchor="middle" fill="#fca5a5" fontSize="8">Equity: -40%</text>
     <text x="120" y="103" textAnchor="middle" fill="#fca5a5" fontSize="8">Credit: +200bp</text>
-    <text x="120" y="118" textAnchor="middle" fill="#fca5a5" fontSize="8">P&L: -$2.5M</text>
+    <text x="120" y="118" textAnchor="middle" fill="#fca5a5" fontSize="8">{`P&L: -$2.5M`}</text>
     <rect x="210" y="50" width="140" height="80" rx="6" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
     <text x="280" y="70" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">Rate Shock</text>
     <text x="280" y="88" textAnchor="middle" fill="#fcd34d" fontSize="8">Rates: +100bp</text>
     <text x="280" y="103" textAnchor="middle" fill="#fcd34d" fontSize="8">Duration: -$50K/bp</text>
-    <text x="280" y="118" textAnchor="middle" fill="#fcd34d" fontSize="8">P&L: -$500K</text>
+    <text x="280" y="118" textAnchor="middle" fill="#fcd34d" fontSize="8">{`P&L: -$500K`}</text>
     <rect x="370" y="50" width="140" height="80" rx="6" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
     <text x="440" y="70" textAnchor="middle" fill="#a78bfa" fontSize="9" fontWeight="bold">COVID Crash</text>
     <text x="440" y="88" textAnchor="middle" fill="#c4b5fd" fontSize="8">Equity: -30%</text>
     <text x="440" y="103" textAnchor="middle" fill="#c4b5fd" fontSize="8">Vol: +200%</text>
-    <text x="440" y="118" textAnchor="middle" fill="#c4b5fd" fontSize="8">P&L: -$1.8M</text>
+    <text x="440" y="118" textAnchor="middle" fill="#c4b5fd" fontSize="8">{`P&L: -$1.8M`}</text>
     <rect x="530" y="50" width="140" height="80" rx="6" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
     <text x="600" y="70" textAnchor="middle" fill="#4ade80" fontSize="9" fontWeight="bold">Reverse Test</text>
     <text x="600" y="88" textAnchor="middle" fill="#86efac" fontSize="8">Find breaking point</text>

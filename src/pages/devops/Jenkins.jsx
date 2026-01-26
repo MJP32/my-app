@@ -42,7 +42,7 @@ const JenkinsPipelineDiagram = () => (
     <text x="265" y="122" textAnchor="middle" fill="#93c5fd" fontSize="9">npm build</text>
     <rect x="370" y="60" width="130" height="70" rx="8" fill="rgba(59, 130, 246, 0.4)" stroke="#3b82f6" strokeWidth="2"/>
     <text x="435" y="90" textAnchor="middle" fill="#60a5fa" fontSize="12" fontWeight="bold">Test</text>
-    <text x="435" y="108" textAnchor="middle" fill="#93c5fd" fontSize="9">Unit & Integration</text>
+    <text x="435" y="108" textAnchor="middle" fill="#93c5fd" fontSize="9">{`Unit & Integration`}</text>
     <text x="435" y="122" textAnchor="middle" fill="#93c5fd" fontSize="9">Code Coverage</text>
     <rect x="540" y="60" width="130" height="70" rx="8" fill="rgba(59, 130, 246, 0.4)" stroke="#3b82f6" strokeWidth="2"/>
     <text x="605" y="90" textAnchor="middle" fill="#60a5fa" fontSize="12" fontWeight="bold">Deploy</text>
@@ -54,7 +54,7 @@ const JenkinsPipelineDiagram = () => (
     <line x1="330" y1="95" x2="365" y2="95" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#pipelineArrow)"/>
     <line x1="500" y1="95" x2="535" y2="95" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#pipelineArrow)"/>
     <line x1="670" y1="95" x2="705" y2="95" stroke="#60a5fa" strokeWidth="2" markerEnd="url(#pipelineArrow)"/>
-    <text x="400" y="160" textAnchor="middle" fill="#64748b" fontSize="10">Declarative Pipeline: pipeline {'{'} agent any {'>'} stages {'{'} stage('...') {'{'} steps {'{'}...{'}'} {'}'} {'}'} {'}'}</text>
+    <text x="400" y="160" textAnchor="middle" fill="#64748b" fontSize="10">{`Declarative Pipeline: pipeline {'{'} agent any {'>'} stages {'{'} stage('...') {'{'} steps {'{'}...{'}'} {'}'} {'}'} {'}'}`}</text>
   </svg>
 )
 
@@ -69,7 +69,7 @@ const JenkinsAgentDiagram = () => (
     <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="16" fontWeight="bold">Jenkins Master-Agent Architecture</text>
     <rect x="300" y="45" width="200" height="60" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
     <text x="400" y="72" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Jenkins Controller</text>
-    <text x="400" y="92" textAnchor="middle" fill="#bfdbfe" fontSize="10">Orchestration & UI</text>
+    <text x="400" y="92" textAnchor="middle" fill="#bfdbfe" fontSize="10">{`Orchestration & UI`}</text>
     <rect x="50" y="150" width="140" height="70" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
     <text x="120" y="175" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">Linux Agent</text>
     <text x="120" y="195" textAnchor="middle" fill="#86efac" fontSize="9">Docker builds</text>

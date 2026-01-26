@@ -335,14 +335,14 @@ const PositionMgmtDiagram = () => (
     <line x1="150" y1="72" x2="180" y2="72" stroke="#4ade80" strokeWidth="2"/>
     <rect x="180" y="40" width="200" height="65" rx="6" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
     <text x="280" y="62" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Position Service</text>
-    <text x="280" y="80" textAnchor="middle" fill="#bbf7d0" fontSize="8">Qty + Avg Cost + P&L</text>
+    <text x="280" y="80" textAnchor="middle" fill="#bbf7d0" fontSize="8">{`Qty + Avg Cost + P&L`}</text>
     <text x="280" y="95" textAnchor="middle" fill="#bbf7d0" fontSize="8">ConcurrentMap storage</text>
     <line x1="380" y1="72" x2="410" y2="72" stroke="#4ade80" strokeWidth="2"/>
     <rect x="410" y="50" width="100" height="45" rx="4" fill="#ef4444"/>
     <text x="460" y="70" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Risk Engine</text>
     <text x="460" y="85" textAnchor="middle" fill="#fecaca" fontSize="8">Limit checks</text>
     <rect x="540" y="50" width="110" height="45" rx="4" fill="#8b5cf6"/>
-    <text x="595" y="70" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">P&L Calc</text>
+    <text x="595" y="70" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">{`P&L Calc`}</text>
     <text x="595" y="85" textAnchor="middle" fill="#ddd6fe" fontSize="8">Realized/Unrealized</text>
     <text x="350" y="140" textAnchor="middle" fill="#64748b" fontSize="9">positions.compute() for atomic updates • Async persistence</text>
   </svg>
@@ -376,7 +376,7 @@ const DuplicateDetectionDiagram = () => (
 // Credit Check Diagram
 const CreditCheckDiagram = () => (
   <svg viewBox="0 0 700 180" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
-    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Credit & Margin Checks</text>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`Credit & Margin Checks`}</text>
     <rect x="50" y="50" width="150" height="55" rx="6" fill="#3b82f6"/>
     <text x="125" y="75" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Buying Power</text>
     <text x="125" y="92" textAnchor="middle" fill="#bfdbfe" fontSize="8">Available - Pending</text>

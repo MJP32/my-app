@@ -235,7 +235,7 @@ const SeqNumDiagram = () => (
 // Heartbeat Diagram
 const HeartbeatDiagram = () => (
   <svg viewBox="0 0 700 160" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem 0' }}>
-    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">Heartbeat & Test Request</text>
+    <text x="350" y="20" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`Heartbeat & Test Request`}</text>
     <rect x="50" y="50" width="200" height="55" rx="4" fill="#22c55e"/>
     <text x="150" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Heartbeat (0)</text>
     <text x="150" y="90" textAnchor="middle" fill="#bbf7d0" fontSize="8">Sent every HB interval</text>

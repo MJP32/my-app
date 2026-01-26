@@ -519,17 +519,17 @@ const RealTimeTrackingDiagram = () => (
     <rect x="50" y="330" width="150" height="25" rx="4" fill="#22c55e" fillOpacity="0.2" />
     <text x="125" y="347" textAnchor="middle" fill="#22c55e" fontSize="10">Driver GPS (5-10s)</text>
 
-    <text x="215" y="347" textAnchor="middle" fill="#6b7280" fontSize="14">-&gt;</text>
+    <text x="215" y="347" textAnchor="middle" fill="#6b7280" fontSize="14">{`-&gt;`}</text>
 
     <rect x="230" y="330" width="150" height="25" rx="4" fill="#8b5cf6" fillOpacity="0.2" />
     <text x="305" y="347" textAnchor="middle" fill="#a78bfa" fontSize="10">Redis Geo + Kafka</text>
 
-    <text x="395" y="347" textAnchor="middle" fill="#6b7280" fontSize="14">-&gt;</text>
+    <text x="395" y="347" textAnchor="middle" fill="#6b7280" fontSize="14">{`-&gt;`}</text>
 
     <rect x="410" y="330" width="150" height="25" rx="4" fill="#8b5cf6" fillOpacity="0.2" />
     <text x="485" y="347" textAnchor="middle" fill="#a78bfa" fontSize="10">WebSocket Server</text>
 
-    <text x="575" y="347" textAnchor="middle" fill="#6b7280" fontSize="14">-&gt;</text>
+    <text x="575" y="347" textAnchor="middle" fill="#6b7280" fontSize="14">{`-&gt;`}</text>
 
     <rect x="590" y="330" width="170" height="25" rx="4" fill="#3b82f6" fillOpacity="0.2" />
     <text x="675" y="347" textAnchor="middle" fill="#3b82f6" fontSize="10">Customer Live Map</text>

@@ -193,7 +193,7 @@ const FileSyncDiagram = () => (
     <rect width="900" height="450" fill="#1F2937" rx="12"/>
 
     {/* Title */}
-    <text x="450" y="35" textAnchor="middle" fill="#F9FAFB" fontSize="18" fontWeight="bold">Block-Level Synchronization & Deduplication</text>
+    <text x="450" y="35" textAnchor="middle" fill="#F9FAFB" fontSize="18" fontWeight="bold">{`Block-Level Synchronization & Deduplication`}</text>
 
     {/* Original File */}
     <g filter="url(#shadowSync)">
@@ -263,9 +263,9 @@ const FileSyncDiagram = () => (
       <text x="635" y="95" textAnchor="middle" fill="#F9FAFB" fontSize="11" fontWeight="bold">Hash Index</text>
       <text x="635" y="115" textAnchor="middle" fill="#9CA3AF" fontSize="9">(DynamoDB)</text>
       <line x1="585" y1="125" x2="685" y2="125" stroke="#4B5563"/>
-      <text x="590" y="145" fill="#10B981" fontSize="9">a3f2b1c... &#10004;</text>
-      <text x="590" y="165" fill="#EF4444" fontSize="9">7e9d4f2... &#10008;</text>
-      <text x="590" y="185" fill="#10B981" fontSize="9">b2c8e5a... &#10004;</text>
+      <text x="590" y="145" fill="#10B981" fontSize="9">{`a3f2b1c... &#10004;`}</text>
+      <text x="590" y="165" fill="#EF4444" fontSize="9">{`7e9d4f2... &#10008;`}</text>
+      <text x="590" y="185" fill="#10B981" fontSize="9">{`b2c8e5a... &#10004;`}</text>
       <text x="635" y="210" textAnchor="middle" fill="#6B7280" fontSize="8">Exists? Y/N</text>
     </g>
 
@@ -364,7 +364,7 @@ const ConflictResolutionDiagram = () => (
     <rect width="900" height="480" fill="#1F2937" rx="12"/>
 
     {/* Title */}
-    <text x="450" y="35" textAnchor="middle" fill="#F9FAFB" fontSize="18" fontWeight="bold">Conflict Detection & Resolution</text>
+    <text x="450" y="35" textAnchor="middle" fill="#F9FAFB" fontSize="18" fontWeight="bold">{`Conflict Detection & Resolution`}</text>
 
     {/* Timeline */}
     <line x1="50" y1="450" x2="850" y2="450" stroke="#4B5563" strokeWidth="2"/>
@@ -668,7 +668,7 @@ const SharingDiagram = () => (
     <rect width="900" height="500" fill="#1F2937" rx="12"/>
 
     {/* Title */}
-    <text x="450" y="35" textAnchor="middle" fill="#F9FAFB" fontSize="18" fontWeight="bold">Sharing & Permissions Model</text>
+    <text x="450" y="35" textAnchor="middle" fill="#F9FAFB" fontSize="18" fontWeight="bold">{`Sharing & Permissions Model`}</text>
 
     {/* Shared Folder */}
     <g filter="url(#shadowShare)">

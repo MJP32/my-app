@@ -178,7 +178,7 @@ function VarCvar3({ onBack, breadcrumb }) {
 
             {/* Layer 5: Databases */}
             <rect x="50" y="400" width="1100" height="100" fill="url(#purpleGradient)" rx="8" />
-            <text x="600" y="425" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">Layer 5: Data & Caching</text>
+            <text x="600" y="425" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">{`Layer 5: Data & Caching`}</text>
             <text x="160" y="455" textAnchor="middle" fill="white" fontSize="13">PostgreSQL</text>
             <text x="340" y="455" textAnchor="middle" fill="white" fontSize="13">Oracle</text>
             <text x="520" y="455" textAnchor="middle" fill="white" fontSize="13">TimescaleDB</text>
@@ -188,11 +188,11 @@ function VarCvar3({ onBack, breadcrumb }) {
 
             {/* Layer 6: Security */}
             <rect x="50" y="520" width="1100" height="60" fill="url(#indigoGradient)" rx="8" />
-            <text x="600" y="555" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">Layer 6: Security & Compliance</text>
+            <text x="600" y="555" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">{`Layer 6: Security & Compliance`}</text>
 
             {/* Layer 7: Monitoring */}
             <rect x="50" y="600" width="1100" height="80" fill="url(#purpleGradient)" rx="8" />
-            <text x="600" y="625" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">Layer 7: Monitoring & Observability</text>
+            <text x="600" y="625" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">{`Layer 7: Monitoring & Observability`}</text>
             <text x="325" y="655" textAnchor="middle" fill="white" fontSize="14">📊 Prometheus</text>
             <text x="600" y="655" textAnchor="middle" fill="white" fontSize="14">📈 Grafana</text>
             <text x="875" y="655" textAnchor="middle" fill="white" fontSize="14">🔍 ELK Stack</text>

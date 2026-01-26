@@ -287,7 +287,7 @@ const MRODiagram = () => (
     </defs>
 
     {/* Title */}
-    <text x="250" y="20" textAnchor="middle" fill="#60a5fa" fontSize="14" fontWeight="bold">Diamond Problem & MRO</text>
+    <text x="250" y="20" textAnchor="middle" fill="#60a5fa" fontSize="14" fontWeight="bold">{`Diamond Problem & MRO`}</text>
 
     {/* Class A (Top) */}
     <rect x="200" y="35" width="100" height="55" rx="8" fill="url(#mroBaseGradient)" stroke="#60a5fa" strokeWidth="2" />

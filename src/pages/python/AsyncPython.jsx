@@ -56,7 +56,7 @@ const EventLoopDiagram = () => (
     {/* Await/Suspend Box */}
     <rect x="240" y="190" width="120" height="60" rx="8" fill="url(#pythonBlueGradient)" />
     <text x="300" y="218" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="bold">Await</text>
-    <text x="300" y="235" textAnchor="middle" fill="#d1d5db" fontSize="10">Suspend & wait</text>
+    <text x="300" y="235" textAnchor="middle" fill="#d1d5db" fontSize="10">{`Suspend & wait`}</text>
 
     {/* Arrows */}
     {/* Queue to Loop */}

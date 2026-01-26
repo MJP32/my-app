@@ -131,9 +131,9 @@ const StorageDiagram = () => (
       </marker>
     </defs>
 
-    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="16" fontWeight="bold">
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="16" fontWeight="bold">{`
       Azure Storage Tiers & Lifecycle
-    </text>
+    `}</text>
 
     {/* Hot Tier */}
     <rect x="80" y="70" width="160" height="100" rx="8" fill="rgba(239, 68, 68, 0.4)" stroke="#ef4444" strokeWidth="2"/>
@@ -332,9 +332,9 @@ const IntegrationDiagram = () => (
       </marker>
     </defs>
 
-    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="16" fontWeight="bold">
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="16" fontWeight="bold">{`
       Azure Integration & Messaging Services
-    </text>
+    `}</text>
 
     {/* Event-Driven Architecture */}
     <text x="400" y="55" textAnchor="middle" fill="#94a3b8" fontSize="11" fontStyle="italic">
@@ -391,9 +391,9 @@ const NetworkingDiagram = () => (
       </marker>
     </defs>
 
-    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="16" fontWeight="bold">
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="16" fontWeight="bold">{`
       Azure Networking & Security Architecture
-    </text>
+    `}</text>
 
     {/* Internet */}
     <ellipse cx="400" cy="70" rx="60" ry="25" fill="rgba(100, 116, 139, 0.3)" stroke="#64748b" strokeWidth="2"/>

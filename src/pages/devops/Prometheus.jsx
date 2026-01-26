@@ -64,7 +64,7 @@ const PrometheusArchitectureDiagram = () => (
     {/* Alertmanager */}
     <rect x="530" y="60" width="110" height="55" rx="6" fill="rgba(239, 68, 68, 0.3)" stroke="#ef4444" strokeWidth="2"/>
     <text x="585" y="85" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">Alertmanager</text>
-    <text x="585" y="102" textAnchor="middle" fill="#fca5a5" fontSize="8">Route & Notify</text>
+    <text x="585" y="102" textAnchor="middle" fill="#fca5a5" fontSize="8">{`Route & Notify`}</text>
 
     {/* Grafana */}
     <rect x="530" y="130" width="110" height="55" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
@@ -255,7 +255,7 @@ const AlertingDiagram = () => (
     {/* Alert Example */}
     <rect x="100" y="160" width="600" height="45" rx="6" fill="rgba(239, 68, 68, 0.1)" stroke="#ef4444" strokeWidth="1"/>
     <text x="400" y="180" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">Alert Rule Example</text>
-    <text x="400" y="197" textAnchor="middle" fill="#fca5a5" fontSize="9">alert: HighErrorRate | expr: rate(errors[5m]) &gt; 0.1 | for: 5m | severity: critical</text>
+    <text x="400" y="197" textAnchor="middle" fill="#fca5a5" fontSize="9">{`alert: HighErrorRate | expr: rate(errors[5m]) &gt; 0.1 | for: 5m | severity: critical`}</text>
   </svg>
 )
 
@@ -296,7 +296,7 @@ const ExportersDiagram = () => (
 // Operations Best Practices Diagram
 const OperationsDiagram = () => (
   <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
-    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="16" fontWeight="bold">Prometheus Operations & HA</text>
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="16" fontWeight="bold">{`Prometheus Operations & HA`}</text>
     <rect x="30" y="50" width="220" height="130" rx="8" fill="rgba(59, 130, 246, 0.15)" stroke="#3b82f6" strokeWidth="2"/>
     <text x="140" y="75" textAnchor="middle" fill="#60a5fa" fontSize="12" fontWeight="bold">High Availability</text>
     <rect x="50" y="90" width="80" height="35" rx="4" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6"/>
@@ -314,7 +314,7 @@ const OperationsDiagram = () => (
     <rect x="340" y="130" width="80" height="30" rx="4" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6"/>
     <text x="380" y="150" textAnchor="middle" fill="#c4b5fd" fontSize="8">VictoriaMetrics</text>
     <rect x="530" y="50" width="240" height="130" rx="8" fill="rgba(34, 197, 94, 0.15)" stroke="#22c55e" strokeWidth="2"/>
-    <text x="650" y="75" textAnchor="middle" fill="#4ade80" fontSize="12" fontWeight="bold">Security & Monitoring</text>
+    <text x="650" y="75" textAnchor="middle" fill="#4ade80" fontSize="12" fontWeight="bold">{`Security & Monitoring`}</text>
     <text x="560" y="100" fill="#86efac" fontSize="9">• TLS for scraping</text>
     <text x="560" y="118" fill="#86efac" fontSize="9">• Basic auth</text>
     <text x="560" y="136" fill="#86efac" fontSize="9">• Cardinality limits</text>

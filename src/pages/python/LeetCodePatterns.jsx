@@ -7000,7 +7000,7 @@ def detectArbitrage(rates):
                     <rect x="47" y="40" width="60" height="20" rx="2" fill="#3b82f6"/>
                     <rect x="111" y="40" width="28" height="20" rx="2" fill="#10b981"/>
                     <rect x="143" y="40" width="124" height="20" rx="2" fill="#3b82f6"/>
-                    <text x="140" y="20" textAnchor="middle" fill="#9ca3af" fontSize="10">BIT: O(log n) update & query</text>
+                    <text x="140" y="20" textAnchor="middle" fill="#9ca3af" fontSize="10">{`BIT: O(log n) update & query`}</text>
                   </svg>
                 )}
                 {/* Segment Tree */}

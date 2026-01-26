@@ -42,7 +42,7 @@ const AnypointPlatformDiagram = () => (
 
     <rect x="220" y="45" width="140" height="70" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
     <text x="290" y="70" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Exchange</text>
-    <text x="290" y="88" textAnchor="middle" fill="#c4b5fd" fontSize="8">API Specs & Templates</text>
+    <text x="290" y="88" textAnchor="middle" fill="#c4b5fd" fontSize="8">{`API Specs & Templates`}</text>
     <text x="290" y="102" textAnchor="middle" fill="#c4b5fd" fontSize="8">Connectors</text>
 
     <rect x="390" y="45" width="140" height="70" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
@@ -53,7 +53,7 @@ const AnypointPlatformDiagram = () => (
     <rect x="560" y="45" width="180" height="70" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="2"/>
     <text x="650" y="70" textAnchor="middle" fill="#4ade80" fontSize="10" fontWeight="bold">Anypoint Studio</text>
     <text x="650" y="88" textAnchor="middle" fill="#86efac" fontSize="8">Eclipse-based IDE</text>
-    <text x="650" y="102" textAnchor="middle" fill="#86efac" fontSize="8">Visual & XML Development</text>
+    <text x="650" y="102" textAnchor="middle" fill="#86efac" fontSize="8">{`Visual & XML Development`}</text>
 
     <rect x="150" y="135" width="500" height="50" rx="6" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" strokeWidth="2"/>
     <text x="400" y="158" textAnchor="middle" fill="#22d3ee" fontSize="10" fontWeight="bold">Mule Runtime Engine</text>

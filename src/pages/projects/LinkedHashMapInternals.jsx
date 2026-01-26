@@ -109,7 +109,7 @@ const DoublyLinkedListDiagram = () => (
 
     {/* Entry structure */}
     <rect x="280" y="220" width="240" height="45" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
-    <text x="400" y="238" textAnchor="middle" fill="#64748b" fontSize="10">Entry&lt;K,V&gt;</text>
+    <text x="400" y="238" textAnchor="middle" fill="#64748b" fontSize="10">{`Entry&lt;K,V&gt;`}</text>
     <text x="400" y="255" textAnchor="middle" fill="#14b8a6" fontSize="9">hash | key | value | next | before | after</text>
   </svg>
 )
@@ -141,7 +141,7 @@ const AccessOrderDiagram = () => (
     <line x1="100" y1="85" x2="145" y2="85" stroke="#14b8a6" strokeWidth="2" markerEnd="url(#arrowGreen)"/>
     <line x1="200" y1="85" x2="245" y2="85" stroke="#14b8a6" strokeWidth="2" markerEnd="url(#arrowGreen)"/>
 
-    <text x="200" y="125" textAnchor="middle" fill="#94a3b8" fontSize="10">Order: A -> B -> C</text>
+    <text x="200" y="125" textAnchor="middle" fill="#94a3b8" fontSize="10">{`Order: A -> B -> C`}</text>
 
     {/* Arrow down */}
     <text x="400" y="100" textAnchor="middle" fill="#22c55e" fontSize="24">get("B")</text>
@@ -162,12 +162,12 @@ const AccessOrderDiagram = () => (
     <line x1="500" y1="85" x2="545" y2="85" stroke="#14b8a6" strokeWidth="2" markerEnd="url(#arrowGreen)"/>
     <line x1="600" y1="85" x2="645" y2="85" stroke="#14b8a6" strokeWidth="2" markerEnd="url(#arrowGreen)"/>
 
-    <text x="600" y="125" textAnchor="middle" fill="#94a3b8" fontSize="10">Order: A -> C -> B (B moved to end)</text>
+    <text x="600" y="125" textAnchor="middle" fill="#94a3b8" fontSize="10">{`Order: A -> C -> B (B moved to end)`}</text>
 
     {/* LRU explanation */}
     <rect x="150" y="160" width="500" height="70" rx="8" fill="rgba(20, 184, 166, 0.1)" stroke="rgba(20, 184, 166, 0.3)" strokeWidth="1"/>
     <text x="400" y="185" textAnchor="middle" fill="#14b8a6" fontSize="12" fontWeight="bold">Perfect for LRU Cache</text>
-    <text x="400" y="205" textAnchor="middle" fill="#94a3b8" fontSize="10">Most recently used -> end of list | Least recently used -> head (evict first)</text>
+    <text x="400" y="205" textAnchor="middle" fill="#94a3b8" fontSize="10">{`Most recently used -> end of list | Least recently used -> head (evict first)`}</text>
     <text x="400" y="220" textAnchor="middle" fill="#64748b" fontSize="9">afterNodeAccess() handles the move operation</text>
   </svg>
 )
@@ -251,13 +251,13 @@ const StructureOverviewDiagram = () => (
       </marker>
     </defs>
 
-    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`
       LinkedHashMap Inheritance & Structure
-    </text>
+    `}</text>
 
     {/* HashMap base */}
     <rect x="50" y="50" width="150" height="50" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
-    <text x="125" y="80" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">HashMap&lt;K,V&gt;</text>
+    <text x="125" y="80" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`HashMap&lt;K,V&gt;`}</text>
 
     {/* extends arrow */}
     <line x1="200" y1="75" x2="280" y2="75" stroke="#14b8a6" strokeWidth="2" markerEnd="url(#arrowTeal2)"/>
@@ -265,12 +265,12 @@ const StructureOverviewDiagram = () => (
 
     {/* LinkedHashMap */}
     <rect x="290" y="50" width="180" height="50" rx="8" fill="#14b8a6" stroke="#2dd4bf" strokeWidth="2"/>
-    <text x="380" y="80" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">LinkedHashMap&lt;K,V&gt;</text>
+    <text x="380" y="80" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`LinkedHashMap&lt;K,V&gt;`}</text>
 
     {/* Additional fields */}
     <rect x="520" y="40" width="250" height="70" rx="8" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
     <text x="645" y="60" textAnchor="middle" fill="#64748b" fontSize="10">Additional Fields:</text>
-    <text x="645" y="80" textAnchor="middle" fill="#14b8a6" fontSize="10" fontFamily="monospace">Entry&lt;K,V&gt; head, tail</text>
+    <text x="645" y="80" textAnchor="middle" fill="#14b8a6" fontSize="10" fontFamily="monospace">{`Entry&lt;K,V&gt; head, tail`}</text>
     <text x="645" y="95" textAnchor="middle" fill="#14b8a6" fontSize="10" fontFamily="monospace">boolean accessOrder</text>
 
     <line x1="470" y1="75" x2="515" y2="75" stroke="#475569" strokeWidth="1" strokeDasharray="4"/>

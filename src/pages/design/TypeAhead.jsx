@@ -114,7 +114,7 @@ const TypeAheadArchitectureDiagram = () => (
     <line x1="400" y1="342" x2="440" y2="342" stroke="#22c55e" strokeWidth="2" strokeDasharray="5,3"/>
     <text x="450" y="346" fontSize="10" fill="#22c55e">Dashed arrows</text>
     <text x="550" y="345" fontSize="11" fontWeight="bold" fill="#475569">Latency Target:</text>
-    <text x="660" y="346" fontSize="10" fill="#ef4444">P99 &lt; 100ms</text>
+    <text x="660" y="346" fontSize="10" fill="#ef4444">{`P99 &lt; 100ms`}</text>
   </svg>
 );
 

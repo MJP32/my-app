@@ -60,7 +60,7 @@ const LambdaSyntaxDiagram = () => (
 
     {/* Arrow Operator */}
     <rect x="260" y="60" width="80" height="60" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
-    <text x="300" y="85" textAnchor="middle" fill="#fbbf24" fontSize="14" fontWeight="bold">-&gt;</text>
+    <text x="300" y="85" textAnchor="middle" fill="#fbbf24" fontSize="14" fontWeight="bold">{`-&gt;`}</text>
     <text x="300" y="105" textAnchor="middle" fill="#94a3b8" fontSize="10">Arrow</text>
 
     {/* Body Box */}
@@ -82,20 +82,20 @@ const LambdaSyntaxDiagram = () => (
     <text x="50" y="160" fill="#94a3b8" fontSize="11">Examples:</text>
 
     <rect x="50" y="175" width="220" height="35" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
-    <text x="60" y="197" fill="#a78bfa" fontSize="11" fontFamily="monospace">() -&gt; "Hello"</text>
+    <text x="60" y="197" fill="#a78bfa" fontSize="11" fontFamily="monospace">{`() -&gt; "Hello"`}</text>
     <text x="180" y="197" fill="#64748b" fontSize="9">no params</text>
 
     <rect x="290" y="175" width="220" height="35" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
-    <text x="300" y="197" fill="#a78bfa" fontSize="11" fontFamily="monospace">x -&gt; x * 2</text>
+    <text x="300" y="197" fill="#a78bfa" fontSize="11" fontFamily="monospace">{`x -&gt; x * 2`}</text>
     <text x="420" y="197" fill="#64748b" fontSize="9">one param</text>
 
     <rect x="530" y="175" width="220" height="35" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
-    <text x="540" y="197" fill="#a78bfa" fontSize="11" fontFamily="monospace">(x, y) -&gt; x + y</text>
+    <text x="540" y="197" fill="#a78bfa" fontSize="11" fontFamily="monospace">{`(x, y) -&gt; x + y`}</text>
     <text x="690" y="197" fill="#64748b" fontSize="9">multiple</text>
 
     {/* Block Lambda Example */}
     <rect x="50" y="225" width="700" height="45" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
-    <text x="60" y="252" fill="#a78bfa" fontSize="11" fontFamily="monospace">(String s) -&gt; {'{'} String upper = s.toUpperCase(); return upper; {'}'}</text>
+    <text x="60" y="252" fill="#a78bfa" fontSize="11" fontFamily="monospace">{`(String s) -&gt; {'{'} String upper = s.toUpperCase(); return upper; {'}'}`}</text>
     <text x="620" y="252" fill="#64748b" fontSize="9">block lambda</text>
   </svg>
 )
@@ -114,43 +114,43 @@ const FunctionalInterfaceDiagram = () => (
 
     {/* Function */}
     <rect x="30" y="50" width="170" height="80" rx="8" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
-    <text x="115" y="75" textAnchor="middle" fill="#60a5fa" fontSize="13" fontWeight="bold">Function&lt;T,R&gt;</text>
+    <text x="115" y="75" textAnchor="middle" fill="#60a5fa" fontSize="13" fontWeight="bold">{`Function&lt;T,R&gt;`}</text>
     <text x="115" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">R apply(T t)</text>
     <text x="115" y="115" textAnchor="middle" fill="#64748b" fontSize="9">Transform T to R</text>
 
     {/* Consumer */}
     <rect x="220" y="50" width="170" height="80" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
-    <text x="305" y="75" textAnchor="middle" fill="#4ade80" fontSize="13" fontWeight="bold">Consumer&lt;T&gt;</text>
+    <text x="305" y="75" textAnchor="middle" fill="#4ade80" fontSize="13" fontWeight="bold">{`Consumer&lt;T&gt;`}</text>
     <text x="305" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">void accept(T t)</text>
     <text x="305" y="115" textAnchor="middle" fill="#64748b" fontSize="9">Consume, no return</text>
 
     {/* Supplier */}
     <rect x="410" y="50" width="170" height="80" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
-    <text x="495" y="75" textAnchor="middle" fill="#fbbf24" fontSize="13" fontWeight="bold">Supplier&lt;T&gt;</text>
+    <text x="495" y="75" textAnchor="middle" fill="#fbbf24" fontSize="13" fontWeight="bold">{`Supplier&lt;T&gt;`}</text>
     <text x="495" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">T get()</text>
     <text x="495" y="115" textAnchor="middle" fill="#64748b" fontSize="9">Supply value</text>
 
     {/* Predicate */}
     <rect x="600" y="50" width="170" height="80" rx="8" fill="rgba(236, 72, 153, 0.2)" stroke="#ec4899" strokeWidth="2"/>
-    <text x="685" y="75" textAnchor="middle" fill="#f472b6" fontSize="13" fontWeight="bold">Predicate&lt;T&gt;</text>
+    <text x="685" y="75" textAnchor="middle" fill="#f472b6" fontSize="13" fontWeight="bold">{`Predicate&lt;T&gt;`}</text>
     <text x="685" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">boolean test(T t)</text>
     <text x="685" y="115" textAnchor="middle" fill="#64748b" fontSize="9">Test condition</text>
 
     {/* BiFunction */}
     <rect x="30" y="150" width="170" height="80" rx="8" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
-    <text x="115" y="175" textAnchor="middle" fill="#a78bfa" fontSize="12" fontWeight="bold">BiFunction&lt;T,U,R&gt;</text>
+    <text x="115" y="175" textAnchor="middle" fill="#a78bfa" fontSize="12" fontWeight="bold">{`BiFunction&lt;T,U,R&gt;`}</text>
     <text x="115" y="195" textAnchor="middle" fill="#94a3b8" fontSize="10">R apply(T t, U u)</text>
     <text x="115" y="215" textAnchor="middle" fill="#64748b" fontSize="9">Two inputs</text>
 
     {/* UnaryOperator */}
     <rect x="220" y="150" width="170" height="80" rx="8" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" strokeWidth="2"/>
-    <text x="305" y="175" textAnchor="middle" fill="#22d3ee" fontSize="12" fontWeight="bold">UnaryOperator&lt;T&gt;</text>
+    <text x="305" y="175" textAnchor="middle" fill="#22d3ee" fontSize="12" fontWeight="bold">{`UnaryOperator&lt;T&gt;`}</text>
     <text x="305" y="195" textAnchor="middle" fill="#94a3b8" fontSize="10">T apply(T t)</text>
     <text x="305" y="215" textAnchor="middle" fill="#64748b" fontSize="9">Same type in/out</text>
 
     {/* BinaryOperator */}
     <rect x="410" y="150" width="170" height="80" rx="8" fill="rgba(249, 115, 22, 0.2)" stroke="#f97316" strokeWidth="2"/>
-    <text x="495" y="175" textAnchor="middle" fill="#fb923c" fontSize="12" fontWeight="bold">BinaryOperator&lt;T&gt;</text>
+    <text x="495" y="175" textAnchor="middle" fill="#fb923c" fontSize="12" fontWeight="bold">{`BinaryOperator&lt;T&gt;`}</text>
     <text x="495" y="195" textAnchor="middle" fill="#94a3b8" fontSize="10">T apply(T t1, T t2)</text>
     <text x="495" y="215" textAnchor="middle" fill="#64748b" fontSize="9">Two same type</text>
 
@@ -211,7 +211,7 @@ const MethodReferenceDiagram = () => (
     <text x="400" y="190" textAnchor="middle" fill="#94a3b8" fontSize="12">Lambda to Method Reference Conversion</text>
 
     <rect x="80" y="210" width="280" height="35" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
-    <text x="220" y="232" textAnchor="middle" fill="#94a3b8" fontSize="10" fontFamily="monospace">s -&gt; Integer.parseInt(s)</text>
+    <text x="220" y="232" textAnchor="middle" fill="#94a3b8" fontSize="10" fontFamily="monospace">{`s -&gt; Integer.parseInt(s)`}</text>
 
     <line x1="365" y1="227" x2="430" y2="227" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#mrArrow)"/>
     <text x="397" y="220" textAnchor="middle" fill="#8b5cf6" fontSize="10">converts to</text>
@@ -243,28 +243,28 @@ const CollectionOperationsDiagram = () => (
     <text x="115" y="75" textAnchor="middle" fill="#60a5fa" fontSize="13" fontWeight="bold">forEach</text>
     <text x="115" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">Iterate each element</text>
     <rect x="45" y="105" width="140" height="24" rx="4" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
-    <text x="115" y="121" textAnchor="middle" fill="#a78bfa" fontSize="8" fontFamily="monospace">list.forEach(x -&gt; print(x))</text>
+    <text x="115" y="121" textAnchor="middle" fill="#a78bfa" fontSize="8" fontFamily="monospace">{`list.forEach(x -&gt; print(x))`}</text>
 
     {/* removeIf */}
     <rect x="220" y="50" width="170" height="90" rx="8" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="2"/>
     <text x="305" y="75" textAnchor="middle" fill="#f87171" fontSize="13" fontWeight="bold">removeIf</text>
     <text x="305" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">Conditional removal</text>
     <rect x="235" y="105" width="140" height="24" rx="4" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
-    <text x="305" y="121" textAnchor="middle" fill="#a78bfa" fontSize="8" fontFamily="monospace">list.removeIf(x -&gt; x &lt; 0)</text>
+    <text x="305" y="121" textAnchor="middle" fill="#a78bfa" fontSize="8" fontFamily="monospace">{`list.removeIf(x -&gt; x &lt; 0)`}</text>
 
     {/* sort */}
     <rect x="410" y="50" width="170" height="90" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
     <text x="495" y="75" textAnchor="middle" fill="#4ade80" fontSize="13" fontWeight="bold">sort</text>
     <text x="495" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">Custom comparator</text>
     <rect x="425" y="105" width="140" height="24" rx="4" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
-    <text x="495" y="121" textAnchor="middle" fill="#a78bfa" fontSize="8" fontFamily="monospace">list.sort((a,b) -&gt; a-b)</text>
+    <text x="495" y="121" textAnchor="middle" fill="#a78bfa" fontSize="8" fontFamily="monospace">{`list.sort((a,b) -&gt; a-b)`}</text>
 
     {/* replaceAll */}
     <rect x="600" y="50" width="170" height="90" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
     <text x="685" y="75" textAnchor="middle" fill="#fbbf24" fontSize="13" fontWeight="bold">replaceAll</text>
     <text x="685" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">Transform in place</text>
     <rect x="615" y="105" width="140" height="24" rx="4" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
-    <text x="685" y="121" textAnchor="middle" fill="#a78bfa" fontSize="8" fontFamily="monospace">list.replaceAll(x -&gt; x*2)</text>
+    <text x="685" y="121" textAnchor="middle" fill="#a78bfa" fontSize="8" fontFamily="monospace">{`list.replaceAll(x -&gt; x*2)`}</text>
 
     {/* Flow diagram */}
     <text x="400" y="175" textAnchor="middle" fill="#94a3b8" fontSize="12">Collection Pipeline Example</text>
@@ -312,25 +312,25 @@ const HigherOrderFunctionsDiagram = () => (
     <rect x="30" y="50" width="350" height="100" rx="8" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
     <text x="205" y="75" textAnchor="middle" fill="#60a5fa" fontSize="12" fontWeight="bold">Function as Parameter</text>
     <rect x="45" y="90" width="320" height="50" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
-    <text x="205" y="112" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">int applyTwice(Function&lt;Integer, Integer&gt; f, int x) {'{'}</text>
+    <text x="205" y="112" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">{`int applyTwice(Function&lt;Integer, Integer&gt; f, int x) {'{'}`}</text>
     <text x="205" y="128" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">    return f.apply(f.apply(x));</text>
 
     {/* Function that returns function */}
     <rect x="420" y="50" width="350" height="100" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
     <text x="595" y="75" textAnchor="middle" fill="#4ade80" fontSize="12" fontWeight="bold">Function as Return Value (Currying)</text>
     <rect x="435" y="90" width="320" height="50" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
-    <text x="595" y="112" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">Function&lt;Integer, Integer&gt; add(int x) {'{'}</text>
-    <text x="595" y="128" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">    return y -&gt; x + y;</text>
+    <text x="595" y="112" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">{`Function&lt;Integer, Integer&gt; add(int x) {'{'}`}</text>
+    <text x="595" y="128" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">{`    return y -&gt; x + y;`}</text>
 
     {/* Composition */}
     <text x="400" y="180" textAnchor="middle" fill="#94a3b8" fontSize="12">Function Composition</text>
 
     <rect x="50" y="200" width="140" height="50" rx="8" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
-    <text x="120" y="225" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">f: x -&gt; x + 2</text>
+    <text x="120" y="225" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">{`f: x -&gt; x + 2`}</text>
     <text x="120" y="240" textAnchor="middle" fill="#64748b" fontSize="9">add 2</text>
 
     <rect x="230" y="200" width="140" height="50" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
-    <text x="300" y="225" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">g: x -&gt; x * 3</text>
+    <text x="300" y="225" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">{`g: x -&gt; x * 3`}</text>
     <text x="300" y="240" textAnchor="middle" fill="#64748b" fontSize="9">multiply by 3</text>
 
     {/* compose */}
@@ -368,20 +368,20 @@ const CaptureVariablesDiagram = () => (
     <text x="205" y="75" textAnchor="middle" fill="#4ade80" fontSize="12" fontWeight="bold">Effectively Final (Valid)</text>
     <rect x="45" y="90" width="320" height="35" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
     <text x="205" y="112" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">int x = 10; // never reassigned</text>
-    <text x="205" y="125" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">Runnable r = () -&gt; print(x); // OK</text>
+    <text x="205" y="125" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">{`Runnable r = () -&gt; print(x); // OK`}</text>
 
     {/* Not Effectively Final */}
     <rect x="420" y="50" width="350" height="85" rx="8" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="2"/>
     <text x="595" y="75" textAnchor="middle" fill="#f87171" fontSize="12" fontWeight="bold">Not Effectively Final (Error)</text>
     <rect x="435" y="90" width="320" height="35" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
     <text x="595" y="112" textAnchor="middle" fill="#f87171" fontSize="9" fontFamily="monospace">int x = 10; x = 20; // reassigned</text>
-    <text x="595" y="125" textAnchor="middle" fill="#f87171" fontSize="9" fontFamily="monospace">Runnable r = () -&gt; print(x); // ERROR</text>
+    <text x="595" y="125" textAnchor="middle" fill="#f87171" fontSize="9" fontFamily="monospace">{`Runnable r = () -&gt; print(x); // ERROR`}</text>
 
     {/* Workaround */}
     <rect x="140" y="155" width="520" height="80" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
     <text x="400" y="180" textAnchor="middle" fill="#fbbf24" fontSize="12" fontWeight="bold">Workaround: Use Wrapper or Array</text>
     <rect x="155" y="195" width="490" height="30" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
-    <text x="400" y="215" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">int[] counter = {'{'}0{'}'}; list.forEach(x -&gt; counter[0]++); // Array ref is final</text>
+    <text x="400" y="215" textAnchor="middle" fill="#a78bfa" fontSize="9" fontFamily="monospace">{`int[] counter = {'{'}0{'}'}; list.forEach(x -&gt; counter[0]++); // Array ref is final`}</text>
   </svg>
 )
 

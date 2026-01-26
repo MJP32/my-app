@@ -52,7 +52,7 @@ const TypeParametersDiagram = () => (
     {/* Box<T> definition */}
     <rect x="50" y="50" width="200" height="80" rx="8" fill="rgba(99, 102, 241, 0.2)" stroke="#6366f1" strokeWidth="2"/>
     <text x="150" y="75" textAnchor="middle" fill="#a5b4fc" fontSize="12" fontWeight="bold">Generic Class</text>
-    <text x="150" y="100" textAnchor="middle" fill="#e2e8f0" fontSize="11" fontFamily="monospace">Box&lt;T&gt;</text>
+    <text x="150" y="100" textAnchor="middle" fill="#e2e8f0" fontSize="11" fontFamily="monospace">{`Box&lt;T&gt;`}</text>
     <text x="150" y="120" textAnchor="middle" fill="#94a3b8" fontSize="10">T = Type Parameter</text>
 
     {/* Arrow */}
@@ -61,13 +61,13 @@ const TypeParametersDiagram = () => (
 
     {/* Box<String> */}
     <rect x="330" y="50" width="140" height="80" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
-    <text x="400" y="75" textAnchor="middle" fill="#86efac" fontSize="11" fontWeight="bold">Box&lt;String&gt;</text>
+    <text x="400" y="75" textAnchor="middle" fill="#86efac" fontSize="11" fontWeight="bold">{`Box&lt;String&gt;`}</text>
     <text x="400" y="95" textAnchor="middle" fill="#e2e8f0" fontSize="10">T = String</text>
     <text x="400" y="115" textAnchor="middle" fill="#94a3b8" fontSize="9">Type-safe!</text>
 
     {/* Box<Integer> */}
     <rect x="490" y="50" width="140" height="80" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
-    <text x="560" y="75" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">Box&lt;Integer&gt;</text>
+    <text x="560" y="75" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">{`Box&lt;Integer&gt;`}</text>
     <text x="560" y="95" textAnchor="middle" fill="#e2e8f0" fontSize="10">T = Integer</text>
     <text x="560" y="115" textAnchor="middle" fill="#94a3b8" fontSize="9">Type-safe!</text>
 
@@ -86,19 +86,19 @@ const WildcardsDiagram = () => (
     {/* Unbounded Wildcard */}
     <rect x="50" y="50" width="200" height="90" rx="8" fill="rgba(99, 102, 241, 0.2)" stroke="#6366f1" strokeWidth="2"/>
     <text x="150" y="75" textAnchor="middle" fill="#a5b4fc" fontSize="12" fontWeight="bold">Unbounded</text>
-    <text x="150" y="100" textAnchor="middle" fill="#e2e8f0" fontSize="14" fontFamily="monospace">List&lt;?&gt;</text>
+    <text x="150" y="100" textAnchor="middle" fill="#e2e8f0" fontSize="14" fontFamily="monospace">{`List&lt;?&gt;`}</text>
     <text x="150" y="125" textAnchor="middle" fill="#94a3b8" fontSize="10">Any type</text>
 
     {/* Upper Bounded */}
     <rect x="300" y="50" width="200" height="90" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
     <text x="400" y="75" textAnchor="middle" fill="#86efac" fontSize="12" fontWeight="bold">Upper Bounded</text>
-    <text x="400" y="100" textAnchor="middle" fill="#e2e8f0" fontSize="13" fontFamily="monospace">List&lt;? extends T&gt;</text>
+    <text x="400" y="100" textAnchor="middle" fill="#e2e8f0" fontSize="13" fontFamily="monospace">{`List&lt;? extends T&gt;`}</text>
     <text x="400" y="125" textAnchor="middle" fill="#94a3b8" fontSize="10">T or subtypes (Producer)</text>
 
     {/* Lower Bounded */}
     <rect x="550" y="50" width="200" height="90" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
     <text x="650" y="75" textAnchor="middle" fill="#fbbf24" fontSize="12" fontWeight="bold">Lower Bounded</text>
-    <text x="650" y="100" textAnchor="middle" fill="#e2e8f0" fontSize="13" fontFamily="monospace">List&lt;? super T&gt;</text>
+    <text x="650" y="100" textAnchor="middle" fill="#e2e8f0" fontSize="13" fontFamily="monospace">{`List&lt;? super T&gt;`}</text>
     <text x="650" y="125" textAnchor="middle" fill="#94a3b8" fontSize="10">T or supertypes (Consumer)</text>
 
     {/* PECS Rule */}
@@ -123,7 +123,7 @@ const BoundsDiagram = () => (
 
     {/* Class hierarchy */}
     <rect x="325" y="50" width="150" height="40" rx="8" fill="rgba(99, 102, 241, 0.2)" stroke="#6366f1" strokeWidth="2"/>
-    <text x="400" y="75" textAnchor="middle" fill="#a5b4fc" fontSize="11" fontWeight="bold">Comparable&lt;T&gt;</text>
+    <text x="400" y="75" textAnchor="middle" fill="#a5b4fc" fontSize="11" fontWeight="bold">{`Comparable&lt;T&gt;`}</text>
 
     <line x1="400" y1="90" x2="400" y2="110" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrowBounds)"/>
 
@@ -144,9 +144,9 @@ const BoundsDiagram = () => (
     <text x="575" y="207" textAnchor="middle" fill="#fbbf24" fontSize="10">BigDecimal</text>
 
     {/* Bounded type explanation */}
-    <text x="400" y="250" textAnchor="middle" fill="#94a3b8" fontSize="11">
+    <text x="400" y="250" textAnchor="middle" fill="#94a3b8" fontSize="11">{`
       &lt;T extends Number & Comparable&lt;T&gt;&gt; accepts Integer, Double, BigDecimal
-    </text>
+    `}</text>
   </svg>
 )
 
@@ -165,7 +165,7 @@ const TypeErasureDiagram = () => (
     {/* Before compilation */}
     <rect x="50" y="55" width="250" height="80" rx="8" fill="rgba(99, 102, 241, 0.2)" stroke="#6366f1" strokeWidth="2"/>
     <text x="175" y="80" textAnchor="middle" fill="#a5b4fc" fontSize="11" fontWeight="bold">Source Code</text>
-    <text x="175" y="105" textAnchor="middle" fill="#e2e8f0" fontSize="11" fontFamily="monospace">List&lt;String&gt; list</text>
+    <text x="175" y="105" textAnchor="middle" fill="#e2e8f0" fontSize="11" fontFamily="monospace">{`List&lt;String&gt; list`}</text>
     <text x="175" y="125" textAnchor="middle" fill="#e2e8f0" fontSize="11" fontFamily="monospace">list.add("Hello")</text>
 
     {/* Arrow */}
@@ -199,7 +199,7 @@ const GenericMethodDiagram = () => (
     {/* Method structure */}
     <rect x="100" y="50" width="600" height="60" rx="8" fill="rgba(99, 102, 241, 0.15)" stroke="#6366f1" strokeWidth="2"/>
 
-    <text x="150" y="85" textAnchor="middle" fill="#86efac" fontSize="12" fontFamily="monospace">&lt;T&gt;</text>
+    <text x="150" y="85" textAnchor="middle" fill="#86efac" fontSize="12" fontFamily="monospace">{`&lt;T&gt;`}</text>
     <text x="250" y="85" textAnchor="middle" fill="#fbbf24" fontSize="12" fontFamily="monospace">T</text>
     <text x="350" y="85" textAnchor="middle" fill="#e2e8f0" fontSize="12" fontFamily="monospace">findMax</text>
     <text x="500" y="85" textAnchor="middle" fill="#a5b4fc" fontSize="12" fontFamily="monospace">(T[] array)</text>
@@ -236,9 +236,9 @@ const GenericClassDiagram = () => (
 
     {/* Header */}
     <rect x="200" y="45" width="400" height="35" rx="10" fill="rgba(99, 102, 241, 0.3)"/>
-    <text x="400" y="68" textAnchor="middle" fill="#e2e8f0" fontSize="13" fontFamily="monospace" fontWeight="bold">
+    <text x="400" y="68" textAnchor="middle" fill="#e2e8f0" fontSize="13" fontFamily="monospace" fontWeight="bold">{`
       public class Pair&lt;K, V&gt;
-    </text>
+    `}</text>
 
     {/* Fields */}
     <text x="220" y="100" fill="#86efac" fontSize="11" fontFamily="monospace">private K key;</text>
@@ -247,7 +247,7 @@ const GenericClassDiagram = () => (
     {/* Methods */}
     <text x="220" y="145" fill="#fbbf24" fontSize="11" fontFamily="monospace">public K getKey() {'{'}...{'}'}</text>
     <text x="220" y="165" fill="#fbbf24" fontSize="11" fontFamily="monospace">public V getValue() {'{'}...{'}'}</text>
-    <text x="220" y="185" fill="#a5b4fc" fontSize="11" fontFamily="monospace">public Pair&lt;V, K&gt; swap() {'{'}...{'}'}</text>
+    <text x="220" y="185" fill="#a5b4fc" fontSize="11" fontFamily="monospace">{`public Pair&lt;V, K&gt; swap() {'{'}...{'}'}`}</text>
   </svg>
 )
 

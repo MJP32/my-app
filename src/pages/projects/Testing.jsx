@@ -104,7 +104,7 @@ const TestTypesDiagram = () => (
     {/* Performance */}
     <rect x="390" y="60" width="120" height="60" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
     <text x="450" y="85" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Performance</text>
-    <text x="450" y="102" textAnchor="middle" fill="white" fontSize="9">Load & stress</text>
+    <text x="450" y="102" textAnchor="middle" fill="white" fontSize="9">{`Load & stress`}</text>
     <text x="450" y="114" textAnchor="middle" fill="white" fontSize="9">testing</text>
 
     {/* Contract */}
