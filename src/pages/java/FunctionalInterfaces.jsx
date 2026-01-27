@@ -216,6 +216,214 @@ const PredicateDiagram = () => (
   </svg>
 )
 
+// Primitive Functional Interfaces Diagram
+const PrimitiveDiagram = () => (
+  <svg viewBox="0 0 800 300" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="primArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#10b981" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">
+      Primitive Specializations - Avoid Boxing/Unboxing
+    </text>
+
+    {/* Generic (top) */}
+    <rect x="300" y="50" width="200" height="50" rx="8" fill="#ef4444" stroke="#f87171" strokeWidth="2"/>
+    <text x="400" y="72" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">{`Function<Integer, Integer>`}</text>
+    <text x="400" y="90" textAnchor="middle" fill="#fecaca" fontSize="10">Autoboxing overhead</text>
+
+    {/* Arrow down */}
+    <text x="400" y="130" textAnchor="middle" fill="#22c55e" fontSize="14" fontWeight="bold">Optimize ↓</text>
+
+    {/* Primitive specializations */}
+    <rect x="50" y="160" width="150" height="40" rx="6" fill="#10b981" stroke="#34d399" strokeWidth="1"/>
+    <text x="125" y="185" textAnchor="middle" fill="white" fontSize="12">IntFunction{`<R>`}</text>
+
+    <rect x="220" y="160" width="150" height="40" rx="6" fill="#10b981" stroke="#34d399" strokeWidth="1"/>
+    <text x="295" y="185" textAnchor="middle" fill="white" fontSize="12">ToIntFunction{`<T>`}</text>
+
+    <rect x="390" y="160" width="150" height="40" rx="6" fill="#10b981" stroke="#34d399" strokeWidth="1"/>
+    <text x="465" y="185" textAnchor="middle" fill="white" fontSize="12">IntUnaryOperator</text>
+
+    <rect x="560" y="160" width="190" height="40" rx="6" fill="#10b981" stroke="#34d399" strokeWidth="1"/>
+    <text x="655" y="185" textAnchor="middle" fill="white" fontSize="12">IntBinaryOperator</text>
+
+    {/* Examples */}
+    <text x="125" y="225" textAnchor="middle" fill="#94a3b8" fontSize="10">int{` ->`}R</text>
+    <text x="295" y="225" textAnchor="middle" fill="#94a3b8" fontSize="10">T{` ->`}int</text>
+    <text x="465" y="225" textAnchor="middle" fill="#94a3b8" fontSize="10">int{` ->`}int</text>
+    <text x="655" y="225" textAnchor="middle" fill="#94a3b8" fontSize="10">(int, int){` ->`}int</text>
+
+    {/* Also available for */}
+    <text x="400" y="265" textAnchor="middle" fill="#64748b" fontSize="11">
+      Also available: LongFunction, DoubleFunction, IntPredicate, LongConsumer, etc.
+    </text>
+    <text x="400" y="285" textAnchor="middle" fill="#475569" fontSize="10">
+      43 primitive specializations total in java.util.function
+    </text>
+  </svg>
+)
+
+// Method References Diagram
+const MethodRefDiagram = () => (
+  <svg viewBox="0 0 800 350" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">
+      Four Types of Method References
+    </text>
+
+    {/* Static method reference */}
+    <rect x="50" y="50" width="170" height="60" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="135" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Static Method</text>
+    <text x="135" y="95" textAnchor="middle" fill="#bfdbfe" fontSize="10">Class::staticMethod</text>
+
+    {/* Instance method on specific object */}
+    <rect x="240" y="50" width="170" height="60" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="325" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Instance (bound)</text>
+    <text x="325" y="95" textAnchor="middle" fill="#bbf7d0" fontSize="10">object::instanceMethod</text>
+
+    {/* Instance method on arbitrary object */}
+    <rect x="430" y="50" width="170" height="60" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
+    <text x="515" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Instance (unbound)</text>
+    <text x="515" y="95" textAnchor="middle" fill="#fef3c7" fontSize="10">Class::instanceMethod</text>
+
+    {/* Constructor reference */}
+    <rect x="620" y="50" width="140" height="60" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="690" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Constructor</text>
+    <text x="690" y="95" textAnchor="middle" fill="#ddd6fe" fontSize="10">Class::new</text>
+
+    {/* Examples */}
+    <text x="135" y="135" textAnchor="middle" fill="#3b82f6" fontSize="11" fontWeight="bold">Example:</text>
+    <text x="135" y="155" textAnchor="middle" fill="#94a3b8" fontSize="10">Integer::parseInt</text>
+    <text x="135" y="170" textAnchor="middle" fill="#64748b" fontSize="9">{`s -> Integer.parseInt(s)`}</text>
+
+    <text x="325" y="135" textAnchor="middle" fill="#22c55e" fontSize="11" fontWeight="bold">Example:</text>
+    <text x="325" y="155" textAnchor="middle" fill="#94a3b8" fontSize="10">str::toLowerCase</text>
+    <text x="325" y="170" textAnchor="middle" fill="#64748b" fontSize="9">{`() -> str.toLowerCase()`}</text>
+
+    <text x="515" y="135" textAnchor="middle" fill="#f59e0b" fontSize="11" fontWeight="bold">Example:</text>
+    <text x="515" y="155" textAnchor="middle" fill="#94a3b8" fontSize="10">String::length</text>
+    <text x="515" y="170" textAnchor="middle" fill="#64748b" fontSize="9">{`s -> s.length()`}</text>
+
+    <text x="690" y="135" textAnchor="middle" fill="#8b5cf6" fontSize="11" fontWeight="bold">Example:</text>
+    <text x="690" y="155" textAnchor="middle" fill="#94a3b8" fontSize="10">ArrayList::new</text>
+    <text x="690" y="170" textAnchor="middle" fill="#64748b" fontSize="9">{`() -> new ArrayList()`}</text>
+
+    {/* Common uses */}
+    <rect x="50" y="200" width="700" height="130" rx="10" fill="rgba(59, 130, 246, 0.1)" stroke="rgba(59, 130, 246, 0.3)" strokeWidth="1"/>
+    <text x="400" y="225" textAnchor="middle" fill="#60a5fa" fontSize="13" fontWeight="bold">Common Use Cases</text>
+
+    <text x="400" y="250" textAnchor="middle" fill="#94a3b8" fontSize="11">{`
+      list.stream().map(String::toUpperCase) // Instance method on arbitrary object
+    `}</text>
+    <text x="400" y="270" textAnchor="middle" fill="#94a3b8" fontSize="11">{`
+      list.forEach(System.out::println) // Instance method on specific object
+    `}</text>
+    <text x="400" y="290" textAnchor="middle" fill="#94a3b8" fontSize="11">{`
+      Stream.of("1","2").map(Integer::parseInt) // Static method
+    `}</text>
+    <text x="400" y="310" textAnchor="middle" fill="#94a3b8" fontSize="11">{`
+      Stream.generate(StringBuilder::new) // Constructor
+    `}</text>
+  </svg>
+)
+
+// Currying and Partial Application Diagram
+const CurryingDiagram = () => (
+  <svg viewBox="0 0 800 280" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="curryArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#d946ef" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">
+      Currying - Transform Multi-Parameter Function
+    </text>
+
+    {/* Regular function */}
+    <rect x="80" y="60" width="180" height="80" rx="10" fill="#ef4444" stroke="#f87171" strokeWidth="2"/>
+    <text x="170" y="85" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Regular Function</text>
+    <text x="170" y="110" textAnchor="middle" fill="#fecaca" fontSize="11">(a, b, c) {`->`} result</text>
+    <text x="170" y="128" textAnchor="middle" fill="#fca5a5" fontSize="9">All at once</text>
+
+    {/* Arrow */}
+    <line x1="260" y1="100" x2="330" y2="100" stroke="#d946ef" strokeWidth="3" markerEnd="url(#curryArrow)"/>
+    <text x="295" y="90" textAnchor="middle" fill="#d946ef" fontSize="11" fontWeight="bold">Curry</text>
+
+    {/* Curried function */}
+    <rect x="335" y="60" width="200" height="80" rx="10" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
+    <text x="435" y="85" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Curried Function</text>
+    <text x="435" y="110" textAnchor="middle" fill="#bbf7d0" fontSize="11">a {`->`} (b {`->`} (c {`->`} result))</text>
+    <text x="435" y="128" textAnchor="middle" fill="#86efac" fontSize="9">One parameter at a time</text>
+
+    {/* Benefits */}
+    <rect x="570" y="60" width="180" height="80" rx="10" fill="rgba(139, 92, 246, 0.2)" stroke="#a78bfa" strokeWidth="2"/>
+    <text x="660" y="82" textAnchor="middle" fill="#ddd6fe" fontSize="11" fontWeight="bold">Benefits:</text>
+    <text x="660" y="100" textAnchor="middle" fill="#c4b5fd" fontSize="10">✓ Partial application</text>
+    <text x="660" y="116" textAnchor="middle" fill="#c4b5fd" fontSize="10">✓ Function factories</text>
+    <text x="660" y="132" textAnchor="middle" fill="#c4b5fd" fontSize="10">✓ Reusable configs</text>
+
+    {/* Example visualization */}
+    <rect x="80" y="170" width="640" height="90" rx="10" fill="rgba(6, 182, 212, 0.1)" stroke="rgba(6, 182, 212, 0.3)" strokeWidth="1"/>
+    <text x="400" y="195" textAnchor="middle" fill="#22d3ee" fontSize="12" fontWeight="bold">Example: Curried Addition</text>
+
+    <text x="400" y="220" textAnchor="middle" fill="#94a3b8" fontSize="11" fontFamily="monospace">
+      add(2)(3)(4) = 9
+    </text>
+    <text x="400" y="245" textAnchor="middle" fill="#64748b" fontSize="10">
+      add(2) returns addTwo, addTwo(3) returns addTwoThree, addTwoThree(4) = 9
+    </text>
+  </svg>
+)
+
+// Memoization Diagram
+const MemoizationDiagram = () => (
+  <svg viewBox="0 0 800 300" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">
+      Memoization - Cache Expensive Results
+    </text>
+
+    {/* Input */}
+    <rect x="80" y="80" width="100" height="60" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
+    <text x="130" y="107" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">Input: 5</text>
+    <text x="130" y="125" textAnchor="middle" fill="#bfdbfe" fontSize="10">fib(5)</text>
+
+    {/* First call - cache miss */}
+    <rect x="230" y="60" width="150" height="100" rx="10" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="305" y="85" textAnchor="middle" fill="#f87171" fontSize="12" fontWeight="bold">Cache Miss ❌</text>
+    <text x="305" y="105" textAnchor="middle" fill="#fca5a5" fontSize="10">Compute fib(5)</text>
+    <text x="305" y="125" textAnchor="middle" fill="#fca5a5" fontSize="10">= 15 calls</text>
+    <text x="305" y="145" textAnchor="middle" fill="#dc2626" fontSize="9">Store result: 5</text>
+
+    {/* Cache */}
+    <rect x="430" y="80" width="120" height="100" rx="8" fill="#fbbf24" stroke="#f59e0b" strokeWidth="2"/>
+    <text x="490" y="105" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Cache</text>
+    <rect x="445" y="115" width="90" height="22" rx="4" fill="rgba(15, 23, 42, 0.8)"/>
+    <text x="490" y="130" textAnchor="middle" fill="#fef3c7" fontSize="10" fontFamily="monospace">5 {`->`} 5</text>
+    <rect x="445" y="142" width="90" height="22" rx="4" fill="rgba(15, 23, 42, 0.8)"/>
+    <text x="490" y="157" textAnchor="middle" fill="#fef3c7" fontSize="10" fontFamily="monospace">10 {`->`} 55</text>
+
+    {/* Second call - cache hit */}
+    <rect x="600" y="60" width="150" height="100" rx="10" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
+    <text x="675" y="85" textAnchor="middle" fill="#4ade80" fontSize="12" fontWeight="bold">Cache Hit ✓</text>
+    <text x="675" y="105" textAnchor="middle" fill="#86efac" fontSize="10">Return cached</text>
+    <text x="675" y="125" textAnchor="middle" fill="#86efac" fontSize="10">result: 5</text>
+    <text x="675" y="145" textAnchor="middle" fill="#15803d" fontSize="9">1 lookup, O(1)</text>
+
+    {/* Performance comparison */}
+    <rect x="100" y="200" width="600" height="80" rx="10" fill="rgba(139, 92, 246, 0.1)" stroke="rgba(139, 92, 246, 0.3)" strokeWidth="1"/>
+    <text x="400" y="225" textAnchor="middle" fill="#a78bfa" fontSize="12" fontWeight="bold">Performance Impact</text>
+    <text x="400" y="250" textAnchor="middle" fill="#94a3b8" fontSize="11">
+      Without memo: fib(40) = 331,160,281 calls {`(~5 seconds)`}
+    </text>
+    <text x="400" y="270" textAnchor="middle" fill="#22c55e" fontSize="11" fontWeight="bold">
+      With memo: fib(40) = 40 calls {`(instant)`}
+    </text>
+  </svg>
+)
+
 // Custom Functional Interface Diagram
 const CustomInterfaceDiagram = () => (
   <svg viewBox="0 0 800 280" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
@@ -1447,6 +1655,1501 @@ public class ValidationBuilderDemo {
         ValidationResult userResult = userValidator.validate(user);
         System.out.println("User errors: " + userResult.getErrors());
         // [Name required, Must be 18+, Invalid email]
+    }
+}`
+        }
+      ]
+    },
+    {
+      id: 'primitive-interfaces',
+      name: 'Primitive Functional Interfaces',
+      icon: '⚡',
+      color: '#10b981',
+      description: 'Specialized functional interfaces for primitives (int, long, double) to avoid boxing/unboxing overhead and improve performance.',
+      diagram: PrimitiveDiagram,
+      details: [
+        {
+          name: 'IntFunction & ToIntFunction',
+          diagram: PrimitiveDiagram,
+          explanation: 'IntFunction<R> takes an int primitive and returns an object of type R. ToIntFunction<T> does the reverse - takes an object and returns an int primitive. These avoid boxing int to Integer and unboxing Integer to int, which saves memory and improves performance. Use IntFunction when you need to convert a primitive int to some object type, and ToIntFunction when you need to extract an int value from an object.',
+          codeExample: `import java.util.function.*;
+import java.util.*;
+import java.util.stream.*;
+
+public class IntFunctionExample {
+    public static void main(String[] args) {
+        // IntFunction<R>: int -> R (primitive input, object output)
+        IntFunction<String> intToStr = i -> "Number: " + i;
+        System.out.println(intToStr.apply(42)); // Number: 42
+
+        // ToIntFunction<T>: T -> int (object input, primitive output)
+        ToIntFunction<String> strLength = String::length;
+        System.out.println(strLength.applyAsInt("Hello")); // 5
+
+        // Real-world usage in streams
+        List<String> words = Arrays.asList("hi", "hello", "hey");
+
+        // Without primitive specialization (boxing overhead)
+        int[] lengths1 = words.stream()
+            .map(String::length)         // Returns Stream<Integer> (BOXED!)
+            .mapToInt(Integer::intValue) // Unbox back to int
+            .toArray();
+
+        // With ToIntFunction (no boxing - more efficient)
+        int[] lengths2 = words.stream()
+            .mapToInt(String::length)    // Direct int stream
+            .toArray();
+
+        System.out.println(Arrays.toString(lengths2)); // [2, 5, 3]
+
+        // IntFunction for generating objects from ints
+        IntFunction<int[]> arrayGenerator = int[]::new;
+        int[] arr = arrayGenerator.apply(5);
+        System.out.println("Array length: " + arr.length); // 5
+    }
+}`
+        },
+        {
+          name: 'IntPredicate, IntConsumer, IntSupplier',
+          explanation: 'IntPredicate tests int primitives (int -> boolean). IntConsumer accepts int primitives (int -> void). IntSupplier generates int primitives (() -> int). These three follow the same patterns as their generic counterparts but work with int primitives directly. Similar interfaces exist for long and double: LongPredicate, DoubleConsumer, etc. Using these specialized versions avoids the overhead of autoboxing/unboxing.',
+          codeExample: `import java.util.function.*;
+import java.util.stream.*;
+import java.util.*;
+
+public class IntSpecializedExample {
+    public static void main(String[] args) {
+        // IntPredicate: int -> boolean
+        IntPredicate isEven = n -> n % 2 == 0;
+        IntPredicate isPositive = n -> n > 0;
+
+        System.out.println("4 is even: " + isEven.test(4)); // true
+        System.out.println("-2 is positive: " + isPositive.test(-2)); // false
+
+        // Combining predicates
+        IntPredicate evenAndPositive = isEven.and(isPositive);
+        System.out.println("4 is even and positive: " + evenAndPositive.test(4)); // true
+
+        // IntConsumer: int -> void
+        IntConsumer printSquare = n -> System.out.println(n + " squared = " + (n * n));
+        IntConsumer printCube = n -> System.out.println(n + " cubed = " + (n * n * n));
+
+        printSquare.accept(5); // 5 squared = 25
+
+        // Chaining consumers
+        IntConsumer both = printSquare.andThen(printCube);
+        both.accept(3);
+        // 3 squared = 9
+        // 3 cubed = 27
+
+        // IntSupplier: () -> int
+        Random random = new Random();
+        IntSupplier randomDice = () -> random.nextInt(6) + 1;
+        IntSupplier constant42 = () -> 42;
+
+        System.out.println("Dice roll: " + randomDice.getAsInt());
+        System.out.println("Constant: " + constant42.getAsInt()); // 42
+
+        // Real-world: filtering with IntStream
+        int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        int sumOfEvenPositives = IntStream.of(numbers)
+            .filter(evenAndPositive) // IntPredicate - no boxing!
+            .sum();
+        System.out.println("Sum of even positives: " + sumOfEvenPositives); // 30
+
+        // Generating random numbers
+        int[] randomNumbers = IntStream.generate(randomDice)
+            .limit(10)
+            .toArray();
+        System.out.println("Random dice rolls: " + Arrays.toString(randomNumbers));
+    }
+}`
+        },
+        {
+          name: 'IntUnaryOperator & IntBinaryOperator',
+          explanation: 'IntUnaryOperator transforms an int to another int (int -> int), like squaring or negating. IntBinaryOperator combines two ints into one int ((int, int) -> int), perfect for operations like addition, multiplication, or finding max/min. These are essential for parallel streams and reduce operations where boxing would kill performance. LongUnaryOperator, DoubleBinaryOperator, etc., exist for other primitive types.',
+          codeExample: `import java.util.function.*;
+import java.util.stream.*;
+
+public class IntOperatorExample {
+    public static void main(String[] args) {
+        // IntUnaryOperator: int -> int
+        IntUnaryOperator square = n -> n * n;
+        IntUnaryOperator negate = n -> -n;
+        IntUnaryOperator plusOne = n -> n + 1;
+
+        System.out.println("square(5) = " + square.applyAsInt(5)); // 25
+        System.out.println("negate(10) = " + negate.applyAsInt(10)); // -10
+
+        // Composing operators
+        IntUnaryOperator squareThenNegate = square.andThen(negate);
+        System.out.println("squareThenNegate(5) = " + squareThenNegate.applyAsInt(5)); // -25
+
+        IntUnaryOperator negateThenSquare = square.compose(negate);
+        System.out.println("negateThenSquare(5) = " + negateThenSquare.applyAsInt(5)); // 25
+
+        // IntBinaryOperator: (int, int) -> int
+        IntBinaryOperator add = (a, b) -> a + b;
+        IntBinaryOperator multiply = (a, b) -> a * b;
+        IntBinaryOperator max = (a, b) -> a > b ? a : b;
+
+        System.out.println("add(3, 4) = " + add.applyAsInt(3, 4)); // 7
+        System.out.println("multiply(3, 4) = " + multiply.applyAsInt(3, 4)); // 12
+        System.out.println("max(3, 4) = " + max.applyAsInt(3, 4)); // 4
+
+        // Real-world: reduce operations (NO BOXING!)
+        int product = IntStream.rangeClosed(1, 10)
+            .reduce(1, multiply); // Uses IntBinaryOperator
+        System.out.println("10! = " + product); // 3628800
+
+        // Parallel reduction
+        int sum = IntStream.rangeClosed(1, 1_000_000)
+            .parallel()
+            .reduce(0, add); // Efficient parallel reduction
+        System.out.println("Sum 1 to 1M = " + sum); // 1784293664 (overflow)
+
+        // Array transformation with replaceAll-like operation
+        int[] nums = {1, 2, 3, 4, 5};
+        nums = IntStream.of(nums)
+            .map(square) // IntUnaryOperator - no boxing!
+            .toArray();
+        System.out.println("Squared array: " + java.util.Arrays.toString(nums));
+        // [1, 4, 9, 16, 25]
+
+        // Performance-critical: process large arrays
+        int[] largeArray = IntStream.range(0, 10_000_000)
+            .map(n -> n * 2) // IntUnaryOperator - blazing fast
+            .toArray();
+        System.out.println("Processed " + largeArray.length + " elements");
+    }
+}`
+        },
+        {
+          name: 'LongFunction, DoubleFunction, etc.',
+          explanation: 'Similar specialized interfaces exist for long and double primitives: LongFunction<R>, DoubleToIntFunction, LongPredicate, DoubleConsumer, LongSupplier, LongUnaryOperator, DoubleBinaryOperator, and many more. In total, there are 43 primitive specializations in java.util.function. The naming pattern is consistent: prefix with the primitive type(s) involved. Use these when working with primitives in performance-critical code, especially with large streams or collections.',
+          codeExample: `import java.util.function.*;
+import java.util.stream.*;
+
+public class AllPrimitiveSpecializations {
+    public static void main(String[] args) {
+        // LongFunction: long -> R
+        LongFunction<String> longToHex = Long::toHexString;
+        System.out.println("255 in hex: " + longToHex.apply(255L)); // ff
+
+        // DoubleToIntFunction: double -> int
+        DoubleToIntFunction doubleToInt = d -> (int) Math.round(d);
+        System.out.println("3.7 rounded: " + doubleToInt.applyAsInt(3.7)); // 4
+
+        // IntToLongFunction: int -> long
+        IntToLongFunction square = n -> (long) n * n;
+        System.out.println("1000^2 = " + square.applyAsLong(1000)); // 1000000
+
+        // DoubleUnaryOperator: double -> double
+        DoubleUnaryOperator sqrt = Math::sqrt;
+        DoubleUnaryOperator square2 = d -> d * d;
+        System.out.println("sqrt(16) = " + sqrt.applyAsDouble(16.0)); // 4.0
+
+        // DoubleBinaryOperator: (double, double) -> double
+        DoubleBinaryOperator avg = (a, b) -> (a + b) / 2.0;
+        System.out.println("avg(5, 10) = " + avg.applyAsDouble(5.0, 10.0)); // 7.5
+
+        // LongPredicate: long -> boolean
+        LongPredicate isPrime = n -> {
+            if (n < 2) return false;
+            for (long i = 2; i * i <= n; i++) {
+                if (n % i == 0) return false;
+            }
+            return true;
+        };
+        System.out.println("17 is prime: " + isPrime.test(17L)); // true
+
+        // DoublePredicate: double -> boolean
+        DoublePredicate isInRange = d -> d >= 0.0 && d <= 1.0;
+        System.out.println("0.5 in [0,1]: " + isInRange.test(0.5)); // true
+
+        // LongConsumer: long -> void
+        LongConsumer printBinary = n -> System.out.println(Long.toBinaryString(n));
+        printBinary.accept(7L); // 111
+
+        // DoubleSupplier: () -> double
+        DoubleSupplier random = Math::random;
+        System.out.println("Random: " + random.getAsDouble());
+
+        // Complete conversion matrix examples
+        IntToDoubleFunction intToDouble = i -> i * 1.0;
+        DoubleToLongFunction doubleToLong = d -> (long) d;
+        LongToDoubleFunction longToDouble = l -> l / 1000.0;
+
+        // Real-world: processing financial data
+        double[] prices = {100.50, 101.25, 99.75, 102.00, 100.00};
+        double avgPrice = DoubleStream.of(prices)
+            .average()
+            .orElse(0.0);
+        System.out.println("Average price: $" + avgPrice);
+
+        // Processing timestamps (long) without boxing
+        long[] timestamps = LongStream.range(1_000_000_000L, 1_000_000_010L)
+            .filter(isPrime)
+            .toArray();
+        System.out.println("Prime timestamps: " + timestamps.length);
+    }
+}`
+        }
+      ]
+    },
+    {
+      id: 'method-references',
+      name: 'Method References',
+      icon: '🔗',
+      color: '#3b82f6',
+      description: 'Method references are shorthand notation for lambda expressions that just call an existing method. Four types: static, instance (bound), instance (unbound), and constructor.',
+      diagram: MethodRefDiagram,
+      details: [
+        {
+          name: 'Static Method References',
+          diagram: MethodRefDiagram,
+          explanation: 'Static method references use the syntax ClassName::staticMethod. They are equivalent to lambda expressions that call that static method with the same parameters. Common examples include Integer::parseInt, Math::abs, Collections::sort. Use static method references when you need to call a utility method that doesn\'t depend on object state.',
+          codeExample: `import java.util.*;
+import java.util.stream.*;
+import java.util.function.*;
+
+public class StaticMethodReference {
+    public static void main(String[] args) {
+        // Static method reference
+        Function<String, Integer> parse1 = Integer::parseInt;
+        // Equivalent lambda:
+        Function<String, Integer> parse2 = s -> Integer.parseInt(s);
+
+        System.out.println("Parsed: " + parse1.apply("123")); // 123
+
+        // Common use case: Stream transformations
+        List<String> numbers = Arrays.asList("1", "2", "3", "4", "5");
+        List<Integer> ints = numbers.stream()
+            .map(Integer::parseInt) // Static method reference
+            .collect(Collectors.toList());
+        System.out.println("Integers: " + ints); // [1, 2, 3, 4, 5]
+
+        // Math utilities
+        DoubleUnaryOperator abs = Math::abs;
+        DoubleUnaryOperator sqrt = Math::sqrt;
+        System.out.println("abs(-5.0) = " + abs.applyAsDouble(-5.0)); // 5.0
+        System.out.println("sqrt(16.0) = " + sqrt.applyAsDouble(16.0)); // 4.0
+
+        // Custom static methods
+        List<String> words = Arrays.asList("hello", "world", "java");
+        words.stream()
+            .map(StaticMethodReference::capitalize) // Our static method
+            .forEach(System.out::println);
+        // Hello
+        // World
+        // Java
+
+        // Collections utilities
+        List<Integer> nums = Arrays.asList(5, 2, 8, 1, 9);
+        Collections.sort(nums, Comparator.reverseOrder());
+        // Can also use: nums.sort(Comparator.reverseOrder())
+
+        // Static factory methods
+        Supplier<StringBuilder> sbSupplier = StringBuilder::new;
+        StringBuilder sb = sbSupplier.get();
+        System.out.println("Created: " + sb.getClass().getSimpleName());
+    }
+
+    public static String capitalize(String s) {
+        return s.substring(0, 1).toUpperCase() + s.substring(1);
+    }
+}`
+        },
+        {
+          name: 'Instance Method References (Bound)',
+          explanation: 'Bound instance method references use object::method syntax where object is a specific instance. The reference is "bound" to that particular object. Equivalent to a lambda that calls the method on that captured object. Common example: System.out::println. The object is captured when the reference is created, so changes to the object are reflected in the method reference.',
+          codeExample: `import java.util.*;
+import java.util.function.*;
+
+public class BoundInstanceMethodRef {
+    public static void main(String[] args) {
+        // Bound to specific object
+        String str = "Hello";
+        Supplier<Integer> lengthGetter = str::length;
+        // Equivalent: () -> str.length()
+
+        System.out.println("Length: " + lengthGetter.get()); // 5
+
+        // System.out is a specific PrintStream object
+        Consumer<String> printer = System.out::println;
+        // Equivalent: s -> System.out.println(s)
+
+        List<String> words = Arrays.asList("Java", "Python", "JavaScript");
+        words.forEach(System.out::println); // Bound instance method ref
+        // Java
+        // Python
+        // JavaScript
+
+        // Bound to specific string
+        String prefix = "Result: ";
+        Function<String, String> addPrefix = prefix::concat;
+        // Equivalent: s -> prefix.concat(s)
+        System.out.println(addPrefix.apply("Success")); // Result: Success
+
+        // Custom object method
+        Counter counter = new Counter();
+        Runnable incrementer = counter::increment;
+        Consumer<Integer> incrementBy = counter::incrementBy;
+
+        incrementer.run();
+        incrementer.run();
+        incrementBy.accept(5);
+        System.out.println("Count: " + counter.getCount()); // 7
+
+        // Bound to specific list
+        List<String> names = new ArrayList<>();
+        Consumer<String> addName = names::add;
+        Supplier<Integer> getSize = names::size;
+
+        addName.accept("Alice");
+        addName.accept("Bob");
+        System.out.println("Size: " + getSize.get()); // 2
+
+        // Bound to specific comparator
+        Comparator<String> caseInsensitive = String::compareToIgnoreCase;
+        List<String> items = Arrays.asList("Banana", "apple", "Cherry");
+        items.sort(caseInsensitive);
+        System.out.println("Sorted: " + items); // [apple, Banana, Cherry]
+    }
+}
+
+class Counter {
+    private int count = 0;
+
+    public void increment() {
+        count++;
+    }
+
+    public void incrementBy(int n) {
+        count += n;
+    }
+
+    public int getCount() {
+        return count;
+    }
+}`
+        },
+        {
+          name: 'Instance Method References (Unbound)',
+          explanation: 'Unbound instance method references use ClassName::instanceMethod. The first parameter to the lambda becomes the object on which the method is called. Common for mapping operations: String::length means s -> s.length(). This is different from bound references because the object is provided when the functional interface is invoked, not when the reference is created.',
+          codeExample: `import java.util.*;
+import java.util.stream.*;
+import java.util.function.*;
+
+public class UnboundInstanceMethodRef {
+    public static void main(String[] args) {
+        // Unbound: first parameter becomes the object
+        Function<String, Integer> length = String::length;
+        // Equivalent: s -> s.length()
+        System.out.println("Length of 'Hello': " + length.apply("Hello")); // 5
+
+        // Very common in Stream operations
+        List<String> words = Arrays.asList("hi", "hello", "hey", "goodbye");
+        List<Integer> lengths = words.stream()
+            .map(String::length) // Unbound: each string calls its own length()
+            .collect(Collectors.toList());
+        System.out.println("Lengths: " + lengths); // [2, 5, 3, 7]
+
+        // String transformations
+        List<String> upper = words.stream()
+            .map(String::toUpperCase) // s -> s.toUpperCase()
+            .collect(Collectors.toList());
+        System.out.println("Upper: " + upper); // [HI, HELLO, HEY, GOODBYE]
+
+        // BiFunction: two parameters
+        BiFunction<String, String, Boolean> startsWith = String::startsWith;
+        // Equivalent: (s, prefix) -> s.startsWith(prefix)
+        System.out.println(startsWith.apply("Hello", "He")); // true
+
+        // Predicate with instance method
+        Predicate<String> isEmpty = String::isEmpty;
+        List<String> nonEmpty = words.stream()
+            .filter(isEmpty.negate()) // Negate the predicate
+            .collect(Collectors.toList());
+        System.out.println("Non-empty: " + nonEmpty);
+
+        // Comparator
+        Comparator<String> byLength = Comparator.comparing(String::length);
+        words.sort(byLength);
+        System.out.println("Sorted by length: " + words);
+        // [hi, hey, hello, goodbye]
+
+        // Custom class
+        List<Person> people = Arrays.asList(
+            new Person("Alice", 30),
+            new Person("Bob", 25),
+            new Person("Charlie", 35)
+        );
+
+        // Extract names
+        List<String> names = people.stream()
+            .map(Person::getName) // Unbound reference
+            .collect(Collectors.toList());
+        System.out.println("Names: " + names); // [Alice, Bob, Charlie]
+
+        // Sort by age
+        people.sort(Comparator.comparing(Person::getAge));
+        System.out.println("Sorted by age: " + people);
+
+        // BiPredicate
+        BiPredicate<String, String> equalsIgnoreCase = String::equalsIgnoreCase;
+        System.out.println(equalsIgnoreCase.test("HELLO", "hello")); // true
+    }
+}
+
+class Person {
+    private String name;
+    private int age;
+
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getName() { return name; }
+    public int getAge() { return age; }
+
+    @Override
+    public String toString() {
+        return name + "(" + age + ")";
+    }
+}`
+        },
+        {
+          name: 'Constructor References',
+          explanation: 'Constructor references use ClassName::new to create new instances. They are equivalent to lambdas that call new. The number of parameters determines which constructor is called. Commonly used with Supplier (no-arg constructor), Function (one-arg), BiFunction (two-arg), or custom functional interfaces. Also works with array constructors: int[]::new.',
+          codeExample: `import java.util.*;
+import java.util.stream.*;
+import java.util.function.*;
+
+public class ConstructorReference {
+    public static void main(String[] args) {
+        // No-arg constructor
+        Supplier<ArrayList<String>> listSupplier = ArrayList::new;
+        // Equivalent: () -> new ArrayList<String>()
+        ArrayList<String> list1 = listSupplier.get();
+        System.out.println("Created: " + list1.getClass().getSimpleName());
+
+        // One-arg constructor
+        Function<Integer, ArrayList<String>> listWithCapacity = ArrayList::new;
+        // Equivalent: capacity -> new ArrayList<String>(capacity)
+        ArrayList<String> list2 = listWithCapacity.apply(100);
+        System.out.println("Capacity list: " + list2.getClass().getSimpleName());
+
+        // Custom class constructor
+        Function<String, Person> personCreator = Person::new;
+        BiFunction<String, Integer, Person> fullPersonCreator = Person::new;
+
+        Person p1 = personCreator.apply("Alice");
+        Person p2 = fullPersonCreator.apply("Bob", 25);
+        System.out.println("Created: " + p1 + ", " + p2);
+
+        // Stream with constructor reference
+        List<String> names = Arrays.asList("Alice", "Bob", "Charlie");
+        List<Person> people = names.stream()
+            .map(Person::new) // Create Person from name
+            .collect(Collectors.toList());
+        System.out.println("People: " + people);
+
+        // Array constructor reference
+        IntFunction<int[]> intArrayCreator = int[]::new;
+        int[] arr = intArrayCreator.apply(10);
+        System.out.println("Array length: " + arr.length); // 10
+
+        // Generic array creator
+        IntFunction<String[]> stringArrayCreator = String[]::new;
+        String[] words = Stream.of("a", "b", "c")
+            .toArray(String[]::new); // Constructor reference for toArray
+        System.out.println("Array: " + Arrays.toString(words));
+
+        // Collection factory
+        Supplier<Set<String>> setFactory = HashSet::new;
+        Set<String> uniqueWords = Stream.of("a", "b", "a", "c", "b")
+            .collect(Collectors.toCollection(setFactory));
+        System.out.println("Unique: " + uniqueWords); // [a, b, c]
+
+        // Or more directly
+        Set<String> uniqueWords2 = Stream.of("a", "b", "a", "c", "b")
+            .collect(Collectors.toCollection(HashSet::new));
+
+        // StringBuilder with capacity
+        IntFunction<StringBuilder> sbWithCapacity = StringBuilder::new;
+        StringBuilder sb = sbWithCapacity.apply(100);
+
+        // Stream generate
+        Stream.generate(StringBuilder::new)
+            .limit(3)
+            .forEach(s -> System.out.println("Created StringBuilder"));
+
+        // Complex example: create map from list
+        Map<String, Person> personMap = people.stream()
+            .collect(Collectors.toMap(
+                Person::getName,
+                Function.identity(),
+                (p1, p2) -> p1,
+                HashMap::new // Constructor reference for map factory
+            ));
+        System.out.println("Map: " + personMap);
+    }
+}
+
+class Person {
+    private String name;
+    private int age;
+
+    public Person(String name) {
+        this(name, 0);
+    }
+
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getName() { return name; }
+    public int getAge() { return age; }
+
+    @Override
+    public String toString() {
+        return name + "(" + age + ")";
+    }
+}`
+        }
+      ]
+    },
+    {
+      id: 'advanced-patterns',
+      name: 'Advanced Functional Patterns',
+      icon: '🧩',
+      color: '#d946ef',
+      description: 'Advanced techniques like currying, partial application, memoization, and function composition for building powerful, reusable functional code.',
+      diagram: CurryingDiagram,
+      details: [
+        {
+          name: 'Currying',
+          diagram: CurryingDiagram,
+          explanation: 'Currying transforms a function that takes multiple parameters into a chain of functions that each take a single parameter. Instead of f(a, b, c), you get f(a)(b)(c). This enables partial application - you can call the function with fewer arguments and get back a function that expects the remaining arguments. Currying is fundamental in functional programming for creating reusable, composable function factories.',
+          codeExample: `import java.util.function.*;
+
+public class CurryingExample {
+    public static void main(String[] args) {
+        // Regular function: (a, b, c) -> result
+        TriFunction<Integer, Integer, Integer, Integer> add3 =
+            (a, b, c) -> a + b + c;
+
+        System.out.println("add3(1, 2, 3) = " + add3.apply(1, 2, 3)); // 6
+
+        // Curried version: a -> (b -> (c -> result))
+        Function<Integer, Function<Integer, Function<Integer, Integer>>> curriedAdd =
+            a -> b -> c -> a + b + c;
+
+        System.out.println("curriedAdd(1)(2)(3) = " +
+            curriedAdd.apply(1).apply(2).apply(3)); // 6
+
+        // Partial application with currying
+        Function<Integer, Function<Integer, Integer>> add2 =
+            curriedAdd.apply(2); // Fix first argument to 2
+        Function<Integer, Integer> add2And3 = add2.apply(3); // Fix second to 3
+
+        System.out.println("add2And3(4) = " + add2And3.apply(4)); // 2+3+4 = 9
+
+        // Real-world: URL builder
+        Function<String, Function<String, Function<String, String>>> buildUrl =
+            protocol -> host -> path -> protocol + "://" + host + path;
+
+        Function<String, Function<String, String>> https =
+            buildUrl.apply("https");
+        Function<String, String> httpsGithub = https.apply("github.com");
+
+        System.out.println(httpsGithub.apply("/anthropics")); // https://github.com/anthropics
+        System.out.println(httpsGithub.apply("/openai")); // https://github.com/openai
+
+        // String formatter factory
+        Function<String, Function<Object, String>> formatFactory =
+            template -> value -> String.format(template, value);
+
+        Function<Object, String> currencyFormatter = formatFactory.apply("$%.2f");
+        Function<Object, String> percentFormatter = formatFactory.apply("%.1f%%");
+
+        System.out.println(currencyFormatter.apply(123.456)); // $123.46
+        System.out.println(percentFormatter.apply(67.89)); // 67.9%
+
+        // Validation builder
+        Function<Integer, Function<String, Predicate<String>>> minLength =
+            min -> fieldName -> value -> {
+                if (value.length() < min) {
+                    System.out.println(fieldName + " must be at least " + min + " chars");
+                    return false;
+                }
+                return true;
+            };
+
+        Predicate<String> validatePassword = minLength.apply(8).apply("Password");
+        Predicate<String> validateUsername = minLength.apply(3).apply("Username");
+
+        validatePassword.test("abc"); // Password must be at least 8 chars
+        validateUsername.test("ab"); // Username must be at least 3 chars
+    }
+}
+
+@FunctionalInterface
+interface TriFunction<T, U, V, R> {
+    R apply(T t, U u, V v);
+}`
+        },
+        {
+          name: 'Partial Application',
+          explanation: 'Partial application creates a new function by fixing some arguments of an existing function. Unlike currying (which is automatic transformation), partial application is manual and can fix any subset of parameters. It\'s useful for creating specialized versions of generic functions, configuration management, and building reusable function variations. Common in dependency injection and callback creation.',
+          codeExample: `import java.util.function.*;
+import java.util.*;
+
+public class PartialApplicationExample {
+    public static void main(String[] args) {
+        // Generic power function
+        BiFunction<Double, Double, Double> power = Math::pow;
+
+        // Partial application: fix the exponent
+        Function<Double, Double> square = partial(power, 2.0); // x^2
+        Function<Double, Double> cube = partial(power, 3.0); // x^3
+
+        System.out.println("square(5) = " + square.apply(5.0)); // 25.0
+        System.out.println("cube(3) = " + cube.apply(3.0)); // 27.0
+
+        // Reverse partial: fix the base
+        Function<Double, Double> twoToThe = partialFirst(power, 2.0); // 2^x
+        System.out.println("2^10 = " + twoToThe.apply(10.0)); // 1024.0
+
+        // Practical: HTTP request builder
+        TriFunction<String, String, Map<String, String>, HttpRequest> buildRequest =
+            (method, url, headers) -> new HttpRequest(method, url, headers);
+
+        // Create specialized request builders
+        BiFunction<String, Map<String, String>, HttpRequest> get =
+            (url, headers) -> buildRequest.apply("GET", url, headers);
+
+        BiFunction<String, Map<String, String>, HttpRequest> post =
+            (url, headers) -> buildRequest.apply("POST", url, headers);
+
+        // Further specialize with common headers
+        Map<String, String> jsonHeaders = Map.of("Content-Type", "application/json");
+        Function<String, HttpRequest> getJson = url -> get.apply(url, jsonHeaders);
+        Function<String, HttpRequest> postJson = url -> post.apply(url, jsonHeaders);
+
+        HttpRequest req1 = getJson.apply("/api/users");
+        HttpRequest req2 = postJson.apply("/api/users");
+
+        System.out.println(req1); // GET /api/users {Content-Type=application/json}
+        System.out.println(req2); // POST /api/users {Content-Type=application/json}
+
+        // Logger factory with partial application
+        TriFunction<String, String, String, Void> log =
+            (level, module, message) -> {
+                System.out.println("[" + level + "] " + module + ": " + message);
+                return null;
+            };
+
+        BiFunction<String, String, Void> infoLog =
+            (module, message) -> log.apply("INFO", module, message);
+
+        Function<String, Void> userServiceInfo =
+            message -> infoLog.apply("UserService", message);
+
+        userServiceInfo.apply("User created"); // [INFO] UserService: User created
+
+        // Math utilities
+        TriFunction<Integer, Integer, Integer, Integer> clamp =
+            (min, max, value) -> Math.max(min, Math.min(max, value));
+
+        Function<Integer, Integer> clamp0to100 = value ->
+            clamp.apply(0, 100, value);
+
+        System.out.println("clamp(-10) = " + clamp0to100.apply(-10)); // 0
+        System.out.println("clamp(150) = " + clamp0to100.apply(150)); // 100
+        System.out.println("clamp(50) = " + clamp0to100.apply(50)); // 50
+    }
+
+    // Utility: partial application (fix second parameter)
+    static <T, U, R> Function<T, R> partial(BiFunction<T, U, R> f, U u) {
+        return t -> f.apply(t, u);
+    }
+
+    // Utility: partial application (fix first parameter)
+    static <T, U, R> Function<U, R> partialFirst(BiFunction<T, U, R> f, T t) {
+        return u -> f.apply(t, u);
+    }
+}
+
+@FunctionalInterface
+interface TriFunction<T, U, V, R> {
+    R apply(T t, U u, V v);
+}
+
+class HttpRequest {
+    String method, url;
+    Map<String, String> headers;
+
+    HttpRequest(String method, String url, Map<String, String> headers) {
+        this.method = method;
+        this.url = url;
+        this.headers = headers;
+    }
+
+    @Override
+    public String toString() {
+        return method + " " + url + " " + headers;
+    }
+}`
+        },
+        {
+          name: 'Memoization',
+          diagram: MemoizationDiagram,
+          explanation: 'Memoization caches the results of expensive function calls and returns the cached result when the same inputs occur again. It trades memory for speed. Essential for recursive functions (like fibonacci), expensive computations, or functions called repeatedly with the same arguments. Java doesn\'t have built-in memoization, but we can implement it using Map and functional interfaces.',
+          codeExample: `import java.util.*;
+import java.util.function.*;
+
+public class MemoizationExample {
+    public static void main(String[] args) {
+        // Without memoization - very slow for fib(40)
+        System.out.println("Without memoization:");
+        long start1 = System.nanoTime();
+        long result1 = fib(40);
+        long time1 = (System.nanoTime() - start1) / 1_000_000;
+        System.out.println("fib(40) = " + result1 + " in " + time1 + "ms");
+
+        // With memoization - instant
+        Function<Integer, Long> memoFib = memoize(MemoizationExample::fibSlow);
+        System.out.println("\\nWith memoization:");
+        long start2 = System.nanoTime();
+        long result2 = memoFib.apply(40);
+        long time2 = (System.nanoTime() - start2) / 1_000_000;
+        System.out.println("fib(40) = " + result2 + " in " + time2 + "ms");
+
+        // Call again - instant (cached)
+        long start3 = System.nanoTime();
+        long result3 = memoFib.apply(40);
+        long time3 = (System.nanoTime() - start3) / 1_000_000;
+        System.out.println("fib(40) again = " + result3 + " in " + time3 + "ms (cached!)");
+
+        // Expensive computation: prime checking
+        Function<Long, Boolean> isPrime = memoize(MemoizationExample::isPrimeExpensive);
+
+        long start4 = System.nanoTime();
+        boolean prime1 = isPrime.apply(1_000_000_007L);
+        long time4 = (System.nanoTime() - start4) / 1_000_000;
+        System.out.println("\\n1000000007 is prime: " + prime1 + " in " + time4 + "ms");
+
+        long start5 = System.nanoTime();
+        boolean prime2 = isPrime.apply(1_000_000_007L);
+        long time5 = (System.nanoTime() - start5) / 1_000_000;
+        System.out.println("1000000007 is prime: " + prime2 + " in " + time5 + "ms (cached!)");
+
+        // Real-world: API call memoization
+        Function<String, String> fetchUser = memoize(userId -> {
+            System.out.println("  [Simulating API call for " + userId + "]");
+            try { Thread.sleep(1000); } catch (Exception e) {}
+            return "User data for " + userId;
+        });
+
+        System.out.println("\\nFetching user data:");
+        System.out.println(fetchUser.apply("user123")); // Takes 1 second
+        System.out.println(fetchUser.apply("user456")); // Takes 1 second
+        System.out.println(fetchUser.apply("user123")); // Instant (cached)
+
+        // BiFunction memoization
+        BiFunction<Integer, Integer, Integer> expensiveCalc = memoizeBi((a, b) -> {
+            System.out.println("  [Computing " + a + " + " + b + "]");
+            return a * a + b * b;
+        });
+
+        System.out.println("\\nBiFunction memoization:");
+        System.out.println("Result: " + expensiveCalc.apply(3, 4)); // Computes
+        System.out.println("Result: " + expensiveCalc.apply(5, 6)); // Computes
+        System.out.println("Result: " + expensiveCalc.apply(3, 4)); // Cached!
+    }
+
+    // Memoization decorator for Function
+    public static <T, R> Function<T, R> memoize(Function<T, R> function) {
+        Map<T, R> cache = new HashMap<>();
+        return input -> cache.computeIfAbsent(input, function);
+    }
+
+    // Memoization decorator for BiFunction
+    public static <T, U, R> BiFunction<T, U, R> memoizeBi(BiFunction<T, U, R> function) {
+        Map<String, R> cache = new HashMap<>();
+        return (t, u) -> {
+            String key = t + "_" + u;
+            return cache.computeIfAbsent(key, k -> function.apply(t, u));
+        };
+    }
+
+    // Fast fibonacci with manual memoization
+    private static Map<Integer, Long> fibCache = new HashMap<>();
+    public static long fib(int n) {
+        if (n <= 1) return n;
+        return fibCache.computeIfAbsent(n, k -> fib(n - 1) + fib(n - 2));
+    }
+
+    // Slow fibonacci (for comparison)
+    public static long fibSlow(int n) {
+        if (n <= 1) return (long) n;
+        return fibSlow(n - 1) + fibSlow(n - 2);
+    }
+
+    // Expensive prime check
+    public static boolean isPrimeExpensive(long n) {
+        if (n < 2) return false;
+        if (n == 2) return true;
+        if (n % 2 == 0) return false;
+        for (long i = 3; i * i <= n; i += 2) {
+            if (n % i == 0) return false;
+        }
+        return true;
+    }
+}`
+        },
+        {
+          name: 'Function Composition & Chaining',
+          explanation: 'Function composition combines simple functions to build complex ones. compose() applies the other function first, then this one. andThen() applies this function first, then the other. Predicates can be combined with and(), or(), negate(). Consumers can be chained with andThen(). This creates pipelines of transformations and enables clean, declarative code.',
+          codeExample: `import java.util.function.*;
+import java.util.*;
+import java.util.stream.*;
+
+public class FunctionComposition {
+    public static void main(String[] args) {
+        // Function composition with andThen
+        Function<String, String> trim = String::trim;
+        Function<String, String> lower = String::toLowerCase;
+        Function<String, Integer> length = String::length;
+
+        Function<String, Integer> processString = trim.andThen(lower).andThen(length);
+        System.out.println("Process '  HELLO  ': " + processString.apply("  HELLO  ")); // 5
+
+        // Function composition with compose (reverse order)
+        Function<Integer, Integer> square = n -> n * n;
+        Function<Integer, Integer> addTwo = n -> n + 2;
+
+        Function<Integer, Integer> squareFirst = addTwo.compose(square); // (x^2) + 2
+        Function<Integer, Integer> addFirst = square.compose(addTwo); // (x + 2)^2
+
+        System.out.println("squareFirst(3) = " + squareFirst.apply(3)); // 11 = 3^2 + 2
+        System.out.println("addFirst(3) = " + addFirst.apply(3)); // 25 = (3+2)^2
+
+        // Predicate composition
+        Predicate<Integer> isEven = n -> n % 2 == 0;
+        Predicate<Integer> isPositive = n -> n > 0;
+        Predicate<Integer> greaterThan10 = n -> n > 10;
+
+        // AND composition
+        Predicate<Integer> evenAndPositive = isEven.and(isPositive);
+        System.out.println("4 is even and positive: " + evenAndPositive.test(4)); // true
+        System.out.println("-2 is even and positive: " + evenAndPositive.test(-2)); // false
+
+        // OR composition
+        Predicate<Integer> evenOrPositive = isEven.or(isPositive);
+        System.out.println("-2 is even or positive: " + evenOrPositive.test(-2)); // true
+
+        // NEGATE
+        Predicate<Integer> isOdd = isEven.negate();
+        System.out.println("3 is odd: " + isOdd.test(3)); // true
+
+        // Complex predicate chains
+        Predicate<Integer> complex = isEven
+            .and(isPositive)
+            .and(greaterThan10)
+            .or(n -> n == 0);
+
+        System.out.println("12 matches complex: " + complex.test(12)); // true
+        System.out.println("0 matches complex: " + complex.test(0)); // true
+        System.out.println("5 matches complex: " + complex.test(5)); // false
+
+        // Consumer chaining
+        Consumer<String> print = System.out::print;
+        Consumer<String> newLine = s -> System.out.println();
+        Consumer<String> printWithNewLine = print.andThen(newLine);
+
+        printWithNewLine.accept("Hello"); // Hello\\n
+
+        // Multiple consumer chain
+        Consumer<List<Integer>> sort = Collections::sort;
+        Consumer<List<Integer>> reverse = Collections::reverse;
+        Consumer<List<Integer>> display = list -> System.out.println(list);
+
+        Consumer<List<Integer>> processAndDisplay = sort
+            .andThen(reverse)
+            .andThen(display);
+
+        List<Integer> nums = new ArrayList<>(Arrays.asList(5, 2, 8, 1, 9));
+        processAndDisplay.accept(nums); // [9, 8, 5, 2, 1]
+
+        // Real-world: data pipeline
+        Function<String, String> removeSpaces = s -> s.replace(" ", "");
+        Function<String, String> toLowerCase = String::toLowerCase;
+        Function<String, String> reverse = s -> new StringBuilder(s).reverse().toString();
+
+        Function<String, String> pipeline = removeSpaces
+            .andThen(toLowerCase)
+            .andThen(reverse);
+
+        System.out.println("Pipeline 'Hello World': " + pipeline.apply("Hello World"));
+        // dlrowolleh
+
+        // Stream filter with composed predicates
+        List<Integer> numbers = IntStream.range(-20, 20).boxed().collect(Collectors.toList());
+        List<Integer> filtered = numbers.stream()
+            .filter(evenAndPositive.and(greaterThan10.negate()))
+            .collect(Collectors.toList());
+        System.out.println("Filtered: " + filtered); // [2, 4, 6, 8, 10]
+
+        // Custom function composition
+        Function<String, String> pipeline2 = compose(
+            String::trim,
+            String::toLowerCase,
+            s -> s.replace("a", "*")
+        );
+        System.out.println("Multi-compose: " + pipeline2.apply("  BANANA  "));
+        // b*n*n*
+    }
+
+    // Utility: compose multiple functions
+    @SafeVarargs
+    public static <T> Function<T, T> compose(Function<T, T>... functions) {
+        return input -> {
+            T result = input;
+            for (Function<T, T> f : functions) {
+                result = f.apply(result);
+            }
+            return result;
+        };
+    }
+}`
+        }
+      ]
+    },
+    {
+      id: 'best-practices',
+      name: 'Best Practices & Common Pitfalls',
+      icon: '⚠️',
+      color: '#ef4444',
+      description: 'Essential guidelines, performance considerations, and common mistakes to avoid when using functional interfaces in Java.',
+      diagram: null,
+      details: [
+        {
+          name: 'When to Use Functional Interfaces',
+          explanation: 'Use functional interfaces for callbacks, event handlers, stream operations, and any behavior parameterization. They excel at: single-use code (lambdas), async operations (CompletableFuture), collection processing (streams), and strategy patterns. Don\'t use them for: complex multi-method abstractions (use regular interfaces), stateful operations (use classes), or when method names provide important documentation (SAM hides method names).',
+          codeExample: `import java.util.*;
+import java.util.function.*;
+import java.util.stream.*;
+
+public class WhenToUseFunctionalInterfaces {
+    public static void main(String[] args) {
+        // ✅ GOOD: Stream operations
+        List<String> names = Arrays.asList("Alice", "Bob", "Charlie", "David");
+        List<String> shortNames = names.stream()
+            .filter(name -> name.length() <= 4) // Predicate
+            .map(String::toUpperCase) // Function
+            .collect(Collectors.toList());
+        System.out.println("Short names: " + shortNames); // [BOB]
+
+        // ✅ GOOD: Callback patterns
+        performAsync("Task 1", result -> System.out.println("Done: " + result));
+
+        // ✅ GOOD: Strategy pattern
+        Calculator calc = new Calculator();
+        System.out.println("Add: " + calc.calculate(5, 3, (a, b) -> a + b));
+        System.out.println("Multiply: " + calc.calculate(5, 3, (a, b) -> a * b));
+
+        // ✅ GOOD: Conditional execution
+        executeIf(true, () -> System.out.println("Condition is true"));
+
+        // ✅ GOOD: Resource management with Supplier
+        String data = getOrDefault(() -> fetchFromDatabase(), "default");
+
+        // ❌ BAD: Using functional interface for complex behavior
+        // Don't do this - use a proper interface instead
+        // BiFunction<String, Integer, Result> complexOperation = ...
+
+        // ✅ BETTER: Use a descriptive interface
+        interface DataProcessor {
+            Result process(String input, int iterations);
+        }
+        DataProcessor processor = (input, iterations) -> {
+            // Complex multi-step processing
+            return new Result(input + " processed " + iterations + " times");
+        };
+
+        // ❌ BAD: Functional interface hiding important method names
+        // Consumer<User> updateUser = user -> { ... }; // What does it do?
+
+        // ✅ BETTER: Named method makes intent clear
+        interface UserUpdater {
+            void updateEmailAndNotify(User user);
+        }
+
+        // ✅ GOOD: One-off comparators
+        names.sort((a, b) -> a.length() - b.length());
+
+        // ✅ GOOD: Event handlers
+        Button button = new Button();
+        button.setOnClick(() -> System.out.println("Button clicked!"));
+
+        System.out.println("Examples completed");
+    }
+
+    static void performAsync(String task, Consumer<String> callback) {
+        // Simulate async work
+        callback.accept(task + " completed");
+    }
+
+    static void executeIf(boolean condition, Runnable action) {
+        if (condition) {
+            action.run();
+        }
+    }
+
+    static <T> T getOrDefault(Supplier<T> supplier, T defaultValue) {
+        try {
+            return supplier.get();
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    static String fetchFromDatabase() {
+        return "DB data";
+    }
+}
+
+class Calculator {
+    public int calculate(int a, int b, BinaryOperator<Integer> operation) {
+        return operation.apply(a, b);
+    }
+}
+
+class Button {
+    void setOnClick(Runnable handler) {
+        handler.run();
+    }
+}
+
+class Result {
+    String value;
+    Result(String value) { this.value = value; }
+}
+
+class User {
+    String email;
+}`
+        },
+        {
+          name: 'Performance Considerations',
+          explanation: 'Lambdas are not free - each creates an object (though often cached). Use primitive specializations (IntPredicate) to avoid boxing. Method references are usually more efficient than lambdas. Stateless lambdas can be cached by the JVM. Avoid capturing mutable state - it prevents caching and causes bugs. For hot paths, consider: primitive streams, method references over lambdas, and parallel streams for large datasets only (overhead!).',
+          codeExample: `import java.util.*;
+import java.util.function.*;
+import java.util.stream.*;
+
+public class PerformanceConsiderations {
+    public static void main(String[] args) {
+        int[] largeArray = IntStream.range(0, 10_000_000).toArray();
+
+        // ❌ BAD: Boxing overhead
+        long start1 = System.nanoTime();
+        int sum1 = Arrays.stream(largeArray)
+            .boxed() // Boxes int to Integer
+            .filter(n -> n % 2 == 0) // Predicate<Integer> - autoboxing!
+            .mapToInt(Integer::intValue) // Unbox back
+            .sum();
+        long time1 = (System.nanoTime() - start1) / 1_000_000;
+        System.out.println("With boxing: " + time1 + "ms");
+
+        // ✅ GOOD: Primitive streams, no boxing
+        long start2 = System.nanoTime();
+        int sum2 = Arrays.stream(largeArray)
+            .filter(n -> n % 2 == 0) // IntPredicate - primitives only!
+            .sum();
+        long time2 = (System.nanoTime() - start2) / 1_000_000;
+        System.out.println("Without boxing: " + time2 + "ms");
+
+        // ✅ GOOD: Method reference (more efficient)
+        List<String> words = Arrays.asList("hello", "world", "java");
+        words.stream()
+            .map(String::toUpperCase) // Method reference
+            .forEach(System.out::println);
+
+        // ❌ BAD: Lambda creating new objects
+        words.stream()
+            .map(s -> s.toUpperCase()) // Equivalent but slightly less efficient
+            .forEach(System.out::println);
+
+        // ❌ BAD: Capturing mutable state (prevents lambda caching)
+        int[] counter = {0}; // Mutable capture
+        List<Integer> nums = Arrays.asList(1, 2, 3, 4, 5);
+        nums.forEach(n -> counter[0] += n); // Each call creates new lambda instance
+        System.out.println("Sum: " + counter[0]);
+
+        // ✅ BETTER: Use reduce instead
+        int sum = nums.stream().mapToInt(Integer::intValue).sum();
+        System.out.println("Sum: " + sum);
+
+        // Parallel stream performance
+        List<Integer> bigList = IntStream.range(0, 1_000_000)
+            .boxed()
+            .collect(Collectors.toList());
+
+        // ✅ GOOD: Parallel for large computations
+        long start3 = System.nanoTime();
+        double avg1 = bigList.parallelStream()
+            .mapToInt(n -> expensiveComputation(n))
+            .average()
+            .orElse(0);
+        long time3 = (System.nanoTime() - start3) / 1_000_000;
+        System.out.println("Parallel: " + time3 + "ms");
+
+        // ❌ BAD: Parallel for trivial operations (overhead > benefit)
+        long start4 = System.nanoTime();
+        long count = bigList.parallelStream()
+            .filter(n -> n > 500_000)
+            .count();
+        long time4 = (System.nanoTime() - start4) / 1_000_000;
+
+        long start5 = System.nanoTime();
+        long count2 = bigList.stream()
+            .filter(n -> n > 500_000)
+            .count();
+        long time5 = (System.nanoTime() - start5) / 1_000_000;
+
+        System.out.println("Parallel trivial: " + time4 + "ms");
+        System.out.println("Sequential trivial: " + time5 + "ms");
+
+        // ✅ GOOD: Stateless lambda (can be cached)
+        Predicate<String> startsWithA = s -> s.startsWith("A");
+        // JVM might cache this lambda instance
+
+        // ❌ BAD: Stateful lambda (new instance each time)
+        String prefix = "A";
+        Predicate<String> startsWithPrefix = s -> s.startsWith(prefix);
+        // Captures 'prefix', so less likely to be cached
+
+        // ✅ GOOD: Use primitive specializations
+        IntStream.range(0, 1000)
+            .filter(n -> n % 2 == 0) // IntPredicate
+            .map(n -> n * n) // IntUnaryOperator
+            .forEach(System.out::println); // IntConsumer
+    }
+
+    static int expensiveComputation(int n) {
+        // Simulate CPU-intensive work
+        int result = n;
+        for (int i = 0; i < 100; i++) {
+            result = (result * 31 + i) % 1000;
+        }
+        return result;
+    }
+}`
+        },
+        {
+          name: 'Exception Handling in Lambdas',
+          explanation: 'Functional interfaces don\'t declare checked exceptions - lambdas can\'t throw them directly. Options: 1) Wrap in unchecked exception, 2) Handle inside lambda with try-catch, 3) Create custom functional interface that throws, 4) Use sneaky throws (not recommended). For streams, consider using Optional or Either pattern. Always document what exceptions your functional code might throw.',
+          codeExample: `import java.util.*;
+import java.util.function.*;
+import java.io.*;
+
+public class ExceptionHandlingInLambdas {
+    public static void main(String[] args) {
+        List<String> numbers = Arrays.asList("1", "2", "invalid", "4");
+
+        // ❌ BAD: Won't compile - parseInt throws checked exception in stream context
+        // numbers.stream().map(Integer::parseInt).forEach(System.out::println);
+
+        // ✅ OPTION 1: Wrap in try-catch inside lambda
+        numbers.stream()
+            .map(s -> {
+                try {
+                    return Integer.parseInt(s);
+                } catch (NumberFormatException e) {
+                    return -1; // Default value
+                }
+            })
+            .forEach(System.out::println); // 1, 2, -1, 4
+
+        // ✅ OPTION 2: Use helper method
+        numbers.stream()
+            .map(ExceptionHandlingInLambdas::parseIntSafe)
+            .forEach(System.out::println);
+
+        // ✅ OPTION 3: Filter out invalid values
+        numbers.stream()
+            .filter(s -> {
+                try {
+                    Integer.parseInt(s);
+                    return true;
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+            })
+            .map(Integer::parseInt)
+            .forEach(System.out::println); // 1, 2, 4
+
+        // ✅ OPTION 4: Use Optional for error handling
+        List<Optional<Integer>> results = numbers.stream()
+            .map(s -> {
+                try {
+                    return Optional.of(Integer.parseInt(s));
+                } catch (NumberFormatException e) {
+                    return Optional.empty();
+                }
+            })
+            .toList();
+
+        results.forEach(opt ->
+            opt.ifPresent(n -> System.out.println("Valid: " + n))
+        );
+
+        // ✅ OPTION 5: Custom functional interface
+        List<String> files = Arrays.asList("file1.txt", "file2.txt");
+        files.forEach(unchecked(file -> {
+            // Can now use methods that throw checked exceptions
+            readFile(file);
+        }));
+
+        // ✅ OPTION 6: Wrapping function
+        Function<String, Integer> safeParser = wrapping(
+            Integer::parseInt,
+            e -> -1 // Default on exception
+        );
+
+        numbers.stream()
+            .map(safeParser)
+            .forEach(System.out::println); // 1, 2, -1, 4
+
+        // ❌ BAD: Swallowing exceptions silently
+        numbers.forEach(s -> {
+            try {
+                int n = Integer.parseInt(s);
+                System.out.println(n);
+            } catch (Exception e) {
+                // Silent failure - bad practice!
+            }
+        });
+
+        // ✅ GOOD: Log or handle exceptions properly
+        numbers.forEach(s -> {
+            try {
+                int n = Integer.parseInt(s);
+                System.out.println(n);
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid number: " + s + " - " + e.getMessage());
+            }
+        });
+    }
+
+    // Helper: safe parse with default
+    static int parseIntSafe(String s) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
+    // Helper: unchecked consumer
+    static <T> Consumer<T> unchecked(ThrowingConsumer<T> consumer) {
+        return t -> {
+            try {
+                consumer.accept(t);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    // Helper: wrapping function with error handler
+    static <T, R> Function<T, R> wrapping(
+            ThrowingFunction<T, R> function,
+            Function<Exception, R> errorHandler) {
+        return t -> {
+            try {
+                return function.apply(t);
+            } catch (Exception e) {
+                return errorHandler.apply(e);
+            }
+        };
+    }
+
+    static void readFile(String filename) throws IOException {
+        // Simulate file reading
+        if (filename.contains("2")) {
+            throw new IOException("File not found: " + filename);
+        }
+        System.out.println("Read: " + filename);
+    }
+}
+
+@FunctionalInterface
+interface ThrowingConsumer<T> {
+    void accept(T t) throws Exception;
+}
+
+@FunctionalInterface
+interface ThrowingFunction<T, R> {
+    R apply(T t) throws Exception;
+}`
+        },
+        {
+          name: 'Common Mistakes & Anti-Patterns',
+          explanation: 'Common pitfalls: 1) Overusing functional style - not everything needs to be a stream. 2) Creating unnecessary objects in loops. 3) Side effects in filter/map (use forEach instead). 4) Parallel streams for small datasets. 5) Long, complex lambda chains (extract to methods). 6) Modifying external state from lambdas (non-thread-safe). 7) Catching generic Exception in lambdas. 8) Not handling null properly.',
+          codeExample: `import java.util.*;
+import java.util.function.*;
+import java.util.stream.*;
+
+public class CommonMistakes {
+    public static void main(String[] args) {
+        List<String> names = Arrays.asList("Alice", "Bob", "Charlie");
+
+        // ❌ MISTAKE 1: Side effects in map/filter
+        List<String> processed = new ArrayList<>();
+        names.stream()
+            .map(s -> {
+                processed.add(s.toUpperCase()); // Side effect!
+                return s.toUpperCase();
+            })
+            .collect(Collectors.toList());
+
+        // ✅ CORRECT: Use forEach for side effects
+        List<String> processed2 = new ArrayList<>();
+        names.stream()
+            .map(String::toUpperCase)
+            .forEach(processed2::add); // Side effect in forEach is OK
+
+        // ❌ MISTAKE 2: Modifying external state (not thread-safe)
+        List<String> results = new ArrayList<>();
+        names.parallelStream()
+            .forEach(s -> results.add(s.toUpperCase())); // RACE CONDITION!
+
+        // ✅ CORRECT: Use collect
+        List<String> results2 = names.parallelStream()
+            .map(String::toUpperCase)
+            .collect(Collectors.toList()); // Thread-safe
+
+        // ❌ MISTAKE 3: Unnecessary object creation
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
+        for (int i = 0; i < 1000; i++) {
+            numbers.stream() // Creates new stream each iteration!
+                .filter(n -> n > 2)
+                .forEach(System.out::println);
+        }
+
+        // ✅ CORRECT: Reuse or avoid streams for simple operations
+        List<Integer> filtered = numbers.stream()
+            .filter(n -> n > 2)
+            .collect(Collectors.toList());
+        for (int i = 0; i < 1000; i++) {
+            filtered.forEach(System.out::println);
+        }
+
+        // ❌ MISTAKE 4: Complex lambda chains (unreadable)
+        names.stream()
+            .filter(s -> s != null && !s.isEmpty() && s.length() > 3)
+            .map(s -> s.trim().toLowerCase().replace("a", "*"))
+            .filter(s -> s.startsWith("*") || s.endsWith("*"))
+            .map(s -> new StringBuilder(s).reverse().toString())
+            .forEach(System.out::println);
+
+        // ✅ CORRECT: Extract to methods
+        names.stream()
+            .filter(CommonMistakes::isValid)
+            .map(CommonMistakes::processName)
+            .filter(CommonMistakes::hasAsterisk)
+            .map(CommonMistakes::reverse)
+            .forEach(System.out::println);
+
+        // ❌ MISTAKE 5: Not handling null
+        List<String> withNulls = Arrays.asList("A", null, "B");
+        // withNulls.stream().map(String::length).forEach(System.out::println); // NPE!
+
+        // ✅ CORRECT: Filter nulls or use Optional
+        withNulls.stream()
+            .filter(Objects::nonNull)
+            .map(String::length)
+            .forEach(System.out::println);
+
+        // ❌ MISTAKE 6: Using streams for everything
+        int sum1 = IntStream.range(0, 10).sum(); // Overkill for simple loop
+
+        // ✅ CORRECT: Simple for loop is clearer
+        int sum2 = 0;
+        for (int i = 0; i < 10; i++) {
+            sum2 += i;
+        }
+
+        // ❌ MISTAKE 7: Parallel stream for small data
+        List<Integer> small = Arrays.asList(1, 2, 3, 4, 5);
+        small.parallelStream().forEach(System.out::println); // Overhead > benefit
+
+        // ✅ CORRECT: Sequential for small collections
+        small.forEach(System.out::println);
+
+        // ❌ MISTAKE 8: Catching generic Exception
+        names.stream()
+            .map(s -> {
+                try {
+                    return Integer.parseInt(s);
+                } catch (Exception e) { // Too broad!
+                    return 0;
+                }
+            });
+
+        // ✅ CORRECT: Catch specific exception
+        names.stream()
+            .map(s -> {
+                try {
+                    return Integer.parseInt(s);
+                } catch (NumberFormatException e) { // Specific
+                    return 0;
+                }
+            });
+
+        // ❌ MISTAKE 9: Creating lambdas in performance-critical loops
+        List<Integer> nums = Arrays.asList(1, 2, 3, 4, 5);
+        for (int i = 0; i < 1_000_000; i++) {
+            nums.forEach(n -> process(n)); // Creates lambda 1M times!
+        }
+
+        // ✅ CORRECT: Extract lambda or use method reference
+        Consumer<Integer> processor = CommonMistakes::process;
+        for (int i = 0; i < 1_000_000; i++) {
+            nums.forEach(processor);
+        }
+
+        // Or even better - just use a regular loop
+        for (int i = 0; i < 1_000_000; i++) {
+            for (int n : nums) {
+                process(n);
+            }
+        }
+    }
+
+    static boolean isValid(String s) {
+        return s != null && !s.isEmpty() && s.length() > 3;
+    }
+
+    static String processName(String s) {
+        return s.trim().toLowerCase().replace("a", "*");
+    }
+
+    static boolean hasAsterisk(String s) {
+        return s.startsWith("*") || s.endsWith("*");
+    }
+
+    static String reverse(String s) {
+        return new StringBuilder(s).reverse().toString();
+    }
+
+    static void process(int n) {
+        // Some processing
     }
 }`
         }
