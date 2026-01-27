@@ -84,6 +84,7 @@ import FileIO from './pages/java/FileIO.jsx'
 import JVMInternals from './pages/java/JVMInternals.jsx'
 import MemoryManagement from './pages/java/MemoryManagement.jsx'
 import Streams from './pages/java/Streams.jsx'
+import Optional from './pages/java/Optional.jsx'
 import StreamsAdvanced from './pages/java/StreamsAdvanced.jsx'
 import Lambdas from './pages/java/Lambdas.jsx'
 import LambdasAdvanced from './pages/java/LambdasAdvanced.jsx'
@@ -166,6 +167,7 @@ import RFQSystems from './pages/etrading/RFQSystems.jsx'
 import FixedIncomeTrading from './pages/etrading/FixedIncomeTrading.jsx'
 import AeronMessaging from './pages/etrading/AeronMessaging.jsx'
 import LowLatency from './pages/etrading/LowLatency.jsx'
+import LatencyMeasurement from './pages/etrading/LatencyMeasurement.jsx'
 import OrderManagement from './pages/etrading/OrderManagement.jsx'
 import ExecutionAlgorithms from './pages/etrading/ExecutionAlgorithms.jsx'
 import AutomatedHedging from './pages/etrading/AutomatedHedging.jsx'
@@ -888,6 +890,7 @@ function App() {
   const [showCollectionsFrameworkModal, setShowCollectionsFrameworkModal] = useState(false)
   const [showConcurrencyModal, setShowConcurrencyModal] = useState(false)
   const [showMultithreadingModal, setShowMultithreadingModal] = useState(false)
+  const [showOptionalModal, setShowOptionalModal] = useState(false)
   const [showObjectOrientedProgrammingModal, setShowObjectOrientedProgrammingModal] = useState(false)
   const [showExceptionHandlingModal, setShowExceptionHandlingModal] = useState(false)
   const [showFileIOModal, setShowFileIOModal] = useState(false)
@@ -1342,6 +1345,7 @@ function App() {
       'Collections Framework': setShowCollectionsFrameworkModal,
       'Concurrency': setShowConcurrencyModal,
       'Multithreading': setShowMultithreadingModal,
+      'Optional': setShowOptionalModal,
       'Object-Oriented Programming': setShowObjectOrientedProgrammingModal,
       'Exception Handling': setShowExceptionHandlingModal,
       'File I/O': setShowFileIOModal,
@@ -1392,6 +1396,7 @@ function App() {
         'Collections Framework': () => setShowCollectionsFrameworkModal(false),
         'Concurrency': () => setShowConcurrencyModal(false),
         'Multithreading': () => setShowMultithreadingModal(false),
+        'Optional': () => setShowOptionalModal(false),
         'Object-Oriented Programming': () => setShowObjectOrientedProgrammingModal(false),
         'Exception Handling': () => setShowExceptionHandlingModal(false),
         'File I/O': () => setShowFileIOModal(false),
@@ -1439,6 +1444,7 @@ function App() {
         'Collections Framework': () => setShowCollectionsFrameworkModal(false),
         'Concurrency': () => setShowConcurrencyModal(false),
         'Multithreading': () => setShowMultithreadingModal(false),
+        'Optional': () => setShowOptionalModal(false),
         'Object-Oriented Programming': () => setShowObjectOrientedProgrammingModal(false),
         'Exception Handling': () => setShowExceptionHandlingModal(false),
         'File I/O': () => setShowFileIOModal(false),
@@ -1496,6 +1502,7 @@ function App() {
         'Collections Framework': () => setShowCollectionsFrameworkModal(false),
         'Concurrency': () => setShowConcurrencyModal(false),
         'Multithreading': () => setShowMultithreadingModal(false),
+        'Optional': () => setShowOptionalModal(false),
         'Object-Oriented Programming': () => setShowObjectOrientedProgrammingModal(false),
         'Exception Handling': () => setShowExceptionHandlingModal(false),
         'File I/O': () => setShowFileIOModal(false),
@@ -1543,6 +1550,7 @@ function App() {
         'Collections Framework': () => setShowCollectionsFrameworkModal(false),
         'Concurrency': () => setShowConcurrencyModal(false),
         'Multithreading': () => setShowMultithreadingModal(false),
+        'Optional': () => setShowOptionalModal(false),
         'Object-Oriented Programming': () => setShowObjectOrientedProgrammingModal(false),
         'Exception Handling': () => setShowExceptionHandlingModal(false),
         'File I/O': () => setShowFileIOModal(false),
@@ -2888,6 +2896,7 @@ function App() {
             [showCollectionsFrameworkModal, setShowCollectionsFrameworkModal],
             [showConcurrencyModal, setShowConcurrencyModal],
             [showMultithreadingModal, setShowMultithreadingModal],
+            [showOptionalModal, setShowOptionalModal],
             [showObjectOrientedProgrammingModal, setShowObjectOrientedProgrammingModal],
             [showExceptionHandlingModal, setShowExceptionHandlingModal],
             [showFileIOModal, setShowFileIOModal],
@@ -3136,6 +3145,7 @@ function App() {
     showCollectionsFrameworkModal,
     showConcurrencyModal,
     showMultithreadingModal,
+    showOptionalModal,
     showObjectOrientedProgrammingModal,
     showExceptionHandlingModal,
     showFileIOModal,
@@ -3692,6 +3702,16 @@ function App() {
         breadcrumb={{
           section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
           topic: 'Low Latency Systems',
+          colors: BREADCRUMB_COLORS.eTrading
+        }}
+      />
+    }
+    if (selectedOption === 'Latency Measurement') {
+      return <LatencyMeasurement
+        onBack={() => setSelectedOptionAndRef('eTrading')}
+        breadcrumb={{
+          section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
+          topic: 'Latency Measurement',
           colors: BREADCRUMB_COLORS.eTrading
         }}
       />
@@ -4702,6 +4722,11 @@ function App() {
     }
     if (selectedOption === 'Multithreading') {
       setShowMultithreadingModal(true)
+      setSelectedOptionAndRef('')
+      return null
+    }
+    if (selectedOption === 'Optional') {
+      setShowOptionalModal(true)
       setSelectedOptionAndRef('')
       return null
     }
@@ -7155,6 +7180,49 @@ function App() {
               breadcrumb={{
                 section: { name: 'Java', icon: '☕', onClick: () => { setShowMultithreadingModal(false); setSelectedOptionAndRef('Java') } },
                 topic: 'Multithreading'
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {showOptionalModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000000,
+            padding: '1rem',
+            overflow: 'auto'
+          }}
+          onClick={() => setShowOptionalModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: colors.bgSecondary,
+              borderRadius: '16px',
+              maxWidth: '95vw',
+              width: '1400px',
+              maxHeight: '95vh',
+              overflow: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              position: 'relative'
+            }}
+          >
+            <Optional
+              onBack={() => setShowOptionalModal(false)}
+              {...createNavigationCallbacks('Optional')}
+              breadcrumb={{
+                section: { name: 'Java', icon: '☕', onClick: () => { setShowOptionalModal(false); setSelectedOptionAndRef('Java') } },
+                topic: 'Optional'
               }}
             />
           </div>

@@ -64,6 +64,13 @@ function ETrading({ onBack, onSelectItem, breadcrumb }) {
       description: 'Ultra-low latency architectures achieving sub-100 microsecond execution. Kernel bypass with DPDK/RDMA, lock-free data structures, memory-mapped files, and CPU pinning. Hardware timestamping, FPGA acceleration, and co-location strategies. Covers JVM tuning, GC avoidance, and mechanical sympathy principles.'
     },
     {
+      id: 'Latency Measurement',
+      name: 'Latency Measurement',
+      icon: '⏱️',
+      color: '#f59e0b',
+      description: 'Comprehensive latency measurement in trading systems. Hardware timestamping with NIC precision, System.nanoTime() for application-level measurement, JMH benchmarking, and percentile analysis (p50, p95, p99, p99.9). Covers JFR profiling, tcpdump/Wireshark with hardware timestamps, Chronicle latency tracking, and production monitoring for sub-microsecond accuracy.'
+    },
+    {
       id: 'Aeron Messaging',
       name: 'Aeron Messaging',
       icon: '⚡',
