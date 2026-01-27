@@ -948,6 +948,858 @@ public class LowOverheadLatencyTracker {
         }
     }
 }`
+        },
+        {
+          name: 'JMH - Java Microbenchmark Harness',
+          diagram: JMHBenchmarkDiagram,
+          explanation: 'JMH is the gold standard for Java microbenchmarking. It handles JVM warmup, dead code elimination, constant folding, and inlining. Provides accurate measurements by running multiple forks, warmup iterations, and measurement iterations. Essential for benchmarking low-latency code paths. Typical benchmark: 5 forks × 10 warmup + 10 measurement iterations = 100 total runs. Use @Benchmark annotation and AverageTime/SampleTime modes for latency measurement.',
+          codeExample: `import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * JMH benchmark for measuring order parsing latency
+ *
+ * Maven dependency:
+ * <dependency>
+ *   <groupId>org.openjdk.jmh</groupId>
+ *   <artifactId>jmh-core</artifactId>
+ *   <version>1.37</version>
+ * </dependency>
+ */
+@BenchmarkMode(Mode.AverageTime)
+@OutputTimeUnit(TimeUnit.NANOSECONDS)
+@State(Scope.Thread)
+@Fork(value = 2, warmups = 1)
+@Warmup(iterations = 5, time = 1)
+@Measurement(iterations = 10, time = 1)
+public class OrderParsingBenchmark {
+
+    private byte[] fixMessage;
+    private FIXParser parser;
+
+    @Setup
+    public void setup() {
+        // Setup runs once per benchmark
+        fixMessage = "8=FIX.4.2|9=178|35=D|49=SENDER|56=TARGET|"
+                   + "34=1|52=20240115-10:30:00|11=ORDER123|21=1|"
+                   + "55=AAPL|54=1|60=20240115-10:30:00|38=100|"
+                   + "40=2|44=150.50|10=123|".getBytes();
+
+        parser = new FIXParser();
+
+        // Warmup to load classes
+        for (int i = 0; i < 1000; i++) {
+            parser.parse(fixMessage);
+        }
+    }
+
+    @Benchmark
+    public Order parseOrder() {
+        // This method will be executed millions of times
+        return parser.parse(fixMessage);
+    }
+
+    @Benchmark
+    public Order parseAndValidate() {
+        Order order = parser.parse(fixMessage);
+        order.validate();
+        return order;
+    }
+
+    public static void main(String[] args) throws Exception {
+        Options opt = new OptionsBuilder()
+            .include(OrderParsingBenchmark.class.getSimpleName())
+            .build();
+
+        new Runner(opt).run();
+    }
+}
+
+/**
+ * Sample JMH output:
+ *
+ * Benchmark                                Mode  Cnt    Score    Error  Units
+ * OrderParsingBenchmark.parseOrder         avgt   20  482.123 ±  8.456  ns/op
+ * OrderParsingBenchmark.parseAndValidate   avgt   20  651.789 ± 12.234  ns/op
+ */
+
+class FIXParser {
+    public Order parse(byte[] message) {
+        // Optimized FIX parsing logic
+        return new Order();
+    }
+}
+
+class Order {
+    String symbol;
+    int quantity;
+    double price;
+
+    void validate() {
+        // Validation logic
+    }
+}
+
+/**
+ * Advanced JMH features for latency measurement
+ */
+@BenchmarkMode(Mode.SampleTime)  // Measures all invocation times
+@OutputTimeUnit(TimeUnit.MICROSECONDS)
+public class LatencyDistributionBenchmark {
+
+    @Benchmark
+    public void measureWithDistribution() {
+        // JMH will measure and report percentiles:
+        // p50, p90, p99, p99.9, p99.99, p99.999
+        performCriticalOperation();
+    }
+
+    // Use @Fork(jvmArgs = {...}) for GC tuning
+    @Fork(value = 1, jvmArgs = {
+        "-XX:+UseG1GC",
+        "-Xmx4g",
+        "-Xms4g",
+        "-XX:+AlwaysPreTouch",
+        "-XX:-UseBiasedLocking"
+    })
+    @Benchmark
+    public void withCustomJVMArgs() {
+        performCriticalOperation();
+    }
+
+    private void performCriticalOperation() {
+        // Critical path code
+    }
+}`
+        },
+        {
+          name: 'Java Flight Recorder (JFR)',
+          explanation: 'JFR is a production-grade profiling tool built into the JVM with minimal overhead (<1%). Records JVM events: GC, safepoints, thread blocking, I/O, compilation. Use jcmd to start recording, then analyze .jfr files with JDK Mission Control. Perfect for production latency troubleshooting. Can measure: lock contention (ObjectMonitorEnter), allocation rates, GC pauses, safe point times. JFR events are buffered in a circular buffer and flushed asynchronously.',
+          codeExample: `/**
+ * Using JFR to track latency in production
+ *
+ * Start JFR recording:
+ * jcmd <pid> JFR.start name=latency duration=60s filename=/tmp/latency.jfr settings=profile
+ *
+ * Or programmatically:
+ */
+import jdk.jfr.*;
+import jdk.jfr.consumer.*;
+
+@Label("Order Processing")
+@Category("Trading")
+@StackTrace(false)  // Disable stack traces for low overhead
+public class OrderProcessingEvent extends Event {
+    @Label("Order ID")
+    String orderId;
+
+    @Label("Processing Time")
+    @Timespan(Timespan.MICROSECONDS)
+    long processingTimeUs;
+
+    @Label("Stage")
+    String stage;
+}
+
+public class LatencyTracking {
+    public static void main(String[] args) throws Exception {
+        // Start JFR programmatically
+        Configuration config = Configuration.getConfiguration("profile");
+        Recording recording = new Recording(config);
+
+        recording.enable(OrderProcessingEvent.class)
+                 .withThreshold(Duration.ofMicroseconds(100));  // Only record >100μs
+
+        recording.start();
+
+        // Process orders
+        for (int i = 0; i < 10000; i++) {
+            processOrder("ORDER-" + i);
+        }
+
+        recording.stop();
+        recording.dump(java.nio.file.Paths.get("/tmp/orders.jfr"));
+        recording.close();
+
+        // Analyze recording
+        analyzeRecording("/tmp/orders.jfr");
+    }
+
+    static void processOrder(String orderId) {
+        // Create custom JFR event
+        OrderProcessingEvent event = new OrderProcessingEvent();
+        event.begin();
+
+        long start = System.nanoTime();
+
+        // Parse
+        parseOrder(orderId);
+        recordStageLatency(orderId, "parse", start);
+
+        // Validate
+        long validateStart = System.nanoTime();
+        validateOrder(orderId);
+        recordStageLatency(orderId, "validate", validateStart);
+
+        // Match
+        long matchStart = System.nanoTime();
+        matchOrder(orderId);
+        recordStageLatency(orderId, "match", matchStart);
+
+        long totalLatency = (System.nanoTime() - start) / 1000;
+
+        event.orderId = orderId;
+        event.processingTimeUs = totalLatency;
+        event.stage = "total";
+        event.commit();
+    }
+
+    static void recordStageLatency(String orderId, String stage, long startNs) {
+        OrderProcessingEvent event = new OrderProcessingEvent();
+        event.orderId = orderId;
+        event.stage = stage;
+        event.processingTimeUs = (System.nanoTime() - startNs) / 1000;
+        event.commit();
+    }
+
+    static void analyzeRecording(String filename) throws Exception {
+        System.out.println("\\n=== JFR Analysis ===");
+
+        try (RecordingFile recordingFile = new RecordingFile(
+                java.nio.file.Paths.get(filename))) {
+
+            long totalEvents = 0;
+            long totalLatency = 0;
+            long maxLatency = 0;
+
+            while (recordingFile.hasMoreEvents()) {
+                RecordedEvent event = recordingFile.readEvent();
+
+                if (event.getEventType().getName()
+                        .equals(OrderProcessingEvent.class.getName())) {
+                    totalEvents++;
+
+                    long latency = event.getLong("processingTimeUs");
+                    totalLatency += latency;
+                    maxLatency = Math.max(maxLatency, latency);
+
+                    // Find slow orders
+                    if (latency > 1000) {  // >1ms
+                        String orderId = event.getString("orderId");
+                        String stage = event.getString("stage");
+                        System.out.printf("SLOW: %s %s took %dμs%n",
+                            orderId, stage, latency);
+                    }
+                }
+            }
+
+            System.out.printf("Total events: %d%n", totalEvents);
+            System.out.printf("Avg latency: %d μs%n", totalLatency / totalEvents);
+            System.out.printf("Max latency: %d μs%n", maxLatency);
+        }
+    }
+
+    static void parseOrder(String orderId) {
+        // Simulate parsing
+        try { Thread.sleep(0, 50000); } catch (Exception e) {}
+    }
+
+    static void validateOrder(String orderId) {
+        try { Thread.sleep(0, 30000); } catch (Exception e) {}
+    }
+
+    static void matchOrder(String orderId) {
+        try { Thread.sleep(0, 20000); } catch (Exception e) {}
+    }
+}
+
+/**
+ * Analyze GC impact on latency using JFR
+ *
+ * Command-line JFR commands:
+ *
+ * 1. Start recording:
+ *    jcmd <pid> JFR.start name=gc settings=profile
+ *
+ * 2. Dump recording:
+ *    jcmd <pid> JFR.dump name=gc filename=/tmp/gc.jfr
+ *
+ * 3. Stop recording:
+ *    jcmd <pid> JFR.stop name=gc
+ *
+ * 4. Analyze with Mission Control:
+ *    jmc -open /tmp/gc.jfr
+ *
+ * Key JFR events for latency:
+ * - jdk.GarbageCollection (GC pauses)
+ * - jdk.SafepointBegin/End (STW pauses)
+ * - jdk.JavaMonitorWait (lock contention)
+ * - jdk.ThreadPark (thread blocking)
+ * - jdk.SocketRead/Write (I/O latency)
+ * - jdk.FileRead/Write (file I/O)
+ */`
+        },
+        {
+          name: 'HdrHistogram - High Dynamic Range Histogram',
+          explanation: 'HdrHistogram provides accurate percentile measurements with minimal space/time overhead. Unlike simple arrays, HDR maintains precision across a wide value range (1ns to 1 hour) using only ~3KB. Corrects for coordinated omission - captures latencies even during pauses. Essential for production monitoring. Supports percentiles to 5 nines (p99.999). Used by Netflix, Uber, and many trading firms. Thread-safe version available with ConcurrentHistogram.',
+          codeExample: `import org.HdrHistogram.*;
+
+/**
+ * HdrHistogram for accurate latency measurement
+ *
+ * Maven dependency:
+ * <dependency>
+ *   <groupId>org.hdrhistogram</groupId>
+ *   <artifactId>HdrHistogram</artifactId>
+ *   <version>2.1.12</version>
+ * </dependency>
+ */
+public class HdrLatencyTracking {
+    public static void main(String[] args) {
+        // Basic usage
+        basicHistogramExample();
+
+        // Production monitoring
+        productionMonitoring();
+
+        // Coordinated omission correction
+        coordinatedOmissionExample();
+    }
+
+    static void basicHistogramExample() {
+        // Create histogram: track 1ns to 1 hour with 3 significant digits
+        Histogram histogram = new Histogram(
+            TimeUnit.NANOSECONDS.toNanos(1),      // Lowest value
+            TimeUnit.HOURS.toNanos(1),             // Highest value
+            3                                       // Significant digits
+        );
+
+        // Simulate measurements
+        for (int i = 0; i < 100_000; i++) {
+            long start = System.nanoTime();
+            performOperation();
+            long latencyNs = System.nanoTime() - start;
+
+            histogram.recordValue(latencyNs);
+        }
+
+        // Print percentiles
+        System.out.println("\\n=== Latency Distribution ===");
+        System.out.printf("Min:      %,d ns%n", histogram.getMinValue());
+        System.out.printf("p50:      %,d ns%n", histogram.getValueAtPercentile(50.0));
+        System.out.printf("p90:      %,d ns%n", histogram.getValueAtPercentile(90.0));
+        System.out.printf("p95:      %,d ns%n", histogram.getValueAtPercentile(95.0));
+        System.out.printf("p99:      %,d ns%n", histogram.getValueAtPercentile(99.0));
+        System.out.printf("p99.9:    %,d ns%n", histogram.getValueAtPercentile(99.9));
+        System.out.printf("p99.99:   %,d ns%n", histogram.getValueAtPercentile(99.99));
+        System.out.printf("p99.999:  %,d ns%n", histogram.getValueAtPercentile(99.999));
+        System.out.printf("Max:      %,d ns%n", histogram.getMaxValue());
+        System.out.printf("Mean:     %,.1f ns%n", histogram.getMean());
+        System.out.printf("StdDev:   %,.1f ns%n", histogram.getStdDeviation());
+
+        // Output histogram to file
+        histogram.outputPercentileDistribution(System.out, 1.0);
+    }
+
+    static void productionMonitoring() {
+        // Use DoubleRecorder for thread-safe interval recording
+        DoubleRecorder recorder = new DoubleRecorder(
+            TimeUnit.MICROSECONDS.toMicros(1),
+            TimeUnit.SECONDS.toMicros(60),
+            3
+        );
+
+        // Recording thread (hot path - minimal overhead)
+        Thread recordingThread = new Thread(() -> {
+            for (int i = 0; i < 1_000_000; i++) {
+                long startUs = System.nanoTime() / 1000;
+                performOperation();
+                long latencyUs = (System.nanoTime() / 1000) - startUs;
+
+                recorder.recordValue(latencyUs);
+            }
+        });
+
+        // Reporting thread (reads interval histogram periodically)
+        Thread reportingThread = new Thread(() -> {
+            try {
+                while (true) {
+                    Thread.sleep(5000);  // Report every 5 seconds
+
+                    // Get interval histogram (resets recorder)
+                    Histogram intervalHistogram = recorder.getIntervalHistogram();
+
+                    System.out.println("\\n=== 5-Second Interval ===");
+                    System.out.printf("Count:  %,d%n", intervalHistogram.getTotalCount());
+                    System.out.printf("p50:    %,d μs%n",
+                        intervalHistogram.getValueAtPercentile(50.0));
+                    System.out.printf("p99:    %,d μs%n",
+                        intervalHistogram.getValueAtPercentile(99.0));
+                    System.out.printf("p99.9:  %,d μs%n",
+                        intervalHistogram.getValueAtPercentile(99.9));
+                    System.out.printf("Max:    %,d μs%n",
+                        intervalHistogram.getMaxValue());
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+
+        recordingThread.start();
+        reportingThread.start();
+    }
+
+    static void coordinatedOmissionExample() {
+        System.out.println("\\n=== Coordinated Omission Correction ===");
+
+        Histogram rawHistogram = new Histogram(3600000000000L, 3);
+        Histogram correctedHistogram = new Histogram(3600000000000L, 3);
+
+        long expectedIntervalNs = TimeUnit.MILLISECONDS.toNanos(10);
+        long lastStartTimeNs = System.nanoTime();
+
+        for (int i = 0; i < 10000; i++) {
+            long startNs = System.nanoTime();
+
+            performOperation();
+
+            // Simulate occasional GC pause
+            if (i % 100 == 0) {
+                try { Thread.sleep(50); } catch (Exception e) {}
+            }
+
+            long endNs = System.nanoTime();
+            long latencyNs = endNs - startNs;
+
+            // Record raw latency
+            rawHistogram.recordValue(latencyNs);
+
+            // Record with coordinated omission correction
+            correctedHistogram.recordValueWithExpectedInterval(
+                latencyNs,
+                expectedIntervalNs
+            );
+
+            lastStartTimeNs = startNs;
+        }
+
+        System.out.println("\\nRaw (incorrect) percentiles:");
+        System.out.printf("  p99:   %,d ns%n", rawHistogram.getValueAtPercentile(99.0));
+        System.out.printf("  p99.9: %,d ns%n", rawHistogram.getValueAtPercentile(99.9));
+
+        System.out.println("\\nCorrected percentiles:");
+        System.out.printf("  p99:   %,d ns%n", correctedHistogram.getValueAtPercentile(99.0));
+        System.out.printf("  p99.9: %,d ns%n", correctedHistogram.getValueAtPercentile(99.9));
+    }
+
+    static void performOperation() {
+        // Simulate work
+        long sum = 0;
+        for (int i = 0; i < 100; i++) {
+            sum += i;
+        }
+    }
+}`
+        },
+        {
+          name: 'tcpdump & Wireshark - Network Analysis',
+          explanation: 'tcpdump captures network packets with timestamps for post-processing. Use --time-stamp-precision=nano for nanosecond timestamps. Hardware timestamping available with -j adapter_unsynced. Wireshark provides GUI analysis of .pcap files with latency calculations between request/response pairs. Calculate wire latency by matching sequence numbers. Essential for diagnosing network issues, analyzing protocol behavior, and measuring true wire-to-wire latency.',
+          codeExample: `/**
+ * Using tcpdump for latency measurement
+ *
+ * Shell commands and analysis examples
+ */
+
+/*
+ * 1. BASIC CAPTURE WITH HARDWARE TIMESTAMPS
+ *
+ * Capture FIX messages on port 9000:
+ * sudo tcpdump -i eth0 -j adapter_unsynced --time-stamp-precision=nano \\
+ *              port 9000 -w /tmp/fix.pcap
+ *
+ * Options explained:
+ * -i eth0                          : Capture on interface eth0
+ * -j adapter_unsynced             : Use NIC hardware timestamps
+ * --time-stamp-precision=nano     : Nanosecond precision
+ * port 9000                       : Filter FIX traffic
+ * -w /tmp/fix.pcap                : Write to file
+ */
+
+/*
+ * 2. READ AND ANALYZE PCAP FILE
+ *
+ * Read with absolute timestamps:
+ * tcpdump -tttt -r /tmp/fix.pcap
+ *
+ * Calculate latencies between packets:
+ * tcpdump -ttt -r /tmp/fix.pcap
+ *
+ * Sample output:
+ * 00:00:00.000482 IP sender > receiver: Flags [P.], seq 1:178
+ * 00:00:00.000156 IP receiver > sender: Flags [P.], seq 1:189
+ *
+ * Latency = 156 microseconds
+ */
+
+import java.io.*;
+import java.util.*;
+import java.util.regex.*;
+
+public class PcapAnalysis {
+    public static void main(String[] args) throws Exception {
+        // Analyze tcpdump output for request-response latencies
+        analyzeLatencies("/tmp/fix_latency.txt");
+
+        // Generate tcpdump commands
+        generateCommands();
+    }
+
+    static void analyzeLatencies(String filename) throws Exception {
+        System.out.println("=== Analyzing tcpdump Output ===");
+
+        // Parse tcpdump output: timestamp, src, dst, seq
+        Pattern pattern = Pattern.compile(
+            "(\\\\d+):(\\\\d+):(\\\\d+)\\\\.(\\\\d+) .* seq (\\\\d+):(\\\\d+)"
+        );
+
+        Map<Integer, Long> requestTimes = new HashMap<>();
+        List<Long> latencies = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            String line;
+            long lineNum = 0;
+
+            while ((line = br.readLine()) != null) {
+                lineNum++;
+                Matcher m = pattern.matcher(line);
+
+                if (m.find()) {
+                    int hour = Integer.parseInt(m.group(1));
+                    int min = Integer.parseInt(m.group(2));
+                    int sec = Integer.parseInt(m.group(3));
+                    int nano = Integer.parseInt(m.group(4));
+
+                    long timestampNs = ((hour * 3600L + min * 60 + sec)
+                        * 1_000_000_000L) + nano;
+
+                    int seqStart = Integer.parseInt(m.group(5));
+
+                    if (line.contains("request")) {
+                        requestTimes.put(seqStart, timestampNs);
+                    } else if (line.contains("response")) {
+                        Long reqTime = requestTimes.remove(seqStart);
+                        if (reqTime != null) {
+                            long latencyNs = timestampNs - reqTime;
+                            latencies.add(latencyNs);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Calculate statistics
+        if (!latencies.isEmpty()) {
+            Collections.sort(latencies);
+
+            long min = latencies.get(0);
+            long p50 = latencies.get(latencies.size() / 2);
+            long p99 = latencies.get((int)(latencies.size() * 0.99));
+            long max = latencies.get(latencies.size() - 1);
+            long avg = latencies.stream().mapToLong(Long::longValue).sum()
+                     / latencies.size();
+
+            System.out.printf("Analyzed %d request-response pairs%n", latencies.size());
+            System.out.printf("Min:  %,d ns (%,.1f μs)%n", min, min / 1000.0);
+            System.out.printf("p50:  %,d ns (%,.1f μs)%n", p50, p50 / 1000.0);
+            System.out.printf("p99:  %,d ns (%,.1f μs)%n", p99, p99 / 1000.0);
+            System.out.printf("Max:  %,d ns (%,.1f μs)%n", max, max / 1000.0);
+            System.out.printf("Avg:  %,d ns (%,.1f μs)%n", avg, avg / 1000.0);
+        }
+    }
+
+    static void generateCommands() {
+        System.out.println("\\n=== Common tcpdump Commands ===\\n");
+
+        System.out.println("# Capture FIX traffic with hardware timestamps:");
+        System.out.println("sudo tcpdump -i eth0 -j adapter_unsynced \\\\");
+        System.out.println("  --time-stamp-precision=nano port 9000 -w fix.pcap\\n");
+
+        System.out.println("# Capture only SYN packets (connection setup):");
+        System.out.println("sudo tcpdump -i eth0 'tcp[tcpflags] & tcp-syn != 0'\\n");
+
+        System.out.println("# Filter by host and port:");
+        System.out.println("sudo tcpdump -i eth0 host 192.168.1.100 and port 9000\\n");
+
+        System.out.println("# Show packet contents in hex and ASCII:");
+        System.out.println("sudo tcpdump -i eth0 -X port 9000\\n");
+
+        System.out.println("# Calculate inter-packet delays:");
+        System.out.println("tcpdump -ttt -r fix.pcap | head -20\\n");
+
+        System.out.println("# Filter and count by message type:");
+        System.out.println("tcpdump -r fix.pcap -A | grep '35=' | sort | uniq -c\\n");
+
+        System.out.println("# Export to CSV for Excel analysis:");
+        System.out.println("tshark -r fix.pcap -T fields \\\\");
+        System.out.println("  -e frame.time_epoch -e ip.src -e ip.dst \\\\");
+        System.out.println("  -e tcp.srcport -e tcp.dstport -E separator=,\\n");
+    }
+}
+
+/*
+ * WIRESHARK ANALYSIS
+ *
+ * 1. Open pcap file in Wireshark
+ *
+ * 2. Apply display filter for FIX:
+ *    tcp.port == 9000
+ *
+ * 3. Follow TCP stream to see full conversation:
+ *    Right-click packet → Follow → TCP Stream
+ *
+ * 4. Calculate request-response latency:
+ *    - Find request packet (e.g., New Order Single, 35=D)
+ *    - Find response packet (Execution Report, 35=8)
+ *    - Wireshark shows delta time in column
+ *
+ * 5. Export timestamps:
+ *    File → Export Packet Dissections → CSV
+ *
+ * 6. Use Statistics → TCP Stream Graphs → Round Trip Time
+ *
+ * 7. I/O Graph for traffic visualization:
+ *    Statistics → I/O Graph
+ *    Add filter: tcp.port == 9000
+ *    Set Y-axis: Advanced → SUM(tcp.len)
+ */`
+        },
+        {
+          name: 'Chronicle Queue - Production Latency Tracking',
+          explanation: 'Chronicle Queue provides ultra-low latency persistent messaging with built-in latency tracking. Writes to memory-mapped files achieving 500ns median latencies. Records timestamps at key points: enqueue, dequeue, processing stages. Supports tailer playback for post-trade analysis. Used extensively in trading systems for order journals, market data recording, and audit trails. Latency histograms available via Chronicle-Core.',
+          codeExample: `import net.openhft.chronicle.queue.*;
+import net.openhft.chronicle.wire.*;
+
+/**
+ * Chronicle Queue with latency tracking
+ *
+ * Maven dependencies:
+ * <dependency>
+ *   <groupId>net.openhft</groupId>
+ *   <artifactId>chronicle-queue</artifactId>
+ *   <version>5.24.4</version>
+ * </dependency>
+ */
+public class ChronicleLatencyTracking {
+    public static void main(String[] args) {
+        // Producer with latency tracking
+        produceWithLatencyTracking();
+
+        // Consumer with latency measurement
+        consumeAndMeasureLatency();
+
+        // Analyze historical latencies
+        analyzeLatencyFromQueue();
+    }
+
+    static void produceWithLatencyTracking() {
+        String queuePath = "/tmp/chronicle-latency";
+
+        try (ChronicleQueue queue = ChronicleQueue.singleBuilder(queuePath)
+                .build()) {
+
+            ExcerptAppender appender = queue.acquireAppender();
+
+            for (int i = 0; i < 10000; i++) {
+                long enqueueTime = System.nanoTime();
+
+                // Write message with timestamp
+                appender.writeDocument(wire -> {
+                    wire.write("orderId").text("ORDER-" + i);
+                    wire.write("symbol").text("AAPL");
+                    wire.write("quantity").int32(100);
+                    wire.write("price").float64(150.50);
+                    wire.write("enqueueTimeNs").int64(enqueueTime);
+                });
+
+                // Simulate production rate (1000 orders/sec = 1ms interval)
+                if (i % 100 == 0) {
+                    try { Thread.sleep(1); } catch (Exception e) {}
+                }
+            }
+
+            System.out.println("Produced 10000 orders");
+        }
+    }
+
+    static void consumeAndMeasureLatency() {
+        String queuePath = "/tmp/chronicle-latency";
+
+        long[] latencies = new long[10000];
+        int count = 0;
+
+        try (ChronicleQueue queue = ChronicleQueue.singleBuilder(queuePath)
+                .build()) {
+
+            ExcerptTailer tailer = queue.createTailer();
+
+            while (count < 10000) {
+                boolean read = tailer.readDocument(wire -> {
+                    String orderId = wire.read("orderId").text();
+                    String symbol = wire.read("symbol").text();
+                    int quantity = wire.read("quantity").int32();
+                    double price = wire.read("price").float64();
+                    long enqueueTimeNs = wire.read("enqueueTimeNs").int64();
+
+                    long dequeueTimeNs = System.nanoTime();
+                    long latencyNs = dequeueTimeNs - enqueueTimeNs;
+
+                    if (count < latencies.length) {
+                        latencies[count] = latencyNs;
+                    }
+
+                    // Process order
+                    processOrder(orderId, symbol, quantity, price);
+                });
+
+                if (read) {
+                    count++;
+                } else {
+                    // No more messages
+                    break;
+                }
+            }
+        }
+
+        // Calculate percentiles
+        Arrays.sort(latencies);
+
+        System.out.println("\\n=== Queue Latency Distribution ===");
+        System.out.printf("Count:  %,d%n", count);
+        System.out.printf("p50:    %,d ns (%,.1f μs)%n",
+            latencies[count / 2], latencies[count / 2] / 1000.0);
+        System.out.printf("p95:    %,d ns (%,.1f μs)%n",
+            latencies[(int)(count * 0.95)], latencies[(int)(count * 0.95)] / 1000.0);
+        System.out.printf("p99:    %,d ns (%,.1f μs)%n",
+            latencies[(int)(count * 0.99)], latencies[(int)(count * 0.99)] / 1000.0);
+        System.out.printf("p99.9:  %,d ns (%,.1f μs)%n",
+            latencies[(int)(count * 0.999)], latencies[(int)(count * 0.999)] / 1000.0);
+        System.out.printf("Max:    %,d ns (%,.1f μs)%n",
+            latencies[count - 1], latencies[count - 1] / 1000.0);
+    }
+
+    static void analyzeLatencyFromQueue() {
+        System.out.println("\\n=== Analyzing Historical Latencies ===");
+
+        String queuePath = "/tmp/chronicle-latency";
+
+        try (ChronicleQueue queue = ChronicleQueue.singleBuilder(queuePath)
+                .build()) {
+
+            ExcerptTailer tailer = queue.createTailer();
+
+            Map<Integer, Long> hourlyCounts = new TreeMap<>();
+            Map<Integer, List<Long>> hourlyLatencies = new TreeMap<>();
+
+            while (true) {
+                boolean[] hasData = {false};
+
+                tailer.readDocument(wire -> {
+                    hasData[0] = true;
+
+                    long enqueueTimeNs = wire.read("enqueueTimeNs").int64();
+                    long currentTimeNs = System.nanoTime();
+
+                    // Group by hour
+                    int hour = (int)((enqueueTimeNs / 1_000_000_000L) / 3600) % 24;
+
+                    hourlyCounts.merge(hour, 1L, Long::sum);
+
+                    long latencyNs = currentTimeNs - enqueueTimeNs;
+                    hourlyLatencies.computeIfAbsent(hour, k -> new ArrayList<>())
+                                   .add(latencyNs);
+                });
+
+                if (!hasData[0]) break;
+            }
+
+            // Print hourly statistics
+            System.out.println("\\nHour | Count  | p50    | p99    | Max");
+            System.out.println("-----+--------+--------+--------+--------");
+
+            hourlyLatencies.forEach((hour, latencies) -> {
+                Collections.sort(latencies);
+                long p50 = latencies.get(latencies.size() / 2) / 1000;
+                long p99 = latencies.get((int)(latencies.size() * 0.99)) / 1000;
+                long max = latencies.get(latencies.size() - 1) / 1000;
+
+                System.out.printf("%02d   | %,6d | %5dμs | %5dμs | %5dμs%n",
+                    hour, latencies.size(), p50, p99, max);
+            });
+        }
+    }
+
+    static void processOrder(String orderId, String symbol,
+                            int quantity, double price) {
+        // Simulate order processing
+    }
+}
+
+/**
+ * Advanced Chronicle Queue features for latency analysis
+ */
+class AdvancedChronicleLatency {
+
+    // Custom message type with multiple timestamp stages
+    interface OrderMessage {
+        OrderMessage orderId(String id);
+        OrderMessage symbol(String sym);
+        OrderMessage t1_received(long ns);
+        OrderMessage t2_validated(long ns);
+        OrderMessage t3_matched(long ns);
+        OrderMessage t4_sent(long ns);
+    }
+
+    public static void multiStageLatencyTracking() {
+        String queuePath = "/tmp/chronicle-multistage";
+
+        try (ChronicleQueue queue = ChronicleQueue.singleBuilder(queuePath)
+                .build()) {
+
+            ExcerptAppender appender = queue.acquireAppender();
+
+            // Write order with all stage timestamps
+            long t1 = System.nanoTime();
+
+            // Validation stage
+            Thread.sleep(0, 50000);  // 50μs
+            long t2 = System.nanoTime();
+
+            // Matching stage
+            Thread.sleep(0, 30000);  // 30μs
+            long t3 = System.nanoTime();
+
+            // Sending stage
+            Thread.sleep(0, 20000);  // 20μs
+            long t4 = System.nanoTime();
+
+            appender.writeDocument(wire -> {
+                OrderMessage msg = wire.methodWriter(OrderMessage.class);
+                msg.orderId("ORDER-123")
+                   .symbol("AAPL")
+                   .t1_received(t1)
+                   .t2_validated(t2)
+                   .t3_matched(t3)
+                   .t4_sent(t4);
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}`
         }
       ]
     }
