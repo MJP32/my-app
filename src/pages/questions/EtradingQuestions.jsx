@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 
 function EtradingQuestions({ onBack, breadcrumb }) {
@@ -8,13 +10,56 @@ function EtradingQuestions({ onBack, breadcrumb }) {
     const lines = text.split('\n')
     const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4']
     let colorIndex = 0
+    const result = []
+    let inCodeBlock = false
+    let codeLines = []
+    let codeLanguage = 'java'
 
-    return lines.map((line, lineIndex) => {
+    for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+      const line = lines[lineIndex]
+
+      // Check for code block start/end
+      if (line.trim().startsWith('```')) {
+        if (!inCodeBlock) {
+          // Start of code block
+          inCodeBlock = true
+          codeLanguage = line.trim().substring(3) || 'java'
+          codeLines = []
+        } else {
+          // End of code block
+          inCodeBlock = false
+          const codeString = codeLines.join('\n')
+          result.push(
+            <div key={`code-${lineIndex}`} style={{ margin: '1rem 0' }}>
+              <SyntaxHighlighter
+                language={codeLanguage}
+                style={vscDarkPlus}
+                customStyle={{
+                  borderRadius: '0.5rem',
+                  fontSize: '0.9rem',
+                  padding: '1rem'
+                }}
+              >
+                {codeString}
+              </SyntaxHighlighter>
+            </div>
+          )
+          codeLines = []
+        }
+        continue
+      }
+
+      if (inCodeBlock) {
+        codeLines.push(line)
+        continue
+      }
+
+      // Regular text formatting
       const boldMatch = line.match(/^\*\*(.+?):\*\*/)
       if (boldMatch) {
         const color = colors[colorIndex % colors.length]
         colorIndex++
-        return (
+        result.push(
           <div key={lineIndex} style={{ marginTop: lineIndex > 0 ? '1rem' : 0 }}>
             <span style={{
               fontWeight: '700',
@@ -26,13 +71,14 @@ function EtradingQuestions({ onBack, breadcrumb }) {
             {line.substring(boldMatch[0].length)}
           </div>
         )
+        continue
       }
 
       const numberedMatch = line.match(/^\*\*(\d+\.\s+.+?):\*\*/)
       if (numberedMatch) {
         const color = colors[colorIndex % colors.length]
         colorIndex++
-        return (
+        result.push(
           <div key={lineIndex} style={{ marginTop: lineIndex > 0 ? '1rem' : 0 }}>
             <span style={{
               fontWeight: '700',
@@ -44,10 +90,13 @@ function EtradingQuestions({ onBack, breadcrumb }) {
             {line.substring(numberedMatch[0].length)}
           </div>
         )
+        continue
       }
 
-      return <div key={lineIndex}>{line}</div>
-    })
+      result.push(<div key={lineIndex}>{line}</div>)
+    }
+
+    return result
   }
 
   const questions = [
@@ -2656,6 +2705,2211 @@ events.fill("ORDER-123", "FILL-456", 100, 150.50);
 - Immutable execution record
 - EOD reconciliation
 - Regulatory reporting`
+    },
+    {
+      id: 21,
+      category: 'Order Book Matching',
+      question: 'Implement a high-performance limit order book with price-time priority matching',
+      answer: `**Order Book Fundamentals:**
+
+**Matching Rules:**
+- Price-Time Priority (FIFO at same price)
+- Best bid/ask at top of book
+- Market orders execute immediately against book
+- Limit orders rest in book until matched or cancelled
+
+**Data Structures:**
+
+\`\`\`java
+public class OrderBook {
+    // Buy side - max heap (highest price first)
+    private final TreeMap<Double, PriceLevel> bids =
+        new TreeMap<>(Comparator.reverseOrder());
+
+    // Sell side - min heap (lowest price first)
+    private final TreeMap<Double, PriceLevel> asks =
+        new TreeMap<>();
+
+    // Fast order lookup
+    private final Map<String, Order> orderIndex =
+        new ConcurrentHashMap<>();
+
+    // For real-time stats
+    private volatile double lastTradePrice;
+    private volatile long lastTradeTime;
+}
+
+// Price level holds all orders at a specific price
+public class PriceLevel {
+    private final double price;
+    private final Queue<Order> orders = new LinkedList<>();
+    private long totalQuantity;
+
+    public void addOrder(Order order) {
+        orders.offer(order);
+        totalQuantity += order.getRemainingQuantity();
+    }
+
+    public Order removeFirstOrder() {
+        Order order = orders.poll();
+        if (order != null) {
+            totalQuantity -= order.getRemainingQuantity();
+        }
+        return order;
+    }
+
+    public boolean isEmpty() {
+        return orders.isEmpty();
+    }
+
+    public long getTotalQuantity() {
+        return totalQuantity;
+    }
+}
+\`\`\`
+
+**Core Matching Algorithm:**
+
+\`\`\`java
+public class MatchingEngine {
+    private final OrderBook orderBook;
+
+    public List<Fill> addOrder(Order order) {
+        List<Fill> fills = new ArrayList<>();
+
+        if (order.getSide() == Side.BUY) {
+            fills = matchBuyOrder(order);
+        } else {
+            fills = matchSellOrder(order);
+        }
+
+        // If order not fully filled, add remainder to book
+        if (order.getRemainingQuantity() > 0) {
+            orderBook.addOrder(order);
+        }
+
+        return fills;
+    }
+
+    private List<Fill> matchBuyOrder(Order buyOrder) {
+        List<Fill> fills = new ArrayList<>();
+
+        // Match against asks (sell side)
+        while (buyOrder.getRemainingQuantity() > 0) {
+            PriceLevel bestAsk = orderBook.getBestAsk();
+
+            if (bestAsk == null) {
+                break; // No more sellers
+            }
+
+            // Check price cross
+            if (buyOrder.isMarketOrder() ||
+                buyOrder.getPrice() >= bestAsk.getPrice()) {
+
+                // Execute trade
+                Order sellOrder = bestAsk.getFirstOrder();
+                Fill fill = executeTrade(buyOrder, sellOrder, bestAsk.getPrice());
+                fills.add(fill);
+
+                // Update orders
+                buyOrder.reduceQuantity(fill.getQuantity());
+                sellOrder.reduceQuantity(fill.getQuantity());
+
+                // Remove fully filled sell order
+                if (sellOrder.getRemainingQuantity() == 0) {
+                    bestAsk.removeFirstOrder();
+                    orderBook.removeOrder(sellOrder.getOrderId());
+                }
+
+                // Remove empty price level
+                if (bestAsk.isEmpty()) {
+                    orderBook.removePriceLevel(Side.SELL, bestAsk.getPrice());
+                }
+            } else {
+                break; // Price doesn't cross
+            }
+        }
+
+        return fills;
+    }
+
+    private Fill executeTrade(Order buy, Order sell, double price) {
+        long quantity = Math.min(
+            buy.getRemainingQuantity(),
+            sell.getRemainingQuantity()
+        );
+
+        Fill fill = new Fill();
+        fill.setFillId(generateFillId());
+        fill.setBuyOrderId(buy.getOrderId());
+        fill.setSellOrderId(sell.getOrderId());
+        fill.setPrice(price);
+        fill.setQuantity(quantity);
+        fill.setTimestamp(System.nanoTime());
+
+        // Publish fill to both sides
+        publishFill(buy.getOrderId(), fill);
+        publishFill(sell.getOrderId(), fill);
+
+        return fill;
+    }
+}
+\`\`\`
+
+**Order Cancellation:**
+
+\`\`\`java
+public boolean cancelOrder(String orderId) {
+    Order order = orderBook.getOrder(orderId);
+
+    if (order == null) {
+        return false; // Order not found
+    }
+
+    // Remove from price level
+    PriceLevel level = orderBook.getPriceLevel(
+        order.getSide(),
+        order.getPrice()
+    );
+
+    if (level != null) {
+        level.removeOrder(order);
+
+        if (level.isEmpty()) {
+            orderBook.removePriceLevel(order.getSide(), order.getPrice());
+        }
+    }
+
+    // Remove from index
+    orderBook.removeOrder(orderId);
+
+    return true;
+}
+\`\`\`
+
+**Order Modification (Cancel/Replace):**
+
+\`\`\`java
+public List<Fill> modifyOrder(String orderId, double newPrice, long newQuantity) {
+    // Cancel existing order
+    Order oldOrder = orderBook.getOrder(orderId);
+
+    if (oldOrder == null) {
+        throw new OrderNotFoundException(orderId);
+    }
+
+    // Cancel loses time priority
+    cancelOrder(orderId);
+
+    // Create new order with new parameters
+    Order newOrder = new Order();
+    newOrder.setOrderId(generateNewOrderId());
+    newOrder.setSymbol(oldOrder.getSymbol());
+    newOrder.setSide(oldOrder.getSide());
+    newOrder.setPrice(newPrice);
+    newOrder.setQuantity(newQuantity);
+
+    // Add as new order (goes to back of queue at price level)
+    return addOrder(newOrder);
+}
+\`\`\`
+
+**Book Snapshot:**
+
+\`\`\`java
+public class BookSnapshot {
+    public List<Level> getBids;
+    public List<Level> getAsks;
+
+    public static class Level {
+        public double price;
+        public long quantity;
+        public int orderCount;
+    }
+}
+
+public BookSnapshot getSnapshot(int depth) {
+    BookSnapshot snapshot = new BookSnapshot();
+
+    // Top N bid levels
+    snapshot.bids = orderBook.getBids().entrySet().stream()
+        .limit(depth)
+        .map(entry -> new Level(
+            entry.getKey(),
+            entry.getValue().getTotalQuantity(),
+            entry.getValue().getOrderCount()
+        ))
+        .collect(Collectors.toList());
+
+    // Top N ask levels
+    snapshot.asks = orderBook.getAsks().entrySet().stream()
+        .limit(depth)
+        .map(entry -> new Level(
+            entry.getKey(),
+            entry.getValue().getTotalQuantity(),
+            entry.getValue().getOrderCount()
+        ))
+        .collect(Collectors.toList());
+
+    return snapshot;
+}
+\`\`\`
+
+**Performance Optimizations:**
+
+**1. Lock-Free Updates:**
+\`\`\`java
+// Use single-threaded matching engine
+// All operations on one thread eliminates locks
+ExecutorService matchingThread = Executors.newSingleThreadExecutor();
+
+matchingThread.submit(() -> {
+    addOrder(order);
+});
+\`\`\`
+
+**2. Object Pooling:**
+\`\`\`java
+private final ObjectPool<Fill> fillPool = new ObjectPool<>(Fill::new, 10000);
+
+private Fill executeTrade(Order buy, Order sell, double price) {
+    Fill fill = fillPool.borrowObject();
+    fill.reset();
+    fill.setBuyOrderId(buy.getOrderId());
+    // ...
+    return fill;
+}
+\`\`\`
+
+**3. Fast Price Level Access:**
+- TreeMap for sorted prices: O(log n)
+- HashMap for O(1) order lookup
+- LinkedList for FIFO within price level
+
+**Typical Performance:**
+- Add order: 1-5 microseconds
+- Cancel order: 1-3 microseconds
+- Match order: 2-10 microseconds
+- Snapshot: 5-20 microseconds`
+    },
+    {
+      id: 22,
+      category: 'FPGA Acceleration',
+      question: 'Explain FPGA acceleration in trading systems and when to use it',
+      answer: `**What is FPGA?**
+- Field Programmable Gate Array
+- Reconfigurable hardware chip
+- Custom logic circuits for specific tasks
+- Nanosecond-level latency (<100ns)
+- Parallel processing
+
+**FPGA vs CPU:**
+
+\`\`\`
+CPU (Software):
+- Sequential execution
+- ~1-10 microsecond latency
+- Flexible, easy to change
+- Higher power consumption
+- Context switches, interrupts
+
+FPGA (Hardware):
+- Parallel execution
+- ~10-100 nanosecond latency
+- Fixed logic, expensive to change
+- Lower power consumption
+- Deterministic, no OS overhead
+\`\`\`
+
+**Common FPGA Use Cases:**
+
+**1. Market Data Feed Handler:**
+- Parse binary market data protocols
+- Normalize data from multiple feeds
+- Update order book in hardware
+- Faster than software by 10-100x
+
+**2. Order Routing:**
+- Pre-trade risk checks in hardware
+- FIX message parsing
+- Smart order routing decisions
+- Direct to exchange via kernel bypass
+
+**3. Tick-to-Trade:**
+- Receive market data tick
+- Run trading strategy logic
+- Generate and send order
+- Complete cycle in <500 nanoseconds
+
+**FPGA Architecture:**
+
+\`\`\`
+┌─────────────────────────────────────┐
+│         FPGA Chip                   │
+│                                     │
+│  ┌──────────┐     ┌──────────┐    │
+│  │ FIX      │────▶│ Risk     │    │
+│  │ Parser   │     │ Check    │    │
+│  └──────────┘     └──────────┘    │
+│       │                 │          │
+│       ▼                 ▼          │
+│  ┌──────────┐     ┌──────────┐    │
+│  │ Strategy │────▶│ Order    │    │
+│  │ Logic    │     │ Gen      │    │
+│  └──────────┘     └──────────┘    │
+│                        │           │
+└────────────────────────┼───────────┘
+                         ▼
+                    Network (10G/40G)
+\`\`\`
+
+**Hardware Description Language (HDL):**
+
+\`\`\`verilog
+// Verilog example - FIX price parser
+module fix_price_parser (
+    input wire clk,
+    input wire [7:0] data_in,
+    input wire valid,
+    output reg [63:0] price_out,
+    output reg price_valid
+);
+
+    reg [2:0] state;
+    reg [63:0] accumulated_price;
+    reg [3:0] decimal_position;
+
+    always @(posedge clk) begin
+        if (valid) begin
+            case (state)
+                PARSE_INTEGER: begin
+                    if (data_in == ".") begin
+                        state <= PARSE_DECIMAL;
+                    end else if (data_in >= "0" && data_in <= "9") begin
+                        accumulated_price <= accumulated_price * 10 +
+                                           (data_in - "0");
+                    end
+                end
+
+                PARSE_DECIMAL: begin
+                    if (data_in >= "0" && data_in <= "9") begin
+                        accumulated_price <= accumulated_price * 10 +
+                                           (data_in - "0");
+                        decimal_position <= decimal_position + 1;
+                    end else begin
+                        price_out <= accumulated_price;
+                        price_valid <= 1;
+                        state <= IDLE;
+                    end
+                end
+            endcase
+        end
+    end
+endmodule
+\`\`\`
+
+**Software-FPGA Interface:**
+
+\`\`\`java
+public class FPGAInterface {
+    // Memory-mapped I/O to FPGA
+    private final long FPGA_BASE_ADDRESS = 0xC0000000L;
+    private final long ORDER_WRITE_OFFSET = 0x1000;
+    private final long FILL_READ_OFFSET = 0x2000;
+
+    private final Unsafe unsafe = getUnsafe();
+
+    public void sendOrderToFPGA(Order order) {
+        long address = FPGA_BASE_ADDRESS + ORDER_WRITE_OFFSET;
+
+        // Write order directly to FPGA memory
+        unsafe.putLong(address, order.getOrderId());
+        unsafe.putLong(address + 8, order.getSymbol().hashCode());
+        unsafe.putInt(address + 16, order.getSide().ordinal());
+        unsafe.putInt(address + 20, order.getQuantity());
+        unsafe.putDouble(address + 24, order.getPrice());
+
+        // Trigger FPGA processing (write to control register)
+        unsafe.putInt(FPGA_BASE_ADDRESS, 1);
+    }
+
+    public Fill readFillFromFPGA() {
+        long address = FPGA_BASE_ADDRESS + FILL_READ_OFFSET;
+
+        // Poll for fill ready flag
+        while ((unsafe.getInt(address) & 0x1) == 0) {
+            // Busy wait
+        }
+
+        Fill fill = new Fill();
+        fill.setFillId(unsafe.getLong(address + 8));
+        fill.setQuantity(unsafe.getInt(address + 16));
+        fill.setPrice(unsafe.getDouble(address + 20));
+
+        return fill;
+    }
+}
+\`\`\`
+
+**Advantages:**
+
+**1. Extreme Low Latency:**
+- 10-100x faster than software
+- Deterministic timing
+- No jitter from OS/GC
+
+**2. High Throughput:**
+- Process millions of messages/second
+- Parallel processing pipelines
+- No CPU bottleneck
+
+**3. Lower Power:**
+- More efficient than CPU
+- Important for data center costs
+
+**Disadvantages:**
+
+**1. Development Cost:**
+- Requires HDL expertise (Verilog/VHDL)
+- Long development cycles (months)
+- Expensive debugging/testing
+
+**2. Inflexibility:**
+- Hard to change strategy logic
+- Firmware updates complex
+- Not suitable for rapid iteration
+
+**3. High Capital Cost:**
+- FPGA cards: $10,000-100,000+
+- Development tools: $50,000+
+- Specialized engineers
+
+**4. Complexity:**
+- Hardware-software integration
+- Timing closure challenges
+- Limited debugging visibility
+
+**When to Use FPGA:**
+
+**Use FPGA When:**
+- Latency < 1 microsecond required
+- Strategy is stable, won't change often
+- High message rate (millions/sec)
+- Competitive advantage from speed
+- Budget allows ($500k+ investment)
+
+**Use CPU/Software When:**
+- Latency < 100 microseconds acceptable
+- Strategy changes frequently
+- Complex decision logic
+- Rapid development needed
+- Limited budget
+
+**Hybrid Approach:**
+
+\`\`\`
+FPGA: Fast path
+- Market data parsing
+- Pre-trade risk checks
+- Simple strategies (market making)
+
+CPU: Slow path
+- Complex strategies
+- Risk aggregation
+- Reporting and analytics
+- Administration
+\`\`\`
+
+**Major FPGA Vendors:**
+- Xilinx (Alveo, UltraScale+)
+- Intel/Altera (Stratix, Arria)
+- Cisco (Exeter platform)
+
+**Development Tools:**
+- Vivado (Xilinx)
+- Quartus (Intel)
+- High-Level Synthesis (C to HDL)
+
+**Typical Latencies:**
+- Market data parse: 50-100ns
+- Risk check: 20-50ns
+- Order generation: 30-80ns
+- Total tick-to-trade: 200-500ns`
+    },
+    {
+      id: 23,
+      category: 'Market Microstructure',
+      question: 'Explain adverse selection, toxic flow, and how market makers protect against them',
+      answer: `**Adverse Selection:**
+
+**Definition:**
+- Trading with a better-informed counterparty
+- Losing money systematically to informed traders
+- Market maker's biggest risk
+
+**Example Scenario:**
+\`\`\`
+Market Maker quotes: Bid $100.00, Ask $100.10
+
+Informed trader knows stock about to drop to $99:
+- Sells to market maker at $100.00 (market maker buys)
+- Stock drops to $99
+- Market maker loses $1.00 per share
+
+Informed trader had information asymmetry
+Market maker suffered adverse selection
+\`\`\`
+
+**Toxic Flow Detection:**
+
+\`\`\`java
+public class ToxicFlowDetector {
+    private final Map<String, ClientMetrics> clientMetrics =
+        new ConcurrentHashMap<>();
+
+    public boolean isToxicFlow(Order order, String clientId) {
+        ClientMetrics metrics = clientMetrics.get(clientId);
+
+        // 1. Win rate too high (client consistently profitable)
+        if (metrics.getWinRate() > 0.65) {
+            return true;
+        }
+
+        // 2. Adverse price movement after fills
+        double avgPriceMove = metrics.getAvgPriceMovementAfterTrade();
+        if (Math.abs(avgPriceMove) > 0.005) { // 50 bps
+            return true;
+        }
+
+        // 3. Trade size correlation with price direction
+        if (metrics.getSizeDirectionCorrelation() > 0.7) {
+            return true;
+        }
+
+        // 4. Unusual timing patterns
+        if (isLatencyArbitrage(order, metrics)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isLatencyArbitrage(Order order, ClientMetrics metrics) {
+        // Order came right after market data update
+        long timeSinceLastTick = System.nanoTime() - lastMarketDataTime;
+
+        // HFT arbitrage typically < 100 microseconds
+        if (timeSinceLastTick < 100_000) {
+            return true;
+        }
+
+        return false;
+    }
+}
+\`\`\`
+
+**Market Maker Protection Strategies:**
+
+**1. Wider Spreads for Toxic Flow:**
+\`\`\`java
+public double calculateSpread(String clientId, String symbol) {
+    double baseSpread = getBaseSpread(symbol);
+
+    // Increase spread for toxic clients
+    ToxicityScore score = getToxicityScore(clientId);
+
+    double spreadMultiplier = 1.0;
+
+    if (score.getLevel() == ToxicityLevel.HIGH) {
+        spreadMultiplier = 3.0;  // 3x wider spread
+    } else if (score.getLevel() == ToxicityLevel.MEDIUM) {
+        spreadMultiplier = 1.5;
+    }
+
+    return baseSpread * spreadMultiplier;
+}
+\`\`\`
+
+**2. Quote Fading (Pull Quotes):**
+\`\`\`java
+public void onMarketDataUpdate(Quote newQuote) {
+    double priceChange = Math.abs(newQuote.getMid() - lastMid);
+    double changePercent = priceChange / lastMid;
+
+    // If price moves significantly, pull quotes temporarily
+    if (changePercent > 0.001) {  // 10 bps
+        pullQuotes();
+
+        // Re-quote after brief pause to avoid stale quotes
+        scheduler.schedule(() -> {
+            updateQuotes();
+        }, 100, TimeUnit.MICROSECONDS);
+    }
+}
+\`\`\`
+
+**3. Last Look / Hold Time:**
+\`\`\`java
+public boolean acceptTrade(Trade trade) {
+    // Hold trade for brief period before acceptance
+    long holdTimeNs = 100_000; // 100 microseconds
+
+    Quote currentQuote = getCurrentMarketQuote(trade.getSymbol());
+    Quote quoteAtTradeTime = getHistoricalQuote(trade.getTimestamp());
+
+    // Reject if price moved against us during hold time
+    if (trade.getSide() == Side.BUY) {
+        if (currentQuote.getAsk() > quoteAtTradeTime.getAsk() * 1.0002) {
+            return false; // Price moved up 2 bps, reject
+        }
+    } else {
+        if (currentQuote.getBid() < quoteAtTradeTime.getBid() * 0.9998) {
+            return false; // Price moved down 2 bps, reject
+        }
+    }
+
+    return true;
+}
+\`\`\`
+
+**4. Inventory-Based Pricing:**
+\`\`\`java
+public Quote generateQuote(String symbol) {
+    double fairValue = getFairValue(symbol);
+    double baseSpread = getBaseSpread(symbol);
+
+    long inventory = getInventory(symbol);
+    long inventoryLimit = getInventoryLimit(symbol);
+
+    // Skew prices to reduce inventory
+    double inventoryRatio = (double) inventory / inventoryLimit;
+    double skew = inventoryRatio * 0.01; // 1% max skew
+
+    // If long, lower both bid and ask
+    double bid = fairValue - (baseSpread / 2) - skew;
+    double ask = fairValue + (baseSpread / 2) - skew;
+
+    return new Quote(symbol, bid, ask);
+}
+\`\`\`
+
+**5. Client Segmentation:**
+\`\`\`java
+public enum ClientTier {
+    TIER_1_INSTITUTIONAL,  // Best prices
+    TIER_2_RETAIL,          // Standard prices
+    TIER_3_TOXIC_HFT       // Worst prices or no quote
+}
+
+public Quote getQuoteForClient(String clientId, String symbol) {
+    ClientTier tier = getClientTier(clientId);
+
+    Quote baseQuote = generateQuote(symbol);
+
+    switch (tier) {
+        case TIER_1_INSTITUTIONAL:
+            return baseQuote; // Tight spread
+
+        case TIER_2_RETAIL:
+            return widenSpread(baseQuote, 1.5);
+
+        case TIER_3_TOXIC_HFT:
+            return widenSpread(baseQuote, 3.0);
+            // Or return null (no quote)
+    }
+}
+\`\`\`
+
+**Information Leakage Detection:**
+
+\`\`\`java
+public class InformationLeakageDetector {
+    public void detectPinging(String clientId) {
+        List<Order> recentOrders = getRecentOrders(clientId);
+
+        // Detect small orders to test liquidity
+        long smallOrderCount = recentOrders.stream()
+            .filter(o -> o.getQuantity() < 100) // IOC orders
+            .filter(o -> o.getTimeInForce() == TimeInForce.IOC)
+            .count();
+
+        if (smallOrderCount > 10 within 1 second) {
+            // Client is "pinging" to detect hidden liquidity
+            flagClient(clientId, "PINGING_DETECTED");
+        }
+    }
+
+    public void detectOrderbookProbing(String clientId) {
+        // Detect pattern: small order, cancel, repeat
+        // Used to discover hidden orders in dark pools
+
+        int cancelRate = getCancelRate(clientId);
+
+        if (cancelRate > 80%) { // 80%+ cancellation rate
+            flagClient(clientId, "PROBING_DETECTED");
+        }
+    }
+}
+\`\`\`
+
+**Metrics for Adverse Selection:**
+
+**Fill Ratio:**
+\`\`\`
+Fill Ratio = Fills / Quotes Sent
+
+Low fill ratio = good (selective about trades)
+High fill ratio = bad (getting picked off)
+\`\`\`
+
+**Effective Spread Captured:**
+\`\`\`
+Spread Captured = (Sell Price - Buy Price) / 2
+
+Should be close to quoted spread
+Lower = adverse selection eating profit
+\`\`\`
+
+**Post-Trade Price Movement:**
+\`\`\`
+Price Movement = Abs(Price after 100ms - Fill Price)
+
+Higher = getting picked off by informed traders
+Lower = trading with uninformed flow
+\`\`\`
+
+**Regulatory Considerations:**
+
+**Last Look Controversy:**
+- FX market practice
+- Controversial for fairness
+- Some venues ban it
+- Transparency required
+
+**Best Execution:**
+- Must balance speed vs price
+- Can't discriminate unfairly
+- Need documented policy`
+    },
+    {
+      id: 24,
+      category: 'Multi-threaded Order Processing',
+      question: 'Design a multi-threaded order processing system that maintains FIFO guarantees',
+      answer: `**Challenge:**
+- Process orders in parallel for throughput
+- Maintain FIFO ordering per symbol
+- Avoid race conditions and deadlocks
+- Minimize contention and locks
+
+**Partitioning Strategy:**
+
+**Symbol-Based Partitioning:**
+\`\`\`java
+public class PartitionedOrderProcessor {
+    private final int numPartitions = 16; // Power of 2
+    private final ExecutorService[] executors;
+    private final Disruptor<OrderEvent>[] disruptors;
+
+    public PartitionedOrderProcessor() {
+        executors = new ExecutorService[numPartitions];
+        disruptors = new Disruptor[numPartitions];
+
+        for (int i = 0; i < numPartitions; i++) {
+            // Dedicated thread per partition
+            executors[i] = Executors.newSingleThreadExecutor(
+                new ThreadFactory() {
+                    public Thread newThread(Runnable r) {
+                        Thread t = new Thread(r);
+                        t.setName("OrderProcessor-" + i);
+                        // Pin to specific CPU core
+                        setThreadAffinity(t, i);
+                        return t;
+                    }
+                }
+            );
+
+            // Disruptor ring buffer per partition
+            disruptors[i] = new Disruptor<>(
+                OrderEvent::new,
+                1024, // Buffer size
+                executors[i],
+                ProducerType.MULTI,
+                new BusySpinWaitStrategy()
+            );
+
+            // Attach handler
+            disruptors[i].handleEventsWith(
+                new OrderEventHandler(i)
+            );
+
+            disruptors[i].start();
+        }
+    }
+
+    public void submitOrder(Order order) {
+        // Hash symbol to partition
+        int partition = getPartition(order.getSymbol());
+
+        // Publish to partition's ring buffer
+        RingBuffer<OrderEvent> ringBuffer =
+            disruptors[partition].getRingBuffer();
+
+        long sequence = ringBuffer.next();
+        try {
+            OrderEvent event = ringBuffer.get(sequence);
+            event.setOrder(order);
+        } finally {
+            ringBuffer.publish(sequence);
+        }
+    }
+
+    private int getPartition(String symbol) {
+        // Consistent hashing
+        int hash = symbol.hashCode();
+        return Math.abs(hash) % numPartitions;
+    }
+}
+\`\`\`
+
+**Order Event Handler (Single-Threaded per Partition):**
+
+\`\`\`java
+public class OrderEventHandler implements EventHandler<OrderEvent> {
+    private final int partitionId;
+    private final Map<String, OrderBook> orderBooks = new HashMap<>();
+
+    public OrderEventHandler(int partitionId) {
+        this.partitionId = partitionId;
+    }
+
+    @Override
+    public void onEvent(OrderEvent event, long sequence, boolean endOfBatch) {
+        Order order = event.getOrder();
+
+        // Get or create order book for symbol
+        OrderBook book = orderBooks.computeIfAbsent(
+            order.getSymbol(),
+            k -> new OrderBook(k)
+        );
+
+        // Process order (single-threaded, no locks needed)
+        switch (order.getType()) {
+            case NEW:
+                List<Fill> fills = book.addOrder(order);
+                publishFills(fills);
+                break;
+
+            case CANCEL:
+                boolean cancelled = book.cancelOrder(order.getOrderId());
+                publishCancelConfirm(order, cancelled);
+                break;
+
+            case MODIFY:
+                fills = book.modifyOrder(
+                    order.getOrderId(),
+                    order.getPrice(),
+                    order.getQuantity()
+                );
+                publishFills(fills);
+                break;
+        }
+
+        // Batch processing optimization
+        if (endOfBatch) {
+            flushMarketData();
+        }
+    }
+}
+\`\`\`
+
+**Cross-Partition Coordination (Rare Case):**
+
+\`\`\`java
+public class CrossPartitionCoordinator {
+    // Use this only for operations requiring multiple symbols
+
+    public void executeBasketOrder(List<Order> basketOrders) {
+        // Group by partition
+        Map<Integer, List<Order>> partitionGroups =
+            basketOrders.stream()
+                .collect(Collectors.groupingBy(
+                    o -> getPartition(o.getSymbol())
+                ));
+
+        // Sort partitions to avoid deadlock (always acquire in order)
+        List<Integer> sortedPartitions = new ArrayList<>(
+            partitionGroups.keySet()
+        );
+        Collections.sort(sortedPartitions);
+
+        // Acquire locks in order
+        List<Lock> locks = new ArrayList<>();
+        for (int partition : sortedPartitions) {
+            Lock lock = partitionLocks[partition];
+            lock.lock();
+            locks.add(lock);
+        }
+
+        try {
+            // Process all orders atomically
+            for (Map.Entry<Integer, List<Order>> entry :
+                    partitionGroups.entrySet()) {
+                for (Order order : entry.getValue()) {
+                    processOrder(order);
+                }
+            }
+        } finally {
+            // Release locks in reverse order
+            Collections.reverse(locks);
+            locks.forEach(Lock::unlock);
+        }
+    }
+}
+\`\`\`
+
+**Work Stealing for Load Balancing:**
+
+\`\`\`java
+public class WorkStealingOrderProcessor {
+    private final ForkJoinPool pool = new ForkJoinPool(
+        16, // Parallelism
+        ForkJoinPool.defaultForkJoinWorkerThreadFactory,
+        null,
+        true  // Async mode for better work stealing
+    );
+
+    public void processOrderBatch(List<Order> orders) {
+        // Group by symbol to maintain FIFO
+        Map<String, List<Order>> ordersBySymbol =
+            orders.stream().collect(Collectors.groupingBy(Order::getSymbol));
+
+        // Process each symbol's orders in parallel
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+        for (Map.Entry<String, List<Order>> entry :
+                ordersBySymbol.entrySet()) {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                processOrdersForSymbol(entry.getKey(), entry.getValue());
+            }, pool);
+
+            futures.add(future);
+        }
+
+        // Wait for all symbols to complete
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+            .join();
+    }
+
+    private void processOrdersForSymbol(String symbol, List<Order> orders) {
+        OrderBook book = getOrderBook(symbol);
+
+        // Process in FIFO order (single-threaded per symbol)
+        for (Order order : orders) {
+            book.addOrder(order);
+        }
+    }
+}
+\`\`\`
+
+**Thread Affinity (CPU Pinning):**
+
+\`\`\`java
+public class ThreadAffinity {
+    public static void setThreadAffinity(Thread thread, int coreId) {
+        try {
+            // Linux-specific via JNA/JNI
+            long mask = 1L << coreId;
+
+            // Call pthread_setaffinity_np or sched_setaffinity
+            CLibrary.INSTANCE.sched_setaffinity(
+                thread.getId(),
+                Long.BYTES,
+                mask
+            );
+        } catch (Exception e) {
+            log.warn("Failed to set thread affinity", e);
+        }
+    }
+}
+
+// Benefit: Reduces cache misses, more consistent latency
+\`\`\`
+
+**Backpressure Handling:**
+
+\`\`\`java
+public class BackpressureHandler {
+    private final AtomicInteger queueDepth = new AtomicInteger(0);
+    private final int QUEUE_LIMIT = 10000;
+
+    public boolean submitOrder(Order order) {
+        int depth = queueDepth.incrementAndGet();
+
+        if (depth > QUEUE_LIMIT) {
+            queueDepth.decrementAndGet();
+
+            // Reject order due to backpressure
+            rejectOrder(order, "System overloaded");
+            return false;
+        }
+
+        try {
+            // Submit to ring buffer
+            publishOrder(order);
+            return true;
+        } finally {
+            queueDepth.decrementAndGet();
+        }
+    }
+
+    // Alternative: Apply backpressure by rate limiting
+    private final RateLimiter rateLimiter = RateLimiter.create(100_000);
+
+    public void submitWithRateLimit(Order order) {
+        if (!rateLimiter.tryAcquire()) {
+            rejectOrder(order, "Rate limit exceeded");
+            return;
+        }
+
+        submitOrder(order);
+    }
+}
+\`\`\`
+
+**Performance Metrics:**
+
+**Throughput:**
+- Single partition: 500k-1M orders/sec
+- 16 partitions: 8-16M orders/sec
+- Depends on order complexity
+
+**Latency:**
+- Median: 1-5 microseconds
+- p99: 10-50 microseconds
+- p99.9: 50-200 microseconds
+
+**Best Practices:**
+
+1. **Partition by Symbol** - Natural ordering boundary
+2. **Single Thread per Partition** - No locks needed
+3. **CPU Pinning** - Reduce cache misses
+4. **Batch Processing** - Amortize overhead
+5. **Monitor Queue Depth** - Backpressure indicator
+6. **Bounded Queues** - Prevent memory exhaustion`
+    },
+    {
+      id: 25,
+      category: 'Trade Surveillance',
+      question: 'How do you detect market manipulation patterns like spoofing, layering, and wash trading?',
+      answer: `**Market Manipulation Types:**
+
+**1. Spoofing:**
+- Place large orders with no intent to execute
+- Create false impression of supply/demand
+- Cancel before execution
+- Illegal under Dodd-Frank Act
+
+**2. Layering:**
+- Multiple orders at different price levels
+- Create artificial price pressure
+- Cancel outer layers, execute inner orders
+- Similar to spoofing but more sophisticated
+
+**3. Wash Trading:**
+- Buy and sell to yourself
+- Create false volume/activity
+- No change in beneficial ownership
+- Prohibited by SEC
+
+**Spoofing Detection:**
+
+\`\`\`java
+public class SpoofingDetector {
+    public boolean detectSpoofing(String accountId, String symbol) {
+        List<Order> recentOrders = getRecentOrders(accountId, symbol);
+
+        // Pattern: Large order -> Cancel before fill -> Opposite trade
+
+        for (int i = 0; i < recentOrders.size() - 1; i++) {
+            Order order1 = recentOrders.get(i);
+            Order order2 = recentOrders.get(i + 1);
+
+            // Check for spoof pattern
+            if (isSpoofPattern(order1, order2)) {
+                double orderRatio = (double) order1.getQuantity() /
+                                   order2.getQuantity();
+
+                // Large order cancelled, small opposite order executed
+                if (order1.getStatus() == OrderStatus.CANCELLED &&
+                    order2.getStatus() == OrderStatus.FILLED &&
+                    order1.getSide() != order2.getSide() &&
+                    orderRatio > 10.0) {
+
+                    // Time between orders < 5 seconds
+                    long timeDiff = order2.getTimestamp() - order1.getTimestamp();
+                    if (timeDiff < 5_000_000_000L) { // 5 seconds in nanos
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public SpoofingMetrics calculateMetrics(String accountId) {
+        List<Order> orders = getAllOrders(accountId);
+
+        long totalOrders = orders.size();
+        long cancelledOrders = orders.stream()
+            .filter(o -> o.getStatus() == OrderStatus.CANCELLED)
+            .count();
+
+        double cancelRate = (double) cancelledOrders / totalOrders;
+
+        // High cancel rate (>80%) is suspicious
+        // Especially if orders large and quickly cancelled
+
+        long avgTimeToCancel = orders.stream()
+            .filter(o -> o.getStatus() == OrderStatus.CANCELLED)
+            .mapToLong(o -> o.getCancelTime() - o.getCreateTime())
+            .average()
+            .orElse(0);
+
+        return new SpoofingMetrics(cancelRate, avgTimeToCancel);
+    }
+}
+\`\`\`
+
+**Layering Detection:**
+
+\`\`\`java
+public class LayeringDetector {
+    public boolean detectLayering(String accountId, String symbol) {
+        // Get order book snapshots over time
+        List<OrderBookSnapshot> snapshots = getSnapshots(symbol);
+
+        for (OrderBookSnapshot snapshot : snapshots) {
+            // Check for multiple orders from same account
+            Map<String, List<Order>> ordersByAccount =
+                snapshot.getAllOrders().stream()
+                    .collect(Collectors.groupingBy(Order::getAccountId));
+
+            List<Order> accountOrders = ordersByAccount.get(accountId);
+
+            if (accountOrders == null || accountOrders.size() < 3) {
+                continue;
+            }
+
+            // Layering pattern: Multiple orders on one side,
+            // execution on opposite side
+
+            long buys = accountOrders.stream()
+                .filter(o -> o.getSide() == Side.BUY)
+                .count();
+
+            long sells = accountOrders.stream()
+                .filter(o -> o.getSide() == Side.SELL)
+                .count();
+
+            // Imbalance: 5+ orders on one side
+            if (buys >= 5 && sells == 0) {
+                // Check if opposite side trade executed shortly after
+                if (hasOppositeTrade(accountId, symbol, Side.SELL,
+                        snapshot.getTimestamp())) {
+                    return true;
+                }
+            } else if (sells >= 5 && buys == 0) {
+                if (hasOppositeTrade(accountId, symbol, Side.BUY,
+                        snapshot.getTimestamp())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean hasOppositeTrade(String accountId, String symbol,
+                                     Side side, long afterTimestamp) {
+        List<Fill> fills = getFills(accountId, symbol);
+
+        return fills.stream()
+            .anyMatch(f -> f.getSide() == side &&
+                          f.getTimestamp() > afterTimestamp &&
+                          f.getTimestamp() < afterTimestamp + 60_000_000_000L);
+    }
+}
+\`\`\`
+
+**Wash Trading Detection:**
+
+\`\`\`java
+public class WashTradingDetector {
+    public boolean detectWashTrading(String accountId) {
+        List<Fill> fills = getAllFills(accountId);
+
+        // Group fills by symbol and timestamp proximity
+        for (Fill fill1 : fills) {
+            for (Fill fill2 : fills) {
+                if (fill1.getFillId().equals(fill2.getFillId())) {
+                    continue;
+                }
+
+                // Same symbol, opposite sides
+                if (fill1.getSymbol().equals(fill2.getSymbol()) &&
+                    fill1.getSide() != fill2.getSide()) {
+
+                    // Similar quantity
+                    double qtyDiff = Math.abs(
+                        fill1.getQuantity() - fill2.getQuantity()
+                    );
+                    if (qtyDiff / fill1.getQuantity() < 0.05) { // 5% diff
+
+                        // Similar price
+                        double priceDiff = Math.abs(
+                            fill1.getPrice() - fill2.getPrice()
+                        );
+                        if (priceDiff / fill1.getPrice() < 0.002) { // 20 bps
+
+                            // Close in time (within 1 minute)
+                            long timeDiff = Math.abs(
+                                fill1.getTimestamp() - fill2.getTimestamp()
+                            );
+                            if (timeDiff < 60_000_000_000L) {
+                                // Potential wash trade
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public boolean detectCrossAccountWash(String account1, String account2) {
+        // Check if two accounts are related (same beneficial owner)
+
+        if (!areRelatedAccounts(account1, account2)) {
+            return false;
+        }
+
+        // Check for matching trades between related accounts
+        List<Fill> fills1 = getAllFills(account1);
+        List<Fill> fills2 = getAllFills(account2);
+
+        for (Fill f1 : fills1) {
+            for (Fill f2 : fills2) {
+                if (isMatchingTrade(f1, f2)) {
+                    return true; // Wash trade across accounts
+                }
+            }
+        }
+
+        return false;
+    }
+}
+\`\`\`
+
+**Quote Stuffing Detection:**
+
+\`\`\`java
+public class QuoteStuffingDetector {
+    public boolean detectQuoteStuffing(String accountId) {
+        List<Order> orders = getRecentOrders(accountId);
+
+        // Count orders in last second
+        long now = System.nanoTime();
+        long oneSecondAgo = now - 1_000_000_000L;
+
+        long ordersInLastSecond = orders.stream()
+            .filter(o -> o.getTimestamp() > oneSecondAgo)
+            .count();
+
+        // More than 1000 orders per second is suspicious
+        if (ordersInLastSecond > 1000) {
+            // Check if most are cancelled
+            long cancelled = orders.stream()
+                .filter(o -> o.getTimestamp() > oneSecondAgo)
+                .filter(o -> o.getStatus() == OrderStatus.CANCELLED)
+                .count();
+
+            double cancelRate = (double) cancelled / ordersInLastSecond;
+
+            if (cancelRate > 0.95) { // 95%+ cancelled
+                return true; // Quote stuffing
+            }
+        }
+
+        return false;
+    }
+}
+\`\`\`
+
+**Surveillance Dashboard:**
+
+\`\`\`java
+public class SurveillanceAlerts {
+    public void generateAlerts() {
+        List<String> accounts = getAllActiveAccounts();
+
+        for (String accountId : accounts) {
+            // Run all detectors
+            if (spoofingDetector.detectSpoofing(accountId)) {
+                createAlert(accountId, AlertType.SPOOFING, Severity.HIGH);
+            }
+
+            if (layeringDetector.detectLayering(accountId)) {
+                createAlert(accountId, AlertType.LAYERING, Severity.HIGH);
+            }
+
+            if (washTradingDetector.detectWashTrading(accountId)) {
+                createAlert(accountId, AlertType.WASH_TRADING, Severity.CRITICAL);
+            }
+
+            // Calculate metrics
+            double cancelRate = getCancelRate(accountId);
+            if (cancelRate > 0.85) {
+                createAlert(accountId, AlertType.HIGH_CANCEL_RATE,
+                    Severity.MEDIUM);
+            }
+
+            // Order-to-trade ratio
+            double otRatio = getOrderToTradeRatio(accountId);
+            if (otRatio > 100) { // 100:1 ratio
+                createAlert(accountId, AlertType.HIGH_OT_RATIO,
+                    Severity.MEDIUM);
+            }
+        }
+    }
+
+    public void createAlert(String accountId, AlertType type,
+                           Severity severity) {
+        Alert alert = new Alert();
+        alert.setAccountId(accountId);
+        alert.setType(type);
+        alert.setSeverity(severity);
+        alert.setTimestamp(Instant.now());
+
+        // Send to compliance team
+        complianceQueue.publish(alert);
+
+        // Log for audit
+        auditLog.write(alert);
+    }
+}
+\`\`\`
+
+**Machine Learning Approach:**
+
+\`\`\`java
+public class MLSurveillance {
+    private final RandomForest model;
+
+    public double calculateManipulationScore(String accountId) {
+        // Extract features
+        double[] features = extractFeatures(accountId);
+
+        // Features:
+        // - Cancel rate
+        // - Order-to-trade ratio
+        // - Average time to cancel
+        // - Order size variance
+        // - Fill rate
+        // - Price impact
+        // - Time of day patterns
+        // - Order placement speed
+
+        // Predict manipulation probability (0-1)
+        double score = model.predict(features);
+
+        return score;
+    }
+
+    private double[] extractFeatures(String accountId) {
+        return new double[] {
+            getCancelRate(accountId),
+            getOrderToTradeRatio(accountId),
+            getAvgTimeToCancel(accountId),
+            getOrderSizeStdDev(accountId),
+            getFillRate(accountId),
+            getAvgPriceImpact(accountId),
+            getTimeOfDayEntropy(accountId),
+            getOrderPlacementSpeed(accountId)
+        };
+    }
+}
+\`\`\`
+
+**Regulatory Reporting:**
+- Must report suspicious activity to FINRA/SEC
+- Maintain audit trail for 7 years
+- Real-time surveillance required
+- False positive rate important`
+    },
+    {
+      id: 26,
+      category: 'Kafka for Trading',
+      question: 'Design a Kafka-based architecture for real-time trade feed distribution with exactly-once semantics',
+      answer: `**Requirements:**
+- Real-time trade distribution to consumers
+- Exactly-once delivery (no duplicates, no losses)
+- Partitioning for scalability
+- Replay capability
+- Low latency (< 10ms end-to-end)
+
+**Kafka Topic Design:**
+
+\`\`\`
+Topics:
+- trades.all - All trades across all symbols
+- trades.equities - Equity trades only
+- trades.{symbol} - Per-symbol topics for hot symbols
+- trades.dlq - Dead letter queue for failed messages
+
+Partitions:
+- Partition by symbol for ordering guarantee
+- 100 partitions for horizontal scaling
+\`\`\`
+
+**Producer with Exactly-Once:**
+
+\`\`\`java
+public class TradeProducer {
+    private final KafkaProducer<String, Trade> producer;
+
+    public TradeProducer() {
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "kafka1:9092,kafka2:9092");
+        props.put("key.serializer", StringSerializer.class.getName());
+        props.put("value.serializer", TradeSerializer.class.getName());
+
+        // Exactly-once configuration
+        props.put("enable.idempotence", "true");
+        props.put("acks", "all");
+        props.put("retries", Integer.MAX_VALUE);
+        props.put("max.in.flight.requests.per.connection", "5");
+
+        // Transactional ID for exactly-once across topics
+        props.put("transactional.id", "trade-producer-1");
+
+        // Compression
+        props.put("compression.type", "lz4");
+
+        // Low latency
+        props.put("linger.ms", "0");
+        props.put("batch.size", "0");
+
+        producer = new KafkaProducer<>(props);
+        producer.initTransactions();
+    }
+
+    public void publishTrade(Trade trade) {
+        try {
+            producer.beginTransaction();
+
+            // Send to multiple topics atomically
+            String symbol = trade.getSymbol();
+
+            // Main topic (partitioned by symbol)
+            ProducerRecord<String, Trade> record1 = new ProducerRecord<>(
+                "trades.all",
+                symbol, // Key for partitioning
+                trade
+            );
+
+            // Symbol-specific topic
+            ProducerRecord<String, Trade> record2 = new ProducerRecord<>(
+                "trades." + symbol,
+                trade.getTradeId(),
+                trade
+            );
+
+            // Send both
+            producer.send(record1);
+            producer.send(record2);
+
+            // Commit transaction
+            producer.commitTransaction();
+
+        } catch (Exception e) {
+            producer.abortTransaction();
+            throw new RuntimeException("Failed to publish trade", e);
+        }
+    }
+
+    public void publishBatch(List<Trade> trades) {
+        try {
+            producer.beginTransaction();
+
+            for (Trade trade : trades) {
+                ProducerRecord<String, Trade> record = new ProducerRecord<>(
+                    "trades.all",
+                    trade.getSymbol(),
+                    trade
+                );
+
+                // Async send for batching
+                producer.send(record);
+            }
+
+            producer.commitTransaction();
+
+        } catch (Exception e) {
+            producer.abortTransaction();
+            throw new RuntimeException("Batch publish failed", e);
+        }
+    }
+}
+\`\`\`
+
+**Consumer with Exactly-Once:**
+
+\`\`\`java
+public class TradeConsumer {
+    private final KafkaConsumer<String, Trade> consumer;
+
+    public TradeConsumer(String consumerGroup) {
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "kafka1:9092,kafka2:9092");
+        props.put("group.id", consumerGroup);
+        props.put("key.deserializer", StringDeserializer.class.getName());
+        props.put("value.deserializer", TradeDeserializer.class.getName());
+
+        // Exactly-once consumption
+        props.put("isolation.level", "read_committed");
+        props.put("enable.auto.commit", "false");
+
+        // Performance tuning
+        props.put("fetch.min.bytes", "1");
+        props.put("fetch.max.wait.ms", "100");
+
+        consumer = new KafkaConsumer<>(props);
+        consumer.subscribe(Arrays.asList("trades.all"));
+    }
+
+    public void consumeTrades() {
+        while (true) {
+            ConsumerRecords<String, Trade> records =
+                consumer.poll(Duration.ofMillis(100));
+
+            // Process records
+            for (ConsumerRecord<String, Trade> record : records) {
+                Trade trade = record.value();
+
+                try {
+                    // Process trade
+                    processTrade(trade);
+
+                    // Store in database (idempotent)
+                    storeTrade(trade);
+
+                    // Manual commit for exactly-once
+                    consumer.commitSync(Collections.singletonMap(
+                        new TopicPartition(record.topic(), record.partition()),
+                        new OffsetAndMetadata(record.offset() + 1)
+                    ));
+
+                } catch (Exception e) {
+                    // Send to DLQ
+                    sendToDeadLetterQueue(trade, e);
+                }
+            }
+        }
+    }
+
+    private void processTrade(Trade trade) {
+        // Idempotent processing using trade ID
+        if (isDuplicate(trade.getTradeId())) {
+            return; // Skip duplicate
+        }
+
+        // Business logic
+        updatePosition(trade);
+        calculatePnL(trade);
+        publishToRiskSystem(trade);
+
+        // Mark as processed
+        markProcessed(trade.getTradeId());
+    }
+}
+\`\`\`
+
+**Kafka Streams for Aggregations:**
+
+\`\`\`java
+public class TradeAggregator {
+    public void runAggregations() {
+        Properties props = new Properties();
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "trade-aggregator");
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka1:9092");
+        props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG,
+            StreamsConfig.EXACTLY_ONCE_V2);
+
+        StreamsBuilder builder = new StreamsBuilder();
+
+        // Source: trades
+        KStream<String, Trade> trades = builder.stream("trades.all");
+
+        // Aggregate by symbol - 1 minute windows
+        KTable<Windowed<String>, TradeStats> stats = trades
+            .groupByKey()
+            .windowedBy(TimeWindows.of(Duration.ofMinutes(1)))
+            .aggregate(
+                TradeStats::new,
+                (symbol, trade, stats) -> {
+                    stats.addTrade(trade);
+                    return stats;
+                },
+                Materialized.with(Serdes.String(), new TradeStatsSerde())
+            );
+
+        // Output to new topic
+        stats.toStream()
+            .map((key, value) -> KeyValue.pair(key.key(), value))
+            .to("trade-stats", Produced.with(Serdes.String(),
+                new TradeStatsSerde()));
+
+        KafkaStreams streams = new KafkaStreams(builder.build(), props);
+        streams.start();
+    }
+}
+
+public class TradeStats {
+    private long tradeCount;
+    private double totalVolume;
+    private double vwapPrice;
+    private double high;
+    private double low;
+
+    public void addTrade(Trade trade) {
+        tradeCount++;
+        totalVolume += trade.getQuantity() * trade.getPrice();
+        vwapPrice = totalVolume / tradeCount;
+        high = Math.max(high, trade.getPrice());
+        low = Math.min(low, trade.getPrice());
+    }
+}
+\`\`\`
+
+**Partitioning Strategy:**
+
+\`\`\`java
+public class SymbolPartitioner implements Partitioner {
+    @Override
+    public int partition(String topic, Object key, byte[] keyBytes,
+                        Object value, byte[] valueBytes, Cluster cluster) {
+
+        int numPartitions = cluster.partitionCountForTopic(topic);
+
+        if (key == null) {
+            // Round robin if no key
+            return ThreadLocalRandom.current().nextInt(numPartitions);
+        }
+
+        String symbol = (String) key;
+
+        // Hash symbol to partition
+        int partition = Math.abs(symbol.hashCode()) % numPartitions;
+
+        // Hot symbols get dedicated partitions
+        if (isHotSymbol(symbol)) {
+            partition = getHotSymbolPartition(symbol);
+        }
+
+        return partition;
+    }
+
+    private boolean isHotSymbol(String symbol) {
+        return symbol.equals("AAPL") || symbol.equals("TSLA") ||
+               symbol.equals("AMZN");
+    }
+}
+\`\`\`
+
+**Monitoring and Metrics:**
+
+\`\`\`java
+public class KafkaMetrics {
+    private final MeterRegistry registry;
+
+    public void recordProducerMetrics(KafkaProducer<?, ?> producer) {
+        Map<MetricName, ? extends Metric> metrics = producer.metrics();
+
+        for (Map.Entry<MetricName, ? extends Metric> entry : metrics.entrySet()) {
+            MetricName name = entry.getKey();
+            Metric metric = entry.getValue();
+
+            // Record key metrics
+            if (name.name().equals("record-send-rate")) {
+                registry.gauge("kafka.producer.send.rate", metric.metricValue());
+            }
+            if (name.name().equals("request-latency-avg")) {
+                registry.gauge("kafka.producer.latency.avg", metric.metricValue());
+            }
+        }
+    }
+
+    public void trackConsumerLag(KafkaConsumer<?, ?> consumer) {
+        // Get current offsets
+        Set<TopicPartition> assignments = consumer.assignment();
+
+        for (TopicPartition partition : assignments) {
+            long currentOffset = consumer.position(partition);
+            long endOffset = consumer.endOffsets(
+                Collections.singleton(partition)
+            ).get(partition);
+
+            long lag = endOffset - currentOffset;
+
+            registry.gauge("kafka.consumer.lag",
+                Tags.of("partition", String.valueOf(partition.partition())),
+                lag
+            );
+
+            // Alert if lag > 10000
+            if (lag > 10000) {
+                alertHighLag(partition, lag);
+            }
+        }
+    }
+}
+\`\`\`
+
+**Replay Capability:**
+
+\`\`\`java
+public class TradeReplay {
+    public void replayTrades(String symbol, Instant start, Instant end) {
+        Properties props = new Properties();
+        props.put("bootstrap.servers", "kafka1:9092");
+        props.put("group.id", "replay-" + UUID.randomUUID());
+        props.put("enable.auto.commit", "false");
+
+        KafkaConsumer<String, Trade> consumer = new KafkaConsumer<>(props);
+
+        // Assign specific partition
+        int partition = getPartitionForSymbol(symbol);
+        TopicPartition tp = new TopicPartition("trades.all", partition);
+        consumer.assign(Collections.singleton(tp));
+
+        // Find offset for start timestamp
+        Map<TopicPartition, Long> timestampMap = new HashMap<>();
+        timestampMap.put(tp, start.toEpochMilli());
+
+        Map<TopicPartition, OffsetAndTimestamp> offsets =
+            consumer.offsetsForTimes(timestampMap);
+
+        long startOffset = offsets.get(tp).offset();
+        consumer.seek(tp, startOffset);
+
+        // Consume until end timestamp
+        while (true) {
+            ConsumerRecords<String, Trade> records = consumer.poll(
+                Duration.ofMillis(100)
+            );
+
+            for (ConsumerRecord<String, Trade> record : records) {
+                Trade trade = record.value();
+
+                if (trade.getTimestamp().isAfter(end)) {
+                    return; // Reached end time
+                }
+
+                // Replay trade
+                replayTrade(trade);
+            }
+        }
+    }
+}
+\`\`\`
+
+**Performance:**
+- Producer latency: 1-5ms
+- Consumer lag: < 100ms
+- Throughput: 100k-1M trades/second
+- Retention: 7 days (configurable)`
+    },
+    {
+      id: 27,
+      category: 'Pre-trade Risk',
+      question: 'Implement comprehensive pre-trade risk checks with circuit breakers and kill switches',
+      answer: `**Risk Check Architecture:**
+
+\`\`\`java
+public class PreTradeRiskEngine {
+    private final List<RiskCheck> riskChecks = new ArrayList<>();
+    private final CircuitBreaker circuitBreaker;
+    private final KillSwitch killSwitch;
+
+    public PreTradeRiskEngine() {
+        // Register risk checks in order of speed (fastest first)
+        riskChecks.add(new KillSwitchCheck());
+        riskChecks.add(new FatFingerCheck());
+        riskChecks.add(new PositionLimitCheck());
+        riskChecks.add(new NotionalLimitCheck());
+        riskChecks.add(new CreditLimitCheck());
+        riskChecks.add(new RateLimitCheck());
+        riskChecks.add(new ConcentrationCheck());
+        riskChecks.add(new MarketStateCheck());
+
+        this.circuitBreaker = new CircuitBreaker();
+        this.killSwitch = new KillSwitch();
+    }
+
+    public RiskResult validateOrder(Order order) {
+        long startTime = System.nanoTime();
+
+        try {
+            // Run all checks
+            for (RiskCheck check : riskChecks) {
+                RiskResult result = check.validate(order);
+
+                if (!result.isApproved()) {
+                    recordRejection(order, check, result);
+                    return result;
+                }
+            }
+
+            // All checks passed
+            recordApproval(order, System.nanoTime() - startTime);
+            return RiskResult.approve();
+
+        } catch (Exception e) {
+            // Risk check failure - reject for safety
+            return RiskResult.reject("Risk check system error");
+        }
+    }
+}
+\`\`\`
+
+**Individual Risk Checks:**
+
+\`\`\`java
+public class FatFingerCheck implements RiskCheck {
+    private final double MAX_PRICE_DEVIATION = 0.10;  // 10%
+    private final long MAX_QUANTITY = 1_000_000;
+    private final double MAX_NOTIONAL = 50_000_000;  // $50M
+
+    @Override
+    public RiskResult validate(Order order) {
+        // Price reasonability
+        Quote marketQuote = getMarketQuote(order.getSymbol());
+
+        if (marketQuote != null) {
+            double midPrice = marketQuote.getMid();
+            double deviation = Math.abs(order.getPrice() - midPrice) / midPrice;
+
+            if (deviation > MAX_PRICE_DEVIATION) {
+                return RiskResult.reject(
+                    "Price deviates " + (deviation * 100) + "% from market"
+                );
+            }
+        }
+
+        // Quantity check
+        if (order.getQuantity() > MAX_QUANTITY) {
+            return RiskResult.reject(
+                "Quantity " + order.getQuantity() + " exceeds max " + MAX_QUANTITY
+            );
+        }
+
+        // Notional check
+        double notional = order.getQuantity() * order.getPrice();
+        if (notional > MAX_NOTIONAL) {
+            return RiskResult.reject(
+                "Notional $" + notional + " exceeds max $" + MAX_NOTIONAL
+            );
+        }
+
+        return RiskResult.approve();
+    }
+}
+
+public class PositionLimitCheck implements RiskCheck {
+    private final Map<String, Long> symbolLimits;
+    private final long globalNetLimit;
+
+    @Override
+    public RiskResult validate(Order order) {
+        String symbol = order.getSymbol();
+
+        // Current position
+        long currentPosition = getPosition(symbol);
+
+        // Calculate new position if order fills
+        long signedQty = order.getSide() == Side.BUY ?
+            order.getQuantity() : -order.getQuantity();
+        long newPosition = currentPosition + signedQty;
+
+        // Symbol limit
+        Long symbolLimit = symbolLimits.get(symbol);
+        if (symbolLimit != null && Math.abs(newPosition) > symbolLimit) {
+            return RiskResult.reject(
+                "Would breach symbol limit: " + symbolLimit
+            );
+        }
+
+        // Global net limit
+        long globalPosition = getGlobalNetPosition() + signedQty;
+        if (Math.abs(globalPosition) > globalNetLimit) {
+            return RiskResult.reject("Would breach global net limit");
+        }
+
+        return RiskResult.approve();
+    }
+}
+
+public class RateLimitCheck implements RiskCheck {
+    private final RateLimiter orderRateLimiter;
+    private final RateLimiter notionalRateLimiter;
+
+    public RateLimitCheck() {
+        // 1000 orders per second
+        orderRateLimiter = RateLimiter.create(1000.0);
+
+        // $100M notional per second
+        notionalRateLimiter = RateLimiter.create(100_000_000.0);
+    }
+
+    @Override
+    public RiskResult validate(Order order) {
+        // Order rate limit
+        if (!orderRateLimiter.tryAcquire()) {
+            return RiskResult.reject("Order rate limit exceeded");
+        }
+
+        // Notional rate limit
+        double notional = order.getQuantity() * order.getPrice();
+        if (!notionalRateLimiter.tryAcquire(notional)) {
+            return RiskResult.reject("Notional rate limit exceeded");
+        }
+
+        return RiskResult.approve();
+    }
+}
+\`\`\`
+
+**Circuit Breaker:**
+
+\`\`\`java
+public class CircuitBreaker {
+    private enum State { CLOSED, OPEN, HALF_OPEN }
+
+    private volatile State state = State.CLOSED;
+    private final AtomicInteger failureCount = new AtomicInteger(0);
+    private final AtomicInteger successCount = new AtomicInteger(0);
+    private volatile long openedAt;
+
+    private final int FAILURE_THRESHOLD = 10;
+    private final int SUCCESS_THRESHOLD = 5;
+    private final long TIMEOUT_MS = 60_000; // 1 minute
+
+    public boolean allowRequest() {
+        switch (state) {
+            case CLOSED:
+                return true;
+
+            case OPEN:
+                // Check if timeout expired
+                if (System.currentTimeMillis() - openedAt > TIMEOUT_MS) {
+                    transitionToHalfOpen();
+                    return true;
+                }
+                return false;
+
+            case HALF_OPEN:
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    public void recordSuccess() {
+        if (state == State.HALF_OPEN) {
+            if (successCount.incrementAndGet() >= SUCCESS_THRESHOLD) {
+                transitionToClosed();
+            }
+        } else if (state == State.CLOSED) {
+            failureCount.set(0);
+        }
+    }
+
+    public void recordFailure() {
+        if (state == State.HALF_OPEN) {
+            transitionToOpen();
+        } else if (state == State.CLOSED) {
+            if (failureCount.incrementAndGet() >= FAILURE_THRESHOLD) {
+                transitionToOpen();
+            }
+        }
+    }
+
+    private void transitionToOpen() {
+        state = State.OPEN;
+        openedAt = System.currentTimeMillis();
+        failureCount.set(0);
+        successCount.set(0);
+        alert("Circuit breaker OPEN - rejecting all orders");
+    }
+
+    private void transitionToHalfOpen() {
+        state = State.HALF_OPEN;
+        successCount.set(0);
+        alert("Circuit breaker HALF_OPEN - testing recovery");
+    }
+
+    private void transitionToClosed() {
+        state = State.CLOSED;
+        failureCount.set(0);
+        successCount.set(0);
+        alert("Circuit breaker CLOSED - normal operation");
+    }
+}
+\`\`\`
+
+**Kill Switch:**
+
+\`\`\`java
+public class KillSwitch {
+    private final AtomicBoolean enabled = new AtomicBoolean(false);
+    private final Map<String, AtomicBoolean> symbolKillSwitches =
+        new ConcurrentHashMap<>();
+
+    // Reasons for activation
+    private volatile String activationReason;
+    private volatile Instant activatedAt;
+
+    public void activate(String reason) {
+        enabled.set(true);
+        activationReason = reason;
+        activatedAt = Instant.now();
+
+        // Cancel all working orders
+        cancelAllOrders();
+
+        // Alert
+        sendCriticalAlert("KILL SWITCH ACTIVATED: " + reason);
+
+        // Log
+        auditLog.critical("Kill switch activated", reason);
+    }
+
+    public void deactivate(String approver) {
+        enabled.set(false);
+
+        auditLog.info("Kill switch deactivated by " + approver);
+        sendAlert("Kill switch deactivated");
+    }
+
+    public void activateForSymbol(String symbol, String reason) {
+        symbolKillSwitches.computeIfAbsent(symbol, k -> new AtomicBoolean())
+            .set(true);
+
+        cancelOrdersForSymbol(symbol);
+        sendAlert("Kill switch activated for " + symbol + ": " + reason);
+    }
+
+    public boolean isActive() {
+        return enabled.get();
+    }
+
+    public boolean isActiveForSymbol(String symbol) {
+        AtomicBoolean symbolSwitch = symbolKillSwitches.get(symbol);
+        return symbolSwitch != null && symbolSwitch.get();
+    }
+
+    private void cancelAllOrders() {
+        List<Order> workingOrders = getAllWorkingOrders();
+
+        for (Order order : workingOrders) {
+            try {
+                cancelOrder(order.getOrderId());
+            } catch (Exception e) {
+                log.error("Failed to cancel order " + order.getOrderId(), e);
+            }
+        }
+    }
+
+    // Automatic triggers
+    public void checkAutomaticTriggers() {
+        // P&L drop
+        double pnl = getCurrentPnL();
+        if (pnl < -5_000_000) { // -$5M
+            activate("P&L dropped below -$5M: " + pnl);
+        }
+
+        // Position breach
+        long maxPosition = getMaxPositionAcrossSymbols();
+        if (maxPosition > 10_000_000) {
+            activate("Position breach: " + maxPosition);
+        }
+
+        // Error rate
+        double errorRate = getOrderErrorRate();
+        if (errorRate > 0.25) { // 25% errors
+            activate("High error rate: " + errorRate);
+        }
+
+        // Exchange connectivity
+        if (!isExchangeConnected()) {
+            activate("Exchange disconnected");
+        }
+    }
+}
+\`\`\`
+
+**Real-Time Risk Dashboard:**
+
+\`\`\`java
+public class RiskDashboard {
+    public RiskSnapshot getRiskSnapshot() {
+        RiskSnapshot snapshot = new RiskSnapshot();
+
+        // Positions
+        snapshot.setNetPosition(getGlobalNetPosition());
+        snapshot.setGrossPosition(getGlobalGrossPosition());
+        snapshot.setTopPositions(getTopPositions(10));
+
+        // P&L
+        snapshot.setRealizedPnL(getRealizedPnL());
+        snapshot.setUnrealizedPnL(getUnrealizedPnL());
+        snapshot.setTotalPnL(getTotalPnL());
+
+        // Limits
+        snapshot.setPositionUtilization(getPositionUtilization());
+        snapshot.setCreditUtilization(getCreditUtilization());
+
+        // Circuit breakers
+        snapshot.setCircuitBreakerState(circuitBreaker.getState());
+        snapshot.setKillSwitchActive(killSwitch.isActive());
+
+        // Metrics
+        snapshot.setOrdersPerSecond(getOrderRate());
+        snapshot.setRejectRate(getRejectRate());
+
+        return snapshot;
+    }
+
+    public void publishMetrics() {
+        // Real-time WebSocket updates to UI
+        wsServer.broadcast("risk", getRiskSnapshot());
+
+        // Prometheus metrics
+        registry.gauge("risk.pnl.total", getTotalPnL());
+        registry.gauge("risk.position.net", getGlobalNetPosition());
+        registry.gauge("risk.reject.rate", getRejectRate());
+    }
+}
+\`\`\`
+
+**Performance:**
+- Risk check latency: 1-10 microseconds
+- Circuit breaker overhead: < 100 nanoseconds
+- Kill switch activation: < 1 millisecond`
     }
   ]
 
