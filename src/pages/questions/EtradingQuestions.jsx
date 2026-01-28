@@ -2786,7 +2786,8 @@ events.fill("ORDER-123", "FILL-456", 100, 150.50);
                     color: '#d1d5db',
                     lineHeight: '1.8',
                     fontSize: '1rem',
-                    whiteSpace: 'pre-wrap'
+                    whiteSpace: 'pre-wrap',
+                    textAlign: 'left'
                   }}>
                     {renderFormattedAnswer(q.answer)}
                   </div>
