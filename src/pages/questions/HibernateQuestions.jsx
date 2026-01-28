@@ -1,57 +1,177 @@
 import { useState } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 
 function HibernateQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
 
-  // Helper function to render formatted text with colors for bold sections
   const renderFormattedAnswer = (text) => {
     const lines = text.split('\n')
-    const colors = ['#2563eb', '#7c3aed', '#059669', '#dc2626', '#ea580c', '#0891b2']
+    const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4']
     let colorIndex = 0
+    const result = []
+    let inCodeBlock = false
+    let codeLines = []
+    let codeLanguage = 'java'
 
-    return lines.map((line, lineIndex) => {
-      // Check if line starts with ** (bold section header)
+    for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+      const line = lines[lineIndex]
+
+      // Check for code block start/end
+      if (line.trim().startsWith('```')) {
+        if (!inCodeBlock) {
+          // Start of code block
+          inCodeBlock = true
+          codeLanguage = line.trim().substring(3) || 'java'
+          codeLines = []
+        } else {
+          // End of code block
+          inCodeBlock = false
+          const codeString = codeLines.join('\n')
+          result.push(
+            <div key={`code-${lineIndex}`} style={{ margin: '1.5rem 0', textAlign: 'left' }}>
+              <SyntaxHighlighter
+                language={codeLanguage}
+                style={vscDarkPlus}
+                customStyle={{
+                  borderRadius: '0.5rem',
+                  fontSize: '0.9rem',
+                  padding: '1rem',
+                  textAlign: 'left',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
+                }}
+              >
+                {codeString}
+              </SyntaxHighlighter>
+            </div>
+          )
+          codeLines = []
+        }
+        continue
+      }
+
+      if (inCodeBlock) {
+        codeLines.push(line)
+        continue
+      }
+
+      // Empty lines for spacing
+      if (line.trim() === '') {
+        result.push(<div key={lineIndex} style={{ height: '0.5rem' }}></div>)
+        continue
+      }
+
+      // Bullet points (lines starting with - or •)
+      const bulletMatch = line.match(/^(\s*)[-•]\s+(.+)$/)
+      if (bulletMatch) {
+        const indentLevel = bulletMatch[1].length
+        const bulletContent = bulletMatch[2]
+        result.push(
+          <div
+            key={lineIndex}
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              marginLeft: `${indentLevel * 0.5 + 1}rem`,
+              marginTop: '0.5rem',
+              textAlign: 'left',
+              lineHeight: '1.6'
+            }}
+          >
+            <span style={{
+              color: '#3b82f6',
+              marginRight: '0.5rem',
+              fontWeight: 'bold',
+              fontSize: '1.2rem',
+              lineHeight: '1.4'
+            }}>
+              •
+            </span>
+            <span style={{ flex: 1 }}>{bulletContent}</span>
+          </div>
+        )
+        continue
+      }
+
+      // Bold section headers (e.g., **What is RFQ?**)
       const boldMatch = line.match(/^\*\*(.+?):\*\*/)
       if (boldMatch) {
         const color = colors[colorIndex % colors.length]
         colorIndex++
-        return (
-          <div key={lineIndex} style={{ marginTop: lineIndex > 0 ? '1rem' : 0 }}>
+        result.push(
+          <div
+            key={lineIndex}
+            style={{
+              marginTop: '1.5rem',
+              marginBottom: '0.5rem',
+              textAlign: 'left',
+              paddingBottom: '0.25rem',
+              borderBottom: `2px solid ${color}33`
+            }}
+          >
             <span style={{
               fontWeight: '700',
               color: color,
-              fontSize: '1.05rem'
+              fontSize: '1.1rem',
+              letterSpacing: '0.02em'
             }}>
               {boldMatch[1]}:
             </span>
             {line.substring(boldMatch[0].length)}
           </div>
         )
+        continue
       }
 
-      // Check for numbered sections like **1. Title:**
+      // Numbered section headers (e.g., **1. Client Initiates:**)
       const numberedMatch = line.match(/^\*\*(\d+\.\s+.+?):\*\*/)
       if (numberedMatch) {
         const color = colors[colorIndex % colors.length]
         colorIndex++
-        return (
-          <div key={lineIndex} style={{ marginTop: lineIndex > 0 ? '1rem' : 0 }}>
+        result.push(
+          <div
+            key={lineIndex}
+            style={{
+              marginTop: '1.5rem',
+              marginBottom: '0.5rem',
+              textAlign: 'left',
+              paddingBottom: '0.25rem',
+              borderBottom: `2px solid ${color}33`
+            }}
+          >
             <span style={{
               fontWeight: '700',
               color: color,
-              fontSize: '1.05rem'
+              fontSize: '1.1rem',
+              letterSpacing: '0.02em'
             }}>
               {numberedMatch[1]}:
             </span>
             {line.substring(numberedMatch[0].length)}
           </div>
         )
+        continue
       }
 
-      // Regular line
-      return <div key={lineIndex}>{line}</div>
-    })
+      // Regular text with subtle left padding
+      result.push(
+        <div
+          key={lineIndex}
+          style={{
+            textAlign: 'left',
+            marginTop: '0.25rem',
+            paddingLeft: '0.5rem',
+            lineHeight: '1.6',
+            color: '#e5e7eb'
+          }}
+        >
+          {line}
+        </div>
+      )
+    }
+
+    return result
   }
 
   const questions = [
@@ -725,7 +845,7 @@ sessionFactory.getCache().evictAllRegions();
       <p style={{
         fontSize: '1.1rem',
         color: '#d1d5db',
-        textAlign: 'center',
+        textAlign: 'left',
         marginBottom: '2rem',
         lineHeight: '1.6'
       }}>

@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 
 export default function SpringSecurityQuestions({ onBack, breadcrumb }) {
@@ -667,70 +669,172 @@ public class UserController {
     }
   ]
 
-  const renderFormattedAnswer = (answer) => {
-    const parts = answer.split(/(\*\*.*?\*\*|`[^`]+`|```[\s\S]*?```)/g)
+  const renderFormattedAnswer = (text) => {
+    const lines = text.split('\n')
+    const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4']
+    let colorIndex = 0
+    const result = []
+    let inCodeBlock = false
+    let codeLines = []
+    let codeLanguage = 'java'
 
-    return parts.map((part, index) => {
-      if (part.startsWith('```') && part.endsWith('```')) {
-        const code = part.slice(3, -3)
-        const lines = code.split('\n')
-        const language = lines[0].trim()
-        const codeContent = lines.slice(1).join('\n')
+    for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+      const line = lines[lineIndex]
 
-        return (
-          <pre key={index} style={{
-            backgroundColor: '#1e293b',
-            color: '#e2e8f0',
-            padding: '1rem',
-            borderRadius: '8px',
-            overflowX: 'auto',
-            margin: '1rem 0',
-            border: '2px solid #334155'
-          }}>
-            {language && (
-              <div style={{
-                color: '#94a3b8',
-                fontSize: '0.75rem',
-                marginBottom: '0.5rem',
-                textTransform: 'uppercase',
-                fontWeight: '600'
-              }}>
-                {language}
-              </div>
-            )}
-            <code style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-              {codeContent}
-            </code>
-          </pre>
-        )
+      // Check for code block start/end
+      if (line.trim().startsWith('```')) {
+        if (!inCodeBlock) {
+          // Start of code block
+          inCodeBlock = true
+          codeLanguage = line.trim().substring(3) || 'java'
+          codeLines = []
+        } else {
+          // End of code block
+          inCodeBlock = false
+          const codeString = codeLines.join('\n')
+          result.push(
+            <div key={`code-${lineIndex}`} style={{ margin: '1.5rem 0', textAlign: 'left' }}>
+              <SyntaxHighlighter
+                language={codeLanguage}
+                style={vscDarkPlus}
+                customStyle={{
+                  borderRadius: '0.5rem',
+                  fontSize: '0.9rem',
+                  padding: '1rem',
+                  textAlign: 'left',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
+                }}
+              >
+                {codeString}
+              </SyntaxHighlighter>
+            </div>
+          )
+          codeLines = []
+        }
+        continue
       }
 
-      if (part.startsWith('**') && part.endsWith('**')) {
-        return (
-          <strong key={index} style={{ color: '#e2e8f0', fontSize: '1.05rem' }}>
-            {part.slice(2, -2)}
-          </strong>
-        )
+      if (inCodeBlock) {
+        codeLines.push(line)
+        continue
       }
 
-      if (part.startsWith('`') && part.endsWith('`')) {
-        return (
-          <code key={index} style={{
-            backgroundColor: '#374151',
-            color: '#f472b6',
-            padding: '0.2rem 0.4rem',
-            borderRadius: '4px',
-            fontSize: '0.9rem',
-            fontFamily: 'monospace',
-            border: '1px solid #4b5563'
-          }}>
-            {part.slice(1, -1)}
-          </code>
-        )
+      // Empty lines for spacing
+      if (line.trim() === '') {
+        result.push(<div key={lineIndex} style={{ height: '0.5rem' }}></div>)
+        continue
       }
 
-      return <span key={index}>{part}</span>
-    })
+      // Bullet points (lines starting with •)
+      const bulletMatch = line.match(/^(\s*)•\s+(.+)$/)
+      if (bulletMatch) {
+        const indentLevel = bulletMatch[1].length
+        const bulletContent = bulletMatch[2]
+        result.push(
+          <div
+            key={lineIndex}
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              marginLeft: `${indentLevel * 0.5 + 1}rem`,
+              marginTop: '0.5rem',
+              textAlign: 'left',
+              lineHeight: '1.6'
+            }}
+          >
+            <span style={{
+              color: '#3b82f6',
+              marginRight: '0.5rem',
+              fontWeight: 'bold',
+              fontSize: '1.2rem',
+              lineHeight: '1.4'
+            }}>
+              •
+            </span>
+            <span style={{ flex: 1 }}>{bulletContent}</span>
+          </div>
+        )
+        continue
+      }
+
+      // Bold section headers (e.g., **What is RFQ?**)
+      const boldMatch = line.match(/^\*\*(.+?):\*\*/)
+      if (boldMatch) {
+        const color = colors[colorIndex % colors.length]
+        colorIndex++
+        result.push(
+          <div
+            key={lineIndex}
+            style={{
+              marginTop: '1.5rem',
+              marginBottom: '0.5rem',
+              textAlign: 'left',
+              paddingBottom: '0.25rem',
+              borderBottom: `2px solid ${color}33`
+            }}
+          >
+            <span style={{
+              fontWeight: '700',
+              color: color,
+              fontSize: '1.1rem',
+              letterSpacing: '0.02em'
+            }}>
+              {boldMatch[1]}:
+            </span>
+            {line.substring(boldMatch[0].length)}
+          </div>
+        )
+        continue
+      }
+
+      // Numbered section headers (e.g., **1. Client Initiates:**)
+      const numberedMatch = line.match(/^\*\*(\d+\.\s+.+?):\*\*/)
+      if (numberedMatch) {
+        const color = colors[colorIndex % colors.length]
+        colorIndex++
+        result.push(
+          <div
+            key={lineIndex}
+            style={{
+              marginTop: '1.5rem',
+              marginBottom: '0.5rem',
+              textAlign: 'left',
+              paddingBottom: '0.25rem',
+              borderBottom: `2px solid ${color}33`
+            }}
+          >
+            <span style={{
+              fontWeight: '700',
+              color: color,
+              fontSize: '1.1rem',
+              letterSpacing: '0.02em'
+            }}>
+              {numberedMatch[1]}:
+            </span>
+            {line.substring(numberedMatch[0].length)}
+          </div>
+        )
+        continue
+      }
+
+      // Regular text with subtle left padding
+      result.push(
+        <div
+          key={lineIndex}
+          style={{
+            textAlign: 'left',
+            marginTop: '0.25rem',
+            paddingLeft: '0.5rem',
+            lineHeight: '1.6',
+            color: '#e5e7eb'
+          }}
+        >
+          {line}
+        </div>
+      )
+    }
+
+    return result
   }
 
   const getDifficultyColor = (difficulty) => {
