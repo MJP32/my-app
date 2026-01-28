@@ -30,7 +30,7 @@ function EtradingQuestions({ onBack, breadcrumb }) {
           inCodeBlock = false
           const codeString = codeLines.join('\n')
           result.push(
-            <div key={`code-${lineIndex}`} style={{ margin: '1rem 0', textAlign: 'left' }}>
+            <div key={`code-${lineIndex}`} style={{ margin: '1.5rem 0', textAlign: 'left' }}>
               <SyntaxHighlighter
                 language={codeLanguage}
                 style={vscDarkPlus}
@@ -38,7 +38,8 @@ function EtradingQuestions({ onBack, breadcrumb }) {
                   borderRadius: '0.5rem',
                   fontSize: '0.9rem',
                   padding: '1rem',
-                  textAlign: 'left'
+                  textAlign: 'left',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
                 }}
               >
                 {codeString}
@@ -55,17 +56,65 @@ function EtradingQuestions({ onBack, breadcrumb }) {
         continue
       }
 
-      // Regular text formatting
+      // Empty lines for spacing
+      if (line.trim() === '') {
+        result.push(<div key={lineIndex} style={{ height: '0.5rem' }}></div>)
+        continue
+      }
+
+      // Bullet points (lines starting with -)
+      const bulletMatch = line.match(/^(\s*)-\s+(.+)$/)
+      if (bulletMatch) {
+        const indentLevel = bulletMatch[1].length
+        const bulletContent = bulletMatch[2]
+        result.push(
+          <div
+            key={lineIndex}
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              marginLeft: `${indentLevel * 0.5 + 1}rem`,
+              marginTop: '0.5rem',
+              textAlign: 'left',
+              lineHeight: '1.6'
+            }}
+          >
+            <span style={{
+              color: '#3b82f6',
+              marginRight: '0.5rem',
+              fontWeight: 'bold',
+              fontSize: '1.2rem',
+              lineHeight: '1.4'
+            }}>
+              •
+            </span>
+            <span style={{ flex: 1 }}>{bulletContent}</span>
+          </div>
+        )
+        continue
+      }
+
+      // Bold section headers (e.g., **What is RFQ?**)
       const boldMatch = line.match(/^\*\*(.+?):\*\*/)
       if (boldMatch) {
         const color = colors[colorIndex % colors.length]
         colorIndex++
         result.push(
-          <div key={lineIndex} style={{ marginTop: lineIndex > 0 ? '1rem' : 0, textAlign: 'left' }}>
+          <div
+            key={lineIndex}
+            style={{
+              marginTop: '1.5rem',
+              marginBottom: '0.5rem',
+              textAlign: 'left',
+              paddingBottom: '0.25rem',
+              borderBottom: `2px solid ${color}33`
+            }}
+          >
             <span style={{
               fontWeight: '700',
               color: color,
-              fontSize: '1.05rem'
+              fontSize: '1.1rem',
+              letterSpacing: '0.02em'
             }}>
               {boldMatch[1]}:
             </span>
@@ -75,16 +124,27 @@ function EtradingQuestions({ onBack, breadcrumb }) {
         continue
       }
 
+      // Numbered section headers (e.g., **1. Client Initiates:**)
       const numberedMatch = line.match(/^\*\*(\d+\.\s+.+?):\*\*/)
       if (numberedMatch) {
         const color = colors[colorIndex % colors.length]
         colorIndex++
         result.push(
-          <div key={lineIndex} style={{ marginTop: lineIndex > 0 ? '1rem' : 0, textAlign: 'left' }}>
+          <div
+            key={lineIndex}
+            style={{
+              marginTop: '1.5rem',
+              marginBottom: '0.5rem',
+              textAlign: 'left',
+              paddingBottom: '0.25rem',
+              borderBottom: `2px solid ${color}33`
+            }}
+          >
             <span style={{
               fontWeight: '700',
               color: color,
-              fontSize: '1.05rem'
+              fontSize: '1.1rem',
+              letterSpacing: '0.02em'
             }}>
               {numberedMatch[1]}:
             </span>
@@ -94,7 +154,21 @@ function EtradingQuestions({ onBack, breadcrumb }) {
         continue
       }
 
-      result.push(<div key={lineIndex} style={{ textAlign: 'left' }}>{line}</div>)
+      // Regular text with subtle left padding
+      result.push(
+        <div
+          key={lineIndex}
+          style={{
+            textAlign: 'left',
+            marginTop: '0.25rem',
+            paddingLeft: '0.5rem',
+            lineHeight: '1.6',
+            color: '#e5e7eb'
+          }}
+        >
+          {line}
+        </div>
+      )
     }
 
     return result
