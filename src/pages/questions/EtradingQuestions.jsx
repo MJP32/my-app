@@ -30,14 +30,15 @@ function EtradingQuestions({ onBack, breadcrumb }) {
           inCodeBlock = false
           const codeString = codeLines.join('\n')
           result.push(
-            <div key={`code-${lineIndex}`} style={{ margin: '1rem 0' }}>
+            <div key={`code-${lineIndex}`} style={{ margin: '1rem 0', textAlign: 'left' }}>
               <SyntaxHighlighter
                 language={codeLanguage}
                 style={vscDarkPlus}
                 customStyle={{
                   borderRadius: '0.5rem',
                   fontSize: '0.9rem',
-                  padding: '1rem'
+                  padding: '1rem',
+                  textAlign: 'left'
                 }}
               >
                 {codeString}
@@ -60,7 +61,7 @@ function EtradingQuestions({ onBack, breadcrumb }) {
         const color = colors[colorIndex % colors.length]
         colorIndex++
         result.push(
-          <div key={lineIndex} style={{ marginTop: lineIndex > 0 ? '1rem' : 0 }}>
+          <div key={lineIndex} style={{ marginTop: lineIndex > 0 ? '1rem' : 0, textAlign: 'left' }}>
             <span style={{
               fontWeight: '700',
               color: color,
@@ -79,7 +80,7 @@ function EtradingQuestions({ onBack, breadcrumb }) {
         const color = colors[colorIndex % colors.length]
         colorIndex++
         result.push(
-          <div key={lineIndex} style={{ marginTop: lineIndex > 0 ? '1rem' : 0 }}>
+          <div key={lineIndex} style={{ marginTop: lineIndex > 0 ? '1rem' : 0, textAlign: 'left' }}>
             <span style={{
               fontWeight: '700',
               color: color,
@@ -93,7 +94,7 @@ function EtradingQuestions({ onBack, breadcrumb }) {
         continue
       }
 
-      result.push(<div key={lineIndex}>{line}</div>)
+      result.push(<div key={lineIndex} style={{ textAlign: 'left' }}>{line}</div>)
     }
 
     return result
@@ -4962,7 +4963,8 @@ public class RiskDashboard {
         <p style={{
           color: '#9ca3af',
           marginBottom: '2rem',
-          fontSize: '1.1rem'
+          fontSize: '1.1rem',
+          textAlign: 'left'
         }}>
           Master electronic trading concepts, protocols, and low-latency architectures for trading system interviews.
         </p>
@@ -5014,7 +5016,8 @@ public class RiskDashboard {
                       fontSize: '1.1rem',
                       fontWeight: '600',
                       color: '#e5e7eb',
-                      lineHeight: '1.5'
+                      lineHeight: '1.5',
+                      textAlign: 'left'
                     }}>
                       {q.question}
                     </h3>
