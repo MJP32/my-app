@@ -689,7 +689,8 @@ private List<Child> children;
                   fontSize: '0.9rem',
                   padding: '1rem',
                   textAlign: 'left',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                  backgroundColor: '#000000'
                 }}
               >
                 {codeString}
