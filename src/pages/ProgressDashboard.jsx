@@ -325,9 +325,23 @@ function ProgressDashboard({ onBack, onNavigate }) {
             </h3>
             {Object.entries(completedByCategory).map(([category, problems]) => (
               <div key={category} style={{ marginBottom: '1.5rem' }}>
-                <h4 style={{ color: '#f59e0b', marginBottom: '0.75rem' }}>
-                  {category} ({problems.length})
-                </h4>
+                <button
+                  onClick={() => handleProblemClick(problems[0])}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    cursor: 'pointer',
+                    marginBottom: '0.75rem',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                >
+                  <h4 style={{ color: '#f59e0b', margin: 0 }}>
+                    {category} ({problems.length})
+                  </h4>
+                </button>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                   {problems.map(problemId => (
                     <button
