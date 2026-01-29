@@ -97,6 +97,7 @@ import SpringBoot from './pages/spring/SpringBoot.jsx'
 import RestAPI from './pages/spring/RestAPI.jsx'
 import Hibernate from './pages/spring/Hibernate.jsx'
 import Actuator from './pages/frameworks/Actuator.jsx'
+import Zipkin from './pages/frameworks/Zipkin.jsx'
 import GRPC from './pages/spring/GRPC.jsx'
 import SOAP from './pages/spring/SOAP.jsx'
 import ReactFramework from './pages/spring/ReactFramework.jsx'
@@ -321,7 +322,7 @@ const categoryOrganization = {
   },
   'Practice': {
     label: '💪 Practice & Questions',
-    categories: ['Practice', 'Questions']
+    categories: ['Practice', 'Questions', 'Progress Dashboard']
   },
   'Projects': {
     label: '🚀 Real-World Projects',
@@ -342,7 +343,7 @@ const categoryGroups = {
   'Progress Dashboard': {
     icon: '📊',
     color: '#6366f1',
-    groupSection: 'Overview',
+    groupSection: 'Practice',
     description: 'Track your learning progress',
     items: []
   },
@@ -905,6 +906,7 @@ function App() {
   const [showDesignProblemsModal, setShowDesignProblemsModal] = useState(false)
   const [showHibernateModal, setShowHibernateModal] = useState(false)
   const [showActuatorModal, setShowActuatorModal] = useState(false)
+  const [showZipkinModal, setShowZipkinModal] = useState(false)
   const [showGRPCModal, setShowGRPCModal] = useState(false)
   const [showSOAPModal, setShowSOAPModal] = useState(false)
   const [showReactModal, setShowReactModal] = useState(false)
@@ -2911,6 +2913,7 @@ function App() {
             [showDesignProblemsModal, setShowDesignProblemsModal],
             [showHibernateModal, setShowHibernateModal],
             [showActuatorModal, setShowActuatorModal],
+            [showZipkinModal, setShowZipkinModal],
             [showGRPCModal, setShowGRPCModal],
             [showSOAPModal, setShowSOAPModal],
             [showReactModal, setShowReactModal],
@@ -3160,6 +3163,7 @@ function App() {
     showDesignProblemsModal,
     showHibernateModal,
     showActuatorModal,
+    showZipkinModal,
     showGRPCModal,
     showSOAPModal,
     showReactModal,
@@ -3299,6 +3303,7 @@ function App() {
     'SpringBoot': { name: 'Spring Ecosystem', id: 'spring' },
     'Hibernate': { name: 'Spring Ecosystem', id: 'spring' },
     'Actuator': { name: 'Spring Ecosystem', id: 'spring' },
+    'Zipkin': { name: 'Spring Ecosystem', id: 'spring' },
     'RestAPI': { name: 'API Development', id: 'api' },
     'GRPC': { name: 'API Development', id: 'api' },
     'SOAP': { name: 'API Development', id: 'api' },
@@ -3979,6 +3984,11 @@ function App() {
     }
     if (selectedOption === 'Actuator') {
       setShowActuatorModal(true)
+      setSelectedOptionAndRef('')
+      return null
+    }
+    if (selectedOption === 'Zipkin') {
+      setShowZipkinModal(true)
       setSelectedOptionAndRef('')
       return null
     }
@@ -5424,6 +5434,26 @@ function App() {
               section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowActuatorModal(false); setSelectedOptionAndRef('Frameworks') } },
               category: { name: frameworksTopicCategories['Actuator'].name, onClick: () => { setShowActuatorModal(false); goToFrameworksCategory(frameworksTopicCategories['Actuator'].id) } },
               topic: 'Spring Boot Actuator',
+              colors: BREADCRUMB_COLORS.Frameworks
+            }} />
+          </div>
+        </div>
+      )}
+
+      {/* Zipkin Modal */}
+      {showZipkinModal && (
+        <div
+          style={modalOverlayStyle}
+          onClick={() => setShowZipkinModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={modalContentStyle}
+          >
+            <Zipkin onBack={() => setShowZipkinModal(false)} breadcrumb={{
+              section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowZipkinModal(false); setSelectedOptionAndRef('Frameworks') } },
+              category: { name: frameworksTopicCategories['Zipkin'].name, onClick: () => { setShowZipkinModal(false); goToFrameworksCategory(frameworksTopicCategories['Zipkin'].id) } },
+              topic: 'Zipkin Distributed Tracing',
               colors: BREADCRUMB_COLORS.Frameworks
             }} />
           </div>
