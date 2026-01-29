@@ -220,7 +220,27 @@ function ProgressDashboard({ onBack, onNavigate }) {
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {Object.entries(completedByCategory).slice(0, 8).map(([category, problems]) => (
-                  <div key={category}>
+                  <button
+                    key={category}
+                    onClick={() => handleProblemClick(problems[0])}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      width: '100%',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      const progressBar = e.currentTarget.querySelector('.progress-fill')
+                      if (progressBar) progressBar.style.backgroundColor = '#22c55e'
+                    }}
+                    onMouseLeave={(e) => {
+                      const progressBar = e.currentTarget.querySelector('.progress-fill')
+                      if (progressBar) progressBar.style.backgroundColor = '#10b981'
+                    }}
+                  >
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
                       <span style={{ color: '#d1d5db', fontSize: '0.9rem' }}>{category}</span>
                       <span style={{ color: '#10b981', fontWeight: '600' }}>{problems.length}</span>
@@ -231,15 +251,18 @@ function ProgressDashboard({ onBack, onNavigate }) {
                       borderRadius: '3px',
                       overflow: 'hidden'
                     }}>
-                      <div style={{
-                        height: '100%',
-                        width: `${Math.min(problems.length * 10, 100)}%`,
-                        backgroundColor: '#10b981',
-                        borderRadius: '3px',
-                        transition: 'width 0.5s ease'
-                      }} />
+                      <div
+                        className="progress-fill"
+                        style={{
+                          height: '100%',
+                          width: `${Math.min(problems.length * 10, 100)}%`,
+                          backgroundColor: '#10b981',
+                          borderRadius: '3px',
+                          transition: 'all 0.3s ease'
+                        }}
+                      />
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
