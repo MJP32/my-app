@@ -2130,6 +2130,1549 @@ ScriptEngine secureEngine = factory.getScriptEngine(new ClassFilter() {
 
 **Summary:**
 Nashorn was Java 8's JavaScript engine for embedding JS in Java applications. It was deprecated due to maintenance burden and better alternatives (GraalVM JS). For new projects, use GraalVM JavaScript or external JavaScript runtimes instead.`
+    },
+    {
+      id: 11,
+      category: 'CompletableFuture',
+      difficulty: 'Hard',
+      question: 'Explain CompletableFuture in depth. How do you handle complex asynchronous pipelines with error handling?',
+      answer: `**CompletableFuture - Advanced Async Programming:**
+
+**Overview:**
+CompletableFuture is Java 8's implementation of Future with completion stages, enabling non-blocking asynchronous programming with functional composition.
+
+**Core Concepts:**
+
+**1. Creating CompletableFutures:**
+\`\`\`java
+// Completed future
+CompletableFuture<String> completed = CompletableFuture.completedFuture("result");
+
+// Supply async computation
+CompletableFuture<String> async = CompletableFuture.supplyAsync(() -> {
+    // Heavy computation
+    return fetchDataFromDB();
+});
+
+// Run async without return value
+CompletableFuture<Void> runAsync = CompletableFuture.runAsync(() -> {
+    sendEmail();
+});
+
+// With custom executor
+ExecutorService executor = Executors.newFixedThreadPool(10);
+CompletableFuture<String> withExecutor = CompletableFuture.supplyAsync(
+    () -> computeValue(),
+    executor
+);
+\`\`\`
+
+**2. Transformation - thenApply, thenCompose:**
+\`\`\`java
+// thenApply - transform result (like map)
+CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> "123")
+    .thenApply(Integer::parseInt)
+    .thenApply(num -> num * 2);
+
+// thenCompose - flatten nested futures (like flatMap)
+CompletableFuture<User> userFuture = CompletableFuture.supplyAsync(() -> getUserId())
+    .thenCompose(id -> fetchUserById(id))  // fetchUserById returns CompletableFuture<User>
+    .thenCompose(user -> enrichUserData(user));
+
+// Difference:
+// thenApply:   T -> U
+// thenCompose: T -> CompletableFuture<U>
+\`\`\`
+
+**3. Combining Multiple Futures:**
+\`\`\`java
+// thenCombine - combine two independent futures
+CompletableFuture<String> future1 = CompletableFuture.supplyAsync(() -> "Hello");
+CompletableFuture<String> future2 = CompletableFuture.supplyAsync(() -> "World");
+
+CompletableFuture<String> combined = future1.thenCombine(
+    future2,
+    (s1, s2) -> s1 + " " + s2
+);
+
+// allOf - wait for all futures (returns CompletableFuture<Void>)
+CompletableFuture<?>[] futures = {future1, future2, future3};
+CompletableFuture<Void> allOf = CompletableFuture.allOf(futures);
+
+// Get all results
+allOf.thenRun(() -> {
+    String result1 = future1.join();
+    String result2 = future2.join();
+    String result3 = future3.join();
+});
+
+// anyOf - complete when any future completes
+CompletableFuture<Object> anyOf = CompletableFuture.anyOf(
+    callAPI1(),
+    callAPI2(),
+    callAPI3()
+);
+anyOf.thenAccept(result -> System.out.println("First: " + result));
+\`\`\`
+
+**4. Error Handling:**
+\`\`\`java
+// exceptionally - handle errors
+CompletableFuture<String> withRecovery = CompletableFuture.supplyAsync(() -> {
+    if (Math.random() > 0.5) throw new RuntimeException("Error!");
+    return "Success";
+}).exceptionally(throwable -> {
+    log.error("Error occurred", throwable);
+    return "Default Value";
+});
+
+// handle - handle both success and error
+CompletableFuture<String> handled = CompletableFuture.supplyAsync(() -> fetchData())
+    .handle((result, throwable) -> {
+        if (throwable != null) {
+            return "Error: " + throwable.getMessage();
+        }
+        return "Success: " + result;
+    });
+
+// whenComplete - perform side effect (doesn't transform result)
+CompletableFuture<String> logged = CompletableFuture.supplyAsync(() -> fetchData())
+    .whenComplete((result, throwable) -> {
+        if (throwable != null) {
+            log.error("Failed", throwable);
+        } else {
+            log.info("Succeeded: " + result);
+        }
+    });
+\`\`\`
+
+**5. Complex Pipeline with Error Handling:**
+\`\`\`java
+public CompletableFuture<OrderConfirmation> processOrder(OrderRequest request) {
+    return CompletableFuture
+        // Step 1: Validate order
+        .supplyAsync(() -> validateOrder(request))
+        .exceptionally(ex -> {
+            throw new ValidationException("Validation failed", ex);
+        })
+
+        // Step 2: Check inventory (parallel with payment)
+        .thenCompose(validOrder -> {
+            CompletableFuture<Inventory> inventoryCheck =
+                CompletableFuture.supplyAsync(() -> checkInventory(validOrder));
+            CompletableFuture<Payment> paymentProcess =
+                CompletableFuture.supplyAsync(() -> processPayment(validOrder));
+
+            // Combine both results
+            return inventoryCheck.thenCombine(paymentProcess, (inventory, payment) -> {
+                if (!inventory.isAvailable()) {
+                    throw new OutOfStockException();
+                }
+                if (!payment.isSuccessful()) {
+                    throw new PaymentFailedException();
+                }
+                return new OrderData(validOrder, inventory, payment);
+            });
+        })
+
+        // Step 3: Create order
+        .thenCompose(orderData ->
+            CompletableFuture.supplyAsync(() -> createOrder(orderData))
+        )
+
+        // Step 4: Send notifications (don't wait)
+        .thenApply(order -> {
+            CompletableFuture.runAsync(() -> sendConfirmationEmail(order));
+            CompletableFuture.runAsync(() -> notifyWarehouse(order));
+            return order;
+        })
+
+        // Step 5: Generate confirmation
+        .thenApply(order -> new OrderConfirmation(order))
+
+        // Global error handling
+        .exceptionally(throwable -> {
+            log.error("Order processing failed", throwable);
+
+            if (throwable instanceof ValidationException) {
+                return OrderConfirmation.validationError(throwable.getMessage());
+            } else if (throwable instanceof OutOfStockException) {
+                return OrderConfirmation.outOfStock();
+            } else if (throwable instanceof PaymentFailedException) {
+                return OrderConfirmation.paymentFailed();
+            } else {
+                return OrderConfirmation.systemError();
+            }
+        })
+
+        // Timeout handling
+        .orTimeout(5, TimeUnit.SECONDS)
+        .exceptionally(throwable -> {
+            if (throwable instanceof TimeoutException) {
+                return OrderConfirmation.timeout();
+            }
+            throw new CompletionException(throwable);
+        });
+}
+\`\`\`
+
+**6. Advanced Patterns:**
+\`\`\`java
+// Retry pattern
+public <T> CompletableFuture<T> retry(Supplier<CompletableFuture<T>> supplier, int maxRetries) {
+    return supplier.get()
+        .exceptionally(throwable -> null)
+        .thenCompose(result -> {
+            if (result != null) {
+                return CompletableFuture.completedFuture(result);
+            }
+            if (maxRetries <= 0) {
+                return CompletableFuture.failedFuture(new RuntimeException("Max retries exceeded"));
+            }
+            return retry(supplier, maxRetries - 1);
+        });
+}
+
+// Circuit breaker pattern
+public class CircuitBreaker {
+    private AtomicInteger failureCount = new AtomicInteger(0);
+    private volatile boolean open = false;
+
+    public <T> CompletableFuture<T> execute(Supplier<CompletableFuture<T>> supplier) {
+        if (open) {
+            return CompletableFuture.failedFuture(
+                new RuntimeException("Circuit breaker is open")
+            );
+        }
+
+        return supplier.get()
+            .whenComplete((result, throwable) -> {
+                if (throwable != null) {
+                    if (failureCount.incrementAndGet() > 5) {
+                        open = true;
+                        scheduleReset();
+                    }
+                } else {
+                    failureCount.set(0);
+                }
+            });
+    }
+}
+
+// Fan-out/Fan-in pattern
+public CompletableFuture<AggregatedResult> fanOutFanIn(List<String> ids) {
+    // Fan-out: create parallel requests
+    List<CompletableFuture<Data>> futures = ids.stream()
+        .map(id -> CompletableFuture.supplyAsync(() -> fetchData(id)))
+        .collect(Collectors.toList());
+
+    // Fan-in: combine all results
+    return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+        .thenApply(v -> {
+            List<Data> results = futures.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
+            return new AggregatedResult(results);
+        });
+}
+\`\`\`
+
+**Best Practices:**
+- Use async methods (supplyAsync, thenApplyAsync) to avoid blocking calling thread
+- Provide custom executor for better thread pool control
+- Always handle exceptions (exceptionally, handle, whenComplete)
+- Use thenCompose for nested CompletableFutures to avoid CompletableFuture<CompletableFuture<T>>
+- Add timeouts (orTimeout, completeOnTimeout) to prevent hanging
+- Be careful with join() - it blocks the thread
+- Use CompletableFuture.allOf for parallel execution, not sequential chaining
+
+**Common Pitfalls:**
+- Using thenApply instead of thenCompose for futures
+- Not providing executors (uses ForkJoinPool.commonPool())
+- Forgetting error handling in async chains
+- Blocking with get() or join() defeating async purpose
+- Not canceling futures when they're no longer needed`
+    },
+    {
+      id: 12,
+      category: 'Parallel Streams',
+      difficulty: 'Hard',
+      question: 'When should you use parallel streams? What are the performance pitfalls and how do you avoid them?',
+      answer: `**Parallel Streams - When and How:**
+
+**What are Parallel Streams:**
+Parallel streams divide the stream into multiple chunks, process them in parallel using ForkJoinPool, then combine the results.
+
+**Basic Usage:**
+\`\`\`java
+// Convert to parallel
+List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
+numbers.parallelStream()
+    .map(n -> n * 2)
+    .forEach(System.out::println);
+
+// Or from sequential
+numbers.stream()
+    .parallel()
+    .filter(n -> n > 2)
+    .collect(Collectors.toList());
+
+// Back to sequential
+numbers.parallelStream()
+    .sequential()
+    .map(n -> n * 2);
+\`\`\`
+
+**When to Use Parallel Streams:**
+
+**Good Use Cases:**
+\`\`\`java
+// 1. Large datasets with independent operations
+List<String> hugeList = loadMillionRecords();
+long count = hugeList.parallelStream()
+    .filter(s -> s.length() > 10)
+    .count();
+
+// 2. CPU-intensive operations
+List<Integer> numbers = IntStream.range(1, 10000).boxed().collect(Collectors.toList());
+List<Integer> results = numbers.parallelStream()
+    .map(n -> heavyComputation(n))  // CPU-bound work
+    .collect(Collectors.toList());
+
+// 3. Independent transformations
+List<Image> images = loadImages();
+List<Image> processed = images.parallelStream()
+    .map(img -> resizeImage(img))
+    .map(img -> applyFilter(img))
+    .collect(Collectors.toList());
+\`\`\`
+
+**When NOT to Use:**
+
+**1. Small Datasets:**
+\`\`\`java
+// BAD - overhead of parallelization outweighs benefit
+List<Integer> small = Arrays.asList(1, 2, 3, 4, 5);
+small.parallelStream()  // Slower than sequential!
+    .map(n -> n * 2)
+    .collect(Collectors.toList());
+
+// Benchmark shows parallel is slower for < 10,000 elements
+// for simple operations
+\`\`\`
+
+**2. Order-Dependent Operations:**
+\`\`\`java
+// BAD - forEach order is not guaranteed
+numbers.parallelStream()
+    .forEach(System.out::println);  // Random order!
+
+// GOOD - use forEachOrdered if order matters
+numbers.parallelStream()
+    .map(n -> process(n))
+    .forEachOrdered(System.out::println);  // Preserves order (but slower)
+\`\`\`
+
+**3. Stateful Operations:**
+\`\`\`java
+// BAD - shared mutable state causes race conditions
+List<Integer> results = new ArrayList<>();  // Not thread-safe!
+numbers.parallelStream()
+    .map(n -> n * 2)
+    .forEach(results::add);  // RACE CONDITION!
+
+// GOOD - use collect
+List<Integer> results = numbers.parallelStream()
+    .map(n -> n * 2)
+    .collect(Collectors.toList());  // Thread-safe
+\`\`\`
+
+**4. Blocking Operations:**
+\`\`\`java
+// BAD - I/O operations block threads
+List<String> urls = getUrls();
+List<String> content = urls.parallelStream()
+    .map(url -> httpClient.get(url))  // Blocks thread!
+    .collect(Collectors.toList());
+
+// GOOD - use CompletableFuture instead
+List<CompletableFuture<String>> futures = urls.stream()
+    .map(url -> CompletableFuture.supplyAsync(() -> httpClient.get(url)))
+    .collect(Collectors.toList());
+
+List<String> content = futures.stream()
+    .map(CompletableFuture::join)
+    .collect(Collectors.toList());
+\`\`\`
+
+**Performance Characteristics:**
+
+**NQ Model - When Parallel Helps:**
+\`\`\`
+N = number of elements
+Q = computational cost per element
+
+Parallel is beneficial when: N * Q > threshold
+
+Thresholds (approximate):
+- Simple operations (multiply, add): N > 10,000
+- Medium operations (string parse): N > 1,000
+- Heavy operations (crypto, image): N > 100
+\`\`\`
+
+**Data Structure Impact:**
+\`\`\`java
+// GOOD - easily splittable
+ArrayList<Integer> list = new ArrayList<>();
+list.parallelStream();  // Excellent splitting
+
+int[] array = new int[1000];
+Arrays.stream(array).parallel();  // Excellent splitting
+
+// BAD - hard to split
+LinkedList<Integer> linkedList = new LinkedList<>();
+linkedList.parallelStream();  // Poor splitting, overhead high
+
+HashSet<Integer> set = new HashSet<>();
+set.parallelStream();  // Unpredictable splitting
+\`\`\`
+
+**Common Pitfalls and Solutions:**
+
+**1. Boxing/Unboxing Overhead:**
+\`\`\`java
+// BAD - boxing overhead
+List<Integer> numbers = IntStream.range(1, 1000000)
+    .boxed()
+    .collect(Collectors.toList());
+
+long sum = numbers.parallelStream()
+    .mapToInt(Integer::intValue)  // Unboxing
+    .sum();
+
+// GOOD - use primitive streams
+long sum = IntStream.range(1, 1000000)
+    .parallel()
+    .sum();  // No boxing!
+\`\`\`
+
+**2. Incorrect Collector:**
+\`\`\`java
+// BAD - groupingBy can be slow in parallel
+Map<String, List<Person>> grouped = people.parallelStream()
+    .collect(Collectors.groupingBy(Person::getCity));
+
+// GOOD - use concurrent collector
+Map<String, List<Person>> grouped = people.parallelStream()
+    .collect(Collectors.groupingByConcurrent(Person::getCity));
+\`\`\`
+
+**3. ForkJoinPool Contention:**
+\`\`\`java
+// Default uses common pool (CPU cores)
+Runtime.getRuntime().availableProcessors();  // Parallelism level
+
+// Custom ForkJoinPool
+ForkJoinPool customPool = new ForkJoinPool(20);
+customPool.submit(() ->
+    list.parallelStream()
+        .map(this::process)
+        .collect(Collectors.toList())
+).get();
+\`\`\`
+
+**Benchmarking Example:**
+\`\`\`java
+@Benchmark
+public long sequentialSum() {
+    return numbers.stream()
+        .mapToLong(Integer::longValue)
+        .sum();
+}
+
+@Benchmark
+public long parallelSum() {
+    return numbers.parallelStream()
+        .mapToLong(Integer::longValue)
+        .sum();
+}
+
+// Results (N=1,000,000):
+// Sequential: 3.2 ms
+// Parallel:   0.8 ms (4x speedup on 8 cores)
+
+// Results (N=100):
+// Sequential: 0.003 ms
+// Parallel:   0.015 ms (5x SLOWER due to overhead!)
+\`\`\`
+
+**Best Practices:**
+- Measure before using parallel streams (don't guess!)
+- Use for CPU-intensive operations on large datasets
+- Avoid for I/O-bound operations (use CompletableFuture)
+- Prefer ArrayList, arrays over LinkedList, HashSet
+- Use primitive streams (IntStream, LongStream, DoubleStream)
+- Avoid stateful lambda expressions
+- Use concurrent collectors when appropriate
+- Be aware of ForkJoinPool.commonPool() limitations
+- Consider custom ForkJoinPool for isolated workloads
+
+**Decision Tree:**
+1. Is N large enough? (> 10,000 for simple ops)
+2. Is operation CPU-intensive (not I/O)?
+3. Is data structure easily splittable?
+4. Are operations independent (no shared state)?
+5. Have you benchmarked?
+
+If all yes → Use parallel streams
+Otherwise → Stick with sequential or use alternatives`
+    },
+    {
+      id: 13,
+      category: 'Method References',
+      difficulty: 'Hard',
+      question: 'Explain all four types of method references with complex examples. How do constructor references work with generics?',
+      answer: `**Method References - Deep Dive:**
+
+**Overview:**
+Method references are shorthand notation of lambda expressions to call a method. They make code more readable when lambda just calls an existing method.
+
+**Four Types of Method References:**
+
+**1. Static Method Reference - ClassName::staticMethod**
+\`\`\`java
+// Lambda
+Function<String, Integer> parser1 = s -> Integer.parseInt(s);
+
+// Method reference
+Function<String, Integer> parser2 = Integer::parseInt;
+
+// Usage
+List<String> numbers = Arrays.asList("1", "2", "3");
+List<Integer> parsed = numbers.stream()
+    .map(Integer::parseInt)
+    .collect(Collectors.toList());
+
+// More examples
+BiFunction<Integer, Integer, Integer> max = Math::max;
+System.out.println(max.apply(10, 20));  // 20
+
+Predicate<String> isEmpty = String::isEmpty;
+boolean result = isEmpty.test("");  // true
+\`\`\`
+
+**2. Instance Method Reference (Bound) - instance::instanceMethod**
+\`\`\`java
+// Bound to specific instance
+String str = "Hello";
+Supplier<Integer> lengthSupplier = str::length;
+System.out.println(lengthSupplier.get());  // 5
+
+Predicate<String> startsWithHello = str::startsWith;
+System.out.println(startsWithHello.test("Hel"));  // true
+
+// Complex example
+class Validator {
+    private Set<String> blacklist = new HashSet<>();
+
+    public Validator(Set<String> blacklist) {
+        this.blacklist = blacklist;
+    }
+
+    public boolean isValid(String word) {
+        return !blacklist.contains(word);
+    }
+}
+
+Validator validator = new Validator(Set.of("bad", "word"));
+Predicate<String> filter = validator::isValid;
+
+List<String> words = Arrays.asList("good", "bad", "word", "nice");
+List<String> valid = words.stream()
+    .filter(filter)  // Uses validator instance
+    .collect(Collectors.toList());  // ["good", "nice"]
+\`\`\`
+
+**3. Instance Method Reference (Unbound) - ClassName::instanceMethod**
+\`\`\`java
+// First parameter becomes the instance
+Function<String, Integer> length = String::length;
+System.out.println(length.apply("Hello"));  // 5
+
+BiPredicate<String, String> contains = String::contains;
+System.out.println(contains.test("Hello", "ell"));  // true
+
+// Sorting example
+List<String> words = Arrays.asList("banana", "apple", "cherry");
+words.sort(String::compareToIgnoreCase);  // Uses first parameter as instance
+
+// Method with multiple parameters
+class Person {
+    private String name;
+    private int age;
+
+    public void setDetails(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+}
+
+// BiConsumer: (Person, String, Integer) - doesn't exist!
+// Need custom functional interface
+@FunctionalInterface
+interface PersonUpdater {
+    void update(Person p, String name, int age);
+}
+
+PersonUpdater updater = Person::setDetails;
+Person p = new Person();
+updater.update(p, "John", 30);
+\`\`\`
+
+**4. Constructor Reference - ClassName::new**
+\`\`\`java
+// Simple constructor
+Supplier<Person> personSupplier = Person::new;  // No-arg constructor
+Person p1 = personSupplier.get();
+
+Function<String, Person> personCreator = Person::new;  // One-arg constructor
+Person p2 = personCreator.apply("John");
+
+BiFunction<String, Integer, Person> personBuilder = Person::new;  // Two-arg constructor
+Person p3 = personBuilder.apply("John", 30);
+
+// Array constructor
+Function<Integer, int[]> arrayCreator = int[]::new;
+int[] array = arrayCreator.apply(10);  // new int[10]
+
+// List to array
+List<String> list = Arrays.asList("a", "b", "c");
+String[] array = list.stream().toArray(String[]::new);
+\`\`\`
+
+**Constructor References with Generics:**
+
+**Basic Generic Constructor:**
+\`\`\`java
+class Box<T> {
+    private T value;
+
+    public Box(T value) {
+        this.value = value;
+    }
+
+    public T getValue() {
+        return value;
+    }
+}
+
+// Constructor reference with generic
+Function<String, Box<String>> stringBoxCreator = Box::new;
+Box<String> box1 = stringBoxCreator.apply("Hello");
+
+Function<Integer, Box<Integer>> intBoxCreator = Box::new;
+Box<Integer> box2 = intBoxCreator.apply(42);
+
+// Generic method using constructor reference
+public <T> List<Box<T>> wrap(List<T> items) {
+    return items.stream()
+        .map(Box::new)  // Creates Box<T> for each item
+        .collect(Collectors.toList());
+}
+
+List<String> strings = Arrays.asList("a", "b", "c");
+List<Box<String>> boxes = wrap(strings);
+\`\`\`
+
+**Complex Generic Factory Pattern:**
+\`\`\`java
+@FunctionalInterface
+interface Factory<T> {
+    T create(String id, String data);
+}
+
+class Product<T> {
+    private String id;
+    private T data;
+
+    public Product(String id, T data) {
+        this.id = id;
+        this.data = data;
+    }
+}
+
+class ProductService<T> {
+    private Factory<Product<T>> factory;
+
+    public ProductService(Factory<Product<T>> factory) {
+        this.factory = factory;
+    }
+
+    public Product<T> createProduct(String id, T data) {
+        return factory.create(id, (String) data);  // Note: type erasure limitation
+    }
+}
+
+// Usage
+Factory<Product<String>> stringProductFactory = Product::new;
+ProductService<String> service = new ProductService<>(stringProductFactory);
+\`\`\`
+
+**Generic Constructor with Type Inference:**
+\`\`\`java
+class Pair<K, V> {
+    private K key;
+    private V value;
+
+    public Pair(K key, V value) {
+        this.key = key;
+        this.value = value;
+    }
+}
+
+// Type inference in action
+BiFunction<String, Integer, Pair<String, Integer>> pairCreator = Pair::new;
+
+Map<String, Integer> map = Map.of("age", 30, "year", 2024);
+List<Pair<String, Integer>> pairs = map.entrySet().stream()
+    .map(entry -> Pair::new)  // Type inferred from stream
+    .collect(Collectors.toList());
+
+// Better: use method reference directly
+List<Pair<String, Integer>> pairs = map.entrySet().stream()
+    .map(e -> new Pair<>(e.getKey(), e.getValue()))
+    .collect(Collectors.toList());
+\`\`\`
+
+**Advanced: Constructor Reference with Varargs:**
+\`\`\`java
+class Data {
+    private String[] values;
+
+    public Data(String... values) {
+        this.values = values;
+    }
+}
+
+// Can't use constructor reference directly for varargs
+// Must create wrapper functional interface
+@FunctionalInterface
+interface VarargsConstructor<T> {
+    T create(String[] values);
+}
+
+VarargsConstructor<Data> creator = Data::new;  // Treats as array
+Data data = creator.create(new String[]{"a", "b", "c"});
+\`\`\`
+
+**Practical Example - Builder Pattern with Method References:**
+\`\`\`java
+class User {
+    private String name;
+    private int age;
+    private String email;
+
+    public static class Builder {
+        private String name;
+        private int age;
+        private String email;
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder age(int age) {
+            this.age = age;
+            return this;
+        }
+
+        public Builder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public User build() {
+            return new User(this);
+        }
+    }
+
+    private User(Builder builder) {
+        this.name = builder.name;
+        this.age = builder.age;
+        this.email = builder.email;
+    }
+}
+
+// Using method references with builder
+Supplier<User.Builder> builderSupplier = User.Builder::new;
+
+List<Map<String, Object>> userData = loadUserData();
+List<User> users = userData.stream()
+    .map(map -> {
+        User.Builder builder = builderSupplier.get();
+        return builder
+            .name((String) map.get("name"))
+            .age((Integer) map.get("age"))
+            .email((String) map.get("email"))
+            .build();
+    })
+    .collect(Collectors.toList());
+\`\`\`
+
+**When to Use Method References:**
+
+**✓ Good Cases:**
+- Lambda only calls one method: \`s -> s.length()\` → \`String::length\`
+- Lambda passes all parameters: \`(a, b) -> Math.max(a, b)\` → \`Math::max\`
+- Constructor creation: \`() -> new Person()\` → \`Person::new\`
+
+**✗ Bad Cases:**
+- Lambda has additional logic: \`s -> s.length() + 1\` (stay with lambda)
+- Parameter transformation: \`s -> s.toUpperCase().length()\` (stay with lambda)
+- Multiple statements: Can't use method reference
+
+**Common Pitfalls:**
+- Type inference limitations with generics
+- Ambiguous method references (multiple overloads)
+- Can't reference private methods from outside class
+- Constructor references with varargs require special handling
+- Method reference doesn't support checked exceptions (need to wrap)`
+    },
+    {
+      id: 14,
+      category: 'Stream Performance',
+      difficulty: 'Hard',
+      question: 'How do you optimize Stream performance? Explain lazy evaluation, short-circuiting, and when to avoid streams.',
+      answer: `**Stream Performance Optimization:**
+
+**1. Lazy Evaluation:**
+
+**How Lazy Evaluation Works:**
+\`\`\`java
+List<String> words = Arrays.asList("apple", "banana", "cherry");
+
+// This does NOT execute yet!
+Stream<String> stream = words.stream()
+    .map(s -> {
+        System.out.println("Mapping: " + s);
+        return s.toUpperCase();
+    })
+    .filter(s -> {
+        System.out.println("Filtering: " + s);
+        return s.length() > 5;
+    });
+
+// Nothing printed yet!
+System.out.println("Stream created");
+
+// NOW it executes (terminal operation)
+List<String> result = stream.collect(Collectors.toList());
+
+// Output:
+// Stream created
+// Mapping: apple
+// Filtering: APPLE
+// Mapping: banana
+// Filtering: BANANA
+// Mapping: cherry
+// Filtering: CHERRY
+\`\`\`
+
+**Intermediate vs Terminal Operations:**
+\`\`\`java
+// Intermediate operations (lazy) - return Stream
+stream.map(...)      // Lazy
+      .filter(...)   // Lazy
+      .distinct()    // Lazy
+      .sorted()      // Lazy (but stores elements)
+      .limit()       // Lazy
+
+// Terminal operations (eager) - trigger execution
+stream.collect(...)  // Eager
+      .forEach(...)  // Eager
+      .reduce(...)   // Eager
+      .count()       // Eager
+      .anyMatch(...) // Eager (with short-circuit)
+\`\`\`
+
+**2. Short-Circuiting Operations:**
+
+**Short-circuit operations stop processing when result is determined:**
+\`\`\`java
+List<Integer> numbers = IntStream.range(1, 1000000)
+    .boxed()
+    .collect(Collectors.toList());
+
+// anyMatch - stops at first match
+boolean hasEven = numbers.stream()
+    .peek(n -> System.out.println("Checking: " + n))
+    .anyMatch(n -> n % 2 == 0);
+// Output: Checking: 1, Checking: 2 (then stops!)
+
+// allMatch - stops at first non-match
+boolean allPositive = numbers.stream()
+    .allMatch(n -> n > 0);
+// Stops at first negative number
+
+// noneMatch - stops at first match
+boolean noneNegative = numbers.stream()
+    .noneMatch(n -> n < 0);
+
+// findFirst - stops at first element
+Optional<Integer> first = numbers.stream()
+    .filter(n -> n > 100)
+    .findFirst();  // Stops after finding first match
+
+// findAny - stops at any match (useful for parallel)
+Optional<Integer> any = numbers.parallelStream()
+    .filter(n -> n > 100)
+    .findAny();  // Faster in parallel
+
+// limit - stops after N elements
+List<Integer> firstTen = numbers.stream()
+    .limit(10)
+    .collect(Collectors.toList());
+\`\`\`
+
+**3. Performance Antipatterns:**
+
+**Bad: Multiple Terminal Operations:**
+\`\`\`java
+// BAD - creates stream twice
+List<Person> people = getPeople();
+long count = people.stream().count();
+List<String> names = people.stream()
+    .map(Person::getName)
+    .collect(Collectors.toList());
+
+// GOOD - process once
+Map<String, Long> result = people.stream()
+    .collect(Collectors.teeing(
+        Collectors.counting(),
+        Collectors.mapping(Person::getName, Collectors.toList()),
+        (cnt, names) -> Map.of("count", cnt, "names", (Long)(long)names.size())
+    ));
+\`\`\`
+
+**Bad: Boxing/Unboxing:**
+\`\`\`java
+// BAD - boxing overhead
+List<Integer> numbers = IntStream.range(1, 1000000)
+    .boxed()  // int -> Integer
+    .collect(Collectors.toList());
+
+long sum = numbers.stream()
+    .mapToInt(Integer::intValue)  // Integer -> int
+    .sum();
+
+// GOOD - use primitive streams
+long sum = IntStream.range(1, 1000000)
+    .sum();  // No boxing!
+
+// GOOD - specialized streams
+IntStream.range(1, 1000)
+    .filter(n -> n % 2 == 0)
+    .map(n -> n * 2)
+    .average();
+\`\`\`
+
+**Bad: Inefficient Order:**
+\`\`\`java
+// BAD - filter after expensive map
+List<String> result = words.stream()
+    .map(s -> expensiveOperation(s))  // Process all!
+    .filter(s -> s.length() > 10)     // Then filter
+    .collect(Collectors.toList());
+
+// GOOD - filter first
+List<String> result = words.stream()
+    .filter(s -> s.length() > 5)      // Cheap filter first
+    .map(s -> expensiveOperation(s))  // Only process filtered
+    .collect(Collectors.toList());
+\`\`\`
+
+**Bad: Using collect() for simple operations:**
+\`\`\`java
+// BAD - unnecessary collect
+long count = list.stream()
+    .filter(s -> s.length() > 5)
+    .collect(Collectors.toList())
+    .size();
+
+// GOOD - use count()
+long count = list.stream()
+    .filter(s -> s.length() > 5)
+    .count();
+
+// BAD - collect then check
+boolean hasAny = list.stream()
+    .filter(predicate)
+    .collect(Collectors.toList())
+    .isEmpty();
+
+// GOOD - use anyMatch
+boolean hasAny = list.stream()
+    .anyMatch(predicate);
+\`\`\`
+
+**4. When to Avoid Streams:**
+
+**Use Loops Instead:**
+\`\`\`java
+// Case 1: Small datasets (< 100 elements)
+List<Integer> small = Arrays.asList(1, 2, 3, 4, 5);
+
+// Faster
+int sum = 0;
+for (int n : small) {
+    sum += n;
+}
+
+// Slower (stream overhead)
+int sum = small.stream().mapToInt(Integer::intValue).sum();
+
+// Case 2: Early return/break logic
+public String findFirstMatch(List<String> list) {
+    // GOOD
+    for (String s : list) {
+        if (s.startsWith("test")) {
+            return s;
+        }
+    }
+    return null;
+
+    // WORSE - functional but not clearer
+    return list.stream()
+        .filter(s -> s.startsWith("test"))
+        .findFirst()
+        .orElse(null);
+}
+
+// Case 3: Index needed
+List<String> items = getItems();
+
+// GOOD
+for (int i = 0; i < items.size(); i++) {
+    process(items.get(i), i);
+}
+
+// AWKWARD with streams
+IntStream.range(0, items.size())
+    .forEach(i -> process(items.get(i), i));
+
+// Case 4: Primitive arrays
+int[] array = new int[1000];
+
+// GOOD
+int sum = 0;
+for (int n : array) {
+    sum += n;
+}
+
+// WORSE - creates stream overhead
+int sum = Arrays.stream(array).sum();
+\`\`\`
+
+**5. Micro-Optimizations:**
+
+**Collector Optimization:**
+\`\`\`java
+// Use toList() (Java 16+) instead of Collectors.toList()
+List<String> list = stream.toList();  // Faster, immutable
+
+// Use Collectors.toCollection for mutable
+List<String> list = stream.collect(Collectors.toCollection(ArrayList::new));
+
+// Parallel collector
+Map<String, List<Person>> grouped = people.parallelStream()
+    .collect(Collectors.groupingByConcurrent(Person::getCity));
+\`\`\`
+
+**Reduce Allocations:**
+\`\`\`java
+// BAD - creates intermediate collections
+List<String> result = list.stream()
+    .filter(s -> s.length() > 5)
+    .collect(Collectors.toList())
+    .stream()
+    .map(String::toUpperCase)
+    .collect(Collectors.toList());
+
+// GOOD - single pipeline
+List<String> result = list.stream()
+    .filter(s -> s.length() > 5)
+    .map(String::toUpperCase)
+    .collect(Collectors.toList());
+\`\`\`
+
+**6. Benchmarking:**
+
+\`\`\`java
+@Benchmark
+public int streamSum(Blackhole bh) {
+    return IntStream.range(1, 10000)
+        .sum();
+}
+
+@Benchmark
+public int loopSum(Blackhole bh) {
+    int sum = 0;
+    for (int i = 1; i < 10000; i++) {
+        sum += i;
+    }
+    return sum;
+}
+
+// Results (JMH):
+// streamSum: 12.3 µs
+// loopSum:    3.1 µs
+// Stream is 4x slower for simple operations!
+\`\`\`
+
+**Performance Guidelines:**
+
+**Use Streams When:**
+- Dataset > 10,000 elements (consider parallel)
+- Complex functional transformations
+- Multiple chained operations
+- Readability is priority
+- Operations are independent
+
+**Use Loops When:**
+- Dataset < 100 elements
+- Simple operations (sum, count, iterate)
+- Need index access
+- Early termination with complex logic
+- Maximum performance needed
+- Mutable state required
+
+**Best Practices:**
+- Filter early, map late
+- Use primitive streams (IntStream, LongStream, DoubleStream)
+- Avoid boxing/unboxing
+- Use short-circuiting operations
+- Don't create multiple streams from same source
+- Use parallel only for large datasets with CPU-intensive ops
+- Profile before optimizing
+- Prefer method references over lambdas (slightly faster)
+- Use appropriate collectors (toList() in Java 16+)
+- Avoid peek() in production (debugging only)`
+    },
+    {
+      id: 15,
+      category: 'Collectors',
+      difficulty: 'Hard',
+      question: 'Explain custom Collectors and advanced collection strategies. How do you implement your own Collector?',
+      answer: `**Custom Collectors - Advanced Collection Strategies:**
+
+**Collector Interface:**
+\`\`\`java
+public interface Collector<T, A, R> {
+    Supplier<A> supplier();           // Create accumulator
+    BiConsumer<A, T> accumulator();   // Add element to accumulator
+    BinaryOperator<A> combiner();     // Combine accumulators (parallel)
+    Function<A, R> finisher();        // Transform accumulator to result
+    Set<Characteristics> characteristics();  // Collector properties
+}
+
+// Characteristics:
+// CONCURRENT - thread-safe accumulator
+// UNORDERED - order doesn't matter
+// IDENTITY_FINISH - accumulator = result (no finisher needed)
+\`\`\`
+
+**1. Simple Custom Collector:**
+\`\`\`java
+// Collect into comma-separated string
+public class CommaSeparatedCollector implements Collector<String, StringJoiner, String> {
+
+    @Override
+    public Supplier<StringJoiner> supplier() {
+        return () -> new StringJoiner(", ");
+    }
+
+    @Override
+    public BiConsumer<StringJoiner, String> accumulator() {
+        return StringJoiner::add;
+    }
+
+    @Override
+    public BinaryOperator<StringJoiner> combiner() {
+        return StringJoiner::merge;
+    }
+
+    @Override
+    public Function<StringJoiner, String> finisher() {
+        return StringJoiner::toString;
+    }
+
+    @Override
+    public Set<Characteristics> characteristics() {
+        return Collections.emptySet();
+    }
+}
+
+// Usage
+List<String> words = Arrays.asList("apple", "banana", "cherry");
+String result = words.stream()
+    .collect(new CommaSeparatedCollector());
+// "apple, banana, cherry"
+\`\`\`
+
+**2. Custom Collector with Statistics:**
+\`\`\`java
+public class StatisticsCollector<T extends Number>
+    implements Collector<T, StatisticsCollector.Stats, StatisticsCollector.Stats> {
+
+    static class Stats {
+        long count = 0;
+        double sum = 0;
+        double min = Double.MAX_VALUE;
+        double max = Double.MIN_VALUE;
+
+        void add(double value) {
+            count++;
+            sum += value;
+            min = Math.min(min, value);
+            max = Math.max(max, value);
+        }
+
+        void combine(Stats other) {
+            count += other.count;
+            sum += other.sum;
+            min = Math.min(min, other.min);
+            max = Math.max(max, other.max);
+        }
+
+        double getAverage() {
+            return count == 0 ? 0 : sum / count;
+        }
+    }
+
+    @Override
+    public Supplier<Stats> supplier() {
+        return Stats::new;
+    }
+
+    @Override
+    public BiConsumer<Stats, T> accumulator() {
+        return (stats, num) -> stats.add(num.doubleValue());
+    }
+
+    @Override
+    public BinaryOperator<Stats> combiner() {
+        return (stats1, stats2) -> {
+            stats1.combine(stats2);
+            return stats1;
+        };
+    }
+
+    @Override
+    public Function<Stats, Stats> finisher() {
+        return Function.identity();
+    }
+
+    @Override
+    public Set<Characteristics> characteristics() {
+        return Set.of(Characteristics.IDENTITY_FINISH, Characteristics.UNORDERED);
+    }
+}
+
+// Usage
+List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 10, 100);
+StatisticsCollector.Stats stats = numbers.stream()
+    .collect(new StatisticsCollector<>());
+
+System.out.println("Count: " + stats.count);
+System.out.println("Sum: " + stats.sum);
+System.out.println("Average: " + stats.getAverage());
+System.out.println("Min: " + stats.min);
+System.out.println("Max: " + stats.max);
+\`\`\`
+
+**3. Collector.of() - Shorthand Creation:**
+\`\`\`java
+// Create collector without implementing interface
+Collector<String, ?, String> toCommaSeparated = Collector.of(
+    () -> new StringJoiner(", "),      // supplier
+    StringJoiner::add,                  // accumulator
+    StringJoiner::merge,                // combiner
+    StringJoiner::toString              // finisher
+);
+
+// With characteristics
+Collector<String, ?, Set<String>> toUnmodifiableSet = Collector.of(
+    HashSet::new,
+    Set::add,
+    (set1, set2) -> { set1.addAll(set2); return set1; },
+    Collections::unmodifiableSet,
+    Collector.Characteristics.UNORDERED
+);
+\`\`\`
+
+**4. Advanced: Immutable Collection Collector:**
+\`\`\`java
+public class ImmutableListCollector<T> implements Collector<T, List<T>, List<T>> {
+
+    @Override
+    public Supplier<List<T>> supplier() {
+        return ArrayList::new;
+    }
+
+    @Override
+    public BiConsumer<List<T>, T> accumulator() {
+        return List::add;
+    }
+
+    @Override
+    public BinaryOperator<List<T>> combiner() {
+        return (list1, list2) -> {
+            list1.addAll(list2);
+            return list1;
+        };
+    }
+
+    @Override
+    public Function<List<T>, List<T>> finisher() {
+        return Collections::unmodifiableList;
+    }
+
+    @Override
+    public Set<Characteristics> characteristics() {
+        return Collections.emptySet();  // Not IDENTITY_FINISH due to wrapper
+    }
+}
+
+// Usage
+List<String> immutable = stream.collect(new ImmutableListCollector<>());
+// immutable.add("test");  // UnsupportedOperationException
+\`\`\`
+
+**5. Downstream Collectors:**
+
+**groupingBy with custom downstream:**
+\`\`\`java
+List<Person> people = getPeople();
+
+// Group by city, collect names into comma-separated string
+Map<String, String> cityNames = people.stream()
+    .collect(Collectors.groupingBy(
+        Person::getCity,
+        Collectors.mapping(
+            Person::getName,
+            Collectors.joining(", ")
+        )
+    ));
+
+// Group by city, collect statistics
+Map<String, IntSummaryStatistics> cityAgeStats = people.stream()
+    .collect(Collectors.groupingBy(
+        Person::getCity,
+        Collectors.summarizingInt(Person::getAge)
+    ));
+
+// Group by city, count and average age
+Map<String, Map<String, Object>> cityData = people.stream()
+    .collect(Collectors.groupingBy(
+        Person::getCity,
+        Collectors.teeing(
+            Collectors.counting(),
+            Collectors.averagingInt(Person::getAge),
+            (count, avgAge) -> Map.of("count", count, "avgAge", avgAge)
+        )
+    ));
+\`\`\`
+
+**6. Custom Partitioning Collector:**
+\`\`\`java
+public class MultiPartitionCollector<T>
+    implements Collector<T, Map<String, List<T>>, Map<String, List<T>>> {
+
+    private final List<Predicate<T>> predicates;
+    private final List<String> labels;
+
+    public MultiPartitionCollector(List<Predicate<T>> predicates, List<String> labels) {
+        this.predicates = predicates;
+        this.labels = labels;
+    }
+
+    @Override
+    public Supplier<Map<String, List<T>>> supplier() {
+        return () -> {
+            Map<String, List<T>> map = new LinkedHashMap<>();
+            labels.forEach(label -> map.put(label, new ArrayList<>()));
+            return map;
+        };
+    }
+
+    @Override
+    public BiConsumer<Map<String, List<T>>, T> accumulator() {
+        return (map, item) -> {
+            for (int i = 0; i < predicates.size(); i++) {
+                if (predicates.get(i).test(item)) {
+                    map.get(labels.get(i)).add(item);
+                    break;  // First match wins
+                }
+            }
+        };
+    }
+
+    @Override
+    public BinaryOperator<Map<String, List<T>>> combiner() {
+        return (map1, map2) -> {
+            map2.forEach((key, value) -> map1.get(key).addAll(value));
+            return map1;
+        };
+    }
+
+    @Override
+    public Function<Map<String, List<T>>, Map<String, List<T>>> finisher() {
+        return Function.identity();
+    }
+
+    @Override
+    public Set<Characteristics> characteristics() {
+        return Set.of(Characteristics.IDENTITY_FINISH);
+    }
+}
+
+// Usage
+List<Integer> numbers = IntStream.range(1, 100).boxed().collect(Collectors.toList());
+
+Map<String, List<Integer>> partitioned = numbers.stream()
+    .collect(new MultiPartitionCollector<>(
+        Arrays.asList(
+            n -> n < 33,
+            n -> n < 66,
+            n -> true
+        ),
+        Arrays.asList("low", "medium", "high")
+    ));
+\`\`\`
+
+**7. Performance-Optimized Collector:**
+\`\`\`java
+// Concurrent collector for parallel streams
+public class ConcurrentSetCollector<T>
+    implements Collector<T, Set<T>, Set<T>> {
+
+    @Override
+    public Supplier<Set<T>> supplier() {
+        return ConcurrentHashMap::newKeySet;  // Thread-safe
+    }
+
+    @Override
+    public BiConsumer<Set<T>, T> accumulator() {
+        return Set::add;
+    }
+
+    @Override
+    public BinaryOperator<Set<T>> combiner() {
+        return (set1, set2) -> {
+            set1.addAll(set2);
+            return set1;
+        };
+    }
+
+    @Override
+    public Function<Set<T>, Set<T>> finisher() {
+        return Function.identity();
+    }
+
+    @Override
+    public Set<Characteristics> characteristics() {
+        return Set.of(
+            Characteristics.CONCURRENT,
+            Characteristics.UNORDERED,
+            Characteristics.IDENTITY_FINISH
+        );
+    }
+}
+
+// Parallel-safe usage
+Set<String> uniqueWords = largeList.parallelStream()
+    .collect(new ConcurrentSetCollector<>());
+\`\`\`
+
+**8. Real-World Example - Top-K Collector:**
+\`\`\`java
+public class TopKCollector<T> implements Collector<T, PriorityQueue<T>, List<T>> {
+
+    private final int k;
+    private final Comparator<T> comparator;
+
+    public TopKCollector(int k, Comparator<T> comparator) {
+        this.k = k;
+        this.comparator = comparator.reversed();  // Min-heap for top-K
+    }
+
+    @Override
+    public Supplier<PriorityQueue<T>> supplier() {
+        return () -> new PriorityQueue<>(comparator);
+    }
+
+    @Override
+    public BiConsumer<PriorityQueue<T>, T> accumulator() {
+        return (queue, item) -> {
+            queue.offer(item);
+            if (queue.size() > k) {
+                queue.poll();  // Remove smallest
+            }
+        };
+    }
+
+    @Override
+    public BinaryOperator<PriorityQueue<T>> combiner() {
+        return (queue1, queue2) -> {
+            queue2.forEach(item -> {
+                queue1.offer(item);
+                if (queue1.size() > k) {
+                    queue1.poll();
+                }
+            });
+            return queue1;
+        };
+    }
+
+    @Override
+    public Function<PriorityQueue<T>, List<T>> finisher() {
+        return queue -> {
+            List<T> result = new ArrayList<>(queue);
+            result.sort(comparator.reversed());  // Reverse back to descending
+            return result;
+        };
+    }
+
+    @Override
+    public Set<Characteristics> characteristics() {
+        return Collections.emptySet();
+    }
+}
+
+// Usage
+List<Person> topTen = people.stream()
+    .collect(new TopKCollector<>(10, Comparator.comparing(Person::getAge)));
+\`\`\`
+
+**When to Create Custom Collectors:**
+- Built-in collectors don't fit your needs
+- Need specific data structure (custom collection)
+- Performance optimization (reduce intermediate allocations)
+- Domain-specific aggregations
+- Complex business logic in collection phase
+- Need special handling for parallel streams
+- Want reusable collection logic across codebase
+
+**Best Practices:**
+- Use Collector.of() for simple collectors
+- Implement Collector interface for complex logic
+- Mark CONCURRENT if thread-safe
+- Mark IDENTITY_FINISH to avoid finisher call
+- Test with parallel streams if applicable
+- Document thread-safety guarantees
+- Consider performance implications of combiner
+- Use appropriate data structures in accumulator`
     }
   ]
 
