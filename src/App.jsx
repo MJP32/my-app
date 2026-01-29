@@ -340,13 +340,6 @@ const categoryOrganization = {
 
 // Main category groups (defined outside component to prevent recreation)
 const categoryGroups = {
-  'Progress Dashboard': {
-    icon: '📊',
-    color: '#6366f1',
-    groupSection: 'Practice',
-    description: 'Track your learning progress',
-    items: []
-  },
   'Java': {
     icon: '☕',
     color: '#f59e0b',
@@ -422,6 +415,13 @@ const categoryGroups = {
     color: '#8b5cf6',
     groupSection: 'Practice',
     description: 'Interview questions and answers',
+    items: []
+  },
+  'Progress Dashboard': {
+    icon: '📊',
+    color: '#6366f1',
+    groupSection: 'Practice',
+    description: 'Track your learning progress',
     items: []
   }
 }
