@@ -1961,6 +1961,1516 @@ try (Stream<String> stream = Files.lines(path)) {
 - CPU utilization
 - Thread count
 - Database query times`
+    },
+    {
+      id: 9,
+      category: 'Reflection API',
+      difficulty: 'Hard',
+      question: 'Explain Java Reflection API with real-world use cases. When should and shouldn\'t you use it?',
+      answer: `**Java Reflection API:**
+
+**What is Reflection:**
+Reflection allows runtime inspection and modification of classes, methods, fields, and constructors. It enables programs to examine or modify their own structure and behavior at runtime.
+
+**Core Reflection Classes:**
+\`\`\`java
+import java.lang.reflect.*;
+
+// Main classes:
+// - Class<?> - Represents classes and interfaces
+// - Method - Represents methods
+// - Field - Represents fields
+// - Constructor - Represents constructors
+// - Modifier - Decode access modifiers
+\`\`\`
+
+**1. Inspecting Classes:**
+\`\`\`java
+// Get Class object
+Class<?> clazz = String.class;
+Class<?> clazz2 = "hello".getClass();
+Class<?> clazz3 = Class.forName("java.lang.String");
+
+// Get class information
+String className = clazz.getName();           // "java.lang.String"
+String simpleName = clazz.getSimpleName();    // "String"
+Package pkg = clazz.getPackage();             // java.lang
+Class<?> superclass = clazz.getSuperclass();  // Object.class
+Class<?>[] interfaces = clazz.getInterfaces();
+int modifiers = clazz.getModifiers();
+
+System.out.println(Modifier.isPublic(modifiers));    // true
+System.out.println(Modifier.isFinal(modifiers));     // true
+System.out.println(Modifier.isAbstract(modifiers));  // false
+\`\`\`
+
+**2. Accessing Fields:**
+\`\`\`java
+public class User {
+    private String name;
+    public int age;
+
+    public User(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+}
+
+// Accessing public fields
+Class<?> clazz = User.class;
+Field ageField = clazz.getField("age");  // Only public
+System.out.println(ageField.getName());  // "age"
+System.out.println(ageField.getType());  // int
+
+// Accessing private fields
+Field nameField = clazz.getDeclaredField("name");
+nameField.setAccessible(true);  // Bypass access control
+
+User user = new User("John", 30);
+String name = (String) nameField.get(user);  // "John"
+nameField.set(user, "Jane");                 // Change private field!
+
+// Get all fields
+Field[] publicFields = clazz.getFields();           // Public only
+Field[] allFields = clazz.getDeclaredFields();      // All fields
+\`\`\`
+
+**3. Invoking Methods:**
+\`\`\`java
+public class Calculator {
+    private int add(int a, int b) {
+        return a + b;
+    }
+
+    public int multiply(int a, int b) {
+        return a * b;
+    }
+}
+
+// Invoke public method
+Class<?> clazz = Calculator.class;
+Calculator calc = new Calculator();
+
+Method multiplyMethod = clazz.getMethod("multiply", int.class, int.class);
+Object result = multiplyMethod.invoke(calc, 5, 3);
+System.out.println(result);  // 15
+
+// Invoke private method
+Method addMethod = clazz.getDeclaredMethod("add", int.class, int.class);
+addMethod.setAccessible(true);  // Bypass access control
+Object result2 = addMethod.invoke(calc, 5, 3);
+System.out.println(result2);  // 8
+
+// Get method information
+String methodName = addMethod.getName();           // "add"
+Class<?> returnType = addMethod.getReturnType();   // int
+Class<?>[] paramTypes = addMethod.getParameterTypes();  // [int, int]
+int modifiers = addMethod.getModifiers();
+\`\`\`
+
+**4. Creating Instances:**
+\`\`\`java
+// Using no-arg constructor
+Class<?> clazz = ArrayList.class;
+Object obj = clazz.newInstance();  // Deprecated in Java 9+
+Object obj2 = clazz.getDeclaredConstructor().newInstance();  // Better way
+
+// Using parameterized constructor
+Class<?> userClass = User.class;
+Constructor<?> constructor = userClass.getConstructor(String.class, int.class);
+User user = (User) constructor.newInstance("John", 30);
+
+// Get all constructors
+Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+\`\`\`
+
+**5. Working with Arrays:**
+\`\`\`java
+// Create array dynamically
+Object array = Array.newInstance(String.class, 5);
+Array.set(array, 0, "Hello");
+Array.set(array, 1, "World");
+String value = (String) Array.get(array, 0);  // "Hello"
+int length = Array.getLength(array);  // 5
+
+// Multi-dimensional array
+Object matrix = Array.newInstance(int.class, 3, 3);
+\`\`\`
+
+**Real-World Use Cases:**
+
+**1. Dependency Injection Frameworks (Spring, Guice):**
+\`\`\`java
+// Spring uses reflection for @Autowired
+@Autowired
+private UserService userService;
+
+// Spring internally does:
+Field field = clazz.getDeclaredField("userService");
+field.setAccessible(true);
+field.set(bean, userServiceInstance);
+\`\`\`
+
+**2. Serialization/Deserialization (Jackson, Gson):**
+\`\`\`java
+// JSON to Object without calling constructor
+String json = "{\\"name\\":\\"John\\",\\"age\\":30}";
+User user = objectMapper.readValue(json, User.class);
+
+// Internally uses reflection:
+Constructor<?> constructor = clazz.getDeclaredConstructor();
+constructor.setAccessible(true);
+Object obj = constructor.newInstance();
+
+for (Field field : clazz.getDeclaredFields()) {
+    field.setAccessible(true);
+    field.set(obj, jsonValue);
+}
+\`\`\`
+
+**3. ORM Frameworks (Hibernate, JPA):**
+\`\`\`java
+@Entity
+public class User {
+    @Id
+    private Long id;
+    private String name;
+}
+
+// Hibernate uses reflection to map DB columns to fields
+Field[] fields = clazz.getDeclaredFields();
+for (Field field : fields) {
+    if (field.isAnnotationPresent(Id.class)) {
+        // Set primary key
+    }
+}
+\`\`\`
+
+**4. Testing Frameworks (JUnit, Mockito):**
+\`\`\`java
+// JUnit finds and runs @Test methods
+for (Method method : clazz.getDeclaredMethods()) {
+    if (method.isAnnotationPresent(Test.class)) {
+        method.invoke(testInstance);
+    }
+}
+
+// Mockito injects mocks into private fields
+@InjectMocks
+private UserService userService;
+\`\`\`
+
+**5. Generic Type Inspection:**
+\`\`\`java
+public class GenericInspector<T> {
+    public void inspect() {
+        Type superclass = getClass().getGenericSuperclass();
+        if (superclass instanceof ParameterizedType) {
+            Type[] types = ((ParameterizedType) superclass).getActualTypeArguments();
+            System.out.println("Generic type: " + types[0]);
+        }
+    }
+}
+\`\`\`
+
+**6. Plugin Architectures:**
+\`\`\`java
+// Load plugins dynamically
+public interface Plugin {
+    void execute();
+}
+
+// Load plugin class at runtime
+Class<?> pluginClass = Class.forName("com.example.MyPlugin");
+Plugin plugin = (Plugin) pluginClass.getDeclaredConstructor().newInstance();
+plugin.execute();
+\`\`\`
+
+**Performance Impact:**
+\`\`\`java
+// Direct method call: ~1 ns
+user.getName();
+
+// Reflection method call: ~100 ns (100x slower)
+Method method = clazz.getMethod("getName");
+method.invoke(user);
+
+// Mitigation: Cache Method objects
+private static final Method GET_NAME_METHOD;
+static {
+    try {
+        GET_NAME_METHOD = User.class.getMethod("getName");
+    } catch (Exception e) {
+        throw new RuntimeException(e);
+    }
+}
+// Reuse cached method (still ~50 ns but better)
+GET_NAME_METHOD.invoke(user);
+\`\`\`
+
+**When to Use Reflection:**
+✓ Dependency injection frameworks
+✓ Serialization/deserialization libraries
+✓ ORM frameworks
+✓ Testing frameworks (mocking, test runners)
+✓ Plugin architectures
+✓ Generic libraries (working with unknown types)
+✓ Debugging and development tools
+✓ Annotation processing at runtime
+
+**When NOT to Use Reflection:**
+✗ Regular application code (use interfaces/polymorphism)
+✗ Performance-critical paths
+✗ When compile-time safety is important
+✗ When code clarity is priority
+✗ Simple CRUD operations
+
+**Drawbacks:**
+- **Performance:** 10-100x slower than direct calls
+- **Security:** Bypasses access control (private fields/methods)
+- **Type Safety:** Errors caught at runtime, not compile-time
+- **Complexity:** Harder to read and maintain
+- **Breaks Encapsulation:** Violates OOP principles
+
+**Best Practices:**
+- Cache Class, Method, Field objects
+- Use sparingly in application code
+- Prefer interfaces and polymorphism when possible
+- Document why reflection is necessary
+- Handle exceptions properly (ReflectiveOperationException)
+- Check security manager permissions
+- Use MethodHandles for better performance (Java 7+)
+
+**Modern Alternative: MethodHandles (Java 7+):**
+\`\`\`java
+// Faster than reflection
+MethodHandles.Lookup lookup = MethodHandles.lookup();
+MethodHandle methodHandle = lookup.findVirtual(
+    User.class,
+    "getName",
+    MethodType.methodType(String.class)
+);
+String name = (String) methodHandle.invoke(user);
+
+// ~5-10x faster than reflection
+// Type-safe at compile time
+// Better JIT optimization
+\`\`\`
+
+**Security Considerations:**
+\`\`\`java
+// Check if SecurityManager allows reflection
+SecurityManager sm = System.getSecurityManager();
+if (sm != null) {
+    sm.checkPermission(new ReflectPermission("suppressAccessChecks"));
+}
+
+// In production, restrict reflection via security policies
+\`\`\``
+    },
+    {
+      id: 10,
+      category: 'Memory Model',
+      difficulty: 'Hard',
+      question: 'Explain Java Memory Model (JMM) and happens-before relationship. How does it ensure thread safety?',
+      answer: `**Java Memory Model (JMM):**
+
+**What is JMM:**
+The Java Memory Model defines how threads interact through memory and what behaviors are allowed in concurrent execution. It specifies when changes made by one thread become visible to other threads.
+
+**Memory Visibility Problem:**
+\`\`\`java
+// Thread 1
+public void writer() {
+    a = 1;  // Write to shared variable
+    b = 2;
+}
+
+// Thread 2
+public void reader() {
+    int r1 = b;  // May see: 0, 2
+    int r2 = a;  // May see: 0, 1
+    // Possible results: (0,0), (1,0), (1,2), (2,1), (2,2)
+}
+
+// Without synchronization, thread 2 may:
+// 1. Not see writes at all (cached in CPU)
+// 2. See writes out of order (compiler/CPU reordering)
+\`\`\`
+
+**Memory Architecture:**
+\`\`\`
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│  Thread 1   │    │  Thread 2   │    │  Thread 3   │
+├─────────────┤    ├─────────────┤    ├─────────────┤
+│ CPU Cache   │    │ CPU Cache   │    │ CPU Cache   │
+│ (L1, L2)    │    │ (L1, L2)    │    │ (L1, L2)    │
+└──────┬──────┘    └──────┬──────┘    └──────┬──────┘
+       │                  │                  │
+       └──────────────────┼──────────────────┘
+                          │
+                  ┌───────▼───────┐
+                  │  Main Memory  │
+                  │  (Heap, etc)  │
+                  └───────────────┘
+
+Problem: Each thread has its own cache, changes may not be visible!
+\`\`\`
+
+**Happens-Before Relationship:**
+
+The happens-before relationship guarantees that if action A happens-before action B, then memory effects of A are visible to B.
+
+**Happens-Before Rules:**
+
+**1. Program Order Rule:**
+\`\`\`java
+// Within a single thread, actions happen in program order
+int a = 1;  // Action 1
+int b = 2;  // Action 2 (sees a = 1)
+int c = a + b;  // Action 3 (sees a = 1, b = 2)
+\`\`\`
+
+**2. Monitor Lock Rule:**
+\`\`\`java
+// Unlock happens-before subsequent lock of same monitor
+public class Counter {
+    private int count = 0;
+
+    public synchronized void increment() {
+        count++;  // Action A
+    }  // Unlock happens here
+
+    public synchronized int getCount() {
+        // Lock acquisition sees effects of Action A
+        return count;
+    }
+}
+
+// Thread 1: increment() unlocks
+// Thread 2: getCount() locks -> sees increment's effects
+\`\`\`
+
+**3. Volatile Variable Rule:**
+\`\`\`java
+// Write to volatile happens-before subsequent read
+private volatile boolean flag = false;
+private int value = 0;
+
+// Thread 1
+public void writer() {
+    value = 42;      // Action 1
+    flag = true;     // Action 2 (volatile write)
+}
+
+// Thread 2
+public void reader() {
+    if (flag) {      // Volatile read sees flag = true
+        // GUARANTEED to see value = 42
+        System.out.println(value);  // Prints 42
+    }
+}
+
+// Volatile write happens-before volatile read
+// All writes before volatile write are visible after volatile read
+\`\`\`
+
+**4. Thread Start Rule:**
+\`\`\`java
+// Actions before thread.start() happen-before thread's actions
+int x = 0;
+
+Thread t = new Thread(() -> {
+    // Guaranteed to see x = 42
+    System.out.println(x);
+});
+
+x = 42;  // Action before start()
+t.start();  // Thread sees all previous actions
+\`\`\`
+
+**5. Thread Join Rule:**
+\`\`\`java
+// Actions in thread happen-before join() returns
+int result = 0;
+
+Thread t = new Thread(() -> {
+    result = compute();  // Action in thread
+});
+
+t.start();
+t.join();  // Wait for completion
+// Guaranteed to see result value
+System.out.println(result);
+\`\`\`
+
+**6. Transitivity:**
+\`\`\`java
+// If A happens-before B, and B happens-before C,
+// then A happens-before C
+
+// Thread 1
+value = 42;       // A
+flag = true;      // B (volatile write)
+
+// Thread 2
+if (flag) {       // C (volatile read, sees B)
+    // Sees A due to transitivity
+    System.out.println(value);  // 42
+}
+\`\`\`
+
+**Volatile Keyword Deep Dive:**
+
+**What volatile guarantees:**
+\`\`\`java
+private volatile int counter = 0;
+
+// Guarantees:
+// 1. Visibility: Changes immediately visible to all threads
+// 2. Ordering: Prevents reordering around volatile operations
+// 3. Atomicity: For reads/writes (NOT for compound operations)
+
+// Safe operations:
+counter = 5;      // Safe (atomic write)
+int x = counter;  // Safe (atomic read)
+
+// UNSAFE operations:
+counter++;        // NOT safe (read + write = not atomic)
+// Equivalent to:
+// int temp = counter;  // Read
+// temp = temp + 1;     // Modify
+// counter = temp;      // Write
+// Another thread can interfere between operations!
+\`\`\`
+
+**Volatile vs Synchronized:**
+\`\`\`java
+// Volatile: Visibility only
+private volatile boolean flag;
+
+public void setFlag() {
+    flag = true;  // Visible immediately
+}
+
+public boolean checkFlag() {
+    return flag;  // Sees latest value
+}
+
+// Synchronized: Visibility + Atomicity + Mutual exclusion
+private int counter;
+
+public synchronized void increment() {
+    counter++;  // Atomic, thread-safe
+}
+\`\`\`
+
+**Double-Checked Locking (Before Java 5):**
+\`\`\`java
+// BROKEN without volatile (before Java 5)
+public class Singleton {
+    private static Singleton instance;
+
+    public static Singleton getInstance() {
+        if (instance == null) {
+            synchronized (Singleton.class) {
+                if (instance == null) {
+                    instance = new Singleton();  // Problem!
+                }
+            }
+        }
+        return instance;
+    }
+}
+
+// Problem: Object construction is not atomic
+// 1. Allocate memory
+// 2. Initialize object
+// 3. Assign reference
+// Steps 2 and 3 can be reordered!
+
+// Thread 1: Allocate → Assign → (interrupted)
+// Thread 2: Sees non-null but uninitialized object!
+\`\`\`
+
+**Fixed with volatile (Java 5+):**
+\`\`\`java
+// CORRECT with volatile
+public class Singleton {
+    private static volatile Singleton instance;
+
+    public static Singleton getInstance() {
+        if (instance == null) {
+            synchronized (Singleton.class) {
+                if (instance == null) {
+                    instance = new Singleton();
+                }
+            }
+        }
+        return instance;
+    }
+}
+
+// volatile prevents reordering
+// Guarantees fully initialized object before assignment
+\`\`\`
+
+**Safe Publication:**
+
+**Unsafe publication:**
+\`\`\`java
+public class UnsafePublication {
+    private int[] arr;
+
+    public void initialize() {
+        arr = new int[10];
+        arr[0] = 42;
+    }
+
+    public int getValue() {
+        return arr[0];  // May see 0 (default) instead of 42!
+    }
+}
+\`\`\`
+
+**Safe publication patterns:**
+\`\`\`java
+// 1. Final fields (immutable)
+public class SafePublication {
+    private final int[] arr;
+
+    public SafePublication() {
+        arr = new int[10];
+        arr[0] = 42;
+    }  // Happens-before guarantee for final fields
+
+    public int getValue() {
+        return arr[0];  // Always sees 42
+    }
+}
+
+// 2. Volatile reference
+private volatile int[] arr;
+
+// 3. Synchronized access
+private int[] arr;
+public synchronized void setArr(int[] arr) { this.arr = arr; }
+public synchronized int[] getArr() { return arr; }
+
+// 4. Concurrent collections
+ConcurrentHashMap<String, Object> map = new ConcurrentHashMap<>();
+\`\`\`
+
+**Atomicity vs Visibility:**
+\`\`\`java
+// Atomicity: Operation completes fully or not at all
+private AtomicInteger counter = new AtomicInteger(0);
+counter.incrementAndGet();  // Atomic
+
+// Visibility: Changes visible to other threads
+private volatile boolean flag;
+flag = true;  // Visible immediately
+
+// Both needed for thread safety:
+private int count;  // Neither atomic nor visible!
+
+public synchronized void increment() {
+    count++;  // Both atomic AND visible
+}
+\`\`\`
+
+**Common Pitfalls:**
+
+**1. Assuming atomicity:**
+\`\`\`java
+private volatile int counter = 0;
+
+// WRONG: Not thread-safe
+public void increment() {
+    counter++;  // Not atomic!
+}
+
+// RIGHT: Use AtomicInteger
+private AtomicInteger counter = new AtomicInteger(0);
+public void increment() {
+    counter.incrementAndGet();
+}
+\`\`\`
+
+**2. Forgetting happens-before:**
+\`\`\`java
+private Map<String, String> map = new HashMap<>();
+
+// WRONG: No happens-before guarantee
+public void put(String key, String value) {
+    map.put(key, value);
+}
+
+// RIGHT: Use ConcurrentHashMap
+private Map<String, String> map = new ConcurrentHashMap<>();
+\`\`\`
+
+**Memory Barriers:**
+\`\`\`java
+// Low-level concept: Memory barriers prevent reordering
+
+// LoadLoad: Prevent reordering of two loads
+load1
+LoadLoad barrier
+load2
+
+// StoreStore: Prevent reordering of two stores
+store1
+StoreStore barrier
+store2
+
+// Volatile write inserts: StoreStore + StoreLoad
+// Volatile read inserts: LoadLoad + LoadStore
+
+// Java abstracts this via happens-before
+\`\`\`
+
+**Best Practices:**
+✓ Use synchronized for compound operations
+✓ Use volatile for simple flags/status
+✓ Use AtomicXxx for lock-free counters
+✓ Use concurrent collections
+✓ Prefer immutable objects
+✓ Minimize shared mutable state
+✓ Document synchronization policy
+✓ Understand happens-before rules
+
+**Summary:**
+The Java Memory Model ensures thread safety through happens-before relationships. Key mechanisms:
+- **synchronized**: Provides mutual exclusion, atomicity, and visibility
+- **volatile**: Provides visibility and ordering guarantees
+- **final**: Provides safe publication of immutable data
+- **Concurrent utilities**: Built on JMM guarantees
+
+Understanding JMM is crucial for writing correct concurrent code!`
+    },
+    {
+      id: 11,
+      category: 'Class Loading',
+      difficulty: 'Hard',
+      question: 'Explain custom class loaders in Java. When and how would you implement one?',
+      answer: `**Class Loading in Java:**
+
+**Class Loader Hierarchy:**
+\`\`\`
+┌──────────────────────────┐
+│  Bootstrap ClassLoader   │  (native code, loads core Java classes)
+│  (rt.jar, java.*, etc)   │
+└────────────┬─────────────┘
+             │
+             │ parent
+             ▼
+┌──────────────────────────┐
+│  Extension ClassLoader   │  (loads from jre/lib/ext)
+│  (javax.*, com.sun.*)    │
+└────────────┬─────────────┘
+             │
+             │ parent
+             ▼
+┌──────────────────────────┐
+│  Application/System      │  (loads from CLASSPATH)
+│  ClassLoader             │
+└────────────┬─────────────┘
+             │
+             │ parent
+             ▼
+┌──────────────────────────┐
+│  Custom ClassLoader      │  (your custom logic)
+└──────────────────────────┘
+\`\`\`
+
+**Class Loading Process:**
+\`\`\`java
+1. Loading: Read .class file bytes
+2. Linking:
+   a. Verification: Verify bytecode validity
+   b. Preparation: Allocate memory for static fields
+   c. Resolution: Resolve symbolic references
+3. Initialization: Execute static initializers
+\`\`\`
+
+**Class Loading Delegation Model:**
+\`\`\`java
+// When loading class, ClassLoader:
+1. Check if class already loaded (cache)
+2. Delegate to parent ClassLoader
+3. If parent can't load, load itself
+4. If still can't load, throw ClassNotFoundException
+
+// This ensures:
+// - Core Java classes loaded by Bootstrap (security)
+// - No duplicate loading
+// - Consistent class resolution
+\`\`\`
+
+**Basic ClassLoader Methods:**
+\`\`\`java
+public abstract class ClassLoader {
+    // Load class by name
+    public Class<?> loadClass(String name) throws ClassNotFoundException
+
+    // Define class from bytes (protected)
+    protected final Class<?> defineClass(String name, byte[] b, int off, int len)
+
+    // Find class (override this for custom loading)
+    protected Class<?> findClass(String name) throws ClassNotFoundException
+
+    // Get resource
+    public URL getResource(String name)
+
+    // Get parent ClassLoader
+    public final ClassLoader getParent()
+}
+\`\`\`
+
+**Simple Custom ClassLoader:**
+\`\`\`java
+public class SimpleClassLoader extends ClassLoader {
+    private String classPath;
+
+    public SimpleClassLoader(String classPath) {
+        super(ClassLoader.getSystemClassLoader());  // Set parent
+        this.classPath = classPath;
+    }
+
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        try {
+            // Convert class name to file path
+            // com.example.MyClass -> com/example/MyClass.class
+            String fileName = name.replace('.', '/') + ".class";
+            String filePath = classPath + File.separator + fileName;
+
+            // Read class bytes from file
+            byte[] classBytes = loadClassBytes(filePath);
+
+            // Define class from bytes
+            return defineClass(name, classBytes, 0, classBytes.length);
+        } catch (IOException e) {
+            throw new ClassNotFoundException("Could not load class: " + name, e);
+        }
+    }
+
+    private byte[] loadClassBytes(String filePath) throws IOException {
+        Path path = Paths.get(filePath);
+        return Files.readAllBytes(path);
+    }
+}
+
+// Usage
+SimpleClassLoader loader = new SimpleClassLoader("/custom/classes");
+Class<?> clazz = loader.loadClass("com.example.MyClass");
+Object instance = clazz.getDeclaredConstructor().newInstance();
+\`\`\`
+
+**Loading from Network:**
+\`\`\`java
+public class NetworkClassLoader extends ClassLoader {
+    private String baseUrl;
+
+    public NetworkClassLoader(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
+
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        try {
+            String url = baseUrl + "/" + name.replace('.', '/') + ".class";
+            byte[] classBytes = downloadClassBytes(url);
+            return defineClass(name, classBytes, 0, classBytes.length);
+        } catch (IOException e) {
+            throw new ClassNotFoundException("Could not load class from: " + baseUrl, e);
+        }
+    }
+
+    private byte[] downloadClassBytes(String urlString) throws IOException {
+        URL url = new URL(urlString);
+        try (InputStream in = url.openStream()) {
+            return in.readAllBytes();
+        }
+    }
+}
+
+// Load class from remote server
+NetworkClassLoader loader = new NetworkClassLoader("http://example.com/classes");
+Class<?> clazz = loader.loadClass("com.example.RemoteClass");
+\`\`\`
+
+**Encrypted ClassLoader:**
+\`\`\`java
+public class EncryptedClassLoader extends ClassLoader {
+    private String classPath;
+    private SecretKey key;
+
+    public EncryptedClassLoader(String classPath, SecretKey key) {
+        this.classPath = classPath;
+        this.key = key;
+    }
+
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        try {
+            String fileName = name.replace('.', '/') + ".encrypted";
+            String filePath = classPath + File.separator + fileName;
+
+            // Read encrypted bytes
+            byte[] encryptedBytes = Files.readAllBytes(Paths.get(filePath));
+
+            // Decrypt
+            byte[] classBytes = decrypt(encryptedBytes, key);
+
+            // Define class
+            return defineClass(name, classBytes, 0, classBytes.length);
+        } catch (Exception e) {
+            throw new ClassNotFoundException("Could not load encrypted class: " + name, e);
+        }
+    }
+
+    private byte[] decrypt(byte[] encrypted, SecretKey key) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        return cipher.doFinal(encrypted);
+    }
+}
+\`\`\`
+
+**Hot Reloading ClassLoader:**
+\`\`\`java
+public class HotReloadClassLoader extends ClassLoader {
+    private String classPath;
+
+    public HotReloadClassLoader(String classPath) {
+        super(null);  // No parent delegation (reload every time)
+        this.classPath = classPath;
+    }
+
+    @Override
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
+        // Don't delegate for application classes
+        if (name.startsWith("com.myapp")) {
+            return findClass(name);
+        }
+        // Use parent for Java system classes
+        return super.loadClass(name);
+    }
+
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        // Always reload from disk (no caching)
+        String fileName = name.replace('.', '/') + ".class";
+        String filePath = classPath + File.separator + fileName;
+
+        try {
+            byte[] classBytes = Files.readAllBytes(Paths.get(filePath));
+            return defineClass(name, classBytes, 0, classBytes.length);
+        } catch (IOException e) {
+            throw new ClassNotFoundException(name, e);
+        }
+    }
+}
+
+// Hot reload in action
+while (true) {
+    // Create new ClassLoader (discards old classes)
+    HotReloadClassLoader loader = new HotReloadClassLoader("/app/classes");
+
+    // Load class (fresh from disk)
+    Class<?> clazz = loader.loadClass("com.myapp.MyPlugin");
+    Object plugin = clazz.getDeclaredConstructor().newInstance();
+
+    // Execute plugin
+    Method execute = clazz.getMethod("execute");
+    execute.invoke(plugin);
+
+    // Sleep and reload (picks up changes)
+    Thread.sleep(5000);
+}
+\`\`\`
+
+**Real-World Use Cases:**
+
+**1. Application Servers (Tomcat, JBoss):**
+\`\`\`java
+// Each web app has its own ClassLoader
+WebAppClassLoader app1Loader = new WebAppClassLoader("/tomcat/webapps/app1");
+WebAppClassLoader app2Loader = new WebAppClassLoader("/tomcat/webapps/app2");
+
+// Apps can use different versions of same library
+// app1: uses Guava 20.0
+// app2: uses Guava 30.0
+// No conflict because different ClassLoaders!
+\`\`\`
+
+**2. Plugin Systems:**
+\`\`\`java
+public class PluginManager {
+    private Map<String, ClassLoader> pluginLoaders = new HashMap<>();
+
+    public void loadPlugin(String pluginPath) throws Exception {
+        // Create isolated ClassLoader for plugin
+        URLClassLoader loader = new URLClassLoader(
+            new URL[]{new File(pluginPath).toURI().toURL()}
+        );
+
+        // Load plugin class
+        Class<?> pluginClass = loader.loadClass("com.example.Plugin");
+        Plugin plugin = (Plugin) pluginClass.getDeclaredConstructor().newInstance();
+
+        pluginLoaders.put(pluginPath, loader);
+    }
+
+    public void unloadPlugin(String pluginPath) throws IOException {
+        ClassLoader loader = pluginLoaders.remove(pluginPath);
+        if (loader instanceof URLClassLoader) {
+            ((URLClassLoader) loader).close();
+        }
+        // Hint to GC to collect classes
+        System.gc();
+    }
+}
+\`\`\`
+
+**3. OSGi Framework:**
+\`\`\`java
+// Each OSGi bundle has own ClassLoader
+// Bundles can specify dependencies
+Bundle-SymbolicName: com.example.mybundle
+Import-Package: org.osgi.framework;version="[1.8,2.0)"
+Export-Package: com.example.api
+
+// ClassLoader enforces bundle boundaries
+\`\`\`
+
+**4. JDBC Drivers:**
+\`\`\`java
+// DriverManager uses ContextClassLoader
+ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
+
+// Load JDBC driver from application ClassLoader
+Class.forName("com.mysql.jdbc.Driver", true, contextLoader);
+\`\`\`
+
+**5. Test Isolation (JUnit):**
+\`\`\`java
+// Each test class loaded with fresh ClassLoader
+// Ensures no static state pollution between tests
+ClassLoader testLoader = new CustomTestClassLoader();
+Class<?> testClass = testLoader.loadClass("com.example.MyTest");
+\`\`\`
+
+**ClassLoader Context:**
+\`\`\`java
+// Get current ClassLoader
+ClassLoader classLoader = MyClass.class.getClassLoader();
+
+// Get context ClassLoader (thread-specific)
+ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
+
+// Set context ClassLoader
+Thread.currentThread().setContextClassLoader(customLoader);
+
+// This is important for frameworks that use reflection
+// (e.g., JNDI, JAXB, JDBC)
+\`\`\`
+
+**Common Pitfalls:**
+
+**1. Class Identity Problem:**
+\`\`\`java
+// Same class loaded by different ClassLoaders are DIFFERENT types!
+ClassLoader loader1 = new CustomClassLoader("/path1");
+ClassLoader loader2 = new CustomClassLoader("/path2");
+
+Class<?> class1 = loader1.loadClass("com.example.MyClass");
+Class<?> class2 = loader2.loadClass("com.example.MyClass");
+
+System.out.println(class1 == class2);  // FALSE!
+
+Object obj1 = class1.newInstance();
+Object obj2 = class2.newInstance();
+
+// This will throw ClassCastException!
+MyClass myObj = (MyClass) obj2;  // Different class definition!
+\`\`\`
+
+**2. Memory Leaks:**
+\`\`\`java
+// ClassLoaders hold references to all loaded classes
+// Classes hold references to ClassLoader
+// If ClassLoader not released, classes not GC'd
+
+// Common causes:
+// - ThreadLocal holding class reference
+// - Static fields holding objects
+// - Long-lived threads with context ClassLoader
+
+// Prevention:
+1. Close URLClassLoader when done
+2. Clear ThreadLocal variables
+3. Null out static references
+4. Use weak references for caches
+\`\`\`
+
+**3. Parent Delegation Bypass:**
+\`\`\`java
+// Be careful overriding loadClass()
+// Can break delegation model
+
+// WRONG: Bypasses parent (can load duplicate classes)
+@Override
+public Class<?> loadClass(String name) throws ClassNotFoundException {
+    return findClass(name);  // Always load yourself
+}
+
+// RIGHT: Delegate first, then load
+@Override
+public Class<?> loadClass(String name) throws ClassNotFoundException {
+    return super.loadClass(name);  // Delegates to parent first
+}
+\`\`\`
+
+**Best Practices:**
+✓ Override findClass(), not loadClass()
+✓ Always call super() in constructor
+✓ Close URLClassLoader when done
+✓ Use parent delegation model
+✓ Document class loading behavior
+✓ Test with different ClassLoaders
+✓ Be aware of class identity issues
+✓ Monitor for ClassLoader memory leaks
+✓ Use SecurityManager for untrusted code
+
+**When to Use Custom ClassLoader:**
+- Loading classes from non-standard sources (network, database)
+- Encrypting class files for IP protection
+- Hot reloading for development
+- Plugin architectures
+- Application isolation (containers, OSGi)
+- Instrumentation and bytecode manipulation
+- Class versioning and dependency management
+
+**Summary:**
+Custom class loaders provide powerful capabilities for dynamic class loading, isolation, and hot reloading. However, they require careful handling to avoid memory leaks and class identity issues.`
+    },
+    {
+      id: 12,
+      category: 'Functional Programming',
+      difficulty: 'Hard',
+      question: 'Explain functional interfaces, method references, and advanced Stream operations with practical examples',
+      answer: `**Functional Interfaces:**
+
+**What is a Functional Interface:**
+An interface with exactly one abstract method (SAM - Single Abstract Method). Can have multiple default/static methods.
+
+**@FunctionalInterface Annotation:**
+\`\`\`java
+@FunctionalInterface
+public interface Calculator {
+    int calculate(int a, int b);  // Single abstract method
+
+    // Default methods are allowed
+    default int square(int x) {
+        return calculate(x, x);
+    }
+
+    // Static methods are allowed
+    static int add(int a, int b) {
+        return a + b;
+    }
+}
+
+// Before Java 8: Anonymous inner class
+Calculator calc = new Calculator() {
+    @Override
+    public int calculate(int a, int b) {
+        return a + b;
+    }
+};
+
+// Java 8: Lambda expression
+Calculator calc = (a, b) -> a + b;
+\`\`\`
+
+**Built-in Functional Interfaces:**
+
+**1. Function<T, R> - Transform input to output:**
+\`\`\`java
+Function<String, Integer> stringLength = s -> s.length();
+Integer length = stringLength.apply("Hello");  // 5
+
+// Chaining functions
+Function<String, Integer> parse = Integer::parseInt;
+Function<Integer, Integer> square = x -> x * x;
+Function<String, Integer> parseAndSquare = parse.andThen(square);
+System.out.println(parseAndSquare.apply("5"));  // 25
+
+// Composing functions
+Function<Integer, Integer> multiplyByTwo = x -> x * 2;
+Function<Integer, Integer> addOne = x -> x + 1;
+Function<Integer, Integer> composed = multiplyByTwo.compose(addOne);
+System.out.println(composed.apply(3));  // (3 + 1) * 2 = 8
+\`\`\`
+
+**2. Predicate<T> - Test a condition:**
+\`\`\`java
+Predicate<String> isEmpty = String::isEmpty;
+Predicate<String> isLong = s -> s.length() > 10;
+
+boolean result = isEmpty.test("");  // true
+
+// Combining predicates
+Predicate<String> isEmptyOrLong = isEmpty.or(isLong);
+Predicate<String> isNotEmpty = isEmpty.negate();
+Predicate<String> isShortAndNotEmpty = isNotEmpty.and(s -> s.length() < 10);
+
+List<String> names = List.of("Alice", "Bob", "Christopher");
+names.stream()
+    .filter(isShortAndNotEmpty)
+    .forEach(System.out::println);  // Alice, Bob
+\`\`\`
+
+**3. Consumer<T> - Consume input (void):**
+\`\`\`java
+Consumer<String> print = System.out::println;
+Consumer<String> printUpper = s -> System.out.println(s.toUpperCase());
+
+print.accept("hello");  // hello
+
+// Chaining consumers
+Consumer<String> printBoth = print.andThen(printUpper);
+printBoth.accept("hello");  // hello\nHELLO
+
+// BiConsumer - Two inputs
+BiConsumer<String, Integer> printWithCount =
+    (name, count) -> System.out.println(name + ": " + count);
+printWithCount.accept("Items", 5);  // Items: 5
+\`\`\`
+
+**4. Supplier<T> - Supply a value:**
+\`\`\`java
+Supplier<String> randomString = () -> UUID.randomUUID().toString();
+String uuid = randomString.get();
+
+Supplier<List<String>> listFactory = ArrayList::new;
+List<String> list = listFactory.get();
+
+// Lazy evaluation with Supplier
+public class ExpensiveObject {
+    public ExpensiveObject() {
+        // Expensive initialization
+    }
+}
+
+// Only create when needed
+Supplier<ExpensiveObject> lazyInit = ExpensiveObject::new;
+ExpensiveObject obj = lazyInit.get();  // Created here
+\`\`\`
+
+**5. UnaryOperator<T> - Function<T, T>:**
+\`\`\`java
+UnaryOperator<Integer> square = x -> x * x;
+UnaryOperator<String> toUpper = String::toUpperCase;
+
+Integer result = square.apply(5);  // 25
+String upper = toUpper.apply("hello");  // HELLO
+
+// Replace all in list
+List<Integer> numbers = List.of(1, 2, 3, 4, 5);
+numbers.replaceAll(x -> x * 2);  // [2, 4, 6, 8, 10]
+\`\`\`
+
+**6. BinaryOperator<T> - BiFunction<T, T, T>:**
+\`\`\`java
+BinaryOperator<Integer> add = (a, b) -> a + b;
+BinaryOperator<Integer> max = Integer::max;
+
+Integer sum = add.apply(5, 3);  // 8
+Integer maximum = max.apply(5, 3);  // 5
+
+// Reduce stream with BinaryOperator
+List<Integer> numbers = List.of(1, 2, 3, 4, 5);
+Integer total = numbers.stream()
+    .reduce(0, Integer::sum);  // 15
+\`\`\`
+
+**Method References:**
+
+**1. Static Method Reference:**
+\`\`\`java
+// Lambda: x -> Integer.parseInt(x)
+Function<String, Integer> parse = Integer::parseInt;
+
+// Lambda: (a, b) -> Integer.max(a, b)
+BinaryOperator<Integer> max = Integer::max;
+
+List<String> numbers = List.of("1", "2", "3");
+numbers.stream()
+    .map(Integer::parseInt)  // Static method reference
+    .forEach(System.out::println);
+\`\`\`
+
+**2. Instance Method Reference (Object):**
+\`\`\`java
+String str = "Hello";
+
+// Lambda: () -> str.length()
+Supplier<Integer> lengthSupplier = str::length;
+
+// Lambda: () -> str.toUpperCase()
+Supplier<String> upperSupplier = str::toUpperCase;
+
+System.out.println(lengthSupplier.get());  // 5
+\`\`\`
+
+**3. Instance Method Reference (Class):**
+\`\`\`java
+// Lambda: s -> s.toLowerCase()
+Function<String, String> toLower = String::toLowerCase;
+
+// Lambda: s -> s.isEmpty()
+Predicate<String> isEmpty = String::isEmpty;
+
+List<String> words = List.of("HELLO", "WORLD");
+words.stream()
+    .map(String::toLowerCase)  // Instance method reference
+    .forEach(System.out::println);
+\`\`\`
+
+**4. Constructor Reference:**
+\`\`\`java
+// No-arg constructor: () -> new ArrayList<>()
+Supplier<List<String>> listFactory = ArrayList::new;
+
+// Constructor with arg: size -> new ArrayList<>(size)
+Function<Integer, List<String>> sizedListFactory = ArrayList::new;
+
+// Array constructor: size -> new String[size]
+IntFunction<String[]> arrayFactory = String[]::new;
+
+List<String> names = List.of("Alice", "Bob", "Charlie");
+String[] array = names.stream()
+    .toArray(String[]::new);  // Constructor reference
+\`\`\`
+
+**Advanced Stream Operations:**
+
+**1. flatMap - Flatten nested structures:**
+\`\`\`java
+List<List<Integer>> nested = List.of(
+    List.of(1, 2, 3),
+    List.of(4, 5),
+    List.of(6, 7, 8, 9)
+);
+
+// Flatten to single stream
+List<Integer> flattened = nested.stream()
+    .flatMap(List::stream)
+    .collect(Collectors.toList());  // [1,2,3,4,5,6,7,8,9]
+
+// Practical example: Get all words from sentences
+List<String> sentences = List.of(
+    "Hello world",
+    "Java streams are powerful"
+);
+
+List<String> words = sentences.stream()
+    .map(s -> s.split(" "))
+    .flatMap(Arrays::stream)
+    .collect(Collectors.toList());
+\`\`\`
+
+**2. collect - Advanced collectors:**
+\`\`\`java
+List<Person> people = List.of(
+    new Person("Alice", 30),
+    new Person("Bob", 25),
+    new Person("Charlie", 30)
+);
+
+// Group by age
+Map<Integer, List<Person>> byAge = people.stream()
+    .collect(Collectors.groupingBy(Person::getAge));
+
+// Partition by condition
+Map<Boolean, List<Person>> partitioned = people.stream()
+    .collect(Collectors.partitioningBy(p -> p.getAge() >= 30));
+
+// Count by age
+Map<Integer, Long> counts = people.stream()
+    .collect(Collectors.groupingBy(
+        Person::getAge,
+        Collectors.counting()
+    ));
+
+// Average age by name length
+Map<Integer, Double> avgAge = people.stream()
+    .collect(Collectors.groupingBy(
+        p -> p.getName().length(),
+        Collectors.averagingInt(Person::getAge)
+    ));
+
+// Join names
+String names = people.stream()
+    .map(Person::getName)
+    .collect(Collectors.joining(", ", "[", "]"));  // [Alice, Bob, Charlie]
+
+// To Map
+Map<String, Integer> nameToAge = people.stream()
+    .collect(Collectors.toMap(
+        Person::getName,
+        Person::getAge,
+        (age1, age2) -> age1  // Merge function for duplicates
+    ));
+\`\`\`
+
+**3. reduce - Custom aggregation:**
+\`\`\`java
+List<Integer> numbers = List.of(1, 2, 3, 4, 5);
+
+// Sum
+Integer sum = numbers.stream()
+    .reduce(0, Integer::sum);  // 15
+
+// Product
+Integer product = numbers.stream()
+    .reduce(1, (a, b) -> a * b);  // 120
+
+// Max
+Optional<Integer> max = numbers.stream()
+    .reduce(Integer::max);  // Optional[5]
+
+// Complex reduction: Concatenate strings with custom separator
+List<String> words = List.of("Hello", "World", "Java");
+String result = words.stream()
+    .reduce("", (acc, word) -> acc.isEmpty() ? word : acc + "-" + word);
+    // "Hello-World-Java"
+\`\`\`
+
+**4. Parallel Streams:**
+\`\`\`java
+List<Integer> largeList = IntStream.rangeClosed(1, 1_000_000)
+    .boxed()
+    .collect(Collectors.toList());
+
+// Sequential
+long sum = largeList.stream()
+    .mapToLong(Integer::longValue)
+    .sum();
+
+// Parallel (uses ForkJoinPool)
+long parallelSum = largeList.parallelStream()
+    .mapToLong(Integer::longValue)
+    .sum();
+
+// Control parallelism
+ForkJoinPool customPool = new ForkJoinPool(4);
+long customSum = customPool.submit(() ->
+    largeList.parallelStream()
+        .mapToLong(Integer::longValue)
+        .sum()
+).get();
+\`\`\`
+
+**5. Infinite Streams:**
+\`\`\`java
+// Generate infinite stream
+Stream.generate(Math::random)
+    .limit(5)
+    .forEach(System.out::println);
+
+// Iterate infinite stream
+Stream.iterate(0, n -> n + 1)  // 0, 1, 2, 3, ...
+    .limit(10)
+    .forEach(System.out::println);
+
+// Fibonacci sequence
+Stream.iterate(new int[]{0, 1}, arr -> new int[]{arr[1], arr[0] + arr[1]})
+    .map(arr -> arr[0])
+    .limit(10)
+    .forEach(System.out::println);  // 0, 1, 1, 2, 3, 5, 8, 13, 21, 34
+\`\`\`
+
+**6. peek - Debug streams:**
+\`\`\`java
+List<Integer> result = Stream.of(1, 2, 3, 4, 5)
+    .peek(x -> System.out.println("Original: " + x))
+    .filter(x -> x % 2 == 0)
+    .peek(x -> System.out.println("Filtered: " + x))
+    .map(x -> x * 2)
+    .peek(x -> System.out.println("Mapped: " + x))
+    .collect(Collectors.toList());
+\`\`\`
+
+**7. Custom Collector:**
+\`\`\`java
+// Collect to immutable list
+Collector<String, ?, List<String>> toImmutableList = Collector.of(
+    ArrayList::new,              // Supplier: Create container
+    List::add,                   // Accumulator: Add element
+    (list1, list2) -> {          // Combiner: Merge containers
+        list1.addAll(list2);
+        return list1;
+    },
+    Collections::unmodifiableList  // Finisher: Convert to immutable
+);
+
+List<String> immutable = Stream.of("a", "b", "c")
+    .collect(toImmutableList);
+\`\`\`
+
+**Practical Real-World Examples:**
+
+**1. Data Processing Pipeline:**
+\`\`\`java
+List<Transaction> transactions = getTransactions();
+
+Map<String, Double> totalByCategory = transactions.stream()
+    .filter(t -> t.getYear() == 2024)
+    .filter(t -> t.getAmount() > 100)
+    .collect(Collectors.groupingBy(
+        Transaction::getCategory,
+        Collectors.summingDouble(Transaction::getAmount)
+    ));
+\`\`\`
+
+**2. Error Handling in Streams:**
+\`\`\`java
+List<String> urls = List.of("url1", "url2", "url3");
+
+List<String> results = urls.stream()
+    .map(url -> {
+        try {
+            return fetchData(url);
+        } catch (IOException e) {
+            return null;  // or use Optional
+        }
+    })
+    .filter(Objects::nonNull)
+    .collect(Collectors.toList());
+\`\`\`
+
+**Best Practices:**
+✓ Use appropriate functional interface
+✓ Prefer method references over lambdas when possible
+✓ Use parallel streams for large datasets (CPU-bound)
+✓ Avoid side effects in lambda expressions
+✓ Use Optional to avoid null checks
+✓ Chain operations for readability
+✓ Use peek() only for debugging
+✓ Be aware of lazy evaluation
+✓ Consider performance of parallel streams
+
+**When NOT to use Streams:**
+✗ Simple loops (streams have overhead)
+✗ Modifying external state
+✗ Exception-heavy operations
+✗ Debugging complex logic (hard to debug)
+✗ Small collections (<100 elements usually)`
     }
   ]
 

@@ -815,6 +815,1321 @@ Person p2 = personCreator.apply("John");
 - Better readability
 - Clear intent
 - Reuses existing methods`
+    },
+    {
+      id: 7,
+      category: 'Date Time API',
+      difficulty: 'Hard',
+      question: 'Explain Java 8 Date Time API with practical examples. How is it better than old Date/Calendar?',
+      answer: `**Problems with Old API (Date/Calendar):**
+
+**Issues:**
+- Not thread-safe (mutable)
+- Poor API design (confusing methods)
+- Month indexing starts at 0 (January = 0)
+- Mixing date and time
+- TimeZone handling complex
+- Formatting not included
+
+\`\`\`java
+// Old way (problematic)
+Date date = new Date();
+SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+String formatted = sdf.format(date);  // Not thread-safe!
+
+Calendar cal = Calendar.getInstance();
+cal.set(2024, 0, 15);  // January is 0!
+Date result = cal.getTime();
+\`\`\`
+
+**Java 8 Date Time API (java.time):**
+
+**Key Classes:**
+
+**1. LocalDate - Date without time:**
+\`\`\`java
+// Create dates
+LocalDate today = LocalDate.now();
+LocalDate birthday = LocalDate.of(1990, Month.MARCH, 15);
+LocalDate parsed = LocalDate.parse("2024-01-15");
+
+// Get components
+int year = today.getYear();         // 2024
+Month month = today.getMonth();     // JANUARY
+int day = today.getDayOfMonth();    // 15
+DayOfWeek dayOfWeek = today.getDayOfWeek();  // MONDAY
+
+// Operations (immutable - returns new object)
+LocalDate tomorrow = today.plusDays(1);
+LocalDate nextWeek = today.plusWeeks(1);
+LocalDate nextMonth = today.plusMonths(1);
+LocalDate lastYear = today.minusYears(1);
+
+// Comparisons
+boolean isBefore = birthday.isBefore(today);
+boolean isAfter = birthday.isAfter(today);
+boolean isEqual = birthday.equals(today);
+
+// Period between dates
+LocalDate start = LocalDate.of(2020, 1, 1);
+LocalDate end = LocalDate.of(2024, 1, 1);
+Period period = Period.between(start, end);
+System.out.println(period.getYears() + " years");  // 4 years
+\`\`\`
+
+**2. LocalTime - Time without date:**
+\`\`\`java
+// Create times
+LocalTime now = LocalTime.now();
+LocalTime lunchTime = LocalTime.of(12, 30);
+LocalTime precise = LocalTime.of(12, 30, 45, 123456789);  // with nanos
+
+// Get components
+int hour = now.getHour();
+int minute = now.getMinute();
+int second = now.getSecond();
+
+// Operations
+LocalTime later = now.plusHours(2);
+LocalTime earlier = now.minusMinutes(30);
+
+// Duration between times
+LocalTime start = LocalTime.of(9, 0);
+LocalTime end = LocalTime.of(17, 0);
+Duration duration = Duration.between(start, end);
+System.out.println(duration.toHours() + " hours");  // 8 hours
+\`\`\`
+
+**3. LocalDateTime - Date and time:**
+\`\`\`java
+// Create date-times
+LocalDateTime now = LocalDateTime.now();
+LocalDateTime meeting = LocalDateTime.of(2024, 1, 15, 14, 30);
+LocalDateTime combined = LocalDateTime.of(LocalDate.now(), LocalTime.now());
+
+// Operations
+LocalDateTime nextHour = now.plusHours(1);
+LocalDateTime yesterday = now.minusDays(1);
+
+// Extract components
+LocalDate date = now.toLocalDate();
+LocalTime time = now.toLocalTime();
+\`\`\`
+
+**4. ZonedDateTime - With timezone:**
+\`\`\`java
+// Create with timezone
+ZonedDateTime nowInNY = ZonedDateTime.now(ZoneId.of("America/New_York"));
+ZonedDateTime nowInTokyo = ZonedDateTime.now(ZoneId.of("Asia/Tokyo"));
+
+// Convert between timezones
+ZonedDateTime meeting = ZonedDateTime.of(
+    LocalDateTime.of(2024, 1, 15, 10, 0),
+    ZoneId.of("America/New_York")
+);
+ZonedDateTime meetingInTokyo = meeting.withZoneSameInstant(ZoneId.of("Asia/Tokyo"));
+
+// Get all available timezones
+Set<String> zones = ZoneId.getAvailableZoneIds();
+\`\`\`
+
+**5. Instant - Timestamp (UTC):**
+\`\`\`java
+// Unix timestamp (seconds since epoch)
+Instant now = Instant.now();
+long epochSecond = now.getEpochSecond();
+long epochMilli = now.toEpochMilli();
+
+// Create from timestamp
+Instant fromEpoch = Instant.ofEpochSecond(1640000000);
+
+// Convert to ZonedDateTime
+ZonedDateTime zdt = now.atZone(ZoneId.systemDefault());
+
+// Duration between instants
+Instant start = Instant.parse("2024-01-01T00:00:00Z");
+Instant end = Instant.now();
+Duration duration = Duration.between(start, end);
+\`\`\`
+
+**6. Period and Duration:**
+\`\`\`java
+// Period: Date-based (years, months, days)
+Period period = Period.of(1, 6, 15);  // 1 year, 6 months, 15 days
+Period period2 = Period.between(
+    LocalDate.of(2020, 1, 1),
+    LocalDate.of(2024, 1, 1)
+);
+
+LocalDate future = LocalDate.now().plus(period);
+
+// Duration: Time-based (hours, minutes, seconds, nanos)
+Duration duration = Duration.ofHours(2);
+Duration duration2 = Duration.ofMinutes(30);
+Duration duration3 = Duration.between(
+    LocalTime.of(9, 0),
+    LocalTime.of(17, 0)
+);
+
+LocalTime later = LocalTime.now().plus(duration);
+\`\`\`
+
+**7. DateTimeFormatter - Formatting:**
+\`\`\`java
+// Predefined formatters
+LocalDateTime now = LocalDateTime.now();
+String iso = now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+String basic = now.format(DateTimeFormatter.BASIC_ISO_DATE);
+
+// Custom formatters
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+String formatted = now.format(formatter);  // "2024-01-15 14:30:45"
+
+// Parsing
+LocalDateTime parsed = LocalDateTime.parse("2024-01-15 14:30:45", formatter);
+
+// Localized formatters
+DateTimeFormatter french = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.FRENCH);
+String frenchDate = LocalDate.now().format(french);  // "15 janvier 2024"
+\`\`\`
+
+**Real-World Examples:**
+
+**1. Calculate age:**
+\`\`\`java
+public int calculateAge(LocalDate birthDate) {
+    return Period.between(birthDate, LocalDate.now()).getYears();
+}
+
+LocalDate birthday = LocalDate.of(1990, 3, 15);
+int age = calculateAge(birthday);  // 34
+\`\`\`
+
+**2. Business days calculation:**
+\`\`\`java
+public long getBusinessDays(LocalDate start, LocalDate end) {
+    return start.datesUntil(end.plusDays(1))
+        .filter(date -> {
+            DayOfWeek day = date.getDayOfWeek();
+            return day != DayOfWeek.SATURDAY && day != DayOfWeek.SUNDAY;
+        })
+        .count();
+}
+\`\`\`
+
+**3. Meeting scheduler across timezones:**
+\`\`\`java
+ZonedDateTime meetingNY = ZonedDateTime.of(
+    LocalDate.of(2024, 1, 15),
+    LocalTime.of(10, 0),
+    ZoneId.of("America/New_York")
+);
+
+// When is this in Tokyo?
+ZonedDateTime meetingTokyo = meetingNY.withZoneSameInstant(ZoneId.of("Asia/Tokyo"));
+System.out.println("Tokyo time: " + meetingTokyo.format(
+    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm z")
+));
+\`\`\`
+
+**4. Check if date is in past/future:**
+\`\`\`java
+public boolean isExpired(LocalDate expiryDate) {
+    return expiryDate.isBefore(LocalDate.now());
+}
+
+public boolean isUpcoming(LocalDateTime eventTime) {
+    return eventTime.isAfter(LocalDateTime.now());
+}
+\`\`\`
+
+**5. Calculate deadline:**
+\`\`\`java
+public LocalDateTime getDeadline(int hoursFromNow) {
+    return LocalDateTime.now().plusHours(hoursFromNow);
+}
+
+// 48 hours from now
+LocalDateTime deadline = getDeadline(48);
+\`\`\`
+
+**6. Working with databases:**
+\`\`\`java
+// Save to database (convert to Timestamp/Date)
+LocalDateTime ldt = LocalDateTime.now();
+Timestamp timestamp = Timestamp.valueOf(ldt);
+
+// Read from database (convert from Timestamp)
+Timestamp ts = resultSet.getTimestamp("created_at");
+LocalDateTime dateTime = ts.toLocalDateTime();
+
+// Modern JDBC drivers support java.time directly
+PreparedStatement ps = conn.prepareStatement("INSERT INTO events VALUES (?, ?)");
+ps.setObject(1, LocalDateTime.now());
+ps.setObject(2, ZonedDateTime.now());
+\`\`\`
+
+**7. Temporal adjusters:**
+\`\`\`java
+// Next Monday
+LocalDate nextMonday = LocalDate.now()
+    .with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+
+// Last day of month
+LocalDate lastDayOfMonth = LocalDate.now()
+    .with(TemporalAdjusters.lastDayOfMonth());
+
+// First day of next month
+LocalDate firstDayNextMonth = LocalDate.now()
+    .with(TemporalAdjusters.firstDayOfNextMonth());
+
+// Next working day (Monday-Friday)
+LocalDate nextWorkday = LocalDate.now()
+    .with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+\`\`\`
+
+**Thread Safety:**
+\`\`\`java
+// Old way - NOT thread-safe
+SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+// Multiple threads using sdf can cause errors!
+
+// Java 8 - Thread-safe (immutable)
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+// Safe to use across multiple threads
+
+// All java.time classes are immutable and thread-safe
+LocalDate date = LocalDate.now();
+LocalDate tomorrow = date.plusDays(1);  // Creates NEW object
+// Original date unchanged
+\`\`\`
+
+**Comparison Table:**
+
+| Old API | Java 8 API |
+|---------|------------|
+| Date | LocalDate, LocalDateTime, Instant |
+| Calendar | LocalDate, LocalDateTime |
+| SimpleDateFormat | DateTimeFormatter |
+| Mutable | Immutable |
+| Not thread-safe | Thread-safe |
+| Month 0-11 | Month 1-12 |
+| Complex API | Clean, fluent API |
+
+**Best Practices:**
+✓ Use LocalDate for dates without time
+✓ Use LocalTime for time without date
+✓ Use LocalDateTime for date+time without timezone
+✓ Use ZonedDateTime when timezone matters
+✓ Use Instant for timestamps (database, logs)
+✓ Always use DateTimeFormatter (thread-safe)
+✓ Leverage immutability (thread-safe by design)
+✓ Use TemporalAdjusters for complex date logic
+✓ Store UTC in database, convert to local timezone in UI
+
+**Migration from Old API:**
+\`\`\`java
+// Date to LocalDateTime
+Date date = new Date();
+LocalDateTime ldt = LocalDateTime.ofInstant(
+    date.toInstant(),
+    ZoneId.systemDefault()
+);
+
+// LocalDateTime to Date
+LocalDateTime localDateTime = LocalDateTime.now();
+Date dateFromLdt = Date.from(
+    localDateTime.atZone(ZoneId.systemDefault()).toInstant()
+);
+\`\`\``
+    },
+    {
+      id: 8,
+      category: 'CompletableFuture',
+      difficulty: 'Hard',
+      question: 'Explain CompletableFuture in Java 8. How does it improve asynchronous programming?',
+      answer: `**CompletableFuture Overview:**
+
+Java 8's CompletableFuture is a powerful tool for asynchronous, non-blocking programming. It extends Future interface and implements CompletionStage, providing a rich API for composing asynchronous operations.
+
+**Problems with Future:**
+\`\`\`java
+// Old way with Future
+ExecutorService executor = Executors.newFixedThreadPool(10);
+Future<String> future = executor.submit(() -> {
+    Thread.sleep(1000);
+    return "Result";
+});
+
+// Blocking wait - defeats async purpose!
+String result = future.get();  // Blocks until complete
+
+// No way to chain operations
+// No exception handling
+// No combining multiple futures
+\`\`\`
+
+**CompletableFuture Basics:**
+
+**1. Creating CompletableFuture:**
+\`\`\`java
+// Already completed future
+CompletableFuture<String> completed = CompletableFuture.completedFuture("Hello");
+
+// Async computation (uses ForkJoinPool.commonPool())
+CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+    // Long running task
+    return "Result";
+});
+
+// With custom executor
+ExecutorService executor = Executors.newFixedThreadPool(10);
+CompletableFuture<String> future2 = CompletableFuture.supplyAsync(() -> {
+    return "Result";
+}, executor);
+
+// Async runnable (returns Void)
+CompletableFuture<Void> voidFuture = CompletableFuture.runAsync(() -> {
+    System.out.println("Task executed");
+});
+\`\`\`
+
+**2. Transformation (thenApply):**
+\`\`\`java
+CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> "Hello");
+
+CompletableFuture<String> upperCase = future.thenApply(s -> s.toUpperCase());
+CompletableFuture<Integer> length = upperCase.thenApply(String::length);
+
+// Chain multiple transformations
+CompletableFuture<Integer> result = CompletableFuture
+    .supplyAsync(() -> "Hello World")
+    .thenApply(String::toUpperCase)  // "HELLO WORLD"
+    .thenApply(String::length);      // 11
+
+System.out.println(result.get());  // 11
+\`\`\`
+
+**3. Consumption (thenAccept, thenRun):**
+\`\`\`java
+// thenAccept - Consume result
+CompletableFuture.supplyAsync(() -> "Hello")
+    .thenAccept(s -> System.out.println("Result: " + s));
+
+// thenRun - Run action (no access to result)
+CompletableFuture.supplyAsync(() -> "Hello")
+    .thenRun(() -> System.out.println("Task completed"));
+
+// Chaining
+CompletableFuture.supplyAsync(() -> 42)
+    .thenAccept(n -> System.out.println("Number: " + n))
+    .thenRun(() -> System.out.println("All done!"));
+\`\`\`
+
+**4. Combining Futures (thenCompose):**
+\`\`\`java
+// Sequential async operations
+CompletableFuture<String> future = CompletableFuture
+    .supplyAsync(() -> "User123")
+    .thenCompose(userId -> getUserDetails(userId))  // Returns CompletableFuture
+    .thenCompose(user -> getOrderHistory(user));     // Returns CompletableFuture
+
+// Example methods
+CompletableFuture<User> getUserDetails(String userId) {
+    return CompletableFuture.supplyAsync(() -> {
+        // Fetch user from database
+        return new User(userId);
+    });
+}
+
+CompletableFuture<List<Order>> getOrderHistory(User user) {
+    return CompletableFuture.supplyAsync(() -> {
+        // Fetch orders from database
+        return fetchOrders(user.getId());
+    });
+}
+\`\`\`
+
+**5. Combining Multiple Futures (thenCombine):**
+\`\`\`java
+// Run two async tasks and combine results
+CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> 10);
+CompletableFuture<Integer> future2 = CompletableFuture.supplyAsync(() -> 20);
+
+CompletableFuture<Integer> combined = future1.thenCombine(
+    future2,
+    (result1, result2) -> result1 + result2
+);
+
+System.out.println(combined.get());  // 30
+
+// Real-world example: Parallel API calls
+CompletableFuture<User> userFuture = fetchUser(userId);
+CompletableFuture<Orders> ordersFuture = fetchOrders(userId);
+
+CompletableFuture<UserProfile> profile = userFuture.thenCombine(
+    ordersFuture,
+    (user, orders) -> new UserProfile(user, orders)
+);
+\`\`\`
+
+**6. Waiting for All/Any:**
+\`\`\`java
+// Wait for all futures (allOf)
+CompletableFuture<String> future1 = CompletableFuture.supplyAsync(() -> "Task1");
+CompletableFuture<String> future2 = CompletableFuture.supplyAsync(() -> "Task2");
+CompletableFuture<String> future3 = CompletableFuture.supplyAsync(() -> "Task3");
+
+CompletableFuture<Void> allFutures = CompletableFuture.allOf(future1, future2, future3);
+
+// Wait for all to complete
+allFutures.get();
+
+// Get all results
+List<String> results = Stream.of(future1, future2, future3)
+    .map(CompletableFuture::join)  // join() doesn't throw checked exception
+    .collect(Collectors.toList());
+
+// Wait for any future (anyOf)
+CompletableFuture<Object> anyFuture = CompletableFuture.anyOf(future1, future2, future3);
+Object firstResult = anyFuture.get();  // First one to complete
+\`\`\`
+
+**7. Exception Handling:**
+\`\`\`java
+// handle - Transform result or exception
+CompletableFuture<String> future = CompletableFuture
+    .supplyAsync(() -> {
+        if (Math.random() > 0.5) {
+            throw new RuntimeException("Error!");
+        }
+        return "Success";
+    })
+    .handle((result, ex) -> {
+        if (ex != null) {
+            return "Error: " + ex.getMessage();
+        }
+        return result;
+    });
+
+// exceptionally - Recover from exception
+CompletableFuture<String> future2 = CompletableFuture
+    .supplyAsync(() -> {
+        throw new RuntimeException("Failed!");
+    })
+    .exceptionally(ex -> {
+        System.out.println("Caught: " + ex.getMessage());
+        return "Default Value";
+    });
+
+// whenComplete - Execute action on completion (doesn't transform)
+CompletableFuture<String> future3 = CompletableFuture
+    .supplyAsync(() -> "Result")
+    .whenComplete((result, ex) -> {
+        if (ex != null) {
+            System.out.println("Failed: " + ex);
+        } else {
+            System.out.println("Success: " + result);
+        }
+    });
+\`\`\`
+
+**8. Async variants:**
+\`\`\`java
+// Sync version - runs in same thread
+future.thenApply(String::toUpperCase);
+
+// Async version - runs in ForkJoinPool
+future.thenApplyAsync(String::toUpperCase);
+
+// Async with custom executor
+ExecutorService executor = Executors.newFixedThreadPool(10);
+future.thenApplyAsync(String::toUpperCase, executor);
+
+// All transformation methods have async variants:
+// thenApply -> thenApplyAsync
+// thenAccept -> thenAcceptAsync
+// thenRun -> thenRunAsync
+// thenCompose -> thenComposeAsync
+// thenCombine -> thenCombineAsync
+\`\`\`
+
+**Real-World Examples:**
+
+**1. Parallel API calls:**
+\`\`\`java
+public CompletableFuture<Dashboard> getDashboard(String userId) {
+    CompletableFuture<User> userFuture = fetchUser(userId);
+    CompletableFuture<Orders> ordersFuture = fetchOrders(userId);
+    CompletableFuture<Recommendations> recosFuture = fetchRecommendations(userId);
+
+    return CompletableFuture.allOf(userFuture, ordersFuture, recosFuture)
+        .thenApply(v -> new Dashboard(
+            userFuture.join(),
+            ordersFuture.join(),
+            recosFuture.join()
+        ));
+}
+\`\`\`
+
+**2. Timeout handling:**
+\`\`\`java
+CompletableFuture<String> future = CompletableFuture
+    .supplyAsync(() -> slowOperation())
+    .orTimeout(5, TimeUnit.SECONDS)  // Java 9+
+    .exceptionally(ex -> "Timeout!");
+
+// Java 8 alternative
+CompletableFuture<String> timeoutFuture = CompletableFuture
+    .supplyAsync(() -> slowOperation())
+    .applyToEither(
+        timeoutAfter(5, TimeUnit.SECONDS),
+        Function.identity()
+    );
+\`\`\`
+
+**3. Retry logic:**
+\`\`\`java
+public CompletableFuture<String> retryOperation(int maxRetries) {
+    return CompletableFuture
+        .supplyAsync(() -> riskyOperation())
+        .exceptionally(ex -> {
+            if (maxRetries > 0) {
+                return retryOperation(maxRetries - 1).join();
+            }
+            throw new RuntimeException("Max retries exceeded", ex);
+        });
+}
+\`\`\`
+
+**4. Fan-out/Fan-in pattern:**
+\`\`\`java
+public CompletableFuture<List<Result>> processItems(List<Item> items) {
+    List<CompletableFuture<Result>> futures = items.stream()
+        .map(item -> CompletableFuture.supplyAsync(() -> process(item)))
+        .collect(Collectors.toList());
+
+    return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+        .thenApply(v -> futures.stream()
+            .map(CompletableFuture::join)
+            .collect(Collectors.toList())
+        );
+}
+\`\`\`
+
+**5. Caching with async loading:**
+\`\`\`java
+Map<String, CompletableFuture<Data>> cache = new ConcurrentHashMap<>();
+
+public CompletableFuture<Data> getData(String key) {
+    return cache.computeIfAbsent(key, k ->
+        CompletableFuture.supplyAsync(() -> loadFromDatabase(k))
+    );
+}
+\`\`\`
+
+**Performance Considerations:**
+
+**Thread pool sizing:**
+\`\`\`java
+// ForkJoinPool.commonPool() size
+int parallelism = Runtime.getRuntime().availableProcessors();
+
+// Custom thread pool for I/O operations
+ExecutorService ioExecutor = Executors.newFixedThreadPool(50);
+
+// Custom thread pool for CPU operations
+ExecutorService cpuExecutor = Executors.newFixedThreadPool(
+    Runtime.getRuntime().availableProcessors()
+);
+\`\`\`
+
+**Best Practices:**
+✓ Use supplyAsync for computation returning value
+✓ Use runAsync for void operations
+✓ Use thenCompose for sequential async operations
+✓ Use thenCombine for parallel operations
+✓ Always handle exceptions (handle, exceptionally)
+✓ Use custom executor for I/O heavy tasks
+✓ Avoid blocking operations (get()) in async chain
+✓ Use join() instead of get() to avoid checked exceptions
+✓ Close custom executors when done
+✓ Be careful with ForkJoinPool.commonPool() saturation
+
+**Common Pitfalls:**
+
+**1. Blocking in async chain:**
+\`\`\`java
+// BAD: Blocking defeats async purpose
+CompletableFuture.supplyAsync(() -> task1())
+    .thenApply(result -> task2(result).get());  // Blocking!
+
+// GOOD: Chain async operations
+CompletableFuture.supplyAsync(() -> task1())
+    .thenCompose(result -> task2(result));  // Non-blocking
+\`\`\`
+
+**2. Not handling exceptions:**
+\`\`\`java
+// BAD: Exception silently lost
+CompletableFuture.supplyAsync(() -> {
+    throw new RuntimeException("Error");
+});
+
+// GOOD: Handle exceptions
+CompletableFuture.supplyAsync(() -> {
+    throw new RuntimeException("Error");
+}).exceptionally(ex -> {
+    log.error("Error occurred", ex);
+    return defaultValue;
+});
+\`\`\`
+
+**Summary:**
+CompletableFuture provides powerful asynchronous programming capabilities:
+- Non-blocking operations
+- Composition of async tasks
+- Exception handling
+- Combining multiple futures
+- Much better than plain Future interface`
+    },
+    {
+      id: 9,
+      category: 'Collectors',
+      difficulty: 'Hard',
+      question: 'Explain advanced Collectors in Java 8 Stream API with real-world examples',
+      answer: `**Java 8 Collectors:**
+
+Collectors are terminal operations that accumulate stream elements into a collection or perform reduction operations. The Collectors utility class provides many built-in collectors.
+
+**Basic Collectors:**
+
+**1. toList, toSet, toCollection:**
+\`\`\`java
+List<String> names = stream.collect(Collectors.toList());
+Set<String> uniqueNames = stream.collect(Collectors.toSet());
+LinkedList<String> linkedList = stream.collect(Collectors.toCollection(LinkedList::new));
+
+// Immutable collections (Java 10+)
+List<String> immutable = stream.collect(Collectors.toUnmodifiableList());
+\`\`\`
+
+**2. joining - String concatenation:**
+\`\`\`java
+List<String> names = List.of("Alice", "Bob", "Charlie");
+
+// Simple join
+String result = names.stream()
+    .collect(Collectors.joining());  // "AliceBobCharlie"
+
+// With delimiter
+String csv = names.stream()
+    .collect(Collectors.joining(", "));  // "Alice, Bob, Charlie"
+
+// With prefix and suffix
+String formatted = names.stream()
+    .collect(Collectors.joining(", ", "[", "]"));  // "[Alice, Bob, Charlie]"
+\`\`\`
+
+**3. counting, summing, averaging:**
+\`\`\`java
+List<Integer> numbers = List.of(1, 2, 3, 4, 5);
+
+long count = numbers.stream()
+    .collect(Collectors.counting());  // 5
+
+int sum = numbers.stream()
+    .collect(Collectors.summingInt(Integer::intValue));  // 15
+
+double average = numbers.stream()
+    .collect(Collectors.averagingInt(Integer::intValue));  // 3.0
+
+// For complex objects
+List<Product> products = getProducts();
+double totalPrice = products.stream()
+    .collect(Collectors.summingDouble(Product::getPrice));
+\`\`\`
+
+**4. summarizingInt/Long/Double - Statistics:**
+\`\`\`java
+List<Integer> numbers = List.of(1, 2, 3, 4, 5);
+
+IntSummaryStatistics stats = numbers.stream()
+    .collect(Collectors.summarizingInt(Integer::intValue));
+
+System.out.println("Count: " + stats.getCount());      // 5
+System.out.println("Sum: " + stats.getSum());          // 15
+System.out.println("Min: " + stats.getMin());          // 1
+System.out.println("Max: " + stats.getMax());          // 5
+System.out.println("Average: " + stats.getAverage());  // 3.0
+\`\`\`
+
+**Advanced Collectors:**
+
+**5. groupingBy - Group elements:**
+\`\`\`java
+class Person {
+    String name;
+    int age;
+    String city;
+}
+
+List<Person> people = getPeople();
+
+// Simple grouping
+Map<String, List<Person>> byCity = people.stream()
+    .collect(Collectors.groupingBy(Person::getCity));
+
+// Grouping with counting
+Map<String, Long> countByCity = people.stream()
+    .collect(Collectors.groupingBy(
+        Person::getCity,
+        Collectors.counting()
+    ));
+
+// Grouping with averaging
+Map<String, Double> avgAgeByCity = people.stream()
+    .collect(Collectors.groupingBy(
+        Person::getCity,
+        Collectors.averagingInt(Person::getAge)
+    ));
+
+// Nested grouping
+Map<String, Map<Integer, List<Person>>> byCityAndAge = people.stream()
+    .collect(Collectors.groupingBy(
+        Person::getCity,
+        Collectors.groupingBy(Person::getAge)
+    ));
+
+// Custom map type
+Map<String, List<Person>> sorted = people.stream()
+    .collect(Collectors.groupingBy(
+        Person::getCity,
+        TreeMap::new,  // Sorted map
+        Collectors.toList()
+    ));
+\`\`\`
+
+**6. partitioningBy - Boolean grouping:**
+\`\`\`java
+List<Integer> numbers = List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+
+// Partition into even/odd
+Map<Boolean, List<Integer>> evenOdd = numbers.stream()
+    .collect(Collectors.partitioningBy(n -> n % 2 == 0));
+
+List<Integer> even = evenOdd.get(true);   // [2, 4, 6, 8, 10]
+List<Integer> odd = evenOdd.get(false);   // [1, 3, 5, 7, 9]
+
+// With downstream collector
+Map<Boolean, Long> countEvenOdd = numbers.stream()
+    .collect(Collectors.partitioningBy(
+        n -> n % 2 == 0,
+        Collectors.counting()
+    ));
+\`\`\`
+
+**7. toMap - Convert to Map:**
+\`\`\`java
+List<Person> people = getPeople();
+
+// Simple map
+Map<String, Integer> nameToAge = people.stream()
+    .collect(Collectors.toMap(
+        Person::getName,    // Key mapper
+        Person::getAge      // Value mapper
+    ));
+
+// Handle duplicates
+Map<String, Person> nameToPersonMap = people.stream()
+    .collect(Collectors.toMap(
+        Person::getName,
+        Function.identity(),
+        (existing, replacement) -> existing  // Keep first
+    ));
+
+// Custom map type
+TreeMap<String, Integer> sorted = people.stream()
+    .collect(Collectors.toMap(
+        Person::getName,
+        Person::getAge,
+        (v1, v2) -> v1,
+        TreeMap::new
+    ));
+\`\`\`
+
+**8. collectingAndThen - Post-processing:**
+\`\`\`java
+// Create list then make it immutable
+List<String> immutableList = stream
+    .collect(Collectors.collectingAndThen(
+        Collectors.toList(),
+        Collections::unmodifiableList
+    ));
+
+// Find max then convert to Optional
+Optional<Person> youngest = people.stream()
+    .collect(Collectors.collectingAndThen(
+        Collectors.minBy(Comparator.comparing(Person::getAge)),
+        Optional::of
+    )).flatMap(Function.identity());
+\`\`\`
+
+**9. mapping - Transform then collect:**
+\`\`\`java
+// Extract names from grouped persons
+Map<String, List<String>> cityToNames = people.stream()
+    .collect(Collectors.groupingBy(
+        Person::getCity,
+        Collectors.mapping(
+            Person::getName,
+            Collectors.toList()
+        )
+    ));
+
+// Multiple transformations
+Map<String, Set<String>> cityToUpperNames = people.stream()
+    .collect(Collectors.groupingBy(
+        Person::getCity,
+        Collectors.mapping(
+            person -> person.getName().toUpperCase(),
+            Collectors.toSet()
+        )
+    ));
+\`\`\`
+
+**10. filtering - Filter during collection:**
+\`\`\`java
+// Group only adults
+Map<String, List<Person>> cityToAdults = people.stream()
+    .collect(Collectors.groupingBy(
+        Person::getCity,
+        Collectors.filtering(
+            person -> person.getAge() >= 18,
+            Collectors.toList()
+        )
+    ));
+\`\`\`
+
+**11. flatMapping - Flatten during collection:**
+\`\`\`java
+class Department {
+    String name;
+    List<Employee> employees;
+}
+
+List<Department> departments = getDepartments();
+
+// Get all employee names by department
+Map<String, List<String>> deptToEmployeeNames = departments.stream()
+    .collect(Collectors.groupingBy(
+        Department::getName,
+        Collectors.flatMapping(
+            dept -> dept.getEmployees().stream().map(Employee::getName),
+            Collectors.toList()
+        )
+    ));
+\`\`\`
+
+**12. reducing - Custom reduction:**
+\`\`\`java
+// Sum with reducing
+Optional<Integer> sum = numbers.stream()
+    .collect(Collectors.reducing(Integer::sum));
+
+// With identity
+Integer sum2 = numbers.stream()
+    .collect(Collectors.reducing(0, Integer::sum));
+
+// With mapper
+Integer totalLength = words.stream()
+    .collect(Collectors.reducing(
+        0,                    // Identity
+        String::length,       // Mapper
+        Integer::sum          // Reducer
+    ));
+\`\`\`
+
+**Real-World Examples:**
+
+**1. Sales Analysis:**
+\`\`\`java
+class Sale {
+    String product;
+    String region;
+    double amount;
+    LocalDate date;
+}
+
+List<Sale> sales = getSales();
+
+// Total sales by region
+Map<String, Double> salesByRegion = sales.stream()
+    .collect(Collectors.groupingBy(
+        Sale::getRegion,
+        Collectors.summingDouble(Sale::getAmount)
+    ));
+
+// Top 3 products by sales
+List<String> topProducts = sales.stream()
+    .collect(Collectors.groupingBy(
+        Sale::getProduct,
+        Collectors.summingDouble(Sale::getAmount)
+    ))
+    .entrySet().stream()
+    .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+    .limit(3)
+    .map(Map.Entry::getKey)
+    .collect(Collectors.toList());
+
+// Monthly sales summary
+Map<Month, DoubleSummaryStatistics> monthlySales = sales.stream()
+    .collect(Collectors.groupingBy(
+        sale -> sale.getDate().getMonth(),
+        Collectors.summarizingDouble(Sale::getAmount)
+    ));
+\`\`\`
+
+**2. Student Grade Analysis:**
+\`\`\`java
+class Student {
+    String name;
+    String subject;
+    int score;
+}
+
+List<Student> students = getStudents();
+
+// Average score by subject
+Map<String, Double> avgBySubject = students.stream()
+    .collect(Collectors.groupingBy(
+        Student::getSubject,
+        Collectors.averagingInt(Student::getScore)
+    ));
+
+// Pass/Fail partition
+Map<Boolean, List<Student>> passFailBySubject = students.stream()
+    .collect(Collectors.partitioningBy(s -> s.getScore() >= 60));
+
+// Top performer per subject
+Map<String, Optional<Student>> topBySubject = students.stream()
+    .collect(Collectors.groupingBy(
+        Student::getSubject,
+        Collectors.maxBy(Comparator.comparing(Student::getScore))
+    ));
+\`\`\`
+
+**3. Inventory Management:**
+\`\`\`java
+class Product {
+    String category;
+    String name;
+    int quantity;
+    double price;
+}
+
+List<Product> inventory = getInventory();
+
+// Low stock items by category
+Map<String, List<Product>> lowStockByCategory = inventory.stream()
+    .filter(p -> p.getQuantity() < 10)
+    .collect(Collectors.groupingBy(Product::getCategory));
+
+// Total inventory value by category
+Map<String, Double> valueByCategory = inventory.stream()
+    .collect(Collectors.groupingBy(
+        Product::getCategory,
+        Collectors.summingDouble(p -> p.getPrice() * p.getQuantity())
+    ));
+\`\`\`
+
+**Custom Collector:**
+\`\`\`java
+// Create custom collector for specific use case
+public static Collector<String, ?, String> toCommaSeparatedString() {
+    return Collector.of(
+        StringBuilder::new,                    // Supplier
+        (sb, s) -> {                          // Accumulator
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(s);
+        },
+        (sb1, sb2) -> {                       // Combiner
+            if (sb1.length() > 0) sb1.append(", ");
+            return sb1.append(sb2);
+        },
+        StringBuilder::toString               // Finisher
+    );
+}
+
+// Usage
+String result = names.stream()
+    .collect(toCommaSeparatedString());
+\`\`\`
+
+**Best Practices:**
+✓ Use appropriate collector for the task
+✓ Combine collectors for complex aggregations
+✓ Use downstream collectors for nested grouping
+✓ Consider custom collectors for reusable logic
+✓ Be aware of performance with large datasets
+✓ Use parallel streams carefully with collectors
+✓ Prefer built-in collectors over custom ones
+✓ Use meaningful variable names for map keys
+
+**Performance Tips:**
+- toList() is faster than toCollection()
+- Parallel streams can improve groupingBy performance
+- Use primitive stream collectors (summingInt vs summingDouble)
+- Consider memory usage with large groupings`
+    },
+    {
+      id: 10,
+      category: 'Nashorn JavaScript',
+      difficulty: 'Medium',
+      question: 'What was Nashorn JavaScript Engine in Java 8? Why was it deprecated?',
+      answer: `**Nashorn JavaScript Engine:**
+
+**Overview:**
+Nashorn was a JavaScript engine introduced in Java 8 to replace the older Rhino engine. It allowed executing JavaScript code from Java and vice versa. However, it was deprecated in Java 11 and removed in Java 15.
+
+**Basic Usage:**
+
+**1. Execute JavaScript from Java:**
+\`\`\`java
+import javax.script.*;
+
+ScriptEngineManager manager = new ScriptEngineManager();
+ScriptEngine engine = manager.getEngineByName("nashorn");
+
+// Execute JavaScript code
+Object result = engine.eval("var x = 10; var y = 20; x + y;");
+System.out.println(result);  // 30
+
+// Execute JavaScript file
+engine.eval(new FileReader("script.js"));
+\`\`\`
+
+**2. Pass variables between Java and JavaScript:**
+\`\`\`java
+ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+
+// Set variable in JavaScript
+engine.put("name", "John");
+engine.put("age", 30);
+
+// Use in JavaScript
+engine.eval("print('Hello ' + name + ', age: ' + age)");
+
+// Get result back
+engine.eval("var result = age * 2");
+Object result = engine.get("result");
+System.out.println(result);  // 60
+\`\`\`
+
+**3. Call Java methods from JavaScript:**
+\`\`\`java
+public class JavaClass {
+    public String greet(String name) {
+        return "Hello, " + name;
+    }
+}
+
+// In Java
+ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+engine.put("javaObj", new JavaClass());
+
+// In JavaScript
+engine.eval("var greeting = javaObj.greet('World')");
+engine.eval("print(greeting)");  // Hello, World
+\`\`\`
+
+**4. Use Java classes in JavaScript:**
+\`\`\`javascript
+// Access Java classes
+var ArrayList = Java.type("java.util.ArrayList");
+var list = new ArrayList();
+list.add("Item 1");
+list.add("Item 2");
+print(list.size());  // 2
+
+// Use Java 8 Streams
+var Stream = Java.type("java.util.stream.Stream");
+var result = Stream.of("a", "b", "c")
+    .map(function(s) { return s.toUpperCase(); })
+    .toArray();
+\`\`\`
+
+**5. Invoke JavaScript functions from Java:**
+\`\`\`java
+ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+
+// Define JavaScript function
+engine.eval("function multiply(a, b) { return a * b; }");
+
+// Get invocable interface
+Invocable invocable = (Invocable) engine;
+
+// Call JavaScript function
+Object result = invocable.invokeFunction("multiply", 5, 3);
+System.out.println(result);  // 15
+\`\`\`
+
+**6. Implement Java interface with JavaScript:**
+\`\`\`java
+interface Calculator {
+    int calculate(int a, int b);
+}
+
+ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+
+// Define JavaScript implementation
+engine.eval("var calc = { calculate: function(a, b) { return a + b; } }");
+
+// Get Java interface
+Invocable invocable = (Invocable) engine;
+Calculator calculator = invocable.getInterface(
+    engine.get("calc"),
+    Calculator.class
+);
+
+// Use as Java object
+int result = calculator.calculate(10, 20);
+System.out.println(result);  // 30
+\`\`\`
+
+**Real-World Use Cases:**
+
+**1. Dynamic business rules:**
+\`\`\`java
+// Store rules in database as JavaScript
+String rule = "function validateAge(age) { return age >= 18 && age <= 65; }";
+
+ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+engine.eval(rule);
+
+Invocable invocable = (Invocable) engine;
+boolean isValid = (boolean) invocable.invokeFunction("validateAge", 25);
+\`\`\`
+
+**2. Template engine:**
+\`\`\`java
+String template = "Hello ${name}, your order #${orderId} is ${status}";
+Map<String, Object> data = Map.of(
+    "name", "John",
+    "orderId", 12345,
+    "status", "shipped"
+);
+
+// Process template with JavaScript
+ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+data.forEach(engine::put);
+String result = (String) engine.eval("'" + template.replaceAll("\\$\\{(\\w+)\\}", "' + $1 + '") + "'");
+\`\`\`
+
+**3. Configuration DSL:**
+\`\`\`javascript
+// config.js - User-friendly configuration
+config({
+    server: {
+        port: 8080,
+        host: "localhost"
+    },
+    database: {
+        url: "jdbc:mysql://localhost:3306/db",
+        username: "root"
+    }
+});
+\`\`\`
+
+**Why Nashorn was Deprecated:**
+
+**1. Maintenance Burden:**
+- JavaScript evolves rapidly (ES6, ES7, etc.)
+- Nashorn couldn't keep up with ECMAScript standards
+- Significant engineering effort to maintain
+
+**2. Performance Issues:**
+- Slower than modern JavaScript engines (V8, SpiderMonkey)
+- Not optimized for newer JavaScript features
+- Better alternatives available
+
+**3. Better Alternatives:**
+- GraalVM JavaScript (faster, ES6+ support)
+- External JavaScript engines (Node.js via REST)
+- JVM scripting alternatives (Groovy, Kotlin scripting)
+
+**4. Limited Adoption:**
+- Not widely used in production
+- Specialized use cases only
+- Modern microservices prefer dedicated JS runtime
+
+**Migration Path:**
+
+**From Nashorn to GraalVM JavaScript:**
+\`\`\`java
+// Old (Nashorn)
+ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+
+// New (GraalVM)
+// Add dependency: org.graalvm.js:js-scriptengine
+ScriptEngine engine = new ScriptEngineManager().getEngineByName("graal.js");
+
+// Same API, better performance and ES6+ support
+\`\`\`
+
+**Alternative: Use external JavaScript runtime:**
+\`\`\`java
+// Call Node.js via HTTP/gRPC
+HttpClient client = HttpClient.newHttpClient();
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("http://localhost:3000/execute"))
+    .POST(HttpRequest.BodyPublishers.ofString(jsCode))
+    .build();
+
+HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+\`\`\`
+
+**Timeline:**
+- Java 8 (2014): Nashorn introduced
+- Java 11 (2018): Nashorn deprecated
+- Java 15 (2020): Nashorn removed
+
+**Best Practices (Historical):**
+✓ Cache ScriptEngine instances (expensive to create)
+✓ Use Invocable for better performance
+✓ Handle JavaScript exceptions properly
+✓ Be careful with type conversions
+✓ Consider security implications
+✓ Test JavaScript code thoroughly
+
+**Security Concerns:**
+\`\`\`java
+// Restrict access to Java classes
+ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+
+// Can access sensitive Java APIs!
+engine.eval("java.lang.System.exit(0)");  // Dangerous!
+
+// Use ClassFilter to restrict access (Nashorn-specific)
+NashornScriptEngineFactory factory = new NashornScriptEngineFactory();
+ScriptEngine secureEngine = factory.getScriptEngine(new ClassFilter() {
+    @Override
+    public boolean exposeToScripts(String className) {
+        // Only allow specific classes
+        return className.startsWith("com.myapp.safe.");
+    }
+});
+\`\`\`
+
+**Modern Alternatives:**
+1. **GraalVM JavaScript** - ES6+ support, better performance
+2. **Groovy** - Dynamic JVM language with better Java integration
+3. **Kotlin Scripting** - Type-safe scripting
+4. **External JS Runtime** - Node.js, Deno via REST/gRPC
+5. **Rule Engines** - Drools, Easy Rules for business logic
+
+**Summary:**
+Nashorn was Java 8's JavaScript engine for embedding JS in Java applications. It was deprecated due to maintenance burden and better alternatives (GraalVM JS). For new projects, use GraalVM JavaScript or external JavaScript runtimes instead.`
     }
   ]
 

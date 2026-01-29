@@ -4800,6 +4800,11 @@ function App() {
       setSelectedOptionAndRef('')
       return null
     }
+    if (selectedOption === 'Binary Trees') {
+      setShowBinaryTreesModal(true)
+      setSelectedOptionAndRef('')
+      return null
+    }
     if (selectedOption === 'Graphs') {
       setShowGraphsModal(true)
       setSelectedOptionAndRef('')
@@ -4812,6 +4817,21 @@ function App() {
     }
     if (selectedOption === 'Queues') {
       setShowQueuesModal(true)
+      setSelectedOptionAndRef('')
+      return null
+    }
+    if (selectedOption === 'Two Pointers') {
+      setShowTwoPointersModal(true)
+      setSelectedOptionAndRef('')
+      return null
+    }
+    if (selectedOption === 'Sliding Window') {
+      setShowSlidingWindowModal(true)
+      setSelectedOptionAndRef('')
+      return null
+    }
+    if (selectedOption === 'Backtracking') {
+      setShowBacktrackingModal(true)
       setSelectedOptionAndRef('')
       return null
     }

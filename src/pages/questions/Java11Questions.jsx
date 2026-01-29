@@ -588,6 +588,922 @@ Files.writeString(Paths.get("output.txt"), processed);
 - No need to handle byte arrays
 - Built-in charset handling
 - Better readability`
+    },
+    {
+      id: 5,
+      category: 'Advanced',
+      question: 'What are the limitations of var in Java 11? When can\'t you use it?',
+      answer: `**var Limitations:**
+
+**1. Cannot use in fields:**
+\`\`\`java
+class User {
+    var name = "Alice";  // ❌ Compile error
+    private String name = "Alice";  // ✓ Must use explicit type
+}
+\`\`\`
+
+**2. Cannot use in method parameters:**
+\`\`\`java
+public void process(var data) {  // ❌ Compile error
+    // Must use explicit type
+}
+
+public void process(String data) {  // ✓ Correct
+    // ...
+}
+\`\`\`
+
+**3. Cannot use in method return types:**
+\`\`\`java
+public var getName() {  // ❌ Compile error
+    return "Alice";
+}
+
+public String getName() {  // ✓ Correct
+    return "Alice";
+}
+\`\`\`
+
+**4. Cannot use without initializer:**
+\`\`\`java
+var x;  // ❌ Compile error - cannot infer type
+x = 10;
+
+var x = 10;  // ✓ Type inferred as int
+\`\`\`
+
+**5. Cannot use with null initializer:**
+\`\`\`java
+var name = null;  // ❌ Compile error - cannot infer type
+
+var name = (String) null;  // ✓ Workaround with cast
+String name = null;  // ✓ Better - use explicit type
+\`\`\`
+
+**6. Cannot use with lambda without target type:**
+\`\`\`java
+var func = x -> x * 2;  // ❌ Compile error
+
+Function<Integer, Integer> func = x -> x * 2;  // ✓ Explicit
+var func = (Function<Integer, Integer>) (x -> x * 2);  // ✓ With cast
+\`\`\`
+
+**7. Cannot use with method references:**
+\`\`\`java
+var printer = System.out::println;  // ❌ Compile error
+
+Consumer<String> printer = System.out::println;  // ✓ Explicit type
+\`\`\`
+
+**8. Cannot use with array initializer:**
+\`\`\`java
+var numbers = {1, 2, 3};  // ❌ Compile error
+
+var numbers = new int[]{1, 2, 3};  // ✓ With new keyword
+int[] numbers = {1, 2, 3};  // ✓ Explicit type
+\`\`\`
+
+**9. Diamond operator complications:**
+\`\`\`java
+// Infers ArrayList<Object> - not what you want!
+var list = new ArrayList<>();
+list.add("string");
+list.add(123);  // Both allowed!
+
+// Better: specify type
+var list = new ArrayList<String>();
+List<String> list = new ArrayList<>();  // Or explicit
+\`\`\`
+
+**10. Problematic with conditional expressions:**
+\`\`\`java
+var result = condition ? 1 : 2.0;  // Type is double (wider type)
+// Might not be what you expect
+
+var result = condition ? "yes" : null;  // ❌ Compile error
+// Cannot infer common type
+\`\`\`
+
+**Best Practices:**
+
+**Use var when:**
+\`\`\`java
+// 1. Type is obvious from right-hand side
+var user = new User();
+var numbers = List.of(1, 2, 3);
+var stream = list.stream();
+
+// 2. Reduces verbosity
+var connection = DriverManager.getConnection(url, user, password);
+// Instead of: Connection connection = ...
+
+// 3. With builder pattern
+var request = HttpRequest.newBuilder()
+    .uri(URI.create("https://example.com"))
+    .build();
+\`\`\`
+
+**Avoid var when:**
+\`\`\`java
+// 1. Type not obvious
+var data = getData();  // What type is returned?
+SomeType data = getData();  // Clear
+
+// 2. Using with literals that might surprise
+var number = 10;  // int, not Integer or long
+var flag = true;  // boolean, not Boolean
+
+// 3. Reduces readability
+var x = y.process().transform().filter();  // What type is x?
+\`\`\`
+
+**Interview Trap Question:**
+\`\`\`java
+// What's the type of result?
+var result = List.of(1, 2, 3).stream()
+    .filter(x -> x > 1)
+    .toArray();
+
+// Answer: Object[], not Integer[]!
+// Better:
+Integer[] result = List.of(1, 2, 3).stream()
+    .filter(x -> x > 1)
+    .toArray(Integer[]::new);
+\`\`\``
+    },
+    {
+      id: 6,
+      category: 'Advanced',
+      question: 'Explain Java 11\'s new HttpClient with async/reactive patterns and performance optimizations',
+      answer: `**Advanced HttpClient Features:**
+
+**1. Asynchronous Non-Blocking Requests:**
+\`\`\`java
+HttpClient client = HttpClient.newBuilder()
+    .version(HttpClient.Version.HTTP_2)
+    .connectTimeout(Duration.ofSeconds(10))
+    .build();
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.example.com/data"))
+    .GET()
+    .build();
+
+// Async request returns CompletableFuture
+CompletableFuture<HttpResponse<String>> future =
+    client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+
+// Non-blocking - continue processing
+System.out.println("Request sent, doing other work...");
+
+// Handle response asynchronously
+future.thenApply(HttpResponse::body)
+      .thenAccept(body -> System.out.println("Response: " + body))
+      .exceptionally(ex -> {
+          System.err.println("Request failed: " + ex.getMessage());
+          return null;
+      });
+\`\`\`
+
+**2. Multiple Parallel Requests:**
+\`\`\`java
+List<String> urls = List.of(
+    "https://api1.example.com/data",
+    "https://api2.example.com/data",
+    "https://api3.example.com/data"
+);
+
+// Send all requests in parallel
+List<CompletableFuture<HttpResponse<String>>> futures = urls.stream()
+    .map(url -> HttpRequest.newBuilder()
+        .uri(URI.create(url))
+        .build())
+    .map(request -> client.sendAsync(request,
+        HttpResponse.BodyHandlers.ofString()))
+    .collect(Collectors.toList());
+
+// Wait for all to complete
+CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+    .thenRun(() -> {
+        futures.forEach(f -> {
+            try {
+                HttpResponse<String> response = f.get();
+                System.out.println("Status: " + response.statusCode());
+                System.out.println("Body: " + response.body());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    });
+\`\`\`
+
+**3. Reactive Streaming with Flow API:**
+\`\`\`java
+// Stream response body as it arrives (don't wait for full response)
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.example.com/large-file"))
+    .GET()
+    .build();
+
+CompletableFuture<HttpResponse<Flow.Publisher<List<ByteBuffer>>>> future =
+    client.sendAsync(request, HttpResponse.BodyHandlers.ofPublisher());
+
+future.thenAccept(response -> {
+    Flow.Publisher<List<ByteBuffer>> publisher = response.body();
+
+    publisher.subscribe(new Flow.Subscriber<>() {
+        private Flow.Subscription subscription;
+
+        @Override
+        public void onSubscribe(Flow.Subscription subscription) {
+            this.subscription = subscription;
+            subscription.request(1);  // Request first chunk
+        }
+
+        @Override
+        public void onNext(List<ByteBuffer> buffers) {
+            // Process chunk as it arrives
+            buffers.forEach(buffer -> {
+                byte[] bytes = new byte[buffer.remaining()];
+                buffer.get(bytes);
+                processChunk(bytes);
+            });
+            subscription.request(1);  // Request next chunk
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+            System.err.println("Error: " + throwable.getMessage());
+        }
+
+        @Override
+        public void onComplete() {
+            System.out.println("Stream complete");
+        }
+    });
+});
+\`\`\`
+
+**4. HTTP/2 Server Push:**
+\`\`\`java
+HttpClient client = HttpClient.newBuilder()
+    .version(HttpClient.Version.HTTP_2)
+    .build();
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://example.com/index.html"))
+    .build();
+
+// Handle server push promises
+CompletableFuture<HttpResponse<String>> future =
+    client.sendAsync(
+        request,
+        HttpResponse.BodyHandlers.ofString(),
+        HttpResponse.PushPromiseHandler.of(
+            pushPromise -> {
+                System.out.println("Server pushed: " + pushPromise.uri());
+                return HttpResponse.BodyHandlers.ofString();
+            }
+        )
+    );
+\`\`\`
+
+**5. Connection Pooling and Reuse:**
+\`\`\`java
+// Single HttpClient instance reuses connections
+HttpClient client = HttpClient.newBuilder()
+    .version(HttpClient.Version.HTTP_2)
+    .connectionPool(ConnectionPool.newBuilder()
+        .maxConnections(50)
+        .maxConnectionsPerRoute(10)
+        .build())
+    .build();
+
+// Multiple requests reuse same connection
+for (int i = 0; i < 100; i++) {
+    client.sendAsync(
+        HttpRequest.newBuilder()
+            .uri(URI.create("https://api.example.com/data/" + i))
+            .build(),
+        HttpResponse.BodyHandlers.ofString()
+    );
+}
+// HTTP/2 multiplexing: multiple requests over single TCP connection
+\`\`\`
+
+**6. Custom Body Handlers:**
+\`\`\`java
+// Custom handler to process response incrementally
+public class JsonStreamHandler implements HttpResponse.BodyHandler<List<User>> {
+    @Override
+    public HttpResponse.BodySubscriber<List<User>> apply(HttpResponse.ResponseInfo info) {
+        return HttpResponse.BodySubscribers.mapping(
+            HttpResponse.BodySubscribers.ofString(),
+            body -> parseJsonToUsers(body)
+        );
+    }
+
+    private List<User> parseJsonToUsers(String json) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(json,
+                new TypeReference<List<User>>() {});
+        } catch (JsonProcessingException e) {
+            return Collections.emptyList();
+        }
+    }
+}
+
+// Usage
+HttpResponse<List<User>> response = client.send(
+    request,
+    new JsonStreamHandler()
+);
+\`\`\`
+
+**7. Retry with Exponential Backoff:**
+\`\`\`java
+public <T> CompletableFuture<HttpResponse<T>> sendWithRetry(
+        HttpRequest request,
+        HttpResponse.BodyHandler<T> bodyHandler,
+        int maxRetries) {
+
+    return sendWithRetryHelper(request, bodyHandler, 0, maxRetries, 1000);
+}
+
+private <T> CompletableFuture<HttpResponse<T>> sendWithRetryHelper(
+        HttpRequest request,
+        HttpResponse.BodyHandler<T> bodyHandler,
+        int attempt,
+        int maxRetries,
+        long delayMs) {
+
+    return client.sendAsync(request, bodyHandler)
+        .thenCompose(response -> {
+            if (response.statusCode() >= 500 && attempt < maxRetries) {
+                // Server error - retry with exponential backoff
+                return CompletableFuture.delayedExecutor(
+                    delayMs, TimeUnit.MILLISECONDS
+                ).execute(() ->
+                    sendWithRetryHelper(request, bodyHandler,
+                        attempt + 1, maxRetries, delayMs * 2)
+                );
+            }
+            return CompletableFuture.completedFuture(response);
+        });
+}
+\`\`\`
+
+**8. Performance Comparison:**
+\`\`\`java
+// Old Apache HttpClient (synchronous)
+CloseableHttpClient oldClient = HttpClients.createDefault();
+long start = System.currentTimeMillis();
+for (int i = 0; i < 100; i++) {
+    HttpGet request = new HttpGet("https://api.example.com/data");
+    oldClient.execute(request);  // Blocking
+}
+System.out.println("Time: " + (System.currentTimeMillis() - start) + "ms");
+// ~10,000ms (sequential, blocking)
+
+// New HttpClient (async, HTTP/2)
+HttpClient newClient = HttpClient.newHttpClient();
+start = System.currentTimeMillis();
+List<CompletableFuture<HttpResponse<String>>> futures = new ArrayList<>();
+for (int i = 0; i < 100; i++) {
+    futures.add(newClient.sendAsync(
+        HttpRequest.newBuilder()
+            .uri(URI.create("https://api.example.com/data"))
+            .build(),
+        HttpResponse.BodyHandlers.ofString()
+    ));
+}
+CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+System.out.println("Time: " + (System.currentTimeMillis() - start) + "ms");
+// ~500ms (parallel, non-blocking, HTTP/2 multiplexing)
+\`\`\`
+
+**Performance Benefits:**
+- HTTP/2 multiplexing: multiple requests over single connection
+- Non-blocking I/O: threads not blocked waiting for response
+- Connection reuse: reduces TCP handshake overhead
+- Async processing: better resource utilization
+- Built-in compression and header optimization`
+    },
+    {
+      id: 7,
+      category: 'Advanced',
+      question: 'What are Epsilon GC and ZGC introduced in Java 11? When would you use them?',
+      answer: `**Epsilon GC (No-Op Garbage Collector):**
+
+**What is it?**
+- Garbage collector that does NO garbage collection
+- Only allocates memory, never reclaims it
+- Application terminates when heap is exhausted
+
+**Enabling Epsilon GC:**
+\`\`\`bash
+java -XX:+UnlockExperimentalVMOptions \\
+     -XX:+UseEpsilonGC \\
+     -Xms1g -Xmx1g \\
+     MyApp
+\`\`\`
+
+**When to use:**
+
+**1. Performance Testing:**
+\`\`\`java
+// Measure application performance without GC overhead
+// Useful for benchmarking pure computation
+
+public class PerformanceTest {
+    public static void main(String[] args) {
+        // With Epsilon: measures raw performance
+        // With G1: includes GC pauses
+        long start = System.nanoTime();
+        doComputation();
+        long end = System.nanoTime();
+        System.out.println("Time: " + (end - start) / 1_000_000 + "ms");
+    }
+}
+\`\`\`
+
+**2. Short-Lived Applications:**
+\`\`\`bash
+# CLI tools that run < 1 second
+# No time for GC to kick in anyway
+java -XX:+UseEpsilonGC -jar quick-tool.jar
+
+# Lambda functions with guaranteed memory
+# Function runs and terminates before heap exhausted
+\`\`\`
+
+**3. Memory Pressure Testing:**
+\`\`\`java
+// Test how application behaves when running out of memory
+// Helps identify memory leaks quickly
+\`\`\`
+
+**4. Ultra-Low Latency (if memory is abundant):**
+\`\`\`java
+// Trading systems where ANY GC pause is unacceptable
+// Allocate massive heap, restart before exhaustion
+\`\`\`
+
+**Example:**
+\`\`\`java
+public class EpsilonExample {
+    public static void main(String[] args) {
+        System.out.println("Starting with Epsilon GC");
+        List<byte[]> list = new ArrayList<>();
+
+        try {
+            while (true) {
+                list.add(new byte[1024 * 1024]);  // 1 MB
+                System.out.println("Allocated: " + list.size() + " MB");
+            }
+        } catch (OutOfMemoryError e) {
+            System.out.println("Out of memory - no GC happened!");
+            System.out.println("Total allocated: " + list.size() + " MB");
+        }
+    }
+}
+\`\`\`
+
+**ZGC (Z Garbage Collector):**
+
+**What is it?**
+- Scalable low-latency garbage collector
+- Pause times < 10ms regardless of heap size
+- Supports heaps from 8MB to 16TB
+- Concurrent GC (doesn't stop application threads)
+
+**Enabling ZGC:**
+\`\`\`bash
+# Java 11-14 (experimental)
+java -XX:+UnlockExperimentalVMOptions \\
+     -XX:+UseZGC \\
+     -Xms16g -Xmx16g \\
+     MyApp
+
+# Java 15+ (production ready)
+java -XX:+UseZGC \\
+     -Xms16g -Xmx16g \\
+     MyApp
+\`\`\`
+
+**ZGC Characteristics:**
+
+**1. Low Pause Times:**
+\`\`\`
+Traditional GC (G1):
+Heap: 4GB  → Pause: 50ms
+Heap: 32GB → Pause: 200ms
+Heap: 128GB → Pause: 1000ms+
+
+ZGC:
+Heap: 4GB   → Pause: <1ms
+Heap: 32GB  → Pause: <10ms
+Heap: 128GB → Pause: <10ms
+Heap: 16TB  → Pause: <10ms  (!)
+\`\`\`
+
+**2. Concurrent Operations:**
+\`\`\`
+ZGC Phase Timeline:
+┌────────────────────────────────────┐
+│ Pause Mark Start (< 1ms)           │  ← STW
+├────────────────────────────────────┤
+│ Concurrent Mark (10-100ms)         │  ← App runs
+├────────────────────────────────────┤
+│ Pause Mark End (< 1ms)             │  ← STW
+├────────────────────────────────────┤
+│ Concurrent Process References      │  ← App runs
+│ Concurrent Relocate (10-100ms)     │  ← App runs
+└────────────────────────────────────┘
+
+Total STW time: < 2ms
+\`\`\`
+
+**3. Colored Pointers:**
+\`\`\`
+ZGC uses pointer coloring (metadata in pointer itself)
+
+64-bit pointer:
+[42 bits: address][4 bits: metadata][18 bits: unused]
+
+Metadata bits indicate object state:
+- Marked
+- Finalizable
+- Remapped
+
+Allows concurrent relocation without read barriers
+\`\`\`
+
+**When to use ZGC:**
+
+**1. Large Heaps:**
+\`\`\`java
+// Application needs > 32GB heap
+// G1 GC would have long pause times
+java -XX:+UseZGC -Xmx128g MyApp
+\`\`\`
+
+**2. Low Latency Requirements:**
+\`\`\`java
+// Real-time trading systems
+// Interactive applications
+// Gaming servers
+// Any system where pause > 10ms is unacceptable
+\`\`\`
+
+**3. Predictable Latency:**
+\`\`\`java
+// 99.9th percentile latency < 10ms
+// Regardless of heap size or allocation rate
+\`\`\`
+
+**ZGC Configuration:**
+\`\`\`bash
+# Basic ZGC
+java -XX:+UseZGC -Xmx32g MyApp
+
+# Set concurrent GC threads
+java -XX:+UseZGC -XX:ConcGCThreads=4 -Xmx32g MyApp
+
+# Enable detailed logging
+java -XX:+UseZGC \\
+     -Xlog:gc*:file=gc.log \\
+     -Xmx32g MyApp
+
+# Tune for latency
+java -XX:+UseZGC \\
+     -XX:ZAllocationSpikeTolerance=5 \\
+     -Xmx32g MyApp
+\`\`\`
+
+**Monitoring ZGC:**
+\`\`\`java
+// JMX monitoring
+MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+ObjectName name = new ObjectName("java.lang:type=GarbageCollector,name=ZGC");
+
+// Get pause time
+long pauseTime = (Long) mbs.getAttribute(name, "CollectionTime");
+System.out.println("ZGC pause time: " + pauseTime + "ms");
+\`\`\`
+
+**Performance Comparison:**
+\`\`\`
+Benchmark: 64GB heap, high allocation rate
+
+G1 GC:
+├── Average pause: 150ms
+├── Max pause: 500ms
+├── Throughput: 95%
+
+ZGC:
+├── Average pause: 2ms
+├── Max pause: 8ms
+├── Throughput: 98%
+
+Epsilon (no GC):
+├── Pause: 0ms
+├── Throughput: 100%
+└── Crashes after ~10 seconds (OOM)
+\`\`\`
+
+**Limitations:**
+
+**Epsilon:**
+- No garbage collection at all
+- Heap exhaustion = crash
+- Not for long-running applications
+
+**ZGC:**
+- Higher memory overhead (~10-20%)
+- Requires more CPU for concurrent work
+- Not ideal for small heaps (< 8GB)
+- Write barriers add slight overhead
+
+**Choosing the right GC:**
+\`\`\`
+G1 (default): Balanced, works for most applications
+ZGC: Large heaps (>32GB) or low latency requirements
+Epsilon: Benchmarking, short-lived apps, memory testing
+Shenandoah: Alternative to ZGC (similar characteristics)
+Serial: Single-threaded, small heaps, client apps
+Parallel: High throughput, batch processing
+\`\`\``
+    },
+    {
+      id: 8,
+      category: 'Advanced',
+      question: 'Explain Java 11 Nest-Based Access Control and why it matters',
+      answer: `**Nest-Based Access Control:**
+
+**Problem Before Java 11:**
+\`\`\`java
+public class Outer {
+    private int outerField = 10;
+
+    class Inner {
+        private int innerField = 20;
+
+        void accessOuter() {
+            // Can access outer's private field
+            System.out.println(outerField);  // Works
+        }
+    }
+
+    void accessInner() {
+        Inner inner = new Inner();
+        // Can access inner's private field
+        System.out.println(inner.innerField);  // Works
+    }
+}
+\`\`\`
+
+**What Java 11 compiler used to generate (Java 8-10):**
+\`\`\`java
+// Compiler generated synthetic bridge methods:
+public class Outer {
+    private int outerField = 10;
+
+    // Synthetic accessor (package-private)
+    static int access$000(Outer outer) {
+        return outer.outerField;  // Bridge method
+    }
+
+    class Inner {
+        private int innerField = 20;
+
+        // Synthetic accessor (package-private)
+        static int access$100(Inner inner) {
+            return inner.innerField;  // Bridge method
+        }
+    }
+}
+
+// Problems:
+// 1. Extra methods bloat class file
+// 2. Performance overhead (extra method calls)
+// 3. Reflection sees synthetic methods
+// 4. Security: package-private methods can be called by any class in package
+\`\`\`
+
+**Java 11 Solution - Nest-Based Access:**
+\`\`\`java
+// No synthetic bridge methods generated!
+// JVM natively understands nested classes
+
+// Check nest membership
+class Outer {
+    class Inner {}
+
+    public static void main(String[] args) {
+        System.out.println(Outer.class.getNestHost());
+        // Output: class Outer
+
+        System.out.println(Inner.class.getNestHost());
+        // Output: class Outer (same nest host!)
+
+        System.out.println(Arrays.toString(Outer.class.getNestMembers()));
+        // Output: [class Outer, class Outer$Inner]
+
+        System.out.println(Outer.class.isNestmateOf(Inner.class));
+        // Output: true
+    }
+}
+\`\`\`
+
+**Benefits:**
+
+**1. No Synthetic Bridge Methods:**
+\`\`\`bash
+# Java 8-10
+javap -p Outer.class
+# Shows: access$000, access$100 (synthetic methods)
+
+# Java 11+
+javap -p Outer.class
+# No synthetic methods! Cleaner bytecode
+\`\`\`
+
+**2. Better Performance:**
+\`\`\`java
+// Before Java 11: indirect access via bridge method
+inner.innerField  →  Outer.access$100(inner)  →  inner.innerField
+// Two steps
+
+// Java 11+: direct access
+inner.innerField  →  inner.innerField
+// One step, faster
+\`\`\`
+
+**3. Reflection Improvements:**
+\`\`\`java
+public class ReflectionExample {
+    private static class Inner {
+        private int value = 42;
+    }
+
+    public static void main(String[] args) throws Exception {
+        Inner inner = new Inner();
+        Field field = Inner.class.getDeclaredField("value");
+
+        // Before Java 11: synthetic methods appear in reflection
+        Method[] methods = Inner.class.getDeclaredMethods();
+        // Contains access$xxx synthetic methods
+
+        // Java 11+: cleaner reflection
+        Method[] methods = Inner.class.getDeclaredMethods();
+        // No synthetic accessor methods!
+
+        // Still need setAccessible for private fields
+        field.setAccessible(true);
+        System.out.println(field.get(inner));  // 42
+    }
+}
+\`\`\`
+
+**4. Security Improvements:**
+\`\`\`java
+// Before Java 11:
+// Synthetic bridge methods were package-private
+// Any class in same package could call them!
+
+package com.example;
+
+public class Outer {
+    private int secret = 42;
+
+    class Inner {
+        void access() {
+            System.out.println(secret);  // Generates access$000(Outer)
+        }
+    }
+}
+
+// Attacker class in same package:
+package com.example;
+
+public class Attacker {
+    public static void main(String[] args) {
+        Outer outer = new Outer();
+        // Could call synthetic bridge method!
+        int stolen = Outer.access$000(outer);  // Accessed private field!
+        System.out.println("Stolen: " + stolen);
+    }
+}
+
+// Java 11+: No synthetic methods → no security hole
+\`\`\`
+
+**Nest Attributes in Class File:**
+\`\`\`bash
+# View nest information
+javap -v Outer.class
+
+# Shows NestHost attribute:
+NestHost: class Outer
+
+# Shows NestMembers attribute:
+NestMembers:
+  Outer$Inner
+  Outer$AnotherInner
+\`\`\`
+
+**Advanced: Checking Nest Membership:**
+\`\`\`java
+public class NestChecker {
+    private static class Inner1 {
+        private static class Nested {}
+    }
+
+    private static class Inner2 {}
+
+    public static void main(String[] args) {
+        // All share same nest host
+        System.out.println(NestChecker.class.getNestHost());  // NestChecker
+        System.out.println(Inner1.class.getNestHost());       // NestChecker
+        System.out.println(Inner2.class.getNestHost());       // NestChecker
+        System.out.println(Inner1.Nested.class.getNestHost()); // NestChecker
+
+        // Check if nestmates
+        System.out.println(Inner1.class.isNestmateOf(Inner2.class));  // true
+        System.out.println(Inner1.class.isNestmateOf(String.class));  // false
+
+        // Get all nest members
+        Class<?>[] members = NestChecker.class.getNestMembers();
+        // [NestChecker, Inner1, Inner1$Nested, Inner2]
+    }
+}
+\`\`\`
+
+**Performance Impact:**
+\`\`\`java
+// Microbenchmark: access inner class private field 1M times
+
+// Java 8-10 (with synthetic bridge):
+// Time: 15ms
+// Bytecode:
+//   aload_1
+//   invokestatic access$000  ← Extra method call
+//   ireturn
+
+// Java 11+ (nest-based):
+// Time: 8ms (47% faster!)
+// Bytecode:
+//   aload_1
+//   getfield innerField  ← Direct access
+//   ireturn
+\`\`\`
+
+**Use Cases:**
+
+**1. Framework Development:**
+\`\`\`java
+// Dependency injection frameworks
+// Need to access private fields in nested classes
+// Faster with nest-based access
+
+@Service
+public class UserService {
+    @Repository
+    private class UserRepository {  // Private nested class
+        private EntityManager em;  // Private field
+    }
+
+    // Framework uses reflection to inject dependencies
+    // Java 11+: faster, cleaner reflection
+}
+\`\`\`
+
+**2. Security-Sensitive Code:**
+\`\`\`java
+// No synthetic bridge methods = smaller attack surface
+public class CryptoHandler {
+    private byte[] secretKey = generateKey();
+
+    private class KeyManager {
+        byte[] getKey() {
+            return secretKey;  // Direct access, no bridge method
+        }
+    }
+
+    // Before Java 11: access$000(CryptoHandler) could be called
+    // Java 11+: No bridge method, more secure
+}
+\`\`\`
+
+**Summary:**
+- Nest-based access = JVM-level support for nested classes
+- No synthetic bridge methods generated
+- Better performance, security, and cleaner bytecode
+- Transparent to developers (automatic in Java 11+)
+- Matters for framework developers and security`
     }
   ]
 
