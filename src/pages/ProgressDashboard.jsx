@@ -33,6 +33,30 @@ function ProgressDashboard({ onBack, onNavigate }) {
     setBookmarks(getBookmarks())
   }
 
+  // Convert problemId to page name for navigation
+  const getPageNameFromProblemId = (problemId) => {
+    // problemId format: category-subcategory-number
+    // e.g., "data-structures-arrays-1" -> "Arrays"
+    // e.g., "algorithms-dynamic-programming-5" -> "Dynamic Programming"
+    const parts = problemId.split('-')
+    if (parts.length >= 3) {
+      // Get the subcategory (second-to-last part before the number)
+      const subcategoryParts = parts.slice(1, -1)
+      // Convert from kebab-case to Title Case
+      return subcategoryParts
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+    }
+    return problemId
+  }
+
+  const handleProblemClick = (problemId) => {
+    const pageName = getPageNameFromProblemId(problemId)
+    if (onNavigate) {
+      onNavigate(pageName)
+    }
+  }
+
   // Parse problem IDs to extract categories
   const parseCategory = (problemId) => {
     const parts = problemId.split('-')
@@ -228,22 +252,30 @@ function ProgressDashboard({ onBack, onNavigate }) {
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {recentActivity.length > 0 ? recentActivity.map((problemId, idx) => (
-                  <div
+                  <button
                     key={idx}
+                    onClick={() => handleProblemClick(problemId)}
                     style={{
                       padding: '0.75rem',
                       backgroundColor: '#374151',
                       borderRadius: '8px',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.75rem'
+                      gap: '0.75rem',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      width: '100%',
+                      textAlign: 'left'
                     }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#4b5563'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#374151'}
                   >
                     <span style={{ color: '#10b981' }}>✓</span>
                     <span style={{ color: '#d1d5db', fontSize: '0.9rem' }}>
                       {problemId.replace(/-/g, ' ')}
                     </span>
-                  </div>
+                  </button>
                 )) : (
                   <p style={{ color: '#6b7280', textAlign: 'center', padding: '2rem' }}>
                     No completed problems yet. Start practicing!
@@ -271,18 +303,30 @@ function ProgressDashboard({ onBack, onNavigate }) {
                 </h4>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                   {problems.map(problemId => (
-                    <span
+                    <button
                       key={problemId}
+                      onClick={() => handleProblemClick(problemId)}
                       style={{
                         padding: '0.5rem 0.75rem',
                         backgroundColor: '#374151',
                         borderRadius: '6px',
                         fontSize: '0.85rem',
-                        color: '#d1d5db'
+                        color: '#d1d5db',
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#4b5563'
+                        e.currentTarget.style.color = '#10b981'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#374151'
+                        e.currentTarget.style.color = '#d1d5db'
                       }}
                     >
                       {problemId.split('-').pop()}
-                    </span>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -307,16 +351,24 @@ function ProgressDashboard({ onBack, onNavigate }) {
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {bookmarks.length > 0 ? bookmarks.map((bookmark, idx) => (
-                <div
+                <button
                   key={idx}
+                  onClick={() => handleProblemClick(bookmark.problemId)}
                   style={{
                     padding: '1rem',
                     backgroundColor: '#374151',
                     borderRadius: '8px',
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    width: '100%',
+                    textAlign: 'left'
                   }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#4b5563'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#374151'}
                 >
                   <div>
                     <div style={{ color: '#f9fafb', fontWeight: '600' }}>
@@ -346,7 +398,7 @@ function ProgressDashboard({ onBack, onNavigate }) {
                       {bookmark.difficulty}
                     </span>
                   )}
-                </div>
+                </button>
               )) : (
                 <p style={{ color: '#6b7280', textAlign: 'center', padding: '2rem' }}>
                   No bookmarked problems. Click the star icon on any problem to bookmark it!
