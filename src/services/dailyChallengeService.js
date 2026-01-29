@@ -135,7 +135,7 @@ export const completeDailyChallenge = (userId) => {
 
     // Get existing data
     const stored = localStorage.getItem(key);
-    const data = stored ? JSON.parse(stored) : { history: [] };
+    const data = stored ? JSON.parse(stored) : { history: [], longestStreak: 0 };
 
     // Update data
     data.completedDate = today;
@@ -151,11 +151,17 @@ export const completeDailyChallenge = (userId) => {
       data.history = data.history.slice(-30);
     }
 
+    // Update longest streak if current streak is higher
+    const currentStreak = getDailyChallengeStreak(userId);
+    if (!data.longestStreak || currentStreak > data.longestStreak) {
+      data.longestStreak = currentStreak;
+    }
+
     localStorage.setItem(key, JSON.stringify(data));
 
     // Dispatch event
     window.dispatchEvent(new CustomEvent('dailyChallengeCompleted', {
-      detail: { challenge, date: today }
+      detail: { challenge, date: today, streak: currentStreak, longestStreak: data.longestStreak }
     }));
 
     return true;
@@ -208,6 +214,23 @@ export const getDailyChallengeStreak = (userId) => {
     return streak;
   } catch (error) {
     console.error('Error getting daily challenge streak:', error);
+    return 0;
+  }
+};
+
+/**
+ * Get longest streak achieved
+ */
+export const getLongestStreak = (userId) => {
+  try {
+    const key = `${DAILY_CHALLENGE_KEY}_${userId || 'anonymous'}`;
+    const stored = localStorage.getItem(key);
+    if (!stored) return 0;
+
+    const data = JSON.parse(stored);
+    return data.longestStreak || 0;
+  } catch (error) {
+    console.error('Error getting longest streak:', error);
     return 0;
   }
 };

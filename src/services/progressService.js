@@ -1,11 +1,13 @@
 // Progress tracking service using localStorage
 import { getCurrentUser } from './authService'
+import { recordWeeklyProblem } from './weeklyGoalsService'
 
 const STORAGE_KEYS = {
   USER_PROGRESS: 'user_progress',
   USER_INFO: 'user_info',
   COMPLETED_PROBLEMS: 'completed_problems',
-  SAVED_CODE: 'saved_code'
+  SAVED_CODE: 'saved_code',
+  USER_XP: 'user_xp'
 }
 
 // Helper to get user-specific key
@@ -89,7 +91,7 @@ export const getCompletedProblems = () => {
 }
 
 // Mark problem as completed or uncompleted
-export const toggleProblemCompletion = (problemId, completed) => {
+export const toggleProblemCompletion = (problemId, completed, difficulty = 'Medium', xpMultiplier = 1) => {
   const currentUser = getCurrentUser()
   if (!currentUser) {
     console.warn('Cannot toggle problem completion: User not logged in')
@@ -97,17 +99,25 @@ export const toggleProblemCompletion = (problemId, completed) => {
   }
 
   const completedProblems = getCompletedProblems()
+  const wasCompleted = completedProblems.includes(problemId)
 
   if (completed) {
     // Add to completed list if not already there
-    if (!completedProblems.includes(problemId)) {
+    if (!wasCompleted) {
       completedProblems.push(problemId)
+      // Award XP for completing the problem
+      const xp = getXPForDifficulty(difficulty, xpMultiplier)
+      addUserXP(xp, `problem-${problemId}`)
+      // Record for weekly goals
+      recordWeeklyProblem(currentUser.uid, problemId)
     }
   } else {
     // Remove from completed list
     const index = completedProblems.indexOf(problemId)
     if (index > -1) {
       completedProblems.splice(index, 1)
+      // Note: We don't remove XP when unchecking a problem
+      // Note: We don't remove from weekly goals either
     }
   }
 
@@ -386,4 +396,174 @@ export const clearUserCode = (problemId, language = null) => {
     keys.forEach(k => delete savedCode[k])
   }
   localStorage.setItem(STORAGE_KEYS.SAVED_CODE, JSON.stringify(savedCode))
+}
+
+// ========== XP and Level System ==========
+
+// XP values by difficulty
+const XP_VALUES = {
+  Easy: 10,
+  Medium: 25,
+  Hard: 50
+}
+
+// Level thresholds (level: required XP)
+const LEVEL_THRESHOLDS = {
+  1: 0,
+  2: 100,
+  3: 250,
+  4: 500,
+  5: 1000,
+  10: 2500,
+  15: 5000,
+  20: 10000,
+  25: 20000,
+  30: 35000,
+  40: 60000,
+  50: 100000
+}
+
+// Get user's total XP
+export const getUserXP = () => {
+  const currentUser = getCurrentUser()
+  if (!currentUser) return 0
+
+  const userKey = getUserKey(STORAGE_KEYS.USER_XP)
+  const stored = localStorage.getItem(userKey)
+  if (!stored) return 0
+
+  try {
+    const data = JSON.parse(stored)
+    return data.totalXP || 0
+  } catch (error) {
+    console.error('Error getting user XP:', error)
+    return 0
+  }
+}
+
+// Add XP to user's total
+export const addUserXP = (xp, source = 'problem') => {
+  const currentUser = getCurrentUser()
+  if (!currentUser) {
+    console.warn('Cannot add XP: User not logged in')
+    return 0
+  }
+
+  const userKey = getUserKey(STORAGE_KEYS.USER_XP)
+  const currentXP = getUserXP()
+  const newXP = currentXP + xp
+
+  const data = {
+    totalXP: newXP,
+    lastUpdated: new Date().toISOString(),
+    history: []
+  }
+
+  // Get existing history
+  const stored = localStorage.getItem(userKey)
+  if (stored) {
+    try {
+      const existingData = JSON.parse(stored)
+      data.history = existingData.history || []
+    } catch (error) {
+      console.error('Error parsing XP history:', error)
+    }
+  }
+
+  // Add to history
+  data.history.push({
+    xp,
+    source,
+    timestamp: new Date().toISOString()
+  })
+
+  // Keep only last 100 entries
+  if (data.history.length > 100) {
+    data.history = data.history.slice(-100)
+  }
+
+  localStorage.setItem(userKey, JSON.stringify(data))
+
+  // Dispatch event for level up
+  const oldLevel = calculateLevel(currentXP)
+  const newLevel = calculateLevel(newXP)
+  if (newLevel > oldLevel) {
+    window.dispatchEvent(new CustomEvent('levelUp', {
+      detail: { oldLevel, newLevel, totalXP: newXP }
+    }))
+  }
+
+  window.dispatchEvent(new CustomEvent('xpGained', {
+    detail: { xp, totalXP: newXP, source }
+  }))
+
+  return newXP
+}
+
+// Calculate level from XP
+export const calculateLevel = (xp) => {
+  const levels = Object.keys(LEVEL_THRESHOLDS).map(Number).sort((a, b) => b - a)
+
+  for (const level of levels) {
+    if (xp >= LEVEL_THRESHOLDS[level]) {
+      return level
+    }
+  }
+
+  return 1
+}
+
+// Get current level
+export const getUserLevel = () => {
+  const xp = getUserXP()
+  return calculateLevel(xp)
+}
+
+// Get XP needed for next level
+export const getXPForNextLevel = () => {
+  const currentXP = getUserXP()
+  const currentLevel = calculateLevel(currentXP)
+
+  // Find next level threshold
+  const levels = Object.keys(LEVEL_THRESHOLDS).map(Number).sort((a, b) => a - b)
+  const nextLevel = levels.find(level => level > currentLevel)
+
+  if (!nextLevel) {
+    return { current: currentXP, needed: currentXP, nextLevel: currentLevel }
+  }
+
+  const neededXP = LEVEL_THRESHOLDS[nextLevel]
+  const previousLevelXP = LEVEL_THRESHOLDS[currentLevel]
+  const progress = currentXP - previousLevelXP
+  const total = neededXP - previousLevelXP
+  const percent = Math.round((progress / total) * 100)
+
+  return {
+    current: currentXP,
+    needed: neededXP,
+    remaining: neededXP - currentXP,
+    nextLevel,
+    percent,
+    progress,
+    total
+  }
+}
+
+// Get XP for difficulty
+export const getXPForDifficulty = (difficulty, multiplier = 1) => {
+  const baseXP = XP_VALUES[difficulty] || 0
+  return Math.round(baseXP * multiplier)
+}
+
+// Get level info (level, XP, next level progress)
+export const getLevelInfo = () => {
+  const xp = getUserXP()
+  const level = calculateLevel(xp)
+  const nextLevelInfo = getXPForNextLevel()
+
+  return {
+    level,
+    xp,
+    ...nextLevelInfo
+  }
 }
