@@ -63,11 +63,17 @@ function ProgressDashboard({ onBack, onNavigate }) {
 
   // Parse problem IDs to extract categories
   const parseCategory = (problemId) => {
-    const parts = problemId.split('-')
-    if (parts.length >= 2) {
-      return parts.slice(0, -1).join(' ').replace(/([A-Z])/g, ' $1').trim()
+    // Use the same logic as getPageNameFromProblemId to extract category name
+    const lastDashIndex = problemId.lastIndexOf('-')
+    if (lastDashIndex > 0) {
+      const afterDash = problemId.substring(lastDashIndex + 1)
+      // Check if what's after the dash is a number
+      if (/^\d+$/.test(afterDash)) {
+        // Return everything before the last dash as the category
+        return problemId.substring(0, lastDashIndex)
+      }
     }
-    return 'Other'
+    return problemId
   }
 
   // Group completed problems by category
