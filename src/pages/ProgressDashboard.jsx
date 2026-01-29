@@ -35,18 +35,22 @@ function ProgressDashboard({ onBack, onNavigate }) {
 
   // Convert problemId to page name for navigation
   const getPageNameFromProblemId = (problemId) => {
-    // problemId format: category-subcategory-number
-    // e.g., "data-structures-arrays-1" -> "Arrays"
-    // e.g., "algorithms-dynamic-programming-5" -> "Dynamic Programming"
-    const parts = problemId.split('-')
-    if (parts.length >= 3) {
-      // Get the subcategory (second-to-last part before the number)
-      const subcategoryParts = parts.slice(1, -1)
-      // Convert from kebab-case to Title Case
-      return subcategoryParts
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')
+    // problemId format: PageName-number
+    // e.g., "Arrays-1" -> "Arrays"
+    // e.g., "Dynamic Programming-5" -> "Dynamic Programming"
+    // e.g., "Hash Tables-3" -> "Hash Tables"
+
+    // Find the last dash followed by a number
+    const lastDashIndex = problemId.lastIndexOf('-')
+    if (lastDashIndex > 0) {
+      const afterDash = problemId.substring(lastDashIndex + 1)
+      // Check if what's after the dash is a number
+      if (/^\d+$/.test(afterDash)) {
+        // Return everything before the last dash
+        return problemId.substring(0, lastDashIndex)
+      }
     }
+    // If no number found, return as-is
     return problemId
   }
 
