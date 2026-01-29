@@ -3687,7 +3687,13 @@ List<Person> topTen = people.stream()
       'Functional Interfaces': '#8b5cf6',
       'Optional': '#10b981',
       'Default Methods': '#ef4444',
-      'Method References': '#ec4899'
+      'Method References': '#ec4899',
+      'Date Time API': '#06b6d4',
+      'CompletableFuture': '#f43f5e',
+      'Collectors': '#a855f7',
+      'Nashorn JavaScript': '#64748b',
+      'Parallel Streams': '#14b8a6',
+      'Stream Performance': '#0ea5e9'
     }
     return colors[category] || '#6b7280'
   }
