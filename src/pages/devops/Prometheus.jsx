@@ -158,7 +158,7 @@ const PromQLDiagram = () => (
     {/* Selection */}
     <rect x="250" y="50" width="140" height="60" rx="6" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" strokeWidth="2"/>
     <text x="320" y="75" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">Selector</text>
-    <text x="320" y="95" textAnchor="middle" fill="#fcd34d" fontSize="8">{job="api"}</text>
+    <text x="320" y="95" textAnchor="middle" fill="#fcd34d" fontSize="8">{'{job="api"}'}</text>
 
     {/* Functions */}
     <rect x="430" y="50" width="140" height="60" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
@@ -2021,6 +2021,7 @@ thanos query \\
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={PROMETHEUS_COLORS}
         />
       </div>
@@ -2087,8 +2088,7 @@ thanos query \\
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`
             }}
@@ -2098,6 +2098,7 @@ thanos query \\
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
               colors={PROMETHEUS_COLORS}
             />
 

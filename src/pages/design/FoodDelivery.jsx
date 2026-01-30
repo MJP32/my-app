@@ -718,7 +718,7 @@ function FoodDelivery({ onBack, breadcrumb }) {
         <div style={{ width: '140px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
       {/* Tabs */}
       <div style={{

@@ -2173,7 +2173,7 @@ public class LowLatencyVarService {
         </p>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
       {/* Topic cards */}
       <div style={{

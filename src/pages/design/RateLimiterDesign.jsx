@@ -5,7 +5,7 @@ function RateLimiterDesign({ onBack, breadcrumb }) {
   const [activeTab, setActiveTab] = useState('overview')
 
   return (
-    <div style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
+    <div style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto', background: 'var(--bg-card)', minHeight: '100vh' }}>
       {/* Header */}
       <div style={{
         display: 'flex',
@@ -34,7 +34,7 @@ function RateLimiterDesign({ onBack, breadcrumb }) {
         <h1 style={{
           fontSize: '2rem',
           fontWeight: '800',
-          color: '#ffffff',
+          color: 'var(--text-primary)',
           margin: 0
         }}>
           ⏱️ Rate Limiter System Design
@@ -42,14 +42,14 @@ function RateLimiterDesign({ onBack, breadcrumb }) {
         <div style={{ width: '140px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
       {/* Tabs */}
       <div style={{
         display: 'flex',
         gap: '0.5rem',
         marginBottom: '2rem',
-        borderBottom: '1px solid #374151',
+        borderBottom: '1px solid var(--border-light)',
         paddingBottom: '0.5rem',
         flexWrap: 'wrap'
       }}>
@@ -68,8 +68,8 @@ function RateLimiterDesign({ onBack, breadcrumb }) {
               padding: '0.75rem 1.5rem',
               fontSize: '1rem',
               fontWeight: '600',
-              backgroundColor: activeTab === tab.id ? '#374151' : 'transparent',
-              color: activeTab === tab.id ? '#a78bfa' : '#9ca3af',
+              backgroundColor: activeTab === tab.id ? 'var(--bg-tertiary)' : 'transparent',
+              color: activeTab === tab.id ? '#a78bfa' : 'var(--text-muted)',
               border: 'none',
               borderRadius: '8px 8px 0 0',
               cursor: 'pointer',
@@ -83,7 +83,7 @@ function RateLimiterDesign({ onBack, breadcrumb }) {
 
       {/* Content */}
       <div style={{
-        backgroundColor: '#1f2937',
+        backgroundColor: 'var(--bg-secondary)',
         padding: '2rem',
         borderRadius: '10px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.3)',

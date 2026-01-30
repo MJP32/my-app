@@ -13,6 +13,8 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
+import { isProblemCompleted } from '../../services/progressService'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -433,9 +435,348 @@ const SOLIDDiagram = () => (
 // MAIN COMPONENT
 // =============================================================================
 
-function ObjectOrientedProgramming({ onBack }) {
+function ObjectOrientedProgramming({ onBack, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  useEffect(() => {
+    const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
+    window.addEventListener('progressUpdate', handleProgressUpdate)
+    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
+  }, [])
+
+  const [selectedProblem, setSelectedProblem] = useState(null)
+  const [userCode, setUserCode] = useState('')
+  const [showSolution, setShowSolution] = useState(false)
+
+  const openProblem = (problem) => { setSelectedProblem(problem); setUserCode(problem.starterCode); setShowSolution(false) }
+  const closeProblem = () => { setSelectedProblem(null); setUserCode(''); setShowSolution(false) }
+
+  const practiceProblems = [
+    { id: 1, title: 'Design a Class Hierarchy', difficulty: 'Medium', description: 'Design a class hierarchy for a vehicle system with inheritance and polymorphism.', example: 'Vehicle → Car, Motorcycle, Truck',
+      instructions: `Design a vehicle class hierarchy.
+
+**Requirements:**
+1. Create abstract Vehicle class with common properties
+2. Create Car, Motorcycle subclasses
+3. Override methods appropriately
+4. Demonstrate polymorphism`,
+      starterCode: `// TODO: Create abstract Vehicle class
+// - Properties: brand, year
+// - Abstract method: getDescription()
+// - Concrete method: start()
+
+// TODO: Create Car extends Vehicle
+// - Additional property: numDoors
+
+// TODO: Create Motorcycle extends Vehicle
+// - Additional property: hasSidecar
+
+public class VehicleDemo {
+    public static void main(String[] args) {
+        // TODO: Create instances and demonstrate polymorphism
+    }
+}`,
+      solution: `abstract class Vehicle {
+    protected String brand;
+    protected int year;
+    
+    public Vehicle(String brand, int year) {
+        this.brand = brand;
+        this.year = year;
+    }
+    
+    public void start() {
+        System.out.println(brand + " starting...");
+    }
+    
+    public abstract String getDescription();
+}
+
+class Car extends Vehicle {
+    private int numDoors;
+    
+    public Car(String brand, int year, int numDoors) {
+        super(brand, year);
+        this.numDoors = numDoors;
+    }
+    
+    @Override
+    public String getDescription() {
+        return year + " " + brand + " with " + numDoors + " doors";
+    }
+}
+
+class Motorcycle extends Vehicle {
+    private boolean hasSidecar;
+    
+    public Motorcycle(String brand, int year, boolean hasSidecar) {
+        super(brand, year);
+        this.hasSidecar = hasSidecar;
+    }
+    
+    @Override
+    public String getDescription() {
+        return year + " " + brand + (hasSidecar ? " with sidecar" : "");
+    }
+}
+
+public class VehicleDemo {
+    public static void main(String[] args) {
+        Vehicle[] vehicles = {
+            new Car("Toyota", 2023, 4),
+            new Motorcycle("Harley", 2022, false)
+        };
+        
+        for (Vehicle v : vehicles) {
+            v.start();
+            System.out.println(v.getDescription());
+        }
+    }
+}`
+    },
+    { id: 2, title: 'Implement Interface', difficulty: 'Easy', description: 'Create an interface for a payment system and implement multiple payment methods.', example: 'PaymentMethod interface → CreditCard, PayPal, BankTransfer',
+      instructions: `Create a payment interface with implementations.
+
+**Requirements:**
+1. Create PaymentMethod interface with pay() method
+2. Implement CreditCard and PayPal classes
+3. Process payments polymorphically`,
+      starterCode: `// TODO: Create PaymentMethod interface
+// - Method: boolean pay(double amount)
+
+// TODO: Create CreditCard implements PaymentMethod
+
+// TODO: Create PayPal implements PaymentMethod
+
+public class PaymentDemo {
+    public static void main(String[] args) {
+        // TODO: Process payments
+    }
+}`,
+      solution: `interface PaymentMethod {
+    boolean pay(double amount);
+    String getMethodName();
+}
+
+class CreditCard implements PaymentMethod {
+    private String cardNumber;
+    
+    public CreditCard(String cardNumber) {
+        this.cardNumber = cardNumber;
+    }
+    
+    @Override
+    public boolean pay(double amount) {
+        System.out.println("Charging $" + amount + " to card ending in " + cardNumber.substring(cardNumber.length() - 4));
+        return true;
+    }
+    
+    @Override
+    public String getMethodName() { return "Credit Card"; }
+}
+
+class PayPal implements PaymentMethod {
+    private String email;
+    
+    public PayPal(String email) {
+        this.email = email;
+    }
+    
+    @Override
+    public boolean pay(double amount) {
+        System.out.println("Sending $" + amount + " via PayPal to " + email);
+        return true;
+    }
+    
+    @Override
+    public String getMethodName() { return "PayPal"; }
+}
+
+public class PaymentDemo {
+    public static void main(String[] args) {
+        PaymentMethod[] methods = {
+            new CreditCard("1234567890123456"),
+            new PayPal("user@email.com")
+        };
+        
+        for (PaymentMethod pm : methods) {
+            System.out.println("Using " + pm.getMethodName());
+            pm.pay(99.99);
+        }
+    }
+}`
+    },
+    { id: 3, title: 'Apply SOLID Principles', difficulty: 'Hard', description: 'Refactor given code to follow Single Responsibility and Open/Closed principles.', example: 'Split monolithic class into focused components',
+      instructions: `Refactor code to follow SOLID principles.
+
+**Requirements:**
+1. Split responsibilities into separate classes
+2. Use interfaces for extensibility
+3. Apply dependency injection`,
+      starterCode: `// BAD: This class does too much (violates SRP)
+class OrderProcessor {
+    public void processOrder(String item, double price, String email) {
+        // Calculate total
+        double tax = price * 0.1;
+        double total = price + tax;
+        
+        // Save to database
+        System.out.println("Saving order to DB: " + item);
+        
+        // Send email
+        System.out.println("Sending email to: " + email);
+        
+        // Print receipt
+        System.out.println("Receipt: " + item + " - $" + total);
+    }
+}
+
+// TODO: Refactor into separate classes:
+// - PriceCalculator
+// - OrderRepository  
+// - EmailService
+// - ReceiptPrinter`,
+      solution: `// Single Responsibility: Each class has one job
+
+interface PriceCalculator {
+    double calculateTotal(double price);
+}
+
+class TaxCalculator implements PriceCalculator {
+    private double taxRate;
+    
+    public TaxCalculator(double taxRate) {
+        this.taxRate = taxRate;
+    }
+    
+    @Override
+    public double calculateTotal(double price) {
+        return price + (price * taxRate);
+    }
+}
+
+interface OrderRepository {
+    void save(String item, double total);
+}
+
+class DatabaseOrderRepository implements OrderRepository {
+    @Override
+    public void save(String item, double total) {
+        System.out.println("Saving to DB: " + item + " - $" + total);
+    }
+}
+
+interface NotificationService {
+    void notify(String recipient, String message);
+}
+
+class EmailService implements NotificationService {
+    @Override
+    public void notify(String email, String message) {
+        System.out.println("Email to " + email + ": " + message);
+    }
+}
+
+// Open/Closed: Open for extension, closed for modification
+class OrderProcessor {
+    private PriceCalculator calculator;
+    private OrderRepository repository;
+    private NotificationService notifier;
+    
+    public OrderProcessor(PriceCalculator calc, OrderRepository repo, NotificationService notif) {
+        this.calculator = calc;
+        this.repository = repo;
+        this.notifier = notif;
+    }
+    
+    public void process(String item, double price, String email) {
+        double total = calculator.calculateTotal(price);
+        repository.save(item, total);
+        notifier.notify(email, "Order confirmed: " + item);
+    }
+}
+
+public class SOLIDDemo {
+    public static void main(String[] args) {
+        OrderProcessor processor = new OrderProcessor(
+            new TaxCalculator(0.1),
+            new DatabaseOrderRepository(),
+            new EmailService()
+        );
+        processor.process("Laptop", 999.99, "user@email.com");
+    }
+}`
+    },
+    { id: 4, title: 'Encapsulation Practice', difficulty: 'Easy', description: 'Convert public fields to private with proper getters/setters and validation.', example: 'Add validation in setAge() to reject negative values',
+      instructions: `Apply encapsulation to a Person class.
+
+**Requirements:**
+1. Make fields private
+2. Add getters and setters
+3. Add validation in setAge()`,
+      starterCode: `// BAD: Public fields - no encapsulation
+class Person {
+    public String name;
+    public int age;
+}
+
+// TODO: Refactor with proper encapsulation
+// - Private fields
+// - Getters and setters
+// - Validation: age must be 0-150
+
+public class EncapsulationDemo {
+    public static void main(String[] args) {
+        Person p = new Person();
+        // p.setName("John");
+        // p.setAge(25);
+    }
+}`,
+      solution: `class Person {
+    private String name;
+    private int age;
+    
+    public String getName() {
+        return name;
+    }
+    
+    public void setName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be empty");
+        }
+        this.name = name;
+    }
+    
+    public int getAge() {
+        return age;
+    }
+    
+    public void setAge(int age) {
+        if (age < 0 || age > 150) {
+            throw new IllegalArgumentException("Age must be between 0 and 150");
+        }
+        this.age = age;
+    }
+}
+
+public class EncapsulationDemo {
+    public static void main(String[] args) {
+        Person p = new Person();
+        p.setName("John");
+        p.setAge(25);
+        System.out.println(p.getName() + " is " + p.getAge());
+        
+        try {
+            p.setAge(-5); // Will throw exception
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+}`
+    }
+  ]
 
   // =============================================================================
   // CONCEPTS DATA
@@ -1986,9 +2327,71 @@ void testOrderCreation() {
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={OOP_COLORS}
         />
       </div>
+
+      {/* Practice Exercises Section */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+        <h2 style={{ color: '#3b82f6', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span>📝</span> Practice Exercises</h2>
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Click on an exercise to practice. Complete the code challenge and mark as done.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+          {practiceProblems.map((problem) => {
+            const problemId = `ObjectOrientedProgramming-${problem.id}`
+            const isCompleted = isProblemCompleted(problemId)
+            return (
+              <div key={problem.id} onClick={() => openProblem(problem)} style={{ background: isCompleted ? 'rgba(34, 197, 94, 0.1)' : 'rgba(30, 41, 59, 0.8)', borderRadius: '0.75rem', padding: '1rem', border: `1px solid ${isCompleted ? '#22c55e' : '#334155'}`, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.2)' }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = isCompleted ? '#22c55e' : '#334155'; e.currentTarget.style.boxShadow = 'none' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+                  <h4 style={{ color: '#e2e8f0', margin: 0, fontSize: '0.95rem' }}>{problem.title}</h4>
+                  <span style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '600', backgroundColor: problem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : problem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: problem.difficulty === 'Easy' ? '#22c55e' : problem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{problem.difficulty}</span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.5rem 0', lineHeight: '1.4' }}>{problem.description}</p>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0.5rem 0', fontStyle: 'italic' }}>{problem.example}</p>
+                <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#3b82f6', fontSize: '0.8rem', fontWeight: '500' }}>Click to practice →</span>
+                  <div onClick={(e) => e.stopPropagation()}><CompletionCheckbox problemId={problemId} compact /></div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Practice Problem Modal */}
+      {selectedProblem && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }} onClick={closeProblem}>
+          <div style={{ backgroundColor: '#1f2937', borderRadius: '1rem', width: '95vw', maxWidth: '1400px', height: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', border: '2px solid #3b82f6' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid #374151', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <h2 style={{ color: '#e2e8f0', margin: 0, fontSize: '1.5rem' }}>{selectedProblem.title}</h2>
+                <span style={{ padding: '0.3rem 0.75rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600', backgroundColor: selectedProblem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : selectedProblem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: selectedProblem.difficulty === 'Easy' ? '#22c55e' : selectedProblem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{selectedProblem.difficulty}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <CompletionCheckbox problemId={`ObjectOrientedProgramming-${selectedProblem.id}`} compact />
+                <button onClick={closeProblem} style={{ padding: '0.5rem 1rem', backgroundColor: '#374151', color: '#e2e8f0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem' }}>✕ Close</button>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', flex: 1, overflow: 'hidden' }}>
+              <div style={{ padding: '1.5rem', borderRight: '1px solid #374151', overflowY: 'auto' }}>
+                <h3 style={{ color: '#3b82f6', marginTop: 0, marginBottom: '1rem' }}>📋 Instructions</h3>
+                <div style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>{selectedProblem.instructions.split('**').map((part, i) => i % 2 === 1 ? <strong key={i} style={{ color: '#e2e8f0' }}>{part}</strong> : part)}</div>
+              </div>
+              <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                  <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedProblem.solution) }} style={{ padding: '0.5rem 1rem', backgroundColor: showSolution ? '#ef4444' : '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>{showSolution ? '🔒 Hide Solution' : '💡 Show Solution'}</button>
+                  <button onClick={() => { setUserCode(selectedProblem.starterCode); setShowSolution(false) }} style={{ padding: '0.5rem 1rem', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>🔄 Reset Code</button>
+                  <button onClick={() => navigator.clipboard.writeText(userCode)} style={{ padding: '0.5rem 1rem', backgroundColor: '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>📋 Copy Code</button>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                  <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'Consolas, Monaco, "Courier New", monospace', fontSize: '0.9rem', backgroundColor: '#111827', color: '#e2e8f0', border: '1px solid #374151', borderRadius: '8px', resize: 'none', lineHeight: '1.5' }} spellCheck={false} />
+                </div>
+                <p style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '0.75rem', marginBottom: 0 }}>💡 Copy this code to your IDE to run and test. Mark as complete when you've solved it!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Concept Cards Grid */}
       <div style={{
@@ -2053,9 +2456,7 @@ void testOrderCreation() {
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              width: '100%',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`
             }}
@@ -2065,6 +2466,7 @@ void testOrderCreation() {
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
               colors={OOP_COLORS}
             />
 

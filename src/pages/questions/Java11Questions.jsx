@@ -1558,7 +1558,7 @@ public class CryptoHandler {
         <div style={{ width: '150px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
       <p style={{
         fontSize: '1.1rem',

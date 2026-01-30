@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
-import { getApiKeys, saveApiKeys, maskApiKey } from '../services/apiKeyService';
+import { getApiKeys, saveApiKeys } from '../services/apiKeyService';
 
 export default function Settings({ onBack }) {
   const { isDark, colors, toggleTheme } = useTheme();

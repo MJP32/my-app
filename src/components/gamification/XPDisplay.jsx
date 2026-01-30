@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useTheme } from '../../contexts/ThemeContext'
 
 function XPDisplay({ xp = 0, todayXP = 0, showToday = true, size = 'medium' }) {
-  const { colors } = useTheme()
+  useTheme() // Theme context for consistency
   const [displayXP, setDisplayXP] = useState(xp)
   const [isAnimating, setIsAnimating] = useState(false)
   const prevXPRef = useRef(xp)

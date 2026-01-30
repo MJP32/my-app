@@ -9,6 +9,8 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
+import { isProblemCompleted } from '../../services/progressService'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -557,6 +559,235 @@ const ReentrantLockDiagram = () => (
 function Multithreading({ onBack, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [selectedProblem, setSelectedProblem] = useState(null)
+  const [userCode, setUserCode] = useState('')
+  const [showSolution, setShowSolution] = useState(false)
+
+  useEffect(() => {
+    const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
+    window.addEventListener('progressUpdate', handleProgressUpdate)
+    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
+  }, [])
+
+  const openProblem = (problem) => { setSelectedProblem(problem); setUserCode(problem.starterCode); setShowSolution(false) }
+  const closeProblem = () => { setSelectedProblem(null); setUserCode(''); setShowSolution(false) }
+
+  const practiceProblems = [
+    { id: 1, title: 'ExecutorService Basics', difficulty: 'Easy', description: 'Create a fixed thread pool and submit multiple tasks.', example: 'ExecutorService with 4 threads processing 10 tasks',
+      instructions: `Create a thread pool using ExecutorService.
+
+**Requirements:**
+1. Create a fixed thread pool with 4 threads
+2. Submit 10 tasks to the pool
+3. Shutdown the executor properly`,
+      starterCode: `import java.util.concurrent.*;
+
+public class ThreadPoolDemo {
+    public static void main(String[] args) {
+        // TODO: Create a fixed thread pool with 4 threads
+        ExecutorService executor = null;
+        
+        // Submit 10 tasks
+        for (int i = 1; i <= 10; i++) {
+            final int taskId = i;
+            // TODO: Submit task to executor
+        }
+        
+        // TODO: Shutdown executor
+    }
+}`,
+      solution: `import java.util.concurrent.*;
+
+public class ThreadPoolDemo {
+    public static void main(String[] args) {
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        
+        for (int i = 1; i <= 10; i++) {
+            final int taskId = i;
+            executor.submit(() -> {
+                System.out.println("Task " + taskId + " running on " + Thread.currentThread().getName());
+                try { Thread.sleep(100); } catch (InterruptedException e) {}
+            });
+        }
+        
+        executor.shutdown();
+        try {
+            executor.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+        }
+    }
+}`
+    },
+    { id: 2, title: 'CompletableFuture Chain', difficulty: 'Medium', description: 'Chain multiple async operations using CompletableFuture.', example: 'fetchUser().thenApply(getOrders).thenAccept(display)',
+      instructions: `Chain async operations with CompletableFuture.
+
+**Requirements:**
+1. Create async operation to fetch user
+2. Chain with thenApply to process data
+3. Chain with thenAccept to display result`,
+      starterCode: `import java.util.concurrent.*;
+
+public class CompletableFutureChain {
+    public static void main(String[] args) {
+        // TODO: Create a CompletableFuture chain
+        // 1. supplyAsync to fetch user name
+        // 2. thenApply to convert to uppercase
+        // 3. thenAccept to print result
+        
+        CompletableFuture<Void> future = null;
+        
+        future.join(); // Wait for completion
+    }
+}`,
+      solution: `import java.util.concurrent.*;
+
+public class CompletableFutureChain {
+    public static void main(String[] args) {
+        CompletableFuture<Void> future = CompletableFuture
+            .supplyAsync(() -> {
+                System.out.println("Fetching user...");
+                return "john_doe";
+            })
+            .thenApply(name -> {
+                System.out.println("Processing: " + name);
+                return name.toUpperCase();
+            })
+            .thenAccept(result -> {
+                System.out.println("Result: " + result);
+            });
+        
+        future.join();
+    }
+}`
+    },
+    { id: 3, title: 'CountDownLatch Usage', difficulty: 'Medium', description: 'Coordinate multiple threads to start simultaneously using CountDownLatch.', example: 'Race simulation - all threads start at once',
+      instructions: `Use CountDownLatch to synchronize thread start.
+
+**Requirements:**
+1. Create a latch that all threads wait on
+2. Release all threads simultaneously
+3. Wait for all threads to complete`,
+      starterCode: `import java.util.concurrent.*;
+
+public class RaceSimulation {
+    public static void main(String[] args) throws InterruptedException {
+        int numRunners = 5;
+        // TODO: Create CountDownLatch for start signal
+        CountDownLatch startSignal = null;
+        // TODO: Create CountDownLatch to wait for all to finish
+        CountDownLatch doneSignal = null;
+        
+        for (int i = 1; i <= numRunners; i++) {
+            final int runner = i;
+            new Thread(() -> {
+                try {
+                    System.out.println("Runner " + runner + " ready");
+                    // TODO: Wait for start signal
+                    System.out.println("Runner " + runner + " running!");
+                    Thread.sleep((long)(Math.random() * 1000));
+                    System.out.println("Runner " + runner + " finished!");
+                    // TODO: Signal done
+                } catch (InterruptedException e) {}
+            }).start();
+        }
+        
+        Thread.sleep(1000);
+        System.out.println("GO!");
+        // TODO: Release start signal
+        // TODO: Wait for all to finish
+        System.out.println("Race complete!");
+    }
+}`,
+      solution: `import java.util.concurrent.*;
+
+public class RaceSimulation {
+    public static void main(String[] args) throws InterruptedException {
+        int numRunners = 5;
+        CountDownLatch startSignal = new CountDownLatch(1);
+        CountDownLatch doneSignal = new CountDownLatch(numRunners);
+        
+        for (int i = 1; i <= numRunners; i++) {
+            final int runner = i;
+            new Thread(() -> {
+                try {
+                    System.out.println("Runner " + runner + " ready");
+                    startSignal.await();
+                    System.out.println("Runner " + runner + " running!");
+                    Thread.sleep((long)(Math.random() * 1000));
+                    System.out.println("Runner " + runner + " finished!");
+                    doneSignal.countDown();
+                } catch (InterruptedException e) {}
+            }).start();
+        }
+        
+        Thread.sleep(1000);
+        System.out.println("GO!");
+        startSignal.countDown();
+        doneSignal.await();
+        System.out.println("Race complete!");
+    }
+}`
+    },
+    { id: 4, title: 'Semaphore Rate Limiting', difficulty: 'Hard', description: 'Implement rate limiting using Semaphore to control concurrent access.', example: 'Allow max 3 concurrent database connections',
+      instructions: `Use Semaphore to limit concurrent access.
+
+**Requirements:**
+1. Create Semaphore with 3 permits
+2. Acquire permit before accessing resource
+3. Release permit after done`,
+      starterCode: `import java.util.concurrent.*;
+
+public class ConnectionPool {
+    // TODO: Create Semaphore with 3 permits
+    private static Semaphore semaphore = null;
+    
+    public static void useConnection(int id) {
+        try {
+            // TODO: Acquire permit
+            System.out.println("Connection " + id + " acquired");
+            Thread.sleep(2000); // Simulate work
+            System.out.println("Connection " + id + " released");
+        } catch (InterruptedException e) {
+        } finally {
+            // TODO: Release permit
+        }
+    }
+    
+    public static void main(String[] args) {
+        for (int i = 1; i <= 10; i++) {
+            final int id = i;
+            new Thread(() -> useConnection(id)).start();
+        }
+    }
+}`,
+      solution: `import java.util.concurrent.*;
+
+public class ConnectionPool {
+    private static Semaphore semaphore = new Semaphore(3);
+    
+    public static void useConnection(int id) {
+        try {
+            semaphore.acquire();
+            System.out.println("Connection " + id + " acquired (available: " + semaphore.availablePermits() + ")");
+            Thread.sleep(2000);
+            System.out.println("Connection " + id + " released");
+        } catch (InterruptedException e) {
+        } finally {
+            semaphore.release();
+        }
+    }
+    
+    public static void main(String[] args) {
+        for (int i = 1; i <= 10; i++) {
+            final int id = i;
+            new Thread(() -> useConnection(id)).start();
+        }
+    }
+}`
+    }
+  ]
 
   // =============================================================================
   // CONCEPTS DATA
@@ -1938,6 +2169,7 @@ public void testRaceCondition() throws Exception {
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={MULTITHREADING_COLORS}
         />
       </div>
@@ -1956,6 +2188,67 @@ public void testRaceCondition() throws Exception {
           Learn to write safe, efficient multithreaded code using modern Java concurrency utilities.
         </p>
       </div>
+
+      {/* Practice Exercises Section */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid rgba(6, 182, 212, 0.3)' }}>
+        <h2 style={{ color: '#06b6d4', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span>📝</span> Practice Exercises</h2>
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Click on an exercise to practice. Complete the code challenge and mark as done.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+          {practiceProblems.map((problem) => {
+            const problemId = `Multithreading-${problem.id}`
+            const isCompleted = isProblemCompleted(problemId)
+            return (
+              <div key={problem.id} onClick={() => openProblem(problem)} style={{ background: isCompleted ? 'rgba(34, 197, 94, 0.1)' : 'rgba(30, 41, 59, 0.8)', borderRadius: '0.75rem', padding: '1rem', border: `1px solid ${isCompleted ? '#22c55e' : '#334155'}`, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = '#06b6d4'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(6, 182, 212, 0.2)' }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = isCompleted ? '#22c55e' : '#334155'; e.currentTarget.style.boxShadow = 'none' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+                  <h4 style={{ color: '#e2e8f0', margin: 0, fontSize: '0.95rem' }}>{problem.title}</h4>
+                  <span style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '600', backgroundColor: problem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : problem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: problem.difficulty === 'Easy' ? '#22c55e' : problem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{problem.difficulty}</span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.5rem 0', lineHeight: '1.4' }}>{problem.description}</p>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0.5rem 0', fontStyle: 'italic' }}>{problem.example}</p>
+                <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#06b6d4', fontSize: '0.8rem', fontWeight: '500' }}>Click to practice →</span>
+                  <div onClick={(e) => e.stopPropagation()}><CompletionCheckbox problemId={problemId} compact /></div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Practice Problem Modal */}
+      {selectedProblem && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }} onClick={closeProblem}>
+          <div style={{ backgroundColor: '#1f2937', borderRadius: '1rem', width: '95vw', maxWidth: '1400px', height: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', border: '2px solid #06b6d4' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid #374151', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <h2 style={{ color: '#e2e8f0', margin: 0, fontSize: '1.5rem' }}>{selectedProblem.title}</h2>
+                <span style={{ padding: '0.3rem 0.75rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600', backgroundColor: selectedProblem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : selectedProblem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: selectedProblem.difficulty === 'Easy' ? '#22c55e' : selectedProblem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{selectedProblem.difficulty}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <CompletionCheckbox problemId={`Multithreading-${selectedProblem.id}`} compact />
+                <button onClick={closeProblem} style={{ padding: '0.5rem 1rem', backgroundColor: '#374151', color: '#e2e8f0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem' }}>✕ Close</button>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', flex: 1, overflow: 'hidden' }}>
+              <div style={{ padding: '1.5rem', borderRight: '1px solid #374151', overflowY: 'auto' }}>
+                <h3 style={{ color: '#06b6d4', marginTop: 0, marginBottom: '1rem' }}>📋 Instructions</h3>
+                <div style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>{selectedProblem.instructions.split('**').map((part, i) => i % 2 === 1 ? <strong key={i} style={{ color: '#e2e8f0' }}>{part}</strong> : part)}</div>
+              </div>
+              <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                  <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedProblem.solution) }} style={{ padding: '0.5rem 1rem', backgroundColor: showSolution ? '#ef4444' : '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>{showSolution ? '🔒 Hide Solution' : '💡 Show Solution'}</button>
+                  <button onClick={() => { setUserCode(selectedProblem.starterCode); setShowSolution(false) }} style={{ padding: '0.5rem 1rem', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>🔄 Reset Code</button>
+                  <button onClick={() => navigator.clipboard.writeText(userCode)} style={{ padding: '0.5rem 1rem', backgroundColor: '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>📋 Copy Code</button>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                  <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'Consolas, Monaco, "Courier New", monospace', fontSize: '0.9rem', backgroundColor: '#111827', color: '#e2e8f0', border: '1px solid #374151', borderRadius: '8px', resize: 'none', lineHeight: '1.5' }} spellCheck={false} />
+                </div>
+                <p style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '0.75rem', marginBottom: 0 }}>💡 Copy this code to your IDE to run and test. Mark as complete when you've solved it!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Concept Cards Grid */}
       <div style={{
@@ -2020,9 +2313,7 @@ public void testRaceCondition() throws Exception {
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              width: '100%',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`
             }}
@@ -2032,6 +2323,7 @@ public void testRaceCondition() throws Exception {
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
               colors={MULTITHREADING_COLORS}
             />
 

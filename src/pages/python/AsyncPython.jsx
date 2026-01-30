@@ -487,7 +487,7 @@ export default function AsyncPython({ onBack, breadcrumb }) {
         </button>
 
         {/* Breadcrumb */}
-        {breadcrumb && <Breadcrumb items={breadcrumb} />}
+        {breadcrumb && <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />}
 
         {/* Page Title */}
         <h1 style={{

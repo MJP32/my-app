@@ -63,11 +63,25 @@ function Frameworks({ onBack, onSelectItem, breadcrumb }) {
       description: 'Modern JavaScript library for building user interfaces with components, hooks, and state management.'
     },
     {
-      id: 'DependencyInjection',
+      id: 'Dependency Injection',
       name: 'Dependency Injection',
       icon: '💉',
       color: '#ec4899',
       description: 'Dependency Injection patterns and IoC containers for loosely coupled, testable applications.'
+    },
+    {
+      id: 'Zipkin',
+      name: 'Zipkin',
+      icon: '🔍',
+      color: '#8b5cf6',
+      description: 'Distributed tracing system for monitoring and troubleshooting microservices architectures.'
+    },
+    {
+      id: 'Actuator',
+      name: 'Spring Boot Actuator',
+      icon: '📊',
+      color: '#14b8a6',
+      description: 'Production-ready monitoring and management endpoints for Spring Boot applications.'
     }
   ]
 
@@ -142,6 +156,7 @@ function Frameworks({ onBack, onSelectItem, breadcrumb }) {
             { name: 'Frameworks', icon: '🌱' }
           ]}
           colors={FRAMEWORK_COLORS}
+          onMainMenu={breadcrumb?.onMainMenu}
         />
 
         <p style={{

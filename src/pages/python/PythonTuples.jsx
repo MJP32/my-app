@@ -1244,7 +1244,7 @@ list2 = list(gen)  # [] - empty! Already consumed`,
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         <p style={{
           fontSize: '1.2rem',

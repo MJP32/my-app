@@ -829,7 +829,7 @@ export default function YouTube({ onBack, breadcrumb }) {
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         {/* Tabs */}
         <div style={{

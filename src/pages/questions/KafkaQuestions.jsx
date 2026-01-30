@@ -905,6 +905,1056 @@ max.partition.fetch.bytes=1048576
 - Single producer: 50-100 MB/s per partition
 - Single consumer: 80-150 MB/s per partition
 - With optimization: 500+ MB/s per broker`
+    },
+    {
+      id: 6,
+      category: 'Consumer Groups',
+      question: 'How do Kafka Consumer Groups work and what is rebalancing?',
+      answer: `**Consumer Groups:**
+- Logical group of consumers that work together to consume a topic
+- Each partition assigned to exactly one consumer in the group
+- Enables load balancing and fault tolerance
+
+**Consumer Group Coordination:**
+\`\`\`java
+Properties props = new Properties();
+props.put("group.id", "order-processors");  // Same group ID
+props.put("bootstrap.servers", "localhost:9092");
+
+// Consumer 1
+KafkaConsumer<String, String> consumer1 = new KafkaConsumer<>(props);
+consumer1.subscribe(Arrays.asList("orders"));  // Gets partitions 0,1
+
+// Consumer 2 (same group)
+KafkaConsumer<String, String> consumer2 = new KafkaConsumer<>(props);
+consumer2.subscribe(Arrays.asList("orders"));  // Gets partitions 2,3
+\`\`\`
+
+**Partition Assignment:**
+\`\`\`
+Topic: orders (4 partitions)
+Consumer Group: order-processors
+
+Scenario 1: 2 consumers, 4 partitions
+├── Consumer 1: Partition 0, Partition 1
+└── Consumer 2: Partition 2, Partition 3
+
+Scenario 2: 4 consumers, 4 partitions
+├── Consumer 1: Partition 0
+├── Consumer 2: Partition 1
+├── Consumer 3: Partition 2
+└── Consumer 4: Partition 3
+
+Scenario 3: 5 consumers, 4 partitions
+├── Consumer 1: Partition 0
+├── Consumer 2: Partition 1
+├── Consumer 3: Partition 2
+├── Consumer 4: Partition 3
+└── Consumer 5: (idle - no partitions)
+\`\`\`
+
+**Rebalancing:**
+
+**What triggers rebalancing?**
+1. New consumer joins the group
+2. Consumer leaves (shutdown or failure)
+3. Number of partitions changes
+4. Consumer exceeds max.poll.interval.ms
+
+**Rebalancing Process:**
+\`\`\`
+1. Consumer stops fetching → commits offsets
+2. All consumers give up partitions
+3. Group coordinator reassigns partitions
+4. Consumers resume with new assignments
+\`\`\`
+
+**Rebalancing Strategies:**
+
+**1. Range Assignor (default):**
+\`\`\`java
+props.put("partition.assignment.strategy", "RangeAssignor");
+
+// Assigns partitions sequentially
+Topic1: P0,P1,P2,P3
+├── C1: P0,P1
+└── C2: P2,P3
+\`\`\`
+
+**2. Round Robin:**
+\`\`\`java
+props.put("partition.assignment.strategy", "RoundRobinAssignor");
+
+// Distributes evenly across all topics
+Topic1: P0,P1,P2,P3
+Topic2: P0,P1
+├── C1: T1-P0, T1-P2, T2-P0
+└── C2: T1-P1, T1-P3, T2-P1
+\`\`\`
+
+**3. Sticky Assignor:**
+\`\`\`java
+props.put("partition.assignment.strategy", "StickyAssignor");
+
+// Minimizes partition movement during rebalance
+// Keeps as many existing assignments as possible
+\`\`\`
+
+**4. Cooperative Sticky (Incremental):**
+\`\`\`java
+props.put("partition.assignment.strategy", "CooperativeStickyAssignor");
+
+// Only reassigns affected partitions
+// Other consumers keep consuming during rebalance
+\`\`\`
+
+**Avoiding Rebalance Issues:**
+
+**1. Configure timeouts properly:**
+\`\`\`java
+// How long consumer can go without polling before being removed
+props.put("max.poll.interval.ms", "300000");  // 5 minutes
+
+// Heartbeat interval (should be 1/3 of session timeout)
+props.put("heartbeat.interval.ms", "3000");
+
+// Session timeout
+props.put("session.timeout.ms", "10000");
+\`\`\`
+
+**2. Process quickly:**
+\`\`\`java
+while (true) {
+    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+
+    // Process quickly to avoid exceeding max.poll.interval.ms
+    for (ConsumerRecord<String, String> record : records) {
+        processQuickly(record);  // Don't do slow operations here
+    }
+
+    consumer.commitSync();  // Commit before next poll
+}
+\`\`\`
+
+**3. Static Membership (Kafka 2.3+):**
+\`\`\`java
+// Assign static member ID to avoid rebalance on restart
+props.put("group.instance.id", "consumer-1");
+
+// Consumer restart won't trigger rebalance
+// Partitions wait for consumer to rejoin (up to session.timeout.ms)
+\`\`\`
+
+**Monitoring Rebalances:**
+\`\`\`java
+consumer.subscribe(Arrays.asList("orders"), new ConsumerRebalanceListener() {
+    @Override
+    public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+        System.out.println("Partitions revoked: " + partitions);
+        // Commit offsets before losing partitions
+        consumer.commitSync();
+    }
+
+    @Override
+    public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+        System.out.println("Partitions assigned: " + partitions);
+        // Can seek to specific offsets here
+    }
+});
+\`\`\``
+    },
+    {
+      id: 7,
+      category: 'Delivery Semantics',
+      question: 'Explain Kafka delivery guarantees: at-most-once, at-least-once, and exactly-once',
+      answer: `**Kafka Delivery Semantics:**
+
+**1. At-Most-Once (messages may be lost, never duplicated):**
+
+**Producer:**
+\`\`\`java
+props.put("acks", "0");  // Don't wait for acknowledgment
+
+producer.send(record);  // Fire and forget
+// If send fails, message is lost
+\`\`\`
+
+**Consumer:**
+\`\`\`java
+// Commit offset BEFORE processing
+consumer.commitSync();
+ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+processRecords(records);
+// If processing fails, message is lost (already committed)
+\`\`\`
+
+**Use Case:** Metrics, logs where occasional loss is acceptable
+
+**2. At-Least-Once (messages may be duplicated, never lost):**
+
+**Producer:**
+\`\`\`java
+props.put("acks", "all");  // Wait for all replicas
+props.put("retries", Integer.MAX_VALUE);
+props.put("max.in.flight.requests.per.connection", 1);  // Prevent reordering
+
+producer.send(record).get();  // Wait for acknowledgment
+// If network error, message may be sent twice
+\`\`\`
+
+**Consumer:**
+\`\`\`java
+// Process BEFORE committing offset
+ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+processRecords(records);
+consumer.commitSync();  // Commit after successful processing
+
+// If crash after processing but before commit:
+// Message will be reprocessed on restart
+\`\`\`
+
+**Use Case:** Most common - acceptable with idempotent processing
+
+**3. Exactly-Once Semantics (EOS):**
+
+**Idempotent Producer (Kafka 0.11+):**
+\`\`\`java
+props.put("enable.idempotence", "true");
+// Automatically sets:
+// - acks=all
+// - retries=Integer.MAX_VALUE
+// - max.in.flight.requests.per.connection=5
+
+Producer<String, String> producer = new KafkaProducer<>(props);
+
+// Producer ID and sequence number prevent duplicates
+// Same message sent twice = stored once
+producer.send(new ProducerRecord<>("orders", "key", "value"));
+\`\`\`
+
+**How Idempotent Producer Works:**
+\`\`\`
+Producer sends: [PID=100, Seq=0, Data="msg1"]
+Broker receives and stores: msg1
+
+Network fails, producer retries
+Producer sends again: [PID=100, Seq=0, Data="msg1"]
+Broker sees duplicate sequence → ignores, returns success
+
+Result: Message stored exactly once
+\`\`\`
+
+**Transactions (Read-Process-Write Exactly-Once):**
+\`\`\`java
+// Producer with transactions
+props.put("transactional.id", "order-processor-1");
+props.put("enable.idempotence", "true");
+
+Producer<String, String> producer = new KafkaProducer<>(props);
+producer.initTransactions();
+
+try {
+    // Begin transaction
+    producer.beginTransaction();
+
+    // Send messages
+    producer.send(new ProducerRecord<>("output-topic", "result1"));
+    producer.send(new ProducerRecord<>("output-topic", "result2"));
+
+    // Commit offsets within transaction
+    producer.sendOffsetsToTransaction(offsets, consumerGroupId);
+
+    // Commit transaction
+    producer.commitTransaction();
+} catch (Exception e) {
+    producer.abortTransaction();
+}
+\`\`\`
+
+**Exactly-Once with Kafka Streams:**
+\`\`\`java
+Properties props = new Properties();
+props.put(StreamsConfig.APPLICATION_ID_CONFIG, "word-count");
+props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG,
+          StreamsConfig.EXACTLY_ONCE_V2);  // Exactly-once guarantee
+
+StreamsBuilder builder = new StreamsBuilder();
+KStream<String, String> input = builder.stream("input-topic");
+
+input.flatMapValues(value -> Arrays.asList(value.split(" ")))
+     .groupBy((key, word) -> word)
+     .count()
+     .toStream()
+     .to("output-topic");
+
+KafkaStreams streams = new KafkaStreams(builder.build(), props);
+streams.start();
+// All transformations are exactly-once
+\`\`\`
+
+**Transactional Consumer:**
+\`\`\`java
+props.put("isolation.level", "read_committed");  // Only read committed messages
+
+KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+consumer.subscribe(Arrays.asList("output-topic"));
+
+while (true) {
+    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+    // Only receives messages from committed transactions
+    // Aborted transactions are filtered out
+    for (ConsumerRecord<String, String> record : records) {
+        process(record);
+    }
+}
+\`\`\`
+
+**Exactly-Once Workflow:**
+\`\`\`
+1. Consumer reads from input-topic
+2. Producer begins transaction
+3. Producer writes to output-topic
+4. Producer commits consumer offsets within transaction
+5. Producer commits transaction
+
+If any step fails:
+- Transaction aborted
+- Offsets not committed
+- Consumer will re-read same messages
+- No duplicate processing
+\`\`\`
+
+**Performance Impact:**
+\`\`\`
+At-most-once:  Fastest (no guarantees)
+At-least-once: Fast (default, good for most)
+Exactly-once:  Slower (~20-30% overhead, but worth it)
+\`\`\`
+
+**Best Practices:**
+- Use idempotent producer for all production systems
+- Use transactions for read-process-write patterns
+- Use exactly-once-v2 in Kafka Streams
+- Consider at-least-once + idempotent processing as alternative`
+    },
+    {
+      id: 8,
+      category: 'Kafka Streams',
+      question: 'What is Kafka Streams and how does it differ from Kafka Consumer API?',
+      answer: `**Kafka Streams:**
+- Client library for processing data in Kafka
+- Stream processing framework (like Apache Flink, Spark Streaming)
+- Built on top of Kafka Consumer/Producer APIs
+- Stateful processing with local state stores
+
+**Kafka Streams vs Consumer API:**
+
+\`\`\`
+Consumer API:
+- Low-level control
+- Manual state management
+- Manual partition assignment
+- More code for simple operations
+
+Kafka Streams:
+- High-level DSL (domain-specific language)
+- Automatic state management
+- Automatic partition assignment
+- Built-in windowing, joins, aggregations
+\`\`\`
+
+**Simple Example - Word Count:**
+
+**With Consumer API:**
+\`\`\`java
+Map<String, Integer> wordCounts = new HashMap<>();
+KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+consumer.subscribe(Arrays.asList("input"));
+
+while (true) {
+    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+    for (ConsumerRecord<String, String> record : records) {
+        String[] words = record.value().split(" ");
+        for (String word : words) {
+            wordCounts.put(word, wordCounts.getOrDefault(word, 0) + 1);
+        }
+    }
+    // Manual offset commits
+    // Manual state persistence
+    // Manual failure handling
+}
+\`\`\`
+
+**With Kafka Streams:**
+\`\`\`java
+StreamsBuilder builder = new StreamsBuilder();
+
+KStream<String, String> textLines = builder.stream("input");
+
+KTable<String, Long> wordCounts = textLines
+    .flatMapValues(line -> Arrays.asList(line.split(" ")))
+    .groupBy((key, word) -> word)
+    .count();  // Automatically managed state store
+
+wordCounts.toStream().to("output");
+
+KafkaStreams streams = new KafkaStreams(builder.build(), props);
+streams.start();
+// Automatic offset commits, state management, failure recovery
+\`\`\`
+
+**Key Features:**
+
+**1. Stateful Processing:**
+\`\`\`java
+// Aggregation with state
+KTable<String, Long> aggregated = stream
+    .groupByKey()
+    .aggregate(
+        () -> 0L,  // Initializer
+        (key, value, aggregate) -> aggregate + value,  // Aggregator
+        Materialized.as("aggregate-store")  // State store name
+    );
+
+// State stores are fault-tolerant
+// Backed by changelog topics
+// Automatically restored on failure
+\`\`\`
+
+**2. Windowing:**
+\`\`\`java
+// Tumbling window (non-overlapping)
+stream.groupByKey()
+    .windowedBy(TimeWindows.of(Duration.ofMinutes(5)))
+    .count()
+    .toStream()
+    .to("windowed-counts");
+
+// Hopping window (overlapping)
+stream.groupByKey()
+    .windowedBy(TimeWindows.of(Duration.ofMinutes(5))
+                          .advanceBy(Duration.ofMinutes(1)))
+    .count();
+
+// Session window (dynamic, based on inactivity)
+stream.groupByKey()
+    .windowedBy(SessionWindows.with(Duration.ofMinutes(5)))
+    .count();
+\`\`\`
+
+**3. Joins:**
+\`\`\`java
+KStream<String, Order> orders = builder.stream("orders");
+KTable<String, Customer> customers = builder.table("customers");
+
+// Stream-Table join (orders enriched with customer data)
+KStream<String, OrderWithCustomer> enriched = orders.join(
+    customers,
+    (order, customer) -> new OrderWithCustomer(order, customer),
+    Joined.with(Serdes.String(), orderSerde, customerSerde)
+);
+
+// Stream-Stream join (within time window)
+KStream<String, Payment> payments = builder.stream("payments");
+KStream<String, OrderPayment> matched = orders.join(
+    payments,
+    (order, payment) -> new OrderPayment(order, payment),
+    JoinWindows.of(Duration.ofMinutes(5))  // Match within 5 min
+);
+\`\`\`
+
+**4. KStream vs KTable:**
+\`\`\`java
+// KStream: Stream of events (append-only log)
+KStream<String, String> stream = builder.stream("events");
+// Each record is a new event
+// [user1, "login"], [user1, "click"], [user1, "logout"]
+
+// KTable: Changelog stream (latest value per key)
+KTable<String, String> table = builder.table("users");
+// Each record updates the state
+// [user1, "status=online"] → [user1, "status=offline"]
+// Table has: {user1: "status=offline"}
+
+// Converting
+KTable<String, Long> table = stream.groupByKey().count();
+KStream<String, Long> stream = table.toStream();
+\`\`\`
+
+**5. Interactive Queries:**
+\`\`\`java
+// Query local state store
+ReadOnlyKeyValueStore<String, Long> store = streams.store(
+    StoreQueryParameters.fromNameAndType(
+        "word-counts",
+        QueryableStoreTypes.keyValueStore()
+    )
+);
+
+// Get value
+Long count = store.get("hello");
+
+// Range scan
+KeyValueIterator<String, Long> range = store.range("a", "z");
+\`\`\`
+
+**Topology:**
+\`\`\`java
+// Stream processing topology
+StreamsBuilder builder = new StreamsBuilder();
+
+KStream<String, String> source = builder.stream("input");
+
+source
+    .filter((key, value) -> value.length() > 10)  // Filter
+    .mapValues(value -> value.toUpperCase())       // Transform
+    .to("output");                                  // Sink
+
+// View topology
+Topology topology = builder.build();
+System.out.println(topology.describe());
+\`\`\`
+
+**Scaling:**
+\`\`\`
+Single Application Instance:
+- Processes all partitions
+- All state stores local
+
+Multiple Instances (Same application.id):
+- Partitions distributed across instances
+- Each instance processes subset of partitions
+- State stores partitioned accordingly
+- Automatic rebalancing on instance add/remove
+
+Example: 3 instances, 6 partitions
+├── Instance 1: P0, P1
+├── Instance 2: P2, P3
+└── Instance 3: P4, P5
+\`\`\`
+
+**Use Cases:**
+- Real-time aggregations
+- Stream enrichment
+- Event-driven microservices
+- Real-time analytics
+- Fraud detection
+- Monitoring and alerting`
+    },
+    {
+      id: 9,
+      category: 'Security',
+      question: 'How do you secure Kafka? Explain authentication, authorization, and encryption',
+      answer: `**Kafka Security Components:**
+
+**1. Authentication (Who are you?)**
+
+**SASL/PLAIN:**
+\`\`\`properties
+# Server config (server.properties)
+listeners=SASL_PLAINTEXT://localhost:9092
+security.inter.broker.protocol=SASL_PLAINTEXT
+sasl.mechanism.inter.broker.protocol=PLAIN
+sasl.enabled.mechanisms=PLAIN
+
+# JAAS config
+KafkaServer {
+    org.apache.kafka.common.security.plain.PlainLoginModule required
+    username="admin"
+    password="admin-secret"
+    user_admin="admin-secret"
+    user_producer="producer-secret"
+    user_consumer="consumer-secret";
+};
+\`\`\`
+
+\`\`\`java
+// Client config
+props.put("security.protocol", "SASL_PLAINTEXT");
+props.put("sasl.mechanism", "PLAIN");
+props.put("sasl.jaas.config",
+    "org.apache.kafka.common.security.plain.PlainLoginModule required " +
+    "username='producer' password='producer-secret';");
+\`\`\`
+
+**SASL/SCRAM (better than PLAIN):**
+\`\`\`bash
+# Create user in ZooKeeper
+kafka-configs.sh --zookeeper localhost:2181 --alter \\
+    --add-config 'SCRAM-SHA-256=[password=alice-secret]' \\
+    --entity-type users --entity-name alice
+\`\`\`
+
+\`\`\`properties
+# Server config
+sasl.enabled.mechanisms=SCRAM-SHA-256
+sasl.mechanism.inter.broker.protocol=SCRAM-SHA-256
+\`\`\`
+
+\`\`\`java
+// Client config
+props.put("sasl.mechanism", "SCRAM-SHA-256");
+props.put("sasl.jaas.config",
+    "org.apache.kafka.common.security.scram.ScramLoginModule required " +
+    "username='alice' password='alice-secret';");
+\`\`\`
+
+**SASL/GSSAPI (Kerberos):**
+\`\`\`properties
+# Server config
+listeners=SASL_PLAINTEXT://localhost:9092
+security.inter.broker.protocol=SASL_PLAINTEXT
+sasl.mechanism.inter.broker.protocol=GSSAPI
+sasl.enabled.mechanisms=GSSAPI
+sasl.kerberos.service.name=kafka
+\`\`\`
+
+\`\`\`java
+// Client config
+props.put("security.protocol", "SASL_PLAINTEXT");
+props.put("sasl.mechanism", "GSSAPI");
+props.put("sasl.kerberos.service.name", "kafka");
+props.put("sasl.jaas.config",
+    "com.sun.security.auth.module.Krb5LoginModule required " +
+    "useKeyTab=true " +
+    "storeKey=true " +
+    "keyTab='/path/to/keytab' " +
+    "principal='kafka-client@EXAMPLE.COM';");
+\`\`\`
+
+**2. Authorization (What can you do?)**
+
+**Enable ACLs:**
+\`\`\`properties
+# Server config
+authorizer.class.name=kafka.security.authorizer.AclAuthorizer
+super.users=User:admin
+allow.everyone.if.no.acl.found=false
+\`\`\`
+
+**Grant Permissions:**
+\`\`\`bash
+# Grant WRITE permission on topic
+kafka-acls.sh --authorizer-properties zookeeper.connect=localhost:2181 \\
+    --add --allow-principal User:producer \\
+    --operation Write --topic orders
+
+# Grant READ permission on topic and consumer group
+kafka-acls.sh --authorizer-properties zookeeper.connect=localhost:2181 \\
+    --add --allow-principal User:consumer \\
+    --operation Read --topic orders \\
+    --group order-processors
+
+# Grant CREATE permission
+kafka-acls.sh --authorizer-properties zookeeper.connect=localhost:2181 \\
+    --add --allow-principal User:admin \\
+    --operation Create --cluster
+
+# List ACLs
+kafka-acls.sh --authorizer-properties zookeeper.connect=localhost:2181 \\
+    --list --topic orders
+
+# Remove ACL
+kafka-acls.sh --authorizer-properties zookeeper.connect=localhost:2181 \\
+    --remove --allow-principal User:producer \\
+    --operation Write --topic orders
+\`\`\`
+
+**ACL Operations:**
+\`\`\`
+Topic Operations:
+- READ: Consume from topic
+- WRITE: Produce to topic
+- CREATE: Create topic
+- DELETE: Delete topic
+- DESCRIBE: Describe topic
+- ALTER: Alter topic config
+
+Consumer Group Operations:
+- READ: Join group and consume
+- DESCRIBE: Describe group
+
+Cluster Operations:
+- CREATE: Create topics
+- CLUSTER_ACTION: Execute cluster operations
+- DESCRIBE_CONFIGS: Describe configs
+- ALTER_CONFIGS: Alter configs
+\`\`\`
+
+**3. Encryption:**
+
+**SSL/TLS Encryption:**
+\`\`\`bash
+# Generate keystore for broker
+keytool -keystore kafka.server.keystore.jks -alias localhost \\
+    -keyalg RSA -validity 365 -genkey
+
+# Generate CA certificate
+openssl req -new -x509 -keyout ca-key -out ca-cert -days 365
+
+# Sign broker certificate
+keytool -keystore kafka.server.keystore.jks -alias localhost \\
+    -certreq -file cert-file
+
+openssl x509 -req -CA ca-cert -CAkey ca-key -in cert-file \\
+    -out cert-signed -days 365 -CAcreateserial
+
+# Import CA cert and signed cert
+keytool -keystore kafka.server.keystore.jks -alias CARoot \\
+    -import -file ca-cert
+
+keytool -keystore kafka.server.keystore.jks -alias localhost \\
+    -import -file cert-signed
+
+# Generate truststore
+keytool -keystore kafka.server.truststore.jks -alias CARoot \\
+    -import -file ca-cert
+\`\`\`
+
+\`\`\`properties
+# Server config
+listeners=SSL://localhost:9093
+ssl.keystore.location=/var/private/ssl/kafka.server.keystore.jks
+ssl.keystore.password=keystore-password
+ssl.key.password=key-password
+ssl.truststore.location=/var/private/ssl/kafka.server.truststore.jks
+ssl.truststore.password=truststore-password
+ssl.client.auth=required
+\`\`\`
+
+\`\`\`java
+// Client config
+props.put("security.protocol", "SSL");
+props.put("ssl.truststore.location", "/var/private/ssl/kafka.client.truststore.jks");
+props.put("ssl.truststore.password", "truststore-password");
+props.put("ssl.keystore.location", "/var/private/ssl/kafka.client.keystore.jks");
+props.put("ssl.keystore.password", "keystore-password");
+props.put("ssl.key.password", "key-password");
+\`\`\`
+
+**Combined: SASL + SSL:**
+\`\`\`properties
+# Server config
+listeners=SASL_SSL://localhost:9093
+security.inter.broker.protocol=SASL_SSL
+sasl.mechanism.inter.broker.protocol=SCRAM-SHA-256
+sasl.enabled.mechanisms=SCRAM-SHA-256
+ssl.keystore.location=/path/to/keystore.jks
+ssl.truststore.location=/path/to/truststore.jks
+\`\`\`
+
+\`\`\`java
+// Client config
+props.put("security.protocol", "SASL_SSL");
+props.put("sasl.mechanism", "SCRAM-SHA-256");
+props.put("sasl.jaas.config",
+    "org.apache.kafka.common.security.scram.ScramLoginModule required " +
+    "username='alice' password='alice-secret';");
+props.put("ssl.truststore.location", "/path/to/truststore.jks");
+props.put("ssl.truststore.password", "password");
+\`\`\`
+
+**4. Data Encryption at Rest:**
+\`\`\`properties
+# Enable encryption for data at rest (file system level)
+# Use encrypted volumes or file system encryption
+# Kafka doesn't provide built-in encryption at rest
+\`\`\`
+
+**Best Practices:**
+1. Always use SSL for production
+2. Use SASL/SCRAM instead of PLAIN
+3. Enable ACLs with deny-by-default
+4. Rotate certificates regularly
+5. Use separate credentials for each client
+6. Monitor security metrics
+7. Enable audit logging
+8. Use VPC/network segmentation
+9. Encrypt backup data
+10. Implement proper key management`
+    },
+    {
+      id: 10,
+      category: 'Monitoring',
+      question: 'What metrics should you monitor in Kafka and how do you troubleshoot common issues?',
+      answer: `**Key Kafka Metrics:**
+
+**1. Broker Metrics:**
+
+**Under-replicated Partitions:**
+\`\`\`
+kafka.server:type=ReplicaManager,name=UnderReplicatedPartitions
+
+Critical metric - should always be 0
+If > 0: Follower replicas are not keeping up with leader
+Causes: Broker down, slow disk, network issues
+\`\`\`
+
+**Active Controller Count:**
+\`\`\`
+kafka.controller:type=KafkaController,name=ActiveControllerCount
+
+Should be 1 in cluster (exactly one controller)
+If 0: No controller elected (serious issue)
+If > 1: Split brain (multiple controllers - critical)
+\`\`\`
+
+**Offline Partitions:**
+\`\`\`
+kafka.controller:type=KafkaController,name=OfflinePartitionsCount
+
+Should always be 0
+If > 0: Some partitions have no leader (data unavailable)
+\`\`\`
+
+**Request Metrics:**
+\`\`\`
+kafka.network:type=RequestMetrics,name=TotalTimeMs,request=Produce
+kafka.network:type=RequestMetrics,name=TotalTimeMs,request=FetchConsumer
+
+Monitor latency for produce/fetch requests
+High latency indicates performance issues
+\`\`\`
+
+**2. Producer Metrics:**
+
+\`\`\`java
+// Record send rate
+producer.metrics().get(new MetricName(
+    "record-send-rate",
+    "producer-metrics",
+    "",
+    Collections.emptyMap()
+));
+
+// Batch size
+"batch-size-avg"  // Average batch size
+"record-queue-time-avg"  // Time records wait in buffer
+
+// Errors
+"record-error-rate"  // Errors per second
+"record-retry-rate"  // Retries per second
+\`\`\`
+
+**3. Consumer Metrics:**
+
+\`\`\`java
+// Consumer lag (critical!)
+kafka.consumer:type=consumer-fetch-manager-metrics,partition={},topic={},client-id={}
+"records-lag"  // Number of messages behind
+
+// Fetch metrics
+"fetch-latency-avg"  // Average fetch latency
+"records-per-request-avg"  // Records per fetch
+
+// Rebalance metrics
+"rebalance-latency-avg"  // Time spent in rebalance
+"rebalance-total"  // Total number of rebalances
+\`\`\`
+
+**4. Consumer Lag Monitoring:**
+
+\`\`\`bash
+# Check consumer lag
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 \\
+    --describe --group order-processors
+
+GROUP           TOPIC      PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG
+order-processors orders    0          12500           12500           0
+order-processors orders    1          11200           12800           1600  ← LAG!
+order-processors orders    2          10500           10500           0
+\`\`\`
+
+**Using Prometheus + JMX Exporter:**
+\`\`\`yaml
+# jmx_exporter config
+rules:
+  - pattern: kafka.server<type=(.+), name=(.+)><>Value
+    name: kafka_server_$1_$2
+    type: GAUGE
+
+  - pattern: kafka.controller<type=(.+), name=(.+)><>Value
+    name: kafka_controller_$1_$2
+    type: GAUGE
+
+  - pattern: kafka.network<type=RequestMetrics, name=TotalTimeMs, request=(.+)><>Mean
+    name: kafka_network_request_total_time_ms
+    labels:
+      request: $1
+    type: GAUGE
+\`\`\`
+
+**Common Issues and Troubleshooting:**
+
+**1. High Consumer Lag:**
+
+**Symptoms:**
+- Consumer can't keep up with producers
+- records-lag metric increasing
+
+**Diagnosis:**
+\`\`\`bash
+# Check lag per partition
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 \\
+    --describe --group order-processors
+
+# Check consumer throughput
+# Look for slow processing in application logs
+\`\`\`
+
+**Solutions:**
+\`\`\`java
+// Option 1: Add more consumers (if lag is spread across partitions)
+// If 4 partitions and 2 consumers with lag → add 2 more consumers
+
+// Option 2: Increase fetch size
+props.put("max.poll.records", "1000");  // Process more records per poll
+props.put("fetch.min.bytes", "100000");  // Fetch larger batches
+
+// Option 3: Optimize processing
+// Move slow operations to async threads
+ExecutorService executor = Executors.newFixedThreadPool(10);
+while (true) {
+    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+    for (ConsumerRecord<String, String> record : records) {
+        executor.submit(() -> processRecord(record));  // Async processing
+    }
+    consumer.commitAsync();  // Don't block on commit
+}
+
+// Option 4: Add more partitions to topic
+kafka-topics.sh --bootstrap-server localhost:9092 \\
+    --alter --topic orders --partitions 8
+\`\`\`
+
+**2. Under-Replicated Partitions:**
+
+**Symptoms:**
+- UnderReplicatedPartitions > 0
+- Follower replicas not in sync with leader
+
+**Diagnosis:**
+\`\`\`bash
+# Check broker status
+kafka-broker-api-versions.sh --bootstrap-server localhost:9092
+
+# Check topic details
+kafka-topics.sh --bootstrap-server localhost:9092 \\
+    --describe --topic orders
+
+# Look for:
+Topic: orders  Partition: 0  Leader: 1  Replicas: 1,2,3  Isr: 1,3
+# ISR (In-Sync Replicas) missing broker 2 → under-replicated
+\`\`\`
+
+**Solutions:**
+\`\`\`bash
+# Check broker logs for errors
+tail -f /var/log/kafka/server.log
+
+# Common causes:
+# 1. Disk full → clean up old segments
+# 2. Network issues → check network connectivity
+# 3. Broker overloaded → add more brokers or reduce load
+# 4. Slow disk → upgrade storage
+
+# Increase replica lag time if needed
+replica.lag.time.max.ms=30000  # Allow more time for followers to catch up
+\`\`\`
+
+**3. Frequent Rebalances:**
+
+**Symptoms:**
+- High rebalance-total metric
+- Consumer performance degraded
+- "Rebalance in progress" errors
+
+**Diagnosis:**
+\`\`\`bash
+# Check consumer group state
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 \\
+    --describe --group order-processors --state
+
+# Look for frequent state changes
+\`\`\`
+
+**Solutions:**
+\`\`\`java
+// Increase timeouts
+props.put("max.poll.interval.ms", "600000");  // 10 minutes
+props.put("session.timeout.ms", "30000");     // 30 seconds
+props.put("heartbeat.interval.ms", "10000");   // 10 seconds
+
+// Use static membership (Kafka 2.3+)
+props.put("group.instance.id", "consumer-1");
+
+// Use incremental cooperative rebalancing
+props.put("partition.assignment.strategy", "CooperativeStickyAssignor");
+
+// Optimize processing to poll more frequently
+while (true) {
+    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+
+    // Process quickly
+    processBatch(records);  // < max.poll.interval.ms
+
+    consumer.commitSync();
+}
+\`\`\`
+
+**4. Message Loss:**
+
+**Diagnosis:**
+\`\`\`bash
+# Check producer acks setting
+# Check min.insync.replicas
+
+# Verify message count
+kafka-run-class.sh kafka.tools.GetOffsetShell \\
+    --broker-list localhost:9092 \\
+    --topic orders --time -1  # Get latest offsets
+\`\`\`
+
+**Solutions:**
+\`\`\`java
+// Producer: Use stronger guarantees
+props.put("acks", "all");  // Wait for all replicas
+props.put("retries", Integer.MAX_VALUE);
+props.put("enable.idempotence", "true");
+
+// Broker: Require minimum in-sync replicas
+min.insync.replicas=2  // At least 2 replicas must acknowledge
+\`\`\`
+
+**5. Performance Issues:**
+
+\`\`\`bash
+# Check disk I/O
+iostat -x 1
+
+# Check network throughput
+iftop
+
+# Check JVM heap usage
+jstat -gcutil <kafka_pid> 1000
+
+# Tune OS settings
+# Increase file descriptor limit
+ulimit -n 100000
+
+# Disable swap
+swappiness=1
+
+# Use deadline/noop I/O scheduler for SSDs
+echo noop > /sys/block/sda/queue/scheduler
+\`\`\`
+
+**Monitoring Tools:**
+1. **Kafka Manager (CMAK)** - UI for managing Kafka clusters
+2. **Burrow** - Consumer lag monitoring
+3. **Prometheus + Grafana** - Metrics and dashboards
+4. **Confluent Control Center** - Enterprise monitoring
+5. **LinkedIn Cruise Control** - Cluster management and rebalancing`
     }
   ]
 
@@ -960,7 +2010,7 @@ max.partition.fetch.bytes=1048576
         <div style={{ width: '150px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
       <p style={{
         fontSize: '1.1rem',

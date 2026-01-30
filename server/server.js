@@ -76,9 +76,8 @@ app.post('/api/execute-java', async (req, res) => {
 
     // Compile Java code
     const windowsJavaFilePath = toWindowsPath(javaFilePath);
-    const windowsExecDir = toWindowsPath(execDir);
 
-    const compileResult = await new Promise((resolve, reject) => {
+    const compileResult = await new Promise((resolve) => {
       exec(`"${JAVAC_CMD}" "${windowsJavaFilePath}"`, { cwd: execDir, timeout: 10000 }, (error, stdout, stderr) => {
         if (error) {
           resolve({ success: false, error: stderr || error.message });
@@ -98,7 +97,7 @@ app.post('/api/execute-java', async (req, res) => {
     }
 
     // Run Java code
-    const runResult = await new Promise((resolve, reject) => {
+    const runResult = await new Promise((resolve) => {
       exec(`"${JAVA_CMD}" "${className}"`, { cwd: execDir, timeout: 10000 }, (error, stdout, stderr) => {
         if (error && !stdout) {
           resolve({ success: false, error: stderr || error.message });
@@ -131,7 +130,7 @@ app.post('/api/execute-java', async (req, res) => {
     // Clean up on error
     try {
       await fs.rm(execDir, { recursive: true, force: true });
-    } catch (e) {
+    } catch {
       // Ignore cleanup errors
     }
 
@@ -245,7 +244,7 @@ app.post('/api/execute-java-tests', async (req, res) => {
   } catch (error) {
     try {
       await fs.rm(execDir, { recursive: true, force: true });
-    } catch (e) { /* ignore */ }
+    } catch { /* ignore */ }
 
     res.status(500).json({
       success: false,
@@ -299,7 +298,7 @@ app.post('/api/execute-python', async (req, res) => {
   } catch (error) {
     try {
       await fs.unlink(pythonFilePath);
-    } catch (e) { /* ignore */ }
+    } catch { /* ignore */ }
 
     res.status(500).json({
       success: false,
@@ -362,7 +361,7 @@ app.post('/api/execute-python-files', async (req, res) => {
   } catch (error) {
     try {
       await fs.rm(execDir, { recursive: true, force: true });
-    } catch (e) { /* ignore */ }
+    } catch { /* ignore */ }
 
     res.status(500).json({
       success: false,
@@ -438,7 +437,7 @@ app.post('/api/execute-python-tests', async (req, res) => {
   } catch (error) {
     try {
       await fs.unlink(pythonFilePath);
-    } catch (e) { /* ignore */ }
+    } catch { /* ignore */ }
 
     res.status(500).json({
       success: false,
@@ -674,7 +673,7 @@ app.post('/api/ai/chat', async (req, res) => {
 
 // AI Code Analysis endpoint
 app.post('/api/ai/analyze-code', async (req, res) => {
-  if (!anthropic) {
+  if (!defaultAnthropic) {
     return res.status(503).json({
       error: 'AI service not configured',
       configured: false
@@ -688,7 +687,7 @@ app.post('/api/ai/analyze-code', async (req, res) => {
   }
 
   try {
-    const response = await anthropic.messages.create({
+    const response = await defaultAnthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1500,
       system: `You are an expert code reviewer for coding interviews. Analyze the provided code and return a JSON response with the following structure:
@@ -734,7 +733,7 @@ Only respond with valid JSON, no other text.`,
 
 // AI Interview Question Generator
 app.post('/api/ai/generate-question', async (req, res) => {
-  if (!anthropic) {
+  if (!defaultAnthropic) {
     return res.status(503).json({
       error: 'AI service not configured',
       configured: false
@@ -744,7 +743,7 @@ app.post('/api/ai/generate-question', async (req, res) => {
   const { difficulty, topic, previousQuestions } = req.body;
 
   try {
-    const response = await anthropic.messages.create({
+    const response = await defaultAnthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1000,
       system: `You are an interview question generator. Generate a coding interview question suitable for a ${difficulty || 'medium'} difficulty level${topic ? ` focused on ${topic}` : ''}.
@@ -795,14 +794,14 @@ Only respond with valid JSON.`,
 // Check AI service status
 app.get('/api/ai/status', (req, res) => {
   res.json({
-    configured: !!anthropic,
-    model: anthropic ? 'claude-sonnet-4-20250514' : null
+    configured: !!defaultAnthropic,
+    model: defaultAnthropic ? 'claude-sonnet-4-20250514' : null
   });
 });
 
 // AI Evaluate Code Output - Evaluates execution results against expected output
 app.post('/api/ai/evaluate-output', async (req, res) => {
-  if (!anthropic) {
+  if (!defaultAnthropic) {
     return res.status(503).json({
       error: 'AI service not configured',
       configured: false
@@ -816,7 +815,7 @@ app.post('/api/ai/evaluate-output', async (req, res) => {
   }
 
   try {
-    const response = await anthropic.messages.create({
+    const response = await defaultAnthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1000,
       system: `You are an expert code evaluator for coding interviews. Analyze the code execution output and determine if the solution is correct.
@@ -879,7 +878,7 @@ ${expectedOutput ? `Expected Output:\n\`\`\`\n${expectedOutput}\n\`\`\`` : ''}`
 
 // AI Follow-up Questions - Generate follow-up questions after solving a problem
 app.post('/api/ai/follow-up-questions', async (req, res) => {
-  if (!anthropic) {
+  if (!defaultAnthropic) {
     return res.status(503).json({
       error: 'AI service not configured',
       configured: false
@@ -893,7 +892,7 @@ app.post('/api/ai/follow-up-questions', async (req, res) => {
   }
 
   try {
-    const response = await anthropic.messages.create({
+    const response = await defaultAnthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1200,
       system: `You are an experienced technical interviewer. After a candidate solves a coding problem, you ask follow-up questions to:
@@ -958,7 +957,7 @@ ${complexity ? `Stated Complexity: Time: ${complexity.time}, Space: ${complexity
 
 // AI Optimization Suggestions - Get specific optimization recommendations
 app.post('/api/ai/optimize', async (req, res) => {
-  if (!anthropic) {
+  if (!defaultAnthropic) {
     return res.status(503).json({
       error: 'AI service not configured',
       configured: false
@@ -972,7 +971,7 @@ app.post('/api/ai/optimize', async (req, res) => {
   }
 
   try {
-    const response = await anthropic.messages.create({
+    const response = await defaultAnthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1500,
       system: `You are an expert algorithm optimizer. Analyze the code and provide specific optimization suggestions focused on improving time and space complexity.

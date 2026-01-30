@@ -1945,6 +1945,7 @@ class SolutionOptimized:
           breadcrumb={problemBreadcrumb}
           breadcrumbStack={problemBreadcrumbStack}
           onBreadcrumbClick={handleProblemBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={breadcrumbColors}
         />
 
@@ -2058,6 +2059,7 @@ class SolutionOptimized:
         breadcrumb={breadcrumb}
         breadcrumbStack={breadcrumbStack}
         onBreadcrumbClick={onBreadcrumbClick}
+        onMainMenu={breadcrumb?.onMainMenu}
         colors={breadcrumbColors}
       />
 

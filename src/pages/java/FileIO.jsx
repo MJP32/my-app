@@ -9,6 +9,8 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
+import { isProblemCompleted } from '../../services/progressService'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -451,6 +453,225 @@ const TryWithResourcesDiagram = () => (
 function FileIO({ onBack, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [selectedProblem, setSelectedProblem] = useState(null)
+  const [userCode, setUserCode] = useState('')
+  const [showSolution, setShowSolution] = useState(false)
+
+  useEffect(() => {
+    const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
+    window.addEventListener('progressUpdate', handleProgressUpdate)
+    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
+  }, [])
+
+  const openProblem = (problem) => { setSelectedProblem(problem); setUserCode(problem.starterCode); setShowSolution(false) }
+  const closeProblem = () => { setSelectedProblem(null); setUserCode(''); setShowSolution(false) }
+
+  const practiceProblems = [
+    { id: 1, title: 'Read File with NIO', difficulty: 'Easy', description: 'Read all lines from a file using Files.readAllLines() and process them.', example: 'Files.readAllLines(Path.of("data.txt"))',
+      instructions: `Read a file using NIO.
+
+**Requirements:**
+1. Use Files.readAllLines()
+2. Process each line
+3. Handle IOException`,
+      starterCode: `import java.nio.file.*;
+import java.util.*;
+
+public class FileReader {
+    public static void main(String[] args) {
+        // TODO: Read all lines from "data.txt"
+        // Print each line with line number
+    }
+}`,
+      solution: `import java.nio.file.*;
+import java.util.*;
+import java.io.*;
+
+public class FileReader {
+    public static void main(String[] args) {
+        try {
+            List<String> lines = Files.readAllLines(Path.of("data.txt"));
+            for (int i = 0; i < lines.size(); i++) {
+                System.out.println((i + 1) + ": " + lines.get(i));
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        }
+    }
+}`
+    },
+    { id: 2, title: 'Write with BufferedWriter', difficulty: 'Easy', description: 'Write data to a file efficiently using BufferedWriter with try-with-resources.', example: 'BufferedWriter with automatic flush and close',
+      instructions: `Write to file with BufferedWriter.
+
+**Requirements:**
+1. Use try-with-resources
+2. Write multiple lines
+3. Auto-flush and close`,
+      starterCode: `import java.io.*;
+import java.nio.file.*;
+
+public class FileWriter {
+    public static void main(String[] args) {
+        String[] data = {"Line 1", "Line 2", "Line 3"};
+        // TODO: Write data to "output.txt" using BufferedWriter
+    }
+}`,
+      solution: `import java.io.*;
+import java.nio.file.*;
+
+public class FileWriter {
+    public static void main(String[] args) {
+        String[] data = {"Line 1", "Line 2", "Line 3"};
+        
+        try (BufferedWriter writer = Files.newBufferedWriter(Path.of("output.txt"))) {
+            for (String line : data) {
+                writer.write(line);
+                writer.newLine();
+            }
+            System.out.println("File written successfully!");
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+}`
+    },
+    { id: 3, title: 'Directory Traversal', difficulty: 'Medium', description: 'Walk a directory tree and find all files matching a pattern using Files.walk().', example: 'Find all .java files in a project',
+      instructions: `Walk directory and find files.
+
+**Requirements:**
+1. Use Files.walk()
+2. Filter by extension
+3. Print matching files`,
+      starterCode: `import java.nio.file.*;
+import java.io.*;
+
+public class FileFinder {
+    public static void main(String[] args) {
+        Path startDir = Path.of(".");
+        // TODO: Find all .java files in startDir
+    }
+}`,
+      solution: `import java.nio.file.*;
+import java.io.*;
+import java.util.stream.*;
+
+public class FileFinder {
+    public static void main(String[] args) {
+        Path startDir = Path.of(".");
+        
+        try (Stream<Path> paths = Files.walk(startDir)) {
+            paths.filter(Files::isRegularFile)
+                 .filter(p -> p.toString().endsWith(".java"))
+                 .forEach(System.out::println);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+}`
+    },
+    { id: 4, title: 'Object Serialization', difficulty: 'Medium', description: 'Serialize and deserialize objects using ObjectOutputStream/ObjectInputStream.', example: 'Save and load User object to file',
+      instructions: `Serialize and deserialize objects.
+
+**Requirements:**
+1. Implement Serializable
+2. Write object to file
+3. Read object back`,
+      starterCode: `import java.io.*;
+
+class User implements Serializable {
+    String name;
+    int age;
+    
+    User(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+}
+
+public class SerializationDemo {
+    public static void main(String[] args) {
+        User user = new User("John", 25);
+        // TODO: Save user to "user.dat"
+        // TODO: Load user from "user.dat"
+    }
+}`,
+      solution: `import java.io.*;
+
+class User implements Serializable {
+    private static final long serialVersionUID = 1L;
+    String name;
+    int age;
+    
+    User(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+}
+
+public class SerializationDemo {
+    public static void main(String[] args) {
+        User user = new User("John", 25);
+        
+        // Save
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("user.dat"))) {
+            oos.writeObject(user);
+            System.out.println("Saved!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        // Load
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("user.dat"))) {
+            User loaded = (User) ois.readObject();
+            System.out.println("Loaded: " + loaded.name + ", " + loaded.age);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+}`
+    },
+    { id: 5, title: 'Watch Service', difficulty: 'Hard', description: 'Monitor a directory for file changes using WatchService.', example: 'Detect when files are created/modified/deleted',
+      instructions: `Monitor directory for changes.
+
+**Requirements:**
+1. Create WatchService
+2. Register for events
+3. Process events in loop`,
+      starterCode: `import java.nio.file.*;
+
+public class DirectoryWatcher {
+    public static void main(String[] args) {
+        Path dir = Path.of(".");
+        // TODO: Watch directory for CREATE, MODIFY, DELETE events
+    }
+}`,
+      solution: `import java.nio.file.*;
+import java.io.*;
+
+public class DirectoryWatcher {
+    public static void main(String[] args) throws IOException, InterruptedException {
+        Path dir = Path.of(".");
+        WatchService watcher = FileSystems.getDefault().newWatchService();
+        
+        dir.register(watcher,
+            StandardWatchEventKinds.ENTRY_CREATE,
+            StandardWatchEventKinds.ENTRY_MODIFY,
+            StandardWatchEventKinds.ENTRY_DELETE);
+        
+        System.out.println("Watching " + dir + "...");
+        
+        while (true) {
+            WatchKey key = watcher.take();
+            for (WatchEvent<?> event : key.pollEvents()) {
+                System.out.println(event.kind() + ": " + event.context());
+            }
+            key.reset();
+        }
+    }
+}`
+    }
+  ]
 
   // =============================================================================
   // CONCEPTS DATA
@@ -1505,9 +1726,71 @@ public class FileVisitorExample {
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={FILEIO_COLORS}
         />
       </div>
+
+      {/* Practice Exercises Section */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+        <h2 style={{ color: '#f59e0b', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span>📝</span> Practice Exercises</h2>
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Click on an exercise to practice. Complete the code challenge and mark as done.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+          {practiceProblems.map((problem) => {
+            const problemId = `FileIO-${problem.id}`
+            const isCompleted = isProblemCompleted(problemId)
+            return (
+              <div key={problem.id} onClick={() => openProblem(problem)} style={{ background: isCompleted ? 'rgba(34, 197, 94, 0.1)' : 'rgba(30, 41, 59, 0.8)', borderRadius: '0.75rem', padding: '1rem', border: `1px solid ${isCompleted ? '#22c55e' : '#334155'}`, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = '#f59e0b'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.2)' }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = isCompleted ? '#22c55e' : '#334155'; e.currentTarget.style.boxShadow = 'none' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+                  <h4 style={{ color: '#e2e8f0', margin: 0, fontSize: '0.95rem' }}>{problem.title}</h4>
+                  <span style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '600', backgroundColor: problem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : problem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: problem.difficulty === 'Easy' ? '#22c55e' : problem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{problem.difficulty}</span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.5rem 0', lineHeight: '1.4' }}>{problem.description}</p>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0.5rem 0', fontStyle: 'italic' }}>{problem.example}</p>
+                <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#f59e0b', fontSize: '0.8rem', fontWeight: '500' }}>Click to practice →</span>
+                  <div onClick={(e) => e.stopPropagation()}><CompletionCheckbox problemId={problemId} compact /></div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Practice Problem Modal */}
+      {selectedProblem && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }} onClick={closeProblem}>
+          <div style={{ backgroundColor: '#1f2937', borderRadius: '1rem', width: '95vw', maxWidth: '1400px', height: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', border: '2px solid #f59e0b' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid #374151', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <h2 style={{ color: '#e2e8f0', margin: 0, fontSize: '1.5rem' }}>{selectedProblem.title}</h2>
+                <span style={{ padding: '0.3rem 0.75rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600', backgroundColor: selectedProblem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : selectedProblem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: selectedProblem.difficulty === 'Easy' ? '#22c55e' : selectedProblem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{selectedProblem.difficulty}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <CompletionCheckbox problemId={`FileIO-${selectedProblem.id}`} compact />
+                <button onClick={closeProblem} style={{ padding: '0.5rem 1rem', backgroundColor: '#374151', color: '#e2e8f0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem' }}>✕ Close</button>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', flex: 1, overflow: 'hidden' }}>
+              <div style={{ padding: '1.5rem', borderRight: '1px solid #374151', overflowY: 'auto' }}>
+                <h3 style={{ color: '#f59e0b', marginTop: 0, marginBottom: '1rem' }}>📋 Instructions</h3>
+                <div style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>{selectedProblem.instructions.split('**').map((part, i) => i % 2 === 1 ? <strong key={i} style={{ color: '#e2e8f0' }}>{part}</strong> : part)}</div>
+              </div>
+              <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                  <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedProblem.solution) }} style={{ padding: '0.5rem 1rem', backgroundColor: showSolution ? '#ef4444' : '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>{showSolution ? '🔒 Hide Solution' : '💡 Show Solution'}</button>
+                  <button onClick={() => { setUserCode(selectedProblem.starterCode); setShowSolution(false) }} style={{ padding: '0.5rem 1rem', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>🔄 Reset Code</button>
+                  <button onClick={() => navigator.clipboard.writeText(userCode)} style={{ padding: '0.5rem 1rem', backgroundColor: '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>📋 Copy Code</button>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                  <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'Consolas, Monaco, "Courier New", monospace', fontSize: '0.9rem', backgroundColor: '#111827', color: '#e2e8f0', border: '1px solid #374151', borderRadius: '8px', resize: 'none', lineHeight: '1.5' }} spellCheck={false} />
+                </div>
+                <p style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '0.75rem', marginBottom: 0 }}>💡 Copy this code to your IDE to run and test. Mark as complete when you've solved it!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Concept Cards Grid */}
       <div style={{
@@ -1572,8 +1855,7 @@ public class FileVisitorExample {
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`,
               width: '100%'
@@ -1584,6 +1866,7 @@ public class FileVisitorExample {
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
               colors={FILEIO_COLORS}
             />
 

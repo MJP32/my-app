@@ -1167,7 +1167,7 @@ rate(http_server_requests_seconds_count{application="my-app",status=~"5.."}[5m])
         <div style={{ width: '150px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
       <p style={{
         fontSize: '1.1rem',

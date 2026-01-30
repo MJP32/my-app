@@ -363,6 +363,7 @@ const PythonOOP = ({ onBack, breadcrumb }) => {
 
   // Compute extended breadcrumb when a concept is selected
   const activeBreadcrumb = selectedConcept ? {
+    onMainMenu: breadcrumb?.onMainMenu,
     section: breadcrumb.section,
     category: breadcrumb.category,
     subcategory: {
@@ -2168,7 +2169,7 @@ if __name__ == "__main__":
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={activeBreadcrumb} />
+        <Breadcrumb breadcrumb={activeBreadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         <div style={{
           display: 'grid',

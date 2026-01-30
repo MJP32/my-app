@@ -8,6 +8,7 @@ function IndexSlicing({ onBack, breadcrumb }) {
 
   // Compute extended breadcrumb when a concept is selected
   const activeBreadcrumb = selectedConcept ? {
+    onMainMenu: breadcrumb?.onMainMenu,
     section: breadcrumb.section,
     category: breadcrumb.category,
     subcategory: {
@@ -601,7 +602,7 @@ print(f"Deep copy: {deep_copy}")            # [[99, 2], [3, 4]]`
             </div>
           </div>
 
-          <Breadcrumb breadcrumb={activeBreadcrumb} />
+          <Breadcrumb breadcrumb={activeBreadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
           <div style={{
             display: 'grid',

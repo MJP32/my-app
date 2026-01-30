@@ -78,14 +78,15 @@ export default function JWT({ onBack, breadcrumb }) {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-green-950 to-gray-900 text-white p-6">
+    <div className="min-h-screen p-6" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
         <div className="max-w-7xl mx-auto px-4 py-8">
           {/* Header */}
           <div className="mb-8">
             <button
               onClick={onBack}
-              className="mb-6 px-6 py-3 bg-gray-800 border border-green-700 text-green-300 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 font-semibold flex items-center gap-2"
+              className="mb-6 px-6 py-3 border border-green-700 text-green-300 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 font-semibold flex items-center gap-2"
+              style={{ backgroundColor: 'var(--bg-secondary)' }}
             >
               <span>←</span>
               <span>Back to Security</span>
@@ -102,7 +103,7 @@ export default function JWT({ onBack, breadcrumb }) {
             </div>
           </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         {/* Tabs */}
         <div className="bg-gray-800 rounded-xl shadow-md p-2 mb-8">

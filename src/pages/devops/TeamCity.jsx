@@ -1241,13 +1241,13 @@ fun Project.microservicePipeline(
     repoUrl: String
 ) {
     val vcs = GitVcsRoot {
-        id("${serviceName}_VCS")
+        id("\${serviceName}_VCS")
         url = repoUrl
     }
     vcsRoot(vcs)
 
     buildType {
-        id("${serviceName}_Build")
+        id("\${serviceName}_Build")
         name = "$serviceName - Build"
         vcs { root(vcs) }
         steps {
@@ -2877,6 +2877,7 @@ curl -X POST "https://teamcity.example.com/app/rest/buildQueue" \\
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={TEAMCITY_COLORS}
         />
       </div>
@@ -2943,8 +2944,7 @@ curl -X POST "https://teamcity.example.com/app/rest/buildQueue" \\
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`
             }}
@@ -2954,6 +2954,7 @@ curl -X POST "https://teamcity.example.com/app/rest/buildQueue" \\
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
               colors={TEAMCITY_COLORS}
             />
 

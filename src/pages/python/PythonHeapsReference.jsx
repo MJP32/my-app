@@ -1630,7 +1630,7 @@ print(f"Evicted: {evicted}")  # Critical`
           </p>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         {/* Visual Diagrams Section */}
         <div style={{

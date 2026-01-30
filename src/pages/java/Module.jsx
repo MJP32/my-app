@@ -1444,7 +1444,7 @@ public class GraphQLGatewayConfig {
 
   const containerStyle = {
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #0f172a 0%, #334155 50%, #0f172a 100%)',
+    background: 'var(--bg-gradient)',
     padding: '2rem',
     fontFamily: 'system-ui, -apple-system, sans-serif'
   }
@@ -1509,6 +1509,7 @@ public class GraphQLGatewayConfig {
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={MODULE_COLORS}
         />
       </div>
@@ -1584,9 +1585,7 @@ public class GraphQLGatewayConfig {
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              width: '100%',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`
             }}
@@ -1596,6 +1595,7 @@ public class GraphQLGatewayConfig {
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
               colors={MODULE_COLORS}
             />
 

@@ -12,6 +12,8 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
+import { isProblemCompleted } from '../../services/progressService'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -439,9 +441,51 @@ const InfiniteStreamsDiagram = () => (
 // MAIN COMPONENT
 // =============================================================================
 
-function StreamsAdvanced({ onBack }) {
+function StreamsAdvanced({ onBack, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  useEffect(() => {
+    const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
+    window.addEventListener('progressUpdate', handleProgressUpdate)
+    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
+  }, [])
+
+  // =============================================================================
+  // PRACTICE PROBLEMS
+  // =============================================================================
+
+  const practiceProblems = [
+    {
+      id: 1,
+      title: 'Custom Collector',
+      difficulty: 'Hard',
+      description: 'Implement a custom Collector that collects elements into a comma-separated string.',
+      example: 'Input: Stream.of("a", "b", "c") → Output: "a, b, c"'
+    },
+    {
+      id: 2,
+      title: 'Parallel Stream Sum',
+      difficulty: 'Medium',
+      description: 'Use parallel streams to calculate the sum of squares of a large list efficiently.',
+      example: 'Input: [1, 2, 3, ..., 1000000] → Output: Sum of squares'
+    },
+    {
+      id: 3,
+      title: 'Grouping with Downstream',
+      difficulty: 'Medium',
+      description: 'Group employees by department and calculate average salary per department.',
+      example: 'Input: List<Employee> → Output: Map<Department, Double>'
+    },
+    {
+      id: 4,
+      title: 'Partitioning Data',
+      difficulty: 'Easy',
+      description: 'Partition a list of numbers into even and odd using Collectors.partitioningBy().',
+      example: 'Input: [1, 2, 3, 4, 5] → Output: {true: [2, 4], false: [1, 3, 5]}'
+    }
+  ]
 
   // =============================================================================
   // CONCEPTS DATA
@@ -1899,8 +1943,61 @@ public class CustomStreamSource {
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={STREAMS_ADV_COLORS}
         />
+      </div>
+
+      {/* Practice Exercises Section */}
+      <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto 2rem',
+        background: 'rgba(15, 23, 42, 0.8)',
+        borderRadius: '1rem',
+        padding: '1.5rem',
+        border: '1px solid rgba(139, 92, 246, 0.3)'
+      }}>
+        <h2 style={{ color: '#8b5cf6', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span>📝</span> Practice Exercises
+        </h2>
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Try these exercises in your IDE. Mark complete when done.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+          {practiceProblems.map((problem) => {
+            const problemId = `StreamsAdvanced-${problem.id}`
+            const isCompleted = isProblemCompleted(problemId)
+            return (
+              <div
+                key={problem.id}
+                style={{
+                  background: isCompleted ? 'rgba(34, 197, 94, 0.1)' : 'rgba(30, 41, 59, 0.8)',
+                  borderRadius: '0.75rem',
+                  padding: '1rem',
+                  border: `1px solid ${isCompleted ? '#22c55e' : '#334155'}`,
+                  transition: 'all 0.2s'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+                  <h4 style={{ color: '#e2e8f0', margin: 0, fontSize: '0.95rem' }}>{problem.title}</h4>
+                  <span style={{
+                    padding: '0.2rem 0.5rem',
+                    borderRadius: '4px',
+                    fontSize: '0.7rem',
+                    fontWeight: '600',
+                    backgroundColor: problem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : problem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                    color: problem.difficulty === 'Easy' ? '#22c55e' : problem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444'
+                  }}>
+                    {problem.difficulty}
+                  </span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.5rem 0', lineHeight: '1.4' }}>{problem.description}</p>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0.5rem 0', fontStyle: 'italic' }}>{problem.example}</p>
+                <div style={{ marginTop: '0.75rem' }}>
+                  <CompletionCheckbox problemId={problemId} />
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
       {/* Concept Cards Grid */}
@@ -1966,9 +2063,7 @@ public class CustomStreamSource {
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              width: '100%',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`
             }}
@@ -1978,6 +2073,7 @@ public class CustomStreamSource {
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
               colors={STREAMS_ADV_COLORS}
             />
 

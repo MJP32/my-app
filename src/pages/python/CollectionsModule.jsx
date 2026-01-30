@@ -325,6 +325,7 @@ function CollectionsModule({ onBack, breadcrumb }) {
 
   // Compute extended breadcrumb when a concept is selected
   const activeBreadcrumb = selectedConcept ? {
+    onMainMenu: breadcrumb?.onMainMenu,
     section: breadcrumb.section,
     category: breadcrumb.category,
     subcategory: {
@@ -946,7 +947,7 @@ print(settings_parent.maps)  # [{'port': 3000}, {'debug': False, 'port': 8000}]`
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={activeBreadcrumb} />
+        <Breadcrumb breadcrumb={activeBreadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         <div style={{ textAlign: 'left', marginBottom: '3rem' }}>
           <p style={{

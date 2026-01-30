@@ -1,4 +1,6 @@
-function Breadcrumb({ breadcrumb, breadcrumbStack, onBreadcrumbClick, colors: propColors }) {
+function Breadcrumb({ breadcrumb, breadcrumbStack, onBreadcrumbClick, colors: propColors, onMainMenu: propOnMainMenu }) {
+  // Get onMainMenu from either prop or breadcrumb object
+  const onMainMenu = propOnMainMenu || breadcrumb?.onMainMenu
   // Supports two formats:
   // 1. Legacy format (breadcrumb prop):
   //    - section: { name, icon, onClick, color } - e.g., Python, Design, Cloud
@@ -71,6 +73,20 @@ function Breadcrumb({ breadcrumb, breadcrumbStack, onBreadcrumbClick, colors: pr
         flexWrap: 'wrap',
         border: `1px solid ${themeColors.border}`
       }}>
+        {/* Main Menu link */}
+        {onMainMenu && (
+          <>
+            <button
+              onClick={onMainMenu}
+              style={linkStyle}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
+              <span>🏠</span> Main Menu
+            </button>
+            <span style={{ color: themeColors.arrow, fontSize: '0.9rem' }}>→</span>
+          </>
+        )}
         {breadcrumbStack.map((item, index) => {
           const isLast = index === breadcrumbStack.length - 1
           const isClickable = !isLast && onBreadcrumbClick
@@ -126,6 +142,21 @@ function Breadcrumb({ breadcrumb, breadcrumbStack, onBreadcrumbClick, colors: pr
       flexWrap: 'wrap',
       border: `1px solid ${themeColors.border}`
     }}>
+      {/* Main Menu link */}
+      {onMainMenu && (
+        <>
+          <button
+            onClick={onMainMenu}
+            style={linkStyle}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <span>🏠</span> Main Menu
+          </button>
+          <span style={{ color: themeColors.arrow, fontSize: '0.9rem' }}>→</span>
+        </>
+      )}
+
       {/* Section link (e.g., Python, Design) */}
       {section && (
         <button

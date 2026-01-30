@@ -49,9 +49,8 @@ function SocialShare({
         await navigator.share({ title: shareTitle, text: description, url: shareUrl })
         trackShare('web_share', 'page', window.location.pathname)
         return
-      } catch (e) {
+      } catch {
         // User canceled or unsupported - fall through to link-based share
-        // console.debug('Web Share API fallback:', e)
       }
     }
 

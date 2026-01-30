@@ -185,6 +185,7 @@ function ETrading({ onBack, onSelectItem, breadcrumb }) {
             { name: 'eTrading', icon: '📈' }
           ]}
           colors={ETRADING_COLORS}
+          onMainMenu={breadcrumb?.onMainMenu}
         />
 
         <p style={{

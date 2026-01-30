@@ -365,7 +365,7 @@ const ToolsComparisonDiagram = () => (
 // MAIN COMPONENT
 // =============================================================================
 
-function LatencyMeasurement({ onBack }) {
+function LatencyMeasurement({ onBack, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
 
@@ -1869,8 +1869,9 @@ class AdvancedChronicleLatency {
       color: '#e2e8f0'
     }}>
       <Breadcrumb
-        stack={buildBreadcrumbStack()}
-        onNavigate={handleBreadcrumbClick}
+        breadcrumbStack={buildBreadcrumbStack()}
+        onBreadcrumbClick={handleBreadcrumbClick}
+        onMainMenu={breadcrumb?.onMainMenu}
         colors={LATENCY_COLORS}
       />
 

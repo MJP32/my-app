@@ -51,7 +51,7 @@ export default function MonolithToMicroservice({ onBack, breadcrumb }) {
           </p>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b-2 border-gray-200 overflow-x-auto pb-0">

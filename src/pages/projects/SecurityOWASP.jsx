@@ -2109,7 +2109,7 @@ class SecurityIntegrationTest {
         <div style={{ width: '120px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
       <div style={{
         backgroundColor: '#1f2937',

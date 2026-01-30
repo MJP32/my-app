@@ -14,6 +14,8 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
+import { isProblemCompleted } from '../../services/progressService'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -572,6 +574,261 @@ const IteratorDiagram = () => (
 function CollectionsFramework({ onBack, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [selectedProblem, setSelectedProblem] = useState(null)
+  const [userCode, setUserCode] = useState('')
+  const [showSolution, setShowSolution] = useState(false)
+
+  useEffect(() => {
+    const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
+    window.addEventListener('progressUpdate', handleProgressUpdate)
+    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
+  }, [])
+
+  const openProblem = (problem) => { setSelectedProblem(problem); setUserCode(problem.starterCode); setShowSolution(false) }
+  const closeProblem = () => { setSelectedProblem(null); setUserCode(''); setShowSolution(false) }
+
+  const practiceProblems = [
+    { id: 1, title: 'Choose the Right Collection', difficulty: 'Easy', description: 'Given requirements, select the appropriate collection type (List, Set, Map, Queue).', example: 'Need unique elements with insertion order → LinkedHashSet',
+      instructions: `Select the right collection.
+
+**Requirements:**
+1. Match use case to collection
+2. Consider performance
+3. Explain your choice`,
+      starterCode: `import java.util.*;
+
+public class CollectionChoice {
+    public static void main(String[] args) {
+        // Scenario 1: Store user IDs, need fast lookup, no duplicates
+        // Collection: ???
+        
+        // Scenario 2: Maintain insertion order, allow duplicates
+        // Collection: ???
+        
+        // Scenario 3: Key-value pairs, sorted by key
+        // Collection: ???
+        
+        // Scenario 4: FIFO processing queue
+        // Collection: ???
+    }
+}`,
+      solution: `import java.util.*;
+
+public class CollectionChoice {
+    public static void main(String[] args) {
+        // Scenario 1: Store user IDs, need fast lookup, no duplicates
+        // Collection: HashSet - O(1) lookup, no duplicates
+        Set<Integer> userIds = new HashSet<>();
+        
+        // Scenario 2: Maintain insertion order, allow duplicates
+        // Collection: ArrayList - ordered, allows duplicates
+        List<String> items = new ArrayList<>();
+        
+        // Scenario 3: Key-value pairs, sorted by key
+        // Collection: TreeMap - sorted by natural order
+        Map<String, Integer> sortedMap = new TreeMap<>();
+        
+        // Scenario 4: FIFO processing queue
+        // Collection: LinkedList or ArrayDeque
+        Queue<String> queue = new LinkedList<>();
+        
+        // Quick reference:
+        // HashSet: unique, unordered, O(1)
+        // LinkedHashSet: unique, insertion order
+        // TreeSet: unique, sorted, O(log n)
+        // ArrayList: ordered, random access O(1)
+        // LinkedList: ordered, fast insert/delete
+        // HashMap: key-value, unordered
+        // LinkedHashMap: key-value, insertion order
+        // TreeMap: key-value, sorted keys
+    }
+}`
+    },
+    { id: 2, title: 'Custom Comparator', difficulty: 'Medium', description: 'Implement a custom Comparator for sorting objects in a TreeSet.', example: 'Sort Person by age, then by name',
+      instructions: `Create custom Comparator.
+
+**Requirements:**
+1. Sort by age ascending
+2. Then by name alphabetically
+3. Use in TreeSet`,
+      starterCode: `import java.util.*;
+
+class Person {
+    String name;
+    int age;
+    
+    Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+    
+    @Override
+    public String toString() {
+        return name + "(" + age + ")";
+    }
+}
+
+public class ComparatorDemo {
+    public static void main(String[] args) {
+        // TODO: Create Comparator<Person> that sorts by age, then name
+        
+        // TreeSet<Person> people = new TreeSet<>(comparator);
+        // people.add(new Person("Alice", 30));
+        // people.add(new Person("Bob", 25));
+        // people.add(new Person("Charlie", 30));
+        // System.out.println(people);
+    }
+}`,
+      solution: `import java.util.*;
+
+class Person {
+    String name;
+    int age;
+    
+    Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+    
+    @Override
+    public String toString() {
+        return name + "(" + age + ")";
+    }
+}
+
+public class ComparatorDemo {
+    public static void main(String[] args) {
+        // Method 1: Lambda
+        Comparator<Person> byAgeThenName = 
+            Comparator.comparingInt((Person p) -> p.age)
+                      .thenComparing(p -> p.name);
+        
+        // Method 2: Explicit lambda
+        Comparator<Person> comparator = (p1, p2) -> {
+            int ageCompare = Integer.compare(p1.age, p2.age);
+            if (ageCompare != 0) return ageCompare;
+            return p1.name.compareTo(p2.name);
+        };
+        
+        TreeSet<Person> people = new TreeSet<>(byAgeThenName);
+        people.add(new Person("Alice", 30));
+        people.add(new Person("Bob", 25));
+        people.add(new Person("Charlie", 30));
+        people.add(new Person("Anna", 30));
+        
+        System.out.println(people);
+        // [Bob(25), Alice(30), Anna(30), Charlie(30)]
+    }
+}`
+    },
+    { id: 3, title: 'Thread-Safe Collections', difficulty: 'Medium', description: 'Convert a HashMap to a thread-safe version using Collections utility methods.', example: 'Collections.synchronizedMap() vs ConcurrentHashMap',
+      instructions: `Make collections thread-safe.
+
+**Requirements:**
+1. Use synchronizedMap
+2. Use ConcurrentHashMap
+3. Compare approaches`,
+      starterCode: `import java.util.*;
+import java.util.concurrent.*;
+
+public class ThreadSafeDemo {
+    public static void main(String[] args) {
+        Map<String, Integer> map = new HashMap<>();
+        
+        // TODO: Make thread-safe using Collections.synchronizedMap()
+        
+        // TODO: Use ConcurrentHashMap instead
+        
+        // TODO: When to use which?
+    }
+}`,
+      solution: `import java.util.*;
+import java.util.concurrent.*;
+
+public class ThreadSafeDemo {
+    public static void main(String[] args) {
+        // Option 1: synchronizedMap wrapper
+        Map<String, Integer> syncMap = 
+            Collections.synchronizedMap(new HashMap<>());
+        
+        // Must synchronize for iteration!
+        synchronized (syncMap) {
+            for (Map.Entry<String, Integer> e : syncMap.entrySet()) {
+                System.out.println(e);
+            }
+        }
+        
+        // Option 2: ConcurrentHashMap (preferred)
+        ConcurrentHashMap<String, Integer> concurrentMap = 
+            new ConcurrentHashMap<>();
+        
+        // Thread-safe operations without external sync
+        concurrentMap.put("key", 1);
+        concurrentMap.computeIfAbsent("key2", k -> 2);
+        concurrentMap.forEach((k, v) -> System.out.println(k + "=" + v));
+        
+        // When to use which:
+        // synchronizedMap: Legacy code, simple use cases
+        // ConcurrentHashMap: Better performance, atomic operations
+        
+        // Other thread-safe collections:
+        // CopyOnWriteArrayList - for read-heavy lists
+        // ConcurrentLinkedQueue - non-blocking queue
+        // BlockingQueue - producer-consumer pattern
+    }
+}`
+    },
+    { id: 4, title: 'Deque Operations', difficulty: 'Easy', description: 'Implement a stack and queue using ArrayDeque.', example: 'push/pop for stack, offer/poll for queue',
+      instructions: `Use ArrayDeque as stack and queue.
+
+**Requirements:**
+1. Implement stack (LIFO)
+2. Implement queue (FIFO)
+3. Show both operations`,
+      starterCode: `import java.util.*;
+
+public class DequeDemo {
+    public static void main(String[] args) {
+        // TODO: Use ArrayDeque as a Stack (LIFO)
+        // push(), pop(), peek()
+        
+        // TODO: Use ArrayDeque as a Queue (FIFO)
+        // offer(), poll(), peek()
+    }
+}`,
+      solution: `import java.util.*;
+
+public class DequeDemo {
+    public static void main(String[] args) {
+        // ArrayDeque as Stack (LIFO)
+        Deque<String> stack = new ArrayDeque<>();
+        stack.push("first");
+        stack.push("second");
+        stack.push("third");
+        
+        System.out.println("Stack peek: " + stack.peek()); // third
+        System.out.println("Stack pop: " + stack.pop());   // third
+        System.out.println("Stack pop: " + stack.pop());   // second
+        
+        // ArrayDeque as Queue (FIFO)
+        Deque<String> queue = new ArrayDeque<>();
+        queue.offer("first");
+        queue.offer("second");
+        queue.offer("third");
+        
+        System.out.println("Queue peek: " + queue.peek());  // first
+        System.out.println("Queue poll: " + queue.poll());  // first
+        System.out.println("Queue poll: " + queue.poll());  // second
+        
+        // ArrayDeque is preferred over Stack and LinkedList
+        // - Faster than Stack (no synchronization)
+        // - Faster than LinkedList (array-based)
+        // - No null elements allowed
+    }
+}`
+    }
+  ]
 
   // =============================================================================
   // CONCEPTS DATA
@@ -1519,9 +1776,71 @@ Set<String> emptySet = Collections.emptySet();`
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={COLLECTIONS_COLORS}
         />
       </div>
+
+      {/* Practice Exercises Section */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid rgba(249, 115, 22, 0.3)' }}>
+        <h2 style={{ color: '#f97316', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span>📝</span> Practice Exercises</h2>
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Click on an exercise to practice. Complete the code challenge and mark as done.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+          {practiceProblems.map((problem) => {
+            const problemId = `CollectionsFramework-${problem.id}`
+            const isCompleted = isProblemCompleted(problemId)
+            return (
+              <div key={problem.id} onClick={() => openProblem(problem)} style={{ background: isCompleted ? 'rgba(34, 197, 94, 0.1)' : 'rgba(30, 41, 59, 0.8)', borderRadius: '0.75rem', padding: '1rem', border: `1px solid ${isCompleted ? '#22c55e' : '#334155'}`, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = '#f97316'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(249, 115, 22, 0.2)' }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = isCompleted ? '#22c55e' : '#334155'; e.currentTarget.style.boxShadow = 'none' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+                  <h4 style={{ color: '#e2e8f0', margin: 0, fontSize: '0.95rem' }}>{problem.title}</h4>
+                  <span style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '600', backgroundColor: problem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : problem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: problem.difficulty === 'Easy' ? '#22c55e' : problem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{problem.difficulty}</span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.5rem 0', lineHeight: '1.4' }}>{problem.description}</p>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0.5rem 0', fontStyle: 'italic' }}>{problem.example}</p>
+                <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#f97316', fontSize: '0.8rem', fontWeight: '500' }}>Click to practice →</span>
+                  <div onClick={(e) => e.stopPropagation()}><CompletionCheckbox problemId={problemId} compact /></div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Practice Problem Modal */}
+      {selectedProblem && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }} onClick={closeProblem}>
+          <div style={{ backgroundColor: '#1f2937', borderRadius: '1rem', width: '95vw', maxWidth: '1400px', height: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', border: '2px solid #f97316' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid #374151', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <h2 style={{ color: '#e2e8f0', margin: 0, fontSize: '1.5rem' }}>{selectedProblem.title}</h2>
+                <span style={{ padding: '0.3rem 0.75rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600', backgroundColor: selectedProblem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : selectedProblem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: selectedProblem.difficulty === 'Easy' ? '#22c55e' : selectedProblem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{selectedProblem.difficulty}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <CompletionCheckbox problemId={`CollectionsFramework-${selectedProblem.id}`} compact />
+                <button onClick={closeProblem} style={{ padding: '0.5rem 1rem', backgroundColor: '#374151', color: '#e2e8f0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem' }}>✕ Close</button>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', flex: 1, overflow: 'hidden' }}>
+              <div style={{ padding: '1.5rem', borderRight: '1px solid #374151', overflowY: 'auto' }}>
+                <h3 style={{ color: '#f97316', marginTop: 0, marginBottom: '1rem' }}>📋 Instructions</h3>
+                <div style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>{selectedProblem.instructions.split('**').map((part, i) => i % 2 === 1 ? <strong key={i} style={{ color: '#e2e8f0' }}>{part}</strong> : part)}</div>
+              </div>
+              <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                  <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedProblem.solution) }} style={{ padding: '0.5rem 1rem', backgroundColor: showSolution ? '#ef4444' : '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>{showSolution ? '🔒 Hide Solution' : '💡 Show Solution'}</button>
+                  <button onClick={() => { setUserCode(selectedProblem.starterCode); setShowSolution(false) }} style={{ padding: '0.5rem 1rem', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>🔄 Reset Code</button>
+                  <button onClick={() => navigator.clipboard.writeText(userCode)} style={{ padding: '0.5rem 1rem', backgroundColor: '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>📋 Copy Code</button>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                  <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'Consolas, Monaco, "Courier New", monospace', fontSize: '0.9rem', backgroundColor: '#111827', color: '#e2e8f0', border: '1px solid #374151', borderRadius: '8px', resize: 'none', lineHeight: '1.5' }} spellCheck={false} />
+                </div>
+                <p style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '0.75rem', marginBottom: 0 }}>💡 Copy this code to your IDE to run and test. Mark as complete when you've solved it!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Concept Cards Grid */}
       <div style={{
@@ -1586,8 +1905,7 @@ Set<String> emptySet = Collections.emptySet();`
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`
             }}
@@ -1597,6 +1915,7 @@ Set<String> emptySet = Collections.emptySet();`
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
               colors={COLLECTIONS_COLORS}
             />
 

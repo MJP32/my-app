@@ -681,7 +681,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
           </p>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         {/* Tabs */}
         <div style={{

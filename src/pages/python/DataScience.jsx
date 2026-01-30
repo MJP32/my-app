@@ -1838,7 +1838,7 @@ plt.show()`
           Back to Python
         </button>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         <div style={{ textAlign: 'left', marginBottom: '3rem' }}>
           <h1 style={{

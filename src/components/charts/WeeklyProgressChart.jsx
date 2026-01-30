@@ -99,7 +99,7 @@ const WeeklyProgressChart = ({ userId }) => {
         paddingBottom: '1.5rem',
         position: 'relative'
       }}>
-        {weekData.map((day, index) => {
+        {weekData.map((day) => {
           const height = maxValue > 0 ? (day.count / maxValue) * 100 : 0;
 
           return (

@@ -8,6 +8,7 @@ function Itertools({ onBack, breadcrumb }) {
 
   // Compute extended breadcrumb when a concept is selected
   const activeBreadcrumb = selectedConcept ? {
+    onMainMenu: breadcrumb?.onMainMenu,
     section: breadcrumb.section,
     category: breadcrumb.category,
     subcategory: {
@@ -492,7 +493,7 @@ print(list(flatten(matrix)))  # [1, 2, 3, 4, 5, 6, 7, 8, 9]`
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={activeBreadcrumb} />
+        <Breadcrumb breadcrumb={activeBreadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         <div style={{ textAlign: 'left', marginBottom: '3rem' }}>
           <p style={{

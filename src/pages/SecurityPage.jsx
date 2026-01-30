@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation'
 import Breadcrumb from '../components/Breadcrumb'
 
@@ -99,7 +98,7 @@ function SecurityPage({ onBack, onSelectItem, breadcrumb }) {
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         <p style={{
           fontSize: '1.2rem',

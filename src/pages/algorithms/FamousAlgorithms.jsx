@@ -871,6 +871,7 @@ def majority_element_bit(self, nums: List[int]) -> int:
           breadcrumb={problemBreadcrumb}
           breadcrumbStack={problemBreadcrumbStack}
           onBreadcrumbClick={handleProblemBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={breadcrumbColors}
         />
 
@@ -984,6 +985,7 @@ def majority_element_bit(self, nums: List[int]) -> int:
         breadcrumb={breadcrumb}
         breadcrumbStack={breadcrumbStack}
         onBreadcrumbClick={onBreadcrumbClick}
+        onMainMenu={breadcrumb?.onMainMenu}
         colors={breadcrumbColors}
       />
 

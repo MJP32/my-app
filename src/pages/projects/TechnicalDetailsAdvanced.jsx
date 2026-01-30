@@ -3654,7 +3654,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         {/* Tech Stack */}
         <div style={{

@@ -9,6 +9,8 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
+import { isProblemCompleted } from '../../services/progressService'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -674,6 +676,204 @@ const GarbageCollectionDiagram = () => (
 function JVMInternals({ onBack, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [selectedProblem, setSelectedProblem] = useState(null)
+  const [userCode, setUserCode] = useState('')
+  const [showSolution, setShowSolution] = useState(false)
+
+  useEffect(() => {
+    const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
+    window.addEventListener('progressUpdate', handleProgressUpdate)
+    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
+  }, [])
+
+  const openProblem = (problem) => { setSelectedProblem(problem); setUserCode(problem.starterCode); setShowSolution(false) }
+  const closeProblem = () => { setSelectedProblem(null); setUserCode(''); setShowSolution(false) }
+
+  const practiceProblems = [
+    { id: 1, title: 'Analyze Heap Dump', difficulty: 'Medium', description: 'Identify memory leaks by analyzing a heap dump using jmap and jhat.', example: 'jmap -dump:format=b,file=heap.bin <pid>',
+      instructions: `Analyze JVM heap dump.
+
+**Requirements:**
+1. Generate heap dump with jmap
+2. Analyze with jhat or VisualVM
+3. Identify large objects`,
+      starterCode: `// Commands to run in terminal:
+
+// 1. Find Java process ID
+// jps -l
+
+// 2. Generate heap dump
+// jmap -dump:format=b,file=heap.bin <pid>
+
+// 3. Analyze heap dump
+// jhat heap.bin
+// Then open http://localhost:7000
+
+// Or use: jcmd <pid> GC.heap_dump heap.hprof`,
+      solution: `// Step-by-step heap analysis:
+
+// 1. Find your Java process
+$ jps -l
+12345 com.example.MyApp
+
+// 2. Generate heap dump
+$ jmap -dump:format=b,file=heap.bin 12345
+
+// 3. Start analysis server
+$ jhat heap.bin
+Reading from heap.bin...
+Server is ready.
+
+// 4. Open browser to http://localhost:7000
+// Look for:
+// - Classes with many instances
+// - Large byte arrays
+// - Objects with unexpected retention
+
+// Alternative: Use VisualVM or Eclipse MAT for GUI analysis`
+    },
+    { id: 2, title: 'Class Loading Order', difficulty: 'Easy', description: 'Predict the order of static initialization blocks and class loading.', example: 'Parent static → Child static → Parent instance → Child instance',
+      instructions: `Predict class loading order.
+
+**Requirements:**
+1. Analyze static blocks
+2. Predict initialization order
+3. Run and verify`,
+      starterCode: `class Parent {
+    static { System.out.println("Parent static"); }
+    { System.out.println("Parent instance"); }
+    Parent() { System.out.println("Parent constructor"); }
+}
+
+class Child extends Parent {
+    static { System.out.println("Child static"); }
+    { System.out.println("Child instance"); }
+    Child() { System.out.println("Child constructor"); }
+}
+
+public class LoadingOrder {
+    public static void main(String[] args) {
+        // TODO: Predict output order before running
+        new Child();
+    }
+}`,
+      solution: `class Parent {
+    static { System.out.println("Parent static"); }
+    { System.out.println("Parent instance"); }
+    Parent() { System.out.println("Parent constructor"); }
+}
+
+class Child extends Parent {
+    static { System.out.println("Child static"); }
+    { System.out.println("Child instance"); }
+    Child() { System.out.println("Child constructor"); }
+}
+
+public class LoadingOrder {
+    public static void main(String[] args) {
+        new Child();
+    }
+}
+
+// Output order:
+// 1. Parent static     (parent class loaded first)
+// 2. Child static      (child class loaded)
+// 3. Parent instance   (parent instance block)
+// 4. Parent constructor
+// 5. Child instance    (child instance block)
+// 6. Child constructor`
+    },
+    { id: 3, title: 'GC Tuning', difficulty: 'Hard', description: 'Configure GC parameters for optimal performance in a given scenario.', example: '-XX:+UseG1GC -XX:MaxGCPauseMillis=200',
+      instructions: `Configure GC for low latency.
+
+**Requirements:**
+1. Choose appropriate GC
+2. Set heap sizes
+3. Configure pause targets`,
+      starterCode: `// Scenario: Web application requiring low latency
+// - 8GB RAM available
+// - Max pause time: 50ms
+// - Throughput: 95%
+
+// TODO: Configure JVM options
+// java [OPTIONS] -jar myapp.jar
+
+// Common GC options:
+// -XX:+UseG1GC
+// -XX:+UseZGC
+// -XX:MaxGCPauseMillis=N
+// -Xms / -Xmx
+// -XX:NewRatio=N`,
+      solution: `// Low-latency web application configuration:
+
+java \\
+  -Xms4g \\
+  -Xmx4g \\
+  -XX:+UseG1GC \\
+  -XX:MaxGCPauseMillis=50 \\
+  -XX:G1HeapRegionSize=16m \\
+  -XX:+UseStringDeduplication \\
+  -XX:+ParallelRefProcEnabled \\
+  -Xlog:gc*:file=gc.log:time,uptime:filecount=5,filesize=10m \\
+  -jar myapp.jar
+
+// Explanation:
+// -Xms4g -Xmx4g: Fixed heap to avoid resizing
+// -XX:+UseG1GC: G1 for balanced throughput/latency
+// -XX:MaxGCPauseMillis=50: Target 50ms pauses
+// -XX:G1HeapRegionSize=16m: Larger regions for 4GB heap
+// -Xlog:gc*: Enable GC logging for monitoring`
+    },
+    { id: 4, title: 'Bytecode Analysis', difficulty: 'Medium', description: 'Use javap to analyze bytecode and understand method invocation types.', example: 'javap -c -v MyClass.class',
+      instructions: `Analyze bytecode with javap.
+
+**Requirements:**
+1. Compile Java class
+2. Use javap to disassemble
+3. Identify invocation types`,
+      starterCode: `// Save as Demo.java and compile
+public class Demo {
+    private void privateMethod() {}
+    public void publicMethod() {}
+    public static void staticMethod() {}
+    
+    public void caller() {
+        privateMethod();      // What invoke type?
+        publicMethod();       // What invoke type?
+        staticMethod();       // What invoke type?
+        toString();           // What invoke type?
+    }
+}
+
+// Commands:
+// javac Demo.java
+// javap -c Demo.class`,
+      solution: `// Compile and analyze:
+// javac Demo.java
+// javap -c Demo.class
+
+// Output shows invocation types:
+public void caller();
+  Code:
+    0: aload_0
+    1: invokespecial #2  // privateMethod - invokespecial
+    4: aload_0
+    5: invokevirtual #3  // publicMethod - invokevirtual
+    8: invokestatic  #4  // staticMethod - invokestatic
+   11: aload_0
+   12: invokevirtual #5  // toString - invokevirtual
+   15: pop
+   16: return
+
+// Invocation types:
+// invokespecial: private, super, constructors
+// invokevirtual: instance methods (polymorphic)
+// invokestatic: static methods
+// invokeinterface: interface methods
+// invokedynamic: lambda, method handles`
+    }
+  ]
 
   // =============================================================================
   // CONCEPTS DATA
@@ -1789,9 +1989,71 @@ public void process(Object obj) {
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={JVM_COLORS}
         />
       </div>
+
+      {/* Practice Exercises Section */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+        <h2 style={{ color: '#10b981', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span>📝</span> Practice Exercises</h2>
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Click on an exercise to practice. Complete the code challenge and mark as done.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+          {practiceProblems.map((problem) => {
+            const problemId = `JVMInternals-${problem.id}`
+            const isCompleted = isProblemCompleted(problemId)
+            return (
+              <div key={problem.id} onClick={() => openProblem(problem)} style={{ background: isCompleted ? 'rgba(34, 197, 94, 0.1)' : 'rgba(30, 41, 59, 0.8)', borderRadius: '0.75rem', padding: '1rem', border: `1px solid ${isCompleted ? '#22c55e' : '#334155'}`, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = '#10b981'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.2)' }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = isCompleted ? '#22c55e' : '#334155'; e.currentTarget.style.boxShadow = 'none' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+                  <h4 style={{ color: '#e2e8f0', margin: 0, fontSize: '0.95rem' }}>{problem.title}</h4>
+                  <span style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '600', backgroundColor: problem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : problem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: problem.difficulty === 'Easy' ? '#22c55e' : problem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{problem.difficulty}</span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.5rem 0', lineHeight: '1.4' }}>{problem.description}</p>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0.5rem 0', fontStyle: 'italic' }}>{problem.example}</p>
+                <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#10b981', fontSize: '0.8rem', fontWeight: '500' }}>Click to practice →</span>
+                  <div onClick={(e) => e.stopPropagation()}><CompletionCheckbox problemId={problemId} compact /></div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Practice Problem Modal */}
+      {selectedProblem && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }} onClick={closeProblem}>
+          <div style={{ backgroundColor: '#1f2937', borderRadius: '1rem', width: '95vw', maxWidth: '1400px', height: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', border: '2px solid #10b981' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid #374151', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <h2 style={{ color: '#e2e8f0', margin: 0, fontSize: '1.5rem' }}>{selectedProblem.title}</h2>
+                <span style={{ padding: '0.3rem 0.75rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600', backgroundColor: selectedProblem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : selectedProblem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: selectedProblem.difficulty === 'Easy' ? '#22c55e' : selectedProblem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{selectedProblem.difficulty}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <CompletionCheckbox problemId={`JVMInternals-${selectedProblem.id}`} compact />
+                <button onClick={closeProblem} style={{ padding: '0.5rem 1rem', backgroundColor: '#374151', color: '#e2e8f0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem' }}>✕ Close</button>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', flex: 1, overflow: 'hidden' }}>
+              <div style={{ padding: '1.5rem', borderRight: '1px solid #374151', overflowY: 'auto' }}>
+                <h3 style={{ color: '#10b981', marginTop: 0, marginBottom: '1rem' }}>📋 Instructions</h3>
+                <div style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>{selectedProblem.instructions.split('**').map((part, i) => i % 2 === 1 ? <strong key={i} style={{ color: '#e2e8f0' }}>{part}</strong> : part)}</div>
+              </div>
+              <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                  <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedProblem.solution) }} style={{ padding: '0.5rem 1rem', backgroundColor: showSolution ? '#ef4444' : '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>{showSolution ? '🔒 Hide Solution' : '💡 Show Solution'}</button>
+                  <button onClick={() => { setUserCode(selectedProblem.starterCode); setShowSolution(false) }} style={{ padding: '0.5rem 1rem', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>🔄 Reset Code</button>
+                  <button onClick={() => navigator.clipboard.writeText(userCode)} style={{ padding: '0.5rem 1rem', backgroundColor: '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>📋 Copy Code</button>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                  <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'Consolas, Monaco, "Courier New", monospace', fontSize: '0.9rem', backgroundColor: '#111827', color: '#e2e8f0', border: '1px solid #374151', borderRadius: '8px', resize: 'none', lineHeight: '1.5' }} spellCheck={false} />
+                </div>
+                <p style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '0.75rem', marginBottom: 0 }}>💡 Copy this code to your IDE to run and test. Mark as complete when you've solved it!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Concept Cards Grid */}
       <div style={{
@@ -1856,8 +2118,7 @@ public void process(Object obj) {
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`,
               width: '100%'
@@ -1868,6 +2129,7 @@ public void process(Object obj) {
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
               colors={JVM_COLORS}
             />
 

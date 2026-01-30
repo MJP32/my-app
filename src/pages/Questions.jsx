@@ -441,7 +441,7 @@ function Questions({ onBack, onSelectItem, initialCategory }) {
         <p style={{
           fontSize: '1.2rem',
           color: '#d1d5db',
-          textAlign: 'center',
+          textAlign: 'left',
           marginBottom: '3rem',
           lineHeight: '1.8'
         }}>

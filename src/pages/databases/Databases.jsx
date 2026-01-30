@@ -76,8 +76,8 @@ function Databases({ onBack, onSelectItem, breadcrumb }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
-      color: 'white',
+      background: 'var(--bg-card)',
+      color: 'var(--text-primary)',
       padding: '1.5rem'
     }}>
       <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
@@ -135,6 +135,7 @@ function Databases({ onBack, onSelectItem, breadcrumb }) {
             { name: 'Databases', icon: '🗃️' }
           ]}
           colors={DATABASE_COLORS}
+          onMainMenu={breadcrumb?.onMainMenu}
         />
 
         <p style={{

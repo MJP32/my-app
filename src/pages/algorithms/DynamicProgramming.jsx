@@ -1699,6 +1699,7 @@ Output: 4`,
           breadcrumb={problemBreadcrumb}
           breadcrumbStack={problemBreadcrumbStack}
           onBreadcrumbClick={handleProblemBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={breadcrumbColors}
         />
 
@@ -1815,6 +1816,7 @@ Output: 4`,
         breadcrumb={breadcrumb}
         breadcrumbStack={breadcrumbStack}
         onBreadcrumbClick={onBreadcrumbClick}
+        onMainMenu={breadcrumb?.onMainMenu}
         colors={breadcrumbColors}
       />
 

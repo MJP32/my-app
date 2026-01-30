@@ -153,7 +153,7 @@ const DockerIntegrationDiagram = () => (
     <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="16" fontWeight="bold">Jenkins Docker Integration Flow</text>
     <rect x="50" y="60" width="120" height="70" rx="8" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
     <text x="110" y="90" textAnchor="middle" fill="#60a5fa" fontSize="11" fontWeight="bold">Jenkinsfile</text>
-    <text x="110" y="108" textAnchor="middle" fill="#93c5fd" fontSize="9">agent { docker }</text>
+    <text x="110" y="108" textAnchor="middle" fill="#93c5fd" fontSize="9">{'agent { docker }'}</text>
     <rect x="220" y="60" width="120" height="70" rx="8" fill="rgba(6, 182, 212, 0.3)" stroke="#06b6d4" strokeWidth="2"/>
     <text x="280" y="90" textAnchor="middle" fill="#22d3ee" fontSize="11" fontWeight="bold">Pull Image</text>
     <text x="280" y="108" textAnchor="middle" fill="#a5f3fc" fontSize="9">maven:3.8-jdk11</text>
@@ -4535,6 +4535,7 @@ pipeline {
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={JENKINS_COLORS}
         />
       </div>
@@ -4601,8 +4602,7 @@ pipeline {
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`
             }}
@@ -4612,6 +4612,7 @@ pipeline {
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
               colors={JENKINS_COLORS}
             />
 

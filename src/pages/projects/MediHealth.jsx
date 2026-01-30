@@ -3685,7 +3685,7 @@ public class ClaimService {
         </p>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
       {/* Topics Grid */}
       {!selectedTopic && (

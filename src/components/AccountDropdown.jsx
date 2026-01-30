@@ -9,7 +9,7 @@ import SignInModal from './SignInModal'
 import CategoryProgressModal from './CategoryProgressModal'
 import SocialShare from './SocialShare'
 
-function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome, onGoToPractice, triggerRef }) {
+function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome: _onGoToHome, onGoToPractice, triggerRef }) {
   const { isDark, colors } = useTheme()
   const [userInfo, setUserInfo] = useState(null)
   const [stats, setStats] = useState(null)
@@ -744,11 +744,11 @@ function AccountDropdown({ isOpen, onClose, onOpenStudyGuide, onGoToHome, onGoTo
         setShowCategoryModal(false)
         onClose()
 
-        // Navigate to Practice page
+        // Navigate to the specific category
         setTimeout(() => {
           if (onGoToPractice) {
-            // Navigate to Practice page - user can then choose specific practice component
-            onGoToPractice('Practice')
+            // Pass the actual category to navigate to the specific practice component
+            onGoToPractice(category)
           }
         }, 50)
       }}

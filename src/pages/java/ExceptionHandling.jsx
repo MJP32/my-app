@@ -9,6 +9,8 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
+import { isProblemCompleted } from '../../services/progressService'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -339,9 +341,326 @@ const CustomExceptionDiagram = () => (
 // MAIN COMPONENT
 // =============================================================================
 
-function ExceptionHandling({ onBack }) {
+function ExceptionHandling({ onBack, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [selectedProblem, setSelectedProblem] = useState(null)
+  const [userCode, setUserCode] = useState('')
+  const [showSolution, setShowSolution] = useState(false)
+
+  useEffect(() => {
+    const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
+    window.addEventListener('progressUpdate', handleProgressUpdate)
+    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
+  }, [])
+
+  const openProblem = (problem) => { setSelectedProblem(problem); setUserCode(problem.starterCode); setShowSolution(false) }
+  const closeProblem = () => { setSelectedProblem(null); setUserCode(''); setShowSolution(false) }
+
+  const practiceProblems = [
+    { id: 1, title: 'Custom Exception', difficulty: 'Easy', description: 'Create a custom exception class for validation errors with error code and message.', example: 'ValidationException extends RuntimeException',
+      instructions: `Create a custom exception class.
+
+**Requirements:**
+1. Extend RuntimeException
+2. Add errorCode field
+3. Override getMessage()`,
+      starterCode: `// TODO: Create ValidationException class
+// - Field: String errorCode
+// - Constructor: (String errorCode, String message)
+// - Override getMessage() to include error code
+
+public class ExceptionDemo {
+    public static void validate(int age) {
+        if (age < 0) {
+            // throw new ValidationException("AGE_001", "Age cannot be negative");
+        }
+    }
+    
+    public static void main(String[] args) {
+        try {
+            validate(-5);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}`,
+      solution: `class ValidationException extends RuntimeException {
+    private String errorCode;
+    
+    public ValidationException(String errorCode, String message) {
+        super(message);
+        this.errorCode = errorCode;
+    }
+    
+    public String getErrorCode() {
+        return errorCode;
+    }
+    
+    @Override
+    public String getMessage() {
+        return "[" + errorCode + "] " + super.getMessage();
+    }
+}
+
+public class ExceptionDemo {
+    public static void validate(int age) {
+        if (age < 0) {
+            throw new ValidationException("AGE_001", "Age cannot be negative");
+        }
+    }
+    
+    public static void main(String[] args) {
+        try {
+            validate(-5);
+        } catch (ValidationException e) {
+            System.out.println(e.getMessage()); // [AGE_001] Age cannot be negative
+        }
+    }
+}`
+    },
+    { id: 2, title: 'Try-With-Resources', difficulty: 'Easy', description: 'Refactor code to use try-with-resources for automatic resource management.', example: 'try (FileReader fr = new FileReader(file)) {...}',
+      instructions: `Use try-with-resources for auto-closing.
+
+**Requirements:**
+1. Refactor to use try-with-resources
+2. Remove manual close() calls
+3. Handle exceptions properly`,
+      starterCode: `import java.io.*;
+
+public class ResourceDemo {
+    // BAD: Manual resource management
+    public static String readFile(String path) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(path));
+            return reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    
+    // TODO: Refactor using try-with-resources
+}`,
+      solution: `import java.io.*;
+
+public class ResourceDemo {
+    // GOOD: Try-with-resources
+    public static String readFile(String path) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+            return reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        // reader.close() is called automatically
+    }
+    
+    // Multiple resources
+    public static void copyFile(String src, String dest) {
+        try (FileInputStream in = new FileInputStream(src);
+             FileOutputStream out = new FileOutputStream(dest)) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = in.read(buffer)) > 0) {
+                out.write(buffer, 0, length);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}`
+    },
+    { id: 3, title: 'Exception Chaining', difficulty: 'Medium', description: 'Wrap low-level exceptions in application-specific exceptions while preserving the cause.', example: 'throw new ServiceException("Failed", cause)',
+      instructions: `Chain exceptions to preserve root cause.
+
+**Requirements:**
+1. Create ServiceException
+2. Wrap SQLException with ServiceException
+3. Preserve original exception as cause`,
+      starterCode: `import java.sql.*;
+
+// TODO: Create ServiceException that wraps other exceptions
+
+public class ExceptionChaining {
+    public static void fetchUser(int id) {
+        try {
+            // Simulate database error
+            throw new SQLException("Connection refused");
+        } catch (SQLException e) {
+            // TODO: Wrap in ServiceException, preserving cause
+            throw new RuntimeException(e); // Replace this
+        }
+    }
+    
+    public static void main(String[] args) {
+        try {
+            fetchUser(1);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            System.out.println("Cause: " + e.getCause());
+        }
+    }
+}`,
+      solution: `import java.sql.*;
+
+class ServiceException extends RuntimeException {
+    public ServiceException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}
+
+public class ExceptionChaining {
+    public static void fetchUser(int id) {
+        try {
+            throw new SQLException("Connection refused");
+        } catch (SQLException e) {
+            throw new ServiceException("Failed to fetch user " + id, e);
+        }
+    }
+    
+    public static void main(String[] args) {
+        try {
+            fetchUser(1);
+        } catch (ServiceException e) {
+            System.out.println("Error: " + e.getMessage());
+            System.out.println("Cause: " + e.getCause().getMessage());
+        }
+    }
+}`
+    },
+    { id: 4, title: 'Retry Pattern', difficulty: 'Medium', description: 'Implement a retry mechanism for transient failures with exponential backoff.', example: 'Retry 3 times with 1s, 2s, 4s delays',
+      instructions: `Implement retry with exponential backoff.
+
+**Requirements:**
+1. Retry up to 3 times
+2. Double delay between retries
+3. Throw exception if all retries fail`,
+      starterCode: `public class RetryDemo {
+    // TODO: Implement retry with exponential backoff
+    public static <T> T retry(int maxRetries, long initialDelay, Callable<T> action) {
+        // Your implementation here
+        return null;
+    }
+    
+    public static void main(String[] args) {
+        // retry(3, 1000, () -> callUnreliableService());
+    }
+}
+
+interface Callable<T> {
+    T call() throws Exception;
+}`,
+      solution: `public class RetryDemo {
+    public static <T> T retry(int maxRetries, long initialDelay, Callable<T> action) throws Exception {
+        int attempt = 0;
+        long delay = initialDelay;
+        
+        while (true) {
+            try {
+                return action.call();
+            } catch (Exception e) {
+                attempt++;
+                if (attempt >= maxRetries) {
+                    throw new RuntimeException("Failed after " + maxRetries + " attempts", e);
+                }
+                System.out.println("Attempt " + attempt + " failed, retrying in " + delay + "ms");
+                Thread.sleep(delay);
+                delay *= 2; // Exponential backoff
+            }
+        }
+    }
+    
+    public static void main(String[] args) throws Exception {
+        int[] counter = {0};
+        String result = retry(3, 1000, () -> {
+            counter[0]++;
+            if (counter[0] < 3) throw new RuntimeException("Transient error");
+            return "Success on attempt " + counter[0];
+        });
+        System.out.println(result);
+    }
+}
+
+interface Callable<T> {
+    T call() throws Exception;
+}`
+    },
+    { id: 5, title: 'Multi-Catch Block', difficulty: 'Easy', description: 'Consolidate multiple catch blocks using multi-catch syntax.', example: 'catch (IOException | SQLException e)',
+      instructions: `Use multi-catch to handle multiple exceptions.
+
+**Requirements:**
+1. Combine similar exception handlers
+2. Use pipe (|) syntax
+3. Keep specific handlers separate if needed`,
+      starterCode: `import java.io.*;
+import java.sql.*;
+
+public class MultiCatchDemo {
+    // BAD: Duplicate catch blocks
+    public static void process() {
+        try {
+            // Some operations
+            throw new IOException("IO error");
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+            logError(e);
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+            logError(e);
+        }
+    }
+    
+    // TODO: Refactor using multi-catch
+    
+    static void logError(Exception e) {
+        System.err.println("Logged: " + e);
+    }
+}`,
+      solution: `import java.io.*;
+import java.sql.*;
+
+public class MultiCatchDemo {
+    // GOOD: Multi-catch for same handling
+    public static void process() {
+        try {
+            throw new IOException("IO error");
+        } catch (IOException | RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+            logError(e);
+        }
+    }
+    
+    // Mix of multi-catch and specific handling
+    public static void processWithSpecific() {
+        try {
+            // operations
+        } catch (IOException | IllegalArgumentException e) {
+            // Same handling for these
+            System.out.println("Recoverable: " + e.getMessage());
+        } catch (OutOfMemoryError e) {
+            // Specific handling for OOM
+            System.err.println("Critical: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+    
+    static void logError(Exception e) {
+        System.err.println("Logged: " + e);
+    }
+}`
+    }
+  ]
 
   // =============================================================================
   // CONCEPTS DATA
@@ -1089,9 +1408,71 @@ try {
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={EXCEPTION_COLORS}
         />
       </div>
+
+      {/* Practice Exercises Section */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+        <h2 style={{ color: '#ef4444', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span>📝</span> Practice Exercises</h2>
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Click on an exercise to practice. Complete the code challenge and mark as done.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+          {practiceProblems.map((problem) => {
+            const problemId = `ExceptionHandling-${problem.id}`
+            const isCompleted = isProblemCompleted(problemId)
+            return (
+              <div key={problem.id} onClick={() => openProblem(problem)} style={{ background: isCompleted ? 'rgba(34, 197, 94, 0.1)' : 'rgba(30, 41, 59, 0.8)', borderRadius: '0.75rem', padding: '1rem', border: `1px solid ${isCompleted ? '#22c55e' : '#334155'}`, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.2)' }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = isCompleted ? '#22c55e' : '#334155'; e.currentTarget.style.boxShadow = 'none' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+                  <h4 style={{ color: '#e2e8f0', margin: 0, fontSize: '0.95rem' }}>{problem.title}</h4>
+                  <span style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '600', backgroundColor: problem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : problem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: problem.difficulty === 'Easy' ? '#22c55e' : problem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{problem.difficulty}</span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.5rem 0', lineHeight: '1.4' }}>{problem.description}</p>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0.5rem 0', fontStyle: 'italic' }}>{problem.example}</p>
+                <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#ef4444', fontSize: '0.8rem', fontWeight: '500' }}>Click to practice →</span>
+                  <div onClick={(e) => e.stopPropagation()}><CompletionCheckbox problemId={problemId} compact /></div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Practice Problem Modal */}
+      {selectedProblem && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }} onClick={closeProblem}>
+          <div style={{ backgroundColor: '#1f2937', borderRadius: '1rem', width: '95vw', maxWidth: '1400px', height: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', border: '2px solid #ef4444' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid #374151', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <h2 style={{ color: '#e2e8f0', margin: 0, fontSize: '1.5rem' }}>{selectedProblem.title}</h2>
+                <span style={{ padding: '0.3rem 0.75rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600', backgroundColor: selectedProblem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : selectedProblem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: selectedProblem.difficulty === 'Easy' ? '#22c55e' : selectedProblem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{selectedProblem.difficulty}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <CompletionCheckbox problemId={`ExceptionHandling-${selectedProblem.id}`} compact />
+                <button onClick={closeProblem} style={{ padding: '0.5rem 1rem', backgroundColor: '#374151', color: '#e2e8f0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem' }}>✕ Close</button>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', flex: 1, overflow: 'hidden' }}>
+              <div style={{ padding: '1.5rem', borderRight: '1px solid #374151', overflowY: 'auto' }}>
+                <h3 style={{ color: '#ef4444', marginTop: 0, marginBottom: '1rem' }}>📋 Instructions</h3>
+                <div style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>{selectedProblem.instructions.split('**').map((part, i) => i % 2 === 1 ? <strong key={i} style={{ color: '#e2e8f0' }}>{part}</strong> : part)}</div>
+              </div>
+              <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                  <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedProblem.solution) }} style={{ padding: '0.5rem 1rem', backgroundColor: showSolution ? '#ef4444' : '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>{showSolution ? '🔒 Hide Solution' : '💡 Show Solution'}</button>
+                  <button onClick={() => { setUserCode(selectedProblem.starterCode); setShowSolution(false) }} style={{ padding: '0.5rem 1rem', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>🔄 Reset Code</button>
+                  <button onClick={() => navigator.clipboard.writeText(userCode)} style={{ padding: '0.5rem 1rem', backgroundColor: '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>📋 Copy Code</button>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                  <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'Consolas, Monaco, "Courier New", monospace', fontSize: '0.9rem', backgroundColor: '#111827', color: '#e2e8f0', border: '1px solid #374151', borderRadius: '8px', resize: 'none', lineHeight: '1.5' }} spellCheck={false} />
+                </div>
+                <p style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '0.75rem', marginBottom: 0 }}>💡 Copy this code to your IDE to run and test. Mark as complete when you've solved it!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Concept Cards Grid */}
       <div style={{
@@ -1156,8 +1537,7 @@ try {
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`
             }}
@@ -1167,6 +1547,7 @@ try {
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
               colors={EXCEPTION_COLORS}
             />
 

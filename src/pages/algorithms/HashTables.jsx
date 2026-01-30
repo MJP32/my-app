@@ -1990,6 +1990,7 @@ def containsNearbyDuplicate(self, nums: List[int], k: int) -> bool:
           breadcrumb={problemBreadcrumb}
           breadcrumbStack={problemBreadcrumbStack}
           onBreadcrumbClick={handleProblemBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={breadcrumbColors}
         />
 
@@ -2103,6 +2104,7 @@ def containsNearbyDuplicate(self, nums: List[int], k: int) -> bool:
         breadcrumb={breadcrumb}
         breadcrumbStack={breadcrumbStack}
         onBreadcrumbClick={onBreadcrumbClick}
+        onMainMenu={breadcrumb?.onMainMenu}
         colors={breadcrumbColors}
       />
 

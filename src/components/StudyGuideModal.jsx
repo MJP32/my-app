@@ -1254,7 +1254,7 @@ ${enhancedContent ? `### Key Concepts
 
   const getTopicContentPlain = (topicId) => {
     // Simplified plain text version
-    return getTopicContent(topicId).replace(/###/g, '').replace(/\`\`\`java/g, '').replace(/\`\`\`/g, '').replace(/\*/g, '')
+    return getTopicContent(topicId).replace(/###/g, '').replace(/```java/g, '').replace(/```/g, '').replace(/\*/g, '')
   }
 
   const getTopicContentHTML = (topicId) => {

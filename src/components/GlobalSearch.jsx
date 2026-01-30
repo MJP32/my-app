@@ -6,7 +6,7 @@ function GlobalSearch({ isOpen, onClose, onNavigate }) {
   const { isDark, colors } = useTheme()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
-  const [groupedResults, setGroupedResults] = useState({ categories: [], subcategories: [], components: [] })
+  const [, setGroupedResults] = useState({ categories: [], subcategories: [], components: [] })
   const [focusedIndex, setFocusedIndex] = useState(-1)
   const [searchIndex, setSearchIndex] = useState([])
   

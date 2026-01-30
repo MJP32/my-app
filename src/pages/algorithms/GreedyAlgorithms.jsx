@@ -980,6 +980,7 @@ def find_min_arrow_shots_pythonic(self, points: List[List[int]]) -> int:
           breadcrumb={problemBreadcrumb}
           breadcrumbStack={problemBreadcrumbStack}
           onBreadcrumbClick={handleProblemBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={breadcrumbColors}
         />
 
@@ -1093,6 +1094,7 @@ def find_min_arrow_shots_pythonic(self, points: List[List[int]]) -> int:
         breadcrumb={breadcrumb}
         breadcrumbStack={breadcrumbStack}
         onBreadcrumbClick={onBreadcrumbClick}
+        onMainMenu={breadcrumb?.onMainMenu}
         colors={breadcrumbColors}
       />
 

@@ -613,7 +613,7 @@ function SearchInput() {
 
   const containerStyle = {
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #0f172a 0%, #064e3b 50%, #0f172a 100%)',
+    background: 'var(--bg-primary)',
     padding: '2rem',
     fontFamily: 'system-ui, -apple-system, sans-serif'
   }
@@ -722,6 +722,7 @@ function SearchInput() {
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={FRAMEWORK_COLORS}
         />
       </div>
@@ -788,9 +789,7 @@ function SearchInput() {
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              width: '100%',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`
             }}
@@ -800,6 +799,7 @@ function SearchInput() {
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
               colors={FRAMEWORK_COLORS}
             />
 

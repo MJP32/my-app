@@ -1575,6 +1575,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> {
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
           colors={TOPIC_COLORS}
+          onMainMenu={breadcrumb?.onMainMenu}
         />
       </div>
 
@@ -1639,8 +1640,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> {
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`
             }}
@@ -1650,6 +1650,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> {
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
               colors={TOPIC_COLORS}
+              onMainMenu={breadcrumb?.onMainMenu}
             />
 
             <div style={{

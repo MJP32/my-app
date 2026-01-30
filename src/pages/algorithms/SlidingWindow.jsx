@@ -800,6 +800,7 @@ function SlidingWindow({ onBack, onPrevious, onNext, previousName, nextName, cur
           breadcrumb={problemBreadcrumb}
           breadcrumbStack={problemBreadcrumbStack}
           onBreadcrumbClick={handleProblemBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={breadcrumbColors}
         />
 
@@ -913,6 +914,7 @@ function SlidingWindow({ onBack, onPrevious, onNext, previousName, nextName, cur
         breadcrumb={breadcrumb}
         breadcrumbStack={breadcrumbStack}
         onBreadcrumbClick={onBreadcrumbClick}
+        onMainMenu={breadcrumb?.onMainMenu}
         colors={breadcrumbColors}
       />
 

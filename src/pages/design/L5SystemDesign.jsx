@@ -17,10 +17,11 @@ const Amazon = lazy(() => import('./Amazon.jsx'))
 const Zoom = lazy(() => import('./Zoom.jsx'))
 const RideShare = lazy(() => import('./RideShare.jsx'))
 
-function L5SystemDesign({ onBack }) {
+function L5SystemDesign({ onBack, breadcrumb: propBreadcrumb }) {
   const [selectedTopic, setSelectedTopic] = useState(null)
 
   const breadcrumb = {
+    onMainMenu: propBreadcrumb?.onMainMenu,
     section: { name: 'Design', icon: '🎨', onClick: onBack },
     category: { name: 'System Design Interview', onClick: onBack },
     topic: 'L5-L6+ Level (Senior)',

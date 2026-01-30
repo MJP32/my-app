@@ -36,7 +36,7 @@ export default function CDN({ onBack, breadcrumb }) {
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         <div className="flex gap-2 mb-8 border-b-2 border-gray-700 overflow-x-auto pb-0">
           {['overview', 'how-it-works', 'strategies', 'examples'].map(tab => (

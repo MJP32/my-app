@@ -777,7 +777,7 @@ Note: get(key, []) creates a new list each call, but it's not added to dict. Use
           </p>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         {/* Search Bar */}
         <div style={{ marginBottom: '2rem' }}>

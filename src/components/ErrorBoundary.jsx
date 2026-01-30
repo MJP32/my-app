@@ -59,7 +59,7 @@ class ErrorBoundary extends Component {
             {this.props.message || "We encountered an unexpected error. Please try again."}
           </p>
 
-          {process.env.NODE_ENV === 'development' && this.state.error && (
+          {import.meta.env.DEV && this.state.error && (
             <details style={{
               backgroundColor: '#111827',
               padding: '1rem',

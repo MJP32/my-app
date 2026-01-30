@@ -14,6 +14,8 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
+import { isProblemCompleted } from '../../services/progressService'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -471,6 +473,251 @@ const LazyEvaluationDiagram = () => (
 function Streams({ onBack, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [selectedProblem, setSelectedProblem] = useState(null)
+  const [userCode, setUserCode] = useState('')
+  const [showSolution, setShowSolution] = useState(false)
+
+  useEffect(() => {
+    const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
+    window.addEventListener('progressUpdate', handleProgressUpdate)
+    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
+  }, [])
+
+  const openProblem = (problem) => { setSelectedProblem(problem); setUserCode(problem.starterCode); setShowSolution(false) }
+  const closeProblem = () => { setSelectedProblem(null); setUserCode(''); setShowSolution(false) }
+
+  // =============================================================================
+  // PRACTICE PROBLEMS
+  // =============================================================================
+
+  const practiceProblems = [
+    {
+      id: 1,
+      title: 'Filter and Transform List',
+      difficulty: 'Easy',
+      description: 'Given a list of integers, use streams to filter out odd numbers and double the remaining even numbers.',
+      example: 'Input: [1, 2, 3, 4, 5, 6] → Output: [4, 8, 12]',
+      instructions: `Filter even numbers and double them using Java Streams.
+
+**Requirements:**
+1. Use filter() to keep only even numbers
+2. Use map() to double each number
+3. Collect the results into a List
+
+**Test Cases:**
+- [1, 2, 3, 4, 5, 6] → [4, 8, 12]
+- [1, 3, 5] → []
+- [2, 4, 6] → [4, 8, 12]`,
+      starterCode: `import java.util.*;
+import java.util.stream.*;
+
+public class FilterAndTransform {
+    public static void main(String[] args) {
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6);
+        
+        // TODO: Filter even numbers and double them
+        List<Integer> result = numbers.stream()
+            // Add your stream operations here
+            .collect(Collectors.toList());
+        
+        System.out.println(result); // Should print [4, 8, 12]
+    }
+}`,
+      solution: `import java.util.*;
+import java.util.stream.*;
+
+public class FilterAndTransform {
+    public static void main(String[] args) {
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6);
+        
+        List<Integer> result = numbers.stream()
+            .filter(n -> n % 2 == 0)  // Keep only even numbers
+            .map(n -> n * 2)          // Double each number
+            .collect(Collectors.toList());
+        
+        System.out.println(result); // [4, 8, 12]
+    }
+}`
+    },
+    {
+      id: 2,
+      title: 'Group By Category',
+      difficulty: 'Medium',
+      description: 'Given a list of products, group them by category using Collectors.groupingBy().',
+      example: 'Input: Products with categories → Output: Map<Category, List<Product>>',
+      instructions: `Group products by their category using Collectors.groupingBy().
+
+**Requirements:**
+1. Create a Product class with name and category fields
+2. Use Collectors.groupingBy() to group products
+3. Print the grouped results
+
+**Expected Output:**
+Electronics: [Laptop, Phone]
+Books: [Java Guide, Python Basics]`,
+      starterCode: `import java.util.*;
+import java.util.stream.*;
+
+class Product {
+    String name;
+    String category;
+    
+    Product(String name, String category) {
+        this.name = name;
+        this.category = category;
+    }
+    
+    public String toString() { return name; }
+}
+
+public class GroupByCategory {
+    public static void main(String[] args) {
+        List<Product> products = Arrays.asList(
+            new Product("Laptop", "Electronics"),
+            new Product("Phone", "Electronics"),
+            new Product("Java Guide", "Books"),
+            new Product("Python Basics", "Books")
+        );
+        
+        // TODO: Group products by category
+        Map<String, List<Product>> grouped = null; // Your code here
+        
+        grouped.forEach((cat, prods) -> 
+            System.out.println(cat + ": " + prods));
+    }
+}`,
+      solution: `import java.util.*;
+import java.util.stream.*;
+
+class Product {
+    String name;
+    String category;
+    
+    Product(String name, String category) {
+        this.name = name;
+        this.category = category;
+    }
+    
+    public String toString() { return name; }
+}
+
+public class GroupByCategory {
+    public static void main(String[] args) {
+        List<Product> products = Arrays.asList(
+            new Product("Laptop", "Electronics"),
+            new Product("Phone", "Electronics"),
+            new Product("Java Guide", "Books"),
+            new Product("Python Basics", "Books")
+        );
+        
+        Map<String, List<Product>> grouped = products.stream()
+            .collect(Collectors.groupingBy(p -> p.category));
+        
+        grouped.forEach((cat, prods) -> 
+            System.out.println(cat + ": " + prods));
+    }
+}`
+    },
+    {
+      id: 3,
+      title: 'FlatMap Nested Lists',
+      difficulty: 'Medium',
+      description: 'Given a list of sentences, use flatMap to get all unique words across all sentences.',
+      example: 'Input: ["Hello World", "World of Java"] → Output: [Hello, World, of, Java]',
+      instructions: `Extract unique words from multiple sentences using flatMap.
+
+**Requirements:**
+1. Split each sentence into words
+2. Use flatMap to flatten the stream of word arrays
+3. Use distinct() to get unique words
+4. Collect into a List
+
+**Test Case:**
+["Hello World", "World of Java"] → [Hello, World, of, Java]`,
+      starterCode: `import java.util.*;
+import java.util.stream.*;
+
+public class FlatMapWords {
+    public static void main(String[] args) {
+        List<String> sentences = Arrays.asList(
+            "Hello World",
+            "World of Java"
+        );
+        
+        // TODO: Get all unique words using flatMap
+        List<String> uniqueWords = sentences.stream()
+            // Add your stream operations here
+            .collect(Collectors.toList());
+        
+        System.out.println(uniqueWords);
+    }
+}`,
+      solution: `import java.util.*;
+import java.util.stream.*;
+
+public class FlatMapWords {
+    public static void main(String[] args) {
+        List<String> sentences = Arrays.asList(
+            "Hello World",
+            "World of Java"
+        );
+        
+        List<String> uniqueWords = sentences.stream()
+            .flatMap(sentence -> Arrays.stream(sentence.split(" ")))
+            .distinct()
+            .collect(Collectors.toList());
+        
+        System.out.println(uniqueWords); // [Hello, World, of, Java]
+    }
+}`
+    },
+    {
+      id: 4,
+      title: 'Reduce to Sum',
+      difficulty: 'Easy',
+      description: 'Use reduce() to calculate the sum of squares of all numbers in a list.',
+      example: 'Input: [1, 2, 3, 4] → Output: 30 (1+4+9+16)',
+      instructions: `Calculate sum of squares using reduce().
+
+**Requirements:**
+1. Square each number using map()
+2. Use reduce() to sum all squared values
+3. Handle empty list case
+
+**Test Cases:**
+- [1, 2, 3, 4] → 30 (1+4+9+16)
+- [5] → 25
+- [] → 0`,
+      starterCode: `import java.util.*;
+import java.util.stream.*;
+
+public class SumOfSquares {
+    public static void main(String[] args) {
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4);
+        
+        // TODO: Calculate sum of squares using reduce
+        int sumOfSquares = 0; // Your code here
+        
+        System.out.println("Sum of squares: " + sumOfSquares); // Should be 30
+    }
+}`,
+      solution: `import java.util.*;
+import java.util.stream.*;
+
+public class SumOfSquares {
+    public static void main(String[] args) {
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4);
+        
+        int sumOfSquares = numbers.stream()
+            .map(n -> n * n)
+            .reduce(0, Integer::sum);
+        
+        System.out.println("Sum of squares: " + sumOfSquares); // 30
+    }
+}`
+    }
+  ]
 
   // =============================================================================
   // CONCEPTS DATA
@@ -1736,9 +1983,71 @@ public static <T> Collector<T, ?, List<T>> toListWithLogging() {
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={STREAMS_COLORS}
         />
       </div>
+
+      {/* Practice Exercises Section */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+        <h2 style={{ color: '#3b82f6', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span>📝</span> Practice Exercises</h2>
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Click on an exercise to practice. Complete the code challenge and mark as done.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+          {practiceProblems.map((problem) => {
+            const problemId = `Streams-${problem.id}`
+            const isCompleted = isProblemCompleted(problemId)
+            return (
+              <div key={problem.id} onClick={() => openProblem(problem)} style={{ background: isCompleted ? 'rgba(34, 197, 94, 0.1)' : 'rgba(30, 41, 59, 0.8)', borderRadius: '0.75rem', padding: '1rem', border: `1px solid ${isCompleted ? '#22c55e' : '#334155'}`, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.2)' }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = isCompleted ? '#22c55e' : '#334155'; e.currentTarget.style.boxShadow = 'none' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+                  <h4 style={{ color: '#e2e8f0', margin: 0, fontSize: '0.95rem' }}>{problem.title}</h4>
+                  <span style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '600', backgroundColor: problem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(245, 158, 11, 0.2)', color: problem.difficulty === 'Easy' ? '#22c55e' : '#f59e0b' }}>{problem.difficulty}</span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.5rem 0', lineHeight: '1.4' }}>{problem.description}</p>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0.5rem 0', fontStyle: 'italic' }}>{problem.example}</p>
+                <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#3b82f6', fontSize: '0.8rem', fontWeight: '500' }}>Click to practice →</span>
+                  <div onClick={(e) => e.stopPropagation()}><CompletionCheckbox problemId={problemId} compact /></div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Practice Problem Modal */}
+      {selectedProblem && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }} onClick={closeProblem}>
+          <div style={{ backgroundColor: '#1f2937', borderRadius: '1rem', width: '95vw', maxWidth: '1400px', height: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', border: '2px solid #3b82f6' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid #374151', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <h2 style={{ color: '#e2e8f0', margin: 0, fontSize: '1.5rem' }}>{selectedProblem.title}</h2>
+                <span style={{ padding: '0.3rem 0.75rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600', backgroundColor: selectedProblem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(245, 158, 11, 0.2)', color: selectedProblem.difficulty === 'Easy' ? '#22c55e' : '#f59e0b' }}>{selectedProblem.difficulty}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <CompletionCheckbox problemId={`Streams-${selectedProblem.id}`} compact />
+                <button onClick={closeProblem} style={{ padding: '0.5rem 1rem', backgroundColor: '#374151', color: '#e2e8f0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem' }}>✕ Close</button>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', flex: 1, overflow: 'hidden' }}>
+              <div style={{ padding: '1.5rem', borderRight: '1px solid #374151', overflowY: 'auto' }}>
+                <h3 style={{ color: '#3b82f6', marginTop: 0, marginBottom: '1rem' }}>📋 Instructions</h3>
+                <div style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>{selectedProblem.instructions.split('**').map((part, i) => i % 2 === 1 ? <strong key={i} style={{ color: '#e2e8f0' }}>{part}</strong> : part)}</div>
+              </div>
+              <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                  <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedProblem.solution) }} style={{ padding: '0.5rem 1rem', backgroundColor: showSolution ? '#ef4444' : '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>{showSolution ? '🔒 Hide Solution' : '💡 Show Solution'}</button>
+                  <button onClick={() => { setUserCode(selectedProblem.starterCode); setShowSolution(false) }} style={{ padding: '0.5rem 1rem', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>🔄 Reset Code</button>
+                  <button onClick={() => navigator.clipboard.writeText(userCode)} style={{ padding: '0.5rem 1rem', backgroundColor: '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>📋 Copy Code</button>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                  <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'Consolas, Monaco, "Courier New", monospace', fontSize: '0.9rem', backgroundColor: '#111827', color: '#e2e8f0', border: '1px solid #374151', borderRadius: '8px', resize: 'none', lineHeight: '1.5' }} spellCheck={false} />
+                </div>
+                <p style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '0.75rem', marginBottom: 0 }}>💡 Copy this code to your IDE to run and test. Mark as complete when you've solved it!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Concept Cards Grid */}
       <div style={{
@@ -1803,8 +2112,7 @@ public static <T> Collector<T, ?, List<T>> toListWithLogging() {
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`
             }}
@@ -1814,6 +2122,7 @@ public static <T> Collector<T, ?, List<T>> toListWithLogging() {
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
               colors={STREAMS_COLORS}
             />
 

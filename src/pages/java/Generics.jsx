@@ -9,6 +9,8 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
+import { isProblemCompleted } from '../../services/progressService'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -52,7 +54,7 @@ const TypeParametersDiagram = () => (
     {/* Box<T> definition */}
     <rect x="50" y="50" width="200" height="80" rx="8" fill="rgba(99, 102, 241, 0.2)" stroke="#6366f1" strokeWidth="2"/>
     <text x="150" y="75" textAnchor="middle" fill="#a5b4fc" fontSize="12" fontWeight="bold">Generic Class</text>
-    <text x="150" y="100" textAnchor="middle" fill="#e2e8f0" fontSize="11" fontFamily="monospace">{`Box&lt;T&gt;`}</text>
+    <text x="150" y="100" textAnchor="middle" fill="#e2e8f0" fontSize="11" fontFamily="monospace">{'Box<T>'}</text>
     <text x="150" y="120" textAnchor="middle" fill="#94a3b8" fontSize="10">T = Type Parameter</text>
 
     {/* Arrow */}
@@ -61,13 +63,13 @@ const TypeParametersDiagram = () => (
 
     {/* Box<String> */}
     <rect x="330" y="50" width="140" height="80" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
-    <text x="400" y="75" textAnchor="middle" fill="#86efac" fontSize="11" fontWeight="bold">{`Box&lt;String&gt;`}</text>
+    <text x="400" y="75" textAnchor="middle" fill="#86efac" fontSize="11" fontWeight="bold">{'Box<String>'}</text>
     <text x="400" y="95" textAnchor="middle" fill="#e2e8f0" fontSize="10">T = String</text>
     <text x="400" y="115" textAnchor="middle" fill="#94a3b8" fontSize="9">Type-safe!</text>
 
     {/* Box<Integer> */}
     <rect x="490" y="50" width="140" height="80" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
-    <text x="560" y="75" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">{`Box&lt;Integer&gt;`}</text>
+    <text x="560" y="75" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">{'Box<Integer>'}</text>
     <text x="560" y="95" textAnchor="middle" fill="#e2e8f0" fontSize="10">T = Integer</text>
     <text x="560" y="115" textAnchor="middle" fill="#94a3b8" fontSize="9">Type-safe!</text>
 
@@ -86,19 +88,19 @@ const WildcardsDiagram = () => (
     {/* Unbounded Wildcard */}
     <rect x="50" y="50" width="200" height="90" rx="8" fill="rgba(99, 102, 241, 0.2)" stroke="#6366f1" strokeWidth="2"/>
     <text x="150" y="75" textAnchor="middle" fill="#a5b4fc" fontSize="12" fontWeight="bold">Unbounded</text>
-    <text x="150" y="100" textAnchor="middle" fill="#e2e8f0" fontSize="14" fontFamily="monospace">{`List&lt;?&gt;`}</text>
+    <text x="150" y="100" textAnchor="middle" fill="#e2e8f0" fontSize="14" fontFamily="monospace">{'List<?>'}</text>
     <text x="150" y="125" textAnchor="middle" fill="#94a3b8" fontSize="10">Any type</text>
 
     {/* Upper Bounded */}
     <rect x="300" y="50" width="200" height="90" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
     <text x="400" y="75" textAnchor="middle" fill="#86efac" fontSize="12" fontWeight="bold">Upper Bounded</text>
-    <text x="400" y="100" textAnchor="middle" fill="#e2e8f0" fontSize="13" fontFamily="monospace">{`List&lt;? extends T&gt;`}</text>
+    <text x="400" y="100" textAnchor="middle" fill="#e2e8f0" fontSize="13" fontFamily="monospace">{'List<? extends T>'}</text>
     <text x="400" y="125" textAnchor="middle" fill="#94a3b8" fontSize="10">T or subtypes (Producer)</text>
 
     {/* Lower Bounded */}
     <rect x="550" y="50" width="200" height="90" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
     <text x="650" y="75" textAnchor="middle" fill="#fbbf24" fontSize="12" fontWeight="bold">Lower Bounded</text>
-    <text x="650" y="100" textAnchor="middle" fill="#e2e8f0" fontSize="13" fontFamily="monospace">{`List&lt;? super T&gt;`}</text>
+    <text x="650" y="100" textAnchor="middle" fill="#e2e8f0" fontSize="13" fontFamily="monospace">{'List<? super T>'}</text>
     <text x="650" y="125" textAnchor="middle" fill="#94a3b8" fontSize="10">T or supertypes (Consumer)</text>
 
     {/* PECS Rule */}
@@ -123,7 +125,7 @@ const BoundsDiagram = () => (
 
     {/* Class hierarchy */}
     <rect x="325" y="50" width="150" height="40" rx="8" fill="rgba(99, 102, 241, 0.2)" stroke="#6366f1" strokeWidth="2"/>
-    <text x="400" y="75" textAnchor="middle" fill="#a5b4fc" fontSize="11" fontWeight="bold">{`Comparable&lt;T&gt;`}</text>
+    <text x="400" y="75" textAnchor="middle" fill="#a5b4fc" fontSize="11" fontWeight="bold">{'Comparable<T>'}</text>
 
     <line x1="400" y1="90" x2="400" y2="110" stroke="#6366f1" strokeWidth="2" markerEnd="url(#arrowBounds)"/>
 
@@ -144,9 +146,7 @@ const BoundsDiagram = () => (
     <text x="575" y="207" textAnchor="middle" fill="#fbbf24" fontSize="10">BigDecimal</text>
 
     {/* Bounded type explanation */}
-    <text x="400" y="250" textAnchor="middle" fill="#94a3b8" fontSize="11">{`
-      &lt;T extends Number & Comparable&lt;T&gt;&gt; accepts Integer, Double, BigDecimal
-    `}</text>
+    <text x="400" y="250" textAnchor="middle" fill="#94a3b8" fontSize="11">{'<T extends Number & Comparable<T>> accepts Integer, Double, BigDecimal'}</text>
   </svg>
 )
 
@@ -165,7 +165,7 @@ const TypeErasureDiagram = () => (
     {/* Before compilation */}
     <rect x="50" y="55" width="250" height="80" rx="8" fill="rgba(99, 102, 241, 0.2)" stroke="#6366f1" strokeWidth="2"/>
     <text x="175" y="80" textAnchor="middle" fill="#a5b4fc" fontSize="11" fontWeight="bold">Source Code</text>
-    <text x="175" y="105" textAnchor="middle" fill="#e2e8f0" fontSize="11" fontFamily="monospace">{`List&lt;String&gt; list`}</text>
+    <text x="175" y="105" textAnchor="middle" fill="#e2e8f0" fontSize="11" fontFamily="monospace">{'List<String> list'}</text>
     <text x="175" y="125" textAnchor="middle" fill="#e2e8f0" fontSize="11" fontFamily="monospace">list.add("Hello")</text>
 
     {/* Arrow */}
@@ -199,7 +199,7 @@ const GenericMethodDiagram = () => (
     {/* Method structure */}
     <rect x="100" y="50" width="600" height="60" rx="8" fill="rgba(99, 102, 241, 0.15)" stroke="#6366f1" strokeWidth="2"/>
 
-    <text x="150" y="85" textAnchor="middle" fill="#86efac" fontSize="12" fontFamily="monospace">{`&lt;T&gt;`}</text>
+    <text x="150" y="85" textAnchor="middle" fill="#86efac" fontSize="12" fontFamily="monospace">{'<T>'}</text>
     <text x="250" y="85" textAnchor="middle" fill="#fbbf24" fontSize="12" fontFamily="monospace">T</text>
     <text x="350" y="85" textAnchor="middle" fill="#e2e8f0" fontSize="12" fontFamily="monospace">findMax</text>
     <text x="500" y="85" textAnchor="middle" fill="#a5b4fc" fontSize="12" fontFamily="monospace">(T[] array)</text>
@@ -236,9 +236,7 @@ const GenericClassDiagram = () => (
 
     {/* Header */}
     <rect x="200" y="45" width="400" height="35" rx="10" fill="rgba(99, 102, 241, 0.3)"/>
-    <text x="400" y="68" textAnchor="middle" fill="#e2e8f0" fontSize="13" fontFamily="monospace" fontWeight="bold">{`
-      public class Pair&lt;K, V&gt;
-    `}</text>
+    <text x="400" y="68" textAnchor="middle" fill="#e2e8f0" fontSize="13" fontFamily="monospace" fontWeight="bold">{'public class Pair<K, V>'}</text>
 
     {/* Fields */}
     <text x="220" y="100" fill="#86efac" fontSize="11" fontFamily="monospace">private K key;</text>
@@ -247,7 +245,7 @@ const GenericClassDiagram = () => (
     {/* Methods */}
     <text x="220" y="145" fill="#fbbf24" fontSize="11" fontFamily="monospace">public K getKey() {'{'}...{'}'}</text>
     <text x="220" y="165" fill="#fbbf24" fontSize="11" fontFamily="monospace">public V getValue() {'{'}...{'}'}</text>
-    <text x="220" y="185" fill="#a5b4fc" fontSize="11" fontFamily="monospace">{`public Pair&lt;V, K&gt; swap() {'{'}...{'}'}`}</text>
+    <text x="220" y="185" fill="#a5b4fc" fontSize="11" fontFamily="monospace">{'public Pair<V, K> swap() {...}'}</text>
   </svg>
 )
 
@@ -258,6 +256,243 @@ const GenericClassDiagram = () => (
 function Generics({ onBack, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+  const [, setRefreshKey] = useState(0)
+  const [selectedProblem, setSelectedProblem] = useState(null)
+  const [userCode, setUserCode] = useState('')
+  const [showSolution, setShowSolution] = useState(false)
+
+  useEffect(() => {
+    const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
+    window.addEventListener('progressUpdate', handleProgressUpdate)
+    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
+  }, [])
+
+  const openProblem = (problem) => { setSelectedProblem(problem); setUserCode(problem.starterCode); setShowSolution(false) }
+  const closeProblem = () => { setSelectedProblem(null); setUserCode(''); setShowSolution(false) }
+
+  const practiceProblems = [
+    { id: 1, title: 'Generic Class', difficulty: 'Easy', description: 'Create a generic Pair<K,V> class that holds two values of different types.', example: 'Pair<String, Integer> pair = new Pair<>("age", 25)',
+      instructions: `Create a generic Pair class.
+
+**Requirements:**
+1. Two type parameters K and V
+2. Constructor, getters, setters
+3. Override toString()`,
+      starterCode: `public class Pair<K, V> {
+    // TODO: Add fields for key and value
+    
+    // TODO: Constructor
+    
+    // TODO: Getters and setters
+    
+    // TODO: toString()
+}
+
+// Test:
+// Pair<String, Integer> p = new Pair<>("age", 25);
+// System.out.println(p);`,
+      solution: `public class Pair<K, V> {
+    private K key;
+    private V value;
+    
+    public Pair(K key, V value) {
+        this.key = key;
+        this.value = value;
+    }
+    
+    public K getKey() { return key; }
+    public V getValue() { return value; }
+    public void setKey(K key) { this.key = key; }
+    public void setValue(V value) { this.value = value; }
+    
+    @Override
+    public String toString() {
+        return "Pair{" + key + "=" + value + "}";
+    }
+}
+
+// Usage:
+Pair<String, Integer> age = new Pair<>("age", 25);
+Pair<String, List<String>> tags = new Pair<>("tags", Arrays.asList("java", "generics"));`
+    },
+    { id: 2, title: 'Bounded Type Parameters', difficulty: 'Medium', description: 'Implement a generic method that only accepts Number subclasses.', example: '<T extends Number> double sum(List<T> numbers)',
+      instructions: `Create bounded generic method.
+
+**Requirements:**
+1. Accept only Number types
+2. Sum all numbers
+3. Return double result`,
+      starterCode: `import java.util.*;
+
+public class NumberUtils {
+    // TODO: Implement sum method with bounded type
+    // <T extends Number> double sum(List<T> numbers)
+    
+    public static void main(String[] args) {
+        List<Integer> ints = Arrays.asList(1, 2, 3);
+        List<Double> doubles = Arrays.asList(1.5, 2.5);
+        
+        // System.out.println(sum(ints));    // 6.0
+        // System.out.println(sum(doubles)); // 4.0
+    }
+}`,
+      solution: `import java.util.*;
+
+public class NumberUtils {
+    public static <T extends Number> double sum(List<T> numbers) {
+        double total = 0;
+        for (T num : numbers) {
+            total += num.doubleValue();
+        }
+        return total;
+    }
+    
+    // Also works with multiple bounds:
+    public static <T extends Number & Comparable<T>> T max(List<T> list) {
+        if (list.isEmpty()) return null;
+        T max = list.get(0);
+        for (T item : list) {
+            if (item.compareTo(max) > 0) max = item;
+        }
+        return max;
+    }
+    
+    public static void main(String[] args) {
+        List<Integer> ints = Arrays.asList(1, 2, 3);
+        List<Double> doubles = Arrays.asList(1.5, 2.5);
+        
+        System.out.println(sum(ints));    // 6.0
+        System.out.println(sum(doubles)); // 4.0
+        System.out.println(max(ints));    // 3
+    }
+}`
+    },
+    { id: 3, title: 'Wildcard Usage', difficulty: 'Medium', description: 'Use wildcards to write a method that prints any list of objects.', example: 'void printList(List<?> list)',
+      instructions: `Use wildcards correctly.
+
+**Requirements:**
+1. Unbounded wildcard for reading
+2. Upper bounded for Number
+3. Lower bounded for adding`,
+      starterCode: `import java.util.*;
+
+public class WildcardDemo {
+    // TODO: Print any list (unbounded)
+    // void printList(List<?> list)
+    
+    // TODO: Sum numbers (upper bounded)
+    // double sumNumbers(List<? extends Number> list)
+    
+    // TODO: Add integers (lower bounded)
+    // void addNumbers(List<? super Integer> list)
+    
+    public static void main(String[] args) {
+        List<String> strings = Arrays.asList("a", "b");
+        List<Integer> ints = Arrays.asList(1, 2, 3);
+        List<Number> nums = new ArrayList<>();
+    }
+}`,
+      solution: `import java.util.*;
+
+public class WildcardDemo {
+    // Unbounded: can read as Object
+    static void printList(List<?> list) {
+        for (Object item : list) {
+            System.out.println(item);
+        }
+    }
+    
+    // Upper bounded: can read as Number
+    static double sumNumbers(List<? extends Number> list) {
+        double sum = 0;
+        for (Number n : list) {
+            sum += n.doubleValue();
+        }
+        return sum;
+    }
+    
+    // Lower bounded: can add Integer
+    static void addNumbers(List<? super Integer> list) {
+        list.add(1);
+        list.add(2);
+        list.add(3);
+    }
+    
+    public static void main(String[] args) {
+        List<String> strings = Arrays.asList("a", "b");
+        List<Integer> ints = Arrays.asList(1, 2, 3);
+        List<Number> nums = new ArrayList<>();
+        
+        printList(strings);      // Works
+        printList(ints);         // Works
+        System.out.println(sumNumbers(ints)); // 6.0
+        addNumbers(nums);        // Works: Number is super of Integer
+    }
+}`
+    },
+    { id: 4, title: 'Type Erasure Understanding', difficulty: 'Hard', description: 'Explain why List<String> and List<Integer> have the same runtime type.', example: 'Both become List at runtime due to type erasure',
+      instructions: `Demonstrate type erasure.
+
+**Requirements:**
+1. Show runtime type equality
+2. Explain limitations
+3. Workarounds`,
+      starterCode: `import java.util.*;
+
+public class TypeErasureDemo {
+    public static void main(String[] args) {
+        List<String> strings = new ArrayList<>();
+        List<Integer> integers = new ArrayList<>();
+        
+        // TODO: Compare runtime types
+        // System.out.println(strings.getClass() == integers.getClass());
+        
+        // TODO: Why can't we do this?
+        // if (obj instanceof List<String>) { }
+        
+        // TODO: How to preserve type info?
+    }
+}`,
+      solution: `import java.util.*;
+import java.lang.reflect.*;
+
+public class TypeErasureDemo {
+    public static void main(String[] args) {
+        List<String> strings = new ArrayList<>();
+        List<Integer> integers = new ArrayList<>();
+        
+        // Same runtime type due to erasure
+        System.out.println(strings.getClass() == integers.getClass()); // true
+        System.out.println(strings.getClass()); // class java.util.ArrayList
+        
+        // Cannot check generic type at runtime:
+        // if (obj instanceof List<String>) { } // Compile error!
+        
+        // Workaround 1: Type tokens
+        class TypeToken<T> {
+            Type getType() {
+                return ((ParameterizedType) getClass()
+                    .getGenericSuperclass()).getActualTypeArguments()[0];
+            }
+        }
+        
+        // Workaround 2: Pass Class object
+        static <T> List<T> createList(Class<T> type) {
+            return new ArrayList<>();
+        }
+        
+        // Workaround 3: Store type in wrapper
+        class TypedList<T> {
+            private List<T> list = new ArrayList<>();
+            private Class<T> type;
+            
+            TypedList(Class<T> type) { this.type = type; }
+            Class<T> getType() { return type; }
+        }
+    }
+}`
+    }
+  ]
 
   // =============================================================================
   // CONCEPTS DATA
@@ -1176,7 +1411,7 @@ List<String> legacy = legacyMethodReturningRawList();`
 
   const containerStyle = {
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #0f172a 0%, #312e81 50%, #0f172a 100%)',
+    background: 'var(--bg-gradient)',
     padding: '2rem',
     fontFamily: 'system-ui, -apple-system, sans-serif'
   }
@@ -1241,6 +1476,7 @@ List<String> legacy = legacyMethodReturningRawList();`
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={GENERICS_COLORS}
         />
       </div>
@@ -1252,6 +1488,67 @@ List<String> legacy = legacyMethodReturningRawList();`
           classes and methods that work with any type while catching type errors at compile time.
         </p>
       </div>
+
+      {/* Practice Exercises Section */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
+        <h2 style={{ color: '#6366f1', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span>📝</span> Practice Exercises</h2>
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Click on an exercise to practice. Complete the code challenge and mark as done.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+          {practiceProblems.map((problem) => {
+            const problemId = `Generics-${problem.id}`
+            const isCompleted = isProblemCompleted(problemId)
+            return (
+              <div key={problem.id} onClick={() => openProblem(problem)} style={{ background: isCompleted ? 'rgba(34, 197, 94, 0.1)' : 'rgba(30, 41, 59, 0.8)', borderRadius: '0.75rem', padding: '1rem', border: `1px solid ${isCompleted ? '#22c55e' : '#334155'}`, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = '#6366f1'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.2)' }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = isCompleted ? '#22c55e' : '#334155'; e.currentTarget.style.boxShadow = 'none' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+                  <h4 style={{ color: '#e2e8f0', margin: 0, fontSize: '0.95rem' }}>{problem.title}</h4>
+                  <span style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '600', backgroundColor: problem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : problem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: problem.difficulty === 'Easy' ? '#22c55e' : problem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{problem.difficulty}</span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.5rem 0', lineHeight: '1.4' }}>{problem.description}</p>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0.5rem 0', fontStyle: 'italic' }}>{problem.example}</p>
+                <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#6366f1', fontSize: '0.8rem', fontWeight: '500' }}>Click to practice →</span>
+                  <div onClick={(e) => e.stopPropagation()}><CompletionCheckbox problemId={problemId} compact /></div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Practice Problem Modal */}
+      {selectedProblem && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }} onClick={closeProblem}>
+          <div style={{ backgroundColor: '#1f2937', borderRadius: '1rem', width: '95vw', maxWidth: '1400px', height: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', border: '2px solid #6366f1' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid #374151', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <h2 style={{ color: '#e2e8f0', margin: 0, fontSize: '1.5rem' }}>{selectedProblem.title}</h2>
+                <span style={{ padding: '0.3rem 0.75rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600', backgroundColor: selectedProblem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : selectedProblem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: selectedProblem.difficulty === 'Easy' ? '#22c55e' : selectedProblem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{selectedProblem.difficulty}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <CompletionCheckbox problemId={`Generics-${selectedProblem.id}`} compact />
+                <button onClick={closeProblem} style={{ padding: '0.5rem 1rem', backgroundColor: '#374151', color: '#e2e8f0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem' }}>✕ Close</button>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', flex: 1, overflow: 'hidden' }}>
+              <div style={{ padding: '1.5rem', borderRight: '1px solid #374151', overflowY: 'auto' }}>
+                <h3 style={{ color: '#6366f1', marginTop: 0, marginBottom: '1rem' }}>📋 Instructions</h3>
+                <div style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>{selectedProblem.instructions.split('**').map((part, i) => i % 2 === 1 ? <strong key={i} style={{ color: '#e2e8f0' }}>{part}</strong> : part)}</div>
+              </div>
+              <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                  <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedProblem.solution) }} style={{ padding: '0.5rem 1rem', backgroundColor: showSolution ? '#ef4444' : '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>{showSolution ? '🔒 Hide Solution' : '💡 Show Solution'}</button>
+                  <button onClick={() => { setUserCode(selectedProblem.starterCode); setShowSolution(false) }} style={{ padding: '0.5rem 1rem', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>🔄 Reset Code</button>
+                  <button onClick={() => navigator.clipboard.writeText(userCode)} style={{ padding: '0.5rem 1rem', backgroundColor: '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>📋 Copy Code</button>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                  <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'Consolas, Monaco, "Courier New", monospace', fontSize: '0.9rem', backgroundColor: '#111827', color: '#e2e8f0', border: '1px solid #374151', borderRadius: '8px', resize: 'none', lineHeight: '1.5' }} spellCheck={false} />
+                </div>
+                <p style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '0.75rem', marginBottom: 0 }}>💡 Copy this code to your IDE to run and test. Mark as complete when you've solved it!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Concept Cards Grid */}
       <div style={{
@@ -1316,9 +1613,7 @@ List<String> legacy = legacyMethodReturningRawList();`
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              width: '100%',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`
             }}
@@ -1328,6 +1623,7 @@ List<String> legacy = legacyMethodReturningRawList();`
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
               colors={GENERICS_COLORS}
             />
 

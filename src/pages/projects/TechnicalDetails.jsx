@@ -1280,7 +1280,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
         </div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {technicalPoints.map((point, index) => (

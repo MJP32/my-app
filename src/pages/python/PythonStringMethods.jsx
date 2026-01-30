@@ -1614,7 +1614,7 @@ def safe_encode(text, encoding='utf-8'):
         <div style={{ width: '150px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
       <p style={{
         fontSize: '1.2rem',

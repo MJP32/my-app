@@ -9,6 +9,8 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
+import { isProblemCompleted } from '../../services/progressService'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -422,6 +424,205 @@ const OffHeapDiagram = () => (
 export default function MemoryManagement({ onBack, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [selectedProblem, setSelectedProblem] = useState(null)
+  const [userCode, setUserCode] = useState('')
+  const [showSolution, setShowSolution] = useState(false)
+
+  useEffect(() => {
+    const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
+    window.addEventListener('progressUpdate', handleProgressUpdate)
+    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
+  }, [])
+
+  const openProblem = (problem) => { setSelectedProblem(problem); setUserCode(problem.starterCode); setShowSolution(false) }
+  const closeProblem = () => { setSelectedProblem(null); setUserCode(''); setShowSolution(false) }
+
+  const practiceProblems = [
+    { id: 1, title: 'Memory Leak Detection', difficulty: 'Medium', description: 'Identify and fix a memory leak caused by static collections holding references.', example: 'Static List holding event listeners',
+      instructions: `Find and fix the memory leak.
+
+**Requirements:**
+1. Identify the leak source
+2. Fix the code
+3. Verify with profiler`,
+      starterCode: `import java.util.*;
+
+public class MemoryLeakDemo {
+    // BUG: Static list holds references forever
+    private static List<Object> cache = new ArrayList<>();
+    
+    public void processData(Object data) {
+        cache.add(data);  // Never removed!
+        // Process data...
+    }
+    
+    // TODO: Fix the memory leak
+    // Options:
+    // 1. Use WeakReference
+    // 2. Implement cache eviction
+    // 3. Clear cache periodically
+}`,
+      solution: `import java.util.*;
+import java.lang.ref.WeakReference;
+
+public class MemoryLeakDemo {
+    // FIX 1: Use WeakHashMap for cache
+    private static Map<Object, Object> cache = new WeakHashMap<>();
+    
+    // FIX 2: Or use bounded cache with eviction
+    private static LinkedHashMap<Object, Object> lruCache = 
+        new LinkedHashMap<>(100, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry eldest) {
+                return size() > 100; // Max 100 entries
+            }
+        };
+    
+    public void processData(Object key, Object data) {
+        cache.put(key, data);
+    }
+    
+    // FIX 3: Explicit cleanup method
+    public void cleanup() {
+        cache.clear();
+    }
+}`
+    },
+    { id: 2, title: 'GC Algorithm Selection', difficulty: 'Medium', description: 'Choose the appropriate GC algorithm for different application scenarios.', example: 'Low latency app → ZGC or Shenandoah',
+      instructions: `Select GC for each scenario.
+
+**Requirements:**
+1. Match GC to use case
+2. Explain reasoning
+3. Provide JVM flags`,
+      starterCode: `// Match the GC algorithm to each scenario:
+
+// Scenario 1: Batch processing, maximize throughput
+// GC: ???
+// Flags: ???
+
+// Scenario 2: Real-time trading, <1ms pauses
+// GC: ???
+// Flags: ???
+
+// Scenario 3: Web app, balanced latency/throughput
+// GC: ???
+// Flags: ???
+
+// Scenario 4: Small heap (<4GB), simple app
+// GC: ???
+// Flags: ???`,
+      solution: `// Scenario 1: Batch processing, maximize throughput
+// GC: Parallel GC (throughput collector)
+// Flags: -XX:+UseParallelGC -XX:ParallelGCThreads=8
+
+// Scenario 2: Real-time trading, <1ms pauses
+// GC: ZGC or Shenandoah
+// Flags: -XX:+UseZGC -XX:+ZGenerational
+// Or: -XX:+UseShenandoahGC
+
+// Scenario 3: Web app, balanced latency/throughput
+// GC: G1GC (default in Java 9+)
+// Flags: -XX:+UseG1GC -XX:MaxGCPauseMillis=100
+
+// Scenario 4: Small heap (<4GB), simple app
+// GC: Serial GC (low overhead)
+// Flags: -XX:+UseSerialGC`
+    },
+    { id: 3, title: 'Heap Size Tuning', difficulty: 'Easy', description: 'Configure optimal heap sizes for a given application workload.', example: '-Xms2g -Xmx4g -XX:NewRatio=2',
+      instructions: `Configure heap for web app.
+
+**Requirements:**
+1. Set initial and max heap
+2. Configure generations
+3. Add monitoring`,
+      starterCode: `// Application: Spring Boot web app
+// Server: 16GB RAM, 8 cores
+// Requirements: Handle 1000 req/sec
+
+// TODO: Configure JVM heap settings
+java \\
+  # Initial heap size
+  # Maximum heap size
+  # Young generation size
+  # Metaspace size
+  # GC logging
+  -jar myapp.jar`,
+      solution: `// Optimized configuration:
+java \\
+  -Xms4g \\
+  -Xmx4g \\
+  -XX:NewRatio=2 \\
+  -XX:MetaspaceSize=256m \\
+  -XX:MaxMetaspaceSize=512m \\
+  -XX:+UseG1GC \\
+  -XX:MaxGCPauseMillis=100 \\
+  -XX:+HeapDumpOnOutOfMemoryError \\
+  -XX:HeapDumpPath=/var/log/heap.hprof \\
+  -Xlog:gc*:file=/var/log/gc.log:time \\
+  -jar myapp.jar
+
+// Explanation:
+// -Xms=Xmx: Avoid heap resizing
+// NewRatio=2: 1/3 young, 2/3 old gen
+// Metaspace: For class metadata
+// HeapDump: Debug OOM issues`
+    },
+    { id: 4, title: 'Object Pooling', difficulty: 'Hard', description: 'Implement an object pool to reduce GC pressure for frequently created objects.', example: 'Pool for database connections or byte buffers',
+      instructions: `Implement a simple object pool.
+
+**Requirements:**
+1. Reuse objects
+2. Thread-safe
+3. Bounded size`,
+      starterCode: `import java.util.concurrent.*;
+
+public class ObjectPool<T> {
+    // TODO: Implement object pool
+    // - Store available objects
+    // - acquire() method
+    // - release() method
+    // - Thread-safe operations
+    
+    public T acquire() {
+        return null;
+    }
+    
+    public void release(T obj) {
+    }
+}`,
+      solution: `import java.util.concurrent.*;
+import java.util.function.Supplier;
+
+public class ObjectPool<T> {
+    private final BlockingQueue<T> pool;
+    private final Supplier<T> factory;
+    
+    public ObjectPool(int size, Supplier<T> factory) {
+        this.pool = new LinkedBlockingQueue<>(size);
+        this.factory = factory;
+        // Pre-populate pool
+        for (int i = 0; i < size; i++) {
+            pool.offer(factory.get());
+        }
+    }
+    
+    public T acquire() throws InterruptedException {
+        T obj = pool.poll();
+        return obj != null ? obj : factory.get();
+    }
+    
+    public void release(T obj) {
+        pool.offer(obj); // Returns false if full
+    }
+}
+
+// Usage:
+// ObjectPool<ByteBuffer> bufferPool = 
+//     new ObjectPool<>(10, () -> ByteBuffer.allocate(1024));`
+    }
+  ]
 
   // =============================================================================
   // CONCEPTS DATA
@@ -1230,9 +1431,71 @@ System.out.println("Heap Max: " +
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={MEMORY_COLORS}
         />
       </div>
+
+      {/* Practice Exercises Section */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid rgba(234, 179, 8, 0.3)' }}>
+        <h2 style={{ color: '#eab308', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span>📝</span> Practice Exercises</h2>
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Click on an exercise to practice. Complete the code challenge and mark as done.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+          {practiceProblems.map((problem) => {
+            const problemId = `MemoryManagement-${problem.id}`
+            const isCompleted = isProblemCompleted(problemId)
+            return (
+              <div key={problem.id} onClick={() => openProblem(problem)} style={{ background: isCompleted ? 'rgba(34, 197, 94, 0.1)' : 'rgba(30, 41, 59, 0.8)', borderRadius: '0.75rem', padding: '1rem', border: `1px solid ${isCompleted ? '#22c55e' : '#334155'}`, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = '#eab308'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(234, 179, 8, 0.2)' }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = isCompleted ? '#22c55e' : '#334155'; e.currentTarget.style.boxShadow = 'none' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+                  <h4 style={{ color: '#e2e8f0', margin: 0, fontSize: '0.95rem' }}>{problem.title}</h4>
+                  <span style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '600', backgroundColor: problem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : problem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: problem.difficulty === 'Easy' ? '#22c55e' : problem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{problem.difficulty}</span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.5rem 0', lineHeight: '1.4' }}>{problem.description}</p>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0.5rem 0', fontStyle: 'italic' }}>{problem.example}</p>
+                <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#eab308', fontSize: '0.8rem', fontWeight: '500' }}>Click to practice →</span>
+                  <div onClick={(e) => e.stopPropagation()}><CompletionCheckbox problemId={problemId} compact /></div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Practice Problem Modal */}
+      {selectedProblem && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }} onClick={closeProblem}>
+          <div style={{ backgroundColor: '#1f2937', borderRadius: '1rem', width: '95vw', maxWidth: '1400px', height: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', border: '2px solid #eab308' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid #374151', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <h2 style={{ color: '#e2e8f0', margin: 0, fontSize: '1.5rem' }}>{selectedProblem.title}</h2>
+                <span style={{ padding: '0.3rem 0.75rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600', backgroundColor: selectedProblem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : selectedProblem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: selectedProblem.difficulty === 'Easy' ? '#22c55e' : selectedProblem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{selectedProblem.difficulty}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <CompletionCheckbox problemId={`MemoryManagement-${selectedProblem.id}`} compact />
+                <button onClick={closeProblem} style={{ padding: '0.5rem 1rem', backgroundColor: '#374151', color: '#e2e8f0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem' }}>✕ Close</button>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', flex: 1, overflow: 'hidden' }}>
+              <div style={{ padding: '1.5rem', borderRight: '1px solid #374151', overflowY: 'auto' }}>
+                <h3 style={{ color: '#eab308', marginTop: 0, marginBottom: '1rem' }}>📋 Instructions</h3>
+                <div style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>{selectedProblem.instructions.split('**').map((part, i) => i % 2 === 1 ? <strong key={i} style={{ color: '#e2e8f0' }}>{part}</strong> : part)}</div>
+              </div>
+              <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                  <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedProblem.solution) }} style={{ padding: '0.5rem 1rem', backgroundColor: showSolution ? '#ef4444' : '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>{showSolution ? '🔒 Hide Solution' : '💡 Show Solution'}</button>
+                  <button onClick={() => { setUserCode(selectedProblem.starterCode); setShowSolution(false) }} style={{ padding: '0.5rem 1rem', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>🔄 Reset Code</button>
+                  <button onClick={() => navigator.clipboard.writeText(userCode)} style={{ padding: '0.5rem 1rem', backgroundColor: '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>📋 Copy Code</button>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                  <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'Consolas, Monaco, "Courier New", monospace', fontSize: '0.9rem', backgroundColor: '#111827', color: '#e2e8f0', border: '1px solid #374151', borderRadius: '8px', resize: 'none', lineHeight: '1.5' }} spellCheck={false} />
+                </div>
+                <p style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '0.75rem', marginBottom: 0 }}>💡 Copy this code to your IDE to run and test. Mark as complete when you've solved it!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Concept Cards Grid */}
       <div style={{
@@ -1297,8 +1560,7 @@ System.out.println("Heap Max: " +
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`
             }}
@@ -1308,6 +1570,7 @@ System.out.println("Heap Max: " +
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
               colors={MEMORY_COLORS}
             />
 

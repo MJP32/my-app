@@ -8,14 +8,14 @@ import { isProblemCompleted } from '../../services/progressService'
 import { getPreferredLanguage } from '../../services/languageService'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 
-function AdvancedGraphs({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb, breadcrumbStack, onBreadcrumbClick, pushBreadcrumb, breadcrumbColors }) {
+function AdvancedGraphs({ onBack, onPrevious: _onPrevious, onNext: _onNext, previousName: _previousName, nextName: _nextName, currentSubcategory: _currentSubcategory, previousSubcategory: _previousSubcategory, nextSubcategory: _nextSubcategory, onPreviousSubcategory: _onPreviousSubcategory, onNextSubcategory: _onNextSubcategory, breadcrumb, breadcrumbStack, onBreadcrumbClick, pushBreadcrumb: _pushBreadcrumb, breadcrumbColors }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null)
   const [showSolution, setShowSolution] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
   const [userCode, setUserCode] = useState('')
-  const [output, setOutput] = useState('')
-  const [isRunning, setIsRunning] = useState(false)
-  const [refreshKey, setRefreshKey] = useState(0)
+  const [, setOutput] = useState('')
+  const [, setIsRunning] = useState(false)
+  const [, setRefreshKey] = useState(0)
   const [language, setLanguage] = useState(getPreferredLanguage())
   const [showDrawing, setShowDrawing] = useState(false)
   const [currentDrawing, setCurrentDrawing] = useState(null)
@@ -580,6 +580,7 @@ function AdvancedGraphs({ onBack, onPrevious, onNext, previousName, nextName, cu
           breadcrumb={problemBreadcrumb}
           breadcrumbStack={problemBreadcrumbStack}
           onBreadcrumbClick={handleProblemBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={breadcrumbColors}
         />
 
@@ -687,6 +688,7 @@ function AdvancedGraphs({ onBack, onPrevious, onNext, previousName, nextName, cu
         breadcrumb={breadcrumb}
         breadcrumbStack={breadcrumbStack}
         onBreadcrumbClick={onBreadcrumbClick}
+        onMainMenu={breadcrumb?.onMainMenu}
         colors={breadcrumbColors}
       />
 

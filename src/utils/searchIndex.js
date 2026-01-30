@@ -63,7 +63,7 @@ const categoryGroups = {
       },
       'Java Features': {
         icon: '☕',
-        items: ['Streams', 'Lambdas', 'Functional Interfaces', 'Collections Framework']
+        items: ['Streams', 'Lambdas', 'Functional Interfaces', 'Collections Framework', 'Optional']
       },
       'Concurrency': {
         icon: '🔀',

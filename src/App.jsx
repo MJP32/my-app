@@ -1,7 +1,5 @@
-import { useState, useEffect, useRef, useCallback, lazy, Suspense, useMemo } from 'react'
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react'
 import { useNavigate, useLocation, Routes, Route } from 'react-router-dom'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import KeyboardShortcutsDialog from './components/KeyboardShortcutsDialog.jsx'
 import GlobalSearch from './components/GlobalSearch.jsx'
@@ -1325,6 +1323,81 @@ function App() {
   }
 
   const navigateToPracticeComponent = (componentName) => {
+    // Map grouped category names (from progress service) to first component in subcategory
+    const categoryToFirstComponentMap = {
+      'Practice - Algorithms': 'Arrays',
+      'Practice - Java Features': 'Streams',
+      'Practice - Concurrency': 'Concurrency',
+      'Practice - Core Java Fundamentals': 'Object-Oriented Programming',
+      'Practice - System Design': 'System Design',
+      'Practice - Python Operations': 'Set Operations' // First Python topic
+    }
+
+    // Check if this is a grouped category name and map to first component
+    if (categoryToFirstComponentMap[componentName] !== undefined) {
+      const firstComponent = categoryToFirstComponentMap[componentName]
+      if (firstComponent) {
+        componentName = firstComponent
+      } else {
+        // No component available for this category
+        return
+      }
+    }
+
+    // Python topics use setSelectedOptionAndRef instead of modals
+    const pythonTopicsMap = {
+      'SetOperations': 'Set Operations',
+      'MapOperations': 'Map Operations',
+      'PythonSetOperations': 'Python Set Operations',
+      'PythonMapFunctions': 'Python Map Functions',
+      'PythonDictOps': 'Python Dict Operations',
+      'PythonRegex': 'Python Regex'
+    }
+
+    // Check if this is a Python topic and navigate via setSelectedOptionAndRef
+    if (pythonTopicsMap[componentName]) {
+      setSelectedOptionAndRef(pythonTopicsMap[componentName])
+      return
+    }
+
+    // Also handle already-mapped Python topic names
+    const pythonSelectedOptions = [
+      'Set Operations', 'Map Operations', 'Python Set Operations',
+      'Python Map Functions', 'Python Dict Operations', 'Python Regex'
+    ]
+    if (pythonSelectedOptions.includes(componentName)) {
+      setSelectedOptionAndRef(componentName)
+      return
+    }
+
+    // Map topic names from progressService to componentModalMap names
+    const topicNameMap = {
+      'StreamsAdvanced': 'Streams Advanced',
+      'LambdasAdvanced': 'Lambdas Advanced',
+      'FunctionalInterfaces': 'Functional Interfaces',
+      'CollectionsFramework': 'Collections Framework',
+      'ObjectOrientedProgramming': 'Object-Oriented Programming',
+      'ExceptionHandling': 'Exception Handling',
+      'FileIO': 'File I/O',
+      'MemoryManagement': 'Memory Management',
+      'DesignPatternsInteractive': 'Design Patterns Practice',
+      'DesignProblems': 'Design Problems',
+      'LRUCache': 'LRU Cache',
+      'RateLimiter': 'Rate Limiter',
+      'BinarySearch': 'Binary Search',
+      'DynamicProgramming': 'Dynamic Programming',
+      'HashTables': 'Hash Tables',
+      'LinkedLists': 'Linked Lists',
+      'UnionFind': 'Union Find',
+      'DataStructures': 'Data Structures',
+      'JVMInternals': 'JVM Internals'
+    }
+
+    // Apply topic name mapping if needed
+    if (topicNameMap[componentName]) {
+      componentName = topicNameMap[componentName]
+    }
+
     // Map component names to their modal setters
     const componentModalMap = {
       'Arrays': setShowArraysModal,
@@ -1361,7 +1434,20 @@ function App() {
       'Rate Limiter': setShowRateLimiterModal,
       'Design Problems': setShowDesignProblemsModal,
       'Union Find': setShowUnionFindModal,
-      'Trie': setShowTrieModal
+      'Trie': setShowTrieModal,
+      'Backtracking': setShowBacktrackingModal,
+      'Advanced Graphs': setShowAdvancedGraphsModal,
+      'Greedy Algorithms': setShowGreedyAlgorithmsModal,
+      'Intervals': setShowIntervalsModal,
+      'Math & Geometry': setShowMathGeometryModal,
+      'Sliding Window': setShowSlidingWindowModal,
+      'Famous Algorithms': setShowFamousAlgorithmsModal,
+      'Two Pointers': setShowTwoPointersModal,
+      'Bit Manipulation': setShowBitManipulationModal,
+      'Binary Trees': setShowBinaryTreesModal,
+      'Binary Search Trees': setShowBinarySearchTreesModal,
+      'Searching': setShowSearchingModal,
+      'System Design': setShowSystemDesignModal
     }
 
     const setter = componentModalMap[componentName]
@@ -3449,91 +3535,91 @@ function App() {
 
     // Python topic routes
     if (selectedOption === 'Core Python') {
-      return <CorePython onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Core Python'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Core Python'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Core Python' }} />
+      return <CorePython onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Core Python'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Core Python'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Core Python' }} />
     }
     if (selectedOption === 'Python OOP') {
-      return <PythonOOP onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python OOP'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python OOP'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Object-Oriented Programming' }} />
+      return <PythonOOP onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python OOP'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python OOP'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Object-Oriented Programming' }} />
     }
     if (selectedOption === 'Index Slicing') {
-      return <IndexSlicing onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Index Slicing'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Index Slicing'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Index Slicing' }} />
+      return <IndexSlicing onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Index Slicing'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Index Slicing'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Index Slicing' }} />
     }
     if (selectedOption === 'Bitwise Operations') {
-      return <BitwiseOperations onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Bitwise Operations'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Bitwise Operations'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Bitwise Operations' }} />
+      return <BitwiseOperations onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Bitwise Operations'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Bitwise Operations'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Bitwise Operations' }} />
     }
     if (selectedOption === 'List Comprehension') {
-      return <ListComprehension onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['List Comprehension'].name, onClick: () => goToPythonCategory(pythonTopicCategories['List Comprehension'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'List Comprehension' }} />
+      return <ListComprehension onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['List Comprehension'].name, onClick: () => goToPythonCategory(pythonTopicCategories['List Comprehension'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'List Comprehension' }} />
     }
     if (selectedOption === 'Lambda') {
-      return <LambdaFunctions onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Lambda'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Lambda'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Lambda Functions' }} />
+      return <LambdaFunctions onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Lambda'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Lambda'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Lambda Functions' }} />
     }
     if (selectedOption === 'Bisect Functions') {
-      return <BisectFunctions onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Bisect Functions'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Bisect Functions'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Bisect Functions' }} />
+      return <BisectFunctions onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Bisect Functions'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Bisect Functions'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Bisect Functions' }} />
     }
     if (selectedOption === 'Set Operations') {
-      return <SetOperations onBack={() => setSelectedOptionAndRef('Practice')} />
+      return <SetOperations onBack={() => setSelectedOptionAndRef('Practice')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Practice', icon: '📝', onClick: () => setSelectedOptionAndRef('Practice') }, topic: 'Set Operations', colors: BREADCRUMB_COLORS.Practice }} />
     }
     if (selectedOption === 'Map Operations') {
-      return <MapOperations onBack={() => setSelectedOptionAndRef('Practice')} />
+      return <MapOperations onBack={() => setSelectedOptionAndRef('Practice')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Practice', icon: '📝', onClick: () => setSelectedOptionAndRef('Practice') }, topic: 'Map Operations', colors: BREADCRUMB_COLORS.Practice }} />
     }
     if (selectedOption === 'Python Advanced') {
-      return <PythonAdvanced onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python Advanced'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python Advanced'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Python Advanced' }} />
+      return <PythonAdvanced onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python Advanced'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python Advanced'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Python Advanced' }} />
     }
     if (selectedOption === 'Data Science') {
-      return <DataScience onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Data Science'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Data Science'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Data Science' }} />
+      return <DataScience onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Data Science'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Data Science'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Data Science' }} />
     }
     if (selectedOption === 'Machine Learning') {
-      return <MachineLearning onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Machine Learning'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Machine Learning'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Machine Learning' }} />
+      return <MachineLearning onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Machine Learning'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Machine Learning'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Machine Learning' }} />
     }
     if (selectedOption === 'Web Frameworks') {
-      return <WebFrameworks onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Web Frameworks'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Web Frameworks'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Web Frameworks' }} />
+      return <WebFrameworks onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Web Frameworks'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Web Frameworks'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Web Frameworks' }} />
     }
     if (selectedOption === 'Async Python') {
-      return <AsyncPython onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Async Python'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Async Python'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Async Python' }} />
+      return <AsyncPython onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Async Python'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Async Python'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Async Python' }} />
     }
     if (selectedOption === 'Python Set Operations') {
-      return <PythonSetOperations onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python Set Operations'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python Set Operations'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Set Operations' }} />
+      return <PythonSetOperations onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python Set Operations'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python Set Operations'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Set Operations' }} />
     }
     if (selectedOption === 'Python Dict Operations') {
-      return <PythonDictOperations onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python Dict Operations'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python Dict Operations'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Dictionary Operations' }} />
+      return <PythonDictOperations onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python Dict Operations'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python Dict Operations'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Dictionary Operations' }} />
     }
     if (selectedOption === 'Python Tuples') {
-      return <PythonTuples onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python Tuples'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python Tuples'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Tuple Operations' }} />
+      return <PythonTuples onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python Tuples'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python Tuples'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Tuple Operations' }} />
     }
     if (selectedOption === 'Python Map Functions') {
-      return <PythonMapFunctions onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python Map Functions'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python Map Functions'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Map Functions' }} />
+      return <PythonMapFunctions onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python Map Functions'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python Map Functions'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Map Functions' }} />
     }
     if (selectedOption === 'Python String Methods') {
-      return <PythonStringMethods onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python String Methods'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python String Methods'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'String Methods' }} />
+      return <PythonStringMethods onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python String Methods'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python String Methods'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'String Methods' }} />
     }
     if (selectedOption === 'Python Heaps') {
-      return <PythonHeaps onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python Heaps'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python Heaps'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Heaps Reference' }} />
+      return <PythonHeaps onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python Heaps'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python Heaps'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Heaps Reference' }} />
     }
     if (selectedOption === 'Python Pitfalls') {
-      return <PythonPitfalls onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python Pitfalls'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python Pitfalls'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Common Pitfalls' }} />
+      return <PythonPitfalls onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python Pitfalls'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python Pitfalls'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Common Pitfalls' }} />
     }
     if (selectedOption === 'Python Regex') {
-      return <PythonRegex onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python Regex'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python Regex'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Regular Expressions' }} />
+      return <PythonRegex onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Python Regex'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Python Regex'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Regular Expressions' }} />
     }
     if (selectedOption === 'Itertools') {
-      return <Itertools onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Itertools'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Itertools'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Itertools' }} />
+      return <Itertools onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Itertools'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Itertools'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Itertools' }} />
     }
     if (selectedOption === 'Collections Module') {
-      return <CollectionsModule onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Collections Module'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Collections Module'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Collections Module' }} />
+      return <CollectionsModule onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Collections Module'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Collections Module'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Collections Module' }} />
     }
     if (selectedOption === 'Sorting Functions') {
-      return <SortingFunctions onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Sorting Functions'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Sorting Functions'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Sorting Functions' }} />
+      return <SortingFunctions onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Sorting Functions'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Sorting Functions'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Sorting Functions' }} />
     }
     if (selectedOption === 'LeetCode Patterns') {
-      return <LeetCodePatterns onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['LeetCode Patterns'].name, onClick: () => goToPythonCategory(pythonTopicCategories['LeetCode Patterns'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'LeetCode Patterns' }} />
+      return <LeetCodePatterns onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['LeetCode Patterns'].name, onClick: () => goToPythonCategory(pythonTopicCategories['LeetCode Patterns'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'LeetCode Patterns' }} />
     }
     if (selectedOption === 'DP Patterns') {
-      return <DynamicProgrammingPatterns onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['DP Patterns'].name, onClick: () => goToPythonCategory(pythonTopicCategories['DP Patterns'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'DP Patterns' }} />
+      return <DynamicProgrammingPatterns onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['DP Patterns'].name, onClick: () => goToPythonCategory(pythonTopicCategories['DP Patterns'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'DP Patterns' }} />
     }
     if (selectedOption === 'Sorting Algorithms') {
-      return <SortingAlgorithms onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Sorting Algorithms'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Sorting Algorithms'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Sorting Algorithms' }} />
+      return <SortingAlgorithms onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['Sorting Algorithms'].name, onClick: () => goToPythonCategory(pythonTopicCategories['Sorting Algorithms'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'Sorting Algorithms' }} />
     }
     if (selectedOption === 'String Algorithms') {
-      return <StringAlgorithms onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['String Algorithms'].name, onClick: () => goToPythonCategory(pythonTopicCategories['String Algorithms'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'String Algorithms' }} />
+      return <StringAlgorithms onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, category: { name: pythonTopicCategories['String Algorithms'].name, onClick: () => goToPythonCategory(pythonTopicCategories['String Algorithms'].id) }, colors: BREADCRUMB_COLORS.Python, topic: 'String Algorithms' }} />
     }
     if (selectedOption === 'Event Driven Architecture') {
       setShowEventDrivenArchitectureModal(true)
@@ -3675,6 +3761,7 @@ function App() {
       return <RFQSystems
         onBack={() => setSelectedOptionAndRef('eTrading')}
         breadcrumb={{
+          onMainMenu: () => setSelectedOptionAndRef(''),
           section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
           topic: 'RFQ Systems',
           colors: BREADCRUMB_COLORS.eTrading
@@ -3685,6 +3772,7 @@ function App() {
       return <FixedIncomeTrading
         onBack={() => setSelectedOptionAndRef('eTrading')}
         breadcrumb={{
+          onMainMenu: () => setSelectedOptionAndRef(''),
           section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
           topic: 'Fixed Income Trading',
           colors: BREADCRUMB_COLORS.eTrading
@@ -3695,6 +3783,7 @@ function App() {
       return <AeronMessaging
         onBack={() => setSelectedOptionAndRef('eTrading')}
         breadcrumb={{
+          onMainMenu: () => setSelectedOptionAndRef(''),
           section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
           topic: 'Aeron Messaging',
           colors: BREADCRUMB_COLORS.eTrading
@@ -3705,6 +3794,7 @@ function App() {
       return <LowLatency
         onBack={() => setSelectedOptionAndRef('eTrading')}
         breadcrumb={{
+          onMainMenu: () => setSelectedOptionAndRef(''),
           section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
           topic: 'Low Latency Systems',
           colors: BREADCRUMB_COLORS.eTrading
@@ -3715,6 +3805,7 @@ function App() {
       return <LatencyMeasurement
         onBack={() => setSelectedOptionAndRef('eTrading')}
         breadcrumb={{
+          onMainMenu: () => setSelectedOptionAndRef(''),
           section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
           topic: 'Latency Measurement',
           colors: BREADCRUMB_COLORS.eTrading
@@ -3725,6 +3816,7 @@ function App() {
       return <OrderManagement
         onBack={() => setSelectedOptionAndRef('eTrading')}
         breadcrumb={{
+          onMainMenu: () => setSelectedOptionAndRef(''),
           section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
           topic: 'Order Management',
           colors: BREADCRUMB_COLORS.eTrading
@@ -3735,6 +3827,7 @@ function App() {
       return <ExecutionAlgorithms
         onBack={() => setSelectedOptionAndRef('eTrading')}
         breadcrumb={{
+          onMainMenu: () => setSelectedOptionAndRef(''),
           section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
           topic: 'Execution Algorithms',
           colors: BREADCRUMB_COLORS.eTrading
@@ -3745,6 +3838,7 @@ function App() {
       return <AutomatedHedging
         onBack={() => setSelectedOptionAndRef('eTrading')}
         breadcrumb={{
+          onMainMenu: () => setSelectedOptionAndRef(''),
           section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
           topic: 'Automated Hedging',
           colors: BREADCRUMB_COLORS.eTrading
@@ -3755,6 +3849,7 @@ function App() {
       return <FIXProtocol
         onBack={() => setSelectedOptionAndRef('eTrading')}
         breadcrumb={{
+          onMainMenu: () => setSelectedOptionAndRef(''),
           section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
           topic: 'FIX Protocol',
           colors: BREADCRUMB_COLORS.eTrading
@@ -3765,6 +3860,7 @@ function App() {
       return <JavaTrading
         onBack={() => setSelectedOptionAndRef('eTrading')}
         breadcrumb={{
+          onMainMenu: () => setSelectedOptionAndRef(''),
           section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
           topic: 'Java for Trading',
           colors: BREADCRUMB_COLORS.eTrading
@@ -3775,6 +3871,7 @@ function App() {
       return <RiskManagement
         onBack={() => setSelectedOptionAndRef('eTrading')}
         breadcrumb={{
+          onMainMenu: () => setSelectedOptionAndRef(''),
           section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
           topic: 'Risk Management',
           colors: BREADCRUMB_COLORS.eTrading
@@ -3785,6 +3882,7 @@ function App() {
       return <PriceContribution
         onBack={() => setSelectedOptionAndRef('eTrading')}
         breadcrumb={{
+          onMainMenu: () => setSelectedOptionAndRef(''),
           section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
           topic: 'Real-time Pricing',
           colors: BREADCRUMB_COLORS.eTrading
@@ -3795,6 +3893,7 @@ function App() {
       return <DistributedSystems
         onBack={() => setSelectedOptionAndRef('eTrading')}
         breadcrumb={{
+          onMainMenu: () => setSelectedOptionAndRef(''),
           section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
           topic: 'Distributed Systems',
           colors: BREADCRUMB_COLORS.eTrading
@@ -3805,6 +3904,7 @@ function App() {
       return <DisruptorPattern
         onBack={() => setSelectedOptionAndRef('eTrading')}
         breadcrumb={{
+          onMainMenu: () => setSelectedOptionAndRef(''),
           section: { name: 'eTrading', icon: '📈', onClick: () => setSelectedOptionAndRef('eTrading') },
           topic: 'Disruptor Pattern',
           colors: BREADCRUMB_COLORS.eTrading
@@ -3865,7 +3965,7 @@ function App() {
     }
     if (selectedOption === 'Core Java') {
       const navCallbacks = createLearningNavigationCallbacks('Core Java')
-      return <CoreJava onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Core Java'].name, onClick: () => goToJavaCategory(javaTopicCategories['Core Java'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Core Java' }} />
+      return <CoreJava onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Core Java'].name, onClick: () => goToJavaCategory(javaTopicCategories['Core Java'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Core Java' }} />
     }
     if (selectedOption === 'Function') {
       setShowFunctionModal(true)
@@ -3874,23 +3974,23 @@ function App() {
     }
     if (selectedOption === 'Java 11') {
       const navCallbacks = createLearningNavigationCallbacks('Java 11')
-      return <Java11 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 11'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 11'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Java 11 LTS' }} />
+      return <Java11 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 11'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 11'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Java 11 LTS' }} />
     }
     if (selectedOption === 'Java 8') {
       const navCallbacks = createLearningNavigationCallbacks('Java 8')
-      return <Java8 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 8'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 8'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Java 8' }} />
+      return <Java8 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 8'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 8'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Java 8' }} />
     }
     if (selectedOption === 'Java 15') {
       const navCallbacks = createLearningNavigationCallbacks('Java 15')
-      return <Java15 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 15'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 15'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Java 15' }} />
+      return <Java15 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 15'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 15'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Java 15' }} />
     }
     if (selectedOption === 'Java 21') {
       const navCallbacks = createLearningNavigationCallbacks('Java 21')
-      return <Java21 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 21'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 21'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Java 21 LTS' }} />
+      return <Java21 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 21'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 21'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Java 21 LTS' }} />
     }
     if (selectedOption === 'Java 24') {
       const navCallbacks = createLearningNavigationCallbacks('Java 24')
-      return <Java24 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 24'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 24'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Java 24 Preview' }} />
+      return <Java24 onBack={() => setSelectedOptionAndRef('Java')} {...navCallbacks} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => setSelectedOptionAndRef('Java') }, category: { name: javaTopicCategories['Java 24'].name, onClick: () => goToJavaCategory(javaTopicCategories['Java 24'].id) }, colors: BREADCRUMB_COLORS.Java, topic: 'Java 24 Preview' }} />
     }
     if (selectedOption === 'Design Patterns') {
       setShowDesignPatternsModal(true)
@@ -3899,7 +3999,7 @@ function App() {
     }
     if (selectedOption === 'Dependency Injection') {
       const navCallbacks = createLearningNavigationCallbacks('Dependency Injection')
-      return <DependencyInjection onBack={() => setSelectedOptionAndRef('')} {...navCallbacks} />
+      return <DependencyInjection onBack={() => setSelectedOptionAndRef('')} {...navCallbacks} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Spring', icon: '🌱', onClick: () => setSelectedOptionAndRef('Spring') }, topic: 'Dependency Injection', colors: BREADCRUMB_COLORS.Spring }} />
     }
     if (selectedOption === 'Spring') {
       setShowSpringModal(true)
@@ -4009,24 +4109,21 @@ function App() {
     }
 
     if (selectedOption === 'JWT') {
-      return <JWT onBack={() => setSelectedOptionAndRef('Security')} {...createDevOpsNavigationCallbacks('JWT')} breadcrumb={{
-        section: { name: 'Security', icon: '🔒', onClick: () => setSelectedOptionAndRef('Security') },
+      return <JWT onBack={() => setSelectedOptionAndRef('Security')} {...createDevOpsNavigationCallbacks('JWT')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Security', icon: '🔒', onClick: () => setSelectedOptionAndRef('Security') },
         category: { name: securityTopicCategories['JWT'].name, onClick: () => goToSecurityCategory(securityTopicCategories['JWT'].id) },
         topic: 'JWT (JSON Web Tokens)',
         colors: BREADCRUMB_COLORS.Security
       }} />
     }
     if (selectedOption === 'OAuth') {
-      return <OAuth onBack={() => setSelectedOptionAndRef('Security')} {...createDevOpsNavigationCallbacks('OAuth')} breadcrumb={{
-        section: { name: 'Security', icon: '🔒', onClick: () => setSelectedOptionAndRef('Security') },
+      return <OAuth onBack={() => setSelectedOptionAndRef('Security')} {...createDevOpsNavigationCallbacks('OAuth')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Security', icon: '🔒', onClick: () => setSelectedOptionAndRef('Security') },
         category: { name: securityTopicCategories['OAuth'].name, onClick: () => goToSecurityCategory(securityTopicCategories['OAuth'].id) },
         topic: 'OAuth 1.0',
         colors: BREADCRUMB_COLORS.Security
       }} />
     }
     if (selectedOption === 'OAuth2') {
-      return <OAuth2 onBack={() => setSelectedOptionAndRef('Security')} {...createDevOpsNavigationCallbacks('OAuth2')} breadcrumb={{
-        section: { name: 'Security', icon: '🔒', onClick: () => setSelectedOptionAndRef('Security') },
+      return <OAuth2 onBack={() => setSelectedOptionAndRef('Security')} {...createDevOpsNavigationCallbacks('OAuth2')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Security', icon: '🔒', onClick: () => setSelectedOptionAndRef('Security') },
         category: { name: securityTopicCategories['OAuth2'].name, onClick: () => goToSecurityCategory(securityTopicCategories['OAuth2'].id) },
         topic: 'OAuth 2.0',
         colors: BREADCRUMB_COLORS.Security
@@ -4038,40 +4135,35 @@ function App() {
       return null
     }
     if (selectedOption === 'Financial Banking') {
-      return <FinancialBanking onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <FinancialBanking onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'Financial & Trading Systems', onClick: () => goToMyProjectsCategory('finance') },
         topic: 'Financial Banking',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'Credit Card Portal') {
-      return <CreditCardPortal onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <CreditCardPortal onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'Financial & Trading Systems', onClick: () => goToMyProjectsCategory('finance') },
         topic: 'Credit Card Portal',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'Credit Card Portal 2') {
-      return <CreditCardPortal2 onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <CreditCardPortal2 onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'Financial & Trading Systems', onClick: () => goToMyProjectsCategory('finance') },
         topic: 'Credit Card Portal 2',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'Credit Card Portal 3') {
-      return <CreditCardPortal3 onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <CreditCardPortal3 onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'Financial & Trading Systems', onClick: () => goToMyProjectsCategory('finance') },
         topic: 'Credit Card Portal 3',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'Virtual Numbers') {
-      return <VirtualNumbers onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <VirtualNumbers onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'Financial & Trading Systems', onClick: () => goToMyProjectsCategory('finance') },
         topic: 'Virtual Numbers',
         colors: BREADCRUMB_COLORS['My Projects']
@@ -4081,6 +4173,7 @@ function App() {
       return <AIInterviewTips
         onBack={() => setSelectedOptionAndRef('My Projects')}
         breadcrumb={{
+          onMainMenu: () => setSelectedOptionAndRef(''),
           section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
           category: { name: 'Interview Preparation', onClick: () => goToMyProjectsCategory('interview-prep') },
           topic: 'AI-Enabled Technical Interview',
@@ -4089,8 +4182,7 @@ function App() {
       />
     }
     if (selectedOption === 'Ride Share') {
-      return <RideShare onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <RideShare onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
         topic: 'Ride Share',
         colors: BREADCRUMB_COLORS['My Projects']
@@ -4099,8 +4191,7 @@ function App() {
     if (selectedOption === 'HashMap - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <HashMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <HashMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'HashMap - Internal Workings',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4111,8 +4202,7 @@ function App() {
     if (selectedOption === 'Blocking Queue') {
       return (
         <div ref={componentContainerRef}>
-          <BlockingQueuePage onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <BlockingQueuePage onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'Blocking Queue',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4123,8 +4213,7 @@ function App() {
     if (selectedOption === 'ConcurrentHashMap - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <ConcurrentHashMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <ConcurrentHashMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'ConcurrentHashMap - Internal Workings',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4135,8 +4224,7 @@ function App() {
     if (selectedOption === 'ThreadPoolExecutor - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <ThreadPoolExecutorInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <ThreadPoolExecutorInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'ThreadPoolExecutor - Internal Workings',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4147,8 +4235,7 @@ function App() {
     if (selectedOption === 'CompletableFuture - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <CompletableFutureInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <CompletableFutureInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'CompletableFuture - Internal Workings',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4159,8 +4246,7 @@ function App() {
     if (selectedOption === 'ArrayList - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <ArrayListInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <ArrayListInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'ArrayList - Internal Workings',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4171,8 +4257,7 @@ function App() {
     if (selectedOption === 'LinkedHashMap - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <LinkedHashMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <LinkedHashMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'LinkedHashMap - Internal Workings',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4183,8 +4268,7 @@ function App() {
     if (selectedOption === 'ReentrantLock - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <ReentrantLockInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <ReentrantLockInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'ReentrantLock - Internal Workings',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4195,8 +4279,7 @@ function App() {
     if (selectedOption === 'Atomic & CAS - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <AtomicInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <AtomicInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'Atomic & CAS - Internal Workings',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4207,8 +4290,7 @@ function App() {
     if (selectedOption === 'String Pool - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <StringPoolInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <StringPoolInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'String Pool - Internal Workings',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4219,8 +4301,7 @@ function App() {
     if (selectedOption === 'JVM Memory Model') {
       return (
         <div ref={componentContainerRef}>
-          <JVMMemoryModel onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <JVMMemoryModel onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'JVM Memory Model',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4231,8 +4312,7 @@ function App() {
     if (selectedOption === 'TreeMap - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <TreeMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <TreeMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'TreeMap - Internal Workings',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4243,8 +4323,7 @@ function App() {
     if (selectedOption === 'Garbage Collection') {
       return (
         <div ref={componentContainerRef}>
-          <GarbageCollectionInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <GarbageCollectionInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'Garbage Collection',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4255,8 +4334,7 @@ function App() {
     if (selectedOption === 'Virtual Threads (Java 21)') {
       return (
         <div ref={componentContainerRef}>
-          <VirtualThreadsInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <VirtualThreadsInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'Virtual Threads (Java 21)',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4267,8 +4345,7 @@ function App() {
     if (selectedOption === 'Synchronized Internals') {
       return (
         <div ref={componentContainerRef}>
-          <SynchronizedInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <SynchronizedInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'Synchronized Internals',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4279,8 +4356,7 @@ function App() {
     if (selectedOption === 'PriorityQueue - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <PriorityQueueInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <PriorityQueueInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'PriorityQueue - Internal Workings',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4291,8 +4367,7 @@ function App() {
     if (selectedOption === 'ForkJoinPool - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <ForkJoinPoolInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <ForkJoinPoolInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'ForkJoinPool - Internal Workings',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4303,8 +4378,7 @@ function App() {
     if (selectedOption === 'CountDownLatch & CyclicBarrier') {
       return (
         <div ref={componentContainerRef}>
-          <CountDownLatchCyclicBarrier onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <CountDownLatchCyclicBarrier onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'CountDownLatch & CyclicBarrier',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4315,8 +4389,7 @@ function App() {
     if (selectedOption === 'Semaphore - Internal Workings') {
       return (
         <div ref={componentContainerRef}>
-          <SemaphoreInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <SemaphoreInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'Semaphore - Internal Workings',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4327,8 +4400,7 @@ function App() {
     if (selectedOption === 'Class Loading') {
       return (
         <div ref={componentContainerRef}>
-          <ClassLoadingInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <ClassLoadingInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'Class Loading',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4339,8 +4411,7 @@ function App() {
     if (selectedOption === 'Java NIO') {
       return (
         <div ref={componentContainerRef}>
-          <JavaNIOInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-            section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+          <JavaNIOInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
             category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
             topic: 'Java NIO',
             colors: BREADCRUMB_COLORS['My Projects']
@@ -4349,136 +4420,119 @@ function App() {
       )
     }
     if (selectedOption === 'Google Docs') {
-      return <GoogleDocs onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <GoogleDocs onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
         topic: 'Google Docs',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'YouTube') {
-      return <YouTube onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <YouTube onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
         topic: 'YouTube',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'Newsfeed System') {
-      return <Newsfeed onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <Newsfeed onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
         topic: 'Newsfeed System',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'TinyURL') {
-      return <TinyURL onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <TinyURL onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
         topic: 'TinyURL',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'WhatsApp') {
-      return <WhatsApp onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <WhatsApp onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
         topic: 'WhatsApp',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'Type Ahead System') {
-      return <TypeAhead onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <TypeAhead onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
         topic: 'Type Ahead System',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'Instagram') {
-      return <Instagram onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <Instagram onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
         topic: 'Instagram',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'Netflix') {
-      return <Netflix onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <Netflix onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
         topic: 'Netflix',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'Twitter') {
-      return <Twitter onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <Twitter onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
         topic: 'Twitter/X',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'Amazon') {
-      return <Amazon onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <Amazon onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
         topic: 'Amazon E-Commerce',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'Zoom') {
-      return <Zoom onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <Zoom onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
         topic: 'Zoom',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'Dropbox') {
-      return <Dropbox onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <Dropbox onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
         topic: 'Dropbox',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'Notification System') {
-      return <NotificationSystem onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <NotificationSystem onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
         topic: 'Notification System',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'Rate Limiter') {
-      return <RateLimiterDesign onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <RateLimiterDesign onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
         topic: 'Rate Limiter',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'Food Delivery') {
-      return <FoodDelivery onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <FoodDelivery onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
         topic: 'Food Delivery',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'Mobile Weather App') {
-      return <MobileWeatherApp onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <MobileWeatherApp onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'Mobile & IoT', onClick: () => goToMyProjectsCategory('mobile-iot') },
         topic: 'Mobile Weather App',
         colors: BREADCRUMB_COLORS['My Projects']
       }} />
     }
     if (selectedOption === 'Apartment Alarm System') {
-      return <ApartmentAlarmSystem onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{
-        section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
+      return <ApartmentAlarmSystem onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
         category: { name: 'Mobile & IoT', onClick: () => goToMyProjectsCategory('mobile-iot') },
         topic: 'Apartment Alarm System',
         colors: BREADCRUMB_COLORS['My Projects']
@@ -4486,144 +4540,126 @@ function App() {
     }
     // System Design Concepts
     if (selectedOption === 'Load Balancing') {
-      return <LoadBalancing onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
-        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <LoadBalancing onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Load Balancing',
         colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Caching Strategies') {
-      return <CachingStrategies onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
-        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <CachingStrategies onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Caching Strategies',
         colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Database Sharding') {
-      return <DatabaseSharding onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
-        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <DatabaseSharding onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Database Sharding',
         colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'CAP Theorem') {
-      return <CAPTheorem onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
-        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <CAPTheorem onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'CAP Theorem',
         colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Consistency Patterns') {
-      return <ConsistencyPatterns onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
-        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <ConsistencyPatterns onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Consistency Patterns',
         colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'API Design') {
-      return <APIDesign onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
-        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <APIDesign onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'API Design & REST',
         colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Message Queues') {
-      return <MessageQueues onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
-        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <MessageQueues onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Message Queues',
         colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'CDN') {
-      return <CDN onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
-        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <CDN onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Content Delivery Network',
         colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Database Replication') {
-      return <DatabaseReplication onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
-        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <DatabaseReplication onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Database Replication',
         colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Scaling') {
-      return <Scaling onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
-        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <Scaling onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Horizontal vs Vertical Scaling',
         colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Proxies') {
-      return <Proxies onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
-        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <Proxies onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Proxies & Reverse Proxies',
         colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Data Partitioning') {
-      return <DataPartitioning onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
-        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <DataPartitioning onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Data Partitioning',
         colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'SQL vs NoSQL') {
-      return <SQLvsNoSQL onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
-        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <SQLvsNoSQL onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'SQL vs NoSQL',
         colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Consistent Hashing') {
-      return <ConsistentHashing onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
-        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <ConsistentHashing onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Consistent Hashing',
         colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'WebSockets') {
-      return <WebSockets onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
-        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <WebSockets onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Long Polling vs WebSockets',
         colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Blob Storage') {
-      return <BlobStorage onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
-        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <BlobStorage onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Blob Storage',
         colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Microservices') {
-      return <Microservices onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
-        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <Microservices onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Microservices Architecture',
         colors: BREADCRUMB_COLORS.Design
       }} />
     }
     if (selectedOption === 'Event-Driven') {
-      return <EventDriven onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{
-        section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
+      return <EventDriven onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
         category: { name: 'System Design Topics', onClick: () => goToDesignCategory('concepts') },
         topic: 'Event-Driven Architecture',
         colors: BREADCRUMB_COLORS.Design
@@ -4645,10 +4681,10 @@ function App() {
       return null
     }
     if (selectedOption === 'Dark Pool Engine 3') {
-      return <DarkPoolEngine3 onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <DarkPoolEngine3 onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '🚀', onClick: () => setSelectedOptionAndRef('My Projects') }, topic: 'Dark Pool Engine', colors: BREADCRUMB_COLORS.Projects }} />
     }
     if (selectedOption === 'Monolith to Microservice') {
-      return <MonolithToMicroservice onBack={() => setSelectedOptionAndRef('My Projects')} />
+      return <MonolithToMicroservice onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '🚀', onClick: () => setSelectedOptionAndRef('My Projects') }, topic: 'Monolith to Microservice', colors: BREADCRUMB_COLORS.Projects }} />
     }
     if (selectedOption === 'AWS') {
       setShowAWSModal(true)
@@ -4792,7 +4828,7 @@ function App() {
     }
     if (selectedOption === 'Dynamic Programming Patterns') {
       console.log('✅ Navigating to Dynamic Programming Patterns')
-      return <DynamicProgrammingPatterns onBack={() => setSelectedOptionAndRef('Practice')} />
+      return <DynamicProgrammingPatterns onBack={() => setSelectedOptionAndRef('Practice')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Practice', icon: '📝', onClick: () => setSelectedOptionAndRef('Practice') }, topic: 'Dynamic Programming Patterns', colors: BREADCRUMB_COLORS.Practice }} />
     }
     console.log('❌ Did not match Dynamic Programming Patterns, selectedOption:', selectedOption)
     if (selectedOption === 'Trees') {
@@ -5066,7 +5102,7 @@ function App() {
             style={modalContentStyle}
           >
             <Suspense fallback={<LoadingSpinner text="Loading Design Patterns..." />}>
-              <DesignPatterns onBack={() => { setShowDesignPatternsModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('DesignPatterns')} breadcrumb={{ section: { name: 'Design', icon: '🎨', onClick: () => { setShowDesignPatternsModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Design Patterns'].name, onClick: () => { setShowDesignPatternsModal(false); goToDesignCategory(designTopicCategories['Design Patterns'].id); } }, topic: 'Design Patterns', colors: BREADCRUMB_COLORS.Design }} />
+              <DesignPatterns onBack={() => { setShowDesignPatternsModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('DesignPatterns')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => { setShowDesignPatternsModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Design Patterns'].name, onClick: () => { setShowDesignPatternsModal(false); goToDesignCategory(designTopicCategories['Design Patterns'].id); } }, topic: 'Design Patterns', colors: BREADCRUMB_COLORS.Design }} />
             </Suspense>
           </div>
         </div>
@@ -5083,7 +5119,7 @@ function App() {
             style={modalContentStyle}
           >
             <Suspense fallback={<LoadingSpinner text="Loading Microservice Patterns..." />}>
-              <MicroservicePatterns onBack={() => { setShowMicroservicePatternsModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('MicroservicePatterns')} breadcrumb={{ section: { name: 'Design', icon: '🎨', onClick: () => { setShowMicroservicePatternsModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Microservice Design Patterns'].name, onClick: () => { setShowMicroservicePatternsModal(false); goToDesignCategory(designTopicCategories['Microservice Design Patterns'].id); } }, topic: 'Microservice Patterns', colors: BREADCRUMB_COLORS.Design }} />
+              <MicroservicePatterns onBack={() => { setShowMicroservicePatternsModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('MicroservicePatterns')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => { setShowMicroservicePatternsModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Microservice Design Patterns'].name, onClick: () => { setShowMicroservicePatternsModal(false); goToDesignCategory(designTopicCategories['Microservice Design Patterns'].id); } }, topic: 'Microservice Patterns', colors: BREADCRUMB_COLORS.Design }} />
             </Suspense>
           </div>
         </div>
@@ -5100,7 +5136,7 @@ function App() {
             style={modalContentStyle}
           >
             <Suspense fallback={<LoadingSpinner text="Loading Event Driven Architecture..." />}>
-              <EventDrivenArchitecture onBack={() => { setShowEventDrivenArchitectureModal(false); setSelectedOptionAndRef('Design'); }} breadcrumb={{ section: { name: 'Design', icon: '🎨', onClick: () => { setShowEventDrivenArchitectureModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Event Driven Architecture'].name, onClick: () => { setShowEventDrivenArchitectureModal(false); goToDesignCategory(designTopicCategories['Event Driven Architecture'].id); } }, topic: 'Event Driven Architecture', colors: BREADCRUMB_COLORS.Design }} />
+              <EventDrivenArchitecture onBack={() => { setShowEventDrivenArchitectureModal(false); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => { setShowEventDrivenArchitectureModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Event Driven Architecture'].name, onClick: () => { setShowEventDrivenArchitectureModal(false); goToDesignCategory(designTopicCategories['Event Driven Architecture'].id); } }, topic: 'Event Driven Architecture', colors: BREADCRUMB_COLORS.Design }} />
             </Suspense>
           </div>
         </div>
@@ -5117,7 +5153,7 @@ function App() {
             style={modalContentStyle}
           >
             <Suspense fallback={<LoadingSpinner text="Loading Domain Driven Design..." />}>
-              <DomainDrivenDesign onBack={() => { setShowDomainDrivenDesignModal(false); setSelectedOptionAndRef('Design'); }} breadcrumb={{ section: { name: 'Design', icon: '🎨', onClick: () => { setShowDomainDrivenDesignModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Domain Driven Design'].name, onClick: () => { setShowDomainDrivenDesignModal(false); goToDesignCategory(designTopicCategories['Domain Driven Design'].id); } }, topic: 'Domain Driven Design', colors: BREADCRUMB_COLORS.Design }} />
+              <DomainDrivenDesign onBack={() => { setShowDomainDrivenDesignModal(false); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => { setShowDomainDrivenDesignModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Domain Driven Design'].name, onClick: () => { setShowDomainDrivenDesignModal(false); goToDesignCategory(designTopicCategories['Domain Driven Design'].id); } }, topic: 'Domain Driven Design', colors: BREADCRUMB_COLORS.Design }} />
             </Suspense>
           </div>
         </div>
@@ -5133,7 +5169,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <Class onBack={() => { setShowClassModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Class')} breadcrumb={{ section: { name: 'Design', icon: '🎨', onClick: () => { setShowClassModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Class'].name, onClick: () => { setShowClassModal(false); goToDesignCategory(designTopicCategories['Class'].id); } }, topic: 'Object-Oriented Design', colors: BREADCRUMB_COLORS.Design }} />
+            <Class onBack={() => { setShowClassModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Class')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => { setShowClassModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Class'].name, onClick: () => { setShowClassModal(false); goToDesignCategory(designTopicCategories['Class'].id); } }, topic: 'Object-Oriented Design', colors: BREADCRUMB_COLORS.Design }} />
           </div>
         </div>
       )}
@@ -5149,7 +5185,7 @@ function App() {
             style={modalContentStyle}
           >
             <Suspense fallback={<LoadingSpinner text="Loading System Design..." />}>
-              <SystemDesign onBack={() => { setShowSystemDesignModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('SystemDesign')} breadcrumb={{ section: { name: 'Design', icon: '🎨', onClick: () => { setShowSystemDesignModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['System Design'].name, onClick: () => { setShowSystemDesignModal(false); goToDesignCategory(designTopicCategories['System Design'].id); } }, topic: 'System Design', colors: BREADCRUMB_COLORS.Design }} />
+              <SystemDesign onBack={() => { setShowSystemDesignModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('SystemDesign')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => { setShowSystemDesignModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['System Design'].name, onClick: () => { setShowSystemDesignModal(false); goToDesignCategory(designTopicCategories['System Design'].id); } }, topic: 'System Design', colors: BREADCRUMB_COLORS.Design }} />
             </Suspense>
           </div>
         </div>
@@ -5165,7 +5201,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <Module onBack={() => { setShowModuleModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Module')} breadcrumb={{ section: { name: 'Design', icon: '🎨', onClick: () => { setShowModuleModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Module'].name, onClick: () => { setShowModuleModal(false); goToDesignCategory(designTopicCategories['Module'].id); } }, topic: 'Module System', colors: BREADCRUMB_COLORS.Design }} />
+            <Module onBack={() => { setShowModuleModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Module')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => { setShowModuleModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Module'].name, onClick: () => { setShowModuleModal(false); goToDesignCategory(designTopicCategories['Module'].id); } }, topic: 'Module System', colors: BREADCRUMB_COLORS.Design }} />
           </div>
         </div>
       )}
@@ -5180,7 +5216,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <FunctionalProgramming onBack={() => { setShowFunctionModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Function')} breadcrumb={{ section: { name: 'Design', icon: '🎨', onClick: () => { setShowFunctionModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Function'].name, onClick: () => { setShowFunctionModal(false); goToDesignCategory(designTopicCategories['Function'].id); } }, topic: 'Functional Programming', colors: BREADCRUMB_COLORS.Design }} />
+            <FunctionalProgramming onBack={() => { setShowFunctionModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Function')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => { setShowFunctionModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Function'].name, onClick: () => { setShowFunctionModal(false); goToDesignCategory(designTopicCategories['Function'].id); } }, topic: 'Functional Programming', colors: BREADCRUMB_COLORS.Design }} />
           </div>
         </div>
       )}
@@ -5195,7 +5231,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <Interface onBack={() => { setShowInterfaceModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Interface')} breadcrumb={{ section: { name: 'Design', icon: '🎨', onClick: () => { setShowInterfaceModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Interface'].name, onClick: () => { setShowInterfaceModal(false); goToDesignCategory(designTopicCategories['Interface'].id); } }, topic: 'Interface Design', colors: BREADCRUMB_COLORS.Design }} />
+            <Interface onBack={() => { setShowInterfaceModal(false); setSelectedOptionAndRef('Design'); }} {...createDesignNavigationCallbacks('Interface')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => { setShowInterfaceModal(false); setSelectedOptionAndRef('Design'); } }, category: { name: designTopicCategories['Interface'].name, onClick: () => { setShowInterfaceModal(false); goToDesignCategory(designTopicCategories['Interface'].id); } }, topic: 'Interface Design', colors: BREADCRUMB_COLORS.Design }} />
           </div>
         </div>
       )}
@@ -5210,8 +5246,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <SQL onBack={() => setShowSQLModal(false)} {...createDatabaseNavigationCallbacks('SQL')} breadcrumb={{
-              section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowSQLModal(false); setSelectedOptionAndRef('Databases') } },
+            <SQL onBack={() => { setShowSQLModal(false); setSelectedOptionAndRef('Databases') }} {...createDatabaseNavigationCallbacks('SQL')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowSQLModal(false); setSelectedOptionAndRef('Databases') } },
               category: { name: databaseTopicCategories['SQL'].name, onClick: () => { setShowSQLModal(false); goToDatabasesCategory(databaseTopicCategories['SQL'].id) } },
               topic: 'SQL Databases',
               colors: BREADCRUMB_COLORS.Databases
@@ -5230,8 +5265,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <NoSQL onBack={() => setShowNoSQLModal(false)} {...createDatabaseNavigationCallbacks('NoSQL')} breadcrumb={{
-              section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowNoSQLModal(false); setSelectedOptionAndRef('Databases') } },
+            <NoSQL onBack={() => { setShowNoSQLModal(false); setSelectedOptionAndRef('Databases') }} {...createDatabaseNavigationCallbacks('NoSQL')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowNoSQLModal(false); setSelectedOptionAndRef('Databases') } },
               category: { name: databaseTopicCategories['NoSQL'].name, onClick: () => { setShowNoSQLModal(false); goToDatabasesCategory(databaseTopicCategories['NoSQL'].id) } },
               topic: 'NoSQL Databases',
               colors: BREADCRUMB_COLORS.Databases
@@ -5250,8 +5284,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <Oracle onBack={() => setShowOracleModal(false)} {...createDatabaseNavigationCallbacks('Oracle')} breadcrumb={{
-              section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowOracleModal(false); setSelectedOptionAndRef('Databases') } },
+            <Oracle onBack={() => { setShowOracleModal(false); setSelectedOptionAndRef('Databases') }} {...createDatabaseNavigationCallbacks('Oracle')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowOracleModal(false); setSelectedOptionAndRef('Databases') } },
               category: { name: databaseTopicCategories['Oracle'].name, onClick: () => { setShowOracleModal(false); goToDatabasesCategory(databaseTopicCategories['Oracle'].id) } },
               topic: 'Oracle Database',
               colors: BREADCRUMB_COLORS.Databases
@@ -5270,8 +5303,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <ORM onBack={() => setShowORMModal(false)} {...createDatabaseNavigationCallbacks('ORM')} breadcrumb={{
-              section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowORMModal(false); setSelectedOptionAndRef('Databases') } },
+            <ORM onBack={() => { setShowORMModal(false); setSelectedOptionAndRef('Databases') }} {...createDatabaseNavigationCallbacks('ORM')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowORMModal(false); setSelectedOptionAndRef('Databases') } },
               category: { name: databaseTopicCategories['ORM'].name, onClick: () => { setShowORMModal(false); goToDatabasesCategory(databaseTopicCategories['ORM'].id) } },
               topic: 'ORM & Data Access',
               colors: BREADCRUMB_COLORS.Databases
@@ -5290,8 +5322,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <Redis onBack={() => setShowRedisModal(false)} {...createDatabaseNavigationCallbacks('Redis')} breadcrumb={{
-              section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowRedisModal(false); setSelectedOptionAndRef('Databases') } },
+            <Redis onBack={() => { setShowRedisModal(false); setSelectedOptionAndRef('Databases') }} {...createDatabaseNavigationCallbacks('Redis')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowRedisModal(false); setSelectedOptionAndRef('Databases') } },
               category: { name: databaseTopicCategories['Redis'].name, onClick: () => { setShowRedisModal(false); goToDatabasesCategory(databaseTopicCategories['Redis'].id) } },
               topic: 'Redis',
               colors: BREADCRUMB_COLORS.Databases
@@ -5310,8 +5341,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <PLSQL onBack={() => setShowPLSQLModal(false)} {...createDatabaseNavigationCallbacks('PLSQL')} breadcrumb={{
-              section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowPLSQLModal(false); setSelectedOptionAndRef('Databases') } },
+            <PLSQL onBack={() => { setShowPLSQLModal(false); setSelectedOptionAndRef('Databases') }} {...createDatabaseNavigationCallbacks('PLSQL')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowPLSQLModal(false); setSelectedOptionAndRef('Databases') } },
               category: { name: databaseTopicCategories['PLSQL'].name, onClick: () => { setShowPLSQLModal(false); goToDatabasesCategory(databaseTopicCategories['PLSQL'].id) } },
               topic: 'PL/SQL',
               colors: BREADCRUMB_COLORS.Databases
@@ -5330,8 +5360,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <StoredProcedures onBack={() => setShowStoredProceduresModal(false)} {...createDatabaseNavigationCallbacks('StoredProcedures')} breadcrumb={{
-              section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowStoredProceduresModal(false); setSelectedOptionAndRef('Databases') } },
+            <StoredProcedures onBack={() => { setShowStoredProceduresModal(false); setSelectedOptionAndRef('Databases') }} {...createDatabaseNavigationCallbacks('StoredProcedures')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowStoredProceduresModal(false); setSelectedOptionAndRef('Databases') } },
               category: { name: databaseTopicCategories['StoredProcedures'].name, onClick: () => { setShowStoredProceduresModal(false); goToDatabasesCategory(databaseTopicCategories['StoredProcedures'].id) } },
               topic: 'Stored Procedures',
               colors: BREADCRUMB_COLORS.Databases
@@ -5350,8 +5379,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <DatabaseOptimization onBack={() => setShowDatabaseOptimizationModal(false)} {...createDatabaseNavigationCallbacks('DatabaseOptimization')} breadcrumb={{
-              section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowDatabaseOptimizationModal(false); setSelectedOptionAndRef('Databases') } },
+            <DatabaseOptimization onBack={() => { setShowDatabaseOptimizationModal(false); setSelectedOptionAndRef('Databases') }} {...createDatabaseNavigationCallbacks('DatabaseOptimization')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Databases', icon: '🗃️', onClick: () => { setShowDatabaseOptimizationModal(false); setSelectedOptionAndRef('Databases') } },
               category: { name: databaseTopicCategories['DatabaseOptimization'].name, onClick: () => { setShowDatabaseOptimizationModal(false); goToDatabasesCategory(databaseTopicCategories['DatabaseOptimization'].id) } },
               topic: 'Database Optimization',
               colors: BREADCRUMB_COLORS.Databases
@@ -5370,8 +5398,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <Spring onBack={() => setShowSpringModal(false)} {...createFrameworksNavigationCallbacks('Spring')} breadcrumb={{
-              section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowSpringModal(false); setSelectedOptionAndRef('Frameworks') } },
+            <Spring onBack={() => { setShowSpringModal(false); setSelectedOptionAndRef('Frameworks') }} {...createFrameworksNavigationCallbacks('Spring')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowSpringModal(false); setSelectedOptionAndRef('Frameworks') } },
               category: { name: frameworksTopicCategories['Spring'].name, onClick: () => { setShowSpringModal(false); goToFrameworksCategory(frameworksTopicCategories['Spring'].id) } },
               topic: 'Spring Framework',
               colors: BREADCRUMB_COLORS.Frameworks
@@ -5390,8 +5417,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <SpringBoot onBack={() => setShowSpringBootModal(false)} {...createFrameworksNavigationCallbacks('SpringBoot')} breadcrumb={{
-              section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowSpringBootModal(false); setSelectedOptionAndRef('Frameworks') } },
+            <SpringBoot onBack={() => { setShowSpringBootModal(false); setSelectedOptionAndRef('Frameworks') }} {...createFrameworksNavigationCallbacks('SpringBoot')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowSpringBootModal(false); setSelectedOptionAndRef('Frameworks') } },
               category: { name: frameworksTopicCategories['SpringBoot'].name, onClick: () => { setShowSpringBootModal(false); goToFrameworksCategory(frameworksTopicCategories['SpringBoot'].id) } },
               topic: 'Spring Boot',
               colors: BREADCRUMB_COLORS.Frameworks
@@ -5410,8 +5436,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <RestAPI onBack={() => setShowRESTAPIModal(false)} {...createFrameworksNavigationCallbacks('RestAPI')} breadcrumb={{
-              section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowRESTAPIModal(false); setSelectedOptionAndRef('Frameworks') } },
+            <RestAPI onBack={() => { setShowRESTAPIModal(false); setSelectedOptionAndRef('Frameworks') }} {...createFrameworksNavigationCallbacks('RestAPI')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowRESTAPIModal(false); setSelectedOptionAndRef('Frameworks') } },
               category: { name: frameworksTopicCategories['RestAPI'].name, onClick: () => { setShowRESTAPIModal(false); goToFrameworksCategory(frameworksTopicCategories['RestAPI'].id) } },
               topic: 'REST API Design',
               colors: BREADCRUMB_COLORS.Frameworks
@@ -5430,8 +5455,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <Hibernate onBack={() => setShowHibernateModal(false)} {...createFrameworksNavigationCallbacks('Hibernate')} breadcrumb={{
-              section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowHibernateModal(false); setSelectedOptionAndRef('Frameworks') } },
+            <Hibernate onBack={() => { setShowHibernateModal(false); setSelectedOptionAndRef('Frameworks') }} {...createFrameworksNavigationCallbacks('Hibernate')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowHibernateModal(false); setSelectedOptionAndRef('Frameworks') } },
               category: { name: frameworksTopicCategories['Hibernate'].name, onClick: () => { setShowHibernateModal(false); goToFrameworksCategory(frameworksTopicCategories['Hibernate'].id) } },
               topic: 'Hibernate ORM',
               colors: BREADCRUMB_COLORS.Frameworks
@@ -5450,8 +5474,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <Actuator onBack={() => setShowActuatorModal(false)} breadcrumb={{
-              section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowActuatorModal(false); setSelectedOptionAndRef('Frameworks') } },
+            <Actuator onBack={() => { setShowActuatorModal(false); setSelectedOptionAndRef('Frameworks') }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowActuatorModal(false); setSelectedOptionAndRef('Frameworks') } },
               category: { name: frameworksTopicCategories['Actuator'].name, onClick: () => { setShowActuatorModal(false); goToFrameworksCategory(frameworksTopicCategories['Actuator'].id) } },
               topic: 'Spring Boot Actuator',
               colors: BREADCRUMB_COLORS.Frameworks
@@ -5470,8 +5493,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <Zipkin onBack={() => setShowZipkinModal(false)} breadcrumb={{
-              section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowZipkinModal(false); setSelectedOptionAndRef('Frameworks') } },
+            <Zipkin onBack={() => { setShowZipkinModal(false); setSelectedOptionAndRef('Frameworks') }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowZipkinModal(false); setSelectedOptionAndRef('Frameworks') } },
               category: { name: frameworksTopicCategories['Zipkin'].name, onClick: () => { setShowZipkinModal(false); goToFrameworksCategory(frameworksTopicCategories['Zipkin'].id) } },
               topic: 'Zipkin Distributed Tracing',
               colors: BREADCRUMB_COLORS.Frameworks
@@ -5490,8 +5512,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <GRPC onBack={() => setShowGRPCModal(false)} {...createFrameworksNavigationCallbacks('gRPC')} breadcrumb={{
-              section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowGRPCModal(false); setSelectedOptionAndRef('Frameworks') } },
+            <GRPC onBack={() => { setShowGRPCModal(false); setSelectedOptionAndRef('Frameworks') }} {...createFrameworksNavigationCallbacks('gRPC')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowGRPCModal(false); setSelectedOptionAndRef('Frameworks') } },
               category: { name: frameworksTopicCategories['GRPC'].name, onClick: () => { setShowGRPCModal(false); goToFrameworksCategory(frameworksTopicCategories['GRPC'].id) } },
               topic: 'gRPC',
               colors: BREADCRUMB_COLORS.Frameworks
@@ -5510,8 +5531,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <SOAP onBack={() => setShowSOAPModal(false)} {...createFrameworksNavigationCallbacks('SOAP')} breadcrumb={{
-              section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowSOAPModal(false); setSelectedOptionAndRef('Frameworks') } },
+            <SOAP onBack={() => { setShowSOAPModal(false); setSelectedOptionAndRef('Frameworks') }} {...createFrameworksNavigationCallbacks('SOAP')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowSOAPModal(false); setSelectedOptionAndRef('Frameworks') } },
               category: { name: frameworksTopicCategories['SOAP'].name, onClick: () => { setShowSOAPModal(false); goToFrameworksCategory(frameworksTopicCategories['SOAP'].id) } },
               topic: 'SOAP Web Services',
               colors: BREADCRUMB_COLORS.Frameworks
@@ -5530,8 +5550,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <ReactFramework onBack={() => setShowReactModal(false)} {...createFrameworksNavigationCallbacks('React')} breadcrumb={{
-              section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowReactModal(false); setSelectedOptionAndRef('Frameworks') } },
+            <ReactFramework onBack={() => { setShowReactModal(false); setSelectedOptionAndRef('Frameworks') }} {...createFrameworksNavigationCallbacks('React')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Frameworks', icon: '🌱', onClick: () => { setShowReactModal(false); setSelectedOptionAndRef('Frameworks') } },
               category: { name: frameworksTopicCategories['React'].name, onClick: () => { setShowReactModal(false); goToFrameworksCategory(frameworksTopicCategories['React'].id) } },
               topic: 'React',
               colors: BREADCRUMB_COLORS.Frameworks
@@ -5550,8 +5569,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <Deployment onBack={() => setShowDeploymentModal(false)} {...createDevOpsNavigationCallbacks('Deployment')} breadcrumb={{
-              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowDeploymentModal(false); setSelectedOptionAndRef('DevOps') } },
+            <Deployment onBack={() => { setShowDeploymentModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('Deployment')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowDeploymentModal(false); setSelectedOptionAndRef('DevOps') } },
               category: { name: devopsTopicCategories['Deployment'].name, onClick: () => { setShowDeploymentModal(false); goToDevopsCategory(devopsTopicCategories['Deployment'].id) } },
               topic: 'Deployment',
               colors: BREADCRUMB_COLORS.DevOps
@@ -5570,8 +5588,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <Docker onBack={() => setShowDockerModal(false)} {...createDevOpsNavigationCallbacks('Docker')} breadcrumb={{
-              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowDockerModal(false); setSelectedOptionAndRef('DevOps') } },
+            <Docker onBack={() => { setShowDockerModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('Docker')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowDockerModal(false); setSelectedOptionAndRef('DevOps') } },
               category: { name: devopsTopicCategories['Docker'].name, onClick: () => { setShowDockerModal(false); goToDevopsCategory(devopsTopicCategories['Docker'].id) } },
               topic: 'Docker',
               colors: BREADCRUMB_COLORS.DevOps
@@ -5590,8 +5607,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <Kubernetes onBack={() => setShowKubernetesModal(false)} {...createDevOpsNavigationCallbacks('Kubernetes')} breadcrumb={{
-              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowKubernetesModal(false); setSelectedOptionAndRef('DevOps') } },
+            <Kubernetes onBack={() => { setShowKubernetesModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('Kubernetes')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowKubernetesModal(false); setSelectedOptionAndRef('DevOps') } },
               category: { name: devopsTopicCategories['Kubernetes'].name, onClick: () => { setShowKubernetesModal(false); goToDevopsCategory(devopsTopicCategories['Kubernetes'].id) } },
               topic: 'Kubernetes',
               colors: BREADCRUMB_COLORS.DevOps
@@ -5610,8 +5626,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <Testing onBack={() => setShowTestingModal(false)} {...createDevOpsNavigationCallbacks('Testing')} breadcrumb={{
-              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowTestingModal(false); setSelectedOptionAndRef('DevOps') } },
+            <Testing onBack={() => { setShowTestingModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('Testing')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowTestingModal(false); setSelectedOptionAndRef('DevOps') } },
               category: { name: devopsTopicCategories['Testing'].name, onClick: () => { setShowTestingModal(false); goToDevopsCategory(devopsTopicCategories['Testing'].id) } },
               topic: 'Testing',
               colors: BREADCRUMB_COLORS.DevOps
@@ -5630,8 +5645,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <CICD onBack={() => setShowCICDModal(false)} {...createDevOpsNavigationCallbacks('CICD')} breadcrumb={{
-              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowCICDModal(false); setSelectedOptionAndRef('DevOps') } },
+            <CICD onBack={() => { setShowCICDModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('CICD')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowCICDModal(false); setSelectedOptionAndRef('DevOps') } },
               category: { name: devopsTopicCategories['CICD'].name, onClick: () => { setShowCICDModal(false); goToDevopsCategory(devopsTopicCategories['CICD'].id) } },
               topic: 'CI/CD',
               colors: BREADCRUMB_COLORS.DevOps
@@ -5650,8 +5664,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <AgileScrum onBack={() => setShowAgileScrumModal(false)} {...createDevOpsNavigationCallbacks('AgileScrum')} breadcrumb={{
-              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowAgileScrumModal(false); setSelectedOptionAndRef('DevOps') } },
+            <AgileScrum onBack={() => { setShowAgileScrumModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('AgileScrum')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowAgileScrumModal(false); setSelectedOptionAndRef('DevOps') } },
               category: { name: devopsTopicCategories['AgileScrum'].name, onClick: () => { setShowAgileScrumModal(false); goToDevopsCategory(devopsTopicCategories['AgileScrum'].id) } },
               topic: 'Agile & Scrum',
               colors: BREADCRUMB_COLORS.DevOps
@@ -5670,8 +5683,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <ProductionSupport onBack={() => setShowProductionSupportModal(false)} {...createDevOpsNavigationCallbacks('ProductionSupport')} breadcrumb={{
-              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowProductionSupportModal(false); setSelectedOptionAndRef('DevOps') } },
+            <ProductionSupport onBack={() => { setShowProductionSupportModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('ProductionSupport')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowProductionSupportModal(false); setSelectedOptionAndRef('DevOps') } },
               category: { name: devopsTopicCategories['ProductionSupport'].name, onClick: () => { setShowProductionSupportModal(false); goToDevopsCategory(devopsTopicCategories['ProductionSupport'].id) } },
               topic: 'Production Support',
               colors: BREADCRUMB_COLORS.DevOps
@@ -5690,8 +5702,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <TeamCity onBack={() => setShowTeamCityModal(false)} {...createDevOpsNavigationCallbacks('TeamCity')} breadcrumb={{
-              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowTeamCityModal(false); setSelectedOptionAndRef('DevOps') } },
+            <TeamCity onBack={() => { setShowTeamCityModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('TeamCity')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowTeamCityModal(false); setSelectedOptionAndRef('DevOps') } },
               category: { name: devopsTopicCategories['TeamCity'].name, onClick: () => { setShowTeamCityModal(false); goToDevopsCategory(devopsTopicCategories['TeamCity'].id) } },
               topic: 'TeamCity',
               colors: BREADCRUMB_COLORS.DevOps
@@ -5710,8 +5721,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <Jenkins onBack={() => setShowJenkinsModal(false)} {...createDevOpsNavigationCallbacks('Jenkins')} breadcrumb={{
-              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowJenkinsModal(false); setSelectedOptionAndRef('DevOps') } },
+            <Jenkins onBack={() => { setShowJenkinsModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('Jenkins')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowJenkinsModal(false); setSelectedOptionAndRef('DevOps') } },
               category: { name: devopsTopicCategories['Jenkins'].name, onClick: () => { setShowJenkinsModal(false); goToDevopsCategory(devopsTopicCategories['Jenkins'].id) } },
               topic: 'Jenkins',
               colors: BREADCRUMB_COLORS.DevOps
@@ -5730,8 +5740,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <Prometheus onBack={() => setShowPrometheusModal(false)} {...createDevOpsNavigationCallbacks('Prometheus')} breadcrumb={{
-              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowPrometheusModal(false); setSelectedOptionAndRef('DevOps') } },
+            <Prometheus onBack={() => { setShowPrometheusModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('Prometheus')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowPrometheusModal(false); setSelectedOptionAndRef('DevOps') } },
               category: { name: devopsTopicCategories['Prometheus'].name, onClick: () => { setShowPrometheusModal(false); goToDevopsCategory(devopsTopicCategories['Prometheus'].id) } },
               topic: 'Prometheus',
               colors: BREADCRUMB_COLORS.DevOps
@@ -5750,8 +5759,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <Grafana onBack={() => setShowGrafanaModal(false)} {...createDevOpsNavigationCallbacks('Grafana')} breadcrumb={{
-              section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowGrafanaModal(false); setSelectedOptionAndRef('DevOps') } },
+            <Grafana onBack={() => { setShowGrafanaModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('Grafana')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowGrafanaModal(false); setSelectedOptionAndRef('DevOps') } },
               category: { name: devopsTopicCategories['Grafana'].name, onClick: () => { setShowGrafanaModal(false); goToDevopsCategory(devopsTopicCategories['Grafana'].id) } },
               topic: 'Grafana',
               colors: BREADCRUMB_COLORS.DevOps
@@ -5770,8 +5778,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <SecurityOWASP onBack={() => setShowSecurityOWASPModal(false)} {...createDevOpsNavigationCallbacks('SecurityOWASP')} breadcrumb={{
-              section: { name: 'Security', icon: '🔒', onClick: () => { setShowSecurityOWASPModal(false); setSelectedOptionAndRef('Security') } },
+            <SecurityOWASP onBack={() => { setShowSecurityOWASPModal(false); setSelectedOptionAndRef('Security') }} {...createDevOpsNavigationCallbacks('SecurityOWASP')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Security', icon: '🔒', onClick: () => { setShowSecurityOWASPModal(false); setSelectedOptionAndRef('Security') } },
               category: { name: devopsTopicCategories['SecurityOWASP'].name, onClick: () => { setShowSecurityOWASPModal(false); goToDevopsCategory(devopsTopicCategories['SecurityOWASP'].id) } },
               topic: 'Security & OWASP',
               colors: BREADCRUMB_COLORS.Security
@@ -5790,8 +5797,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <ApacheKafka onBack={() => setShowKafkaModal(false)} {...createDevOpsNavigationCallbacks('Kafka')} breadcrumb={{
-              section: { name: 'Messaging', icon: '📨', onClick: () => { setShowKafkaModal(false); setSelectedOptionAndRef('Messaging') } },
+            <ApacheKafka onBack={() => { setShowKafkaModal(false); setSelectedOptionAndRef('Messaging') }} {...createDevOpsNavigationCallbacks('Kafka')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Messaging', icon: '📨', onClick: () => { setShowKafkaModal(false); setSelectedOptionAndRef('Messaging') } },
               category: { name: messagingTopicCategories['Kafka'].name, onClick: () => { setShowKafkaModal(false); goToMessagingCategory(messagingTopicCategories['Kafka'].id) } },
               topic: 'Apache Kafka',
               colors: BREADCRUMB_COLORS.Messaging
@@ -5810,8 +5816,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             style={modalContentStyle}
           >
-            <ApacheFlink onBack={() => setShowApacheFlinkModal(false)} {...createDevOpsNavigationCallbacks('ApacheFlink')} breadcrumb={{
-              section: { name: 'Messaging', icon: '📨', onClick: () => { setShowApacheFlinkModal(false); setSelectedOptionAndRef('Messaging') } },
+            <ApacheFlink onBack={() => { setShowApacheFlinkModal(false); setSelectedOptionAndRef('Messaging') }} {...createDevOpsNavigationCallbacks('ApacheFlink')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Messaging', icon: '📨', onClick: () => { setShowApacheFlinkModal(false); setSelectedOptionAndRef('Messaging') } },
               category: { name: messagingTopicCategories['ApacheFlink'].name, onClick: () => { setShowApacheFlinkModal(false); goToMessagingCategory(messagingTopicCategories['ApacheFlink'].id) } },
               topic: 'Apache Flink',
               colors: BREADCRUMB_COLORS.Messaging
@@ -5852,8 +5857,7 @@ function App() {
               position: 'relative'
             }}
           >
-            <Solace onBack={() => setShowSolaceModal(false)} {...createDevOpsNavigationCallbacks('Solace')} breadcrumb={{
-              section: { name: 'Messaging', icon: '📨', onClick: () => { setShowSolaceModal(false); setSelectedOptionAndRef('Messaging') } },
+            <Solace onBack={() => { setShowSolaceModal(false); setSelectedOptionAndRef('Messaging') }} {...createDevOpsNavigationCallbacks('Solace')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Messaging', icon: '📨', onClick: () => { setShowSolaceModal(false); setSelectedOptionAndRef('Messaging') } },
               category: { name: messagingTopicCategories['Solace'].name, onClick: () => { setShowSolaceModal(false); goToMessagingCategory(messagingTopicCategories['Solace'].id) } },
               topic: 'Solace PubSub+',
               colors: BREADCRUMB_COLORS.Messaging
@@ -5894,8 +5898,7 @@ function App() {
               position: 'relative'
             }}
           >
-            <RabbitMQ onBack={() => setShowRabbitMQModal(false)} {...createDevOpsNavigationCallbacks('RabbitMQ')} breadcrumb={{
-              section: { name: 'Messaging', icon: '📨', onClick: () => { setShowRabbitMQModal(false); setSelectedOptionAndRef('Messaging') } },
+            <RabbitMQ onBack={() => { setShowRabbitMQModal(false); setSelectedOptionAndRef('Messaging') }} {...createDevOpsNavigationCallbacks('RabbitMQ')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Messaging', icon: '📨', onClick: () => { setShowRabbitMQModal(false); setSelectedOptionAndRef('Messaging') } },
               category: { name: messagingTopicCategories['RabbitMQ'].name, onClick: () => { setShowRabbitMQModal(false); goToMessagingCategory(messagingTopicCategories['RabbitMQ'].id) } },
               topic: 'RabbitMQ',
               colors: BREADCRUMB_COLORS.Messaging
@@ -5936,7 +5939,7 @@ function App() {
               position: 'relative'
             }}
           >
-            <MuleSoft onBack={() => setShowMuleSoftModal(false)} {...createDevOpsNavigationCallbacks('MuleSoft')} />
+            <MuleSoft onBack={() => { setShowMuleSoftModal(false); setSelectedOptionAndRef('Messaging') }} {...createDevOpsNavigationCallbacks('MuleSoft')} />
           </div>
         </div>
       )}
@@ -5972,8 +5975,7 @@ function App() {
               position: 'relative'
             }}
           >
-            <AWS onBack={() => setShowAWSModal(false)} {...createCloudNavigationCallbacks('AWS')} breadcrumb={{
-              section: { name: 'Cloud', icon: '☁️', onClick: () => { setShowAWSModal(false); setSelectedOptionAndRef('Cloud') } },
+            <AWS onBack={() => { setShowAWSModal(false); setSelectedOptionAndRef('Cloud') }} {...createCloudNavigationCallbacks('AWS')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Cloud', icon: '☁️', onClick: () => { setShowAWSModal(false); setSelectedOptionAndRef('Cloud') } },
               category: { name: cloudTopicCategories['AWS'].name, onClick: () => { setShowAWSModal(false); goToCloudCategory(cloudTopicCategories['AWS'].id) } },
               topic: 'Amazon Web Services',
               colors: BREADCRUMB_COLORS.Cloud
@@ -6013,8 +6015,7 @@ function App() {
               position: 'relative'
             }}
           >
-            <GCP onBack={() => setShowGCPModal(false)} {...createCloudNavigationCallbacks('GCP')} breadcrumb={{
-              section: { name: 'Cloud', icon: '☁️', onClick: () => { setShowGCPModal(false); setSelectedOptionAndRef('Cloud') } },
+            <GCP onBack={() => { setShowGCPModal(false); setSelectedOptionAndRef('Cloud') }} {...createCloudNavigationCallbacks('GCP')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Cloud', icon: '☁️', onClick: () => { setShowGCPModal(false); setSelectedOptionAndRef('Cloud') } },
               category: { name: cloudTopicCategories['GCP'].name, onClick: () => { setShowGCPModal(false); goToCloudCategory(cloudTopicCategories['GCP'].id) } },
               topic: 'Google Cloud Platform',
               colors: BREADCRUMB_COLORS.Cloud
@@ -6054,8 +6055,7 @@ function App() {
               position: 'relative'
             }}
           >
-            <Azure onBack={() => setShowAzureModal(false)} {...createCloudNavigationCallbacks('Azure')} breadcrumb={{
-              section: { name: 'Cloud', icon: '☁️', onClick: () => { setShowAzureModal(false); setSelectedOptionAndRef('Cloud') } },
+            <Azure onBack={() => { setShowAzureModal(false); setSelectedOptionAndRef('Cloud') }} {...createCloudNavigationCallbacks('Azure')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Cloud', icon: '☁️', onClick: () => { setShowAzureModal(false); setSelectedOptionAndRef('Cloud') } },
               category: { name: cloudTopicCategories['Azure'].name, onClick: () => { setShowAzureModal(false); goToCloudCategory(cloudTopicCategories['Azure'].id) } },
               topic: 'Microsoft Azure',
               colors: BREADCRUMB_COLORS.Cloud
@@ -6075,7 +6075,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Arrays..." />}>
               <Arrays
-                onBack={() => setShowArraysModal(false)}
+                onBack={() => { setShowArraysModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Arrays')}
               />
             </Suspense>
@@ -6094,7 +6094,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Hash Tables..." />}>
               <HashTables
-                onBack={() => setShowHashTablesModal(false)}
+                onBack={() => { setShowHashTablesModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Hash Tables')}
               />
             </Suspense>
@@ -6113,7 +6113,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Stacks..." />}>
               <Stacks
-                onBack={() => setShowStacksModal(false)}
+                onBack={() => { setShowStacksModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Stacks')}
               />
             </Suspense>
@@ -6132,7 +6132,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Queues..." />}>
               <Queues
-                onBack={() => setShowQueuesModal(false)}
+                onBack={() => { setShowQueuesModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Queues')}
               />
             </Suspense>
@@ -6151,7 +6151,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Trees..." />}>
               <Trees
-                onBack={() => setShowTreesModal(false)}
+                onBack={() => { setShowTreesModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Trees')}
               />
             </Suspense>
@@ -6170,7 +6170,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Binary Trees..." />}>
               <BinaryTrees
-                onBack={() => setShowBinaryTreesModal(false)}
+                onBack={() => { setShowBinaryTreesModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Binary Trees')}
               />
             </Suspense>
@@ -6211,7 +6211,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Binary Search Trees..." />}>
               <BinarySearchTrees
-                onBack={() => setShowBinarySearchTreesModal(false)}
+                onBack={() => { setShowBinarySearchTreesModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Binary Search Trees')}
               />
             </Suspense>
@@ -6230,7 +6230,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Graphs..." />}>
               <Graphs
-                onBack={() => setShowGraphsModal(false)}
+                onBack={() => { setShowGraphsModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Graphs')}
               />
             </Suspense>
@@ -6271,7 +6271,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Heaps..." />}>
               <Heaps
-                onBack={() => setShowHeapsModal(false)}
+                onBack={() => { setShowHeapsModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Heaps')}
               />
             </Suspense>
@@ -6312,7 +6312,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Union Find..." />}>
               <UnionFind
-                onBack={() => setShowUnionFindModal(false)}
+                onBack={() => { setShowUnionFindModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('UnionFind')}
               />
             </Suspense>
@@ -6353,7 +6353,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Trie..." />}>
               <Trie
-                onBack={() => setShowTrieModal(false)}
+                onBack={() => { setShowTrieModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Trie')}
               />
             </Suspense>
@@ -6394,7 +6394,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Linked Lists..." />}>
               <LinkedLists
-                onBack={() => setShowLinkedListsModal(false)}
+                onBack={() => { setShowLinkedListsModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Linked Lists')}
               />
             </Suspense>
@@ -6435,7 +6435,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Sorting..." />}>
               <Sorting
-                onBack={() => setShowSortingModal(false)}
+                onBack={() => { setShowSortingModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Sorting')}
               />
             </Suspense>
@@ -6476,7 +6476,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Binary Search..." />}>
               <BinarySearch
-                onBack={() => setShowBinarySearchModal(false)}
+                onBack={() => { setShowBinarySearchModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Binary Search')}
               />
             </Suspense>
@@ -6517,7 +6517,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Recursion..." />}>
               <Recursion
-                onBack={() => setShowRecursionModal(false)}
+                onBack={() => { setShowRecursionModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Recursion')}
               />
             </Suspense>
@@ -6558,7 +6558,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Dynamic Programming..." />}>
               <DynamicProgramming
-                onBack={() => setShowDynamicProgrammingModal(false)}
+                onBack={() => { setShowDynamicProgrammingModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Dynamic Programming')}
               />
             </Suspense>
@@ -6599,7 +6599,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Sliding Window..." />}>
               <SlidingWindow
-                onBack={() => setShowSlidingWindowModal(false)}
+                onBack={() => { setShowSlidingWindowModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Sliding Window')}
               />
             </Suspense>
@@ -6640,7 +6640,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Backtracking..." />}>
               <Backtracking
-                onBack={() => setShowBacktrackingModal(false)}
+                onBack={() => { setShowBacktrackingModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Backtracking')}
               />
             </Suspense>
@@ -6681,7 +6681,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Intervals..." />}>
               <Intervals
-                onBack={() => setShowIntervalsModal(false)}
+                onBack={() => { setShowIntervalsModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Intervals')}
               />
             </Suspense>
@@ -6722,7 +6722,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Math & Geometry..." />}>
               <MathGeometry
-                onBack={() => setShowMathGeometryModal(false)}
+                onBack={() => { setShowMathGeometryModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Math & Geometry')}
               />
             </Suspense>
@@ -6763,7 +6763,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Advanced Graphs..." />}>
               <AdvancedGraphs
-                onBack={() => setShowAdvancedGraphsModal(false)}
+                onBack={() => { setShowAdvancedGraphsModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Advanced Graphs')}
               />
             </Suspense>
@@ -6804,7 +6804,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Searching..." />}>
               <Searching
-                onBack={() => setShowSearchingModal(false)}
+                onBack={() => { setShowSearchingModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Searching')}
               />
             </Suspense>
@@ -6845,7 +6845,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Greedy Algorithms..." />}>
               <GreedyAlgorithms
-                onBack={() => setShowGreedyAlgorithmsModal(false)}
+                onBack={() => { setShowGreedyAlgorithmsModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Greedy Algorithms')}
               />
             </Suspense>
@@ -6886,7 +6886,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Famous Algorithms..." />}>
               <FamousAlgorithms
-                onBack={() => setShowFamousAlgorithmsModal(false)}
+                onBack={() => { setShowFamousAlgorithmsModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Famous Algorithms')}
               />
             </Suspense>
@@ -6926,10 +6926,9 @@ function App() {
             }}
           >
             <Streams
-              onBack={() => setShowStreamsModal(false)}
+              onBack={() => { setShowStreamsModal(false); setSelectedOptionAndRef('Java') }}
               {...createNavigationCallbacks('Streams')}
-              breadcrumb={{
-                section: { name: 'Java', icon: '☕', onClick: () => { setShowStreamsModal(false); setSelectedOptionAndRef('Java') } },
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => { setShowStreamsModal(false); setSelectedOptionAndRef('Java') } },
                 topic: 'Streams'
               }}
             />
@@ -6969,9 +6968,8 @@ function App() {
             }}
           >
             <StreamsAdvanced
-              onBack={() => setShowStreamsAdvancedModal(false)}
-              breadcrumb={{
-                section: { name: 'Java', icon: '☕', onClick: () => { setShowStreamsAdvancedModal(false); setSelectedOptionAndRef('Java') } },
+              onBack={() => { setShowStreamsAdvancedModal(false); setSelectedOptionAndRef('Java') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => { setShowStreamsAdvancedModal(false); setSelectedOptionAndRef('Java') } },
                 topic: 'Streams Advanced'
               }}
             />
@@ -7011,10 +7009,9 @@ function App() {
             }}
           >
             <Lambdas
-              onBack={() => setShowLambdasModal(false)}
+              onBack={() => { setShowLambdasModal(false); setSelectedOptionAndRef('Java') }}
               {...createNavigationCallbacks('Lambdas')}
-              breadcrumb={{
-                section: { name: 'Java', icon: '☕', onClick: () => { setShowLambdasModal(false); setSelectedOptionAndRef('Java') } },
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => { setShowLambdasModal(false); setSelectedOptionAndRef('Java') } },
                 topic: 'Lambdas'
               }}
             />
@@ -7054,9 +7051,8 @@ function App() {
             }}
           >
             <LambdasAdvanced
-              onBack={() => setShowLambdasAdvancedModal(false)}
-              breadcrumb={{
-                section: { name: 'Java', icon: '☕', onClick: () => { setShowLambdasAdvancedModal(false); setSelectedOptionAndRef('Java') } },
+              onBack={() => { setShowLambdasAdvancedModal(false); setSelectedOptionAndRef('Java') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => { setShowLambdasAdvancedModal(false); setSelectedOptionAndRef('Java') } },
                 topic: 'Lambdas Advanced'
               }}
             />
@@ -7096,10 +7092,9 @@ function App() {
             }}
           >
             <FunctionalInterfaces
-              onBack={() => setShowFunctionalInterfacesModal(false)}
+              onBack={() => { setShowFunctionalInterfacesModal(false); setSelectedOptionAndRef('Java') }}
               {...createNavigationCallbacks('Functional Interfaces')}
-              breadcrumb={{
-                section: { name: 'Java', icon: '☕', onClick: () => { setShowFunctionalInterfacesModal(false); setSelectedOptionAndRef('Java') } },
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => { setShowFunctionalInterfacesModal(false); setSelectedOptionAndRef('Java') } },
                 topic: 'Functional Interfaces'
               }}
             />
@@ -7139,10 +7134,9 @@ function App() {
             }}
           >
             <CollectionsFramework
-              onBack={() => setShowCollectionsFrameworkModal(false)}
+              onBack={() => { setShowCollectionsFrameworkModal(false); setSelectedOptionAndRef('Java') }}
               {...createNavigationCallbacks('Collections Framework')}
-              breadcrumb={{
-                section: { name: 'Java', icon: '☕', onClick: () => { setShowCollectionsFrameworkModal(false); setSelectedOptionAndRef('Java') } },
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => { setShowCollectionsFrameworkModal(false); setSelectedOptionAndRef('Java') } },
                 topic: 'Collections Framework'
               }}
             />
@@ -7182,10 +7176,9 @@ function App() {
             }}
           >
             <Concurrency
-              onBack={() => setShowConcurrencyModal(false)}
+              onBack={() => { setShowConcurrencyModal(false); setSelectedOptionAndRef('Java') }}
               {...createNavigationCallbacks('Concurrency')}
-              breadcrumb={{
-                section: { name: 'Java', icon: '☕', onClick: () => { setShowConcurrencyModal(false); setSelectedOptionAndRef('Java') } },
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => { setShowConcurrencyModal(false); setSelectedOptionAndRef('Java') } },
                 topic: 'Concurrency'
               }}
             />
@@ -7225,10 +7218,9 @@ function App() {
             }}
           >
             <Multithreading
-              onBack={() => setShowMultithreadingModal(false)}
+              onBack={() => { setShowMultithreadingModal(false); setSelectedOptionAndRef('Java') }}
               {...createNavigationCallbacks('Multithreading')}
-              breadcrumb={{
-                section: { name: 'Java', icon: '☕', onClick: () => { setShowMultithreadingModal(false); setSelectedOptionAndRef('Java') } },
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => { setShowMultithreadingModal(false); setSelectedOptionAndRef('Java') } },
                 topic: 'Multithreading'
               }}
             />
@@ -7268,10 +7260,9 @@ function App() {
             }}
           >
             <Optional
-              onBack={() => setShowOptionalModal(false)}
+              onBack={() => { setShowOptionalModal(false); setSelectedOptionAndRef('Java') }}
               {...createNavigationCallbacks('Optional')}
-              breadcrumb={{
-                section: { name: 'Java', icon: '☕', onClick: () => { setShowOptionalModal(false); setSelectedOptionAndRef('Java') } },
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => { setShowOptionalModal(false); setSelectedOptionAndRef('Java') } },
                 topic: 'Optional'
               }}
             />
@@ -7311,10 +7302,9 @@ function App() {
             }}
           >
             <ObjectOrientedProgramming
-              onBack={() => setShowObjectOrientedProgrammingModal(false)}
+              onBack={() => { setShowObjectOrientedProgrammingModal(false); setSelectedOptionAndRef('Java') }}
               {...createNavigationCallbacks('Object-Oriented Programming')}
-              breadcrumb={{
-                section: { name: 'Java', icon: '☕', onClick: () => { setShowObjectOrientedProgrammingModal(false); setSelectedOptionAndRef('Java') } },
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => { setShowObjectOrientedProgrammingModal(false); setSelectedOptionAndRef('Java') } },
                 topic: 'Object-Oriented Programming'
               }}
             />
@@ -7354,10 +7344,9 @@ function App() {
             }}
           >
             <ExceptionHandling
-              onBack={() => setShowExceptionHandlingModal(false)}
+              onBack={() => { setShowExceptionHandlingModal(false); setSelectedOptionAndRef('Java') }}
               {...createNavigationCallbacks('Exception Handling')}
-              breadcrumb={{
-                section: { name: 'Java', icon: '☕', onClick: () => { setShowExceptionHandlingModal(false); setSelectedOptionAndRef('Java') } },
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => { setShowExceptionHandlingModal(false); setSelectedOptionAndRef('Java') } },
                 topic: 'Exception Handling'
               }}
             />
@@ -7397,10 +7386,9 @@ function App() {
             }}
           >
             <FileIO
-              onBack={() => setShowFileIOModal(false)}
+              onBack={() => { setShowFileIOModal(false); setSelectedOptionAndRef('Java') }}
               {...createNavigationCallbacks('File I/O')}
-              breadcrumb={{
-                section: { name: 'Java', icon: '☕', onClick: () => { setShowFileIOModal(false); setSelectedOptionAndRef('Java') } },
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => { setShowFileIOModal(false); setSelectedOptionAndRef('Java') } },
                 topic: 'File I/O'
               }}
             />
@@ -7440,7 +7428,7 @@ function App() {
             }}
           >
             <JVMInternals
-              onBack={() => setShowJVMInternalsModal(false)}
+              onBack={() => { setShowJVMInternalsModal(false); setSelectedOptionAndRef('Java') }}
               {...createNavigationCallbacks('JVM Internals')}
             />
           </div>
@@ -7479,10 +7467,9 @@ function App() {
             }}
           >
             <MemoryManagement
-              onBack={() => setShowMemoryManagementModal(false)}
+              onBack={() => { setShowMemoryManagementModal(false); setSelectedOptionAndRef('Java') }}
               {...createNavigationCallbacks('Memory Management')}
-              breadcrumb={{
-                section: { name: 'Java', icon: '☕', onClick: () => { setShowMemoryManagementModal(false); setSelectedOptionAndRef('Java') } },
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => { setShowMemoryManagementModal(false); setSelectedOptionAndRef('Java') } },
                 topic: 'Memory Management'
               }}
             />
@@ -7523,7 +7510,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Data Structures..." />}>
               <DataStructures
-                onBack={() => setShowDataStructuresModal(false)}
+                onBack={() => { setShowDataStructuresModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Data Structures')}
               />
             </Suspense>
@@ -7564,7 +7551,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Strings..." />}>
               <Strings
-                onBack={() => setShowStringsModal(false)}
+                onBack={() => { setShowStringsModal(false); setSelectedOptionAndRef('Algorithms') }}
                 {...createNavigationCallbacks('Strings')}
               />
             </Suspense>
@@ -7604,10 +7591,9 @@ function App() {
             }}
           >
             <Generics
-              onBack={() => setShowGenericsModal(false)}
+              onBack={() => { setShowGenericsModal(false); setSelectedOptionAndRef('Java') }}
               {...createNavigationCallbacks('Generics')}
-              breadcrumb={{
-                section: { name: 'Java', icon: '☕', onClick: () => { setShowGenericsModal(false); setSelectedOptionAndRef('Java') } },
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Java', icon: '☕', onClick: () => { setShowGenericsModal(false); setSelectedOptionAndRef('Java') } },
                 topic: 'Generics'
               }}
             />
@@ -7648,7 +7634,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Design Patterns Practice..." />}>
               <DesignPatternsInteractive
-                onBack={() => setShowDesignPatternsPracticeModal(false)}
+                onBack={() => { setShowDesignPatternsPracticeModal(false); setSelectedOptionAndRef('Design Patterns') }}
                 {...createNavigationCallbacks('Design Patterns Practice')}
               />
             </Suspense>
@@ -7689,7 +7675,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading LRU Cache..." />}>
               <LRUCache
-                onBack={() => setShowLRUCacheModal(false)}
+                onBack={() => { setShowLRUCacheModal(false); setSelectedOptionAndRef('System Design') }}
                 {...createNavigationCallbacks('LRU Cache')}
               />
             </Suspense>
@@ -7730,7 +7716,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Rate Limiter..." />}>
               <RateLimiter
-                onBack={() => setShowRateLimiterModal(false)}
+                onBack={() => { setShowRateLimiterModal(false); setSelectedOptionAndRef('System Design') }}
                 {...createNavigationCallbacks('Rate Limiter')}
               />
             </Suspense>
@@ -7771,7 +7757,7 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Design Problems..." />}>
               <DesignProblems
-                onBack={() => setShowDesignProblemsModal(false)}
+                onBack={() => { setShowDesignProblemsModal(false); setSelectedOptionAndRef('System Design') }}
                 {...createNavigationCallbacks('Design Problems')}
               />
             </Suspense>
@@ -7812,9 +7798,8 @@ function App() {
             }}
           >
             <JavaQuestions
-              onBack={() => setShowJavaQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowJavaQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowJavaQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJavaQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Java',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -7855,9 +7840,8 @@ function App() {
             }}
           >
             <CoreJavaQuestions
-              onBack={() => setShowCoreJavaQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowCoreJavaQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowCoreJavaQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowCoreJavaQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Core Java',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -7898,9 +7882,8 @@ function App() {
             }}
           >
             <Java8Questions
-              onBack={() => setShowJava8QuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowJava8QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowJava8QuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJava8QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Java 8',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -7941,9 +7924,8 @@ function App() {
             }}
           >
             <Java11Questions
-              onBack={() => setShowJava11QuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowJava11QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowJava11QuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJava11QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Java 11',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -7984,9 +7966,8 @@ function App() {
             }}
           >
             <Java15Questions
-              onBack={() => setShowJava15QuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowJava15QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowJava15QuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJava15QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Java 15',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8027,9 +8008,8 @@ function App() {
             }}
           >
             <Java21Questions
-              onBack={() => setShowJava21QuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowJava21QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowJava21QuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJava21QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Java 21',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8070,9 +8050,8 @@ function App() {
             }}
           >
             <Java24Questions
-              onBack={() => setShowJava24QuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowJava24QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowJava24QuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJava24QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Java 24',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8113,9 +8092,8 @@ function App() {
             }}
           >
             <SQLQuestions
-              onBack={() => setShowSQLQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowSQLQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowSQLQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowSQLQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'SQL',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8156,9 +8134,8 @@ function App() {
             }}
           >
             <NoSQLQuestions
-              onBack={() => setShowNoSQLQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowNoSQLQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowNoSQLQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowNoSQLQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'NoSQL',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8199,9 +8176,8 @@ function App() {
             }}
           >
             <ORMQuestions
-              onBack={() => setShowORMQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowORMQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowORMQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowORMQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'ORM',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8242,9 +8218,8 @@ function App() {
             }}
           >
             <HibernateQuestions
-              onBack={() => setShowHibernateQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowHibernateQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowHibernateQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowHibernateQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Hibernate',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8285,9 +8260,8 @@ function App() {
             }}
           >
             <KafkaQuestions
-              onBack={() => setShowKafkaQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowKafkaQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowKafkaQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowKafkaQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Kafka',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8328,9 +8302,8 @@ function App() {
             }}
           >
             <ApacheFlinkQuestions
-              onBack={() => setShowApacheFlinkQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowApacheFlinkQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowApacheFlinkQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowApacheFlinkQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Apache Flink',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8371,9 +8344,8 @@ function App() {
             }}
           >
             <RabbitMQQuestions
-              onBack={() => setShowRabbitMQQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowRabbitMQQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowRabbitMQQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowRabbitMQQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'RabbitMQ',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8414,9 +8386,8 @@ function App() {
             }}
           >
             <SolaceQuestions
-              onBack={() => setShowSolaceQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowSolaceQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowSolaceQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowSolaceQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Solace',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8457,9 +8428,8 @@ function App() {
             }}
           >
             <RestAPIQuestions
-              onBack={() => setShowRestAPIQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowRestAPIQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowRestAPIQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowRestAPIQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'REST API',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8500,9 +8470,8 @@ function App() {
             }}
           >
             <JenkinsQuestions
-              onBack={() => setShowJenkinsQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowJenkinsQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowJenkinsQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJenkinsQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Jenkins',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8543,9 +8512,8 @@ function App() {
             }}
           >
             <TeamCityQuestions
-              onBack={() => setShowTeamCityQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowTeamCityQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowTeamCityQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowTeamCityQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'TeamCity',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8586,9 +8554,8 @@ function App() {
             }}
           >
             <PrometheusQuestions
-              onBack={() => setShowPrometheusQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowPrometheusQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowPrometheusQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowPrometheusQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Prometheus',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8629,9 +8596,8 @@ function App() {
             }}
           >
             <GrafanaQuestions
-              onBack={() => setShowGrafanaQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowGrafanaQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowGrafanaQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowGrafanaQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Grafana',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8672,9 +8638,8 @@ function App() {
             }}
           >
             <ZipkinQuestions
-              onBack={() => setShowZipkinQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowZipkinQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowZipkinQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowZipkinQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Zipkin',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8717,9 +8682,8 @@ function App() {
               }}
             >
               <ActuatorQuestions
-                onBack={() => setShowActuatorQuestionsModal(false)}
-                breadcrumb={{
-                  section: { name: 'Questions', icon: '?', onClick: () => { setShowActuatorQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                onBack={() => { setShowActuatorQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+                breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowActuatorQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                   topic: 'Spring Actuator',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8761,9 +8725,8 @@ function App() {
             }}
           >
             <SpringCoreQuestions
-              onBack={() => setShowSpringCoreQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringCoreQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowSpringCoreQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringCoreQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Spring Core',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8804,9 +8767,8 @@ function App() {
             }}
           >
             <SpringAnnotationsQuestions
-              onBack={() => setShowSpringAnnotationsQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringAnnotationsQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowSpringAnnotationsQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringAnnotationsQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Spring Annotations',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8847,9 +8809,8 @@ function App() {
             }}
           >
             <EtradingQuestions
-              onBack={() => setShowEtradingQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowEtradingQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowEtradingQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowEtradingQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'eTrading Systems',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8890,9 +8851,8 @@ function App() {
             }}
           >
             <SpringBootQuestions
-              onBack={() => setShowSpringBootQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringBootQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowSpringBootQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringBootQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Spring Boot',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8933,9 +8893,8 @@ function App() {
             }}
           >
             <SpringSecurityQuestions
-              onBack={() => setShowSpringSecurityQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringSecurityQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowSpringSecurityQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringSecurityQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Spring Security',
                 colors: BREADCRUMB_COLORS.Questions
               }}
@@ -8976,9 +8935,8 @@ function App() {
             }}
           >
             <SpringDataJPAQuestions
-              onBack={() => setShowSpringDataJPAQuestionsModal(false)}
-              breadcrumb={{
-                section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringDataJPAQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+              onBack={() => { setShowSpringDataJPAQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringDataJPAQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Spring Data JPA',
                 colors: BREADCRUMB_COLORS.Questions
               }}

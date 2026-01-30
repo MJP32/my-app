@@ -2877,7 +2877,7 @@ String Templates in Java 21 provide a modern, safe, and expressive way to compos
         <div style={{ width: '150px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
       <p style={{
         fontSize: '1.1rem',

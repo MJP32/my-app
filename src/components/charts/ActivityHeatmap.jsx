@@ -154,7 +154,7 @@ const ActivityHeatmap = ({ userId, weeks = 12 }) => {
                     new Date(week[0]).toLocaleDateString('en-US', { month: 'short' }) : ''}
                 </div>
 
-                {week.map((date, dayIndex) => {
+                {week.map((date) => {
                   const count = activityData[date] || 0;
                   return (
                     <div

@@ -724,7 +724,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
           </p>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         {/* Tabs */}
         <div style={{
@@ -1489,7 +1489,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
                 <div className="bg-blue-50 p-6 rounded-xl border-l-4 border-blue-500">
                   <div className="font-bold text-blue-900 mb-3 text-lg">Cache Key Design</div>
                   <div className="space-y-2 text-sm text-gray-700">
-                    <div>• <strong>Key format:</strong> <code className="bg-gray-800 px-2 py-1 rounded">autocomplete:{prefix}:{lang}:{locale}</code></div>
+                    <div>• <strong>Key format:</strong> <code className="bg-gray-800 px-2 py-1 rounded">{'autocomplete:{prefix}:{lang}:{locale}'}</code></div>
                     <div>• <strong>Value:</strong> JSON array of top 10 suggestions</div>
                     <div>• <strong>TTL:</strong> 1 hour (longer for stable queries)</div>
                     <div>• <strong>Compression:</strong> Snappy compression (70% size reduction)</div>

@@ -418,7 +418,7 @@ export default function WebFrameworks({ onBack, breadcrumb }) {
         </button>
 
         {/* Breadcrumb */}
-        {breadcrumb && <Breadcrumb items={breadcrumb} />}
+        {breadcrumb && <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />}
 
         {/* Title */}
         <h1

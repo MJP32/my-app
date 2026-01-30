@@ -8,12 +8,12 @@ import { isProblemCompleted } from '../../services/progressService'
 import { getPreferredLanguage } from '../../services/languageService'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 
-function Backtracking({ onBack, breadcrumb, breadcrumbStack, onBreadcrumbClick, pushBreadcrumb, breadcrumbColors }) {
+function Backtracking({ onBack, breadcrumb, breadcrumbStack, onBreadcrumbClick, pushBreadcrumb: _pushBreadcrumb, breadcrumbColors }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null)
   const [showSolution, setShowSolution] = useState(false)
   const [userCode, setUserCode] = useState('')
-  const [output, setOutput] = useState('')
-  const [refreshKey, setRefreshKey] = useState(0)
+  const [, setOutput] = useState('')
+  const [, setRefreshKey] = useState(0)
   const [language, setLanguage] = useState(getPreferredLanguage())
   const [showDrawing, setShowDrawing] = useState(false)
   const [currentDrawing, setCurrentDrawing] = useState(null)
@@ -952,6 +952,7 @@ function Backtracking({ onBack, breadcrumb, breadcrumbStack, onBreadcrumbClick, 
           breadcrumb={problemBreadcrumb}
           breadcrumbStack={problemBreadcrumbStack}
           onBreadcrumbClick={handleProblemBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={breadcrumbColors}
         />
 
@@ -1052,6 +1053,7 @@ function Backtracking({ onBack, breadcrumb, breadcrumbStack, onBreadcrumbClick, 
         breadcrumb={breadcrumb}
         breadcrumbStack={breadcrumbStack}
         onBreadcrumbClick={onBreadcrumbClick}
+        onMainMenu={breadcrumb?.onMainMenu}
         colors={breadcrumbColors}
       />
 

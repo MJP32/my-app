@@ -9,6 +9,8 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
+import { isProblemCompleted } from '../../services/progressService'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -365,6 +367,107 @@ const VolatileDiagram = () => (
   </svg>
 )
 
+const SemaphoreDiagram = () => (
+  <svg viewBox="0 0 800 220" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowSemaphore" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#10b981" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      Semaphore - Limited Concurrent Access (3 permits)
+    </text>
+
+    {/* Waiting Threads */}
+    <rect x="50" y="60" width="150" height="100" rx="8" fill="rgba(239, 68, 68, 0.1)" stroke="#ef4444" strokeWidth="2"/>
+    <text x="125" y="85" textAnchor="middle" fill="#ef4444" fontSize="12" fontWeight="bold">Waiting</text>
+    <rect x="65" y="100" width="45" height="20" rx="4" fill="#ef4444"/>
+    <text x="87.5" y="114" textAnchor="middle" fill="white" fontSize="9">T4</text>
+    <rect x="115" y="100" width="45" height="20" rx="4" fill="#ef4444"/>
+    <text x="137.5" y="114" textAnchor="middle" fill="white" fontSize="9">T5</text>
+    <rect x="65" y="130" width="45" height="20" rx="4" fill="#ef4444"/>
+    <text x="87.5" y="144" textAnchor="middle" fill="white" fontSize="9">T6</text>
+
+    {/* Semaphore */}
+    <rect x="280" y="60" width="180" height="100" rx="8" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" strokeWidth="2"/>
+    <text x="370" y="85" textAnchor="middle" fill="#10b981" fontSize="12" fontWeight="bold">Semaphore(3)</text>
+    <text x="370" y="110" textAnchor="middle" fill="#6ee7b7" fontSize="10">Available: 0</text>
+    <text x="370" y="130" textAnchor="middle" fill="#6ee7b7" fontSize="10">In Use: 3</text>
+    <rect x="300" y="140" width="140" height="10" rx="4" fill="rgba(16, 185, 129, 0.3)"/>
+    <rect x="300" y="140" width="140" height="10" rx="4" fill="#10b981"/>
+
+    {/* Active Threads */}
+    <rect x="540" y="60" width="150" height="100" rx="8" fill="rgba(59, 130, 246, 0.1)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="615" y="85" textAnchor="middle" fill="#3b82f6" fontSize="12" fontWeight="bold">Active</text>
+    <rect x="555" y="100" width="45" height="20" rx="4" fill="#3b82f6"/>
+    <text x="577.5" y="114" textAnchor="middle" fill="white" fontSize="9">T1</text>
+    <rect x="605" y="100" width="45" height="20" rx="4" fill="#3b82f6"/>
+    <text x="627.5" y="114" textAnchor="middle" fill="white" fontSize="9">T2</text>
+    <rect x="655" y="100" width="45" height="20" rx="4" fill="#3b82f6"/>
+    <text x="677.5" y="114" textAnchor="middle" fill="white" fontSize="9">T3</text>
+
+    {/* Arrows */}
+    <line x1="200" y1="110" x2="275" y2="110" stroke="#ef4444" strokeWidth="2" strokeDasharray="4"/>
+    <line x1="460" y1="110" x2="535" y2="110" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowSemaphore)"/>
+
+    <text x="237" y="100" textAnchor="middle" fill="#ef4444" fontSize="9">blocked</text>
+    <text x="497" y="100" textAnchor="middle" fill="#10b981" fontSize="9">acquired</text>
+
+    {/* Note */}
+    <text x="400" y="195" textAnchor="middle" fill="#94a3b8" fontSize="10">
+      Max 3 threads can access the resource simultaneously • Others wait for release
+    </text>
+  </svg>
+)
+
+const CountDownLatchDiagram = () => (
+  <svg viewBox="0 0 800 200" style={{ width: '100%', maxWidth: '800px', height: 'auto', margin: '1rem 0' }}>
+    <defs>
+      <marker id="arrowLatch" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#10b981" />
+      </marker>
+    </defs>
+
+    <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">
+      CountDownLatch - Wait for Multiple Events
+    </text>
+
+    {/* Worker Threads */}
+    <rect x="50" y="60" width="200" height="100" rx="8" fill="rgba(59, 130, 246, 0.1)" stroke="#3b82f6" strokeWidth="2"/>
+    <text x="150" y="85" textAnchor="middle" fill="#3b82f6" fontSize="12" fontWeight="bold">Worker Threads</text>
+    <rect x="70" y="100" width="50" height="20" rx="4" fill="#3b82f6"/>
+    <text x="95" y="114" textAnchor="middle" fill="white" fontSize="9">Task 1</text>
+    <rect x="130" y="100" width="50" height="20" rx="4" fill="#3b82f6"/>
+    <text x="155" y="114" textAnchor="middle" fill="white" fontSize="9">Task 2</text>
+    <rect x="190" y="100" width="50" height="20" rx="4" fill="#3b82f6"/>
+    <text x="215" y="114" textAnchor="middle" fill="white" fontSize="9">Task 3</text>
+    <text x="150" y="145" textAnchor="middle" fill="#60a5fa" fontSize="9">countDown() when done</text>
+
+    {/* Latch */}
+    <rect x="310" y="60" width="180" height="100" rx="8" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" strokeWidth="2"/>
+    <text x="400" y="85" textAnchor="middle" fill="#10b981" fontSize="12" fontWeight="bold">CountDownLatch(3)</text>
+    <text x="400" y="110" textAnchor="middle" fill="#6ee7b7" fontSize="10">Count: 0</text>
+    <text x="400" y="130" textAnchor="middle" fill="#6ee7b7" fontSize="10">Released!</text>
+    <rect x="330" y="140" width="140" height="10" rx="4" fill="rgba(16, 185, 129, 0.3)"/>
+    <rect x="330" y="140" width="140" height="10" rx="4" fill="#10b981"/>
+
+    {/* Main Thread */}
+    <rect x="550" y="60" width="200" height="100" rx="8" fill="rgba(139, 92, 246, 0.1)" stroke="#8b5cf6" strokeWidth="2"/>
+    <text x="650" y="85" textAnchor="middle" fill="#8b5cf6" fontSize="12" fontWeight="bold">Main Thread</text>
+    <rect x="600" y="105" width="100" height="25" rx="4" fill="#8b5cf6"/>
+    <text x="650" y="122" textAnchor="middle" fill="white" fontSize="9">await() → proceed</text>
+
+    {/* Arrows */}
+    <line x1="250" y1="110" x2="305" y2="110" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowLatch)"/>
+    <line x1="490" y1="110" x2="545" y2="110" stroke="#10b981" strokeWidth="2" markerEnd="url(#arrowLatch)"/>
+
+    <text x="400" y="190" textAnchor="middle" fill="#94a3b8" fontSize="10">
+      Main thread waits until all workers call countDown() • One-time use only
+    </text>
+  </svg>
+)
+
 // =============================================================================
 // MAIN COMPONENT
 // =============================================================================
@@ -372,6 +475,308 @@ const VolatileDiagram = () => (
 function Concurrency({ onBack, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [selectedProblem, setSelectedProblem] = useState(null)
+  const [userCode, setUserCode] = useState('')
+  const [showSolution, setShowSolution] = useState(false)
+
+  useEffect(() => {
+    const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
+    window.addEventListener('progressUpdate', handleProgressUpdate)
+    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
+  }, [])
+
+  const openProblem = (problem) => { setSelectedProblem(problem); setUserCode(problem.starterCode); setShowSolution(false) }
+  const closeProblem = () => { setSelectedProblem(null); setUserCode(''); setShowSolution(false) }
+
+  const practiceProblems = [
+    { id: 1, title: 'Thread-Safe Counter', difficulty: 'Easy', description: 'Implement a thread-safe counter using AtomicInteger.', example: 'Multiple threads incrementing counter safely',
+      instructions: `Create a thread-safe counter using AtomicInteger.
+
+**Requirements:**
+1. Use AtomicInteger for the counter
+2. Create multiple threads that increment the counter
+3. Verify final count is correct
+
+**Expected:** With 10 threads each incrementing 1000 times, final count = 10000`,
+      starterCode: `import java.util.concurrent.atomic.AtomicInteger;
+
+public class ThreadSafeCounter {
+    // TODO: Use AtomicInteger instead of int
+    private int counter = 0;
+    
+    public void increment() {
+        // TODO: Make this thread-safe
+        counter++;
+    }
+    
+    public int getCount() {
+        return counter;
+    }
+    
+    public static void main(String[] args) throws InterruptedException {
+        ThreadSafeCounter counter = new ThreadSafeCounter();
+        Thread[] threads = new Thread[10];
+        
+        for (int i = 0; i < 10; i++) {
+            threads[i] = new Thread(() -> {
+                for (int j = 0; j < 1000; j++) {
+                    counter.increment();
+                }
+            });
+            threads[i].start();
+        }
+        
+        for (Thread t : threads) t.join();
+        System.out.println("Final count: " + counter.getCount()); // Should be 10000
+    }
+}`,
+      solution: `import java.util.concurrent.atomic.AtomicInteger;
+
+public class ThreadSafeCounter {
+    private AtomicInteger counter = new AtomicInteger(0);
+    
+    public void increment() {
+        counter.incrementAndGet();
+    }
+    
+    public int getCount() {
+        return counter.get();
+    }
+    
+    public static void main(String[] args) throws InterruptedException {
+        ThreadSafeCounter counter = new ThreadSafeCounter();
+        Thread[] threads = new Thread[10];
+        
+        for (int i = 0; i < 10; i++) {
+            threads[i] = new Thread(() -> {
+                for (int j = 0; j < 1000; j++) {
+                    counter.increment();
+                }
+            });
+            threads[i].start();
+        }
+        
+        for (Thread t : threads) t.join();
+        System.out.println("Final count: " + counter.getCount()); // 10000
+    }
+}`
+    },
+    { id: 2, title: 'Producer-Consumer', difficulty: 'Medium', description: 'Implement producer-consumer pattern using BlockingQueue.', example: 'Producer adds items, Consumer processes them',
+      instructions: `Implement producer-consumer using BlockingQueue.
+
+**Requirements:**
+1. Use LinkedBlockingQueue
+2. Producer adds items to queue
+3. Consumer takes items from queue
+4. Use poison pill to signal completion`,
+      starterCode: `import java.util.concurrent.*;
+
+public class ProducerConsumer {
+    public static void main(String[] args) {
+        // TODO: Create a BlockingQueue
+        BlockingQueue<Integer> queue = null;
+        
+        // Producer thread
+        Thread producer = new Thread(() -> {
+            try {
+                for (int i = 1; i <= 5; i++) {
+                    // TODO: Put item in queue
+                    System.out.println("Produced: " + i);
+                }
+                // TODO: Add poison pill (-1) to signal end
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        
+        // Consumer thread
+        Thread consumer = new Thread(() -> {
+            try {
+                while (true) {
+                    // TODO: Take item from queue
+                    int item = 0;
+                    if (item == -1) break; // Poison pill
+                    System.out.println("Consumed: " + item);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        
+        producer.start();
+        consumer.start();
+    }
+}`,
+      solution: `import java.util.concurrent.*;
+
+public class ProducerConsumer {
+    public static void main(String[] args) {
+        BlockingQueue<Integer> queue = new LinkedBlockingQueue<>(10);
+        
+        Thread producer = new Thread(() -> {
+            try {
+                for (int i = 1; i <= 5; i++) {
+                    queue.put(i);
+                    System.out.println("Produced: " + i);
+                    Thread.sleep(100);
+                }
+                queue.put(-1); // Poison pill
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        
+        Thread consumer = new Thread(() -> {
+            try {
+                while (true) {
+                    int item = queue.take();
+                    if (item == -1) break;
+                    System.out.println("Consumed: " + item);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        
+        producer.start();
+        consumer.start();
+    }
+}`
+    },
+    { id: 3, title: 'Deadlock Prevention', difficulty: 'Hard', description: 'Identify and fix a deadlock scenario in given code.', example: 'Two threads waiting for each other\'s locks',
+      instructions: `Fix the deadlock in this code.
+
+**Problem:** Two threads acquire locks in different order, causing deadlock.
+**Solution:** Always acquire locks in the same order.`,
+      starterCode: `public class DeadlockExample {
+    private final Object lock1 = new Object();
+    private final Object lock2 = new Object();
+    
+    public void method1() {
+        synchronized (lock1) {
+            System.out.println("Thread 1: Holding lock1");
+            try { Thread.sleep(100); } catch (InterruptedException e) {}
+            synchronized (lock2) {
+                System.out.println("Thread 1: Holding lock1 & lock2");
+            }
+        }
+    }
+    
+    public void method2() {
+        // TODO: Fix deadlock - currently acquires locks in opposite order
+        synchronized (lock2) {
+            System.out.println("Thread 2: Holding lock2");
+            try { Thread.sleep(100); } catch (InterruptedException e) {}
+            synchronized (lock1) {
+                System.out.println("Thread 2: Holding lock2 & lock1");
+            }
+        }
+    }
+    
+    public static void main(String[] args) {
+        DeadlockExample example = new DeadlockExample();
+        new Thread(example::method1).start();
+        new Thread(example::method2).start();
+    }
+}`,
+      solution: `public class DeadlockExample {
+    private final Object lock1 = new Object();
+    private final Object lock2 = new Object();
+    
+    public void method1() {
+        synchronized (lock1) {
+            System.out.println("Thread 1: Holding lock1");
+            try { Thread.sleep(100); } catch (InterruptedException e) {}
+            synchronized (lock2) {
+                System.out.println("Thread 1: Holding lock1 & lock2");
+            }
+        }
+    }
+    
+    public void method2() {
+        // Fixed: Acquire locks in same order as method1
+        synchronized (lock1) {
+            System.out.println("Thread 2: Holding lock1");
+            try { Thread.sleep(100); } catch (InterruptedException e) {}
+            synchronized (lock2) {
+                System.out.println("Thread 2: Holding lock1 & lock2");
+            }
+        }
+    }
+    
+    public static void main(String[] args) {
+        DeadlockExample example = new DeadlockExample();
+        new Thread(example::method1).start();
+        new Thread(example::method2).start();
+    }
+}`
+    },
+    { id: 4, title: 'ReadWriteLock Usage', difficulty: 'Medium', description: 'Implement a cache with ReadWriteLock for concurrent access.', example: 'Multiple readers, single writer pattern',
+      instructions: `Implement a thread-safe cache using ReadWriteLock.
+
+**Requirements:**
+1. Multiple threads can read simultaneously
+2. Only one thread can write at a time
+3. Writers block readers and other writers`,
+      starterCode: `import java.util.concurrent.locks.*;
+import java.util.*;
+
+public class ThreadSafeCache<K, V> {
+    private final Map<K, V> cache = new HashMap<>();
+    // TODO: Add ReadWriteLock
+    
+    public V get(K key) {
+        // TODO: Use read lock
+        return cache.get(key);
+    }
+    
+    public void put(K key, V value) {
+        // TODO: Use write lock
+        cache.put(key, value);
+    }
+    
+    public static void main(String[] args) {
+        ThreadSafeCache<String, Integer> cache = new ThreadSafeCache<>();
+        cache.put("one", 1);
+        System.out.println(cache.get("one"));
+    }
+}`,
+      solution: `import java.util.concurrent.locks.*;
+import java.util.*;
+
+public class ThreadSafeCache<K, V> {
+    private final Map<K, V> cache = new HashMap<>();
+    private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
+    private final Lock readLock = rwLock.readLock();
+    private final Lock writeLock = rwLock.writeLock();
+    
+    public V get(K key) {
+        readLock.lock();
+        try {
+            return cache.get(key);
+        } finally {
+            readLock.unlock();
+        }
+    }
+    
+    public void put(K key, V value) {
+        writeLock.lock();
+        try {
+            cache.put(key, value);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+    
+    public static void main(String[] args) {
+        ThreadSafeCache<String, Integer> cache = new ThreadSafeCache<>();
+        cache.put("one", 1);
+        System.out.println(cache.get("one")); // 1
+    }
+}`
+    }
+  ]
 
   // =============================================================================
   // CONCEPTS DATA
@@ -1081,6 +1486,362 @@ class CompletableFutureExample {
 }`
         }
       ]
+    },
+    {
+      id: 'semaphore',
+      name: 'Semaphore & Permits',
+      icon: '🚦',
+      color: '#ef4444',
+      description: 'Control access to resources with limited capacity. Permits allow N threads to access a resource simultaneously.',
+      diagram: SemaphoreDiagram,
+      details: [
+        {
+          name: 'Basic Semaphore',
+          diagram: SemaphoreDiagram,
+          explanation: 'Semaphore maintains a set of permits. acquire() takes a permit (blocks if none available), release() returns a permit. Use for limiting concurrent access to resources like connection pools, file handles, or rate limiting.',
+          codeExample: `import java.util.concurrent.*;
+
+class ConnectionPool {
+    private final Semaphore available = new Semaphore(10, true);
+    private final Connection[] connections = new Connection[10];
+
+    public Connection getConnection() throws InterruptedException {
+        available.acquire();  // Wait for available permit
+        return getNextAvailableConnection();
+    }
+
+    public void returnConnection(Connection conn) {
+        if (markAsUnused(conn)) {
+            available.release();  // Return permit
+        }
+    }
+
+    // Try with timeout
+    public Connection tryGetConnection(long timeout, TimeUnit unit)
+            throws InterruptedException {
+        if (available.tryAcquire(timeout, unit)) {
+            return getNextAvailableConnection();
+        }
+        return null;  // No connection available
+    }
+}`
+        },
+        {
+          name: 'Multiple Permits',
+          explanation: 'Semaphores can acquire/release multiple permits at once. Useful for resources that consume variable amounts of capacity (e.g., memory allocation, batch processing).',
+          codeExample: `class MemoryAllocator {
+    private static final int TOTAL_MB = 1024;
+    private final Semaphore memory = new Semaphore(TOTAL_MB);
+
+    public boolean allocate(int mbNeeded) throws InterruptedException {
+        // Acquire multiple permits
+        memory.acquire(mbNeeded);
+        System.out.println("Allocated " + mbNeeded + "MB");
+        return true;
+    }
+
+    public void deallocate(int mbToFree) {
+        memory.release(mbToFree);
+        System.out.println("Released " + mbToFree + "MB");
+    }
+
+    public boolean tryAllocate(int mbNeeded) {
+        if (memory.tryAcquire(mbNeeded)) {
+            System.out.println("Allocated " + mbNeeded + "MB");
+            return true;
+        }
+        System.out.println("Not enough memory");
+        return false;
+    }
+
+    public int availableMemory() {
+        return memory.availablePermits();
+    }
+}`
+        },
+        {
+          name: 'Fair vs Unfair',
+          explanation: 'Fair semaphores (new Semaphore(n, true)) grant permits in FIFO order. Unfair semaphores allow barging - newly arriving threads may acquire permits before waiting threads. Unfair is faster but can cause starvation.',
+          codeExample: `class SemaphoreComparison {
+    // Unfair - better throughput, possible starvation
+    Semaphore unfair = new Semaphore(3, false);
+
+    // Fair - FIFO order, prevents starvation
+    Semaphore fair = new Semaphore(3, true);
+
+    public void demonstrateFairness() throws InterruptedException {
+        // With fair semaphore, threads acquire in order they called acquire()
+        for (int i = 0; i < 5; i++) {
+            final int id = i;
+            new Thread(() -> {
+                try {
+                    System.out.println("Thread " + id + " waiting");
+                    fair.acquire();
+                    System.out.println("Thread " + id + " acquired");
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                } finally {
+                    fair.release();
+                }
+            }).start();
+        }
+    }
+}`
+        }
+      ]
+    },
+    {
+      id: 'latches-barriers',
+      name: 'CountDownLatch & CyclicBarrier',
+      icon: '🚧',
+      color: '#f97316',
+      description: 'Coordinate thread execution with latches and barriers. Wait for events or synchronize threads at common points.',
+      diagram: CountDownLatchDiagram,
+      details: [
+        {
+          name: 'CountDownLatch',
+          diagram: CountDownLatchDiagram,
+          explanation: 'CountDownLatch makes threads wait until N events occur. Workers call countDown(), waiting threads call await(). One-time use - count cannot be reset. Perfect for waiting on multiple tasks to complete before proceeding.',
+          codeExample: `import java.util.concurrent.*;
+
+class ServiceInitializer {
+    public void startServices() throws InterruptedException {
+        int serviceCount = 3;
+        CountDownLatch latch = new CountDownLatch(serviceCount);
+
+        // Start services in parallel
+        new Thread(() -> {
+            initDatabase();
+            latch.countDown();  // Signal completion
+        }).start();
+
+        new Thread(() -> {
+            initCache();
+            latch.countDown();
+        }).start();
+
+        new Thread(() -> {
+            initMessageQueue();
+            latch.countDown();
+        }).start();
+
+        // Wait for all services to be ready
+        latch.await();
+        System.out.println("All services initialized!");
+
+        // Or wait with timeout
+        if (latch.await(30, TimeUnit.SECONDS)) {
+            System.out.println("Ready!");
+        } else {
+            System.out.println("Timeout!");
+        }
+    }
+}`
+        },
+        {
+          name: 'CyclicBarrier',
+          explanation: 'CyclicBarrier makes N threads wait for each other at a barrier point. All threads call await() and block until all N have arrived. Then all are released simultaneously. Can be reused - barrier resets after release.',
+          codeExample: `import java.util.concurrent.*;
+
+class ParallelComputation {
+    private final CyclicBarrier barrier;
+    private final int[][] matrix;
+
+    public ParallelComputation(int threads, int[][] matrix) {
+        this.matrix = matrix;
+        // Barrier action runs when all threads arrive
+        this.barrier = new CyclicBarrier(threads, () -> {
+            System.out.println("Phase complete! Moving to next phase...");
+        });
+    }
+
+    public void compute() {
+        for (int i = 0; i < 4; i++) {
+            final int threadId = i;
+            new Thread(() -> {
+                try {
+                    for (int phase = 0; phase < 5; phase++) {
+                        // Do work
+                        processPhase(threadId, phase);
+
+                        // Wait for all threads to finish this phase
+                        barrier.await();  // Blocks until all arrive
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        }
+    }
+}`
+        },
+        {
+          name: 'Latch vs Barrier',
+          explanation: 'CountDownLatch: threads wait for events (1-to-many). One-time use. Workers signal, waiters proceed. CyclicBarrier: threads wait for each other (N-to-N). Reusable. All threads wait and proceed together.',
+          codeExample: `class LatchVsBarrier {
+    // CountDownLatch - Wait for N events
+    // Use: Main thread waits for workers to complete
+    void useLatch() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(3);
+
+        // 3 workers count down
+        for (int i = 0; i < 3; i++) {
+            new Thread(() -> {
+                doWork();
+                latch.countDown();  // Signal done
+            }).start();
+        }
+
+        latch.await();  // Main waits for all 3
+        System.out.println("All workers done");
+    }
+
+    // CyclicBarrier - N threads wait for each other
+    // Use: Iterative parallel algorithms with phases
+    void useBarrier() {
+        CyclicBarrier barrier = new CyclicBarrier(3);
+
+        for (int i = 0; i < 3; i++) {
+            new Thread(() -> {
+                try {
+                    doPhase1();
+                    barrier.await();  // All wait here
+
+                    doPhase2();
+                    barrier.await();  // Reused!
+
+                    doPhase3();
+                } catch (Exception e) { }
+            }).start();
+        }
+    }
+}`
+        }
+      ]
+    },
+    {
+      id: 'concurrent-collections',
+      name: 'Concurrent Collections',
+      icon: '📦',
+      color: '#14b8a6',
+      description: 'Thread-safe collections optimized for concurrent access. BlockingQueue, ConcurrentHashMap, and CopyOnWriteArrayList.',
+      details: [
+        {
+          name: 'BlockingQueue',
+          explanation: 'BlockingQueue automatically blocks when full (put) or empty (take). Perfect for producer-consumer patterns. No need for manual wait/notify. Common implementations: ArrayBlockingQueue, LinkedBlockingQueue, PriorityBlockingQueue.',
+          codeExample: `import java.util.concurrent.*;
+
+class ProducerConsumer {
+    private final BlockingQueue<Task> queue =
+        new ArrayBlockingQueue<>(100);
+
+    // Producer thread
+    public void producer() throws InterruptedException {
+        while (true) {
+            Task task = createTask();
+            queue.put(task);  // Blocks if queue is full
+            System.out.println("Produced: " + task);
+        }
+    }
+
+    // Consumer thread
+    public void consumer() throws InterruptedException {
+        while (true) {
+            Task task = queue.take();  // Blocks if queue is empty
+            process(task);
+            System.out.println("Consumed: " + task);
+        }
+    }
+
+    // Non-blocking operations
+    public void tryOperations() throws InterruptedException {
+        Task task = createTask();
+
+        // Try with timeout
+        if (queue.offer(task, 1, TimeUnit.SECONDS)) {
+            System.out.println("Added to queue");
+        }
+
+        // Poll with timeout
+        Task retrieved = queue.poll(1, TimeUnit.SECONDS);
+    }
+}`
+        },
+        {
+          name: 'ConcurrentHashMap',
+          explanation: 'ConcurrentHashMap allows concurrent reads and updates without locking the entire map. Uses segment-level locking. Provides atomic putIfAbsent, compute, merge operations. No ConcurrentModificationException during iteration.',
+          codeExample: `import java.util.concurrent.*;
+
+class ConcurrentCache {
+    private final ConcurrentHashMap<String, User> cache =
+        new ConcurrentHashMap<>();
+
+    public User getOrLoad(String userId) {
+        // Atomic: compute only if absent
+        return cache.computeIfAbsent(userId, key -> {
+            return loadUserFromDatabase(key);
+        });
+    }
+
+    public void incrementCounter(String key) {
+        // Atomic: update existing value
+        cache.compute(key, (k, v) -> {
+            int count = (v == null) ? 0 : v.count;
+            return new User(k, count + 1);
+        });
+    }
+
+    public void merge(String key, User value) {
+        // Atomic: merge values
+        cache.merge(key, value, (oldVal, newVal) -> {
+            return new User(key, oldVal.count + newVal.count);
+        });
+    }
+
+    // Thread-safe iteration
+    public void printAll() {
+        cache.forEach((key, value) -> {
+            System.out.println(key + ": " + value);
+        });
+    }
+}`
+        },
+        {
+          name: 'CopyOnWriteArrayList',
+          explanation: 'CopyOnWriteArrayList creates a new copy on every write. Reads are lock-free and never block. Ideal for read-mostly scenarios like event listeners. Writes are expensive - use only when reads vastly outnumber writes.',
+          codeExample: `import java.util.concurrent.*;
+
+class EventManager {
+    // Perfect for listeners - mostly reads, rare writes
+    private final CopyOnWriteArrayList<EventListener> listeners =
+        new CopyOnWriteArrayList<>();
+
+    public void addEventListener(EventListener listener) {
+        listeners.add(listener);  // Expensive: copies entire array
+    }
+
+    public void removeEventListener(EventListener listener) {
+        listeners.remove(listener);  // Expensive: copies entire array
+    }
+
+    public void fireEvent(Event event) {
+        // Fast: no locking, reads from snapshot
+        for (EventListener listener : listeners) {
+            listener.onEvent(event);
+        }
+    }
+
+    // Safe iteration even during concurrent modifications
+    public void printListeners() {
+        // Iterator uses snapshot - won't see concurrent adds/removes
+        for (EventListener l : listeners) {
+            System.out.println(l);
+        }
+    }
+}`
+        }
+      ]
     }
   ]
 
@@ -1224,6 +1985,7 @@ class CompletableFutureExample {
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={CONCURRENCY_COLORS}
         />
       </div>
@@ -1234,6 +1996,67 @@ class CompletableFutureExample {
           Master thread safety with synchronized blocks, locks, atomic operations, and thread pools
         </p>
       </div>
+
+      {/* Practice Exercises Section */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+        <h2 style={{ color: '#10b981', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span>📝</span> Practice Exercises</h2>
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Click on an exercise to practice. Complete the code challenge and mark as done.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+          {practiceProblems.map((problem) => {
+            const problemId = `Concurrency-${problem.id}`
+            const isCompleted = isProblemCompleted(problemId)
+            return (
+              <div key={problem.id} onClick={() => openProblem(problem)} style={{ background: isCompleted ? 'rgba(34, 197, 94, 0.1)' : 'rgba(30, 41, 59, 0.8)', borderRadius: '0.75rem', padding: '1rem', border: `1px solid ${isCompleted ? '#22c55e' : '#334155'}`, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = '#10b981'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.2)' }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = isCompleted ? '#22c55e' : '#334155'; e.currentTarget.style.boxShadow = 'none' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+                  <h4 style={{ color: '#e2e8f0', margin: 0, fontSize: '0.95rem' }}>{problem.title}</h4>
+                  <span style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '600', backgroundColor: problem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : problem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: problem.difficulty === 'Easy' ? '#22c55e' : problem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{problem.difficulty}</span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.5rem 0', lineHeight: '1.4' }}>{problem.description}</p>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0.5rem 0', fontStyle: 'italic' }}>{problem.example}</p>
+                <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#10b981', fontSize: '0.8rem', fontWeight: '500' }}>Click to practice →</span>
+                  <div onClick={(e) => e.stopPropagation()}><CompletionCheckbox problemId={problemId} compact /></div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Practice Problem Modal */}
+      {selectedProblem && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }} onClick={closeProblem}>
+          <div style={{ backgroundColor: '#1f2937', borderRadius: '1rem', width: '95vw', maxWidth: '1400px', height: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', border: '2px solid #14b8a6' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid #374151', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <h2 style={{ color: '#e2e8f0', margin: 0, fontSize: '1.5rem' }}>{selectedProblem.title}</h2>
+                <span style={{ padding: '0.3rem 0.75rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600', backgroundColor: selectedProblem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : selectedProblem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: selectedProblem.difficulty === 'Easy' ? '#22c55e' : selectedProblem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{selectedProblem.difficulty}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <CompletionCheckbox problemId={`Concurrency-${selectedProblem.id}`} compact />
+                <button onClick={closeProblem} style={{ padding: '0.5rem 1rem', backgroundColor: '#374151', color: '#e2e8f0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem' }}>✕ Close</button>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', flex: 1, overflow: 'hidden' }}>
+              <div style={{ padding: '1.5rem', borderRight: '1px solid #374151', overflowY: 'auto' }}>
+                <h3 style={{ color: '#10b981', marginTop: 0, marginBottom: '1rem' }}>📋 Instructions</h3>
+                <div style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>{selectedProblem.instructions.split('**').map((part, i) => i % 2 === 1 ? <strong key={i} style={{ color: '#e2e8f0' }}>{part}</strong> : part)}</div>
+              </div>
+              <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                  <button onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedProblem.solution) }} style={{ padding: '0.5rem 1rem', backgroundColor: showSolution ? '#ef4444' : '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>{showSolution ? '🔒 Hide Solution' : '💡 Show Solution'}</button>
+                  <button onClick={() => { setUserCode(selectedProblem.starterCode); setShowSolution(false) }} style={{ padding: '0.5rem 1rem', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>🔄 Reset Code</button>
+                  <button onClick={() => navigator.clipboard.writeText(userCode)} style={{ padding: '0.5rem 1rem', backgroundColor: '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>📋 Copy Code</button>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                  <textarea value={userCode} onChange={(e) => setUserCode(e.target.value)} style={{ flex: 1, width: '100%', padding: '1rem', fontFamily: 'Consolas, Monaco, "Courier New", monospace', fontSize: '0.9rem', backgroundColor: '#111827', color: '#e2e8f0', border: '1px solid #374151', borderRadius: '8px', resize: 'none', lineHeight: '1.5' }} spellCheck={false} />
+                </div>
+                <p style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '0.75rem', marginBottom: 0 }}>💡 Copy this code to your IDE to run and test. Mark as complete when you've solved it!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Concept Cards Grid */}
       <div style={{
@@ -1298,8 +2121,8 @@ class CompletableFutureExample {
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              maxHeight: '92vh',
+              maxWidth: '1600px',
+              maxHeight: '95vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`,
               width: '100%'
@@ -1310,6 +2133,7 @@ class CompletableFutureExample {
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
               colors={CONCURRENCY_COLORS}
             />
 

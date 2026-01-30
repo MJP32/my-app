@@ -16,6 +16,8 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
+import { isProblemCompleted } from '../../services/progressService'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -418,6 +420,24 @@ const ClosuresDiagram = () => (
 function LambdasAdvanced({ onBack, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  useEffect(() => {
+    const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
+    window.addEventListener('progressUpdate', handleProgressUpdate)
+    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
+  }, [])
+
+  const practiceProblems = [
+    { id: 1, title: 'Currying Functions', difficulty: 'Hard', description: 'Implement function currying to transform a multi-argument function into a chain of single-argument functions.', example: 'add(1,2,3) → add(1)(2)(3)' },
+    { id: 2, title: 'Exception Handling in Lambdas', difficulty: 'Medium', description: 'Create a wrapper that handles checked exceptions in lambda expressions.', example: 'wrap(path -> Files.readAllLines(path))' },
+    { id: 3, title: 'Memoization', difficulty: 'Hard', description: 'Implement a memoization wrapper for expensive function calls using lambdas.', example: 'memoize(fib) caches results' },
+    { id: 4, title: 'BiFunction Composition', difficulty: 'Medium', description: 'Compose multiple BiFunctions to create a pipeline of transformations.', example: 'f.andThen(g) for BiFunctions' },
+    { id: 5, title: 'Lazy Evaluation', difficulty: 'Medium', description: 'Implement lazy evaluation using Supplier to defer expensive computations.', example: 'Supplier<T> delays execution' },
+    { id: 6, title: 'Partial Application', difficulty: 'Hard', description: 'Implement partial function application to pre-fill some arguments.', example: 'partial(add, 5) → addFive' },
+    { id: 7, title: 'Consumer Chaining', difficulty: 'Easy', description: 'Chain multiple Consumer operations using andThen().', example: 'log.andThen(save).andThen(notify)' },
+    { id: 8, title: 'Predicate Composition', difficulty: 'Easy', description: 'Combine predicates using and(), or(), and negate().', example: 'isAdult.and(hasLicense)' }
+  ]
 
   // =============================================================================
   // CONCEPTS DATA
@@ -1641,8 +1661,32 @@ public class ClosureLifetime {
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={LAMBDAS_ADV_COLORS}
         />
+      </div>
+
+      {/* Practice Exercises Section */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid rgba(124, 58, 237, 0.3)' }}>
+        <h2 style={{ color: '#7c3aed', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span>📝</span> Practice Exercises</h2>
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Try these exercises in your IDE. Mark complete when done.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+          {practiceProblems.map((problem) => {
+            const problemId = `LambdasAdvanced-${problem.id}`
+            const isCompleted = isProblemCompleted(problemId)
+            return (
+              <div key={problem.id} style={{ background: isCompleted ? 'rgba(34, 197, 94, 0.1)' : 'rgba(30, 41, 59, 0.8)', borderRadius: '0.75rem', padding: '1rem', border: `1px solid ${isCompleted ? '#22c55e' : '#334155'}` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+                  <h4 style={{ color: '#e2e8f0', margin: 0, fontSize: '0.95rem' }}>{problem.title}</h4>
+                  <span style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '600', backgroundColor: problem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : problem.difficulty === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: problem.difficulty === 'Easy' ? '#22c55e' : problem.difficulty === 'Medium' ? '#f59e0b' : '#ef4444' }}>{problem.difficulty}</span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.5rem 0', lineHeight: '1.4' }}>{problem.description}</p>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0.5rem 0', fontStyle: 'italic' }}>{problem.example}</p>
+                <div style={{ marginTop: '0.75rem' }}><CompletionCheckbox problemId={problemId} /></div>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
       {/* Concept Cards Grid */}
@@ -1708,9 +1752,7 @@ public class ClosureLifetime {
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              width: '100%',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`
             }}
@@ -1720,6 +1762,7 @@ public class ClosureLifetime {
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
               colors={LAMBDAS_ADV_COLORS}
             />
 

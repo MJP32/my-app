@@ -698,6 +698,7 @@ function Intervals({ onBack, breadcrumb, breadcrumbStack, onBreadcrumbClick, pus
           breadcrumb={problemBreadcrumb}
           breadcrumbStack={problemBreadcrumbStack}
           onBreadcrumbClick={handleProblemBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={breadcrumbColors}
         />
 
@@ -795,6 +796,7 @@ function Intervals({ onBack, breadcrumb, breadcrumbStack, onBreadcrumbClick, pus
         breadcrumb={breadcrumb}
         breadcrumbStack={breadcrumbStack}
         onBreadcrumbClick={onBreadcrumbClick}
+        onMainMenu={breadcrumb?.onMainMenu}
         colors={breadcrumbColors}
       />
 

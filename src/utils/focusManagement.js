@@ -179,45 +179,19 @@ export const FocusManager = {
    * @param {HTMLElement} container - Container to trap focus within
    * @returns {Function} - Cleanup function to remove the trap
    */
-  createFocusTrap: (container) => {
+  createFocusTrap: (_container) => {
     // DISABLED TEMPORARILY - BLOCKING INPUT IN SIGN-IN MODAL
     return () => {};
-
-    if (!container) return () => {};
-
-    const firstElement = FocusManager.getFirstFocusableElement(container);
-    const lastElement = FocusManager.getLastFocusableElement(container);
-
-    // Focus first element initially
-    if (firstElement) {
-      firstElement.focus();
-    }
-
-    const handleKeyDown = (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey) {
-          // Shift + Tab: moving backward
-          if (document.activeElement === firstElement) {
-            e.preventDefault();
-            lastElement?.focus();
-          }
-        } else {
-          // Tab: moving forward
-          if (document.activeElement === lastElement) {
-            e.preventDefault();
-            firstElement?.focus();
-          }
-        }
-      }
-    };
-
-    // Add event listener
-    document.addEventListener('keydown', handleKeyDown);
-
-    // Return cleanup function
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
+     
+    // Keeping this code for future re-enablement
+    // if (!container) return () => {};
+    // const firstElement = FocusManager.getFirstFocusableElement(container);
+    // const lastElement = FocusManager.getLastFocusableElement(container);
+    // if (firstElement) firstElement.focus();
+    // const handleKeyDown = (e) => { ... };
+    // document.addEventListener('keydown', handleKeyDown);
+    // return () => { document.removeEventListener('keydown', handleKeyDown); };
+     
   },
 
   /**

@@ -1,825 +1,1499 @@
-import { useState } from 'react'
+/**
+ * AI-Enabled Technical Interview Tips
+ *
+ * Comprehensive guide to succeeding in AI-enabled technical interviews
+ * Organized into concepts with tabbed details for deep exploration
+ */
+
+import { useState, useEffect } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 
+// =============================================================================
+// COLORS CONFIGURATION
+// =============================================================================
+
+/**
+ * Main AI topic colors - purple theme
+ */
+const AI_COLORS = {
+  primary: '#8b5cf6',
+  primaryHover: '#a78bfa',
+  bg: 'rgba(139, 92, 246, 0.1)',
+  border: 'rgba(139, 92, 246, 0.3)',
+  arrow: '#8b5cf6',
+  hoverBg: 'rgba(139, 92, 246, 0.2)',
+  topicBg: 'rgba(139, 92, 246, 0.2)'
+}
+
+/**
+ * Alternating colors for subtopic detail explanations
+ */
+const SUBTOPIC_COLORS = [
+  { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },    // blue
+  { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' },      // green
+  { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)' },    // amber
+  { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)' },    // purple
+  { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)' },    // pink
+  { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.3)' },      // cyan
+]
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
+
 function AIInterviewTips({ onBack, breadcrumb }) {
-  const [selectedTopic, setSelectedTopic] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
+  // State for modal navigation
+  const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
+  const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
 
-  const toggleSection = (id) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }))
-  }
+  // =============================================================================
+  // CONCEPTS DATA
+  // =============================================================================
 
-  const topics = [
+  const concepts = [
     {
-      id: 1,
+      id: 'understanding-ai-interviews',
       name: 'Understanding AI-Enabled Interviews',
       icon: '🎯',
       color: '#8b5cf6',
-      description: 'What to expect and how AI tools are integrated',
-      content: {
-        explanation: 'AI-enabled technical interviews allow candidates to use AI coding assistants (like GitHub Copilot, Claude, or ChatGPT) during the interview process. This reflects modern development practices where AI tools are part of everyday workflows. The focus shifts from memorization to problem-solving, communication, and effective use of AI as a tool.',
-        keyPoints: [
-          'AI is a tool, not a replacement for your skills - interviewers evaluate how you USE the tool',
-          'You must understand and explain every line of code, whether AI-generated or not',
-          'Communication is MORE important - explain your thought process as you work',
-          'Debugging AI suggestions demonstrates real engineering skills',
-          'Time management matters - know when to use AI vs write code yourself',
-          'Companies test your ability to work WITH AI, not just have AI work for you'
-        ],
-        tips: [
-          { title: 'Before the Interview', items: ['Practice with the specific AI tool allowed', 'Understand the tool\'s strengths and limitations', 'Prepare to explain AI-generated code line by line'] },
-          { title: 'During the Interview', items: ['Think out loud - narrate your problem-solving approach', 'Don\'t blindly accept AI suggestions - review critically', 'Ask clarifying questions before diving into code'] }
-        ]
-      }
+      description: 'What to expect and how AI tools are integrated in modern technical interviews.',
+      details: [
+        {
+          name: 'Overview',
+          explanation: 'AI-enabled technical interviews allow candidates to use AI coding assistants (like GitHub Copilot, Claude, or ChatGPT) during the interview process. This reflects modern development practices where AI tools are part of everyday workflows. The focus shifts from memorization to problem-solving, communication, and effective use of AI as a tool.',
+          keyPoints: [
+            'AI is a tool, not a replacement for your skills - interviewers evaluate how you USE the tool',
+            'You must understand and explain every line of code, whether AI-generated or not',
+            'Communication is MORE important - explain your thought process as you work',
+            'Debugging AI suggestions demonstrates real engineering skills',
+            'Time management matters - know when to use AI vs write code yourself',
+            'Companies test your ability to work WITH AI, not just have AI work for you'
+          ]
+        },
+        {
+          name: 'Key Points to Remember',
+          explanation: 'These fundamental principles will guide your success in AI-enabled interviews. Understanding these concepts is crucial before diving into specific techniques.',
+          keyPoints: [
+            'Think of AI as a junior developer you\'re mentoring - review everything carefully',
+            'Your communication skills become even more critical than in traditional interviews',
+            'Testing and validation are non-negotiable, even for AI-generated code',
+            'Interviewers want to see your problem-solving process, not just the final solution',
+            'Being able to debug and improve AI suggestions shows senior-level thinking',
+            'The goal is human-AI collaboration, not AI replacement'
+          ]
+        },
+        {
+          name: 'Before the Interview',
+          explanation: 'Preparation is key to success. These steps will help you enter the interview with confidence and the right mindset.',
+          keyPoints: [
+            'Practice with the specific AI tool allowed in your interview',
+            'Understand the tool\'s strengths and limitations through hands-on experience',
+            'Prepare to explain AI-generated code line by line without hesitation',
+            'Time yourself solving problems with AI to develop efficient workflows',
+            'Record yourself explaining code to improve your communication',
+            'Study common pitfalls and how to avoid them'
+          ]
+        }
+      ]
     },
     {
-      id: 2,
+      id: 'effective-prompting',
       name: 'Effective Prompting Strategies',
       icon: '💬',
       color: '#10b981',
-      description: 'How to communicate with AI tools for best results',
-      content: {
-        explanation: 'The quality of AI assistance depends heavily on how you communicate with it. Effective prompting is a skill that demonstrates your understanding of the problem and your ability to break down complex requirements. Interviewers observe how you formulate requests and iterate on AI responses.',
-        keyPoints: [
-          'Start with problem context before asking for code',
-          'Break complex problems into smaller, focused prompts',
-          'Specify constraints: language, time/space complexity, edge cases',
-          'Ask for explanations, not just code',
-          'Iterate: refine prompts based on initial responses',
-          'Use AI to validate your approach before implementation'
-        ],
-        examples: [
-          {
-            bad: 'Write a function to solve two sum',
-            good: 'I need to solve Two Sum: given an array of integers and a target, return indices of two numbers that add up to target. Requirements: O(n) time complexity, use a hash map approach, handle edge cases like empty array or no solution. Language: Python.',
-            why: 'The good prompt provides context, constraints, approach hints, and specific requirements'
-          },
-          {
-            bad: 'Fix this bug',
-            good: 'This function should return the longest palindromic substring, but it\'s returning incorrect results for input "babad". Expected: "bab" or "aba". Current output: "b". Here\'s my code: [code]. Can you identify the issue and explain the fix?',
-            why: 'The good prompt includes expected vs actual behavior, specific test case, and asks for explanation'
-          }
-        ]
-      }
+      description: 'How to communicate with AI tools for best results and demonstrate your engineering skills.',
+      details: [
+        {
+          name: 'Prompting Fundamentals',
+          explanation: 'The quality of AI assistance depends heavily on how you communicate with it. Effective prompting is a skill that demonstrates your understanding of the problem and your ability to break down complex requirements. Interviewers observe how you formulate requests and iterate on AI responses.',
+          keyPoints: [
+            'Start with problem context before asking for code',
+            'Break complex problems into smaller, focused prompts',
+            'Specify constraints: language, time/space complexity, edge cases',
+            'Ask for explanations, not just code',
+            'Iterate: refine prompts based on initial responses',
+            'Use AI to validate your approach before implementation'
+          ]
+        },
+        {
+          name: 'Bad vs Good Prompts',
+          explanation: 'Learning from examples helps you craft better prompts. Here are real-world comparisons showing the difference between vague and effective prompting.',
+          codeExample: `// BAD PROMPT:
+"Write a function to solve two sum"
+
+// GOOD PROMPT:
+"I need to solve Two Sum: given an array of integers and a target,
+return indices of two numbers that add up to target.
+
+Requirements:
+- O(n) time complexity
+- Use a hash map approach
+- Handle edge cases: empty array, no solution, negative numbers
+- Language: Python
+- Include comments explaining the approach"
+
+Why good: Provides context, constraints, approach hints, and specific
+requirements. AI can generate much more accurate and complete code.`
+        },
+        {
+          name: 'Iterative Refinement',
+          explanation: 'Rarely will your first prompt give you perfect code. The ability to iterate and refine shows professional development skills.',
+          keyPoints: [
+            'Start with a high-level prompt to get the structure right',
+            'Refine based on what the AI produces - add missing requirements',
+            'Ask follow-up questions about specific parts you\'re unsure about',
+            'Request optimizations or alternative approaches',
+            'Have AI explain its reasoning to verify correctness',
+            'Keep a dialogue going rather than accepting the first response'
+          ]
+        }
+      ]
     },
     {
-      id: 3,
+      id: 'code-review',
       name: 'Code Review & Validation',
       icon: '🔍',
       color: '#f59e0b',
-      description: 'How to critically evaluate AI-generated code',
-      content: {
-        explanation: 'Never blindly trust AI-generated code. Interviewers specifically watch for candidates who can identify issues, suggest improvements, and explain why code works or doesn\'t. This skill separates junior developers from senior engineers.',
-        keyPoints: [
-          'Always trace through the code with a test case before running',
-          'Check edge cases: empty input, single element, duplicates, negative numbers',
-          'Verify time and space complexity matches requirements',
-          'Look for potential bugs: off-by-one errors, null checks, integer overflow',
-          'Consider readability and maintainability improvements',
-          'Ask yourself: "Would I approve this in a code review?"'
-        ],
-        checklist: [
-          { category: 'Correctness', items: ['Does it handle the base case?', 'Does it work for the examples given?', 'What about edge cases?'] },
-          { category: 'Efficiency', items: ['What\'s the time complexity?', 'What\'s the space complexity?', 'Can it be optimized?'] },
-          { category: 'Code Quality', items: ['Are variable names meaningful?', 'Is the logic clear?', 'Are there unnecessary operations?'] },
-          { category: 'Robustness', items: ['Does it handle invalid input?', 'Are there potential runtime errors?', 'Is error handling appropriate?'] }
-        ]
-      }
+      description: 'How to critically evaluate AI-generated code and demonstrate your expertise.',
+      details: [
+        {
+          name: 'Critical Evaluation',
+          explanation: 'Never blindly trust AI-generated code. Interviewers specifically watch for candidates who can identify issues, suggest improvements, and explain why code works or doesn\'t. This skill separates junior developers from senior engineers.',
+          keyPoints: [
+            'Always trace through the code with a test case before running',
+            'Check edge cases: empty input, single element, duplicates, negative numbers',
+            'Verify time and space complexity matches requirements',
+            'Look for potential bugs: off-by-one errors, null checks, integer overflow',
+            'Consider readability and maintainability improvements',
+            'Ask yourself: "Would I approve this in a code review?"'
+          ]
+        },
+        {
+          name: 'Code Review Checklist',
+          explanation: 'Use this systematic approach to review any code, AI-generated or otherwise. This demonstrates professional engineering discipline.',
+          codeExample: `// CORRECTNESS CHECKLIST
+☐ Does it handle the base case?
+☐ Does it work for the examples given?
+☐ What about edge cases (empty, null, single element)?
+☐ Are boundary conditions handled correctly?
+
+// EFFICIENCY CHECKLIST
+☐ What's the time complexity? Does it meet requirements?
+☐ What's the space complexity? Can it be optimized?
+☐ Are there redundant operations?
+☐ Could a better data structure improve performance?
+
+// CODE QUALITY CHECKLIST
+☐ Are variable names meaningful and descriptive?
+☐ Is the logic clear and easy to follow?
+☐ Are there unnecessary operations or duplications?
+☐ Does it follow language conventions?
+
+// ROBUSTNESS CHECKLIST
+☐ Does it handle invalid input gracefully?
+☐ Are there potential runtime errors (division by zero, null pointer)?
+☐ Is error handling appropriate?
+☐ Are there security considerations?`
+        },
+        {
+          name: 'Tracing Through Code',
+          explanation: 'Manually tracing execution with test cases is crucial for understanding and validating code. This demonstrates deep understanding.',
+          codeExample: `// Example: Trace through Two Sum solution
+def two_sum(nums, target):
+    seen = {}
+    for i, num in enumerate(nums):
+        complement = target - num
+        if complement in seen:
+            return [seen[complement], i]
+        seen[num] = i
+    return []
+
+# Trace with nums = [2, 7, 11, 15], target = 9
+# i=0, num=2, complement=7, seen={}, seen[2]=0
+# i=1, num=7, complement=2, 2 in seen! return [0, 1] ✓
+
+# Trace with edge case: nums = [], target = 0
+# Loop never executes, return [] ✓
+
+# Always trace with:
+# 1. The given example
+# 2. An edge case
+# 3. A case where the algorithm might fail`
+        }
+      ]
     },
     {
-      id: 4,
+      id: 'debugging-with-ai',
       name: 'Debugging with AI',
       icon: '🐛',
       color: '#ef4444',
-      description: 'Using AI to identify and fix issues effectively',
-      content: {
-        explanation: 'Debugging is where your engineering skills truly shine. Using AI to help debug shows sophistication - you\'re leveraging all available tools. The key is to provide context, isolate the problem, and understand the fix rather than just applying it.',
-        keyPoints: [
-          'Describe the expected behavior vs actual behavior clearly',
-          'Provide the specific input that causes the issue',
-          'Share relevant error messages or stack traces',
-          'Explain what you\'ve already tried',
-          'Ask for explanation of WHY the bug occurs, not just the fix',
-          'Verify the fix doesn\'t introduce new issues'
-        ],
-        approach: [
-          { step: 1, title: 'Reproduce', description: 'Identify a specific test case that fails consistently' },
-          { step: 2, title: 'Isolate', description: 'Narrow down which part of the code causes the issue' },
-          { step: 3, title: 'Hypothesize', description: 'Form a theory about what\'s wrong before asking AI' },
-          { step: 4, title: 'Query AI', description: 'Share your hypothesis and ask for validation or alternatives' },
-          { step: 5, title: 'Understand', description: 'Make sure you understand the root cause, not just the fix' },
-          { step: 6, title: 'Verify', description: 'Test the fix and check for regression issues' }
-        ]
-      }
+      description: 'Using AI to identify and fix issues effectively while demonstrating problem-solving skills.',
+      details: [
+        {
+          name: 'Effective Debugging Approach',
+          explanation: 'Debugging is where your engineering skills truly shine. Using AI to help debug shows sophistication - you\'re leveraging all available tools. The key is to provide context, isolate the problem, and understand the fix rather than just applying it.',
+          keyPoints: [
+            'Describe the expected behavior vs actual behavior clearly',
+            'Provide the specific input that causes the issue',
+            'Share relevant error messages or stack traces',
+            'Explain what you\'ve already tried',
+            'Ask for explanation of WHY the bug occurs, not just the fix',
+            'Verify the fix doesn\'t introduce new issues'
+          ]
+        },
+        {
+          name: 'Six-Step Debugging Process',
+          explanation: 'Follow this systematic approach to debugging. This demonstrates professional problem-solving methodology.',
+          codeExample: `// STEP 1: REPRODUCE
+# Find a specific test case that fails consistently
+Input: [1, 2, 3], Expected: [1, 3], Actual: [1, 2]
+
+// STEP 2: ISOLATE
+# Narrow down which part causes the issue
+# Add debug prints or use debugger
+
+// STEP 3: HYPOTHESIZE
+# Form a theory BEFORE asking AI
+# "I think the issue is in the filtering logic..."
+
+// STEP 4: QUERY AI
+# Share your hypothesis with context
+"This function should filter even numbers but it's
+filtering odd numbers instead. I think the condition
+is inverted. Here's my code: [code]. Can you verify?"
+
+// STEP 5: UNDERSTAND
+# Don't just apply the fix - understand WHY
+"The condition 'num % 2 == 0' checks for even numbers,
+but I want odd numbers, so I need 'num % 2 != 0'"
+
+// STEP 6: VERIFY
+# Test the fix with multiple cases
+# Check for regression issues`
+        },
+        {
+          name: 'Communicating Debug Process',
+          explanation: 'How you communicate during debugging is as important as finding the fix. Verbalize your thought process.',
+          keyPoints: [
+            'Explain what you observe: "The output is X but I expected Y"',
+            'Share your hypothesis: "I think the issue might be..."',
+            'Describe your debugging strategy: "Let me add a print statement to check..."',
+            'Narrate as you ask AI: "I\'m going to ask the AI to help verify my hypothesis"',
+            'Explain the root cause once found: "The bug was caused by..."',
+            'Verify the fix: "Let me test this with a few more cases to ensure it\'s correct"'
+          ]
+        }
+      ]
     },
     {
-      id: 5,
+      id: 'communication',
       name: 'Communication During Interview',
       icon: '🗣️',
       color: '#3b82f6',
-      description: 'How to narrate your thought process effectively',
-      content: {
-        explanation: 'In AI-enabled interviews, communication becomes even more critical. Interviewers can\'t see your thought process when you\'re typing prompts, so you must verbalize everything. This demonstrates your problem-solving approach and engineering judgment.',
-        keyPoints: [
-          'Explain the problem in your own words before starting',
-          'Discuss your approach and why you chose it',
-          'Verbalize what you\'re asking the AI and why',
-          'Explain AI suggestions before accepting or modifying them',
-          'Discuss trade-offs and alternative approaches',
-          'Ask the interviewer questions - it shows engagement'
-        ],
-        scripts: [
-          {
-            situation: 'Starting a problem',
-            say: '"Let me make sure I understand the problem correctly. We need to [restate problem]. The key constraints are [list constraints]. I\'m thinking of approaching this with [algorithm/data structure] because [reasoning]. Does that sound right before I start?"'
-          },
-          {
-            situation: 'Using AI assistance',
-            say: '"I\'m going to ask the AI to help with [specific task]. I want to use [approach] because [reasoning]. Let me formulate a prompt that includes [constraints/requirements]..."'
-          },
-          {
-            situation: 'Reviewing AI output',
-            say: '"Let me trace through this code with our example input. Starting with [input], we first [step through logic]. I notice [observation]. This looks correct/I see a potential issue with [concern]..."'
-          },
-          {
-            situation: 'Debugging',
-            say: '"The test case [input] is failing. Expected [expected] but got [actual]. Let me add some debug output to trace where it goes wrong... I think the issue might be [hypothesis]. Let me ask the AI to help verify this..."'
-          }
-        ]
-      }
+      description: 'How to narrate your thought process effectively and demonstrate problem-solving abilities.',
+      details: [
+        {
+          name: 'Why Communication Matters',
+          explanation: 'In AI-enabled interviews, communication becomes even more critical. Interviewers can\'t see your thought process when you\'re typing prompts, so you must verbalize everything. This demonstrates your problem-solving approach and engineering judgment.',
+          keyPoints: [
+            'Explain the problem in your own words before starting',
+            'Discuss your approach and why you chose it',
+            'Verbalize what you\'re asking the AI and why',
+            'Explain AI suggestions before accepting or modifying them',
+            'Discuss trade-offs and alternative approaches',
+            'Ask the interviewer questions - it shows engagement'
+          ]
+        },
+        {
+          name: 'Starting a Problem',
+          explanation: 'How you begin sets the tone. Show you understand the problem before jumping to code.',
+          codeExample: `// WHAT TO SAY:
+"Let me make sure I understand the problem correctly. We need to
+[restate problem in your own words].
+
+The key constraints are:
+- [List constraint 1]
+- [List constraint 2]
+- [List constraint 3]
+
+I'm thinking of approaching this with [algorithm/data structure]
+because [reasoning about why this approach fits].
+
+For example, if the input is [example], we'd expect [output]
+because [explanation].
+
+Does that sound right before I start?"
+
+// WHY THIS WORKS:
+- Shows you understand the problem
+- Demonstrates analytical thinking
+- Catches misunderstandings early
+- Gets interviewer buy-in before coding`
+        },
+        {
+          name: 'Using AI Assistance',
+          explanation: 'Narrate your AI interactions to make your thought process visible.',
+          codeExample: `// WHAT TO SAY:
+"I'm going to ask the AI to help with [specific task].
+
+I want to use [approach] because [reasoning].
+
+Let me formulate a prompt that includes:
+- The problem context
+- The constraints we discussed
+- The approach I want to take
+- Edge cases to handle
+
+[Type and read prompt aloud]
+
+Now let me review what the AI suggested..."
+
+// WHEN REVIEWING AI OUTPUT:
+"Let me trace through this code with our example input.
+
+Starting with [input], we first [step through logic].
+
+I notice [observation].
+
+This looks correct/I see a potential issue with [concern]..."
+
+// WHY THIS WORKS:
+- Shows strategic thinking
+- Demonstrates you're driving, not passenger
+- Makes your evaluation process visible`
+        },
+        {
+          name: 'Debugging Communication',
+          explanation: 'How to verbalize the debugging process effectively.',
+          codeExample: `// WHAT TO SAY WHEN DEBUGGING:
+"The test case [input] is failing.
+
+Expected [expected output] but got [actual output].
+
+Let me add some debug output to trace where it goes wrong...
+
+[Add prints and run]
+
+Interesting - I can see that [observation from debug output].
+
+I think the issue might be [hypothesis].
+
+Let me ask the AI to help verify this...
+
+[Formulate debugging prompt]
+
+Ah yes, the AI confirms that [explanation].
+
+The bug was caused by [root cause].
+
+Let me fix this and verify with our test cases..."
+
+// WHY THIS WORKS:
+- Shows systematic debugging approach
+- Demonstrates hypothesis-driven debugging
+- Makes your reasoning transparent
+- Shows you understand the fix, not just apply it`
+        }
+      ]
     },
     {
-      id: 6,
+      id: 'time-management',
       name: 'Time Management',
       icon: '⏱️',
       color: '#06b6d4',
-      description: 'When to use AI vs write code yourself',
-      content: {
-        explanation: 'AI can save time, but it can also waste time if used incorrectly. Knowing when to use AI assistance versus writing code yourself is a crucial skill. For simple operations, typing may be faster than prompting.',
-        keyPoints: [
-          'Use AI for: boilerplate code, syntax reminders, complex algorithms you understand conceptually',
-          'Write yourself: simple operations, code you can type faster than explain, modifications to existing code',
-          'Set time limits: if AI isn\'t helping after 2-3 attempts, try a different approach',
-          'Don\'t over-optimize prompts - sometimes it\'s faster to write the code',
-          'Use AI for validation: "Does this approach handle [edge case]?"',
-          'Budget time for code review - AI code still needs verification'
-        ],
-        timeAllocation: [
-          { phase: 'Problem Understanding', time: '10-15%', description: 'Read, ask questions, restate the problem' },
-          { phase: 'Approach Discussion', time: '10-15%', description: 'Discuss algorithm, data structures, trade-offs' },
-          { phase: 'Implementation', time: '40-50%', description: 'Writing code with or without AI assistance' },
-          { phase: 'Testing & Debugging', time: '20-25%', description: 'Verify correctness, handle edge cases' },
-          { phase: 'Optimization & Discussion', time: '5-10%', description: 'Discuss improvements, complexity analysis' }
-        ]
-      }
+      description: 'When to use AI vs write code yourself, and how to allocate your interview time.',
+      details: [
+        {
+          name: 'Strategic AI Usage',
+          explanation: 'AI can save time, but it can also waste time if used incorrectly. Knowing when to use AI assistance versus writing code yourself is a crucial skill. For simple operations, typing may be faster than prompting.',
+          keyPoints: [
+            'Use AI for: boilerplate code, syntax reminders, complex algorithms you understand conceptually',
+            'Write yourself: simple operations, code you can type faster than explain, modifications to existing code',
+            'Set time limits: if AI isn\'t helping after 2-3 attempts, try a different approach',
+            'Don\'t over-optimize prompts - sometimes it\'s faster to write the code',
+            'Use AI for validation: "Does this approach handle [edge case]?"',
+            'Budget time for code review - AI code still needs verification'
+          ]
+        },
+        {
+          name: 'Time Allocation Guide',
+          explanation: 'How to budget your time during a typical 45-60 minute coding interview.',
+          codeExample: `// RECOMMENDED TIME ALLOCATION
+
+Phase 1: Problem Understanding (10-15%)
+- Read the problem carefully
+- Ask clarifying questions
+- Restate the problem
+- Discuss examples and edge cases
+Time: 5-8 minutes
+
+Phase 2: Approach Discussion (10-15%)
+- Discuss algorithm options
+- Choose data structures
+- Explain trade-offs
+- Get interviewer agreement
+Time: 5-8 minutes
+
+Phase 3: Implementation (40-50%)
+- Write code (with or without AI)
+- Explain as you go
+- Handle syntax and logic
+Time: 20-25 minutes
+
+Phase 4: Testing & Debugging (20-25%)
+- Run through test cases
+- Find and fix bugs
+- Verify edge cases
+Time: 10-12 minutes
+
+Phase 5: Optimization & Discussion (5-10%)
+- Analyze complexity
+- Discuss improvements
+- Answer follow-ups
+Time: 3-5 minutes
+
+IMPORTANT: These are guidelines. Adapt based on problem
+complexity and how the interview is progressing.`
+        },
+        {
+          name: 'When AI Slows You Down',
+          explanation: 'Recognize these situations where writing code yourself is faster than using AI.',
+          keyPoints: [
+            'Simple variable declarations or basic loops',
+            'Code you\'ve written hundreds of times before',
+            'Small modifications to existing code',
+            'When the prompt would be longer than the code itself',
+            'When you\'re already in the flow of typing',
+            'Quick fixes or one-line changes'
+          ],
+          codeExample: `// FASTER TO WRITE YOURSELF:
+
+// Simple loop
+for (int i = 0; i < n; i++) {
+    sum += arr[i];
+}
+
+// Basic initialization
+Map<String, Integer> map = new HashMap<>();
+
+// Simple condition
+if (s == null || s.isEmpty()) {
+    return "";
+}
+
+// GOOD USE OF AI:
+
+// Complex algorithm you understand conceptually
+"Implement a trie data structure with insert and
+search methods, including prefix matching"
+
+// Boilerplate with specific requirements
+"Create a binary tree node class with left, right,
+and parent pointers, plus utility methods for
+finding depth and checking if balanced"
+
+KEY INSIGHT: If explaining the code to AI takes longer
+than typing it, just type it yourself.`
+        }
+      ]
     },
     {
-      id: 7,
+      id: 'common-pitfalls',
       name: 'Common Pitfalls to Avoid',
       icon: '⚠️',
       color: '#dc2626',
-      description: 'Mistakes that hurt your interview performance',
-      content: {
-        explanation: 'Understanding common mistakes helps you avoid them. These pitfalls are especially noticeable in AI-enabled interviews and can significantly impact your evaluation.',
-        keyPoints: [
-          'Don\'t be silent while working - always communicate',
-          'Don\'t accept AI code without understanding it',
-          'Don\'t skip testing because "AI wrote it"',
-          'Don\'t argue with the AI - iterate or try a different approach',
-          'Don\'t forget to handle edge cases',
-          'Don\'t panic if AI gives wrong answers - debugging is part of the test'
-        ],
-        pitfalls: [
-          {
-            mistake: 'Copy-pasting without understanding',
-            consequence: 'When asked to explain, you\'ll stumble and lose credibility',
-            solution: 'Trace through every line. Ask AI to explain if needed, but make sure YOU understand before presenting'
-          },
-          {
-            mistake: 'Over-relying on AI for simple tasks',
-            consequence: 'Wastes time and looks like you lack basic skills',
-            solution: 'Write simple code yourself. Use AI for complex logic or when genuinely stuck'
-          },
-          {
-            mistake: 'Not testing AI-generated code',
-            consequence: 'AI code often has subtle bugs that you\'ll be blamed for',
-            solution: 'Always run through test cases manually before declaring "done"'
-          },
-          {
-            mistake: 'Giving up when AI can\'t solve it',
-            consequence: 'Shows you can only work with AI, not independently',
-            solution: 'Use AI for hints, but be prepared to solve problems yourself'
-          },
-          {
-            mistake: 'Not asking clarifying questions',
-            consequence: 'You might solve the wrong problem or miss important constraints',
-            solution: 'Always confirm understanding before coding, with or without AI'
-          }
-        ]
-      }
+      description: 'Mistakes that hurt your interview performance and how to avoid them.',
+      details: [
+        {
+          name: 'Silent Working',
+          explanation: 'Going silent while typing or thinking is one of the biggest mistakes in technical interviews.',
+          problem: 'Copy-pasting AI code without understanding it',
+          consequence: 'When asked to explain, you\'ll stumble and lose credibility. Interviewers immediately notice when you don\'t understand your own code.',
+          solution: 'Trace through every line. Ask AI to explain if needed, but make sure YOU understand before presenting. Be prepared to modify or debug it.',
+          codeExample: `// BAD: Silent acceptance
+[Paste AI code]
+"Okay, I think this works."
+
+// GOOD: Thoughtful review
+[Review AI code]
+"Let me trace through this. Starting with input [x]...
+First, we initialize [y] to handle [case].
+Then we iterate and check [condition].
+This handles our edge case of [z] by [logic].
+The time complexity is O(n) because [reason].
+Let me test it with our examples..."`
+        },
+        {
+          name: 'Over-Reliance on AI',
+          explanation: 'Using AI for everything, even trivial tasks, signals lack of basic skills.',
+          problem: 'Using AI for simple operations like basic loops or conditionals',
+          consequence: 'Wastes time and looks like you lack basic skills. Interviewers wonder if you can code without AI.',
+          solution: 'Write simple code yourself. Use AI for complex logic or when genuinely stuck. Show you can code independently.',
+          codeExample: `// BAD: Asking AI for basics
+"Write a for loop that iterates from 0 to n"
+[Wait for response]
+[Copy code]
+
+// GOOD: Basic coding + Strategic AI use
+// Write basic structure yourself
+int maxProfit = 0;
+for (int i = 0; i < prices.length - 1; i++) {
+    // Use AI for complex algorithmic logic
+    "Help me implement the optimal strategy for
+    stock trading with at most k transactions..."
+}
+
+KEY INSIGHT: Demonstrate you CAN code. Use AI as a force
+multiplier, not a replacement for fundamental skills.`
+        },
+        {
+          name: 'Not Testing AI Code',
+          explanation: 'Assuming AI-generated code is correct without verification.',
+          problem: 'Submitting AI code without running through test cases',
+          consequence: 'AI code often has subtle bugs. You\'ll be blamed for not catching them. Shows poor engineering discipline.',
+          solution: 'Always run through test cases manually before declaring "done". Trace execution. Check edge cases.',
+          keyPoints: [
+            'Run the given examples step by step',
+            'Test edge cases: empty input, single element, maximum size',
+            'Look for off-by-one errors in loops and conditionals',
+            'Verify null/undefined checks',
+            'Check for integer overflow in mathematical operations',
+            'Ensure the algorithm handles all specified constraints'
+          ]
+        },
+        {
+          name: 'Giving Up When AI Fails',
+          explanation: 'Becoming helpless when AI doesn\'t provide the right solution.',
+          problem: 'Stopping when AI can\'t solve the problem or gives wrong answers',
+          consequence: 'Shows you can only work with AI, not independently. This is a major red flag for interviewers.',
+          solution: 'Use AI for hints, but be prepared to solve problems yourself. Treat AI like Stack Overflow - helpful but not infallible.',
+          codeExample: `// BAD: Giving up
+"The AI isn't giving me the right answer...
+I'm not sure what to do."
+
+// GOOD: Independent problem-solving
+"The AI suggestion isn't quite right - it's not
+handling [specific case].
+
+Let me think through this myself...
+
+[Draw on whiteboard/paper]
+
+The issue is [analysis]. I need to [approach].
+
+Let me modify the AI's code to fix [specific issue]...
+
+Or maybe I should try a different approach entirely.
+What if we [alternative idea]?"
+
+MINDSET: AI is a tool, not a crutch. Show you can
+think independently and debug/improve AI output.`
+        },
+        {
+          name: 'Skipping Clarifying Questions',
+          explanation: 'Diving into code without fully understanding the requirements.',
+          problem: 'Not asking clarifying questions before starting to code',
+          consequence: 'You might solve the wrong problem or miss important constraints. Time wasted, trust lost.',
+          solution: 'Always confirm understanding before coding, with or without AI. Ask about edge cases, constraints, and expected behavior.',
+          keyPoints: [
+            'Ask about input constraints: size limits, value ranges, data types',
+            'Clarify expected output format and edge case behavior',
+            'Confirm time/space complexity requirements',
+            'Discuss what should happen with invalid inputs',
+            'Verify your understanding with example walk-throughs',
+            'Better to ask "dumb" questions than solve the wrong problem'
+          ]
+        }
+      ]
     },
     {
-      id: 8,
+      id: 'practice-exercises',
       name: 'Practice Exercises',
       icon: '💪',
       color: '#22c55e',
-      description: 'How to prepare for AI-enabled interviews',
-      content: {
-        explanation: 'Practicing with AI tools before your interview is essential. You need to develop muscle memory for the workflow and understand the tool\'s capabilities and limitations.',
-        keyPoints: [
-          'Practice with the specific tool allowed in your interview',
-          'Time yourself solving LeetCode problems with AI assistance',
-          'Record yourself and review your communication',
-          'Practice explaining AI-generated code to a friend',
-          'Deliberately introduce bugs and practice debugging with AI',
-          'Try problems of varying difficulty to understand when AI helps most'
-        ],
-        exercises: [
-          {
-            title: 'Exercise 1: Prompt Iteration',
-            description: 'Take a medium LeetCode problem. Start with a vague prompt, then iteratively refine it. Track how many iterations it takes to get working code. Goal: 3 or fewer iterations.'
-          },
-          {
-            title: 'Exercise 2: Code Explanation',
-            description: 'Have AI generate a solution, then explain every line to a rubber duck or friend. If you can\'t explain something, that\'s a red flag.'
-          },
-          {
-            title: 'Exercise 3: Bug Hunt',
-            description: 'Take a working solution, introduce 3 subtle bugs, then use AI to help find and fix them. Practice your debugging dialogue.'
-          },
-          {
-            title: 'Exercise 4: Speed Comparison',
-            description: 'Solve the same problem with and without AI. Understand when AI saves time vs when it\'s overhead.'
-          },
-          {
-            title: 'Exercise 5: Mock Interview',
-            description: 'Have a friend give you a problem while screen-sharing. Practice the full flow: clarification, approach, implementation with AI, testing, and discussion.'
-          }
-        ]
-      }
+      description: 'How to prepare for AI-enabled interviews with hands-on practice.',
+      details: [
+        {
+          name: 'Why Practice is Essential',
+          explanation: 'Practicing with AI tools before your interview is essential. You need to develop muscle memory for the workflow and understand the tool\'s capabilities and limitations. Just like learning a new IDE, proficiency comes with practice.',
+          keyPoints: [
+            'Practice with the specific tool allowed in your interview',
+            'Time yourself solving LeetCode problems with AI assistance',
+            'Record yourself and review your communication',
+            'Practice explaining AI-generated code to a friend',
+            'Deliberately introduce bugs and practice debugging with AI',
+            'Try problems of varying difficulty to understand when AI helps most'
+          ]
+        },
+        {
+          name: 'Exercise 1: Prompt Iteration',
+          explanation: 'Learn to refine your prompts efficiently through practice.',
+          codeExample: `GOAL: Get working code in 3 or fewer prompt iterations
+
+1. Choose a Medium LeetCode problem
+2. Start with a vague prompt (intentionally)
+3. Iteratively refine based on AI response
+4. Track number of iterations needed
+
+Example progression:
+
+ITERATION 1 (Vague):
+"Write code to find longest substring"
+→ AI gives generic code, missing constraints
+
+ITERATION 2 (Adding constraints):
+"Find longest substring without repeating characters.
+Input: string. Output: integer length. Handle empty string."
+→ Better, but may not be optimal approach
+
+ITERATION 3 (Specifying approach):
+"Find longest substring without repeating characters using
+sliding window technique. Track characters in HashSet.
+Move left pointer when duplicate found. Update max length."
+→ Should get correct, optimal solution
+
+LESSON: Learn to front-load context and constraints.
+Practice until you can get it right in 1-2 iterations.`
+        },
+        {
+          name: 'Exercise 2: Code Explanation',
+          explanation: 'Ensure you can explain every line of AI-generated code.',
+          codeExample: `GOAL: Explain AI code so clearly that someone else could
+implement it from your explanation alone.
+
+1. Have AI generate a solution to a problem
+2. Explain every line out loud (or to a friend)
+3. If you can't explain something, that's a red flag
+
+EXPLANATION TEMPLATE:
+
+"This function [purpose].
+
+First, we initialize [variables] to [reason].
+
+Then we [main loop/logic] because [why this works].
+
+In each iteration, we [step] which handles [case].
+
+The key insight is [algorithmic idea].
+
+We return [result] which represents [meaning].
+
+The time complexity is [X] because [reasoning].
+The space complexity is [Y] because [reasoning]."
+
+RED FLAGS (indicating you don't understand):
+- "I'm not sure why we need this variable"
+- "The AI just added this line"
+- "I think this handles some edge case?"
+- "It works but I'm not sure how"
+
+If you can't explain it, DON'T USE IT.`
+        },
+        {
+          name: 'Exercise 3: Bug Hunt',
+          explanation: 'Practice debugging AI code to identify and fix issues.',
+          codeExample: `GOAL: Develop systematic debugging skills with AI assistance.
+
+1. Take a working solution (yours or AI-generated)
+2. Introduce 3 subtle bugs:
+   - Off-by-one error
+   - Missing edge case check
+   - Logic error in a condition
+3. Use AI to help find and fix them
+4. Practice your debugging dialogue
+
+EXAMPLE BUGS TO INTRODUCE:
+
+BUG 1: Off-by-one
+for (int i = 0; i <= arr.length; i++)  // Should be <
+
+BUG 2: Missing null check
+if (s.isEmpty()) return "";  // Should check null first
+
+BUG 3: Wrong condition
+if (num % 2 == 0)  // Should be != for odd numbers
+
+DEBUGGING DIALOGUE PRACTICE:
+"I'm getting an ArrayIndexOutOfBoundsException.
+Let me check the loop bounds... Ah, I see,
+I'm using <= when I should use <."
+
+LESSON: Learn to spot common bug patterns and
+articulate debugging reasoning clearly.`
+        },
+        {
+          name: 'Exercise 4: Speed Comparison',
+          explanation: 'Understand when AI helps and when it adds overhead.',
+          codeExample: `GOAL: Develop intuition for when to use AI vs code yourself.
+
+For 5 different problems:
+1. Solve it completely yourself (time it)
+2. Solve it again with full AI assistance (time it)
+3. Compare times and note when AI helped/hurt
+
+PROBLEMS TO TRY:
+1. Easy: Two Sum
+2. Easy: Reverse String
+3. Medium: LRU Cache
+4. Medium: Course Schedule
+5. Hard: Serialize Binary Tree
+
+TYPICAL FINDINGS:
+- AI helps most with:
+  * Complex algorithms (LRU Cache, Graph problems)
+  * Boilerplate-heavy code
+  * Syntax in unfamiliar languages
+
+- AI adds overhead for:
+  * Simple problems you know well
+  * Quick modifications
+  * Basic data structure operations
+
+LESSON: Build intuition for AI's ROI on different
+problem types. Use it strategically, not universally.`
+        },
+        {
+          name: 'Exercise 5: Mock Interview',
+          explanation: 'Practice the full interview workflow with a partner.',
+          codeExample: `GOAL: Simulate real interview conditions with AI tools.
+
+SETUP:
+1. Find a partner to act as interviewer
+2. Use screen sharing (just like real interviews)
+3. Allow AI tool usage
+4. Set 45-minute time limit
+5. Record the session
+
+INTERVIEW FLOW:
+1. Interviewer presents problem (5 min)
+2. You ask clarifying questions (3 min)
+3. Discuss approach (5 min)
+4. Implement with AI assistance (20 min)
+5. Test and debug (7 min)
+6. Discuss optimizations (5 min)
+
+WHAT TO PRACTICE:
+✓ Think-aloud narration
+✓ Explaining AI prompts
+✓ Reviewing AI code critically
+✓ Debugging out loud
+✓ Time management
+
+REVIEW TOGETHER:
+- Communication clarity
+- Problem-solving approach
+- AI usage strategy
+- Code quality
+- Time management
+
+LESSON: This is the most valuable practice. Do 5-10
+of these before your real interview.`
+        }
+      ]
     },
     {
-      id: 9,
+      id: 'resources',
       name: 'Resources & Practice Platforms',
       icon: '🔗',
       color: '#0891b2',
-      description: 'Websites and tools to practice AI-enabled interviews',
-      content: {
-        explanation: 'Practice is essential for mastering AI-enabled interviews. These platforms and resources will help you develop your skills with AI coding assistants, practice technical problems, and prepare for the unique challenges of modern technical interviews.',
-        keyPoints: [
-          'Practice with the same AI tools you\'ll use in interviews',
-          'Use coding platforms that allow AI assistance to simulate real conditions',
-          'Study how others effectively use AI for coding tasks',
-          'Stay updated on AI coding assistant features and best practices',
-          'Join communities discussing AI-assisted development',
-          'Record yourself practicing to review your communication style'
-        ],
-        resources: [
-          {
-            category: 'AI Coding Assistants to Practice With',
-            icon: '🤖',
-            items: [
-              { name: 'GitHub Copilot', url: 'https://github.com/features/copilot', description: 'Most widely used AI pair programmer. Integrates with VS Code, JetBrains, and more. Free for students and open source maintainers.' },
-              { name: 'Claude (Anthropic)', url: 'https://claude.ai', description: 'Excellent for explaining code, debugging, and complex problem-solving. Great at following nuanced instructions.' },
-              { name: 'ChatGPT', url: 'https://chat.openai.com', description: 'Versatile AI assistant for coding. GPT-4 excels at code generation and explanation.' },
-              { name: 'Cursor IDE', url: 'https://cursor.sh', description: 'AI-first code editor with built-in AI assistance. Great for practicing AI-integrated development workflows.' },
-              { name: 'Amazon CodeWhisperer', url: 'https://aws.amazon.com/codewhisperer', description: 'Free AI coding companion from AWS. Good for practicing with an alternative to Copilot.' },
-              { name: 'Codeium', url: 'https://codeium.com', description: 'Free AI code completion tool. Supports 70+ languages and integrates with popular IDEs.' }
-            ]
-          },
-          {
-            category: 'Coding Practice Platforms',
-            icon: '💻',
-            items: [
-              { name: 'LeetCode', url: 'https://leetcode.com', description: 'Gold standard for technical interview prep. Practice problems while using AI assistance to simulate interview conditions.' },
-              { name: 'HackerRank', url: 'https://hackerrank.com', description: 'Coding challenges and interview prep. Some companies use HackerRank for AI-enabled assessments.' },
-              { name: 'CodeSignal', url: 'https://codesignal.com', description: 'Technical assessment platform used by many companies. Practice their format with AI tools.' },
-              { name: 'AlgoExpert', url: 'https://algoexpert.io', description: 'Curated coding interview questions with video explanations. Practice explaining AI-generated solutions.' },
-              { name: 'NeetCode', url: 'https://neetcode.io', description: 'Organized roadmap of LeetCode problems. Free video explanations help you understand solutions.' },
-              { name: 'Exercism', url: 'https://exercism.org', description: 'Free coding practice with mentorship. Great for learning to explain code - practice with AI then explain to mentors.' }
-            ]
-          },
-          {
-            category: 'AI-Specific Interview Prep',
-            icon: '🎯',
-            items: [
-              { name: 'Interviewing.io', url: 'https://interviewing.io', description: 'Anonymous mock interviews with engineers from top companies. Some allow AI tools - great realistic practice.' },
-              { name: 'Pramp', url: 'https://pramp.com', description: 'Free peer-to-peer mock interviews. Practice using AI while explaining to another person.' },
-              { name: 'Coderbyte', url: 'https://coderbyte.com', description: 'Interview prep with AI assistance features. Good for practicing timed challenges with AI.' },
-              { name: 'Interview Cake', url: 'https://interviewcake.com', description: 'Step-by-step interview prep. Use alongside AI to compare your approach with optimal solutions.' }
-            ]
-          },
-          {
-            category: 'Learning Resources',
-            icon: '📚',
-            items: [
-              { name: 'Prompt Engineering Guide', url: 'https://www.promptingguide.ai', description: 'Comprehensive guide to prompting techniques. Essential for effective AI communication.' },
-              { name: 'Learn Prompting', url: 'https://learnprompting.org', description: 'Free course on prompt engineering. Includes coding-specific prompting strategies.' },
-              { name: 'GitHub Copilot Docs', url: 'https://docs.github.com/en/copilot', description: 'Official documentation with tips for getting the best results from Copilot.' },
-              { name: 'DeepLearning.AI Short Courses', url: 'https://www.deeplearning.ai/short-courses', description: 'Free courses including "ChatGPT Prompt Engineering for Developers" - highly relevant.' }
-            ]
-          },
-          {
-            category: 'Communities & Discussion',
-            icon: '👥',
-            items: [
-              { name: 'r/cscareerquestions', url: 'https://reddit.com/r/cscareerquestions', description: 'Active discussions about interviews including AI-enabled formats. Search for recent experiences.' },
-              { name: 'Blind', url: 'https://teamblind.com', description: 'Anonymous professional network. Search for company-specific AI interview experiences.' },
-              { name: 'Discord: CS Career Hub', url: 'https://discord.gg/cscareers', description: 'Active community for interview prep. Channels dedicated to AI tools in interviews.' },
-              { name: 'Hacker News', url: 'https://news.ycombinator.com', description: 'Tech community discussions. Search for "AI interview" for relevant threads and experiences.' }
-            ]
-          },
-          {
-            category: 'YouTube Channels',
-            icon: '🎥',
-            items: [
-              { name: 'NeetCode', url: 'https://youtube.com/@NeetCode', description: 'Excellent algorithm explanations. Watch to understand optimal approaches, then practice implementing with AI.' },
-              { name: 'TechLead', url: 'https://youtube.com/@TechLead', description: 'Ex-Google/Facebook engineer. Videos on interview strategies and industry insights.' },
-              { name: 'Fireship', url: 'https://youtube.com/@Fireship', description: 'Quick, informative videos on AI tools and coding. Great for staying current on AI developments.' },
-              { name: 'ThePrimeagen', url: 'https://youtube.com/@ThePrimeagen', description: 'Netflix engineer with opinions on AI coding tools. Good perspective on when AI helps vs hurts.' }
-            ]
-          },
-          {
-            category: 'Mock Interview Services',
-            icon: '🎤',
-            items: [
-              { name: 'Exponent', url: 'https://tryexponent.com', description: 'PM and engineering interview prep. Mock interviews with feedback - ask about AI-enabled practice.' },
-              { name: 'Prepfully', url: 'https://prepfully.com', description: 'Mock interviews with professionals. Can request AI-enabled interview practice.' },
-              { name: 'IGotAnOffer', url: 'https://igotanoffer.com', description: 'Tech interview coaching. Ask coaches about AI-enabled interview strategies.' }
-            ]
-          }
-        ]
-      }
+      description: 'Websites, tools, and communities to practice AI-enabled interviews.',
+      details: [
+        {
+          name: 'AI Coding Assistants',
+          explanation: 'These are the tools you should practice with. Different companies allow different tools, so familiarize yourself with multiple options.',
+          codeExample: `// MOST COMMON TOOLS IN INTERVIEWS:
+
+1. GitHub Copilot
+   - Most widely used in industry
+   - Inline suggestions as you type
+   - Good for boilerplate and common patterns
+   - Practice: Install in VS Code, solve 20 LeetCode problems
+
+2. ChatGPT / Claude
+   - Excellent for explanations and debugging
+   - More conversational, better for complex reasoning
+   - Can handle nuanced instructions
+   - Practice: Use for code review and debugging help
+
+3. Cursor IDE
+   - AI-first editor with built-in assistance
+   - Great for learning AI-integrated workflows
+   - Practice: Use as your daily driver for a week
+
+4. Amazon CodeWhisperer
+   - Free alternative to Copilot
+   - Some companies use this specifically
+   - Practice: Try if your interview uses AWS tools
+
+LINKS:
+- GitHub Copilot: github.com/features/copilot
+- Claude: claude.ai
+- ChatGPT: chat.openai.com
+- Cursor: cursor.sh
+- CodeWhisperer: aws.amazon.com/codewhisperer
+- Codeium (free): codeium.com`
+        },
+        {
+          name: 'Coding Practice Platforms',
+          explanation: 'Where to practice problems while using AI assistants.',
+          codeExample: `// TOP PLATFORMS FOR PRACTICE:
+
+LeetCode (leetcode.com)
+- Gold standard for interview prep
+- 2000+ problems with test cases
+- Practice: Solve 100 problems with AI assistance
+- Focus: Communication while using AI
+
+HackerRank (hackerrank.com)
+- Many companies use for assessments
+- Timed challenges
+- Practice: Take assessment-style tests with AI
+
+CodeSignal (codesignal.com)
+- Used by Google, Meta, others
+- GCA (General Coding Assessment) format
+- Practice: Simulate real company assessments
+
+AlgoExpert (algoexpert.io)
+- Curated problems with video explanations
+- Watch explanation → implement with AI → compare
+- Practice: Explain AI code like the videos do
+
+NeetCode (neetcode.io)
+- Free LeetCode roadmap
+- Organized by pattern
+- Practice: Follow roadmap, use AI strategically
+
+Exercism (exercism.org)
+- Free with mentorship
+- Practice explaining code to mentors
+- Good for communication skills`
+        },
+        {
+          name: 'Mock Interview Services',
+          explanation: 'Practice with real people to simulate interview conditions.',
+          codeExample: `// MOCK INTERVIEW PLATFORMS:
+
+Interviewing.io
+- Anonymous interviews with real engineers
+- Some allow AI tools
+- Get feedback on performance
+- URL: interviewing.io
+
+Pramp
+- Free peer-to-peer mock interviews
+- Practice both sides (interviewer/interviewee)
+- Great for AI-enabled practice with a partner
+- URL: pramp.com
+
+Exponent
+- Tech interview coaching
+- Mock interviews with professionals
+- Can request AI-enabled practice
+- URL: tryexponent.com
+
+Prepfully
+- Interview with industry professionals
+- Realistic feedback
+- Ask for AI-enabled format
+- URL: prepfully.com
+
+KEY TIP: Do at least 5 mock interviews before
+real ones. Practice specifically with AI tools
+to develop your workflow and communication style.`
+        },
+        {
+          name: 'Learning Resources',
+          explanation: 'Study materials for prompt engineering and AI-assisted development.',
+          codeExample: `// PROMPT ENGINEERING COURSES:
+
+1. Prompt Engineering Guide
+   promptingguide.ai
+   - Comprehensive techniques
+   - Coding-specific examples
+   - Free resource
+
+2. Learn Prompting
+   learnprompting.org
+   - Free course format
+   - Practical exercises
+   - Good for beginners
+
+3. DeepLearning.AI - ChatGPT for Developers
+   deeplearning.ai/short-courses
+   - Free 1-hour course by Andrew Ng
+   - Highly relevant to coding interviews
+   - Best practices from OpenAI
+
+4. GitHub Copilot Documentation
+   docs.github.com/en/copilot
+   - Official tips and tricks
+   - Best practices
+   - Common patterns
+
+STUDY APPROACH:
+Week 1: Take prompt engineering course
+Week 2: Practice 20 LeetCode problems with AI
+Week 3: Do 3 mock interviews
+Week 4: Focus on weak areas
+
+The investment pays off - good prompting skills
+make you 3x more effective with AI tools.`
+        },
+        {
+          name: 'Communities & Discussion',
+          explanation: 'Join communities to learn from others\' experiences and stay updated.',
+          codeExample: `// ACTIVE COMMUNITIES:
+
+Reddit r/cscareerquestions
+- Search: "AI interview experience"
+- Latest trends and company-specific info
+- reddit.com/r/cscareerquestions
+
+Blind (Team Blind App)
+- Anonymous professional network
+- Company-specific interview experiences
+- Search: "[Company] AI interview"
+- teamblind.com
+
+Discord: CS Career Hub
+- Active interview prep channels
+- AI tools discussions
+- Mock interview partners
+- discord.gg/cscareers
+
+Hacker News
+- Tech industry discussions
+- Search: "AI interview"
+- High-quality threads
+- news.ycombinator.com
+
+PARTICIPATION TIPS:
+- Share your experiences (anonymously if needed)
+- Ask specific questions about AI tool usage
+- Look for recent threads (practices evolve quickly)
+- Verify advice with multiple sources
+
+WHAT TO SEARCH FOR:
+- "[Company] AI-enabled interview experience"
+- "Interview with Copilot allowed"
+- "AI coding assessment tips"
+- "ChatGPT technical interview"`
+        },
+        {
+          name: 'YouTube Channels',
+          explanation: 'Video content for learning algorithms and AI tool usage.',
+          codeExample: `// RECOMMENDED CHANNELS:
+
+NeetCode
+youtube.com/@NeetCode
+- Algorithm explanations
+- LeetCode solutions
+- Watch → Implement with AI → Compare
+- Goal: Explain AI code as clearly as his videos
+
+TechLead
+youtube.com/@TechLead
+- Ex-Google/Facebook engineer
+- Interview strategies
+- Industry insights
+
+Fireship
+youtube.com/@Fireship
+- Quick AI tool tutorials
+- Latest developments
+- Stay current on new tools
+
+ThePrimeagen
+youtube.com/@ThePrimeagen
+- Netflix engineer
+- Opinions on AI coding tools
+- When AI helps vs hurts
+
+Clement Mihailescu (AlgoExpert)
+youtube.com/@clem
+- Interview preparation
+- System design
+- Problem-solving approaches
+
+VIEWING STRATEGY:
+1. Watch explanation of an algorithm
+2. Implement it yourself with AI assistance
+3. Compare your approach to the video
+4. Practice explaining your AI-assisted code
+   with the same clarity as the instructor
+
+KEY SKILL: Being able to explain AI-generated
+code as confidently as these experts explain
+algorithms shows true understanding.`
+        }
+      ]
     }
   ]
 
-  const renderTopicContent = (topic) => {
-    const content = topic.content
+  // =============================================================================
+  // NAVIGATION HANDLERS
+  // =============================================================================
+
+  const selectedConcept = selectedConceptIndex !== null ? concepts[selectedConceptIndex] : null
+
+  const handlePreviousConcept = () => {
+    if (selectedConceptIndex > 0) {
+      setSelectedConceptIndex(selectedConceptIndex - 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  const handleNextConcept = () => {
+    if (selectedConceptIndex < concepts.length - 1) {
+      setSelectedConceptIndex(selectedConceptIndex + 1)
+      setSelectedDetailIndex(0)
+    }
+  }
+
+  // =============================================================================
+  // BREADCRUMB CONFIGURATION
+  // =============================================================================
+
+  const buildBreadcrumbStack = () => {
+    const stack = [
+      { name: 'Projects', icon: '🚀', page: 'Projects' },
+      { name: 'AI Interview Tips', icon: '🤖', page: 'AI Interview Tips' }
+    ]
+    if (selectedConcept) {
+      stack.push({ name: selectedConcept.name, icon: selectedConcept.icon })
+    }
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index) => {
+    if (index === 0) {
+      onBack()  // Go back to Projects page
+    } else if (index === 1 && selectedConcept) {
+      setSelectedConceptIndex(null)  // Close modal, stay on topic page
+    }
+  }
+
+  // =============================================================================
+  // KEYBOARD NAVIGATION
+  // =============================================================================
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        if (selectedConcept) {
+          setSelectedConceptIndex(null)
+        } else {
+          onBack()
+        }
+      } else if (e.key === 'ArrowLeft' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handlePreviousConcept()
+      } else if (e.key === 'ArrowRight' && selectedConceptIndex !== null) {
+        e.preventDefault()
+        handleNextConcept()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [selectedConceptIndex, onBack])
+
+  // =============================================================================
+  // STYLES
+  // =============================================================================
+
+  const containerStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f172a 0%, #4c1d95 50%, #0f172a 100%)',
+    padding: '2rem',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
+  }
+
+  const headerStyle = {
+    maxWidth: '1400px',
+    margin: '0 auto 2rem',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '1rem'
+  }
+
+  const titleStyle = {
+    fontSize: '2.5rem',
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #c4b5fd, #a78bfa)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    margin: 0
+  }
+
+  const backButtonStyle = {
+    padding: '0.75rem 1.5rem',
+    background: AI_COLORS.bg,
+    border: `1px solid ${AI_COLORS.border}`,
+    borderRadius: '0.5rem',
+    color: AI_COLORS.primary,
+    cursor: 'pointer',
+    fontSize: '1rem',
+    transition: 'all 0.2s'
+  }
+
+  // =============================================================================
+  // RENDER HELPERS
+  // =============================================================================
+
+  const renderDetailContent = (detail, colorScheme) => {
     return (
-      <div style={{ padding: '1.5rem', background: 'rgba(17, 24, 39, 0.5)' }}>
-        {/* Explanation */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <h4 style={{ color: '#c4b5fd', marginBottom: '0.75rem', fontSize: '1.1rem' }}>Overview</h4>
-          <p style={{ color: '#d1d5db', lineHeight: '1.7', fontSize: '0.95rem' }}>{content.explanation}</p>
+      <div>
+        <div style={{
+          color: '#e2e8f0',
+          lineHeight: '1.8',
+          marginBottom: '1rem',
+          background: colorScheme.bg,
+          border: `1px solid ${colorScheme.border}`,
+          borderRadius: '0.5rem',
+          padding: '1rem',
+          textAlign: 'left'
+        }}>
+          {detail.explanation}
         </div>
 
-        {/* Key Points */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <h4 style={{ color: '#c4b5fd', marginBottom: '0.75rem', fontSize: '1.1rem' }}>Key Points</h4>
-          <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
-            {content.keyPoints.map((point, idx) => (
-              <li key={idx} style={{ color: '#d1d5db', marginBottom: '0.5rem', lineHeight: '1.6' }}>
-                {point}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Tips (if present) */}
-        {content.tips && (
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h4 style={{ color: '#c4b5fd', marginBottom: '0.75rem', fontSize: '1.1rem' }}>Practical Tips</h4>
-            <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
-              {content.tips.map((tip, idx) => (
-                <div key={idx} style={{ backgroundColor: 'rgba(31, 41, 55, 0.8)', padding: '1rem', borderRadius: '8px', border: `1px solid ${topic.color}40` }}>
-                  <h5 style={{ color: topic.color, margin: '0 0 0.5rem 0', fontSize: '0.95rem' }}>{tip.title}</h5>
-                  <ul style={{ margin: 0, paddingLeft: '1rem', fontSize: '0.9rem' }}>
-                    {tip.items.map((item, i) => (
-                      <li key={i} style={{ color: '#d1d5db', marginBottom: '0.25rem' }}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
+        {detail.keyPoints && (
+          <div style={{
+            marginBottom: '1rem',
+            background: 'rgba(15, 23, 42, 0.6)',
+            borderRadius: '0.5rem',
+            padding: '1rem',
+            border: '1px solid #334155'
+          }}>
+            <h4 style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '0.75rem', fontWeight: '600' }}>
+              Key Points:
+            </h4>
+            <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#cbd5e1' }}>
+              {detail.keyPoints.map((point, i) => (
+                <li key={i} style={{ marginBottom: '0.5rem', lineHeight: '1.6' }}>{point}</li>
               ))}
+            </ul>
+          </div>
+        )}
+
+        {detail.problem && (
+          <div style={{
+            marginBottom: '1rem',
+            background: 'rgba(220, 38, 38, 0.1)',
+            border: '1px solid rgba(220, 38, 38, 0.3)',
+            borderRadius: '0.5rem',
+            padding: '1rem'
+          }}>
+            <div style={{ color: '#f87171', fontWeight: '600', marginBottom: '0.5rem' }}>
+              Problem: {detail.problem}
+            </div>
+            <div style={{ color: '#fca5a5', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+              <strong>Consequence:</strong> {detail.consequence}
+            </div>
+            <div style={{ color: '#4ade80', fontSize: '0.9rem', background: 'rgba(34, 197, 94, 0.1)', padding: '0.75rem', borderRadius: '0.375rem', border: '1px solid rgba(34, 197, 94, 0.3)' }}>
+              <strong>Solution:</strong> {detail.solution}
             </div>
           </div>
         )}
 
-        {/* Examples (if present) */}
-        {content.examples && (
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h4 style={{ color: '#c4b5fd', marginBottom: '0.75rem', fontSize: '1.1rem' }}>Prompt Examples</h4>
-            {content.examples.map((example, idx) => (
-              <div key={idx} style={{ marginBottom: '1rem', backgroundColor: 'rgba(31, 41, 55, 0.8)', padding: '1rem', borderRadius: '8px' }}>
-                <div style={{ marginBottom: '0.75rem' }}>
-                  <span style={{ color: '#f87171', fontWeight: '600', fontSize: '0.85rem' }}>❌ Bad: </span>
-                  <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>"{example.bad}"</span>
-                </div>
-                <div style={{ marginBottom: '0.75rem' }}>
-                  <span style={{ color: '#4ade80', fontWeight: '600', fontSize: '0.85rem' }}>✅ Good: </span>
-                  <span style={{ color: '#e5e7eb' }}>"{example.good}"</span>
-                </div>
-                <div style={{ color: '#9ca3af', fontSize: '0.85rem', fontStyle: 'italic' }}>
-                  💡 Why: {example.why}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Checklist (if present) */}
-        {content.checklist && (
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h4 style={{ color: '#c4b5fd', marginBottom: '0.75rem', fontSize: '1.1rem' }}>Code Review Checklist</h4>
-            <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
-              {content.checklist.map((category, idx) => (
-                <div key={idx} style={{ backgroundColor: 'rgba(31, 41, 55, 0.8)', padding: '1rem', borderRadius: '8px' }}>
-                  <h5 style={{ color: topic.color, margin: '0 0 0.5rem 0', fontSize: '0.9rem' }}>{category.category}</h5>
-                  <ul style={{ margin: 0, paddingLeft: '1rem', fontSize: '0.85rem' }}>
-                    {category.items.map((item, i) => (
-                      <li key={i} style={{ color: '#d1d5db', marginBottom: '0.25rem' }}>☐ {item}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Approach Steps (if present) */}
-        {content.approach && (
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h4 style={{ color: '#c4b5fd', marginBottom: '0.75rem', fontSize: '1.1rem' }}>Debugging Approach</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {content.approach.map((step, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                  <div style={{
-                    backgroundColor: topic.color,
-                    color: 'white',
-                    width: '28px',
-                    height: '28px',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: '600',
-                    fontSize: '0.85rem',
-                    flexShrink: 0
-                  }}>
-                    {step.step}
-                  </div>
-                  <div>
-                    <span style={{ fontWeight: '600', color: '#e5e7eb' }}>{step.title}: </span>
-                    <span style={{ color: '#d1d5db' }}>{step.description}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Scripts (if present) */}
-        {content.scripts && (
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h4 style={{ color: '#c4b5fd', marginBottom: '0.75rem', fontSize: '1.1rem' }}>What to Say</h4>
-            {content.scripts.map((script, idx) => (
-              <div key={idx} style={{ marginBottom: '1rem', backgroundColor: 'rgba(31, 41, 55, 0.8)', padding: '1rem', borderRadius: '8px', borderLeft: `4px solid ${topic.color}` }}>
-                <div style={{ fontWeight: '600', color: '#e5e7eb', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                  📢 {script.situation}
-                </div>
-                <div style={{ color: '#d1d5db', fontStyle: 'italic', fontSize: '0.9rem', lineHeight: '1.6' }}>
-                  {script.say}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Time Allocation (if present) */}
-        {content.timeAllocation && (
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h4 style={{ color: '#c4b5fd', marginBottom: '0.75rem', fontSize: '1.1rem' }}>Time Allocation Guide</h4>
-            <div style={{ backgroundColor: 'rgba(31, 41, 55, 0.8)', borderRadius: '8px', overflow: 'hidden' }}>
-              {content.timeAllocation.map((phase, idx) => (
-                <div key={idx} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '0.75rem 1rem',
-                  borderBottom: idx < content.timeAllocation.length - 1 ? '1px solid #374151' : 'none'
-                }}>
-                  <div style={{ width: '140px', fontWeight: '600', color: '#e5e7eb', fontSize: '0.9rem' }}>{phase.phase}</div>
-                  <div style={{
-                    width: '80px',
-                    backgroundColor: topic.color,
-                    color: 'white',
-                    padding: '0.25rem 0.5rem',
-                    borderRadius: '4px',
-                    textAlign: 'center',
-                    fontSize: '0.85rem',
-                    fontWeight: '600'
-                  }}>
-                    {phase.time}
-                  </div>
-                  <div style={{ flex: 1, marginLeft: '1rem', color: '#9ca3af', fontSize: '0.85rem' }}>{phase.description}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Pitfalls (if present) */}
-        {content.pitfalls && (
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h4 style={{ color: '#c4b5fd', marginBottom: '0.75rem', fontSize: '1.1rem' }}>Common Pitfalls</h4>
-            {content.pitfalls.map((pitfall, idx) => (
-              <div key={idx} style={{ marginBottom: '1rem', backgroundColor: 'rgba(127, 29, 29, 0.3)', padding: '1rem', borderRadius: '8px', border: '1px solid #ef444480' }}>
-                <div style={{ fontWeight: '600', color: '#f87171', marginBottom: '0.5rem' }}>❌ {pitfall.mistake}</div>
-                <div style={{ color: '#fca5a5', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-                  <strong>Consequence:</strong> {pitfall.consequence}
-                </div>
-                <div style={{ color: '#4ade80', fontSize: '0.9rem', backgroundColor: 'rgba(22, 101, 52, 0.3)', padding: '0.5rem', borderRadius: '4px' }}>
-                  <strong>✅ Solution:</strong> {pitfall.solution}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Exercises (if present) */}
-        {content.exercises && (
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h4 style={{ color: '#c4b5fd', marginBottom: '0.75rem', fontSize: '1.1rem' }}>Practice Exercises</h4>
-            <div style={{ display: 'grid', gap: '1rem' }}>
-              {content.exercises.map((exercise, idx) => (
-                <div key={idx} style={{ backgroundColor: 'rgba(31, 41, 55, 0.8)', padding: '1rem', borderRadius: '8px', border: `1px solid ${topic.color}40` }}>
-                  <h5 style={{ color: topic.color, margin: '0 0 0.5rem 0', fontSize: '0.95rem' }}>{exercise.title}</h5>
-                  <p style={{ color: '#d1d5db', margin: 0, fontSize: '0.9rem', lineHeight: '1.6' }}>{exercise.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Resources (if present) */}
-        {content.resources && (
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h4 style={{ color: '#c4b5fd', marginBottom: '1rem', fontSize: '1.1rem' }}>Resources & Links</h4>
-            {content.resources.map((category, catIdx) => (
-              <div key={catIdx} style={{ marginBottom: '1.5rem' }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  marginBottom: '0.75rem',
-                  padding: '0.5rem 0.75rem',
-                  backgroundColor: 'rgba(31, 41, 55, 0.8)',
-                  borderRadius: '6px',
-                  borderLeft: `4px solid ${topic.color}`
-                }}>
-                  <span style={{ fontSize: '1.25rem' }}>{category.icon}</span>
-                  <h5 style={{ color: '#e5e7eb', margin: 0, fontSize: '1rem', fontWeight: '600' }}>{category.category}</h5>
-                </div>
-                <div style={{ display: 'grid', gap: '0.75rem' }}>
-                  {category.items.map((item, itemIdx) => (
-                    <a
-                      key={itemIdx}
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        display: 'block',
-                        backgroundColor: 'rgba(31, 41, 55, 0.6)',
-                        padding: '1rem',
-                        borderRadius: '8px',
-                        border: '1px solid #374151',
-                        textDecoration: 'none',
-                        transition: 'all 0.2s ease',
-                        cursor: 'pointer'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = topic.color
-                        e.currentTarget.style.boxShadow = `0 4px 12px ${topic.color}30`
-                        e.currentTarget.style.transform = 'translateY(-2px)'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = '#374151'
-                        e.currentTarget.style.boxShadow = 'none'
-                        e.currentTarget.style.transform = 'translateY(0)'
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{
-                            color: topic.color,
-                            fontWeight: '600',
-                            fontSize: '0.95rem',
-                            marginBottom: '0.25rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem'
-                          }}>
-                            {item.name}
-                            <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>↗</span>
-                          </div>
-                          <p style={{
-                            color: '#9ca3af',
-                            margin: 0,
-                            fontSize: '0.85rem',
-                            lineHeight: '1.5'
-                          }}>
-                            {item.description}
-                          </p>
-                        </div>
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            ))}
+        {detail.codeExample && (
+          <div style={{ marginTop: '1rem' }}>
+            <SyntaxHighlighter
+              language="javascript"
+              style={vscDarkPlus}
+              customStyle={{
+                padding: '1rem',
+                margin: 0,
+                borderRadius: '0.5rem',
+                fontSize: '0.8rem',
+                border: '1px solid #334155',
+                background: '#0f172a'
+              }}
+              codeTagProps={{ style: { background: 'transparent' } }}
+            >
+              {detail.codeExample}
+            </SyntaxHighlighter>
           </div>
         )}
       </div>
     )
   }
 
+  // =============================================================================
+  // RENDER
+  // =============================================================================
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #4c1d95, #111827)',
-      color: 'white',
-      padding: '1.5rem'
-    }}>
-      <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
-        {/* Header */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '2rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button
-              onClick={onBack}
-              style={{
-                background: '#8b5cf6',
-                color: 'white',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '0.5rem',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontWeight: '500',
-                fontSize: '1rem',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#7c3aed'
-                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#8b5cf6'
-                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              ← Back to Projects
-            </button>
-            <h1 style={{
-              fontSize: '2.25rem',
-              fontWeight: 'bold',
-              background: 'linear-gradient(to right, #c4b5fd, #a78bfa)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
-            }}>
-              🤖 AI-Enabled Technical Interview Tips
-            </h1>
-          </div>
-        </div>
+    <div style={containerStyle}>
+      {/* Header with title and back button */}
+      <div style={headerStyle}>
+        <h1 style={titleStyle}>🤖 AI-Enabled Technical Interview Tips</h1>
+        <button
+          style={backButtonStyle}
+          onClick={onBack}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = AI_COLORS.hoverBg
+            e.currentTarget.style.transform = 'translateY(-2px)'
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = AI_COLORS.bg
+            e.currentTarget.style.transform = 'translateY(0)'
+          }}
+        >
+          ← Back to Projects
+        </button>
+      </div>
 
-        {/* Breadcrumb */}
-        <Breadcrumb breadcrumb={breadcrumb} />
+      {/* Breadcrumb navigation */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
+          colors={AI_COLORS}
+        />
+      </div>
 
-        {/* Intro */}
-        <div style={{
-          background: 'linear-gradient(to bottom right, #1f2937, #111827)',
-          padding: '1.5rem',
-          borderRadius: '0.75rem',
-          marginBottom: '2rem',
-          border: '2px solid #8b5cf6',
-          boxShadow: '0 4px 15px rgba(139, 92, 246, 0.2)'
-        }}>
-          <p style={{ color: '#d1d5db', lineHeight: '1.8', margin: 0, fontSize: '1.1rem', textAlign: 'center' }}>
-            Modern technical interviews increasingly allow AI coding assistants. Success requires a new skill set:
-            <strong style={{ color: '#c4b5fd' }}> effective prompting</strong>,
-            <strong style={{ color: '#c4b5fd' }}> critical code review</strong>,
-            <strong style={{ color: '#c4b5fd' }}> clear communication</strong>, and
-            <strong style={{ color: '#c4b5fd' }}> strategic tool usage</strong>.
-            Master these skills to stand out in AI-enabled interviews.
-          </p>
-        </div>
+      {/* Intro message */}
+      <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto 2rem',
+        background: 'rgba(15, 23, 42, 0.8)',
+        borderRadius: '1rem',
+        padding: '1.5rem',
+        border: `2px solid ${AI_COLORS.primary}`,
+        boxShadow: `0 4px 15px ${AI_COLORS.primary}30`
+      }}>
+        <p style={{ color: '#cbd5e1', lineHeight: '1.8', margin: 0, fontSize: '1.1rem', textAlign: 'center' }}>
+          Modern technical interviews increasingly allow AI coding assistants. Success requires a new skill set:
+          <strong style={{ color: '#c4b5fd' }}> effective prompting</strong>,
+          <strong style={{ color: '#c4b5fd' }}> critical code review</strong>,
+          <strong style={{ color: '#c4b5fd' }}> clear communication</strong>, and
+          <strong style={{ color: '#c4b5fd' }}> strategic tool usage</strong>.
+          Master these skills to stand out in AI-enabled interviews.
+        </p>
+      </div>
 
-      {/* Topics Grid */}
-      <div style={{ display: 'grid', gap: '1rem' }}>
-        {topics.map((topic) => (
+      {/* Concept Cards Grid */}
+      <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gap: '1.5rem'
+      }}>
+        {concepts.map((concept, index) => (
           <div
-            key={topic.id}
+            key={concept.id}
+            onClick={() => setSelectedConceptIndex(index)}
             style={{
-              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
-              borderRadius: '0.75rem',
-              border: `2px solid ${expandedSections[topic.id] ? topic.color : '#374151'}`,
-              overflow: 'hidden',
-              transition: 'all 0.3s ease',
-              boxShadow: expandedSections[topic.id] ? `0 4px 15px ${topic.color}30` : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              border: `1px solid ${concept.color}40`,
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = `0 20px 40px ${concept.color}20`
+              e.currentTarget.style.borderColor = concept.color
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.borderColor = `${concept.color}40`
             }}
           >
-            {/* Topic Header */}
-            <button
-              onClick={() => toggleSection(topic.id)}
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '1.25rem 1.5rem',
-                background: expandedSections[topic.id] ? `linear-gradient(to right, ${topic.color}15, ${topic.color}05)` : 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                textAlign: 'left',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                if (!expandedSections[topic.id]) {
-                  e.currentTarget.style.background = 'rgba(55, 65, 81, 0.5)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!expandedSections[topic.id]) {
-                  e.currentTarget.style.background = 'transparent'
-                }
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <span style={{ fontSize: '1.75rem' }}>{topic.icon}</span>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: '700', color: '#c4b5fd' }}>
-                    {topic.name}
-                  </h3>
-                  <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem', color: '#9ca3af' }}>
-                    {topic.description}
-                  </p>
-                </div>
-              </div>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                backgroundColor: topic.color,
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: '600',
-                fontSize: '1.25rem',
-                transform: expandedSections[topic.id] ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 0.3s ease'
-              }}>
-                ↓
-              </div>
-            </button>
-
-            {/* Topic Content */}
-            {expandedSections[topic.id] && (
-              <div style={{ borderTop: `1px solid ${topic.color}30` }}>
-                {renderTopicContent(topic)}
-              </div>
-            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
+              <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
+            </div>
+            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
+            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+              {concept.details.length} topics • Click to explore
+            </div>
           </div>
         ))}
       </div>
 
+      {/* Modal for Selected Concept */}
+      {selectedConcept && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '2rem'
+          }}
+          onClick={() => setSelectedConceptIndex(null)}
+        >
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
+              overflow: 'auto',
+              border: `1px solid ${selectedConcept.color}40`,
+              width: '100%'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Breadcrumb */}
+            <Breadcrumb
+              breadcrumbStack={buildBreadcrumbStack()}
+              onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
+              colors={AI_COLORS}
+            />
+
+            {/* Modal Header with Navigation */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '1.5rem',
+              paddingBottom: '1rem',
+              borderBottom: '1px solid #334155'
+            }}>
+              <h2 style={{
+                color: selectedConcept.color,
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '1.25rem'
+              }}>
+                <span>{selectedConcept.icon}</span>
+                {selectedConcept.name}
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button
+                  onClick={handlePreviousConcept}
+                  disabled={selectedConceptIndex === 0}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >←</button>
+                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>
+                  {selectedConceptIndex + 1}/{concepts.length}
+                </span>
+                <button
+                  onClick={handleNextConcept}
+                  disabled={selectedConceptIndex === concepts.length - 1}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(100, 116, 139, 0.2)',
+                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8',
+                    cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >→</button>
+                <button
+                  onClick={() => setSelectedConceptIndex(null)}
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '0.375rem',
+                    color: '#f87171',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    marginLeft: '0.5rem'
+                  }}
+                >✕</button>
+              </div>
+            </div>
+
+            {/* Subtopic Tabs */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {selectedConcept.details.map((detail, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedDetailIndex(i)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)',
+                    border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`,
+                    borderRadius: '0.5rem',
+                    color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: selectedDetailIndex === i ? '600' : '400',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {detail.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Selected Subtopic Content */}
+            {(() => {
+              const detail = selectedConcept.details[selectedDetailIndex]
+              const colorScheme = SUBTOPIC_COLORS[selectedDetailIndex % SUBTOPIC_COLORS.length]
+              return (
+                <div>
+                  <h3 style={{ color: '#e2e8f0', marginBottom: '1rem', fontSize: '1.1rem' }}>
+                    {detail.name}
+                  </h3>
+                  {renderDetailContent(detail, colorScheme)}
+                </div>
+              )
+            })()}
+
+          </div>
+        </div>
+      )}
+
       {/* Footer Tips */}
       <div style={{
-        marginTop: '2rem',
+        maxWidth: '1400px',
+        margin: '2rem auto 0',
         padding: '1.5rem',
-        background: 'linear-gradient(to bottom right, #1f2937, #111827)',
-        borderRadius: '0.75rem',
-        border: '2px dashed #8b5cf6'
+        background: 'rgba(15, 23, 42, 0.8)',
+        borderRadius: '1rem',
+        border: `2px dashed ${AI_COLORS.primary}`
       }}>
         <h3 style={{ color: '#c4b5fd', margin: '0 0 1rem 0', fontSize: '1.2rem' }}>🎯 Final Reminders</h3>
         <div style={{ display: 'grid', gap: '0.75rem', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-            <span style={{ color: '#a78bfa', fontWeight: '600' }}>1.</span>
-            <span style={{ color: '#d1d5db' }}>AI is your tool, not your brain. You must understand everything.</span>
+            <span style={{ color: AI_COLORS.primary, fontWeight: '600' }}>1.</span>
+            <span style={{ color: '#cbd5e1' }}>AI is your tool, not your brain. You must understand everything.</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-            <span style={{ color: '#a78bfa', fontWeight: '600' }}>2.</span>
-            <span style={{ color: '#d1d5db' }}>Communication is key. Think out loud throughout.</span>
+            <span style={{ color: AI_COLORS.primary, fontWeight: '600' }}>2.</span>
+            <span style={{ color: '#cbd5e1' }}>Communication is key. Think out loud throughout.</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-            <span style={{ color: '#a78bfa', fontWeight: '600' }}>3.</span>
-            <span style={{ color: '#d1d5db' }}>Test everything. AI-generated code often has subtle bugs.</span>
+            <span style={{ color: AI_COLORS.primary, fontWeight: '600' }}>3.</span>
+            <span style={{ color: '#cbd5e1' }}>Test everything. AI-generated code often has subtle bugs.</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-            <span style={{ color: '#a78bfa', fontWeight: '600' }}>4.</span>
-            <span style={{ color: '#d1d5db' }}>Practice with the specific AI tool before your interview.</span>
+            <span style={{ color: AI_COLORS.primary, fontWeight: '600' }}>4.</span>
+            <span style={{ color: '#cbd5e1' }}>Practice with the specific AI tool before your interview.</span>
           </div>
         </div>
-      </div>
       </div>
     </div>
   )

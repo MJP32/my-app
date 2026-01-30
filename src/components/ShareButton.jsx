@@ -11,7 +11,8 @@ const ShareButton = ({ type, data, size = 'medium' }) => {
   // Generate share text based on type
   const getShareText = (platform) => {
     let text = ''
-    let url = window.location.origin
+     
+    let _url = window.location.origin
 
     switch (type) {
       case 'dailyChallenge':
@@ -54,7 +55,7 @@ const ShareButton = ({ type, data, size = 'medium' }) => {
   }
 
   const shareOnLinkedIn = () => {
-    const text = getShareText('linkedin')
+    getShareText('linkedin') // Call for consistency, text not used in LinkedIn URL
     const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.origin)}`
     // LinkedIn doesn't support pre-filled text in the URL, so we'll just open the share dialog
     window.open(linkedInUrl, '_blank', 'width=550,height=420')

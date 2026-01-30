@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { getCompletedProblems } from '../services/progressService'
-import { getBookmarks, getBookmarksByCategory } from '../services/bookmarkService'
+import { getBookmarks } from '../services/bookmarkService'
 import Breadcrumb from '../components/Breadcrumb'
 
 function ProgressDashboard({ onBack, onNavigate }) {
   const [completedProblems, setCompletedProblems] = useState([])
   const [bookmarks, setBookmarks] = useState([])
   const [activeTab, setActiveTab] = useState('overview')
-  const [refreshKey, setRefreshKey] = useState(0)
+  const [, setRefreshKey] = useState(0)
 
   useEffect(() => {
     loadData()

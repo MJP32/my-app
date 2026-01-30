@@ -5033,7 +5033,7 @@ public class RiskDashboard {
           </h1>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         <p style={{
           color: '#9ca3af',

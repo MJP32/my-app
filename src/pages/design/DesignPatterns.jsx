@@ -1594,7 +1594,7 @@ machine.insertCoin();    // Coin already inserted (in HasCoin)
 
       {/* Breadcrumb */}
       <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
       </div>
 
       {/* Intro */}
@@ -1675,9 +1675,7 @@ machine.insertCoin();    // Coin already inserted (in HasCoin)
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              width: '100%',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`
             }}

@@ -124,7 +124,7 @@ export function useKeyboardNavigation({
         }
         break
 
-      case 'Escape':
+      case 'Escape': {
         e.preventDefault()
         // Use onEscape if provided, otherwise fall back to onBack
         const escapeHandler = onEscape || onBack
@@ -132,6 +132,7 @@ export function useKeyboardNavigation({
           escapeHandler()
         }
         break
+      }
 
       default:
         break

@@ -2013,7 +2013,7 @@ boolean isValid = (boolean) invocable.invokeFunction("validateAge", 25);
 
 **2. Template engine:**
 \`\`\`java
-String template = "Hello ${name}, your order #${orderId} is ${status}";
+String template = "Hello \${name}, your order #\${orderId} is \${status}";
 Map<String, Object> data = Map.of(
     "name", "John",
     "orderId", 12345,
@@ -3735,7 +3735,7 @@ List<Person> topTen = people.stream()
         <div style={{ width: '150px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
       <p style={{
         fontSize: '1.1rem',

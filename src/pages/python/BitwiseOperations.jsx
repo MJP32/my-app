@@ -8,6 +8,7 @@ const BitwiseOperations = ({ onBack, breadcrumb }) => {
 
   // Compute extended breadcrumb when a concept is selected
   const activeBreadcrumb = selectedConcept ? {
+    onMainMenu: breadcrumb?.onMainMenu,
     section: breadcrumb.section,
     category: breadcrumb.category,
     subcategory: {
@@ -1005,7 +1006,7 @@ print(f"7 / -3 = {divide(7, -3)}")    # -2`
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={activeBreadcrumb} />
+        <Breadcrumb breadcrumb={activeBreadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         <div style={{
           display: 'grid',

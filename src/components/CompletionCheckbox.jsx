@@ -5,10 +5,10 @@ import { recordProblemCompletion, recordProblemUncompletion } from '../services/
 import { checkProblemCompletionAchievements } from '../services/achievementService'
 import { logActivity } from '../services/activityLogService'
 
-function CompletionCheckbox({ problemId, label = "Mark as Completed", onCompletionChange, difficulty = "Medium" }) {
+function CompletionCheckbox({ problemId, label = "Mark as Completed", onCompletionChange, difficulty = "Medium", compact = false }) {
   const [isCompleted, setIsCompleted] = useState(false)
   const [showWarning, setShowWarning] = useState(false)
-  const [currentUser, setCurrentUser] = useState(null)
+  const [, setCurrentUser] = useState(null)
 
   // Listen to auth state changes
   useEffect(() => {
@@ -81,16 +81,16 @@ function CompletionCheckbox({ problemId, label = "Mark as Completed", onCompleti
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '0.5rem',
+          gap: compact ? '0.35rem' : '0.5rem',
           cursor: 'pointer',
-          padding: '0.5rem 0.75rem',
+          padding: compact ? '0.25rem 0.5rem' : '0.5rem 0.75rem',
           backgroundColor: isCompleted ? '#d1fae5' : '#f3f4f6',
-          borderRadius: '8px',
-          border: '2px solid',
+          borderRadius: compact ? '6px' : '8px',
+          border: compact ? '1px solid' : '2px solid',
           borderColor: isCompleted ? '#10b981' : '#e5e7eb',
           transition: 'all 0.2s',
           fontWeight: '600',
-          fontSize: '0.875rem',
+          fontSize: compact ? '0.75rem' : '0.875rem',
           color: isCompleted ? '#065f46' : '#374151',
           userSelect: 'none'
         }}
@@ -112,13 +112,13 @@ function CompletionCheckbox({ problemId, label = "Mark as Completed", onCompleti
           checked={isCompleted}
           onChange={handleToggle}
           style={{
-            width: '18px',
-            height: '18px',
+            width: compact ? '14px' : '18px',
+            height: compact ? '14px' : '18px',
             cursor: 'pointer',
             accentColor: '#10b981'
           }}
         />
-        <span>{isCompleted ? '✅ Completed' : label}</span>
+        <span>{isCompleted ? (compact ? '✓ Done' : '✅ Completed') : (compact ? 'Complete' : label)}</span>
       </label>
 
       {showWarning && (

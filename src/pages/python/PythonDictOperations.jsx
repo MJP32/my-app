@@ -1009,7 +1009,7 @@ def reorganizeString_alt(s: str) -> str:
           </p>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         <div style={{
           display: 'grid',

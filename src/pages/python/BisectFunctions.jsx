@@ -8,6 +8,7 @@ function BisectFunctions({ onBack, breadcrumb }) {
 
   // Compute extended breadcrumb when a concept is selected
   const activeBreadcrumb = selectedConcept ? {
+    onMainMenu: breadcrumb?.onMainMenu,
     section: breadcrumb.section,
     category: breadcrumb.category,
     subcategory: {
@@ -1029,7 +1030,7 @@ for score in [85, 92, 78, 88, 95, 72, 90]:
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={activeBreadcrumb} />
+        <Breadcrumb breadcrumb={activeBreadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         <div style={{
           display: 'grid',

@@ -184,9 +184,62 @@ const OOPDiagram = () => (
 // MAIN COMPONENT
 // =============================================================================
 
-function Java({ onBack, breadcrumb }) {
+function Java({ onBack, onSelectItem, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+
+  // Organized Java topics by category
+  const javaTopicCategories = [
+    {
+      category: 'Core Fundamentals',
+      icon: '📚',
+      color: '#f59e0b',
+      topics: [
+        { id: 'oop-overview', name: 'OOP Principles', icon: '📦', color: '#f59e0b', description: 'Encapsulation, inheritance, polymorphism, abstraction, and SOLID principles.', isQuickRef: true },
+        { id: 'Exception Handling', name: 'Exception Handling', icon: '⚠️', color: '#ef4444', description: 'Try-catch, custom exceptions, exception hierarchies, and error handling patterns.' },
+        { id: 'Generics', name: 'Generics', icon: '🔤', color: '#f97316', description: 'Generic classes, methods, bounded types, wildcards, and type erasure.' },
+        { id: 'File I/O', name: 'File I/O', icon: '📁', color: '#14b8a6', description: 'File operations, NIO.2, Path API, streams, and file system operations.' },
+      ]
+    },
+    {
+      category: 'Collections & Streams',
+      icon: '🗂️',
+      color: '#3b82f6',
+      topics: [
+        { id: 'Collections Framework', name: 'Collections Framework', icon: '📦', color: '#ec4899', description: 'List, Set, Map, Queue implementations and advanced collection operations.' },
+        { id: 'Streams', name: 'Streams API', icon: '🌊', color: '#06b6d4', description: 'Stream operations, collectors, parallel streams, and functional programming.' },
+        { id: 'Optional', name: 'Optional', icon: '🎁', color: '#8b5cf6', description: 'Null-safety with Optional, functional transformations, and best practices.' },
+        { id: 'streams-overview', name: 'Lambdas & Functional', icon: '⚡', color: '#3b82f6', description: 'Lambda expressions, method references, and functional interfaces.', isQuickRef: true },
+      ]
+    },
+    {
+      category: 'Concurrency & Threading',
+      icon: '⚙️',
+      color: '#10b981',
+      topics: [
+        { id: 'Concurrency', name: 'Concurrency', icon: '🔄', color: '#10b981', description: 'Thread safety, locks, atomic operations, semaphores, and concurrent collections.' },
+        { id: 'Multithreading', name: 'Multithreading', icon: '🧵', color: '#059669', description: 'Thread lifecycle, synchronization, thread pools, and parallel processing.' },
+      ]
+    },
+    {
+      category: 'Modern Java Features',
+      icon: '🚀',
+      color: '#8b5cf6',
+      topics: [
+        { id: 'modern-java-overview', name: 'Modern Java (8-21)', icon: '🚀', color: '#22c55e', description: 'Records, sealed classes, pattern matching, switch expressions, and virtual threads.', isQuickRef: true },
+      ]
+    },
+    {
+      category: 'JVM & Performance',
+      icon: '⚡',
+      color: '#6366f1',
+      topics: [
+        { id: 'JVM Internals', name: 'JVM Internals', icon: '⚙️', color: '#6366f1', description: 'Class loading, bytecode, JIT compilation, and JVM architecture.' },
+        { id: 'Memory Management', name: 'Memory Management', icon: '🧠', color: '#a855f7', description: 'Heap, stack, garbage collection algorithms, and memory optimization.' },
+        { id: 'jvm-overview', name: 'Performance Tips', icon: '🎯', color: '#06b6d4', description: 'Optimization techniques, profiling, and performance best practices.', isQuickRef: true },
+      ]
+    }
+  ]
 
   const concepts = [
     {
@@ -636,40 +689,191 @@ for (String s : cowList) {
       diagram: VirtualThreadsDiagram,
       details: [
         {
-          name: 'Optional & Records',
-          explanation: 'Optional wraps potentially null values, enabling functional null handling. Records (Java 14+) provide immutable data carriers with auto-generated constructors, accessors, equals, hashCode, and toString.',
-          codeExample: `// Optional - avoid null checks
-Optional<User> findUser(String id) {
-    return Optional.ofNullable(userMap.get(id));
+          name: 'Java 8 - Lambdas & Streams',
+          explanation: 'Java 8 introduced functional programming with lambdas, Stream API for data processing, Optional for null-safety, method references, default/static interface methods, and the modern Date/Time API.',
+          codeExample: `// Lambda expressions
+List<String> names = Arrays.asList("Alice", "Bob", "Charlie");
+names.forEach(name -> System.out.println(name));
+
+// Streams - filter, map, collect
+List<String> longNames = names.stream()
+    .filter(name -> name.length() > 4)
+    .map(String::toUpperCase)
+    .collect(Collectors.toList());
+
+// Optional - null-safe
+Optional<User> user = findUser("123");
+String name = user
+    .map(User::getName)
+    .orElse("Guest");
+
+// Method references
+names.stream()
+    .map(String::toUpperCase)    // Instance method
+    .forEach(System.out::println); // Static method
+
+// Default interface methods
+interface Vehicle {
+    default void start() {
+        System.out.println("Starting vehicle");
+    }
 }
 
-String name = findUser("123")
-    .map(User::getName)
-    .orElse("Unknown");
+// Date/Time API
+LocalDate today = LocalDate.now();
+LocalDateTime meeting = LocalDateTime.of(2024, 6, 15, 14, 30);
+Duration duration = Duration.between(start, end);
+Period period = Period.between(birthday, today);`
+        },
+        {
+          name: 'Java 9-11 - Modules, Var, HttpClient',
+          explanation: 'Java 9 introduced the module system for better encapsulation. Java 10 added var for local type inference. Java 11 provided the new HttpClient, string methods, and became the first LTS after Java 8.',
+          codeExample: `// Java 9 - Module system (module-info.java)
+module com.example.app {
+    requires java.sql;
+    requires com.example.api;
+    exports com.example.app.service;
+    opens com.example.app.model; // for reflection
+}
 
-// Chained Optional operations
-Optional<String> city = findUser("123")
-    .flatMap(User::getAddress)
-    .map(Address::getCity);
+// Java 10 - var keyword (local type inference)
+var list = new ArrayList<String>();  // inferred type
+var map = Map.of("key", "value");
+var stream = list.stream()
+    .filter(s -> s.length() > 5);
 
-// Records - immutable data carriers
-record Point(int x, int y) {
+// Can't use var everywhere
+// var x;              // ERROR: can't infer type
+// var lambda = x -> x * 2;  // ERROR: explicit type needed
+
+// Java 11 - New HttpClient
+HttpClient client = HttpClient.newHttpClient();
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.example.com/users"))
+    .header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString(json))
+    .build();
+
+HttpResponse<String> response = client.send(request,
+    HttpResponse.BodyHandlers.ofString());
+
+// String enhancements (Java 11)
+String text = "  Hello  ";
+text.isBlank();           // true if empty/whitespace
+text.strip();             // better trim()
+text.lines().count();     // split by line breaks
+"abc".repeat(3);          // "abcabcabc"`
+        },
+        {
+          name: 'Java 14-15 - Records, Text Blocks, Switch',
+          explanation: 'Records provide compact syntax for immutable data classes. Text blocks handle multi-line strings elegantly. Switch expressions return values and support multiple patterns.',
+          codeExample: `// Records (Java 14+) - immutable data carriers
+record Person(String name, int age) {
     // Compact constructor for validation
-    public Point {
-        if (x < 0 || y < 0) {
-            throw new IllegalArgumentException("Negative coordinates");
-        }
+    public Person {
+        if (age < 0) throw new IllegalArgumentException("Invalid age");
     }
 
     // Additional methods
-    public double distanceFromOrigin() {
-        return Math.sqrt(x * x + y * y);
+    public boolean isAdult() {
+        return age >= 18;
     }
 }
 
-Point p = new Point(3, 4);
-int x = p.x();  // Accessor
-System.out.println(p);  // Point[x=3, y=4]`
+Person p = new Person("Alice", 30);
+String name = p.name();  // auto-generated accessor
+System.out.println(p);   // Person[name=Alice, age=30]
+
+// Text Blocks (Java 15) - multi-line strings
+String json = """
+    {
+        "name": "Alice",
+        "age": 30,
+        "email": "alice@example.com"
+    }
+    """;
+
+String sql = """
+    SELECT u.name, u.email, o.total
+    FROM users u
+    JOIN orders o ON u.id = o.user_id
+    WHERE u.active = true
+    ORDER BY o.created_at DESC
+    """;
+
+// Switch expressions (Java 14)
+int numDays = switch (month) {
+    case "JAN", "MAR", "MAY" -> 31;
+    case "APR", "JUN", "SEP" -> 30;
+    case "FEB" -> {
+        int days = isLeapYear ? 29 : 28;
+        yield days;  // return from block
+    }
+    default -> throw new IllegalArgumentException("Invalid month");
+};
+
+// Pattern matching switch (Java 17+)
+String formatted = switch (obj) {
+    case Integer i -> String.format("int %d", i);
+    case Long l    -> String.format("long %d", l);
+    case Double d  -> String.format("double %f", d);
+    case String s  -> String.format("String %s", s);
+    default        -> obj.toString();
+};`
+        },
+        {
+          name: 'Java 17-21 - Sealed Classes & Pattern Matching',
+          explanation: 'Sealed classes restrict inheritance for better type safety. Pattern matching for instanceof and switch eliminates casting. Record patterns destructure records inline.',
+          codeExample: `// Sealed classes (Java 17) - restricted inheritance
+sealed interface Shape
+    permits Circle, Rectangle, Triangle {}
+
+record Circle(double radius) implements Shape {}
+record Rectangle(double width, double height) implements Shape {}
+final class Triangle implements Shape {
+    // Must be final, sealed, or non-sealed
+}
+
+// Pattern matching for instanceof (Java 16)
+if (obj instanceof String s && s.length() > 5) {
+    System.out.println(s.toUpperCase());  // s is in scope
+}
+
+// Pattern matching switch (Java 21)
+double area(Shape shape) {
+    return switch (shape) {
+        case Circle c -> Math.PI * c.radius() * c.radius();
+        case Rectangle r -> r.width() * r.height();
+        case Triangle t -> t.calculateArea();
+        // Exhaustive - compiler ensures all cases covered
+    };
+}
+
+// Guarded patterns (when clauses)
+String classify(Object obj) {
+    return switch (obj) {
+        case String s when s.length() > 10 -> "Long string";
+        case String s -> "Short string";
+        case Integer i when i > 100 -> "Large number";
+        case Integer i -> "Small number";
+        case null -> "null";
+        default -> "Other";
+    };
+}
+
+// Record patterns (Java 21) - destructuring
+record Point(int x, int y) {}
+record Circle(Point center, int radius) {}
+
+String describe(Object obj) {
+    return switch (obj) {
+        case Circle(Point(var x, var y), var r) ->
+            "Circle at (" + x + "," + y + ") radius " + r;
+        case Point(var x, var y) ->
+            "Point at (" + x + "," + y + ")";
+        default -> "Unknown shape";
+    };
+}`
         },
         {
           name: 'Pattern Matching',
@@ -708,36 +912,128 @@ double area(Shape shape) {
 }`
         },
         {
-          name: 'Virtual Threads',
-          explanation: 'Virtual threads (Java 21) are lightweight threads managed by the JVM. They enable simple blocking code that scales to millions of concurrent operations. Use for I/O-bound workloads, not CPU-bound tasks.',
+          name: 'Java 21 - Virtual Threads',
+          explanation: 'Virtual threads are lightweight threads managed by the JVM, not the OS. Enable millions of concurrent operations with simple blocking code. Perfect for I/O-bound tasks like HTTP requests, database queries. Structured concurrency ensures proper lifecycle management.',
           codeExample: `// Create virtual thread
 Thread vThread = Thread.ofVirtual().start(() -> {
     System.out.println("Running in virtual thread");
 });
+vThread.join();
 
-// Virtual thread executor
+// Virtual thread executor - scales to millions
 try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-    // Submit millions of tasks
-    IntStream.range(0, 100_000).forEach(i -> {
+    IntStream.range(0, 1_000_000).forEach(i -> {
         executor.submit(() -> {
-            // Blocking I/O is efficient with virtual threads
-            String result = fetchFromDatabase(i);
-            return processResult(result);
+            // Blocking calls are cheap with virtual threads
+            String data = httpClient.get("https://api.com/" + i);
+            return processData(data);
         });
     });
+} // Auto-shutdown and wait for completion
+
+// Platform threads vs Virtual threads
+// Platform: 1:1 mapping to OS threads, expensive, limited (~thousands)
+// Virtual: Many-to-few mapping, cheap, millions possible
+
+Thread.ofPlatform().start(() -> { /* OS thread */ });
+Thread.ofVirtual().start(() -> { /* Virtual thread */ });
+
+// Structured concurrency (Preview) - better than CompletableFuture
+try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+    // Fork multiple tasks
+    Future<User> userTask = scope.fork(() -> fetchUser(userId));
+    Future<List<Order>> ordersTask = scope.fork(() -> fetchOrders(userId));
+    Future<Address> addressTask = scope.fork(() -> fetchAddress(userId));
+
+    scope.join();           // Wait for all tasks
+    scope.throwIfFailed();  // Propagate first exception
+
+    // All succeeded - get results
+    User user = userTask.resultNow();
+    List<Order> orders = ordersTask.resultNow();
+    Address address = addressTask.resultNow();
+
+    return new UserProfile(user, orders, address);
 }
 
-// Structured concurrency (Preview)
-try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
-    Future<User> userFuture = scope.fork(() -> fetchUser(id));
-    Future<List<Order>> ordersFuture = scope.fork(() -> fetchOrders(id));
+// Use case: Parallel HTTP requests
+List<String> urls = List.of("url1", "url2", "url3");
+try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+    List<CompletableFuture<String>> futures = urls.stream()
+        .map(url -> CompletableFuture.supplyAsync(
+            () -> httpClient.get(url), executor))
+        .toList();
 
-    scope.join();           // Wait for both
-    scope.throwIfFailed();  // Propagate errors
-
-    return new UserProfile(userFuture.resultNow(),
-                          ordersFuture.resultNow());
+    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+        .join();
 }`
+        },
+        {
+          name: 'Java 21+ - Latest Features',
+          explanation: 'Sequenced collections provide consistent ordering operations. Unnamed patterns/variables use _ for ignored values. String templates (preview) enable safe interpolation. Foreign Function & Memory API for native interop.',
+          codeExample: `// Sequenced Collections (Java 21) - consistent ordering
+List<String> list = new ArrayList<>();
+list.addFirst("first");   // Add to beginning
+list.addLast("last");     // Add to end
+String first = list.getFirst();  // Get first element
+String last = list.getLast();    // Get last element
+List<String> reversed = list.reversed();  // Reverse view
+
+// Works with Set, Map too
+LinkedHashSet<String> set = new LinkedHashSet<>();
+set.addFirst("a");
+set.addLast("z");
+
+LinkedHashMap<String, Integer> map = new LinkedHashMap<>();
+map.putFirst("first", 1);
+map.putLast("last", 99);
+Map.Entry<String, Integer> firstEntry = map.firstEntry();
+
+// Unnamed patterns and variables (Java 21)
+// Use _ for values you don't care about
+if (obj instanceof Point(int x, _)) {
+    // Only care about x, ignore y
+    System.out.println("x = " + x);
+}
+
+// Unnamed variables in catch
+try {
+    riskyOperation();
+} catch (Exception _) {  // Don't need exception object
+    System.out.println("Operation failed");
+}
+
+// Multiple unnamed in switch
+switch (shape) {
+    case Circle(_, var radius) -> "radius: " + radius;
+    case Rectangle(_, _) -> "rectangle";
+    default -> "unknown";
+}
+
+// String templates (Preview - Java 21)
+// Safe interpolation - NOT concatenation
+String name = "Alice";
+int age = 30;
+String message = STR."Hello \\{name}, you are \\{age} years old";
+// Result: "Hello Alice, you are 30 years old"
+
+// With expressions
+String json = STR."""
+    {
+        "name": "\\{user.getName()}",
+        "age": \\{user.getAge()},
+        "email": "\\{user.getEmail()}"
+    }
+    """;
+
+// Foreign Function & Memory API (Java 22)
+// Call native C libraries without JNI
+Linker linker = Linker.nativeLinker();
+SymbolLookup stdlib = linker.defaultLookup();
+MethodHandle strlen = linker.downcallHandle(
+    stdlib.find("strlen").orElseThrow(),
+    FunctionDescriptor.of(JAVA_LONG, ADDRESS)
+);`
         }
       ]
     },
@@ -894,7 +1190,8 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
           <Breadcrumb
             section={{ name: 'Home', onClick: onBack }}
             category={{ name: 'Java', icon: '☕' }}
-            colors={{
+            onMainMenu={breadcrumb?.onMainMenu}
+          colors={{
               primary: JAVA_COLORS.primary,
               secondary: '#fbbf24',
               background: JAVA_COLORS.bg,
@@ -920,12 +1217,106 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
           </p>
         </div>
 
-        {/* Concept Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
-          gap: '1.5rem'
-        }}>
+        {/* Organized Topic Categories */}
+        {javaTopicCategories.map((categoryGroup, catIndex) => (
+          <div key={catIndex} style={{ marginBottom: '3rem' }}>
+            <h2 style={{
+              fontSize: '1.5rem',
+              fontWeight: 'bold',
+              color: categoryGroup.color,
+              marginBottom: '1.25rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              <span>{categoryGroup.icon}</span>
+              {categoryGroup.category}
+            </h2>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '1rem'
+            }}>
+              {categoryGroup.topics.map((topic) => (
+                <button
+                  key={topic.id}
+                  onClick={() => {
+                    if (topic.isQuickRef) {
+                      // Find the matching concept and open modal
+                      const conceptIndex = concepts.findIndex(c => c.id === topic.id.replace('-overview', ''))
+                      if (conceptIndex !== -1) {
+                        setSelectedConceptIndex(conceptIndex)
+                        setSelectedDetailIndex(0)
+                      }
+                    } else {
+                      // Navigate to dedicated page
+                      onSelectItem(topic.id)
+                    }
+                  }}
+                  style={{
+                    background: 'linear-gradient(145deg, #1e293b, #0f172a)',
+                    border: `2px solid ${topic.color}40`,
+                    borderRadius: '12px',
+                    padding: '1.25rem',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all 0.3s ease',
+                    position: 'relative'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)'
+                    e.currentTarget.style.boxShadow = `0 12px 24px -8px ${topic.color}30`
+                    e.currentTarget.style.borderColor = topic.color
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = 'none'
+                    e.currentTarget.style.borderColor = `${topic.color}40`
+                  }}
+                >
+                  {topic.isQuickRef && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '0.5rem',
+                      right: '0.5rem',
+                      background: 'rgba(59, 130, 246, 0.2)',
+                      border: '1px solid rgba(59, 130, 246, 0.4)',
+                      borderRadius: '4px',
+                      padding: '0.15rem 0.4rem',
+                      fontSize: '0.65rem',
+                      color: '#60a5fa',
+                      fontWeight: '600'
+                    }}>
+                      QUICK REF
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                    <span style={{ fontSize: '1.75rem' }}>{topic.icon}</span>
+                    <h3 style={{
+                      color: topic.color,
+                      fontSize: '1rem',
+                      fontWeight: '600',
+                      margin: 0
+                    }}>
+                      {topic.name}
+                    </h3>
+                  </div>
+                  <p style={{
+                    color: '#9ca3af',
+                    fontSize: '0.875rem',
+                    lineHeight: '1.4',
+                    margin: 0
+                  }}>
+                    {topic.description}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {/* Hidden concept cards - kept for modal functionality */}
+        <div style={{ display: 'none' }}>
           {concepts.map((concept, index) => (
             <button
               key={concept.id}
@@ -1009,8 +1400,8 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
                 background: 'linear-gradient(145deg, #1e293b, #0f172a)',
                 borderRadius: '20px',
                 width: '100%',
-                maxWidth: '1000px',
-                maxHeight: '90vh',
+                maxWidth: '1600px',
+                maxHeight: '95vh',
                 overflow: 'auto',
                 border: `2px solid ${selectedConcept.color}`,
                 boxShadow: `0 25px 50px -12px ${selectedConcept.color}40`

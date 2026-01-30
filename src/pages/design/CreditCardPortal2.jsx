@@ -491,7 +491,7 @@ export default function CreditCardPortal2({ onBack, breadcrumb }) {
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         <div style={{
           display: 'flex',

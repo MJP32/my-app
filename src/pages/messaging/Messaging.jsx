@@ -46,8 +46,8 @@ function Messaging({ onBack, onSelectItem, breadcrumb }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #7c2d12, #111827)',
-      color: 'white',
+      background: 'var(--bg-gradient)',
+      color: 'var(--text-primary)',
       padding: '1.5rem'
     }}>
       <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
@@ -99,11 +99,11 @@ function Messaging({ onBack, onSelectItem, breadcrumb }) {
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
         <p style={{
           fontSize: '1.2rem',
-          color: '#d1d5db',
+          color: 'var(--text-secondary)',
           textAlign: 'center',
           marginBottom: '3rem',
           lineHeight: '1.8'
@@ -125,7 +125,7 @@ function Messaging({ onBack, onSelectItem, breadcrumb }) {
               role="link"
               aria-label={`${item.name}. ${item.description}`}
               style={{
-                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                background: 'var(--bg-card)',
                 padding: '1.5rem',
                 borderRadius: '0.75rem',
                 border: `2px solid ${item.color}`,
@@ -168,7 +168,7 @@ function Messaging({ onBack, onSelectItem, breadcrumb }) {
 
               <p style={{
                 fontSize: '0.9rem',
-                color: '#d1d5db',
+                color: 'var(--text-secondary)',
                 lineHeight: '1.6',
                 marginBottom: '1rem'
               }}>
@@ -184,7 +184,7 @@ function Messaging({ onBack, onSelectItem, breadcrumb }) {
                 color: item.color,
                 fontWeight: '600',
                 paddingTop: '0.75rem',
-                borderTop: '1px solid #374151'
+                borderTop: '1px solid var(--border-light)'
               }}>
                 <span>Explore Topic</span>
                 <span>→</span>

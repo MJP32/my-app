@@ -47,6 +47,7 @@ function Practice({ onBack, onSelectItem }) {
     'Lambdas Advanced': 0,
     'Functional Interfaces': 4,
     'Collections Framework': 0,
+    'Optional': 0,
     // Concurrency
     'Concurrency': 0,
     'Multithreading': 0,
@@ -158,7 +159,7 @@ function Practice({ onBack, onSelectItem }) {
           icon: '☕',
           color: '#f59e0b',
           count: 8,
-          items: ['Streams', 'Streams Advanced', 'Lambdas', 'Lambdas Advanced', 'Functional Interfaces', 'Collections Framework']
+          items: ['Streams', 'Streams Advanced', 'Lambdas', 'Lambdas Advanced', 'Functional Interfaces', 'Collections Framework', 'Optional']
         },
         {
           id: 'Core Java Fundamentals',

@@ -9,6 +9,8 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
+import { isProblemCompleted } from '../../services/progressService'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -648,6 +650,313 @@ const BiFunctionDiagram = () => (
 function FunctionalInterfaces({ onBack, breadcrumb }) {
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [selectedProblem, setSelectedProblem] = useState(null)
+  const [userCode, setUserCode] = useState('')
+  const [showSolution, setShowSolution] = useState(false)
+
+  useEffect(() => {
+    const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
+    window.addEventListener('progressUpdate', handleProgressUpdate)
+    return () => window.removeEventListener('progressUpdate', handleProgressUpdate)
+  }, [])
+
+  const practiceProblems = [
+    {
+      id: 1,
+      title: 'Implement Predicate',
+      difficulty: 'Easy',
+      description: 'Create a Predicate that checks if a string is a valid email format.',
+      example: 'isValidEmail.test("user@example.com") → true',
+      instructions: `Create a Predicate<String> that validates email addresses.
+
+**Requirements:**
+1. The email must contain exactly one '@' symbol
+2. There must be at least one character before the '@'
+3. There must be at least one '.' after the '@'
+4. The domain part (after '@') must have at least 2 characters after the last '.'
+
+**Test Cases:**
+- "user@example.com" → true
+- "test.email@domain.org" → true
+- "invalid" → false
+- "@nodomain.com" → false
+- "no@dot" → false`,
+      starterCode: `import java.util.function.Predicate;
+
+public class EmailValidator {
+    public static void main(String[] args) {
+        // TODO: Create a Predicate<String> called isValidEmail
+        // that returns true if the string is a valid email format
+        
+        Predicate<String> isValidEmail = email -> {
+            // Your implementation here
+            return false; // Replace this
+        };
+        
+        // Test cases
+        System.out.println(isValidEmail.test("user@example.com"));  // true
+        System.out.println(isValidEmail.test("test@domain.org"));   // true
+        System.out.println(isValidEmail.test("invalid"));           // false
+        System.out.println(isValidEmail.test("@nodomain.com"));     // false
+    }
+}`,
+      solution: `import java.util.function.Predicate;
+
+public class EmailValidator {
+    public static void main(String[] args) {
+        Predicate<String> isValidEmail = email -> {
+            if (email == null || !email.contains("@")) return false;
+            
+            String[] parts = email.split("@");
+            if (parts.length != 2) return false;
+            
+            String local = parts[0];
+            String domain = parts[1];
+            
+            // Check local part has content
+            if (local.isEmpty()) return false;
+            
+            // Check domain has a dot and valid structure
+            if (!domain.contains(".")) return false;
+            int lastDot = domain.lastIndexOf(".");
+            if (lastDot < 1 || domain.length() - lastDot <= 2) return false;
+            
+            return true;
+        };
+        
+        // Test cases
+        System.out.println(isValidEmail.test("user@example.com"));  // true
+        System.out.println(isValidEmail.test("test@domain.org"));   // true
+        System.out.println(isValidEmail.test("invalid"));           // false
+        System.out.println(isValidEmail.test("@nodomain.com"));     // false
+    }
+}`
+    },
+    {
+      id: 2,
+      title: 'Function Chaining',
+      difficulty: 'Medium',
+      description: 'Chain Function interfaces to transform data through multiple steps.',
+      example: 'parse.andThen(validate).andThen(save)',
+      instructions: `Create a data processing pipeline using Function chaining.
+
+**Requirements:**
+1. Create a Function<String, Integer> called 'parse' that extracts a number from a string like "Value: 42"
+2. Create a Function<Integer, Integer> called 'double' that doubles the number
+3. Create a Function<Integer, String> called 'format' that formats as "Result: X"
+4. Chain them together using andThen()
+
+**Expected Flow:**
+"Value: 25" → parse → 25 → double → 50 → format → "Result: 50"`,
+      starterCode: `import java.util.function.Function;
+
+public class FunctionChaining {
+    public static void main(String[] args) {
+        // TODO: Create parse function (String -> Integer)
+        Function<String, Integer> parse = str -> {
+            // Extract number from "Value: X" format
+            return 0; // Replace this
+        };
+        
+        // TODO: Create double function (Integer -> Integer)
+        Function<Integer, Integer> doubleIt = n -> {
+            return 0; // Replace this
+        };
+        
+        // TODO: Create format function (Integer -> String)
+        Function<Integer, String> format = n -> {
+            return ""; // Replace this
+        };
+        
+        // TODO: Chain them together
+        Function<String, String> pipeline = null; // Chain parse, doubleIt, format
+        
+        // Test
+        System.out.println(pipeline.apply("Value: 25")); // Should print "Result: 50"
+        System.out.println(pipeline.apply("Value: 10")); // Should print "Result: 20"
+    }
+}`,
+      solution: `import java.util.function.Function;
+
+public class FunctionChaining {
+    public static void main(String[] args) {
+        // Parse: extract number from "Value: X" format
+        Function<String, Integer> parse = str -> {
+            String numStr = str.replace("Value: ", "").trim();
+            return Integer.parseInt(numStr);
+        };
+        
+        // Double the number
+        Function<Integer, Integer> doubleIt = n -> n * 2;
+        
+        // Format as "Result: X"
+        Function<Integer, String> format = n -> "Result: " + n;
+        
+        // Chain them together using andThen
+        Function<String, String> pipeline = parse.andThen(doubleIt).andThen(format);
+        
+        // Test
+        System.out.println(pipeline.apply("Value: 25")); // Result: 50
+        System.out.println(pipeline.apply("Value: 10")); // Result: 20
+    }
+}`
+    },
+    {
+      id: 3,
+      title: 'BiFunction Usage',
+      difficulty: 'Medium',
+      description: 'Use BiFunction to merge two maps with custom merge logic.',
+      example: 'BiFunction<Map, Map, Map> merger',
+      instructions: `Create a BiFunction that merges two Maps with custom logic.
+
+**Requirements:**
+1. Create a BiFunction<Map<String, Integer>, Map<String, Integer>, Map<String, Integer>>
+2. When keys exist in both maps, sum the values
+3. When a key exists in only one map, include it as-is
+4. Return a new merged map
+
+**Example:**
+Map1: {"a": 1, "b": 2}
+Map2: {"b": 3, "c": 4}
+Result: {"a": 1, "b": 5, "c": 4}`,
+      starterCode: `import java.util.function.BiFunction;
+import java.util.Map;
+import java.util.HashMap;
+
+public class MapMerger {
+    public static void main(String[] args) {
+        // TODO: Create a BiFunction that merges two maps
+        // When keys overlap, sum the values
+        BiFunction<Map<String, Integer>, Map<String, Integer>, Map<String, Integer>> merger = 
+            (map1, map2) -> {
+                // Your implementation here
+                return new HashMap<>(); // Replace this
+            };
+        
+        // Test
+        Map<String, Integer> map1 = new HashMap<>();
+        map1.put("a", 1);
+        map1.put("b", 2);
+        
+        Map<String, Integer> map2 = new HashMap<>();
+        map2.put("b", 3);
+        map2.put("c", 4);
+        
+        Map<String, Integer> result = merger.apply(map1, map2);
+        System.out.println(result); // {a=1, b=5, c=4}
+    }
+}`,
+      solution: `import java.util.function.BiFunction;
+import java.util.Map;
+import java.util.HashMap;
+
+public class MapMerger {
+    public static void main(String[] args) {
+        BiFunction<Map<String, Integer>, Map<String, Integer>, Map<String, Integer>> merger = 
+            (map1, map2) -> {
+                Map<String, Integer> result = new HashMap<>(map1);
+                map2.forEach((key, value) -> 
+                    result.merge(key, value, Integer::sum)
+                );
+                return result;
+            };
+        
+        // Test
+        Map<String, Integer> map1 = new HashMap<>();
+        map1.put("a", 1);
+        map1.put("b", 2);
+        
+        Map<String, Integer> map2 = new HashMap<>();
+        map2.put("b", 3);
+        map2.put("c", 4);
+        
+        Map<String, Integer> result = merger.apply(map1, map2);
+        System.out.println(result); // {a=1, b=5, c=4}
+    }
+}`
+    },
+    {
+      id: 4,
+      title: 'Custom Functional Interface',
+      difficulty: 'Easy',
+      description: 'Create a TriConsumer functional interface that accepts three arguments.',
+      example: '@FunctionalInterface TriConsumer<T,U,V>',
+      instructions: `Create a custom functional interface called TriConsumer.
+
+**Requirements:**
+1. Annotate with @FunctionalInterface
+2. Define a single abstract method 'accept' that takes 3 parameters
+3. The method should return void (it's a Consumer)
+4. Add a default method 'andThen' for chaining
+
+**Usage Example:**
+TriConsumer<String, Integer, Boolean> logger = 
+    (name, age, active) -> System.out.println(name + ", " + age + ", " + active);
+logger.accept("John", 30, true);`,
+      starterCode: `// TODO: Create the TriConsumer functional interface
+// @FunctionalInterface
+// public interface TriConsumer<T, U, V> {
+//     void accept(T t, U u, V v);
+// }
+
+public class TriConsumerDemo {
+    public static void main(String[] args) {
+        // TODO: Implement TriConsumer interface above, then use it here
+        
+        // Example usage (uncomment when interface is ready):
+        // TriConsumer<String, Integer, Boolean> printPerson = 
+        //     (name, age, active) -> 
+        //         System.out.println("Name: " + name + ", Age: " + age + ", Active: " + active);
+        
+        // printPerson.accept("Alice", 25, true);
+        // printPerson.accept("Bob", 30, false);
+    }
+}`,
+      solution: `@FunctionalInterface
+interface TriConsumer<T, U, V> {
+    void accept(T t, U u, V v);
+    
+    default TriConsumer<T, U, V> andThen(TriConsumer<? super T, ? super U, ? super V> after) {
+        return (t, u, v) -> {
+            accept(t, u, v);
+            after.accept(t, u, v);
+        };
+    }
+}
+
+public class TriConsumerDemo {
+    public static void main(String[] args) {
+        TriConsumer<String, Integer, Boolean> printPerson = 
+            (name, age, active) -> 
+                System.out.println("Name: " + name + ", Age: " + age + ", Active: " + active);
+        
+        TriConsumer<String, Integer, Boolean> logStatus = 
+            (name, age, active) -> 
+                System.out.println("Status: " + (active ? "ACTIVE" : "INACTIVE"));
+        
+        // Chain them together
+        TriConsumer<String, Integer, Boolean> combined = printPerson.andThen(logStatus);
+        
+        combined.accept("Alice", 25, true);
+        System.out.println("---");
+        combined.accept("Bob", 30, false);
+    }
+}`
+    }
+  ]
+
+  const openProblem = (problem) => {
+    setSelectedProblem(problem)
+    setUserCode(problem.starterCode)
+    setShowSolution(false)
+  }
+
+  const closeProblem = () => {
+    setSelectedProblem(null)
+    setUserCode('')
+    setShowSolution(false)
+  }
 
   // =============================================================================
   // CONCEPTS DATA
@@ -3297,9 +3606,169 @@ public class CommonMistakes {
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu}
           colors={FUNCTIONAL_COLORS}
         />
       </div>
+
+      {/* Practice Exercises Section */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid rgba(217, 70, 239, 0.3)' }}>
+        <h2 style={{ color: '#d946ef', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span>📝</span> Practice Exercises</h2>
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>Click on an exercise to practice. Complete the code challenge and mark as done.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+          {practiceProblems.map((problem) => {
+            const problemId = `FunctionalInterfaces-${problem.id}`
+            const isCompleted = isProblemCompleted(problemId)
+            return (
+              <div
+                key={problem.id}
+                onClick={() => openProblem(problem)}
+                style={{
+                  background: isCompleted ? 'rgba(34, 197, 94, 0.1)' : 'rgba(30, 41, 59, 0.8)',
+                  borderRadius: '0.75rem',
+                  padding: '1rem',
+                  border: `1px solid ${isCompleted ? '#22c55e' : '#334155'}`,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                  e.currentTarget.style.borderColor = '#d946ef'
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(217, 70, 239, 0.2)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.borderColor = isCompleted ? '#22c55e' : '#334155'
+                  e.currentTarget.style.boxShadow = 'none'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+                  <h4 style={{ color: '#e2e8f0', margin: 0, fontSize: '0.95rem' }}>{problem.title}</h4>
+                  <span style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '600', backgroundColor: problem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(245, 158, 11, 0.2)', color: problem.difficulty === 'Easy' ? '#22c55e' : '#f59e0b' }}>{problem.difficulty}</span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.5rem 0', lineHeight: '1.4' }}>{problem.description}</p>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: '0.5rem 0', fontStyle: 'italic' }}>{problem.example}</p>
+                <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#d946ef', fontSize: '0.8rem', fontWeight: '500' }}>Click to practice →</span>
+                  <div onClick={(e) => e.stopPropagation()}><CompletionCheckbox problemId={problemId} compact /></div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Practice Problem Modal */}
+      {selectedProblem && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.85)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '1rem'
+          }}
+          onClick={closeProblem}
+        >
+          <div
+            style={{
+              backgroundColor: '#1f2937',
+              borderRadius: '1rem',
+              width: '95vw',
+              maxWidth: '1400px',
+              height: '90vh',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              border: '2px solid #d946ef'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid #374151', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <h2 style={{ color: '#e2e8f0', margin: 0, fontSize: '1.5rem' }}>{selectedProblem.title}</h2>
+                <span style={{ padding: '0.3rem 0.75rem', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600', backgroundColor: selectedProblem.difficulty === 'Easy' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(245, 158, 11, 0.2)', color: selectedProblem.difficulty === 'Easy' ? '#22c55e' : '#f59e0b' }}>{selectedProblem.difficulty}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <CompletionCheckbox problemId={`FunctionalInterfaces-${selectedProblem.id}`} compact />
+                <button
+                  onClick={closeProblem}
+                  style={{ padding: '0.5rem 1rem', backgroundColor: '#374151', color: '#e2e8f0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem' }}
+                >
+                  ✕ Close
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', flex: 1, overflow: 'hidden' }}>
+              {/* Left: Instructions */}
+              <div style={{ padding: '1.5rem', borderRight: '1px solid #374151', overflowY: 'auto' }}>
+                <h3 style={{ color: '#d946ef', marginTop: 0, marginBottom: '1rem' }}>📋 Instructions</h3>
+                <div style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
+                  {selectedProblem.instructions.split('**').map((part, i) => 
+                    i % 2 === 1 ? <strong key={i} style={{ color: '#e2e8f0' }}>{part}</strong> : part
+                  )}
+                </div>
+              </div>
+
+              {/* Right: Code Editor */}
+              <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                  <button
+                    onClick={() => { setShowSolution(!showSolution); if (!showSolution) setUserCode(selectedProblem.solution) }}
+                    style={{ padding: '0.5rem 1rem', backgroundColor: showSolution ? '#ef4444' : '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}
+                  >
+                    {showSolution ? '🔒 Hide Solution' : '💡 Show Solution'}
+                  </button>
+                  <button
+                    onClick={() => { setUserCode(selectedProblem.starterCode); setShowSolution(false) }}
+                    style={{ padding: '0.5rem 1rem', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}
+                  >
+                    🔄 Reset Code
+                  </button>
+                  <button
+                    onClick={() => navigator.clipboard.writeText(userCode)}
+                    style={{ padding: '0.5rem 1rem', backgroundColor: '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}
+                  >
+                    📋 Copy Code
+                  </button>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                  <textarea
+                    value={userCode}
+                    onChange={(e) => setUserCode(e.target.value)}
+                    style={{
+                      flex: 1,
+                      width: '100%',
+                      padding: '1rem',
+                      fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+                      fontSize: '0.9rem',
+                      backgroundColor: '#111827',
+                      color: '#e2e8f0',
+                      border: '1px solid #374151',
+                      borderRadius: '8px',
+                      resize: 'none',
+                      lineHeight: '1.5'
+                    }}
+                    spellCheck={false}
+                  />
+                </div>
+                <p style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '0.75rem', marginBottom: 0 }}>
+                  💡 Copy this code to your IDE to run and test. Mark as complete when you've solved it!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Concept Cards Grid */}
       <div style={{
@@ -3364,9 +3833,7 @@ public class CommonMistakes {
               background: 'linear-gradient(135deg, #1e293b, #0f172a)',
               borderRadius: '1rem',
               padding: '2rem',
-              maxWidth: '1200px',
-              width: '100%',
-              maxHeight: '92vh',
+              width: '95vw', maxWidth: '1400px', height: '90vh',
               overflow: 'auto',
               border: `1px solid ${selectedConcept.color}40`
             }}
@@ -3376,6 +3843,7 @@ public class CommonMistakes {
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
+              onMainMenu={breadcrumb?.onMainMenu}
               colors={FUNCTIONAL_COLORS}
             />
 

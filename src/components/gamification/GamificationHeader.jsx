@@ -6,7 +6,7 @@ import LevelBadge from './LevelBadge'
 import XPDisplay from './XPDisplay'
 
 function GamificationHeader({ userId, size = 'small' }) {
-  const { colors } = useTheme()
+  useTheme() // Theme context for consistency
   const [gamificationData, setGamificationData] = useState(null)
 
   // Load gamification data on mount and when userId changes
@@ -22,7 +22,7 @@ function GamificationHeader({ userId, size = 'small' }) {
 
   // Listen for gamification updates
   useEffect(() => {
-    const handleUpdate = (event) => {
+    const handleUpdate = () => {
       if (userId) {
         const summary = getGamificationSummary(userId)
         setGamificationData(summary)

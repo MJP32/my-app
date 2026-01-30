@@ -776,7 +776,7 @@ print(extract_person_info("Bob (invalid)"))  # None
             Master Python's powerful regex module (re) for pattern matching, validation, and text processing.
           </p>
 
-          <Breadcrumb breadcrumb={breadcrumb} />
+          <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
 
           {/* Regex Guide Section */}
           <div style={{

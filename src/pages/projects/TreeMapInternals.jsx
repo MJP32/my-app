@@ -418,7 +418,7 @@ public class TreeSet<E> {
   return (
     <div className={`min-h-screen ${colors.background}`}>
       <div className="max-w-6xl mx-auto p-6">
-{breadcrumb && <Breadcrumb breadcrumb={breadcrumb} />}
+{breadcrumb && <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />}
         <div className="flex items-center gap-3 mt-4">
           <button ref={backButtonRef} onClick={onBack}
             className={`flex items-center gap-2 px-4 py-2 ${colors.buttonBg} text-white rounded-lg transition-all duration-200 hover:scale-105`}>

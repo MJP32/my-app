@@ -42,7 +42,7 @@ export const SHORTCUTS = {
 export const navigateGrid = (currentIndex, totalItems, columns, direction) => {
   const rows = Math.ceil(totalItems / columns);
   const currentRow = Math.floor(currentIndex / columns);
-  const currentCol = currentIndex % columns;
+  // currentCol is used implicitly in index calculations
 
   switch (direction) {
     case 'up':
@@ -217,11 +217,11 @@ export const handleKeyboardEvent = (event, handlers, preventDefault = true) => {
 };
 
 /**
- * Create keyboard navigation hook for React components
+ * Custom React hook for keyboard navigation in components
  * @param {Object} config - Configuration object
  * @returns {Object} Navigation state and handlers
  */
-export const createKeyboardNavigation = (config) => {
+export const useKeyboardNavigation = (config) => {
   const {
     items = [],
     columns = 1,
