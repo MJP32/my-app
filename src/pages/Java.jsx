@@ -192,11 +192,23 @@ function Java({ onBack, onSelectItem, breadcrumb }) {
   // Organized Java topics by category
   const javaTopicCategories = [
     {
+      category: 'Quick Reference',
+      icon: '📋',
+      color: '#64748b',
+      topics: [
+        { id: 'oop-overview', name: 'OOP Principles', icon: '📦', color: '#f59e0b', description: 'Encapsulation, inheritance, polymorphism, abstraction, and SOLID principles.', isQuickRef: true },
+        { id: 'streams-overview', name: 'Streams & Lambdas', icon: '🌊', color: '#3b82f6', description: 'Lambda expressions, method references, and functional interfaces.', isQuickRef: true },
+        { id: 'concurrency-overview', name: 'Concurrency', icon: '🔄', color: '#10b981', description: 'Thread pools, synchronization, CompletableFuture, and concurrent collections.', isQuickRef: true },
+        { id: 'collections-overview', name: 'Collections', icon: '📚', color: '#8b5cf6', description: 'List, Set, Map, Queue implementations and when to use each.', isQuickRef: true },
+        { id: 'modern-java-overview', name: 'Modern Java (8-21)', icon: '🚀', color: '#22c55e', description: 'Overview of all modern Java features from Java 8 to 24.', isQuickRef: true },
+        { id: 'jvm-overview', name: 'JVM & Performance', icon: '⚙️', color: '#6366f1', description: 'Memory model, garbage collection, and optimization techniques.', isQuickRef: true },
+      ]
+    },
+    {
       category: 'Core Fundamentals',
       icon: '📚',
       color: '#f59e0b',
       topics: [
-        { id: 'oop-overview', name: 'OOP Principles', icon: '📦', color: '#f59e0b', description: 'Encapsulation, inheritance, polymorphism, abstraction, and SOLID principles.', isQuickRef: true },
         { id: 'Exception Handling', name: 'Exception Handling', icon: '⚠️', color: '#ef4444', description: 'Try-catch, custom exceptions, exception hierarchies, and error handling patterns.' },
         { id: 'Generics', name: 'Generics', icon: '🔤', color: '#f97316', description: 'Generic classes, methods, bounded types, wildcards, and type erasure.' },
         { id: 'File I/O', name: 'File I/O', icon: '📁', color: '#14b8a6', description: 'File operations, NIO.2, Path API, streams, and file system operations.' },
@@ -211,7 +223,6 @@ function Java({ onBack, onSelectItem, breadcrumb }) {
         { id: 'Streams', name: 'Streams API', icon: '🌊', color: '#06b6d4', description: 'Stream operations, collectors, parallel streams, and functional programming.' },
         { id: 'Optional', name: 'Optional', icon: '🎁', color: '#8b5cf6', description: 'Null-safety with Optional, functional transformations, and best practices.' },
         { id: 'Functional Interfaces', name: 'Functional Interfaces', icon: '🔗', color: '#14b8a6', description: 'Predicate, Function, Consumer, Supplier, and custom functional interfaces.' },
-        { id: 'streams-overview', name: 'Lambdas & Functional', icon: '⚡', color: '#3b82f6', description: 'Lambda expressions, method references, and functional interfaces.', isQuickRef: true },
       ]
     },
     {
@@ -247,7 +258,6 @@ function Java({ onBack, onSelectItem, breadcrumb }) {
       color: '#f59e0b',
       topics: [
         { id: 'Java 24', name: 'Java 24 Preview', icon: '🔮', color: '#f59e0b', description: 'Cutting-edge preview features and experimental capabilities.' },
-        { id: 'modern-java-overview', name: 'Quick Reference', icon: '📋', color: '#64748b', description: 'Overview of all modern Java features from Java 8 to 24.', isQuickRef: true },
       ]
     },
     {
@@ -257,7 +267,6 @@ function Java({ onBack, onSelectItem, breadcrumb }) {
       topics: [
         { id: 'JVM Internals', name: 'JVM Internals', icon: '⚙️', color: '#6366f1', description: 'Class loading, bytecode, JIT compilation, and JVM architecture.' },
         { id: 'Memory Management', name: 'Memory Management', icon: '🧠', color: '#a855f7', description: 'Heap, stack, garbage collection algorithms, and memory optimization.' },
-        { id: 'jvm-overview', name: 'Performance Tips', icon: '🎯', color: '#06b6d4', description: 'Optimization techniques, profiling, and performance best practices.', isQuickRef: true },
       ]
     }
   ]
