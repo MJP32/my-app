@@ -186,12 +186,112 @@ function ProgressDashboard({ onBack, onNavigate }) {
       { name: 'Set Operations', problems: 0, icon: '🔢', description: 'Python set operations and methods' },
       { name: 'Map Operations', problems: 0, icon: '🗺️', description: 'Dictionary operations and comprehensions' },
     ]},
-    // System Design
-    { category: 'System Design', difficulty: 'Advanced', color: '#ec4899', topics: [
-      { name: 'Design Patterns Practice', problems: 0, icon: '🏛️', description: 'Gang of Four design patterns' },
+    // System Design Fundamentals
+    { category: 'System Design Fundamentals', difficulty: 'Intermediate', color: '#ec4899', topics: [
+      { name: 'System Design', problems: 0, icon: '🏗️', description: 'System design overview and methodology' },
+      { name: 'CAP Theorem', problems: 0, icon: '⚖️', description: 'Consistency, Availability, Partition tolerance' },
+      { name: 'Scaling', problems: 0, icon: '📈', description: 'Horizontal and vertical scaling strategies' },
+      { name: 'Load Balancing', problems: 0, icon: '⚡', description: 'Load balancer types and algorithms' },
+      { name: 'Caching Strategies', problems: 0, icon: '💨', description: 'Cache patterns, eviction policies, CDN' },
+      { name: 'CDN', problems: 0, icon: '🌐', description: 'Content Delivery Networks and edge caching' },
+      { name: 'Proxies', problems: 0, icon: '🔀', description: 'Forward and reverse proxy patterns' },
+    ]},
+    // Data & Storage
+    { category: 'Data & Storage', difficulty: 'Intermediate-Advanced', color: '#8b5cf6', topics: [
+      { name: 'Database Sharding', problems: 0, icon: '🔪', description: 'Horizontal partitioning strategies' },
+      { name: 'Database Replication', problems: 0, icon: '📋', description: 'Master-slave, multi-master replication' },
+      { name: 'Data Partitioning', problems: 0, icon: '📊', description: 'Partitioning schemes and strategies' },
+      { name: 'SQL vs NoSQL', problems: 0, icon: '🗄️', description: 'When to use relational vs non-relational' },
+      { name: 'Consistent Hashing', problems: 0, icon: '🔄', description: 'Distributed hash tables and ring hashing' },
+      { name: 'Blob Storage', problems: 0, icon: '📦', description: 'Object storage for unstructured data' },
+    ]},
+    // Communication & APIs
+    { category: 'Communication & APIs', difficulty: 'Intermediate', color: '#06b6d4', topics: [
+      { name: 'API Design', problems: 0, icon: '🔌', description: 'RESTful API design principles' },
+      { name: 'Message Queues', problems: 0, icon: '📬', description: 'Async messaging patterns and brokers' },
+      { name: 'WebSockets', problems: 0, icon: '🔗', description: 'Real-time bidirectional communication' },
+      { name: 'Event Driven', problems: 0, icon: '📡', description: 'Event-driven architecture basics' },
+    ]},
+    // Architecture Patterns
+    { category: 'Architecture Patterns', difficulty: 'Advanced', color: '#f97316', topics: [
+      { name: 'Microservices', problems: 0, icon: '🧩', description: 'Microservices architecture principles' },
+      { name: 'Microservice Patterns', problems: 0, icon: '📐', description: 'Saga, CQRS, Event Sourcing patterns' },
+      { name: 'Domain Driven Design', problems: 0, icon: '🎯', description: 'DDD concepts and bounded contexts' },
+      { name: 'Event Driven Architecture', problems: 0, icon: '⚡', description: 'Event sourcing and stream processing' },
+      { name: 'Design Patterns', problems: 0, icon: '🏛️', description: 'Gang of Four design patterns' },
+    ]},
+    // System Design Components
+    { category: 'System Design Components', difficulty: 'Advanced', color: '#10b981', topics: [
       { name: 'LRU Cache', problems: 0, icon: '💾', description: 'Least Recently Used cache implementation' },
       { name: 'Rate Limiter', problems: 0, icon: '⏱️', description: 'Rate limiting algorithms and implementations' },
-      { name: 'Design Problems', problems: 0, icon: '🎨', description: 'System design interview problems' },
+      { name: 'Notification System', problems: 0, icon: '🔔', description: 'Push notifications architecture' },
+      { name: 'Newsfeed', problems: 0, icon: '📰', description: 'Social media feed design' },
+      { name: 'TypeAhead', problems: 0, icon: '🔍', description: 'Autocomplete and search suggestions' },
+      { name: 'TinyURL', problems: 0, icon: '🔗', description: 'URL shortener service design' },
+    ]},
+    // System Design Case Studies
+    { category: 'System Design Case Studies', difficulty: 'Advanced', color: '#ef4444', topics: [
+      { name: 'Twitter', problems: 0, icon: '🐦', description: 'Social media platform design' },
+      { name: 'Netflix', problems: 0, icon: '🎬', description: 'Video streaming service design' },
+      { name: 'Instagram', problems: 0, icon: '📷', description: 'Photo sharing platform design' },
+      { name: 'YouTube', problems: 0, icon: '▶️', description: 'Video platform architecture' },
+      { name: 'WhatsApp', problems: 0, icon: '💬', description: 'Messaging app design' },
+      { name: 'Zoom', problems: 0, icon: '📹', description: 'Video conferencing system' },
+      { name: 'Dropbox', problems: 0, icon: '📁', description: 'File storage and sync service' },
+      { name: 'Amazon', problems: 0, icon: '🛒', description: 'E-commerce platform design' },
+      { name: 'Google Docs', problems: 0, icon: '📝', description: 'Collaborative editing system' },
+      { name: 'RideShare', problems: 0, icon: '🚗', description: 'Ride-sharing service design' },
+      { name: 'Food Delivery', problems: 0, icon: '🍕', description: 'Food delivery platform design' },
+    ]},
+    // Java Interview Questions
+    { category: 'Java Interview Questions', difficulty: 'Intermediate', color: '#f97316', topics: [
+      { name: 'Java Questions', problems: 10, icon: '☕', description: 'General Java interview questions' },
+      { name: 'Core Java Questions', problems: 12, icon: '📚', description: 'Core Java fundamentals and concepts' },
+      { name: 'Java 8 Questions', problems: 15, icon: '🎯', description: 'Java 8 features interview questions' },
+      { name: 'Java 11 Questions', problems: 8, icon: '🔧', description: 'Java 11 features interview questions' },
+      { name: 'Java 15 Questions', problems: 8, icon: '📝', description: 'Java 15 features interview questions' },
+      { name: 'Java 21 Questions', problems: 8, icon: '🚀', description: 'Java 21 features interview questions' },
+      { name: 'Java 24 Questions', problems: 4, icon: '🔮', description: 'Java 24 features interview questions' },
+    ]},
+    // Spring Framework Questions
+    { category: 'Spring Framework Questions', difficulty: 'Intermediate-Advanced', color: '#22c55e', topics: [
+      { name: 'Spring Core Questions', problems: 3, icon: '🌱', description: 'Spring Core framework concepts' },
+      { name: 'Spring Boot Questions', problems: 18, icon: '🚀', description: 'Spring Boot configuration and features' },
+      { name: 'Spring Security Questions', problems: 3, icon: '🔒', description: 'Spring Security authentication and authorization' },
+      { name: 'Spring Data JPA Questions', problems: 3, icon: '💾', description: 'Spring Data JPA repositories and queries' },
+      { name: 'Spring Annotations Questions', problems: 8, icon: '🏷️', description: 'Common Spring annotations and usage' },
+    ]},
+    // Database Questions
+    { category: 'Database Questions', difficulty: 'Intermediate', color: '#3b82f6', topics: [
+      { name: 'SQL Questions', problems: 16, icon: '🗃️', description: 'SQL queries, joins, and optimization' },
+      { name: 'NoSQL Questions', problems: 8, icon: '📊', description: 'NoSQL databases and use cases' },
+      { name: 'ORM Questions', problems: 8, icon: '🔗', description: 'Object-Relational Mapping concepts' },
+      { name: 'Hibernate Questions', problems: 5, icon: '🐻', description: 'Hibernate ORM framework' },
+    ]},
+    // Messaging & Streaming Questions
+    { category: 'Messaging & Streaming Questions', difficulty: 'Intermediate-Advanced', color: '#8b5cf6', topics: [
+      { name: 'Kafka Questions', problems: 18, icon: '📨', description: 'Apache Kafka messaging and streaming' },
+      { name: 'RabbitMQ Questions', problems: 4, icon: '🐰', description: 'RabbitMQ message broker' },
+      { name: 'Solace Questions', problems: 4, icon: '☀️', description: 'Solace messaging platform' },
+      { name: 'Apache Flink Questions', problems: 5, icon: '⚡', description: 'Apache Flink stream processing' },
+    ]},
+    // DevOps & Monitoring Questions
+    { category: 'DevOps & Monitoring Questions', difficulty: 'Intermediate', color: '#06b6d4', topics: [
+      { name: 'Jenkins Questions', problems: 11, icon: '🔧', description: 'Jenkins CI/CD pipeline concepts' },
+      { name: 'TeamCity Questions', problems: 4, icon: '🏗️', description: 'TeamCity build automation' },
+      { name: 'Prometheus Questions', problems: 4, icon: '📈', description: 'Prometheus monitoring and alerting' },
+      { name: 'Grafana Questions', problems: 4, icon: '📊', description: 'Grafana visualization and dashboards' },
+      { name: 'Zipkin Questions', problems: 4, icon: '🔍', description: 'Distributed tracing with Zipkin' },
+      { name: 'Actuator Questions', problems: 4, icon: '⚙️', description: 'Spring Boot Actuator endpoints' },
+    ]},
+    // API & Integration Questions
+    { category: 'API & Integration Questions', difficulty: 'Intermediate', color: '#14b8a6', topics: [
+      { name: 'REST API Questions', problems: 4, icon: '🌐', description: 'RESTful API design and best practices' },
+    ]},
+    // Specialized Domain Questions
+    { category: 'Specialized Domain Questions', difficulty: 'Advanced', color: '#f43f5e', topics: [
+      { name: 'eTrading Questions', problems: 27, icon: '📈', description: 'Electronic trading systems and concepts' },
+      { name: 'System Design Questions', problems: 15, icon: '🏛️', description: 'Scalability, architecture, and distributed systems' },
     ]},
   ]
 
@@ -234,11 +334,70 @@ function ProgressDashboard({ onBack, onNavigate }) {
       // Python topics
       'Set Operations': 'SetOperations',
       'Map Operations': 'MapOperations',
-      // System Design topics
-      'Design Patterns Practice': 'DesignPatternsPractice',
+      // System Design Fundamentals
+      'System Design': 'SystemDesign',
+      'CAP Theorem': 'CAPTheorem',
+      'Load Balancing': 'LoadBalancing',
+      'Caching Strategies': 'CachingStrategies',
+      // Data & Storage
+      'Database Sharding': 'DatabaseSharding',
+      'Database Replication': 'DatabaseReplication',
+      'Data Partitioning': 'DataPartitioning',
+      'SQL vs NoSQL': 'SQLvsNoSQL',
+      'Consistent Hashing': 'ConsistentHashing',
+      'Blob Storage': 'BlobStorage',
+      // Communication & APIs
+      'API Design': 'APIDesign',
+      'Message Queues': 'MessageQueues',
+      'Event Driven': 'EventDriven',
+      // Architecture Patterns
+      'Microservice Patterns': 'MicroservicePatterns',
+      'Domain Driven Design': 'DomainDrivenDesign',
+      'Event Driven Architecture': 'EventDrivenArchitecture',
+      'Design Patterns': 'DesignPatterns',
+      // System Design Components
       'LRU Cache': 'LRUCache',
       'Rate Limiter': 'RateLimiter',
-      'Design Problems': 'DesignProblems'
+      'Notification System': 'NotificationSystem',
+      // System Design Case Studies
+      'Google Docs': 'GoogleDocs',
+      'Food Delivery': 'FoodDelivery',
+      // Java Interview Questions
+      'Java Questions': 'JavaQuestions',
+      'Core Java Questions': 'CoreJavaQuestions',
+      'Java 8 Questions': 'Java8Questions',
+      'Java 11 Questions': 'Java11Questions',
+      'Java 15 Questions': 'Java15Questions',
+      'Java 21 Questions': 'Java21Questions',
+      'Java 24 Questions': 'Java24Questions',
+      // Spring Framework Questions
+      'Spring Core Questions': 'SpringCoreQuestions',
+      'Spring Boot Questions': 'SpringBootQuestions',
+      'Spring Security Questions': 'SpringSecurityQuestions',
+      'Spring Data JPA Questions': 'SpringDataJPAQuestions',
+      'Spring Annotations Questions': 'SpringAnnotationsQuestions',
+      // Database Questions
+      'SQL Questions': 'SQLQuestions',
+      'NoSQL Questions': 'NoSQLQuestions',
+      'ORM Questions': 'ORMQuestions',
+      'Hibernate Questions': 'HibernateQuestions',
+      // Messaging & Streaming Questions
+      'Kafka Questions': 'KafkaQuestions',
+      'RabbitMQ Questions': 'RabbitMQQuestions',
+      'Solace Questions': 'SolaceQuestions',
+      'Apache Flink Questions': 'ApacheFlinkQuestions',
+      // DevOps & Monitoring Questions
+      'Jenkins Questions': 'JenkinsQuestions',
+      'TeamCity Questions': 'TeamCityQuestions',
+      'Prometheus Questions': 'PrometheusQuestions',
+      'Grafana Questions': 'GrafanaQuestions',
+      'Zipkin Questions': 'ZipkinQuestions',
+      'Actuator Questions': 'ActuatorQuestions',
+      // API & Integration Questions
+      'REST API Questions': 'RestAPIQuestions',
+      // Specialized Domain Questions
+      'eTrading Questions': 'EtradingQuestions',
+      'System Design Questions': 'SystemDesignQuestions'
     }
     const prefix = topicIdMap[topicName] || topicName
     return completedProblems.filter(id => id.startsWith(prefix)).length
