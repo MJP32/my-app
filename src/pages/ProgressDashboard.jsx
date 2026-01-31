@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react'
 import { getCompletedProblems } from '../services/progressService'
 import { getBookmarks } from '../services/bookmarkService'
+import { getCurrentUser } from '../services/authService'
 import Breadcrumb from '../components/Breadcrumb'
+import WeeklyProgressChart from '../components/charts/WeeklyProgressChart'
+import ActivityHeatmap from '../components/charts/ActivityHeatmap'
 
 function ProgressDashboard({ onBack, onNavigate }) {
+  const currentUser = getCurrentUser()
   const [completedProblems, setCompletedProblems] = useState([])
   const [bookmarks, setBookmarks] = useState([])
   const [activeTab, setActiveTab] = useState('overview')
@@ -106,29 +110,26 @@ function ProgressDashboard({ onBack, onNavigate }) {
       padding: '2rem'
     }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        {/* Breadcrumb */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <Breadcrumb
+            breadcrumbStack={[
+              { name: 'Progress Dashboard', icon: '📊' }
+            ]}
+            onMainMenu={onBack}
+            colors={{
+              primary: '#f59e0b',
+              primaryHover: '#fbbf24',
+              bg: 'rgba(245, 158, 11, 0.1)',
+              border: 'rgba(245, 158, 11, 0.3)',
+              arrow: '#f59e0b',
+              hoverBg: 'rgba(245, 158, 11, 0.2)'
+            }}
+          />
+        </div>
+
         {/* Header */}
         <div style={{ marginBottom: '2rem' }}>
-          <div style={{ textAlign: 'left' }}>
-            <button
-              onClick={onBack}
-              style={{
-                padding: '0.75rem 1.5rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: '#2563eb',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                marginBottom: '1rem',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
-            >
-              ← Back
-            </button>
-          </div>
 
           <h1 style={{
             fontSize: '2.5rem',
@@ -213,7 +214,20 @@ function ProgressDashboard({ onBack, onNavigate }) {
 
         {/* Tab Content */}
         {activeTab === 'overview' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+          <div>
+            {/* Activity Charts */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '1.5rem',
+              marginBottom: '2rem'
+            }}>
+              <WeeklyProgressChart userId={currentUser?.uid} />
+              <ActivityHeatmap userId={currentUser?.uid} weeks={12} />
+            </div>
+
+            {/* Category and Recent Activity Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
             {/* Progress by Category */}
             <div style={{
               background: 'linear-gradient(to bottom right, #1f2937, #111827)',
@@ -315,6 +329,7 @@ function ProgressDashboard({ onBack, onNavigate }) {
                   </p>
                 )}
               </div>
+            </div>
             </div>
           </div>
         )}

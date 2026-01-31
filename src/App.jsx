@@ -10,47 +10,14 @@ import BookmarkButton from './components/BookmarkButton.jsx'
 import LoadingSpinner from './components/LoadingSpinner.jsx'
 import { KEYS, SHORTCUTS, FocusManager, AriaUtils } from './utils/keyboardNavigation.js'
 import { FocusManager as FocusManagerUtil, focusHistory } from './utils/focusManagement.js'
-// Project pages
-import TechnicalDetails from './pages/projects/TechnicalDetails.jsx'
-import TechnicalDetailsAdvanced from './pages/projects/TechnicalDetailsAdvanced.jsx'
-import DarkPoolMatchingEngine from './pages/projects/DarkPoolMatchingEngine.jsx'
-import DarkPoolMatchingEngineBasic from './pages/projects/DarkPoolMatchingEngineBasic.jsx'
-import MediHealth from './pages/projects/MediHealth.jsx'
-import DarkPoolEngine3 from './pages/projects/DarkPoolEngine3.jsx'
-import MonolithToMicroservice from './pages/projects/MonolithToMicroservice.jsx'
+// Project pages (DevOps-related)
 import AgileScrum from './pages/projects/AgileScrum.jsx'
 import ProductionSupport from './pages/projects/ProductionSupport.jsx'
 import SecurityOWASP from './pages/projects/SecurityOWASP.jsx'
 import JWT from './pages/security/JWT.jsx'
 import OAuth from './pages/security/OAuth.jsx'
 import OAuth2 from './pages/security/OAuth2.jsx'
-import FinancialBanking from './pages/projects/FinancialBanking.jsx'
-import VarCvar3 from './pages/projects/VarCvar3.jsx'
 import Testing from './pages/projects/Testing.jsx'
-import MyProjects from './pages/projects/MyProjects.jsx'
-import VirtualNumbers from './pages/projects/VirtualNumbers.jsx'
-import AIInterviewTips from './pages/projects/AIInterviewTips.jsx'
-import HashMapInternals from './pages/projects/HashMapInternals.jsx'
-import BlockingQueuePage from './pages/projects/BlockingQueue.jsx'
-import ConcurrentHashMapInternals from './pages/projects/ConcurrentHashMapInternals.jsx'
-import ThreadPoolExecutorInternals from './pages/projects/ThreadPoolExecutorInternals.jsx'
-import CompletableFutureInternals from './pages/projects/CompletableFutureInternals.jsx'
-import ArrayListInternals from './pages/projects/ArrayListInternals.jsx'
-import LinkedHashMapInternals from './pages/projects/LinkedHashMapInternals.jsx'
-import ReentrantLockInternals from './pages/projects/ReentrantLockInternals.jsx'
-import AtomicInternals from './pages/projects/AtomicInternals.jsx'
-import StringPoolInternals from './pages/projects/StringPoolInternals.jsx'
-import JVMMemoryModel from './pages/projects/JVMMemoryModel.jsx'
-import TreeMapInternals from './pages/projects/TreeMapInternals.jsx'
-import GarbageCollectionInternals from './pages/projects/GarbageCollectionInternals.jsx'
-import VirtualThreadsInternals from './pages/projects/VirtualThreadsInternals.jsx'
-import SynchronizedInternals from './pages/projects/SynchronizedInternals.jsx'
-import PriorityQueueInternals from './pages/projects/PriorityQueueInternals.jsx'
-import ForkJoinPoolInternals from './pages/projects/ForkJoinPoolInternals.jsx'
-import CountDownLatchCyclicBarrier from './pages/projects/CountDownLatchCyclicBarrier.jsx'
-import SemaphoreInternals from './pages/projects/SemaphoreInternals.jsx'
-import ClassLoadingInternals from './pages/projects/ClassLoadingInternals.jsx'
-import JavaNIOInternals from './pages/projects/JavaNIOInternals.jsx'
 import AIInterview from './pages/AIInterview.jsx'
 import Settings from './pages/Settings.jsx'
 
@@ -217,27 +184,6 @@ const RateLimiter = lazy(() => import('./pages/design/RateLimiter.jsx'))
 const DesignProblems = lazy(() => import('./pages/design/DesignProblems.jsx'))
 const DesignPatternsInteractive = lazy(() => import('./pages/design/DesignPatternsInteractive.jsx'))
 const Design = lazy(() => import('./pages/design/Design.jsx'))
-const CreditCardPortal = lazy(() => import('./pages/design/CreditCardPortal.jsx'))
-const CreditCardPortal2 = lazy(() => import('./pages/design/CreditCardPortal2.jsx'))
-const CreditCardPortal3 = lazy(() => import('./pages/design/CreditCardPortal3.jsx'))
-const RideShare = lazy(() => import('./pages/design/RideShare.jsx'))
-const GoogleDocs = lazy(() => import('./pages/design/GoogleDocs.jsx'))
-const YouTube = lazy(() => import('./pages/design/YouTube.jsx'))
-const Newsfeed = lazy(() => import('./pages/design/Newsfeed.jsx'))
-const TinyURL = lazy(() => import('./pages/design/TinyURL.jsx'))
-const WhatsApp = lazy(() => import('./pages/design/WhatsApp.jsx'))
-const TypeAhead = lazy(() => import('./pages/design/TypeAhead.jsx'))
-const Instagram = lazy(() => import('./pages/design/Instagram.jsx'))
-const Netflix = lazy(() => import('./pages/design/Netflix.jsx'))
-const Twitter = lazy(() => import('./pages/design/Twitter.jsx'))
-const Amazon = lazy(() => import('./pages/design/Amazon.jsx'))
-const Zoom = lazy(() => import('./pages/design/Zoom.jsx'))
-const Dropbox = lazy(() => import('./pages/design/Dropbox.jsx'))
-const NotificationSystem = lazy(() => import('./pages/design/NotificationSystem.jsx'))
-const RateLimiterDesign = lazy(() => import('./pages/design/RateLimiterDesign.jsx'))
-const FoodDelivery = lazy(() => import('./pages/design/FoodDelivery.jsx'))
-const MobileWeatherApp = lazy(() => import('./pages/design/MobileWeatherApp.jsx'))
-const ApartmentAlarmSystem = lazy(() => import('./pages/design/ApartmentAlarmSystem.jsx'))
 const EventDrivenArchitecture = lazy(() => import('./pages/design/EventDrivenArchitecture.jsx'))
 const DomainDrivenDesign = lazy(() => import('./pages/design/DomainDrivenDesign.jsx'))
 const L3SystemDesign = lazy(() => import('./pages/design/L3SystemDesign.jsx'))
@@ -322,10 +268,6 @@ const categoryOrganization = {
     label: '💪 Practice & Questions',
     categories: ['Practice', 'Questions', 'Progress Dashboard']
   },
-  'Projects': {
-    label: '🚀 Real-World Projects',
-    categories: ['My Projects']
-  },
   'Tech Stack': {
     label: '⚙️ Technology Stack',
     categories: ['Frameworks', 'Databases', 'Cloud']
@@ -357,13 +299,6 @@ const categoryGroups = {
     color: '#8b5cf6',
     groupSection: 'Learning',
     description: 'Design patterns and architecture',
-    items: []
-  },
-  'My Projects': {
-    icon: '💼',
-    color: '#10b981',
-    groupSection: 'Projects',
-    description: 'Real-world project implementations',
     items: []
   },
   'Frameworks': {
@@ -742,15 +677,6 @@ const BREADCRUMB_COLORS = {
     hoverBg: 'rgba(14, 165, 233, 0.2)',
     topicBg: 'rgba(14, 165, 233, 0.2)'
   },
-  'My Projects': {
-    primary: '#2dd4bf',
-    primaryHover: '#5eead4',
-    bg: 'rgba(13, 148, 136, 0.1)',
-    border: 'rgba(13, 148, 136, 0.3)',
-    arrow: '#0d9488',
-    hoverBg: 'rgba(13, 148, 136, 0.2)',
-    topicBg: 'rgba(13, 148, 136, 0.2)'
-  },
   Security: {
     primary: '#fca5a5',
     primaryHover: '#fecaca',
@@ -806,7 +732,6 @@ function App() {
   const [devopsInitialCategory, setDevopsInitialCategory] = useState(null)
   const [messagingInitialCategory, setMessagingInitialCategory] = useState(null)
   const [cloudInitialCategory, setCloudInitialCategory] = useState(null)
-  const [myProjectsInitialCategory, setMyProjectsInitialCategory] = useState(null)
   const [hoveredOption, setHoveredOption] = useState(null)
   const [expandedGroup, setExpandedGroup] = useState(null)
   const [expandedSubcategory, setExpandedSubcategory] = useState(null)
@@ -3451,60 +3376,6 @@ function App() {
     setSelectedOptionAndRef('Cloud')
   }
 
-  // My Projects topic category mapping for breadcrumbs
-  const myProjectsTopicCategories = {
-    'Financial Banking': { name: 'Finance', id: 'finance' },
-    'Credit Card Portal': { name: 'Finance', id: 'finance' },
-    'Credit Card Portal 2': { name: 'Finance', id: 'finance' },
-    'Credit Card Portal 3': { name: 'Finance', id: 'finance' },
-    'Virtual Numbers': { name: 'Finance', id: 'finance' },
-    'Trade Finance': { name: 'Finance', id: 'finance' },
-    'RideShare': { name: 'Transportation', id: 'transportation' },
-    'HashMap Internals': { name: 'Java Internals', id: 'java-internals' },
-    'BlockingQueue': { name: 'Java Internals', id: 'java-internals' },
-    'ConcurrentHashMap': { name: 'Java Internals', id: 'java-internals' },
-    'ThreadPoolExecutor': { name: 'Java Internals', id: 'java-internals' },
-    'CompletableFuture': { name: 'Java Internals', id: 'java-internals' },
-    'ArrayList': { name: 'Java Internals', id: 'java-internals' },
-    'LinkedHashMap': { name: 'Java Internals', id: 'java-internals' },
-    'ReentrantLock': { name: 'Java Internals', id: 'java-internals' },
-    'Atomic Classes': { name: 'Java Internals', id: 'java-internals' },
-    'String Pool': { name: 'Java Internals', id: 'java-internals' },
-    'JVM Memory Model': { name: 'Java Internals', id: 'java-internals' },
-    'TreeMap': { name: 'Java Internals', id: 'java-internals' },
-    'Garbage Collection': { name: 'Java Internals', id: 'java-internals' },
-    'Virtual Threads': { name: 'Java Internals', id: 'java-internals' },
-    'Synchronized': { name: 'Java Internals', id: 'java-internals' },
-    'PriorityQueue': { name: 'Java Internals', id: 'java-internals' },
-    'ForkJoinPool': { name: 'Java Internals', id: 'java-internals' },
-    'CountDownLatch': { name: 'Java Internals', id: 'java-internals' },
-    'Semaphore': { name: 'Java Internals', id: 'java-internals' },
-    'ClassLoading': { name: 'Java Internals', id: 'java-internals' },
-    'Java NIO': { name: 'Java Internals', id: 'java-internals' },
-    'Google Docs': { name: 'System Design', id: 'system-design' },
-    'YouTube': { name: 'System Design', id: 'system-design' },
-    'Newsfeed': { name: 'System Design', id: 'system-design' },
-    'TinyURL': { name: 'System Design', id: 'system-design' },
-    'WhatsApp': { name: 'System Design', id: 'system-design' },
-    'TypeAhead': { name: 'System Design', id: 'system-design' },
-    'Instagram': { name: 'System Design', id: 'system-design' },
-    'Netflix': { name: 'System Design', id: 'system-design' },
-    'Twitter': { name: 'System Design', id: 'system-design' },
-    'Amazon': { name: 'System Design', id: 'system-design' },
-    'Zoom': { name: 'System Design', id: 'system-design' },
-    'Dropbox': { name: 'System Design', id: 'system-design' },
-    'Notification System': { name: 'System Design', id: 'system-design' },
-    'Rate Limiter': { name: 'System Design', id: 'system-design' },
-    'Food Delivery': { name: 'System Design', id: 'system-design' },
-    'Mobile Weather App': { name: 'System Design', id: 'system-design' }
-  }
-
-  // Helper function to navigate to My Projects with a specific category
-  const goToMyProjectsCategory = (categoryId) => {
-    setMyProjectsInitialCategory(categoryId)
-    setSelectedOptionAndRef('My Projects')
-  }
-
   // Component rendering logic
   const renderSelectedComponent = () => {
     if (selectedOption === 'Java') {
@@ -3518,6 +3389,7 @@ function App() {
           setSelectedOptionAndRef(item)
         }}
         initialCategory={javaInitialCategory}
+        breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
       />
     }
     if (selectedOption === 'Python') {
@@ -3530,6 +3402,7 @@ function App() {
           setSelectedOptionAndRef(item)
         }}
         initialCategory={pythonInitialCategory}
+        breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
       />
     }
 
@@ -3700,18 +3573,10 @@ function App() {
         onBack={() => setSelectedOptionAndRef('')}
       />
     }
-    if (selectedOption === 'My Projects') {
-      return <MyProjects
-        onBack={() => setSelectedOptionAndRef('')}
-        onSelectItem={(item) => {
-          // Open the appropriate project
-          setSelectedOptionAndRef(item)
-        }}
-      />
-    }
     if (selectedOption === 'Frameworks') {
       return <Frameworks
         onBack={() => setSelectedOptionAndRef('')}
+        breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
         onSelectItem={(item) => {
           // Open the appropriate framework topic
           setSelectedOptionAndRef(item)
@@ -3911,48 +3776,6 @@ function App() {
         }}
       />
     }
-    if (selectedOption === 'Var/CVar') {
-      return (
-        <div ref={componentContainerRef}>
-          <TechnicalDetails onBack={() => setSelectedOptionAndRef('My Projects')} />
-        </div>
-      )
-    }
-    if (selectedOption === 'Var/CVar - Advanced') {
-      return (
-        <div ref={componentContainerRef}>
-          <TechnicalDetailsAdvanced onBack={() => setSelectedOptionAndRef('My Projects')} />
-        </div>
-      )
-    }
-    if (selectedOption === 'Var/CVar 3') {
-      return (
-        <div ref={componentContainerRef}>
-          <VarCvar3 onBack={() => setSelectedOptionAndRef('My Projects')} />
-        </div>
-      )
-    }
-    if (selectedOption === 'Dark Pool Matching Engine') {
-      return (
-        <div ref={componentContainerRef}>
-          <DarkPoolMatchingEngine onBack={() => setSelectedOptionAndRef('My Projects')} />
-        </div>
-      )
-    }
-    if (selectedOption === 'Dark Pool Matching Engine - Basic') {
-      return (
-        <div ref={componentContainerRef}>
-          <DarkPoolMatchingEngineBasic onBack={() => setSelectedOptionAndRef('My Projects')} />
-        </div>
-      )
-    }
-    if (selectedOption === 'Medi/Health') {
-      return (
-        <div ref={componentContainerRef}>
-          <MediHealth onBack={() => setSelectedOptionAndRef('My Projects')} />
-        </div>
-      )
-    }
     if (selectedOption === 'Kafka') {
       setShowKafkaModal(true)
       setSelectedOptionAndRef('')
@@ -4134,410 +3957,6 @@ function App() {
       setSelectedOptionAndRef('')
       return null
     }
-    if (selectedOption === 'Financial Banking') {
-      return <FinancialBanking onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'Financial & Trading Systems', onClick: () => goToMyProjectsCategory('finance') },
-        topic: 'Financial Banking',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'Credit Card Portal') {
-      return <CreditCardPortal onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'Financial & Trading Systems', onClick: () => goToMyProjectsCategory('finance') },
-        topic: 'Credit Card Portal',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'Credit Card Portal 2') {
-      return <CreditCardPortal2 onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'Financial & Trading Systems', onClick: () => goToMyProjectsCategory('finance') },
-        topic: 'Credit Card Portal 2',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'Credit Card Portal 3') {
-      return <CreditCardPortal3 onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'Financial & Trading Systems', onClick: () => goToMyProjectsCategory('finance') },
-        topic: 'Credit Card Portal 3',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'Virtual Numbers') {
-      return <VirtualNumbers onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'Financial & Trading Systems', onClick: () => goToMyProjectsCategory('finance') },
-        topic: 'Virtual Numbers',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'AI Interview Tips') {
-      return <AIInterviewTips
-        onBack={() => setSelectedOptionAndRef('My Projects')}
-        breadcrumb={{
-          onMainMenu: () => setSelectedOptionAndRef(''),
-          section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-          category: { name: 'Interview Preparation', onClick: () => goToMyProjectsCategory('interview-prep') },
-          topic: 'AI-Enabled Technical Interview',
-          colors: BREADCRUMB_COLORS['My Projects']
-        }}
-      />
-    }
-    if (selectedOption === 'Ride Share') {
-      return <RideShare onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
-        topic: 'Ride Share',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'HashMap - Internal Workings') {
-      return (
-        <div ref={componentContainerRef}>
-          <HashMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'HashMap - Internal Workings',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'Blocking Queue') {
-      return (
-        <div ref={componentContainerRef}>
-          <BlockingQueuePage onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'Blocking Queue',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'ConcurrentHashMap - Internal Workings') {
-      return (
-        <div ref={componentContainerRef}>
-          <ConcurrentHashMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'ConcurrentHashMap - Internal Workings',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'ThreadPoolExecutor - Internal Workings') {
-      return (
-        <div ref={componentContainerRef}>
-          <ThreadPoolExecutorInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'ThreadPoolExecutor - Internal Workings',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'CompletableFuture - Internal Workings') {
-      return (
-        <div ref={componentContainerRef}>
-          <CompletableFutureInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'CompletableFuture - Internal Workings',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'ArrayList - Internal Workings') {
-      return (
-        <div ref={componentContainerRef}>
-          <ArrayListInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'ArrayList - Internal Workings',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'LinkedHashMap - Internal Workings') {
-      return (
-        <div ref={componentContainerRef}>
-          <LinkedHashMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'LinkedHashMap - Internal Workings',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'ReentrantLock - Internal Workings') {
-      return (
-        <div ref={componentContainerRef}>
-          <ReentrantLockInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'ReentrantLock - Internal Workings',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'Atomic & CAS - Internal Workings') {
-      return (
-        <div ref={componentContainerRef}>
-          <AtomicInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'Atomic & CAS - Internal Workings',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'String Pool - Internal Workings') {
-      return (
-        <div ref={componentContainerRef}>
-          <StringPoolInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'String Pool - Internal Workings',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'JVM Memory Model') {
-      return (
-        <div ref={componentContainerRef}>
-          <JVMMemoryModel onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'JVM Memory Model',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'TreeMap - Internal Workings') {
-      return (
-        <div ref={componentContainerRef}>
-          <TreeMapInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'TreeMap - Internal Workings',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'Garbage Collection') {
-      return (
-        <div ref={componentContainerRef}>
-          <GarbageCollectionInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'Garbage Collection',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'Virtual Threads (Java 21)') {
-      return (
-        <div ref={componentContainerRef}>
-          <VirtualThreadsInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'Virtual Threads (Java 21)',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'Synchronized Internals') {
-      return (
-        <div ref={componentContainerRef}>
-          <SynchronizedInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'Synchronized Internals',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'PriorityQueue - Internal Workings') {
-      return (
-        <div ref={componentContainerRef}>
-          <PriorityQueueInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'PriorityQueue - Internal Workings',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'ForkJoinPool - Internal Workings') {
-      return (
-        <div ref={componentContainerRef}>
-          <ForkJoinPoolInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'ForkJoinPool - Internal Workings',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'CountDownLatch & CyclicBarrier') {
-      return (
-        <div ref={componentContainerRef}>
-          <CountDownLatchCyclicBarrier onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'CountDownLatch & CyclicBarrier',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'Semaphore - Internal Workings') {
-      return (
-        <div ref={componentContainerRef}>
-          <SemaphoreInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'Semaphore - Internal Workings',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'Class Loading') {
-      return (
-        <div ref={componentContainerRef}>
-          <ClassLoadingInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'Class Loading',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'Java NIO') {
-      return (
-        <div ref={componentContainerRef}>
-          <JavaNIOInternals onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-            category: { name: 'Java Internals', onClick: () => goToMyProjectsCategory('java-internals') },
-            topic: 'Java NIO',
-            colors: BREADCRUMB_COLORS['My Projects']
-          }} />
-        </div>
-      )
-    }
-    if (selectedOption === 'Google Docs') {
-      return <GoogleDocs onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
-        topic: 'Google Docs',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'YouTube') {
-      return <YouTube onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
-        topic: 'YouTube',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'Newsfeed System') {
-      return <Newsfeed onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
-        topic: 'Newsfeed System',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'TinyURL') {
-      return <TinyURL onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
-        topic: 'TinyURL',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'WhatsApp') {
-      return <WhatsApp onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
-        topic: 'WhatsApp',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'Type Ahead System') {
-      return <TypeAhead onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
-        topic: 'Type Ahead System',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'Instagram') {
-      return <Instagram onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
-        topic: 'Instagram',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'Netflix') {
-      return <Netflix onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
-        topic: 'Netflix',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'Twitter') {
-      return <Twitter onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
-        topic: 'Twitter/X',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'Amazon') {
-      return <Amazon onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
-        topic: 'Amazon E-Commerce',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'Zoom') {
-      return <Zoom onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
-        topic: 'Zoom',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'Dropbox') {
-      return <Dropbox onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
-        topic: 'Dropbox',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'Notification System') {
-      return <NotificationSystem onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
-        topic: 'Notification System',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'Rate Limiter') {
-      return <RateLimiterDesign onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
-        topic: 'Rate Limiter',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'Food Delivery') {
-      return <FoodDelivery onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'System Design Projects', onClick: () => goToMyProjectsCategory('system-design') },
-        topic: 'Food Delivery',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'Mobile Weather App') {
-      return <MobileWeatherApp onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'Mobile & IoT', onClick: () => goToMyProjectsCategory('mobile-iot') },
-        topic: 'Mobile Weather App',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
-    if (selectedOption === 'Apartment Alarm System') {
-      return <ApartmentAlarmSystem onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '💼', onClick: () => setSelectedOptionAndRef('My Projects') },
-        category: { name: 'Mobile & IoT', onClick: () => goToMyProjectsCategory('mobile-iot') },
-        topic: 'Apartment Alarm System',
-        colors: BREADCRUMB_COLORS['My Projects']
-      }} />
-    }
     // System Design Concepts
     if (selectedOption === 'Load Balancing') {
       return <LoadBalancing onBack={() => { setDesignInitialCategory('concepts'); setSelectedOptionAndRef('Design'); }} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Design', icon: '🎨', onClick: () => setSelectedOptionAndRef('Design') },
@@ -4679,12 +4098,6 @@ function App() {
       setShowMuleSoftModal(true)
       setSelectedOptionAndRef('')
       return null
-    }
-    if (selectedOption === 'Dark Pool Engine 3') {
-      return <DarkPoolEngine3 onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '🚀', onClick: () => setSelectedOptionAndRef('My Projects') }, topic: 'Dark Pool Engine', colors: BREADCRUMB_COLORS.Projects }} />
-    }
-    if (selectedOption === 'Monolith to Microservice') {
-      return <MonolithToMicroservice onBack={() => setSelectedOptionAndRef('My Projects')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'My Projects', icon: '🚀', onClick: () => setSelectedOptionAndRef('My Projects') }, topic: 'Monolith to Microservice', colors: BREADCRUMB_COLORS.Projects }} />
     }
     if (selectedOption === 'AWS') {
       setShowAWSModal(true)
@@ -4894,6 +4307,7 @@ function App() {
     if (selectedOption === 'Practice') {
       return <Practice
         onBack={() => setSelectedOptionAndRef('')}
+        breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
         onSelectItem={(item) => {
           // Open the appropriate modal based on the item name
           switch (item) {
@@ -4955,6 +4369,7 @@ function App() {
     if (selectedOption === 'Questions') {
       return <Questions
         onBack={() => setSelectedOptionAndRef('')}
+        breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
         onSelectItem={(item) => {
           // Open the appropriate modal based on the item name
           console.log('Questions item clicked:', item);
@@ -10047,39 +9462,46 @@ function App() {
           maxWidth: '900px',
           margin: '140px auto 0'
         }}>
+          {/* Daily Challenge */}
           <div style={{
             backgroundColor: colors.bgSecondary,
             borderRadius: '16px',
-            padding: '3rem',
+            padding: '2rem',
             boxShadow: isDark ? '0 4px 24px rgba(0, 0, 0, 0.3)' : '0 4px 24px rgba(0, 0, 0, 0.1)',
-            border: `2px solid ${colors.border}`
+            border: `2px solid ${colors.border}`,
+            marginBottom: '1.5rem'
           }}>
-            <h2 style={{
-              fontSize: '2rem',
-              fontWeight: '800',
-              color: colors.textPrimary,
-              marginBottom: '1rem',
-              textAlign: 'center'
-            }}>
-              📊 Your Learning Progress
-            </h2>
-            <p style={{
-              fontSize: '1.1rem',
-              color: colors.textMuted,
-              textAlign: 'center',
-              marginBottom: '2rem'
-            }}>
-              Track your completion across all practice topics
-            </p>
-
-            {/* Daily Challenge */}
             <DailyChallenge
               userId={currentUser?.uid}
               onNavigate={(page) => {
-                // Navigate to the practice page for the daily challenge
                 setSelectedOptionAndRef(page, null);
               }}
             />
+          </div>
+
+          {/* Progress Summary Card */}
+          <div
+            onClick={() => setSelectedOptionAndRef('Progress Dashboard')}
+            style={{
+              backgroundColor: colors.bgSecondary,
+              borderRadius: '16px',
+              padding: '2rem',
+              boxShadow: isDark ? '0 4px 24px rgba(0, 0, 0, 0.3)' : '0 4px 24px rgba(0, 0, 0, 0.1)',
+              border: `2px solid ${colors.border}`,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = isDark ? '0 8px 32px rgba(0, 0, 0, 0.4)' : '0 8px 32px rgba(0, 0, 0, 0.15)'
+              e.currentTarget.style.borderColor = '#3b82f6'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = isDark ? '0 4px 24px rgba(0, 0, 0, 0.3)' : '0 4px 24px rgba(0, 0, 0, 0.1)'
+              e.currentTarget.style.borderColor = colors.border
+            }}
+          >
 
             {(() => {
               const stats = getProgressStats();
@@ -10087,25 +9509,64 @@ function App() {
 
               return (
                 <>
+                  {/* Header */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '1.5rem'
+                  }}>
+                    <div>
+                      <h2 style={{
+                        fontSize: '1.5rem',
+                        fontWeight: '800',
+                        color: colors.textPrimary,
+                        margin: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                      }}>
+                        📊 Progress Dashboard
+                      </h2>
+                      <p style={{
+                        fontSize: '0.9rem',
+                        color: colors.textMuted,
+                        margin: '0.25rem 0 0 0'
+                      }}>
+                        Track your learning journey
+                      </p>
+                    </div>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      color: '#3b82f6',
+                      fontSize: '0.9rem',
+                      fontWeight: '600'
+                    }}>
+                      View Details →
+                    </div>
+                  </div>
+
                   {/* Progress Bar */}
-                  <div style={{ marginBottom: '2rem' }}>
+                  <div style={{ marginBottom: '1.5rem' }}>
                     <div style={{
                       display: 'flex',
                       justifyContent: 'space-between',
                       marginBottom: '0.5rem'
                     }}>
-                      <span style={{ fontSize: '1rem', fontWeight: '600', color: colors.textPrimary }}>
+                      <span style={{ fontSize: '0.9rem', fontWeight: '600', color: colors.textPrimary }}>
                         Overall Progress
                       </span>
-                      <span style={{ fontSize: '1rem', fontWeight: '700', color: '#3b82f6' }}>
+                      <span style={{ fontSize: '0.9rem', fontWeight: '700', color: '#3b82f6' }}>
                         {percentage}%
                       </span>
                     </div>
                     <div style={{
                       width: '100%',
-                      height: '32px',
+                      height: '24px',
                       backgroundColor: colors.border,
-                      borderRadius: '16px',
+                      borderRadius: '12px',
                       overflow: 'hidden',
                       position: 'relative'
                     }}>
@@ -10117,356 +9578,64 @@ function App() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'flex-end',
-                        paddingRight: '1rem',
-                        fontSize: '0.875rem',
+                        paddingRight: '0.75rem',
+                        fontSize: '0.75rem',
                         fontWeight: '700',
                         color: 'white'
                       }}>
-                        {percentage > 10 && `${stats.completed}/${stats.total}`}
+                        {percentage > 15 && `${stats.completed}/${stats.total}`}
                       </div>
                     </div>
                   </div>
 
-                  {/* Stats Grid */}
+                  {/* Stats Grid - Compact */}
                   <div style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: '1.5rem',
-                    marginTop: '2rem'
+                    gap: '1rem'
                   }}>
                     <div style={{
-                      backgroundColor: '#eff6ff',
-                      padding: '1.5rem',
-                      borderRadius: '12px',
+                      backgroundColor: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff',
+                      padding: '1rem',
+                      borderRadius: '10px',
                       textAlign: 'center',
-                      border: '2px solid #3b82f6'
+                      border: '1px solid rgba(59, 130, 246, 0.3)'
                     }}>
-                      <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#3b82f6' }}>
+                      <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#3b82f6' }}>
                         {stats.total}
                       </div>
-                      <div style={{ fontSize: '0.875rem', color: colors.textSecondary, fontWeight: '600', marginTop: '0.5rem' }}>
-                        Total Problems
+                      <div style={{ fontSize: '0.75rem', color: colors.textSecondary, fontWeight: '600' }}>
+                        Total
                       </div>
                     </div>
                     <div style={{
-                      backgroundColor: '#f0fdf4',
-                      padding: '1.5rem',
-                      borderRadius: '12px',
+                      backgroundColor: isDark ? 'rgba(16, 185, 129, 0.1)' : '#f0fdf4',
+                      padding: '1rem',
+                      borderRadius: '10px',
                       textAlign: 'center',
-                      border: '2px solid #10b981'
+                      border: '1px solid rgba(16, 185, 129, 0.3)'
                     }}>
-                      <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#10b981' }}>
+                      <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#10b981' }}>
                         {stats.completed}
                       </div>
-                      <div style={{ fontSize: '0.875rem', color: colors.textSecondary, fontWeight: '600', marginTop: '0.5rem' }}>
-                        Completed
+                      <div style={{ fontSize: '0.75rem', color: colors.textSecondary, fontWeight: '600' }}>
+                        Done
                       </div>
                     </div>
                     <div style={{
-                      backgroundColor: '#fef3c7',
-                      padding: '1.5rem',
-                      borderRadius: '12px',
+                      backgroundColor: isDark ? 'rgba(245, 158, 11, 0.1)' : '#fef3c7',
+                      padding: '1rem',
+                      borderRadius: '10px',
                       textAlign: 'center',
-                      border: '2px solid #f59e0b'
+                      border: '1px solid rgba(245, 158, 11, 0.3)'
                     }}>
-                      <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#f59e0b' }}>
+                      <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#f59e0b' }}>
                         {stats.remaining}
                       </div>
-                      <div style={{ fontSize: '0.875rem', color: colors.textSecondary, fontWeight: '600', marginTop: '0.5rem' }}>
-                        Remaining
+                      <div style={{ fontSize: '0.75rem', color: colors.textSecondary, fontWeight: '600' }}>
+                        Left
                       </div>
                     </div>
-                  </div>
-
-                  {/* Motivational Message */}
-                  <div style={{
-                    marginTop: '2rem',
-                    padding: '1.5rem',
-                    backgroundColor: colors.bgTertiary,
-                    borderRadius: '12px',
-                    border: `1px solid ${colors.border}`,
-                    textAlign: 'center'
-                  }}>
-                    <p style={{ fontSize: '1rem', color: colors.textSecondary, margin: 0 }}>
-                      {percentage === 0 && '🚀 Start your learning journey by selecting a topic above!'}
-                      {percentage > 0 && percentage < 25 && '💪 Great start! Keep up the momentum!'}
-                      {percentage >= 25 && percentage < 50 && '🔥 You\'re on fire! Keep going!'}
-                      {percentage >= 50 && percentage < 75 && '⭐ Halfway there! Excellent progress!'}
-                      {percentage >= 75 && percentage < 100 && '🎯 Almost done! You\'re doing amazing!'}
-                      {percentage === 100 && '🎉 Congratulations! You\'ve completed all problems!'}
-                    </p>
-                  </div>
-
-                  {/* Activity Charts */}
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                    gap: '1.5rem',
-                    marginTop: '2rem'
-                  }}>
-                    <WeeklyProgressChart userId={currentUser?.uid} />
-                    <ActivityHeatmap userId={currentUser?.uid} weeks={12} />
-                  </div>
-
-                  {/* Category Progress Dropdown */}
-                  <div style={{ marginTop: '2rem' }}>
-                    <h3 style={{
-                      fontSize: '1.5rem',
-                      fontWeight: '700',
-                      color: colors.textPrimary,
-                      marginBottom: '1rem'
-                    }}>
-                      📚 Progress by Category
-                    </h3>
-
-                    {(() => {
-                      const categoryStats = getCategoryStats();
-                      const categoryGroupings = getCategoryGroupings();
-                      const allProblems = getAllPracticeProblems();
-                      const completedProblems = getCompletedProblems();
-                      const sortedCategories = Object.entries(categoryStats).sort((a, b) =>
-                        b[1].percent - a[1].percent
-                      );
-
-                      return (
-                        <div style={{
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(3, 1fr)',
-                          gap: '0.75rem'
-                        }}>
-                          {sortedCategories.map(([categoryName, stats]) => {
-                            const isExpanded = expandedProgressCategory === categoryName;
-                            const topics = categoryGroupings[categoryName] || [];
-
-                            // Define color schemes for each category
-                            const categoryColors = {
-                              'Practice - Algorithms': {
-                                bg: '#f0fdf4',
-                                border: '#10b981',
-                                hover: '#dcfce7',
-                                text: '#065f46'
-                              },
-                              'Practice - Java Features': {
-                                bg: '#fef3c7',
-                                border: '#f59e0b',
-                                hover: '#fde68a',
-                                text: '#92400e'
-                              },
-                              'Practice - Concurrency': {
-                                bg: '#fce7f3',
-                                border: '#ec4899',
-                                hover: '#fbcfe8',
-                                text: '#9f1239'
-                              },
-                              'Practice - Core Java Fundamentals': {
-                                bg: '#f3e8ff',
-                                border: '#a855f7',
-                                hover: '#e9d5ff',
-                                text: '#6b21a8'
-                              },
-                              'Practice - System Design': {
-                                bg: '#ffedd5',
-                                border: '#f97316',
-                                hover: '#fed7aa',
-                                text: '#9a3412'
-                              },
-                              'Practice - Python Operations': {
-                                bg: '#dbeafe',
-                                border: '#3b82f6',
-                                hover: '#bfdbfe',
-                                text: '#1e3a8a'
-                              }
-                            };
-
-                            const colors = categoryColors[categoryName] || {
-                              bg: '#f9fafb',
-                              border: '#6b7280',
-                              hover: '#f3f4f6',
-                              text: colors.textPrimary
-                            };
-
-                            return (
-                              <div key={categoryName} style={{
-                                backgroundColor: colors.bgSecondary,
-                                border: `2px solid ${colors.border}`,
-                                borderRadius: '8px',
-                                overflow: 'hidden',
-                                transition: 'all 0.2s ease',
-                                gridColumn: isExpanded ? 'span 3' : 'span 1'
-                              }}>
-                                {/* Category Header */}
-                                <button
-                                  onClick={() => {
-                                    setExpandedProgressCategory(isExpanded ? null : categoryName);
-                                  }}
-                                  style={{
-                                    width: '100%',
-                                    padding: '0.75rem',
-                                    backgroundColor: stats.percent === 100 ? '#f0fdf4' : colors.bg,
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: '0.5rem',
-                                    transition: 'all 0.2s ease'
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = stats.percent === 100 ? '#dcfce7' : colors.hover;
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = stats.percent === 100 ? '#f0fdf4' : colors.bg;
-                                  }}
-                                >
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%' }}>
-                                    <span style={{
-                                      fontSize: '0.875rem',
-                                      fontWeight: '600',
-                                      color: colors.text,
-                                      textAlign: 'left',
-                                      flex: 1,
-                                      lineHeight: '1.2'
-                                    }}>
-                                      {categoryName}
-                                    </span>
-                                    <span style={{
-                                      fontSize: '0.75rem',
-                                      color: colors.border,
-                                      fontWeight: '600',
-                                      transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                                      transition: 'transform 0.2s'
-                                    }}>
-                                      {isExpanded ? '▼' : '▶'}
-                                    </span>
-                                  </div>
-
-                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: '1.25rem' }}>
-                                    <span style={{
-                                      fontSize: '0.75rem',
-                                      color: colors.textSecondary,
-                                      fontWeight: '500'
-                                    }}>
-                                      {stats.completed}/{stats.total}
-                                    </span>
-                                    <span style={{
-                                      fontSize: '0.875rem',
-                                      fontWeight: '700',
-                                      color: stats.percent === 100 ? '#10b981' : colors.border
-                                    }}>
-                                      {stats.percent}%
-                                    </span>
-                                  </div>
-                                </button>
-
-                                {/* Expanded Topics List */}
-                                {isExpanded && (
-                                  <div style={{
-                                    padding: '1rem',
-                                    backgroundColor: colors.bg,
-                                    borderTop: `2px solid ${colors.border}`
-                                  }}>
-                                    <div style={{
-                                      display: 'grid',
-                                      gridTemplateColumns: 'repeat(3, 1fr)',
-                                      gap: '0.5rem'
-                                    }}>
-                                      {topics.map(topic => {
-                                        // Map topic names to their actual problem ID prefixes
-                                        const topicIdMap = {
-                                          'Binary Search': 'BinarySearch',
-                                          'Dynamic Programming': 'DynamicProgramming',
-                                          'Hash Tables': 'HashTables',
-                                          'Linked Lists': 'LinkedLists',
-                                          'Object-Oriented Programming': 'ObjectOrientedProgramming',
-                                          'Exception Handling': 'ExceptionHandling',
-                                          'File I/O': 'FileIO',
-                                          'JVM Internals': 'JVMInternals',
-                                          'Memory Management': 'MemoryManagement',
-                                          'Data Structures': 'DataStructures',
-                                          'Streams Advanced': 'StreamsAdvanced',
-                                          'Lambdas Advanced': 'LambdasAdvanced',
-                                          'Functional Interfaces': 'FunctionalInterfaces',
-                                          'Collections Framework': 'CollectionsFramework',
-                                          'Design Patterns Practice': 'DesignPatternsPractice',
-                                          'LRU Cache': 'LRUCache',
-                                          'Rate Limiter': 'RateLimiter',
-                                          'Design Problems': 'DesignProblems',
-                                          'Union Find': 'UnionFind'
-                                        };
-                                        const problemIdPrefix = topicIdMap[topic] || topic;
-                                        const topicTotal = allProblems[topic] || 0;
-                                        const topicCompleted = completedProblems.filter(id => id.startsWith(problemIdPrefix)).length;
-                                        const topicPercent = topicTotal > 0 ? Math.round((topicCompleted / topicTotal) * 100) : 0;
-                                        const remaining = topicTotal - topicCompleted;
-
-                                        return (
-                                          <button
-                                            key={topic}
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              navigateToPracticeComponent(topic);
-                                            }}
-                                            style={{
-                                              padding: '0.75rem',
-                                              backgroundColor: topicPercent === 100 ? '#dcfce7' : colors.bgSecondary,
-                                              border: `2px solid ${topicPercent === 100 ? '#10b981' : colors.border}`,
-                                              borderRadius: '8px',
-                                              cursor: 'pointer',
-                                              textAlign: 'left',
-                                              transition: 'all 0.2s',
-                                              display: 'flex',
-                                              flexDirection: 'column',
-                                              gap: '0.5rem'
-                                            }}
-                                            onMouseEnter={(e) => {
-                                              e.currentTarget.style.borderColor = colors.border;
-                                              e.currentTarget.style.transform = 'translateY(-2px)';
-                                              e.currentTarget.style.boxShadow = `0 4px 12px ${colors.border}40`;
-                                            }}
-                                            onMouseLeave={(e) => {
-                                              e.currentTarget.style.borderColor = topicPercent === 100 ? '#10b981' : colors.border;
-                                              e.currentTarget.style.transform = 'translateY(0)';
-                                              e.currentTarget.style.boxShadow = 'none';
-                                            }}
-                                          >
-                                            <div style={{
-                                              fontSize: '0.875rem',
-                                              fontWeight: '600',
-                                              color: colors.textPrimary
-                                            }}>
-                                              {topic}
-                                            </div>
-                                            <div style={{
-                                              display: 'flex',
-                                              justifyContent: 'space-between',
-                                              alignItems: 'center'
-                                            }}>
-                                              <span style={{
-                                                fontSize: '0.75rem',
-                                                color: remaining > 0 ? '#f59e0b' : '#10b981',
-                                                fontWeight: '600'
-                                              }}>
-                                                {remaining > 0 ? `${remaining} left` : '✓ Done'}
-                                              </span>
-                                              <span style={{
-                                                fontSize: '0.75rem',
-                                                fontWeight: '700',
-                                                color: topicPercent === 100 ? '#10b981' : '#6b7280'
-                                              }}>
-                                                {topicCompleted}/{topicTotal}
-                                              </span>
-                                            </div>
-                                          </button>
-                                        );
-                                      })}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      );
-                    })()}
                   </div>
                 </>
               );
