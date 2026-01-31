@@ -13,6 +13,7 @@ function ProgressDashboard({ onBack, onNavigate }) {
   const [activeTab, setActiveTab] = useState('overview')
   const [, setRefreshKey] = useState(0)
   const [expandedSections, setExpandedSections] = useState({})
+  const [initialExpandSet, setInitialExpandSet] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -31,6 +32,102 @@ function ProgressDashboard({ onBack, onNavigate }) {
       window.removeEventListener('bookmarkUpdate', handleBookmarkUpdate)
     }
   }, [])
+
+  // Find and expand the next incomplete section (only once on initial load)
+  useEffect(() => {
+    if (initialExpandSet || completedProblems.length === 0 && !initialExpandSet) {
+      // If no progress yet, expand first section
+      if (!initialExpandSet && completedProblems.length === 0) {
+        setExpandedSections({ 0: true })
+        setInitialExpandSet(true)
+      }
+      return
+    }
+
+    // Find the first section that is not 100% complete
+    const getTopicProgressLocal = (topicName) => {
+      const topicIdMap = {
+        'Binary Search': 'BinarySearch',
+        'Dynamic Programming': 'DynamicProgramming',
+        'Dynamic Programming Patterns': 'DynamicProgrammingPatterns',
+        'Hash Tables': 'HashTables',
+        'Linked Lists': 'LinkedLists',
+        'Two Pointers': 'TwoPointers',
+        'Sliding Window': 'SlidingWindow',
+        'Binary Trees': 'BinaryTrees',
+        'Binary Search Trees': 'BinarySearchTrees',
+        'Advanced Graphs': 'AdvancedGraphs',
+        'Greedy Algorithms': 'GreedyAlgorithms',
+        'Bit Manipulation': 'BitManipulation',
+        'Union Find': 'UnionFind',
+        'Math & Geometry': 'MathGeometry',
+        'Famous Algorithms': 'FamousAlgorithms',
+        'Data Structures': 'DataStructures',
+        'Streams Advanced': 'StreamsAdvanced',
+        'Lambdas Advanced': 'LambdasAdvanced',
+        'Functional Interfaces': 'FunctionalInterfaces',
+        'Collections Framework': 'CollectionsFramework',
+        'Object-Oriented Programming': 'ObjectOrientedProgramming',
+        'Exception Handling': 'ExceptionHandling',
+        'File I/O': 'FileIO',
+        'JVM Internals': 'JVMInternals',
+        'Memory Management': 'MemoryManagement',
+        'Java 8': 'Java8', 'Java 11': 'Java11', 'Java 15': 'Java15',
+        'Java 21': 'Java21', 'Java 24': 'Java24',
+        'Java Questions': 'JavaQuestions',
+        'Core Java Questions': 'CoreJavaQuestions',
+        'Java 8 Questions': 'Java8Questions',
+        'Java 11 Questions': 'Java11Questions',
+        'Java 15 Questions': 'Java15Questions',
+        'Java 21 Questions': 'Java21Questions',
+        'Java 24 Questions': 'Java24Questions',
+        'Spring Core Questions': 'SpringCoreQuestions',
+        'Spring Boot Questions': 'SpringBootQuestions',
+        'Spring Security Questions': 'SpringSecurityQuestions',
+        'Spring Data JPA Questions': 'SpringDataJPAQuestions',
+        'Spring Annotations Questions': 'SpringAnnotationsQuestions',
+        'SQL Questions': 'SQLQuestions',
+        'NoSQL Questions': 'NoSQLQuestions',
+        'ORM Questions': 'ORMQuestions',
+        'Hibernate Questions': 'HibernateQuestions',
+        'Kafka Questions': 'KafkaQuestions',
+        'RabbitMQ Questions': 'RabbitMQQuestions',
+        'Solace Questions': 'SolaceQuestions',
+        'Apache Flink Questions': 'ApacheFlinkQuestions',
+        'Jenkins Questions': 'JenkinsQuestions',
+        'TeamCity Questions': 'TeamCityQuestions',
+        'Prometheus Questions': 'PrometheusQuestions',
+        'Grafana Questions': 'GrafanaQuestions',
+        'Zipkin Questions': 'ZipkinQuestions',
+        'Actuator Questions': 'ActuatorQuestions',
+        'REST API Questions': 'RestAPIQuestions',
+        'eTrading Questions': 'EtradingQuestions',
+        'System Design Questions': 'SystemDesignQuestions',
+      }
+      const prefix = topicIdMap[topicName] || topicName
+      return completedProblems.filter(id => id.startsWith(prefix)).length
+    }
+
+    let nextSectionIdx = 0
+    for (let i = 0; i < learningPath.length; i++) {
+      const section = learningPath[i]
+      const sectionCompleted = section.topics.reduce((sum, t) => sum + getTopicProgressLocal(t.name), 0)
+      const sectionTotal = section.topics.reduce((sum, t) => sum + t.problems, 0)
+      const sectionPercent = sectionTotal > 0 ? Math.round((sectionCompleted / sectionTotal) * 100) : 0
+
+      if (sectionPercent < 100) {
+        nextSectionIdx = i
+        break
+      }
+      // If all sections are complete, show the last one
+      if (i === learningPath.length - 1) {
+        nextSectionIdx = i
+      }
+    }
+
+    setExpandedSections({ [nextSectionIdx]: true })
+    setInitialExpandSet(true)
+  }, [completedProblems, initialExpandSet])
 
   const loadData = () => {
     const completed = getCompletedProblems()
@@ -656,7 +753,7 @@ function ProgressDashboard({ onBack, onNavigate }) {
               const sectionCompleted = section.topics.reduce((sum, t) => sum + getTopicProgress(t.name), 0)
               const sectionTotal = section.topics.reduce((sum, t) => sum + t.problems, 0)
               const sectionPercent = sectionTotal > 0 ? Math.round((sectionCompleted / sectionTotal) * 100) : 0
-              const isExpanded = expandedSections[sectionIdx] !== false // Default to expanded
+              const isExpanded = expandedSections[sectionIdx] === true // Default to collapsed
 
               return (
                 <div key={sectionIdx} style={{ marginBottom: '1rem' }}>
