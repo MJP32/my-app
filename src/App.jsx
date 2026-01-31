@@ -3562,7 +3562,46 @@ function App() {
     if (selectedOption === 'Progress Dashboard') {
       return <ProgressDashboard
         onBack={() => setSelectedOptionAndRef('')}
-        onNavigate={(item) => setSelectedOptionAndRef(item)}
+        onNavigate={(item) => {
+          // Handle question topics by opening their modals
+          const questionModals = {
+            'Java Questions': setShowJavaQuestionsModal,
+            'Core Java Questions': setShowCoreJavaQuestionsModal,
+            'Java 8 Questions': setShowJava8QuestionsModal,
+            'Java 11 Questions': setShowJava11QuestionsModal,
+            'Java 15 Questions': setShowJava15QuestionsModal,
+            'Java 21 Questions': setShowJava21QuestionsModal,
+            'Java 24 Questions': setShowJava24QuestionsModal,
+            'Spring Core Questions': setShowSpringCoreQuestionsModal,
+            'Spring Boot Questions': setShowSpringBootQuestionsModal,
+            'Spring Security Questions': setShowSpringSecurityQuestionsModal,
+            'Spring Data JPA Questions': setShowSpringDataJPAQuestionsModal,
+            'Spring Annotations Questions': setShowSpringAnnotationsQuestionsModal,
+            'SQL Questions': setShowSQLQuestionsModal,
+            'NoSQL Questions': setShowNoSQLQuestionsModal,
+            'ORM Questions': setShowORMQuestionsModal,
+            'Hibernate Questions': setShowHibernateQuestionsModal,
+            'Kafka Questions': setShowKafkaQuestionsModal,
+            'RabbitMQ Questions': setShowRabbitMQQuestionsModal,
+            'Solace Questions': setShowSolaceQuestionsModal,
+            'Apache Flink Questions': setShowApacheFlinkQuestionsModal,
+            'Jenkins Questions': setShowJenkinsQuestionsModal,
+            'TeamCity Questions': setShowTeamCityQuestionsModal,
+            'Prometheus Questions': setShowPrometheusQuestionsModal,
+            'Grafana Questions': setShowGrafanaQuestionsModal,
+            'Zipkin Questions': setShowZipkinQuestionsModal,
+            'Actuator Questions': setShowActuatorQuestionsModal,
+            'REST API Questions': setShowRestAPIQuestionsModal,
+            'eTrading Questions': setShowEtradingQuestionsModal,
+            'System Design Questions': setShowSystemDesignQuestionsModal,
+          }
+
+          if (questionModals[item]) {
+            questionModals[item](true)
+          } else {
+            setSelectedOptionAndRef(item)
+          }
+        }}
       />
     }
     if (selectedOption === 'AI Interview') {
