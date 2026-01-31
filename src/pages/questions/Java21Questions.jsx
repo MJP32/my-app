@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
 
 function Java21Questions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
@@ -2835,7 +2836,11 @@ String Templates in Java 21 provide a modern, safe, and expressive way to compos
       'Virtual Threads': '#f59e0b',
       'Pattern Matching': '#3b82f6',
       'Sequenced Collections': '#8b5cf6',
-      'Record Patterns': '#10b981'
+      'Record Patterns': '#10b981',
+      'Generational ZGC': '#ef4444',
+      'Scoped Values': '#ec4899',
+      'String Templates': '#06b6d4',
+      'Structured Concurrency': '#a855f7'
     }
     return colors[category] || '#6b7280'
   }
@@ -2877,7 +2882,7 @@ String Templates in Java 21 provide a modern, safe, and expressive way to compos
         <div style={{ width: '150px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
       <p style={{
         fontSize: '1.1rem',

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
 
 function Java15Questions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
@@ -2430,7 +2431,11 @@ Java 15 added EdDSA (Edwards-Curve Digital Signature Algorithm) support via JEP 
       'Text Blocks': '#f59e0b',
       'Sealed Classes': '#3b82f6',
       'Records': '#8b5cf6',
-      'Pattern Matching': '#10b981'
+      'Pattern Matching': '#10b981',
+      'Edwards-Curve Cryptography': '#ef4444',
+      'Enhanced NullPointerException': '#ec4899',
+      'Hidden Classes': '#06b6d4',
+      'ZGC Improvements': '#a855f7'
     }
     return colors[category] || '#6b7280'
   }
@@ -2472,7 +2477,7 @@ Java 15 added EdDSA (Edwards-Curve Digital Signature Algorithm) support via JEP 
         <div style={{ width: '150px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
       <p style={{
         fontSize: '1.1rem',

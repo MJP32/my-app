@@ -229,6 +229,23 @@ function Questions({ onBack, onSelectItem, initialCategory, breadcrumb }) {
       ]
     },
     {
+      id: 'architecture-design',
+      name: 'Architecture & Design',
+      icon: '🏛️',
+      color: '#8b5cf6',
+      description: 'System design concepts, scalability patterns, distributed systems, and architectural best practices.',
+      topics: [
+        {
+          id: 'System Design Questions',
+          name: 'System Design',
+          icon: '🏛️',
+          color: '#8b5cf6',
+          complexity: 'Advanced',
+          description: 'Scalability, load balancing, caching, database sharding, CAP theorem, and microservices patterns.'
+        }
+      ]
+    },
+    {
       id: 'devops-monitoring',
       name: 'DevOps & Monitoring',
       icon: '🚀',
@@ -603,7 +620,7 @@ function Questions({ onBack, onSelectItem, initialCategory, breadcrumb }) {
                       <h3 style={{
                         fontSize: '1.25rem',
                         fontWeight: 'bold',
-                        color: '#a78bfa',
+                        color: topic.color,
                         marginBottom: '0.25rem'
                       }}>
                         {topic.name}

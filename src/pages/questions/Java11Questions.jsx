@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
 
 function Java11Questions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
@@ -1516,7 +1517,8 @@ public class CryptoHandler {
       'Local Variable Type Inference': '#f59e0b',
       'HTTP Client API': '#3b82f6',
       'String Methods': '#8b5cf6',
-      'File Methods': '#10b981'
+      'File Methods': '#10b981',
+      'Advanced': '#ef4444'
     }
     return colors[category] || '#6b7280'
   }
@@ -1558,7 +1560,7 @@ public class CryptoHandler {
         <div style={{ width: '150px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
       <p style={{
         fontSize: '1.1rem',

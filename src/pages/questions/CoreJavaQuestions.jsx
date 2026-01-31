@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
 
 function CoreJavaQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
@@ -3487,7 +3488,11 @@ List<String> results = urls.stream()
       'JVM Internals': '#f59e0b',
       'String Manipulation': '#ec4899',
       'Design Patterns': '#06b6d4',
-      'Performance': '#14b8a6'
+      'Performance': '#14b8a6',
+      'Class Loading': '#a855f7',
+      'Functional Programming': '#22c55e',
+      'Memory Model': '#f97316',
+      'Reflection API': '#0ea5e9'
     }
     return colors[category] || '#6b7280'
   }
@@ -3533,7 +3538,7 @@ List<String> results = urls.stream()
         <div style={{ width: '150px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
       <p style={{
         fontSize: '1.1rem',
