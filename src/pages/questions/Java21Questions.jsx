@@ -2958,15 +2958,19 @@ String Templates in Java 21 provide a modern, safe, and expressive way to compos
                   Q{q.id}. {q.question}
                 </h3>
               </div>
-              <div style={{
-                fontSize: '1.5rem',
-                color: getCategoryColor(q.category),
-                fontWeight: 'bold',
-                marginLeft: '1rem',
-                transform: expandedQuestion === q.id ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 0.3s ease'
-              }}>
-                ▼
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div onClick={(e) => e.stopPropagation()} style={{ transform: 'scale(0.85)' }}>
+                  <CompletionCheckbox problemId={`Java21Questions-${q.id}`} />
+                </div>
+                <div style={{
+                  fontSize: '1.5rem',
+                  color: getCategoryColor(q.category),
+                  fontWeight: 'bold',
+                  transform: expandedQuestion === q.id ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.3s ease'
+                }}>
+                  ▼
+                </div>
               </div>
             </button>
 

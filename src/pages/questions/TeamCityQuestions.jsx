@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
 
 function TeamCityQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
@@ -1587,7 +1588,7 @@ Extensive integrations:
         <div style={{ width: '150px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
       <p style={{
         fontSize: '1.1rem',
@@ -1675,15 +1676,19 @@ Extensive integrations:
                   Q{q.id}. {q.question}
                 </h3>
               </div>
-              <div style={{
-                fontSize: '1.5rem',
-                color: getCategoryColor(q.category),
-                fontWeight: 'bold',
-                marginLeft: '1rem',
-                transform: expandedQuestion === q.id ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 0.3s ease'
-              }}>
-                ▼
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div onClick={(e) => e.stopPropagation()} style={{ transform: 'scale(0.85)' }}>
+                  <CompletionCheckbox problemId={`TeamCityQuestions-${q.id}`} />
+                </div>
+                <div style={{
+                  fontSize: '1.5rem',
+                  color: getCategoryColor(q.category),
+                  fontWeight: 'bold',
+                  transform: expandedQuestion === q.id ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.3s ease'
+                }}>
+                  ▼
+                </div>
               </div>
             </button>
 

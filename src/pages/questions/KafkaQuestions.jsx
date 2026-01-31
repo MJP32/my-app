@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
 
 function KafkaQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
@@ -1955,6 +1956,1411 @@ echo noop > /sys/block/sda/queue/scheduler
 3. **Prometheus + Grafana** - Metrics and dashboards
 4. **Confluent Control Center** - Enterprise monitoring
 5. **LinkedIn Cruise Control** - Cluster management and rebalancing`
+    },
+    {
+      id: 11,
+      category: 'Schema Registry',
+      question: 'What is Schema Registry and why is it important for Kafka?',
+      answer: `**Schema Registry:**
+- Centralized schema storage and management
+- Enforces data contracts between producers and consumers
+- Supports Avro, JSON Schema, and Protobuf
+- Provides schema versioning and compatibility checks
+
+**Why Use Schema Registry?**
+
+**Without Schema Registry:**
+\`\`\`java
+// Producer sends JSON
+producer.send(new ProducerRecord<>("users", "{"name":"John","age":30}"));
+
+// Consumer expects different format - BREAKS!
+// What if producer changes schema without telling consumer?
+\`\`\`
+
+**With Schema Registry:**
+\`\`\`java
+// Schema is registered and enforced
+// Both producer and consumer agree on structure
+// Schema evolution is controlled
+\`\`\`
+
+**Architecture:**
+\`\`\`
+Producer → Schema Registry → Kafka → Consumer
+    ↓           ↑              ↓         ↓
+  Register    Validate      Store     Fetch
+  Schema      Schema        Data      Schema
+\`\`\`
+
+**Using Avro with Schema Registry:**
+
+**1. Define Schema (user.avsc):**
+\`\`\`json
+{
+  "type": "record",
+  "name": "User",
+  "namespace": "com.example",
+  "fields": [
+    {"name": "id", "type": "long"},
+    {"name": "name", "type": "string"},
+    {"name": "email", "type": "string"},
+    {"name": "age", "type": ["null", "int"], "default": null}
+  ]
+}
+\`\`\`
+
+**2. Producer Configuration:**
+\`\`\`java
+Properties props = new Properties();
+props.put("bootstrap.servers", "localhost:9092");
+props.put("schema.registry.url", "http://localhost:8081");
+props.put("key.serializer", StringSerializer.class);
+props.put("value.serializer", KafkaAvroSerializer.class);
+
+Producer<String, User> producer = new KafkaProducer<>(props);
+
+User user = User.newBuilder()
+    .setId(1L)
+    .setName("John Doe")
+    .setEmail("john@example.com")
+    .setAge(30)
+    .build();
+
+producer.send(new ProducerRecord<>("users", user.getId().toString(), user));
+\`\`\`
+
+**3. Consumer Configuration:**
+\`\`\`java
+Properties props = new Properties();
+props.put("bootstrap.servers", "localhost:9092");
+props.put("schema.registry.url", "http://localhost:8081");
+props.put("group.id", "user-consumer-group");
+props.put("key.deserializer", StringDeserializer.class);
+props.put("value.deserializer", KafkaAvroDeserializer.class);
+props.put("specific.avro.reader", "true");
+
+KafkaConsumer<String, User> consumer = new KafkaConsumer<>(props);
+consumer.subscribe(Collections.singletonList("users"));
+
+while (true) {
+    ConsumerRecords<String, User> records = consumer.poll(Duration.ofMillis(100));
+    for (ConsumerRecord<String, User> record : records) {
+        User user = record.value();
+        System.out.println(user.getName() + " - " + user.getEmail());
+    }
+}
+\`\`\`
+
+**Schema Compatibility Types:**
+
+**BACKWARD (default):**
+\`\`\`
+New schema can read old data
+Can: Delete fields, add optional fields
+Cannot: Add required fields
+\`\`\`
+
+**FORWARD:**
+\`\`\`
+Old schema can read new data
+Can: Add fields, delete optional fields
+Cannot: Delete required fields
+\`\`\`
+
+**FULL:**
+\`\`\`
+Both backward and forward compatible
+Most restrictive but safest
+\`\`\`
+
+**NONE:**
+\`\`\`
+No compatibility checking
+Not recommended for production
+\`\`\`
+
+**Schema Evolution Example:**
+
+**Version 1:**
+\`\`\`json
+{"name": "User", "fields": [
+  {"name": "id", "type": "long"},
+  {"name": "name", "type": "string"}
+]}
+\`\`\`
+
+**Version 2 (BACKWARD compatible):**
+\`\`\`json
+{"name": "User", "fields": [
+  {"name": "id", "type": "long"},
+  {"name": "name", "type": "string"},
+  {"name": "email", "type": ["null", "string"], "default": null}
+]}
+\`\`\`
+
+**REST API:**
+\`\`\`bash
+# List subjects
+curl http://localhost:8081/subjects
+
+# Get schema versions
+curl http://localhost:8081/subjects/users-value/versions
+
+# Register schema
+curl -X POST http://localhost:8081/subjects/users-value/versions \\
+  -H "Content-Type: application/vnd.schemaregistry.v1+json" \\
+  -d '{"schema": "{\\"type\\":\\"record\\",...}"}'
+
+# Test compatibility
+curl -X POST http://localhost:8081/compatibility/subjects/users-value/versions/latest \\
+  -H "Content-Type: application/vnd.schemaregistry.v1+json" \\
+  -d '{"schema": "..."}'
+\`\`\`
+
+**Benefits:**
+✅ Data contracts enforced
+✅ Schema versioning
+✅ Backward/forward compatibility
+✅ Smaller message size (schema ID vs full schema)
+✅ Documentation of data structures`
+    },
+    {
+      id: 12,
+      category: 'Kafka Connect',
+      question: 'What is Kafka Connect and how does it work?',
+      answer: `**Kafka Connect:**
+- Framework for streaming data between Kafka and external systems
+- Pre-built connectors for databases, file systems, cloud services
+- Scalable, fault-tolerant, no coding required
+
+**Architecture:**
+\`\`\`
+Source Systems          Kafka Connect          Kafka          Kafka Connect          Sink Systems
+┌──────────┐           ┌───────────┐        ┌───────┐       ┌───────────┐          ┌──────────┐
+│ Database │ ───────▶  │  Source   │ ─────▶ │ Topic │ ────▶ │   Sink    │ ───────▶ │   S3     │
+│ Files    │           │ Connector │        │       │       │ Connector │          │ HDFS     │
+│ APIs     │           └───────────┘        └───────┘       └───────────┘          │ Elastic  │
+└──────────┘                                                                        └──────────┘
+\`\`\`
+
+**Connector Types:**
+
+**Source Connectors:**
+- Read from external system → Write to Kafka
+- Examples: JDBC, Debezium (CDC), File, S3
+
+**Sink Connectors:**
+- Read from Kafka → Write to external system
+- Examples: JDBC, Elasticsearch, HDFS, S3
+
+**Running Kafka Connect:**
+
+**Standalone Mode:**
+\`\`\`bash
+# For development/testing
+connect-standalone.sh connect-standalone.properties connector.properties
+\`\`\`
+
+**Distributed Mode:**
+\`\`\`bash
+# For production (scalable, fault-tolerant)
+connect-distributed.sh connect-distributed.properties
+\`\`\`
+
+**Distributed Mode Configuration:**
+\`\`\`properties
+bootstrap.servers=localhost:9092
+group.id=connect-cluster
+
+# Converter configuration
+key.converter=org.apache.kafka.connect.json.JsonConverter
+value.converter=org.apache.kafka.connect.json.JsonConverter
+key.converter.schemas.enable=false
+value.converter.schemas.enable=false
+
+# Internal topics for storing configs and offsets
+config.storage.topic=connect-configs
+offset.storage.topic=connect-offsets
+status.storage.topic=connect-status
+
+# REST API port
+rest.port=8083
+\`\`\`
+
+**JDBC Source Connector Example:**
+\`\`\`json
+{
+  "name": "jdbc-source-connector",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+    "connection.url": "jdbc:postgresql://localhost:5432/mydb",
+    "connection.user": "user",
+    "connection.password": "password",
+    "table.whitelist": "orders,customers",
+    "mode": "incrementing",
+    "incrementing.column.name": "id",
+    "topic.prefix": "db-",
+    "poll.interval.ms": "1000"
+  }
+}
+\`\`\`
+
+**JDBC Sink Connector Example:**
+\`\`\`json
+{
+  "name": "jdbc-sink-connector",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+    "connection.url": "jdbc:postgresql://localhost:5432/warehouse",
+    "connection.user": "user",
+    "connection.password": "password",
+    "topics": "processed-orders",
+    "auto.create": "true",
+    "insert.mode": "upsert",
+    "pk.mode": "record_key",
+    "pk.fields": "order_id"
+  }
+}
+\`\`\`
+
+**Debezium CDC Connector:**
+\`\`\`json
+{
+  "name": "postgres-cdc-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "database.hostname": "localhost",
+    "database.port": "5432",
+    "database.user": "postgres",
+    "database.password": "password",
+    "database.dbname": "mydb",
+    "database.server.name": "dbserver1",
+    "table.include.list": "public.orders,public.customers",
+    "plugin.name": "pgoutput",
+    "slot.name": "debezium_slot"
+  }
+}
+\`\`\`
+
+**REST API:**
+\`\`\`bash
+# List connectors
+curl http://localhost:8083/connectors
+
+# Create connector
+curl -X POST http://localhost:8083/connectors \\
+  -H "Content-Type: application/json" \\
+  -d @connector-config.json
+
+# Get connector status
+curl http://localhost:8083/connectors/my-connector/status
+
+# Pause connector
+curl -X PUT http://localhost:8083/connectors/my-connector/pause
+
+# Resume connector
+curl -X PUT http://localhost:8083/connectors/my-connector/resume
+
+# Delete connector
+curl -X DELETE http://localhost:8083/connectors/my-connector
+\`\`\`
+
+**Transformations (SMT):**
+\`\`\`json
+{
+  "name": "jdbc-source",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+    "transforms": "addTimestamp,maskField",
+    "transforms.addTimestamp.type": "org.apache.kafka.connect.transforms.InsertField$Value",
+    "transforms.addTimestamp.timestamp.field": "processed_at",
+    "transforms.maskField.type": "org.apache.kafka.connect.transforms.MaskField$Value",
+    "transforms.maskField.fields": "ssn,credit_card"
+  }
+}
+\`\`\`
+
+**Common Use Cases:**
+- Database replication
+- Change Data Capture (CDC)
+- Log aggregation
+- Data lake ingestion
+- Real-time analytics pipelines`
+    },
+    {
+      id: 13,
+      category: 'KRaft Mode',
+      question: 'What is KRaft mode and why is Kafka moving away from ZooKeeper?',
+      answer: `**KRaft Mode (Kafka Raft):**
+- New consensus protocol replacing ZooKeeper
+- Kafka manages its own metadata
+- Available since Kafka 2.8, production-ready in 3.3+
+
+**Why Replace ZooKeeper?**
+
+**ZooKeeper Limitations:**
+\`\`\`
+1. Separate system to manage
+2. Scalability bottleneck (millions of partitions)
+3. Additional operational complexity
+4. Controller failover is slow
+5. Metadata stored externally
+\`\`\`
+
+**KRaft Benefits:**
+\`\`\`
+1. Single system - simpler operations
+2. Better scalability (millions of partitions)
+3. Faster failover (seconds vs minutes)
+4. Metadata stored in Kafka
+5. Reduced latency for metadata operations
+\`\`\`
+
+**Architecture Comparison:**
+
+**With ZooKeeper:**
+\`\`\`
+┌───────────────┐     ┌───────────────┐
+│   ZooKeeper   │◀───▶│   ZooKeeper   │
+│    Cluster    │     │    Cluster    │
+└───────┬───────┘     └───────────────┘
+        │
+        ▼
+┌───────────────┐
+│    Kafka      │
+│  Controller   │
+└───────┬───────┘
+        │
+┌───────┼───────┐
+▼       ▼       ▼
+Broker  Broker  Broker
+\`\`\`
+
+**With KRaft:**
+\`\`\`
+┌───────────────┐
+│  Controller   │◀──▶ Raft Consensus
+│    Quorum     │
+└───────┬───────┘
+        │
+┌───────┼───────┐
+▼       ▼       ▼
+Broker  Broker  Broker
+\`\`\`
+
+**KRaft Configuration:**
+
+**Controller-Only Node:**
+\`\`\`properties
+process.roles=controller
+node.id=1
+controller.quorum.voters=1@controller1:9093,2@controller2:9093,3@controller3:9093
+controller.listener.names=CONTROLLER
+listeners=CONTROLLER://controller1:9093
+\`\`\`
+
+**Broker-Only Node:**
+\`\`\`properties
+process.roles=broker
+node.id=4
+controller.quorum.voters=1@controller1:9093,2@controller2:9093,3@controller3:9093
+listeners=PLAINTEXT://broker1:9092
+\`\`\`
+
+**Combined Mode (small clusters):**
+\`\`\`properties
+process.roles=broker,controller
+node.id=1
+controller.quorum.voters=1@localhost:9093
+listeners=PLAINTEXT://localhost:9092,CONTROLLER://localhost:9093
+\`\`\`
+
+**Migration from ZooKeeper:**
+
+**1. Format Storage:**
+\`\`\`bash
+# Generate cluster ID
+kafka-storage.sh random-uuid
+
+# Format storage
+kafka-storage.sh format -t <cluster-id> -c server.properties
+\`\`\`
+
+**2. Start in KRaft Mode:**
+\`\`\`bash
+# Start controller
+kafka-server-start.sh config/kraft/controller.properties
+
+# Start broker
+kafka-server-start.sh config/kraft/broker.properties
+\`\`\`
+
+**3. Migration Steps (ZK to KRaft):**
+\`\`\`
+1. Upgrade all brokers to Kafka 3.3+
+2. Enable migration feature flag
+3. Start KRaft controllers (connect to ZK)
+4. Migrate metadata from ZK to KRaft
+5. Switch brokers to KRaft mode
+6. Remove ZooKeeper dependency
+\`\`\`
+
+**Metadata Topic:**
+\`\`\`
+__cluster_metadata topic
+- Stores all cluster metadata
+- Replicated across controller quorum
+- Topics, partitions, configs, ACLs
+- Replaces ZooKeeper znodes
+\`\`\`
+
+**Key Improvements:**
+
+**Partition Scalability:**
+\`\`\`
+ZooKeeper: ~200,000 partitions
+KRaft: Millions of partitions
+\`\`\`
+
+**Controller Failover:**
+\`\`\`
+ZooKeeper: Minutes (must read all metadata)
+KRaft: Seconds (in-memory metadata)
+\`\`\`
+
+**Cluster Startup:**
+\`\`\`
+ZooKeeper: O(partitions) - slow for large clusters
+KRaft: O(1) - constant time
+\`\`\`
+
+**KRaft Quorum:**
+\`\`\`
+Minimum controllers: 3 (for fault tolerance)
+Recommended: 3 or 5 controllers
+Majority required for consensus (2/3 or 3/5)
+\`\`\`
+
+**When to Use KRaft:**
+✅ New Kafka deployments (3.3+)
+✅ Scaling beyond ZK limits
+✅ Simplifying operations
+✅ Reducing failover time
+
+**When to Stay on ZooKeeper:**
+- Existing stable production clusters
+- Using Kafka < 3.3
+- Waiting for full feature parity`
+    },
+    {
+      id: 14,
+      category: 'Ordering',
+      question: 'How does Kafka guarantee message ordering?',
+      answer: `**Kafka Message Ordering:**
+
+**Ordering Guarantee:**
+- Kafka guarantees ordering WITHIN a partition only
+- No ordering guarantee ACROSS partitions
+- This is a fundamental design decision for scalability
+
+**Within Partition:**
+\`\`\`
+Partition 0:
+offset 0 → message A (produced first)
+offset 1 → message B (produced second)
+offset 2 → message C (produced third)
+
+Consumer always reads: A → B → C (in order)
+\`\`\`
+
+**Across Partitions:**
+\`\`\`
+Partition 0: [A, C, E]
+Partition 1: [B, D, F]
+
+Consumer may read: A, B, C, D, E, F
+                or: B, A, D, C, F, E
+                or: any interleaving
+\`\`\`
+
+**Ensuring Ordering with Keys:**
+
+**Same Key = Same Partition:**
+\`\`\`java
+// All messages for user-123 go to same partition
+producer.send(new ProducerRecord<>("orders", "user-123", order1));
+producer.send(new ProducerRecord<>("orders", "user-123", order2));
+producer.send(new ProducerRecord<>("orders", "user-123", order3));
+// Guaranteed order: order1 → order2 → order3
+
+// Partition assignment
+partition = hash(key) % num_partitions
+// hash("user-123") % 6 = partition 2
+\`\`\`
+
+**Producer Ordering Configuration:**
+
+**Problem: Out-of-Order Delivery**
+\`\`\`java
+// With retries and multiple in-flight requests
+// Message 1 fails, Message 2 succeeds, Message 1 retried
+// Result: Message 2 before Message 1 (out of order!)
+\`\`\`
+
+**Solution 1: Single In-Flight Request**
+\`\`\`java
+props.put("max.in.flight.requests.per.connection", 1);
+// Only one request at a time - maintains order
+// Downside: Lower throughput
+\`\`\`
+
+**Solution 2: Idempotent Producer (Recommended)**
+\`\`\`java
+props.put("enable.idempotence", "true");
+// Automatically sets:
+// - acks=all
+// - retries=MAX_VALUE
+// - max.in.flight.requests.per.connection=5 (safe with idempotence)
+
+// Uses sequence numbers to maintain order
+// Message 1: [PID=100, Seq=0]
+// Message 2: [PID=100, Seq=1]
+// Broker reorders based on sequence
+\`\`\`
+
+**Consumer Ordering:**
+
+**Single Consumer:**
+\`\`\`java
+// One consumer reads all partitions - sees all messages in order
+// But no parallelism
+consumer.subscribe(Collections.singletonList("orders"));
+while (true) {
+    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+    // Process in order
+}
+\`\`\`
+
+**Consumer Group with Partitions:**
+\`\`\`
+Topic: 4 partitions
+Consumer Group: 4 consumers
+
+Consumer 1 → Partition 0 (ordered within P0)
+Consumer 2 → Partition 1 (ordered within P1)
+Consumer 3 → Partition 2 (ordered within P2)
+Consumer 4 → Partition 3 (ordered within P3)
+
+Each partition maintains order, but no global order
+\`\`\`
+
+**Strict Global Ordering:**
+\`\`\`
+Option 1: Single Partition (no parallelism)
+Topic with 1 partition → all messages ordered
+
+Option 2: Single Consumer (no parallelism)
+One consumer processes all partitions sequentially
+
+Option 3: External Sorting
+Add timestamp/sequence to messages
+Buffer and sort in application
+\`\`\`
+
+**Design Patterns:**
+
+**1. Entity-Based Partitioning:**
+\`\`\`java
+// All events for an entity go to same partition
+producer.send(new ProducerRecord<>("orders", orderId, event));
+producer.send(new ProducerRecord<>("users", userId, event));
+// Order maintained per entity
+\`\`\`
+
+**2. Event Sourcing:**
+\`\`\`java
+// Aggregate events by entity key
+Topic: user-events
+Key: user-123
+Events: [Created, Updated, Updated, Deleted]
+// All events for user-123 are ordered
+\`\`\`
+
+**3. Sequence Numbers in Payload:**
+\`\`\`java
+public class Event {
+    private String entityId;
+    private long sequenceNumber;  // Application-level ordering
+    private String data;
+}
+
+// Consumer can detect gaps or reorder
+if (event.getSequenceNumber() != expectedSequence) {
+    // Handle out-of-order or missing events
+}
+\`\`\`
+
+**Best Practices:**
+• Use meaningful keys for partitioning
+• Enable idempotent producer
+• Design for partition-level ordering
+• Use single partition only when necessary
+• Add sequence numbers for cross-partition ordering
+• Consider event timestamps for debugging`
+    },
+    {
+      id: 15,
+      category: 'Retention',
+      question: 'How does Kafka handle data retention and log compaction?',
+      answer: `**Kafka Data Retention:**
+
+**Two Retention Policies:**
+
+**1. Time-Based Retention:**
+\`\`\`properties
+# Retain data for 7 days
+log.retention.hours=168
+# or more precisely
+log.retention.ms=604800000
+
+# Check interval for cleanup
+log.retention.check.interval.ms=300000  # 5 minutes
+\`\`\`
+
+**2. Size-Based Retention:**
+\`\`\`properties
+# Retain up to 1GB per partition
+log.retention.bytes=1073741824
+
+# Unlimited size (default)
+log.retention.bytes=-1
+\`\`\`
+
+**Both Can Be Combined:**
+\`\`\`properties
+# Delete when EITHER condition is met
+log.retention.hours=168
+log.retention.bytes=1073741824
+# Data deleted after 7 days OR when partition exceeds 1GB
+\`\`\`
+
+**Log Segments:**
+\`\`\`
+Partition:
+├── 00000000000000000000.log  (oldest, closed)
+├── 00000000000000050000.log  (closed)
+├── 00000000000000100000.log  (closed)
+└── 00000000000000150000.log  (active segment)
+
+# Segment settings
+log.segment.bytes=1073741824    # 1GB segments
+log.segment.ms=604800000        # 7 days per segment
+\`\`\`
+
+**Log Compaction:**
+
+**What is Log Compaction?**
+- Keeps only the latest value for each key
+- Never deletes the latest message per key
+- Useful for state/changelog topics
+
+**Standard Retention vs Compaction:**
+\`\`\`
+Standard (delete):
+Before: [A:1, B:2, A:3, C:4, B:5, A:6]
+After:  []  (all deleted after retention period)
+
+Compaction:
+Before: [A:1, B:2, A:3, C:4, B:5, A:6]
+After:  [C:4, B:5, A:6]  (latest value per key kept)
+\`\`\`
+
+**Enable Compaction:**
+\`\`\`properties
+# Topic-level
+cleanup.policy=compact
+
+# Or both delete and compact
+cleanup.policy=compact,delete
+\`\`\`
+
+**Compaction Configuration:**
+\`\`\`properties
+# Minimum time before compaction
+min.compaction.lag.ms=0
+
+# Maximum time dirty (uncompacted) data can exist
+max.compaction.lag.ms=9223372036854775807  # Long.MAX
+
+# Minimum ratio of dirty log to total log
+min.cleanable.dirty.ratio=0.5
+
+# Number of compaction threads
+log.cleaner.threads=1
+
+# Memory for compaction
+log.cleaner.dedupe.buffer.size=134217728  # 128MB
+\`\`\`
+
+**Compaction Process:**
+\`\`\`
+Dirty Segment:
+[A:v1, B:v1, A:v2, C:v1, B:v2]
+       ↓ (compaction)
+Clean Segment:
+[A:v2, C:v1, B:v2]
+
+Head (active segment) - never compacted
+Tail (closed segments) - eligible for compaction
+\`\`\`
+
+**Tombstones (Deletion):**
+\`\`\`java
+// Delete a key by sending null value (tombstone)
+producer.send(new ProducerRecord<>("users", "user-123", null));
+
+// Tombstone retained for delete.retention.ms
+// Then removed during compaction
+\`\`\`
+
+**Compaction Settings:**
+\`\`\`properties
+# Tombstone retention
+delete.retention.ms=86400000  # 1 day
+
+# Segment size for compaction
+segment.bytes=1073741824
+
+# Minimum time before message is compacted
+min.compaction.lag.ms=0
+\`\`\`
+
+**Use Cases:**
+
+**Delete Policy:**
+\`\`\`
+- Event streams
+- Logs
+- Metrics
+- Temporary data
+\`\`\`
+
+**Compact Policy:**
+\`\`\`
+- User profiles
+- Product catalog
+- Configuration
+- Kafka Streams state stores
+- CDC changelog
+\`\`\`
+
+**Delete + Compact:**
+\`\`\`
+- Keep latest per key
+- Eventually delete old keys
+- Example: recent user sessions
+\`\`\`
+
+**Monitoring Compaction:**
+\`\`\`bash
+# Check log cleaner status
+kafka-log-dirs.sh --describe --bootstrap-server localhost:9092
+
+# Metrics
+kafka.log.LogCleaner:
+  - cleaner-recopy-percent
+  - max-clean-time-secs
+  - max-buffer-utilization-percent
+\`\`\`
+
+**Best Practices:**
+• Use compaction for stateful topics
+• Set appropriate delete.retention.ms for tombstones
+• Monitor log cleaner performance
+• Size segments appropriately
+• Consider compact+delete for bounded state`
+    },
+    {
+      id: 16,
+      category: 'Replication',
+      question: 'How does Kafka replication work and what is ISR?',
+      answer: `**Kafka Replication:**
+
+**Replication Factor:**
+\`\`\`
+replication.factor=3
+
+Partition 0:
+├── Replica on Broker 1 (Leader)
+├── Replica on Broker 2 (Follower)
+└── Replica on Broker 3 (Follower)
+\`\`\`
+
+**Leader and Followers:**
+\`\`\`
+Producer → Leader → (replicates to) → Followers
+                                          ↓
+Consumer ← Leader ← (reads from)
+\`\`\`
+
+**In-Sync Replicas (ISR):**
+- Replicas that are "caught up" with the leader
+- Eligible to become leader if current leader fails
+- Configurable lag threshold
+
+**ISR Configuration:**
+\`\`\`properties
+# Time replica can be behind before removed from ISR
+replica.lag.time.max.ms=30000  # 30 seconds
+
+# Minimum ISR for write to succeed (with acks=all)
+min.insync.replicas=2
+\`\`\`
+
+**ISR States:**
+\`\`\`
+Partition 0:
+  Leader: Broker 1
+  ISR: [1, 2, 3]  (all in sync)
+
+# Broker 3 falls behind
+  ISR: [1, 2]     (3 removed from ISR)
+
+# Broker 3 catches up
+  ISR: [1, 2, 3]  (3 rejoins ISR)
+\`\`\`
+
+**Replication Protocol:**
+
+**1. Producer Writes:**
+\`\`\`
+Producer → Leader (Broker 1)
+    1. Writes to local log
+    2. Followers fetch from leader
+    3. Followers write to their logs
+    4. Followers acknowledge to leader
+    5. Leader commits (updates high watermark)
+    6. Leader acknowledges to producer
+\`\`\`
+
+**2. High Watermark:**
+\`\`\`
+Log:     [0][1][2][3][4][5][6][7][8]
+                        ↑
+              High Watermark (HW)
+
+Messages 0-5: Committed (replicated to all ISR)
+Messages 6-8: Uncommitted (not yet replicated)
+\`\`\`
+
+**3. Consumer Visibility:**
+\`\`\`
+Consumer can only read up to High Watermark
+- Ensures consistency across replicas
+- Prevents reading uncommitted data
+\`\`\`
+
+**Leader Election:**
+
+**Scenario: Leader Fails**
+\`\`\`
+Before:
+  Partition 0: Leader=1, ISR=[1,2,3]
+
+Broker 1 fails:
+  1. Controller detects failure
+  2. Selects new leader from ISR (Broker 2)
+  3. Updates metadata
+  4. Notifies clients
+
+After:
+  Partition 0: Leader=2, ISR=[2,3]
+\`\`\`
+
+**Unclean Leader Election:**
+\`\`\`properties
+# Allow non-ISR replica to become leader
+unclean.leader.election.enable=false  # Default: false
+
+# If true: May lose committed messages
+# If false: Partition unavailable if no ISR replicas
+\`\`\`
+
+**Min ISR with acks=all:**
+\`\`\`java
+// Producer config
+props.put("acks", "all");
+
+// Broker config
+min.insync.replicas=2
+
+// Scenario:
+// replication.factor=3, min.insync.replicas=2
+//
+// ISR=[1,2,3] → Write succeeds (3 >= 2)
+// ISR=[1,2]   → Write succeeds (2 >= 2)
+// ISR=[1]     → Write FAILS (1 < 2)
+\`\`\`
+
+**Replica Fetching:**
+\`\`\`properties
+# Fetch configuration
+replica.fetch.max.bytes=1048576       # 1MB
+replica.fetch.wait.max.ms=500
+replica.fetch.min.bytes=1
+
+# Replica socket settings
+replica.socket.timeout.ms=30000
+replica.socket.receive.buffer.bytes=65536
+\`\`\`
+
+**Monitoring Replication:**
+\`\`\`bash
+# Check under-replicated partitions
+kafka-topics.sh --describe --bootstrap-server localhost:9092 \\
+  --under-replicated-partitions
+
+# Check ISR for topic
+kafka-topics.sh --describe --bootstrap-server localhost:9092 \\
+  --topic my-topic
+\`\`\`
+
+**Key Metrics:**
+\`\`\`
+UnderReplicatedPartitions: Should be 0
+IsrShrinksPerSec: Should be low
+IsrExpandsPerSec: Should be low
+ActiveControllerCount: Should be 1
+OfflinePartitionsCount: Should be 0
+\`\`\`
+
+**Best Practices:**
+• replication.factor >= 3 for production
+• min.insync.replicas = replication.factor - 1
+• acks=all for critical data
+• Disable unclean leader election
+• Monitor under-replicated partitions
+• Spread replicas across racks/zones`
+    },
+    {
+      id: 17,
+      category: 'Backpressure',
+      question: 'How do you handle backpressure in Kafka applications?',
+      answer: `**Backpressure in Kafka:**
+When consumers can't keep up with producers, causing lag to grow.
+
+**Detecting Backpressure:**
+
+**1. Consumer Lag:**
+\`\`\`bash
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 \\
+  --describe --group my-consumer-group
+
+# Output:
+GROUP           TOPIC      PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG
+my-consumer     orders     0          95000           100000          5000 ←
+my-consumer     orders     1          90000           100000          10000 ←
+\`\`\`
+
+**2. Metrics:**
+\`\`\`
+Consumer:
+  records-lag-max
+  records-consumed-rate
+
+Producer:
+  record-queue-time-avg
+  buffer-exhausted-rate
+\`\`\`
+
+**Handling Consumer Backpressure:**
+
+**1. Scale Consumers:**
+\`\`\`
+Before: 2 consumers, 4 partitions
+  Consumer 1: P0, P1
+  Consumer 2: P2, P3
+
+After: 4 consumers, 4 partitions
+  Consumer 1: P0
+  Consumer 2: P1
+  Consumer 3: P2
+  Consumer 4: P3
+
+Throughput: 2x
+\`\`\`
+
+**2. Increase Partitions:**
+\`\`\`bash
+# Add more partitions (can't decrease!)
+kafka-topics.sh --bootstrap-server localhost:9092 \\
+  --alter --topic orders --partitions 8
+\`\`\`
+
+**3. Optimize Consumer Processing:**
+\`\`\`java
+// Batch processing
+props.put("max.poll.records", "500");
+props.put("fetch.min.bytes", "50000");
+
+while (true) {
+    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+
+    // Process in parallel
+    ExecutorService executor = Executors.newFixedThreadPool(10);
+    List<Future<?>> futures = new ArrayList<>();
+
+    for (ConsumerRecord<String, String> record : records) {
+        futures.add(executor.submit(() -> processRecord(record)));
+    }
+
+    // Wait for all to complete
+    for (Future<?> future : futures) {
+        future.get();
+    }
+
+    consumer.commitSync();
+}
+\`\`\`
+
+**4. Async Processing with Queue:**
+\`\`\`java
+BlockingQueue<ConsumerRecord<String, String>> queue =
+    new LinkedBlockingQueue<>(10000);
+
+// Consumer thread - fast polling
+while (true) {
+    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+    for (ConsumerRecord<String, String> record : records) {
+        queue.put(record);  // Blocks if queue full (backpressure)
+    }
+    consumer.commitSync();
+}
+
+// Worker threads - slow processing
+for (int i = 0; i < 10; i++) {
+    executor.submit(() -> {
+        while (true) {
+            ConsumerRecord<String, String> record = queue.take();
+            processRecord(record);  // Slow operation
+        }
+    });
+}
+\`\`\`
+
+**5. Pause/Resume Partitions:**
+\`\`\`java
+// Pause when buffer is full
+if (processingQueue.size() > HIGH_WATERMARK) {
+    consumer.pause(consumer.assignment());
+}
+
+// Resume when buffer drains
+if (processingQueue.size() < LOW_WATERMARK) {
+    consumer.resume(consumer.paused());
+}
+\`\`\`
+
+**Handling Producer Backpressure:**
+
+**1. Producer Buffer:**
+\`\`\`java
+// Increase buffer size
+props.put("buffer.memory", "67108864");  // 64MB
+
+// Handle buffer full
+props.put("max.block.ms", "60000");  // Block up to 60s
+
+// If buffer full, send() blocks until space available
+// Or throws TimeoutException after max.block.ms
+\`\`\`
+
+**2. Batch Settings:**
+\`\`\`java
+// Larger batches = better throughput
+props.put("batch.size", "65536");     // 64KB
+props.put("linger.ms", "50");         // Wait up to 50ms to batch
+props.put("compression.type", "lz4"); // Compress for better throughput
+\`\`\`
+
+**3. Rate Limiting Producer:**
+\`\`\`java
+RateLimiter rateLimiter = RateLimiter.create(10000);  // 10K/sec
+
+while (hasData) {
+    rateLimiter.acquire();  // Block if rate exceeded
+    producer.send(new ProducerRecord<>("topic", data));
+}
+\`\`\`
+
+**4. Async with Callback:**
+\`\`\`java
+Semaphore semaphore = new Semaphore(1000);  // Max 1000 in-flight
+
+while (hasData) {
+    semaphore.acquire();  // Block if too many in-flight
+
+    producer.send(record, (metadata, exception) -> {
+        semaphore.release();
+        if (exception != null) {
+            // Handle failure
+        }
+    });
+}
+\`\`\`
+
+**Monitoring for Backpressure:**
+\`\`\`yaml
+# Prometheus alerts
+- alert: KafkaConsumerLagHigh
+  expr: kafka_consumer_group_lag > 10000
+  for: 5m
+  labels:
+    severity: warning
+
+- alert: KafkaProducerBufferExhausted
+  expr: rate(kafka_producer_buffer_exhausted_total[5m]) > 0
+  labels:
+    severity: critical
+\`\`\`
+
+**Best Practices:**
+• Monitor consumer lag continuously
+• Set up alerts for lag thresholds
+• Scale consumers before lag gets critical
+• Use async processing for slow operations
+• Implement pause/resume for controlled backpressure
+• Rate limit producers if needed
+• Size producer buffers appropriately`
+    },
+    {
+      id: 18,
+      category: 'Error Handling',
+      question: 'How do you implement error handling and dead letter queues in Kafka?',
+      answer: `**Kafka Error Handling Strategies:**
+
+**1. Dead Letter Queue (DLQ):**
+\`\`\`java
+while (true) {
+    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+
+    for (ConsumerRecord<String, String> record : records) {
+        try {
+            processRecord(record);
+        } catch (Exception e) {
+            // Send to DLQ
+            sendToDeadLetterQueue(record, e);
+        }
+    }
+    consumer.commitSync();
+}
+
+private void sendToDeadLetterQueue(ConsumerRecord<String, String> record, Exception e) {
+    ProducerRecord<String, String> dlqRecord = new ProducerRecord<>(
+        "orders-dlq",  // DLQ topic
+        record.key(),
+        record.value()
+    );
+
+    // Add error metadata as headers
+    dlqRecord.headers()
+        .add("original-topic", record.topic().getBytes())
+        .add("original-partition", String.valueOf(record.partition()).getBytes())
+        .add("original-offset", String.valueOf(record.offset()).getBytes())
+        .add("error-message", e.getMessage().getBytes())
+        .add("error-timestamp", Instant.now().toString().getBytes());
+
+    dlqProducer.send(dlqRecord);
+}
+\`\`\`
+
+**2. Retry with Exponential Backoff:**
+\`\`\`java
+private static final int MAX_RETRIES = 3;
+private static final long INITIAL_BACKOFF_MS = 1000;
+
+for (ConsumerRecord<String, String> record : records) {
+    int attempts = 0;
+    boolean success = false;
+
+    while (attempts < MAX_RETRIES && !success) {
+        try {
+            processRecord(record);
+            success = true;
+        } catch (RetryableException e) {
+            attempts++;
+            if (attempts < MAX_RETRIES) {
+                long backoff = INITIAL_BACKOFF_MS * (long) Math.pow(2, attempts - 1);
+                Thread.sleep(backoff);
+            } else {
+                sendToDeadLetterQueue(record, e);
+            }
+        } catch (NonRetryableException e) {
+            // Don't retry, send directly to DLQ
+            sendToDeadLetterQueue(record, e);
+            break;
+        }
+    }
+}
+\`\`\`
+
+**3. Retry Topics Pattern:**
+\`\`\`
+Main Topic: orders
+Retry Topics: orders-retry-1, orders-retry-2, orders-retry-3
+DLQ: orders-dlq
+
+Flow:
+orders → (fail) → orders-retry-1 (1min delay)
+       → (fail) → orders-retry-2 (5min delay)
+       → (fail) → orders-retry-3 (30min delay)
+       → (fail) → orders-dlq
+\`\`\`
+
+\`\`\`java
+public class RetryConsumer {
+
+    private final Map<String, Long> retryDelays = Map.of(
+        "orders-retry-1", 60_000L,
+        "orders-retry-2", 300_000L,
+        "orders-retry-3", 1800_000L
+    );
+
+    public void processWithRetry(ConsumerRecord<String, String> record) {
+        try {
+            process(record);
+        } catch (Exception e) {
+            String nextTopic = getNextRetryTopic(record.topic());
+            if (nextTopic != null) {
+                // Schedule delayed retry
+                scheduleRetry(record, nextTopic, retryDelays.get(nextTopic));
+            } else {
+                sendToDeadLetterQueue(record, e);
+            }
+        }
+    }
+
+    private String getNextRetryTopic(String currentTopic) {
+        return switch (currentTopic) {
+            case "orders" -> "orders-retry-1";
+            case "orders-retry-1" -> "orders-retry-2";
+            case "orders-retry-2" -> "orders-retry-3";
+            default -> null;  // Go to DLQ
+        };
+    }
+}
+\`\`\`
+
+**4. Spring Kafka Error Handler:**
+\`\`\`java
+@Configuration
+public class KafkaConfig {
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, String>
+            kafkaListenerContainerFactory(
+                ConsumerFactory<String, String> consumerFactory,
+                KafkaTemplate<String, String> kafkaTemplate) {
+
+        ConcurrentKafkaListenerContainerFactory<String, String> factory =
+            new ConcurrentKafkaListenerContainerFactory<>();
+
+        factory.setConsumerFactory(consumerFactory);
+
+        // Retry configuration
+        factory.setCommonErrorHandler(
+            new DefaultErrorHandler(
+                new DeadLetterPublishingRecoverer(kafkaTemplate,
+                    (record, ex) -> new TopicPartition(record.topic() + "-dlq", -1)),
+                new ExponentialBackOff(1000L, 2.0)
+            )
+        );
+
+        return factory;
+    }
+}
+
+@Service
+public class OrderConsumer {
+
+    @KafkaListener(topics = "orders", groupId = "order-group")
+    @RetryableTopic(
+        attempts = "3",
+        backoff = @Backoff(delay = 1000, multiplier = 2.0),
+        dltTopicSuffix = "-dlq"
+    )
+    public void consume(String message) {
+        // Process message
+        // Automatic retry and DLQ handling
+    }
+
+    @DltHandler
+    public void handleDlt(String message) {
+        log.error("Message in DLQ: {}", message);
+        // Alert, log, or special handling
+    }
+}
+\`\`\`
+
+**5. Handling Deserialization Errors:**
+\`\`\`java
+// Custom deserializer with error handling
+public class SafeDeserializer implements Deserializer<MyObject> {
+
+    @Override
+    public MyObject deserialize(String topic, byte[] data) {
+        try {
+            return objectMapper.readValue(data, MyObject.class);
+        } catch (Exception e) {
+            log.error("Deserialization error: {}", e.getMessage());
+            return null;  // Or throw custom exception
+        }
+    }
+}
+
+// Or use ErrorHandlingDeserializer
+props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+    ErrorHandlingDeserializer.class);
+props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS,
+    JsonDeserializer.class);
+props.put(ErrorHandlingDeserializer.VALUE_FUNCTION,
+    (record, exception) -> {
+        // Log and return null or send to DLQ
+    });
+\`\`\`
+
+**6. DLQ Processing:**
+\`\`\`java
+@KafkaListener(topics = "orders-dlq", groupId = "dlq-processor")
+public void processDlq(ConsumerRecord<String, String> record) {
+    String originalTopic = new String(record.headers().lastHeader("original-topic").value());
+    String errorMessage = new String(record.headers().lastHeader("error-message").value());
+
+    // Log for analysis
+    log.error("DLQ message from {}: error={}", originalTopic, errorMessage);
+
+    // Store in database for manual review
+    dlqRepository.save(new DlqEntry(record));
+
+    // Alert operations team
+    alertService.sendAlert("DLQ message received", record);
+
+    // Optionally: Auto-retry after fix
+    if (shouldRetry(record)) {
+        reprocessService.scheduleReprocess(record);
+    }
+}
+\`\`\`
+
+**Best Practices:**
+• Distinguish retryable vs non-retryable errors
+• Use exponential backoff for retries
+• Add metadata (timestamps, errors) to DLQ messages
+• Monitor DLQ size and set up alerts
+• Implement DLQ processing/reprocessing
+• Log all errors for debugging
+• Consider idempotent processing for retries`
     }
   ]
 
@@ -1968,7 +3374,19 @@ echo noop > /sys/block/sda/queue/scheduler
       'Partitions': '#f59e0b',
       'Consumer Groups': '#10b981',
       'Producer': '#3b82f6',
-      'Performance': '#ec4899'
+      'Performance': '#ec4899',
+      'Delivery Semantics': '#8b5cf6',
+      'Kafka Streams': '#06b6d4',
+      'Security': '#dc2626',
+      'Monitoring': '#84cc16',
+      'Schema Registry': '#f97316',
+      'Kafka Connect': '#14b8a6',
+      'KRaft Mode': '#6366f1',
+      'Ordering': '#a855f7',
+      'Retention': '#22c55e',
+      'Replication': '#0ea5e9',
+      'Backpressure': '#f43f5e',
+      'Error Handling': '#eab308'
     }
     return colors[category] || '#6b7280'
   }
@@ -2010,7 +3428,7 @@ echo noop > /sys/block/sda/queue/scheduler
         <div style={{ width: '150px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
       <p style={{
         fontSize: '1.1rem',
@@ -2086,15 +3504,19 @@ echo noop > /sys/block/sda/queue/scheduler
                   Q{q.id}. {q.question}
                 </h3>
               </div>
-              <div style={{
-                fontSize: '1.5rem',
-                color: getCategoryColor(q.category),
-                fontWeight: 'bold',
-                marginLeft: '1rem',
-                transform: expandedQuestion === q.id ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 0.3s ease'
-              }}>
-                ▼
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div onClick={(e) => e.stopPropagation()} style={{ transform: 'scale(0.85)' }}>
+                  <CompletionCheckbox problemId={`KafkaQuestions-${q.id}`} />
+                </div>
+                <div style={{
+                  fontSize: '1.5rem',
+                  color: getCategoryColor(q.category),
+                  fontWeight: 'bold',
+                  transform: expandedQuestion === q.id ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.3s ease'
+                }}>
+                  ▼
+                </div>
               </div>
             </button>
 

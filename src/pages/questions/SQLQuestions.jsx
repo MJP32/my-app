@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
 
 function SQLQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
@@ -1237,6 +1238,1134 @@ running_total AS (
 SELECT * FROM running_total
 ORDER BY month;
 \`\`\``
+    },
+    {
+      id: 9,
+      category: 'Stored Procedures',
+      question: 'What are Stored Procedures and when should you use them?',
+      answer: `**What is a Stored Procedure?**
+- Precompiled SQL code stored in database
+- Can accept parameters and return results
+- Executed on database server
+- Reusable across applications
+
+**Creating Stored Procedures:**
+
+**MySQL:**
+\`\`\`sql
+DELIMITER //
+
+CREATE PROCEDURE GetOrdersByCustomer(
+    IN p_customer_id INT,
+    OUT p_total_orders INT
+)
+BEGIN
+    SELECT * FROM orders WHERE customer_id = p_customer_id;
+
+    SELECT COUNT(*) INTO p_total_orders
+    FROM orders WHERE customer_id = p_customer_id;
+END //
+
+DELIMITER ;
+
+-- Call procedure
+CALL GetOrdersByCustomer(123, @total);
+SELECT @total;
+\`\`\`
+
+**PostgreSQL:**
+\`\`\`sql
+CREATE OR REPLACE FUNCTION get_customer_orders(
+    p_customer_id INTEGER
+)
+RETURNS TABLE (
+    order_id INTEGER,
+    order_date DATE,
+    total DECIMAL
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT o.id, o.order_date, o.total_amount
+    FROM orders o
+    WHERE o.customer_id = p_customer_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Call function
+SELECT * FROM get_customer_orders(123);
+\`\`\`
+
+**SQL Server:**
+\`\`\`sql
+CREATE PROCEDURE GetCustomerOrders
+    @CustomerId INT,
+    @TotalOrders INT OUTPUT
+AS
+BEGIN
+    SELECT * FROM Orders WHERE CustomerId = @CustomerId;
+
+    SELECT @TotalOrders = COUNT(*)
+    FROM Orders WHERE CustomerId = @CustomerId;
+END;
+
+-- Call procedure
+DECLARE @Total INT;
+EXEC GetCustomerOrders @CustomerId = 123, @TotalOrders = @Total OUTPUT;
+SELECT @Total;
+\`\`\`
+
+**When to Use:**
+✅ Complex business logic that needs to run on DB
+✅ Batch operations for performance
+✅ Security - grant execute without table access
+✅ Code reuse across applications
+✅ Reduce network roundtrips
+
+**When NOT to Use:**
+❌ Simple CRUD operations
+❌ Logic that changes frequently
+❌ When you need database portability
+❌ Complex debugging needed
+
+**Pros vs Cons:**
+| Pros | Cons |
+|------|------|
+| Faster execution | Harder to version control |
+| Less network traffic | Database-specific syntax |
+| Better security | Difficult to debug |
+| Encapsulation | Testing complexity |`
+    },
+    {
+      id: 10,
+      category: 'Triggers',
+      question: 'What are Database Triggers and when should you use them?',
+      answer: `**What is a Trigger?**
+- Automatic SQL code executed in response to events
+- Events: INSERT, UPDATE, DELETE
+- Timing: BEFORE or AFTER the event
+- Used for auditing, validation, maintaining derived data
+
+**Creating Triggers:**
+
+**MySQL:**
+\`\`\`sql
+-- Audit trigger
+CREATE TRIGGER orders_audit_trigger
+AFTER UPDATE ON orders
+FOR EACH ROW
+BEGIN
+    INSERT INTO orders_audit (
+        order_id,
+        old_status,
+        new_status,
+        changed_at,
+        changed_by
+    ) VALUES (
+        OLD.id,
+        OLD.status,
+        NEW.status,
+        NOW(),
+        CURRENT_USER()
+    );
+END;
+
+-- Validation trigger
+CREATE TRIGGER validate_order_total
+BEFORE INSERT ON orders
+FOR EACH ROW
+BEGIN
+    IF NEW.total_amount < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Order total cannot be negative';
+    END IF;
+END;
+\`\`\`
+
+**PostgreSQL:**
+\`\`\`sql
+-- Create function first
+CREATE OR REPLACE FUNCTION audit_order_changes()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'UPDATE' THEN
+        INSERT INTO orders_audit (order_id, old_status, new_status, changed_at)
+        VALUES (OLD.id, OLD.status, NEW.status, NOW());
+    ELSIF TG_OP = 'DELETE' THEN
+        INSERT INTO orders_audit (order_id, old_status, action, changed_at)
+        VALUES (OLD.id, OLD.status, 'DELETED', NOW());
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create trigger
+CREATE TRIGGER orders_audit
+AFTER UPDATE OR DELETE ON orders
+FOR EACH ROW
+EXECUTE FUNCTION audit_order_changes();
+\`\`\`
+
+**Common Use Cases:**
+
+**1. Audit Logging:**
+\`\`\`sql
+CREATE TRIGGER employee_audit
+AFTER UPDATE ON employees
+FOR EACH ROW
+BEGIN
+    INSERT INTO audit_log (table_name, record_id, action, old_value, new_value)
+    VALUES ('employees', OLD.id, 'UPDATE',
+            JSON_OBJECT('salary', OLD.salary),
+            JSON_OBJECT('salary', NEW.salary));
+END;
+\`\`\`
+
+**2. Maintaining Derived Data:**
+\`\`\`sql
+-- Update order total when items change
+CREATE TRIGGER update_order_total
+AFTER INSERT OR UPDATE OR DELETE ON order_items
+FOR EACH ROW
+BEGIN
+    UPDATE orders
+    SET total_amount = (
+        SELECT SUM(quantity * price) FROM order_items WHERE order_id = COALESCE(NEW.order_id, OLD.order_id)
+    )
+    WHERE id = COALESCE(NEW.order_id, OLD.order_id);
+END;
+\`\`\`
+
+**3. Cascading Updates:**
+\`\`\`sql
+CREATE TRIGGER cascade_status_update
+AFTER UPDATE OF status ON orders
+FOR EACH ROW
+WHEN (NEW.status = 'CANCELLED')
+BEGIN
+    UPDATE order_items SET status = 'CANCELLED' WHERE order_id = NEW.id;
+    UPDATE inventory SET quantity = quantity + oi.quantity
+    FROM order_items oi WHERE oi.order_id = NEW.id;
+END;
+\`\`\`
+
+**When to Use:**
+✅ Audit trails
+✅ Enforcing complex business rules
+✅ Maintaining derived/denormalized data
+✅ Automatic timestamps (created_at, updated_at)
+
+**When NOT to Use:**
+❌ Simple validation (use constraints)
+❌ Complex business logic (use application layer)
+❌ Performance-critical operations
+❌ When behavior needs to be conditional
+
+**Best Practices:**
+• Keep triggers simple and fast
+• Document all triggers
+• Avoid recursive triggers
+• Test trigger behavior thoroughly
+• Consider impact on bulk operations`
+    },
+    {
+      id: 11,
+      category: 'Views',
+      question: 'What are SQL Views and Materialized Views?',
+      answer: `**What is a View?**
+- Virtual table based on SELECT query
+- Does not store data (except materialized views)
+- Simplifies complex queries
+- Provides security layer
+
+**Creating Views:**
+
+**Simple View:**
+\`\`\`sql
+CREATE VIEW active_customers AS
+SELECT id, name, email, phone
+FROM customers
+WHERE status = 'ACTIVE';
+
+-- Use like a table
+SELECT * FROM active_customers WHERE name LIKE 'John%';
+\`\`\`
+
+**Complex View with Joins:**
+\`\`\`sql
+CREATE VIEW order_summary AS
+SELECT
+    o.id AS order_id,
+    c.name AS customer_name,
+    o.order_date,
+    COUNT(oi.id) AS item_count,
+    SUM(oi.quantity * oi.price) AS total_amount
+FROM orders o
+JOIN customers c ON o.customer_id = c.id
+JOIN order_items oi ON o.id = oi.order_id
+GROUP BY o.id, c.name, o.order_date;
+
+-- Query the view
+SELECT * FROM order_summary WHERE total_amount > 1000;
+\`\`\`
+
+**Updatable View:**
+\`\`\`sql
+-- Simple views can be updatable
+CREATE VIEW customer_contacts AS
+SELECT id, name, email, phone
+FROM customers;
+
+-- Can INSERT, UPDATE, DELETE through view
+UPDATE customer_contacts SET phone = '555-1234' WHERE id = 1;
+\`\`\`
+
+**View with CHECK OPTION:**
+\`\`\`sql
+CREATE VIEW active_customers AS
+SELECT * FROM customers WHERE status = 'ACTIVE'
+WITH CHECK OPTION;
+
+-- This fails - violates view condition
+INSERT INTO active_customers (name, status) VALUES ('John', 'INACTIVE');
+\`\`\`
+
+**Materialized Views:**
+- Stores query results physically
+- Needs to be refreshed to update data
+- Much faster for complex queries
+
+**PostgreSQL Materialized View:**
+\`\`\`sql
+CREATE MATERIALIZED VIEW monthly_sales AS
+SELECT
+    DATE_TRUNC('month', order_date) AS month,
+    product_id,
+    SUM(quantity) AS total_quantity,
+    SUM(amount) AS total_revenue
+FROM orders
+GROUP BY DATE_TRUNC('month', order_date), product_id;
+
+-- Create index on materialized view
+CREATE INDEX idx_monthly_sales_month ON monthly_sales(month);
+
+-- Refresh materialized view
+REFRESH MATERIALIZED VIEW monthly_sales;
+
+-- Refresh concurrently (doesn't lock)
+REFRESH MATERIALIZED VIEW CONCURRENTLY monthly_sales;
+\`\`\`
+
+**Oracle Materialized View:**
+\`\`\`sql
+CREATE MATERIALIZED VIEW sales_summary
+BUILD IMMEDIATE
+REFRESH FAST ON COMMIT
+AS
+SELECT product_id, SUM(quantity) AS total_qty
+FROM order_items
+GROUP BY product_id;
+\`\`\`
+
+**View vs Materialized View:**
+| Feature | View | Materialized View |
+|---------|------|-------------------|
+| Stores data | No | Yes |
+| Query performance | Slower | Faster |
+| Data freshness | Always current | May be stale |
+| Storage | None | Requires space |
+| Indexable | No | Yes |
+| Update complexity | None | Refresh needed |
+
+**Use Cases:**
+| View | Materialized View |
+|------|-------------------|
+| Security/access control | Complex aggregations |
+| Simplify queries | Reporting dashboards |
+| Backward compatibility | Data warehousing |
+| Abstract schema changes | Caching expensive queries |`
+    },
+    {
+      id: 12,
+      category: 'Optimization',
+      question: 'How do you analyze and read an EXPLAIN plan?',
+      answer: `**EXPLAIN Plan Analysis:**
+
+**Basic EXPLAIN:**
+\`\`\`sql
+EXPLAIN SELECT * FROM orders WHERE customer_id = 123;
+
+-- PostgreSQL with more details
+EXPLAIN ANALYZE SELECT * FROM orders WHERE customer_id = 123;
+
+-- MySQL extended
+EXPLAIN FORMAT=JSON SELECT * FROM orders WHERE customer_id = 123;
+\`\`\`
+
+**Key Columns in EXPLAIN:**
+
+**1. type (MySQL) / Scan Type:**
+\`\`\`
+Best to Worst:
+├── system    - Table has one row
+├── const     - Single row match (primary key)
+├── eq_ref    - One row per join (unique index)
+├── ref       - Multiple rows, non-unique index
+├── range     - Index range scan
+├── index     - Full index scan
+└── ALL       - Full table scan (WORST!)
+\`\`\`
+
+**Example Analysis:**
+\`\`\`sql
+EXPLAIN SELECT * FROM orders WHERE status = 'PENDING';
+
+-- BAD: type = ALL (full table scan)
++----+-------------+--------+------+---------------+------+
+| id | select_type | table  | type | possible_keys | rows |
++----+-------------+--------+------+---------------+------+
+| 1  | SIMPLE      | orders | ALL  | NULL          | 50000|
++----+-------------+--------+------+---------------+------+
+
+-- After adding index
+CREATE INDEX idx_status ON orders(status);
+
+-- GOOD: type = ref (index used)
++----+-------------+--------+------+---------------+------------+
+| id | select_type | table  | type | possible_keys | rows       |
++----+-------------+--------+------+---------------+------------+
+| 1  | SIMPLE      | orders | ref  | idx_status    | 500        |
++----+-------------+--------+------+---------------+------------+
+\`\`\`
+
+**2. key / Index Used:**
+\`\`\`sql
+EXPLAIN SELECT * FROM orders WHERE customer_id = 123 AND status = 'PENDING';
+
+-- Check which index is actually used
++---------------+------+
+| possible_keys | key  |
++---------------+------+
+| idx_customer, | idx_customer_status |
+| idx_status,   |      |
+| idx_customer_status |
++---------------+------+
+\`\`\`
+
+**3. rows / Estimated Rows:**
+\`\`\`
+Lower is better
+Compare with actual table size
+High number + ALL type = problem
+\`\`\`
+
+**4. Extra / Additional Info:**
+\`\`\`
+Good:
+├── Using index         - Covered by index (no table access)
+├── Using where         - WHERE applied
+└── Using index condition - Index condition pushdown
+
+Bad:
+├── Using filesort      - Extra sorting needed
+├── Using temporary     - Temp table created
+├── Using join buffer   - No index for join
+└── Full scan on NULL key - Subquery issue
+\`\`\`
+
+**PostgreSQL EXPLAIN ANALYZE:**
+\`\`\`sql
+EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
+SELECT o.*, c.name
+FROM orders o
+JOIN customers c ON o.customer_id = c.id
+WHERE o.status = 'PENDING';
+
+-- Output:
+Hash Join  (cost=1.23..45.67 rows=100 width=200) (actual time=0.5..2.3 rows=95 loops=1)
+  Hash Cond: (o.customer_id = c.id)
+  Buffers: shared hit=50
+  ->  Seq Scan on orders o  (cost=0.00..35.00 rows=100 width=100)
+        Filter: (status = 'PENDING')
+        Rows Removed by Filter: 9900
+  ->  Hash  (cost=1.10..1.10 rows=10 width=100)
+        Buckets: 1024  Batches: 1  Memory Usage: 8kB
+        ->  Seq Scan on customers c  (cost=0.00..1.10 rows=10 width=100)
+Planning Time: 0.2 ms
+Execution Time: 2.5 ms
+\`\`\`
+
+**Key Metrics:**
+\`\`\`
+cost=startup..total    - Estimated cost units
+actual time            - Real execution time (ms)
+rows                   - Rows returned
+loops                  - Times operation executed
+Buffers: shared hit    - Pages read from cache
+Buffers: shared read   - Pages read from disk
+\`\`\`
+
+**Common Scan Types (PostgreSQL):**
+\`\`\`
+Seq Scan           - Full table scan
+Index Scan         - B-tree index lookup
+Index Only Scan    - Covered by index (best)
+Bitmap Index Scan  - Multiple index conditions
+Bitmap Heap Scan   - After bitmap index scan
+\`\`\`
+
+**Join Types:**
+\`\`\`
+Nested Loop    - Good for small datasets
+Hash Join      - Good for larger datasets, equality
+Merge Join     - Good for sorted data
+\`\`\`
+
+**Optimization Tips:**
+1. Look for Seq Scan on large tables
+2. Check for Using filesort/temporary
+3. Compare estimated vs actual rows
+4. Watch for high buffer reads (disk I/O)
+5. Look at total execution time
+6. Check if correct indexes are used`
+    },
+    {
+      id: 13,
+      category: 'Constraints',
+      question: 'Explain different types of SQL constraints',
+      answer: `**SQL Constraints:**
+Rules enforced on table columns to ensure data integrity.
+
+**1. PRIMARY KEY:**
+\`\`\`sql
+-- Single column
+CREATE TABLE users (
+    id INT PRIMARY KEY,
+    name VARCHAR(100)
+);
+
+-- Composite primary key
+CREATE TABLE order_items (
+    order_id INT,
+    product_id INT,
+    quantity INT,
+    PRIMARY KEY (order_id, product_id)
+);
+
+-- Auto-increment
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,  -- PostgreSQL
+    id INT AUTO_INCREMENT PRIMARY KEY,  -- MySQL
+    name VARCHAR(100)
+);
+\`\`\`
+
+**2. FOREIGN KEY:**
+\`\`\`sql
+CREATE TABLE orders (
+    id INT PRIMARY KEY,
+    customer_id INT,
+    order_date DATE,
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
+        ON DELETE CASCADE
+        ON UPDATE SET NULL
+);
+
+-- Referential Actions:
+-- CASCADE    - Delete/update child rows
+-- SET NULL   - Set foreign key to NULL
+-- SET DEFAULT - Set to default value
+-- RESTRICT   - Prevent deletion (default)
+-- NO ACTION  - Same as RESTRICT
+\`\`\`
+
+**3. UNIQUE:**
+\`\`\`sql
+CREATE TABLE users (
+    id INT PRIMARY KEY,
+    email VARCHAR(100) UNIQUE,
+    username VARCHAR(50) UNIQUE
+);
+
+-- Composite unique
+CREATE TABLE user_roles (
+    user_id INT,
+    role_id INT,
+    UNIQUE (user_id, role_id)
+);
+
+-- Named constraint
+ALTER TABLE users
+ADD CONSTRAINT uk_email UNIQUE (email);
+\`\`\`
+
+**4. NOT NULL:**
+\`\`\`sql
+CREATE TABLE products (
+    id INT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    description TEXT  -- NULL allowed
+);
+
+-- Add NOT NULL to existing column
+ALTER TABLE products
+ALTER COLUMN name SET NOT NULL;
+\`\`\`
+
+**5. CHECK:**
+\`\`\`sql
+CREATE TABLE employees (
+    id INT PRIMARY KEY,
+    name VARCHAR(100),
+    age INT CHECK (age >= 18 AND age <= 120),
+    salary DECIMAL(10,2) CHECK (salary > 0),
+    hire_date DATE CHECK (hire_date <= CURRENT_DATE)
+);
+
+-- Named check constraint
+CREATE TABLE orders (
+    id INT PRIMARY KEY,
+    status VARCHAR(20),
+    CONSTRAINT chk_status CHECK (status IN ('PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED'))
+);
+
+-- Multiple column check
+CREATE TABLE products (
+    id INT PRIMARY KEY,
+    price DECIMAL(10,2),
+    discount_price DECIMAL(10,2),
+    CONSTRAINT chk_discount CHECK (discount_price <= price)
+);
+\`\`\`
+
+**6. DEFAULT:**
+\`\`\`sql
+CREATE TABLE orders (
+    id INT PRIMARY KEY,
+    order_date DATE DEFAULT CURRENT_DATE,
+    status VARCHAR(20) DEFAULT 'PENDING',
+    quantity INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- PostgreSQL: Default with expression
+CREATE TABLE logs (
+    id UUID DEFAULT gen_random_uuid(),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+\`\`\`
+
+**7. Adding/Dropping Constraints:**
+\`\`\`sql
+-- Add constraint
+ALTER TABLE users
+ADD CONSTRAINT fk_department
+FOREIGN KEY (dept_id) REFERENCES departments(id);
+
+ALTER TABLE products
+ADD CONSTRAINT chk_price CHECK (price > 0);
+
+-- Drop constraint
+ALTER TABLE users DROP CONSTRAINT fk_department;
+ALTER TABLE users DROP CONSTRAINT uk_email;
+
+-- MySQL: Drop foreign key
+ALTER TABLE orders DROP FOREIGN KEY fk_customer;
+\`\`\`
+
+**8. Viewing Constraints:**
+\`\`\`sql
+-- PostgreSQL
+SELECT conname, contype, pg_get_constraintdef(oid)
+FROM pg_constraint
+WHERE conrelid = 'users'::regclass;
+
+-- MySQL
+SELECT * FROM information_schema.TABLE_CONSTRAINTS
+WHERE TABLE_NAME = 'users';
+
+-- SQL Server
+SELECT * FROM sys.check_constraints
+WHERE parent_object_id = OBJECT_ID('users');
+\`\`\`
+
+**Constraint Types Summary:**
+| Constraint | Purpose | Multiple per Table |
+|------------|---------|-------------------|
+| PRIMARY KEY | Unique identifier | No (1 only) |
+| FOREIGN KEY | Referential integrity | Yes |
+| UNIQUE | Prevent duplicates | Yes |
+| NOT NULL | Require value | Yes (per column) |
+| CHECK | Custom validation | Yes |
+| DEFAULT | Automatic value | Yes (per column) |`
+    },
+    {
+      id: 14,
+      category: 'Locking',
+      question: 'Explain database locking and how to prevent deadlocks',
+      answer: `**Database Locking:**
+
+**Types of Locks:**
+
+**1. Shared Lock (Read Lock):**
+\`\`\`sql
+-- Multiple transactions can read simultaneously
+SELECT * FROM orders WHERE id = 1 FOR SHARE;
+
+-- PostgreSQL
+SELECT * FROM orders WHERE id = 1 FOR KEY SHARE;
+\`\`\`
+
+**2. Exclusive Lock (Write Lock):**
+\`\`\`sql
+-- Only one transaction can write
+SELECT * FROM orders WHERE id = 1 FOR UPDATE;
+
+-- Lock and skip locked rows
+SELECT * FROM orders WHERE status = 'PENDING'
+FOR UPDATE SKIP LOCKED
+LIMIT 10;
+
+-- Lock with no wait (fail immediately if locked)
+SELECT * FROM orders WHERE id = 1 FOR UPDATE NOWAIT;
+\`\`\`
+
+**Lock Granularity:**
+\`\`\`
+Row-level    - Locks specific rows
+Page-level   - Locks database pages
+Table-level  - Locks entire table
+Database     - Locks entire database
+\`\`\`
+
+**Deadlock Example:**
+\`\`\`sql
+-- Transaction 1:
+BEGIN;
+UPDATE accounts SET balance = balance - 100 WHERE id = 1;  -- Locks row 1
+-- waits for row 2...
+UPDATE accounts SET balance = balance + 100 WHERE id = 2;  -- DEADLOCK!
+
+-- Transaction 2:
+BEGIN;
+UPDATE accounts SET balance = balance - 50 WHERE id = 2;   -- Locks row 2
+-- waits for row 1...
+UPDATE accounts SET balance = balance + 50 WHERE id = 1;   -- DEADLOCK!
+\`\`\`
+
+**Preventing Deadlocks:**
+
+**1. Consistent Lock Order:**
+\`\`\`sql
+-- Always lock in same order (by ID)
+-- Transaction 1 and 2 both do:
+BEGIN;
+UPDATE accounts SET balance = balance - 100 WHERE id = 1;  -- Lock row 1 first
+UPDATE accounts SET balance = balance + 100 WHERE id = 2;  -- Then row 2
+COMMIT;
+\`\`\`
+
+**2. Lock All Resources Upfront:**
+\`\`\`sql
+BEGIN;
+-- Lock all needed rows first
+SELECT * FROM accounts WHERE id IN (1, 2) FOR UPDATE;
+
+-- Then do updates
+UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+COMMIT;
+\`\`\`
+
+**3. Use NOWAIT or SKIP LOCKED:**
+\`\`\`sql
+-- Fail immediately if locked
+BEGIN;
+SELECT * FROM orders WHERE id = 1 FOR UPDATE NOWAIT;
+-- Throws error if locked, no deadlock
+
+-- Skip locked rows (for queue processing)
+SELECT * FROM tasks WHERE status = 'PENDING'
+FOR UPDATE SKIP LOCKED
+LIMIT 1;
+\`\`\`
+
+**4. Set Lock Timeout:**
+\`\`\`sql
+-- PostgreSQL
+SET lock_timeout = '5s';
+
+-- MySQL
+SET innodb_lock_wait_timeout = 5;
+
+-- SQL Server
+SET LOCK_TIMEOUT 5000;  -- milliseconds
+\`\`\`
+
+**5. Use Optimistic Locking:**
+\`\`\`sql
+-- Add version column
+ALTER TABLE orders ADD COLUMN version INT DEFAULT 0;
+
+-- Update with version check
+UPDATE orders
+SET status = 'SHIPPED', version = version + 1
+WHERE id = 1 AND version = 5;
+
+-- If 0 rows affected, concurrent modification occurred
+\`\`\`
+
+**Monitoring Locks:**
+
+**PostgreSQL:**
+\`\`\`sql
+-- View current locks
+SELECT * FROM pg_locks WHERE NOT granted;
+
+-- View blocking queries
+SELECT blocked_locks.pid AS blocked_pid,
+       blocking_locks.pid AS blocking_pid,
+       blocked_activity.query AS blocked_query
+FROM pg_catalog.pg_locks blocked_locks
+JOIN pg_catalog.pg_locks blocking_locks
+  ON blocking_locks.locktype = blocked_locks.locktype
+WHERE NOT blocked_locks.granted;
+\`\`\`
+
+**MySQL:**
+\`\`\`sql
+-- View locks
+SHOW ENGINE INNODB STATUS;
+
+-- View lock waits
+SELECT * FROM information_schema.INNODB_LOCK_WAITS;
+
+-- Kill blocking connection
+KILL connection_id;
+\`\`\`
+
+**Deadlock Detection:**
+\`\`\`sql
+-- PostgreSQL: Check for deadlocks in logs
+-- MySQL: SHOW ENGINE INNODB STATUS shows deadlock info
+-- Databases automatically detect and rollback one transaction
+\`\`\`
+
+**Best Practices:**
+• Keep transactions short
+• Lock resources in consistent order
+• Use appropriate isolation level
+• Use row-level locking when possible
+• Set reasonable lock timeouts
+• Consider optimistic locking for low contention
+• Monitor and analyze deadlock logs`
+    },
+    {
+      id: 15,
+      category: 'Partitioning',
+      question: 'What is Table Partitioning and when should you use it?',
+      answer: `**Table Partitioning:**
+Dividing a large table into smaller, more manageable pieces while keeping it as a single logical table.
+
+**Types of Partitioning:**
+
+**1. Range Partitioning:**
+\`\`\`sql
+-- PostgreSQL
+CREATE TABLE orders (
+    id SERIAL,
+    order_date DATE NOT NULL,
+    customer_id INT,
+    total_amount DECIMAL(10,2)
+) PARTITION BY RANGE (order_date);
+
+-- Create partitions
+CREATE TABLE orders_2023 PARTITION OF orders
+    FOR VALUES FROM ('2023-01-01') TO ('2024-01-01');
+
+CREATE TABLE orders_2024 PARTITION OF orders
+    FOR VALUES FROM ('2024-01-01') TO ('2025-01-01');
+
+-- MySQL
+CREATE TABLE orders (
+    id INT AUTO_INCREMENT,
+    order_date DATE NOT NULL,
+    total_amount DECIMAL(10,2),
+    PRIMARY KEY (id, order_date)
+) PARTITION BY RANGE (YEAR(order_date)) (
+    PARTITION p2022 VALUES LESS THAN (2023),
+    PARTITION p2023 VALUES LESS THAN (2024),
+    PARTITION p2024 VALUES LESS THAN (2025),
+    PARTITION p_future VALUES LESS THAN MAXVALUE
+);
+\`\`\`
+
+**2. List Partitioning:**
+\`\`\`sql
+-- PostgreSQL
+CREATE TABLE orders (
+    id SERIAL,
+    region VARCHAR(20) NOT NULL,
+    order_date DATE,
+    total DECIMAL(10,2)
+) PARTITION BY LIST (region);
+
+CREATE TABLE orders_na PARTITION OF orders
+    FOR VALUES IN ('US', 'CANADA', 'MEXICO');
+
+CREATE TABLE orders_eu PARTITION OF orders
+    FOR VALUES IN ('UK', 'GERMANY', 'FRANCE', 'SPAIN');
+
+CREATE TABLE orders_apac PARTITION OF orders
+    FOR VALUES IN ('JAPAN', 'CHINA', 'INDIA', 'AUSTRALIA');
+\`\`\`
+
+**3. Hash Partitioning:**
+\`\`\`sql
+-- PostgreSQL
+CREATE TABLE orders (
+    id SERIAL,
+    customer_id INT NOT NULL,
+    order_date DATE
+) PARTITION BY HASH (customer_id);
+
+CREATE TABLE orders_p0 PARTITION OF orders
+    FOR VALUES WITH (MODULUS 4, REMAINDER 0);
+CREATE TABLE orders_p1 PARTITION OF orders
+    FOR VALUES WITH (MODULUS 4, REMAINDER 1);
+CREATE TABLE orders_p2 PARTITION OF orders
+    FOR VALUES WITH (MODULUS 4, REMAINDER 2);
+CREATE TABLE orders_p3 PARTITION OF orders
+    FOR VALUES WITH (MODULUS 4, REMAINDER 3);
+\`\`\`
+
+**4. Composite Partitioning:**
+\`\`\`sql
+-- Range-List partitioning
+CREATE TABLE sales (
+    id SERIAL,
+    sale_date DATE NOT NULL,
+    region VARCHAR(20) NOT NULL,
+    amount DECIMAL(10,2)
+) PARTITION BY RANGE (sale_date);
+
+CREATE TABLE sales_2024 PARTITION OF sales
+    FOR VALUES FROM ('2024-01-01') TO ('2025-01-01')
+    PARTITION BY LIST (region);
+
+CREATE TABLE sales_2024_na PARTITION OF sales_2024
+    FOR VALUES IN ('US', 'CANADA');
+CREATE TABLE sales_2024_eu PARTITION OF sales_2024
+    FOR VALUES IN ('UK', 'GERMANY');
+\`\`\`
+
+**Managing Partitions:**
+\`\`\`sql
+-- Add new partition
+CREATE TABLE orders_2025 PARTITION OF orders
+    FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
+
+-- Detach partition (for archiving)
+ALTER TABLE orders DETACH PARTITION orders_2022;
+
+-- Drop partition
+DROP TABLE orders_2020;
+
+-- Attach existing table as partition
+ALTER TABLE orders ATTACH PARTITION orders_archive
+    FOR VALUES FROM ('2020-01-01') TO ('2021-01-01');
+\`\`\`
+
+**Partition Pruning:**
+\`\`\`sql
+-- Query only scans relevant partition
+EXPLAIN SELECT * FROM orders WHERE order_date = '2024-06-15';
+
+-- Output shows: Seq Scan on orders_2024
+-- Other partitions not scanned
+\`\`\`
+
+**When to Use Partitioning:**
+✅ Very large tables (millions/billions of rows)
+✅ Time-series data with date-based queries
+✅ Data that can be easily segmented
+✅ Need to archive/delete old data efficiently
+✅ Improve query performance on specific ranges
+
+**When NOT to Use:**
+❌ Small tables
+❌ Queries span all partitions
+❌ No clear partitioning key
+❌ Frequent cross-partition operations
+
+**Benefits:**
+| Benefit | Description |
+|---------|-------------|
+| Query performance | Partition pruning |
+| Maintenance | Work on individual partitions |
+| Archival | Easy to detach/drop old partitions |
+| Parallelism | Parallel operations across partitions |
+| Storage | Different storage for different partitions |`
+    },
+    {
+      id: 16,
+      category: 'Functions',
+      question: 'What are Aggregate Functions vs Window Functions?',
+      answer: `**Aggregate Functions:**
+- Compute single value from multiple rows
+- Collapse rows into groups (with GROUP BY)
+- Examples: SUM, COUNT, AVG, MIN, MAX
+
+\`\`\`sql
+-- Basic aggregation
+SELECT
+    department,
+    COUNT(*) AS employee_count,
+    AVG(salary) AS avg_salary,
+    SUM(salary) AS total_salary,
+    MIN(salary) AS min_salary,
+    MAX(salary) AS max_salary
+FROM employees
+GROUP BY department;
+
+-- Result: One row per department
+-- Sales    | 10 | 50000 | 500000 | 30000 | 80000
+-- IT       | 15 | 75000 | 1125000| 45000 | 120000
+\`\`\`
+
+**Window Functions:**
+- Compute value across set of rows
+- Rows retain their individual identity
+- Uses OVER() clause
+
+\`\`\`sql
+-- Same calculations but keeping all rows
+SELECT
+    name,
+    department,
+    salary,
+    COUNT(*) OVER (PARTITION BY department) AS dept_count,
+    AVG(salary) OVER (PARTITION BY department) AS dept_avg,
+    SUM(salary) OVER (PARTITION BY department) AS dept_total
+FROM employees;
+
+-- Result: All rows preserved with computed values
+-- John  | Sales | 50000 | 10 | 50000 | 500000
+-- Jane  | Sales | 60000 | 10 | 50000 | 500000
+-- Mike  | IT    | 75000 | 15 | 75000 | 1125000
+\`\`\`
+
+**Key Differences:**
+| Aggregate | Window |
+|-----------|--------|
+| Collapses rows | Preserves rows |
+| Requires GROUP BY | Uses OVER() |
+| One result per group | One result per row |
+| Can't access individual rows | Can access row values |
+
+**Window Function Types:**
+
+**1. Ranking Functions:**
+\`\`\`sql
+SELECT
+    name,
+    department,
+    salary,
+    ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS row_num,
+    RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS rank,
+    DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS dense_rank,
+    NTILE(4) OVER (PARTITION BY department ORDER BY salary DESC) AS quartile
+FROM employees;
+
+-- ROW_NUMBER: Always unique (1, 2, 3, 4...)
+-- RANK: Gaps for ties (1, 1, 3, 4...)
+-- DENSE_RANK: No gaps (1, 1, 2, 3...)
+-- NTILE(n): Divides into n buckets
+\`\`\`
+
+**2. Value Functions:**
+\`\`\`sql
+SELECT
+    name,
+    month,
+    sales,
+    LAG(sales, 1) OVER (PARTITION BY name ORDER BY month) AS prev_month,
+    LEAD(sales, 1) OVER (PARTITION BY name ORDER BY month) AS next_month,
+    FIRST_VALUE(sales) OVER (PARTITION BY name ORDER BY month) AS first_sale,
+    LAST_VALUE(sales) OVER (
+        PARTITION BY name ORDER BY month
+        ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+    ) AS last_sale
+FROM monthly_sales;
+\`\`\`
+
+**3. Aggregate Window Functions:**
+\`\`\`sql
+SELECT
+    order_date,
+    amount,
+    -- Running total
+    SUM(amount) OVER (ORDER BY order_date) AS running_total,
+
+    -- 7-day moving average
+    AVG(amount) OVER (
+        ORDER BY order_date
+        ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+    ) AS moving_avg_7d,
+
+    -- Cumulative count
+    COUNT(*) OVER (ORDER BY order_date) AS cumulative_count,
+
+    -- Percent of total
+    amount / SUM(amount) OVER () * 100 AS percent_of_total
+FROM orders;
+\`\`\`
+
+**Frame Specifications:**
+\`\`\`sql
+-- ROWS: Physical rows
+ROWS BETWEEN 3 PRECEDING AND CURRENT ROW
+
+-- RANGE: Logical range (based on ORDER BY value)
+RANGE BETWEEN INTERVAL '7' DAY PRECEDING AND CURRENT ROW
+
+-- Common frames:
+ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW  -- Running total
+ROWS BETWEEN 3 PRECEDING AND 3 FOLLOWING          -- 7-row window
+ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING  -- Entire partition
+\`\`\`
+
+**Practical Examples:**
+
+**Running Total:**
+\`\`\`sql
+SELECT
+    date,
+    revenue,
+    SUM(revenue) OVER (ORDER BY date) AS running_total
+FROM daily_revenue;
+\`\`\`
+
+**Year-over-Year Comparison:**
+\`\`\`sql
+SELECT
+    year,
+    month,
+    revenue,
+    LAG(revenue, 12) OVER (ORDER BY year, month) AS last_year_revenue,
+    revenue - LAG(revenue, 12) OVER (ORDER BY year, month) AS yoy_change
+FROM monthly_revenue;
+\`\`\`
+
+**Top N per Group:**
+\`\`\`sql
+WITH ranked AS (
+    SELECT *,
+        ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS rn
+    FROM employees
+)
+SELECT * FROM ranked WHERE rn <= 3;
+\`\`\``
     }
   ]
 
@@ -1294,7 +2423,7 @@ ORDER BY month;
         <div style={{ width: '150px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
       <p style={{
         fontSize: '1.1rem',
@@ -1370,15 +2499,19 @@ ORDER BY month;
                   Q{q.id}. {q.question}
                 </h3>
               </div>
-              <div style={{
-                fontSize: '1.5rem',
-                color: getCategoryColor(q.category),
-                fontWeight: 'bold',
-                marginLeft: '1rem',
-                transform: expandedQuestion === q.id ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 0.3s ease'
-              }}>
-                ▼
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div onClick={(e) => e.stopPropagation()} style={{ transform: 'scale(0.85)' }}>
+                  <CompletionCheckbox problemId={`SQLQuestions-${q.id}`} />
+                </div>
+                <div style={{
+                  fontSize: '1.5rem',
+                  color: getCategoryColor(q.category),
+                  fontWeight: 'bold',
+                  transform: expandedQuestion === q.id ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.3s ease'
+                }}>
+                  ▼
+                </div>
               </div>
             </button>
 

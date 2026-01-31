@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
 
 export default function SpringDataJPAQuestions({ onBack, breadcrumb }) {
   const [expandedQuestionId, setExpandedQuestionId] = useState(null)
@@ -872,7 +873,7 @@ private List<Child> children;
         <div style={{ width: '150px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
       <div style={{
         display: 'flex',
@@ -936,15 +937,20 @@ private List<Child> children;
                     {q.difficulty}
                   </span>
                 </div>
-                <span style={{
-                  fontSize: '1.5rem',
-                  color: categoryColor,
-                  transition: 'transform 0.3s ease',
-                  transform: expandedQuestionId === q.id ? 'rotate(180deg)' : 'rotate(0deg)',
-                  display: 'inline-block'
-                }}>
-                  ▼
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div onClick={(e) => e.stopPropagation()} style={{ transform: 'scale(0.85)' }}>
+                    <CompletionCheckbox problemId={`SpringDataJPAQuestions-${q.id}`} />
+                  </div>
+                  <span style={{
+                    fontSize: '1.5rem',
+                    color: categoryColor,
+                    transition: 'transform 0.3s ease',
+                    transform: expandedQuestionId === q.id ? 'rotate(180deg)' : 'rotate(0deg)',
+                    display: 'inline-block'
+                  }}>
+                    ▼
+                  </span>
+                </div>
               </div>
               <h3 style={{
                 fontSize: '1.25rem',

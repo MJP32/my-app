@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
 
 function EtradingQuestions({ onBack, breadcrumb }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
@@ -5033,7 +5034,7 @@ public class RiskDashboard {
           </h1>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
         <p style={{
           color: '#9ca3af',
@@ -5097,14 +5098,19 @@ public class RiskDashboard {
                       {q.question}
                     </h3>
                   </div>
-                  <span style={{
-                    fontSize: '1.5rem',
-                    color: '#4ade80',
-                    transform: expandedQuestion === q.id ? 'rotate(180deg)' : 'rotate(0)',
-                    transition: 'transform 0.3s'
-                  }}>
-                    ▼
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div onClick={(e) => e.stopPropagation()} style={{ transform: 'scale(0.85)' }}>
+                      <CompletionCheckbox problemId={`EtradingQuestions-${q.id}`} />
+                    </div>
+                    <span style={{
+                      fontSize: '1.5rem',
+                      color: '#4ade80',
+                      transform: expandedQuestion === q.id ? 'rotate(180deg)' : 'rotate(0)',
+                      transition: 'transform 0.3s'
+                    }}>
+                      ▼
+                    </span>
+                  </div>
                 </div>
               </button>
 
