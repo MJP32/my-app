@@ -1977,18 +1977,9 @@ const intelligentTieringConfig = {
   const containerStyle = {
     minHeight: '100vh',
     background: 'linear-gradient(135deg, #0f172a 0%, #0c4a6e 50%, #0f172a 100%)',
-    padding: '2rem',
-    fontFamily: 'system-ui, -apple-system, sans-serif'
-  }
-
-  const headerStyle = {
-    maxWidth: '1400px',
-    margin: '0 auto 2rem',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '1rem'
+    padding: '1.5rem',
+    fontFamily: 'system-ui, -apple-system, sans-serif',
+    color: 'white'
   }
 
   const titleStyle = {
@@ -2002,12 +1993,17 @@ const intelligentTieringConfig = {
 
   const backButtonStyle = {
     padding: '0.75rem 1.5rem',
-    background: 'rgba(56, 189, 248, 0.2)',
-    border: '1px solid rgba(56, 189, 248, 0.3)',
+    background: '#2563eb',
+    border: 'none',
     borderRadius: '0.5rem',
-    color: '#7dd3fc',
+    color: 'white',
     cursor: 'pointer',
     fontSize: '1rem',
+    fontWeight: '500',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
     transition: 'all 0.2s'
   }
 
@@ -2017,43 +2013,50 @@ const intelligentTieringConfig = {
 
   return (
     <div style={containerStyle}>
-      {/* Header with title and back button */}
-      <div style={headerStyle}>
-        <h1 style={titleStyle}>☁️ Cloud Platforms</h1>
-        <button
-          style={backButtonStyle}
-          onClick={onBack}
-          onMouseOver={(e) => {
-            e.currentTarget.style.background = 'rgba(56, 189, 248, 0.3)'
-            e.currentTarget.style.transform = 'translateY(-2px)'
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.background = 'rgba(56, 189, 248, 0.2)'
-            e.currentTarget.style.transform = 'translateY(0)'
-          }}
-        >
-          ← Back to Main Menu
-        </button>
-      </div>
+      <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
+        {/* Header with title and back button */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem',
+          marginBottom: '2rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <button
+              style={backButtonStyle}
+              onClick={onBack}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#1d4ed8'
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#2563eb'
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              ← Back to Menu
+            </button>
+            <h1 style={titleStyle}>☁️ Cloud Platforms</h1>
+          </div>
+        </div>
 
-      {/* Breadcrumb navigation */}
-      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
+        {/* Breadcrumb navigation */}
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
-          onMainMenu={breadcrumb?.onMainMenu}
+          onMainMenu={breadcrumb?.onMainMenu || onBack}
           colors={CLOUD_COLORS}
         />
-      </div>
 
-      {/* Concept Cards Grid */}
-      <div style={{
-        maxWidth: '1400px',
-        margin: '0 auto',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-        gap: '1.5rem'
-      }}>
+        {/* Concept Cards Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '1.5rem',
+          marginTop: '2rem'
+        }}>
         {concepts.map((concept, index) => (
           <div
             key={concept.id}
@@ -2087,6 +2090,7 @@ const intelligentTieringConfig = {
             </div>
           </div>
         ))}
+        </div>
       </div>
 
       {/* Modal for Selected Concept */}
@@ -2119,7 +2123,7 @@ const intelligentTieringConfig = {
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
-              onMainMenu={breadcrumb?.onMainMenu}
+              onMainMenu={breadcrumb?.onMainMenu || onBack}
               colors={CLOUD_COLORS}
             />
 

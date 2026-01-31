@@ -1,6 +1,18 @@
 import { useState, useEffect } from 'react'
+import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation'
+import Breadcrumb from '../components/Breadcrumb'
 
-function Questions({ onBack, onSelectItem, initialCategory }) {
+const QUESTIONS_COLORS = {
+  primary: '#a78bfa',
+  primaryHover: '#c4b5fd',
+  bg: 'rgba(139, 92, 246, 0.1)',
+  border: 'rgba(139, 92, 246, 0.3)',
+  arrow: '#8b5cf6',
+  hoverBg: 'rgba(139, 92, 246, 0.2)',
+  topicBg: 'rgba(139, 92, 246, 0.2)'
+}
+
+function Questions({ onBack, onSelectItem, initialCategory, breadcrumb }) {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory || null)
 
   // Update selectedCategory when initialCategory prop changes
@@ -292,6 +304,50 @@ function Questions({ onBack, onSelectItem, initialCategory }) {
     }
   ]
 
+  // Build breadcrumb stack based on current navigation state
+  const buildBreadcrumbStack = () => {
+    const stack = [{ name: 'Questions', icon: '❓' }]
+    if (selectedCategory) {
+      const cat = categories.find(c => c.id === selectedCategory)
+      if (cat) {
+        stack.push({ name: cat.name, icon: cat.icon })
+      }
+    }
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index) => {
+    if (index === 0) {
+      // Clicked on Questions - go back to main categories
+      setSelectedCategory(null)
+    }
+  }
+
+  // Get current topics for navigation based on view
+  const currentTopics = selectedCategory
+    ? categories.find(c => c.id === selectedCategory)?.topics || []
+    : []
+
+  // Keyboard navigation for category view
+  const { focusedIndex: focusedCategoryIndex, itemRefs: categoryRefs } = useKeyboardNavigation({
+    items: categories,
+    onSelect: (category) => setSelectedCategory(category.id),
+    onBack,
+    enabled: !selectedCategory,
+    gridColumns: 2,
+    loop: true
+  })
+
+  // Keyboard navigation for topics view within a category
+  const { focusedIndex: focusedTopicIndex, itemRefs: topicRefs } = useKeyboardNavigation({
+    items: currentTopics,
+    onSelect: (topic) => onSelectItem(topic.id),
+    onBack: () => setSelectedCategory(null),
+    enabled: !!selectedCategory,
+    gridColumns: 2,
+    loop: true
+  })
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -317,7 +373,7 @@ function Questions({ onBack, onSelectItem, initialCategory }) {
             <button
               onClick={onBack}
               style={{
-                background: '#8b5cf6',
+                background: '#2563eb',
                 color: 'white',
                 padding: '0.75rem 1.5rem',
                 borderRadius: '0.5rem',
@@ -332,11 +388,11 @@ function Questions({ onBack, onSelectItem, initialCategory }) {
                 transition: 'all 0.2s'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#7c3aed'
+                e.currentTarget.style.background = '#1d4ed8'
                 e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#8b5cf6'
+                e.currentTarget.style.background = '#2563eb'
                 e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
               }}
             >
@@ -357,86 +413,13 @@ function Questions({ onBack, onSelectItem, initialCategory }) {
           </div>
         </div>
 
-        {/* Dark themed Breadcrumb */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          padding: '0.75rem 1rem',
-          backgroundColor: 'rgba(139, 92, 246, 0.1)',
-          borderRadius: '8px',
-          marginBottom: '1.5rem',
-          flexWrap: 'wrap',
-          border: '1px solid rgba(139, 92, 246, 0.3)'
-        }}>
-          <button
-            onClick={onBack}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#a78bfa',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              fontWeight: '500',
-              padding: '0.25rem 0.5rem',
-              borderRadius: '4px',
-              transition: 'all 0.2s',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.25rem'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(139, 92, 246, 0.2)'
-              e.currentTarget.style.color = '#c4b5fd'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent'
-              e.currentTarget.style.color = '#a78bfa'
-            }}
-          >
-            <span>❓</span> Questions
-          </button>
-          {selectedCategory && (
-            <>
-              <span style={{ color: '#8b5cf6', fontSize: '0.9rem' }}>→</span>
-              <button
-                onClick={() => setSelectedCategory(null)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#a78bfa',
-                  cursor: 'pointer',
-                  fontSize: '0.9rem',
-                  fontWeight: '500',
-                  padding: '0.25rem 0.5rem',
-                  borderRadius: '4px',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(139, 92, 246, 0.2)'
-                  e.currentTarget.style.color = '#c4b5fd'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent'
-                  e.currentTarget.style.color = '#a78bfa'
-                }}
-              >
-                {categories.find(c => c.id === selectedCategory)?.name}
-              </button>
-            </>
-          )}
-          <span style={{ color: '#8b5cf6', fontSize: '0.9rem' }}>→</span>
-          <span style={{
-            color: '#e2e8f0',
-            fontSize: '0.9rem',
-            fontWeight: '600',
-            padding: '0.25rem 0.75rem',
-            backgroundColor: 'rgba(139, 92, 246, 0.2)',
-            borderRadius: '4px'
-          }}>
-            {selectedCategory ? 'Topics' : 'Interview Questions'}
-          </span>
-        </div>
+        {/* Breadcrumb */}
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu || onBack}
+          colors={QUESTIONS_COLORS}
+        />
 
         <p style={{
           fontSize: '1.2rem',
@@ -457,10 +440,14 @@ function Questions({ onBack, onSelectItem, initialCategory }) {
             gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
             gap: '1.5rem'
           }}>
-            {categories.map(category => (
+            {categories.map((category, index) => (
               <button
                 key={category.id}
+                ref={(el) => categoryRefs.current[index] = el}
                 onClick={() => setSelectedCategory(category.id)}
+                tabIndex={focusedCategoryIndex === index ? 0 : -1}
+                role="link"
+                aria-label={`${category.name}. ${category.topics.length} topics.`}
                 style={{
                   background: 'linear-gradient(to bottom right, #1f2937, #111827)',
                   padding: '2rem',
@@ -469,15 +456,20 @@ function Questions({ onBack, onSelectItem, initialCategory }) {
                   cursor: 'pointer',
                   transition: 'all 0.3s',
                   textAlign: 'left',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  transform: focusedCategoryIndex === index ? 'translateY(-0.5rem)' : 'translateY(0)',
+                  boxShadow: focusedCategoryIndex === index
+                    ? `0 25px 50px -12px ${category.color}40`
+                    : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-0.5rem)'
                   e.currentTarget.style.boxShadow = `0 25px 50px -12px ${category.color}40`
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  if (focusedCategoryIndex !== index) {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }
                 }}
               >
                 <div style={{
@@ -568,12 +560,14 @@ function Questions({ onBack, onSelectItem, initialCategory }) {
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
             gap: '1.5rem'
           }}>
-            {categories
-              .find(c => c.id === selectedCategory)
-              ?.topics.map(topic => (
+            {currentTopics.map((topic, index) => (
                 <button
                   key={topic.id}
+                  ref={(el) => topicRefs.current[index] = el}
                   onClick={() => onSelectItem(topic.id)}
+                  tabIndex={focusedTopicIndex === index ? 0 : -1}
+                  role="link"
+                  aria-label={`${topic.name}. ${topic.complexity}.`}
                   style={{
                     background: 'linear-gradient(to bottom right, #1f2937, #111827)',
                     padding: '1.5rem',
@@ -582,15 +576,20 @@ function Questions({ onBack, onSelectItem, initialCategory }) {
                     cursor: 'pointer',
                     transition: 'all 0.3s',
                     textAlign: 'left',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    transform: focusedTopicIndex === index ? 'translateY(-0.5rem)' : 'translateY(0)',
+                    boxShadow: focusedTopicIndex === index
+                      ? `0 25px 50px -12px ${topic.color}50`
+                      : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-0.5rem)'
                     e.currentTarget.style.boxShadow = `0 25px 50px -12px ${topic.color}50`
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    if (focusedTopicIndex !== index) {
+                      e.currentTarget.style.transform = 'translateY(0)'
+                      e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    }
                   }}
                 >
                   <div style={{
@@ -645,7 +644,7 @@ function Questions({ onBack, onSelectItem, initialCategory }) {
                     <span>→</span>
                   </div>
                 </button>
-              ))}
+            ))}
           </div>
         )}
       </div>

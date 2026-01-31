@@ -112,7 +112,7 @@ function Frameworks({ onBack, onSelectItem, breadcrumb }) {
             <button
               onClick={onBack}
               style={{
-                background: '#10b981',
+                background: '#2563eb',
                 color: 'white',
                 padding: '0.75rem 1.5rem',
                 borderRadius: '0.5rem',
@@ -127,11 +127,11 @@ function Frameworks({ onBack, onSelectItem, breadcrumb }) {
                 transition: 'all 0.2s'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#059669'
+                e.currentTarget.style.background = '#1d4ed8'
                 e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#10b981'
+                e.currentTarget.style.background = '#2563eb'
                 e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
               }}
             >
@@ -156,7 +156,7 @@ function Frameworks({ onBack, onSelectItem, breadcrumb }) {
             { name: 'Frameworks', icon: '🌱' }
           ]}
           colors={FRAMEWORK_COLORS}
-          onMainMenu={breadcrumb?.onMainMenu}
+          onMainMenu={breadcrumb?.onMainMenu || onBack}
         />
 
         <p style={{

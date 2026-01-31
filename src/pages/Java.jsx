@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../components/Breadcrumb'
+import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -209,6 +210,7 @@ function Java({ onBack, onSelectItem, breadcrumb }) {
         { id: 'Collections Framework', name: 'Collections Framework', icon: '📦', color: '#ec4899', description: 'List, Set, Map, Queue implementations and advanced collection operations.' },
         { id: 'Streams', name: 'Streams API', icon: '🌊', color: '#06b6d4', description: 'Stream operations, collectors, parallel streams, and functional programming.' },
         { id: 'Optional', name: 'Optional', icon: '🎁', color: '#8b5cf6', description: 'Null-safety with Optional, functional transformations, and best practices.' },
+        { id: 'Functional Interfaces', name: 'Functional Interfaces', icon: '🔗', color: '#14b8a6', description: 'Predicate, Function, Consumer, Supplier, and custom functional interfaces.' },
         { id: 'streams-overview', name: 'Lambdas & Functional', icon: '⚡', color: '#3b82f6', description: 'Lambda expressions, method references, and functional interfaces.', isQuickRef: true },
       ]
     },
@@ -222,11 +224,30 @@ function Java({ onBack, onSelectItem, breadcrumb }) {
       ]
     },
     {
-      category: 'Modern Java Features',
+      category: 'Modern Java (8-11)',
+      icon: '🎯',
+      color: '#3b82f6',
+      topics: [
+        { id: 'Java 8', name: 'Java 8', icon: '🎯', color: '#3b82f6', description: 'Lambda expressions, Stream API, Optional, functional interfaces, and Date/Time API.' },
+        { id: 'Java 11', name: 'Java 11 LTS', icon: '🔧', color: '#06b6d4', description: 'Local variable type inference, HTTP Client, module system, and performance improvements.' },
+      ]
+    },
+    {
+      category: 'Recent Releases (15-21)',
       icon: '🚀',
       color: '#8b5cf6',
       topics: [
-        { id: 'modern-java-overview', name: 'Modern Java (8-21)', icon: '🚀', color: '#22c55e', description: 'Records, sealed classes, pattern matching, switch expressions, and virtual threads.', isQuickRef: true },
+        { id: 'Java 15', name: 'Java 15', icon: '📝', color: '#8b5cf6', description: 'Text blocks, sealed classes preview, pattern matching, and hidden classes.' },
+        { id: 'Java 21', name: 'Java 21 LTS', icon: '🚀', color: '#22c55e', description: 'Virtual threads, pattern matching for switch, record patterns, and sequenced collections.' },
+      ]
+    },
+    {
+      category: 'Preview Features',
+      icon: '🔮',
+      color: '#f59e0b',
+      topics: [
+        { id: 'Java 24', name: 'Java 24 Preview', icon: '🔮', color: '#f59e0b', description: 'Cutting-edge preview features and experimental capabilities.' },
+        { id: 'modern-java-overview', name: 'Quick Reference', icon: '📋', color: '#64748b', description: 'Overview of all modern Java features from Java 8 to 24.', isQuickRef: true },
       ]
     },
     {
@@ -1151,7 +1172,32 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
     }
   ]
 
-  // Keyboard navigation
+  // Flatten all topics for keyboard navigation
+  const allTopics = javaTopicCategories.flatMap(cat => cat.topics)
+
+  // Keyboard navigation for main topic grid
+  const { focusedIndex: focusedTopicIndex, itemRefs: topicRefs } = useKeyboardNavigation({
+    items: allTopics,
+    onSelect: (topic) => {
+      if (topic.isQuickRef) {
+        // Find the matching concept and open modal
+        const conceptIndex = concepts.findIndex(c => c.id === topic.id.replace('-overview', ''))
+        if (conceptIndex !== -1) {
+          setSelectedConceptIndex(conceptIndex)
+          setSelectedDetailIndex(0)
+        }
+      } else {
+        // Navigate to dedicated page
+        onSelectItem(topic.id)
+      }
+    },
+    onBack,
+    enabled: selectedConceptIndex === null,
+    gridColumns: 3,
+    loop: true
+  })
+
+  // Modal keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (selectedConceptIndex === null) return
@@ -1181,44 +1227,88 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
     <div style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #0f172a 0%, #1e1a0f 50%, #0f172a 100%)',
-      padding: '2rem',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
+      padding: '1.5rem',
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+      color: 'white'
     }}>
-      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ marginBottom: '2rem' }}>
-          <Breadcrumb
-            section={{ name: 'Home', onClick: onBack }}
-            category={{ name: 'Java', icon: '☕' }}
-            onMainMenu={breadcrumb?.onMainMenu}
-          colors={{
-              primary: JAVA_COLORS.primary,
-              secondary: '#fbbf24',
-              background: JAVA_COLORS.bg,
-              border: JAVA_COLORS.border
-            }}
-          />
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '2rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <button
+              onClick={onBack}
+              style={{
+                background: '#2563eb',
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontWeight: '500',
+                fontSize: '1rem',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#1d4ed8'
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#2563eb'
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              ← Back to Menu
+            </button>
+            <h1 style={{
+              fontSize: '2.25rem',
+              fontWeight: 'bold',
+              background: 'linear-gradient(to right, #fbbf24, #f59e0b, #d97706)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              ☕ Java Programming
+            </h1>
+          </div>
         </div>
 
-        {/* Title */}
-        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          <h1 style={{
-            fontSize: '2.5rem',
-            fontWeight: 'bold',
-            background: 'linear-gradient(to right, #fbbf24, #f59e0b, #d97706)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            marginBottom: '1rem'
-          }}>
-            ☕ Java Programming
-          </h1>
-          <p style={{ color: '#9ca3af', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto' }}>
-            Master Java from OOP fundamentals to modern features like virtual threads and pattern matching.
-          </p>
-        </div>
+        {/* Breadcrumb */}
+        <Breadcrumb
+          breadcrumbStack={[
+            { name: 'Java', icon: '☕' }
+          ]}
+          onMainMenu={breadcrumb?.onMainMenu || onBack}
+          colors={JAVA_COLORS}
+        />
+
+        {/* Description */}
+        <p style={{
+          fontSize: '1.2rem',
+          color: '#d1d5db',
+          textAlign: 'center',
+          marginBottom: '3rem',
+          lineHeight: '1.8'
+        }}>
+          Master Java from OOP fundamentals to modern features like virtual threads and pattern matching.
+        </p>
 
         {/* Organized Topic Categories */}
-        {javaTopicCategories.map((categoryGroup, catIndex) => (
+        {javaTopicCategories.map((categoryGroup, catIndex) => {
+          // Calculate the start index for this category's topics
+          const categoryStartIndex = javaTopicCategories
+            .slice(0, catIndex)
+            .reduce((sum, cat) => sum + cat.topics.length, 0)
+
+          return (
           <div key={catIndex} style={{ marginBottom: '3rem' }}>
             <h2 style={{
               fontSize: '1.5rem',
@@ -1237,9 +1327,15 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
               gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
               gap: '1rem'
             }}>
-              {categoryGroup.topics.map((topic) => (
+              {categoryGroup.topics.map((topic, topicIndex) => {
+                const globalIndex = categoryStartIndex + topicIndex
+                return (
                 <button
                   key={topic.id}
+                  ref={(el) => topicRefs.current[globalIndex] = el}
+                  tabIndex={focusedTopicIndex === globalIndex ? 0 : -1}
+                  role="link"
+                  aria-label={`${topic.name}. ${topic.description}`}
                   onClick={() => {
                     if (topic.isQuickRef) {
                       // Find the matching concept and open modal
@@ -1255,13 +1351,15 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
                   }}
                   style={{
                     background: 'linear-gradient(145deg, #1e293b, #0f172a)',
-                    border: `2px solid ${topic.color}40`,
+                    border: `2px solid ${focusedTopicIndex === globalIndex ? topic.color : topic.color + '40'}`,
                     borderRadius: '12px',
                     padding: '1.25rem',
                     cursor: 'pointer',
                     textAlign: 'left',
                     transition: 'all 0.3s ease',
-                    position: 'relative'
+                    position: 'relative',
+                    transform: focusedTopicIndex === globalIndex ? 'translateY(-2px)' : 'translateY(0)',
+                    boxShadow: focusedTopicIndex === globalIndex ? `0 12px 24px -8px ${topic.color}30` : 'none'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-2px)'
@@ -1269,9 +1367,11 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
                     e.currentTarget.style.borderColor = topic.color
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.boxShadow = 'none'
-                    e.currentTarget.style.borderColor = `${topic.color}40`
+                    if (focusedTopicIndex !== globalIndex) {
+                      e.currentTarget.style.transform = 'translateY(0)'
+                      e.currentTarget.style.boxShadow = 'none'
+                      e.currentTarget.style.borderColor = `${topic.color}40`
+                    }
                   }}
                 >
                   {topic.isQuickRef && (
@@ -1310,10 +1410,10 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
                     {topic.description}
                   </p>
                 </button>
-              ))}
+              )})}
             </div>
           </div>
-        ))}
+        )})}
 
         {/* Hidden concept cards - kept for modal functionality */}
         <div style={{ display: 'none' }}>
@@ -1408,7 +1508,25 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Modal Header */}
+              {/* Modal Breadcrumb */}
+              <div style={{ padding: '1rem 1.5rem 0' }}>
+                <Breadcrumb
+                  breadcrumbStack={[
+                    { name: 'Java', icon: '☕' },
+                    { name: selectedConcept.name, icon: selectedConcept.icon }
+                  ]}
+                  onBreadcrumbClick={(index) => {
+                    if (index === 0) {
+                      setSelectedConceptIndex(null)
+                      setSelectedDetailIndex(0)
+                    }
+                  }}
+                  onMainMenu={breadcrumb?.onMainMenu || onBack}
+                  colors={JAVA_COLORS}
+                />
+              </div>
+
+              {/* Modal Header with Navigation */}
               <div style={{
                 padding: '1.5rem',
                 borderBottom: '1px solid #334155',
@@ -1426,22 +1544,63 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
                     {selectedConcept.name}
                   </h2>
                 </div>
-                <button
-                  onClick={() => {
-                    setSelectedConceptIndex(null)
-                    setSelectedDetailIndex(0)
-                  }}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#94a3b8',
-                    fontSize: '1.5rem',
-                    cursor: 'pointer',
-                    padding: '0.5rem'
-                  }}
-                >
-                  ✕
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <button
+                    onClick={() => {
+                      if (selectedConceptIndex > 0) {
+                        setSelectedConceptIndex(selectedConceptIndex - 1)
+                        setSelectedDetailIndex(0)
+                      }
+                    }}
+                    disabled={selectedConceptIndex === 0}
+                    style={{
+                      padding: '0.4rem 0.75rem',
+                      background: 'rgba(100, 116, 139, 0.2)',
+                      border: '1px solid rgba(100, 116, 139, 0.3)',
+                      borderRadius: '0.375rem',
+                      color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8',
+                      cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer',
+                      fontSize: '0.8rem'
+                    }}
+                  >←</button>
+                  <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>
+                    {selectedConceptIndex + 1}/{concepts.length}
+                  </span>
+                  <button
+                    onClick={() => {
+                      if (selectedConceptIndex < concepts.length - 1) {
+                        setSelectedConceptIndex(selectedConceptIndex + 1)
+                        setSelectedDetailIndex(0)
+                      }
+                    }}
+                    disabled={selectedConceptIndex === concepts.length - 1}
+                    style={{
+                      padding: '0.4rem 0.75rem',
+                      background: 'rgba(100, 116, 139, 0.2)',
+                      border: '1px solid rgba(100, 116, 139, 0.3)',
+                      borderRadius: '0.375rem',
+                      color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8',
+                      cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer',
+                      fontSize: '0.8rem'
+                    }}
+                  >→</button>
+                  <button
+                    onClick={() => {
+                      setSelectedConceptIndex(null)
+                      setSelectedDetailIndex(0)
+                    }}
+                    style={{
+                      padding: '0.4rem 0.75rem',
+                      background: 'rgba(239, 68, 68, 0.2)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      borderRadius: '0.375rem',
+                      color: '#f87171',
+                      cursor: 'pointer',
+                      fontSize: '0.8rem',
+                      marginLeft: '0.5rem'
+                    }}
+                  >✕</button>
+                </div>
               </div>
 
               {/* Diagram */}
@@ -1529,7 +1688,7 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
                 color: '#64748b',
                 fontSize: '0.85rem'
               }}>
-                Use ← → arrow keys to navigate topics • Press Escape to close
+                Use ← → arrow keys to switch tabs • Press Escape to close
               </div>
             </div>
           </div>
