@@ -12,6 +12,7 @@ function ProgressDashboard({ onBack, onNavigate }) {
   const [bookmarks, setBookmarks] = useState([])
   const [activeTab, setActiveTab] = useState('overview')
   const [, setRefreshKey] = useState(0)
+  const [expandedSections, setExpandedSections] = useState({})
 
   useEffect(() => {
     loadData()
@@ -655,20 +656,30 @@ function ProgressDashboard({ onBack, onNavigate }) {
               const sectionCompleted = section.topics.reduce((sum, t) => sum + getTopicProgress(t.name), 0)
               const sectionTotal = section.topics.reduce((sum, t) => sum + t.problems, 0)
               const sectionPercent = sectionTotal > 0 ? Math.round((sectionCompleted / sectionTotal) * 100) : 0
+              const isExpanded = expandedSections[sectionIdx] !== false // Default to expanded
 
               return (
-                <div key={sectionIdx} style={{ marginBottom: '2rem' }}>
-                  {/* Section Header */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: '1rem',
-                    padding: '0.75rem 1rem',
-                    backgroundColor: `${section.color}15`,
-                    borderRadius: '8px',
-                    border: `1px solid ${section.color}40`
-                  }}>
+                <div key={sectionIdx} style={{ marginBottom: '1rem' }}>
+                  {/* Section Header - Clickable */}
+                  <button
+                    onClick={() => setExpandedSections(prev => ({
+                      ...prev,
+                      [sectionIdx]: !isExpanded
+                    }))}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: isExpanded ? '1rem' : '0',
+                      padding: '0.75rem 1rem',
+                      backgroundColor: `${section.color}15`,
+                      borderRadius: '8px',
+                      border: `1px solid ${section.color}40`,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                       <span style={{
                         width: '28px',
@@ -684,31 +695,43 @@ function ProgressDashboard({ onBack, onNavigate }) {
                       }}>
                         {sectionIdx + 1}
                       </span>
-                      <div>
+                      <div style={{ textAlign: 'left' }}>
                         <div style={{ color: section.color, fontWeight: '700', fontSize: '1rem' }}>
                           {section.category}
                         </div>
                         <div style={{ color: '#9ca3af', fontSize: '0.75rem' }}>
-                          {section.difficulty}
+                          {section.difficulty} • {section.topics.length} topics
                         </div>
                       </div>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ color: section.color, fontWeight: '700', fontSize: '1.1rem' }}>
-                        {sectionPercent}%
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ color: section.color, fontWeight: '700', fontSize: '1.1rem' }}>
+                          {sectionPercent}%
+                        </div>
+                        <div style={{ color: '#6b7280', fontSize: '0.75rem' }}>
+                          {sectionCompleted}/{sectionTotal}
+                        </div>
                       </div>
-                      <div style={{ color: '#6b7280', fontSize: '0.75rem' }}>
-                        {sectionCompleted}/{sectionTotal}
-                      </div>
+                      <span style={{
+                        color: section.color,
+                        fontSize: '1.25rem',
+                        transition: 'transform 0.2s',
+                        transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
+                      }}>
+                        ▼
+                      </span>
                     </div>
-                  </div>
+                  </button>
 
-                  {/* Topics Grid */}
+                  {/* Topics Grid - Collapsible */}
+                  {isExpanded && (
                   <div style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
                     gap: '0.75rem',
-                    paddingLeft: '1rem'
+                    paddingLeft: '1rem',
+                    animation: 'fadeIn 0.2s ease-in-out'
                   }}>
                     {section.topics.map((topic, topicIdx) => {
                       const completed = getTopicProgress(topic.name)
@@ -780,6 +803,7 @@ function ProgressDashboard({ onBack, onNavigate }) {
                       )
                     })}
                   </div>
+                  )}
                 </div>
               )
             })}
