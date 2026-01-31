@@ -209,6 +209,10 @@ function Java({ onBack, onSelectItem, breadcrumb }) {
       icon: '📚',
       color: '#f59e0b',
       topics: [
+        { id: 'Core Java', name: 'Core Java', icon: '☕', color: '#f59e0b', description: 'Java fundamentals, syntax, data types, operators, and control flow.' },
+        { id: 'Object-Oriented Programming', name: 'Object-Oriented Programming', icon: '🎭', color: '#8b5cf6', description: 'Classes, objects, inheritance, polymorphism, encapsulation, and abstraction.' },
+        { id: 'Class', name: 'Classes', icon: '📦', color: '#3b82f6', description: 'Class structure, constructors, methods, fields, and access modifiers.' },
+        { id: 'Interface', name: 'Interfaces', icon: '🔌', color: '#10b981', description: 'Interface design, default methods, static methods, and multiple inheritance.' },
         { id: 'Exception Handling', name: 'Exception Handling', icon: '⚠️', color: '#ef4444', description: 'Try-catch, custom exceptions, exception hierarchies, and error handling patterns.' },
         { id: 'Generics', name: 'Generics', icon: '🔤', color: '#f97316', description: 'Generic classes, methods, bounded types, wildcards, and type erasure.' },
         { id: 'File I/O', name: 'File I/O', icon: '📁', color: '#14b8a6', description: 'File operations, NIO.2, Path API, streams, and file system operations.' },
@@ -221,8 +225,12 @@ function Java({ onBack, onSelectItem, breadcrumb }) {
       topics: [
         { id: 'Collections Framework', name: 'Collections Framework', icon: '📦', color: '#ec4899', description: 'List, Set, Map, Queue implementations and advanced collection operations.' },
         { id: 'Streams', name: 'Streams API', icon: '🌊', color: '#06b6d4', description: 'Stream operations, collectors, parallel streams, and functional programming.' },
+        { id: 'Streams Advanced', name: 'Streams Advanced', icon: '🌀', color: '#0891b2', description: 'Advanced stream operations, custom collectors, and performance optimization.' },
         { id: 'Optional', name: 'Optional', icon: '🎁', color: '#8b5cf6', description: 'Null-safety with Optional, functional transformations, and best practices.' },
+        { id: 'Lambdas', name: 'Lambdas', icon: 'λ', color: '#f59e0b', description: 'Lambda expressions, syntax, closures, and effectively final variables.' },
+        { id: 'Lambdas Advanced', name: 'Lambdas Advanced', icon: '⚡', color: '#eab308', description: 'Advanced lambda patterns, method references, and functional composition.' },
         { id: 'Functional Interfaces', name: 'Functional Interfaces', icon: '🔗', color: '#14b8a6', description: 'Predicate, Function, Consumer, Supplier, and custom functional interfaces.' },
+        { id: 'Functional Programming', name: 'Functional Programming', icon: '🔄', color: '#a855f7', description: 'Functional paradigm, immutability, pure functions, and higher-order functions.' },
       ]
     },
     {
@@ -240,6 +248,7 @@ function Java({ onBack, onSelectItem, breadcrumb }) {
       color: '#3b82f6',
       topics: [
         { id: 'Java 8', name: 'Java 8', icon: '🎯', color: '#3b82f6', description: 'Lambda expressions, Stream API, Optional, functional interfaces, and Date/Time API.' },
+        { id: 'Module', name: 'Module System', icon: '📦', color: '#8b5cf6', description: 'Java Platform Module System (JPMS), module declarations, and encapsulation.' },
         { id: 'Java 11', name: 'Java 11 LTS', icon: '🔧', color: '#06b6d4', description: 'Local variable type inference, HTTP Client, module system, and performance improvements.' },
       ]
     },
