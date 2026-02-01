@@ -61,6 +61,27 @@ function Databases({ onBack, onSelectItem, breadcrumb }) {
       icon: '🚀',
       color: '#10b981',
       description: 'Query optimization, indexing strategies, execution plans, performance tuning, and database profiling techniques.'
+    },
+    {
+      id: 'PLSQL',
+      name: 'PL/SQL',
+      icon: '📜',
+      color: '#f97316',
+      description: 'Oracle procedural language extension for SQL with variables, control structures, cursors, and exception handling.'
+    },
+    {
+      id: 'PostgreSQL',
+      name: 'PostgreSQL',
+      icon: '🐘',
+      color: '#336791',
+      description: 'Advanced open-source relational database with extensions, JSONB, full-text search, and powerful features.'
+    },
+    {
+      id: 'SQLFundamentals',
+      name: 'SQL Fundamentals',
+      icon: '📖',
+      color: '#06b6d4',
+      description: 'Core SQL concepts: SELECT, JOIN types, subqueries, CTEs, aggregate functions, and essential SQL vocabulary.'
     }
   ]
 
@@ -135,7 +156,7 @@ function Databases({ onBack, onSelectItem, breadcrumb }) {
             { name: 'Databases', icon: '🗃️' }
           ]}
           colors={DATABASE_COLORS}
-          onMainMenu={breadcrumb?.onMainMenu}
+          onMainMenu={breadcrumb?.onMainMenu || onBack}
         />
 
         <p style={{
