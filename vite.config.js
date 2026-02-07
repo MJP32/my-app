@@ -20,6 +20,8 @@ export default defineConfig({
     cors: true
   },
   build: {
+    // Target ES2018 so optional chaining (?.) is transpiled for react-snap's Chromium
+    target: 'es2018',
     // Optimize bundle size for better SEO performance
     rollupOptions: {
       output: {
