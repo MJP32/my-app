@@ -3,6 +3,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import CompletionCheckbox from '../../components/CompletionCheckbox'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 
 function PythonStringMethods({ onBack, breadcrumb }) {
   const [selectedProblem, setSelectedProblem] = useState(null)
@@ -1434,7 +1435,7 @@ def safe_encode(text, encoding='utf-8'):
                     fontSize: '1rem'
                   }}
                 >
-                  Code Block {idx + 1}
+                  Example {idx + 1}
                 </div>
                 <SyntaxHighlighter
                   language="python"
@@ -1528,7 +1529,7 @@ def safe_encode(text, encoding='utf-8'):
                       fontSize: '1rem'
                     }}
                   >
-                    Code Block {idx + 1}
+                    Example {idx + 1}
                   </div>
                   <SyntaxHighlighter
                     language="python"
@@ -1614,7 +1615,20 @@ def safe_encode(text, encoding='utf-8'):
         <div style={{ width: '150px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
+
+      <CollapsibleSidebar
+        items={problems}
+        selectedIndex={selectedProblem ? problems.findIndex(p => p.id === selectedProblem.id) : -1}
+        onSelect={(index) => setSelectedProblem(problems[index])}
+        title="Problems"
+        getItemLabel={(item) => item.title}
+        getItemIcon={(item) => {
+          const colors = { Easy: '🟢', Medium: '🟡', Hard: '🔴' };
+          return colors[item.difficulty] || '⚪';
+        }}
+        primaryColor="#3b82f6"
+      />
 
       <p style={{
         fontSize: '1.2rem',

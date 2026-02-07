@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 import CompletionCheckbox from '../../components/CompletionCheckbox'
 import { isProblemCompleted } from '../../services/progressService'
 
@@ -3606,10 +3607,25 @@ public class CommonMistakes {
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
-          onMainMenu={breadcrumb?.onMainMenu}
+          onMainMenu={breadcrumb?.onMainMenu || onBack}
           colors={FUNCTIONAL_COLORS}
         />
       </div>
+
+      {/* Collapsible Sidebar for quick concept navigation */}
+      <CollapsibleSidebar
+        items={concepts}
+        selectedIndex={selectedConceptIndex ?? -1}
+        onSelect={(index) => {
+          setSelectedConceptIndex(index)
+          setSelectedDetailIndex(0)
+        }}
+        title="Concepts"
+        getItemLabel={(item) => item.name}
+        getItemIcon={(item) => item.icon}
+        primaryColor={FUNCTIONAL_COLORS.primary}
+      />
+
 
       {/* Practice Exercises Section */}
       <div style={{ maxWidth: '1400px', margin: '0 auto 2rem', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '1rem', padding: '1.5rem', border: '1px solid rgba(217, 70, 239, 0.3)' }}>
@@ -3843,7 +3859,7 @@ public class CommonMistakes {
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
-              onMainMenu={breadcrumb?.onMainMenu}
+              onMainMenu={breadcrumb?.onMainMenu || onBack}
               colors={FUNCTIONAL_COLORS}
             />
 

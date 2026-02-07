@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
+import CompletionCheckbox from '../../components/CompletionCheckbox'
 
 // SVG Diagram: High-Level Architecture
 const FoodDeliveryArchitectureDiagram = () => (
@@ -718,7 +719,7 @@ function FoodDelivery({ onBack, breadcrumb }) {
         <div style={{ width: '140px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
       {/* Tabs */}
       <div style={{
@@ -738,23 +739,27 @@ function FoodDelivery({ onBack, breadcrumb }) {
           { id: 'scalability', label: 'Scalability' },
           { id: 'api', label: 'API Endpoints' }
         ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              padding: '0.75rem 1.5rem',
-              fontSize: '1rem',
-              fontWeight: '600',
-              backgroundColor: activeTab === tab.id ? '#374151' : 'transparent',
-              color: activeTab === tab.id ? '#fb923c' : '#9ca3af',
-              border: 'none',
-              borderRadius: '8px 8px 0 0',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-          >
-            {tab.label}
-          </button>
+          <div key={tab.id} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ transform: 'scale(0.8)' }}>
+              <CompletionCheckbox problemId={`FoodDelivery-${tab.id}`} />
+            </div>
+            <button
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: activeTab === tab.id ? '#374151' : 'transparent',
+                color: activeTab === tab.id ? '#fb923c' : '#9ca3af',
+                border: 'none',
+                borderRadius: '8px 8px 0 0',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              {tab.label}
+            </button>
+          </div>
         ))}
       </div>
 

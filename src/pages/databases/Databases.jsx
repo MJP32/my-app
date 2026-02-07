@@ -1,5 +1,7 @@
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import { useTheme } from '../../contexts/ThemeContext'
 
 const DATABASE_COLORS = {
   primary: '#60a5fa',
@@ -12,6 +14,7 @@ const DATABASE_COLORS = {
 }
 
 function Databases({ onBack, onSelectItem, breadcrumb }) {
+  const { colors, isDark } = useTheme()
   const databaseItems = [
     {
       id: 'SQL',
@@ -97,59 +100,13 @@ function Databases({ onBack, onSelectItem, breadcrumb }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'var(--bg-card)',
-      color: 'var(--text-primary)',
+      background: isDark
+        ? 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)'
+        : 'linear-gradient(to bottom right, #f8fafc, #dbeafe, #f8fafc)',
+      color: colors.textPrimary,
       padding: '1.5rem'
     }}>
       <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '2rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button
-              onClick={onBack}
-              style={{
-                background: '#3b82f6',
-                color: 'white',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '0.5rem',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontWeight: '500',
-                fontSize: '1rem',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#2563eb'
-                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#3b82f6'
-                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              ← Back to Menu
-            </button>
-            <h1 style={{
-              fontSize: '2.25rem',
-              fontWeight: 'bold',
-              background: 'linear-gradient(to right, #93c5fd, #60a5fa)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
-            }}>
-              🗃️ Databases
-            </h1>
-          </div>
-        </div>
-
         {/* Breadcrumb */}
         <Breadcrumb
           breadcrumbStack={[
@@ -159,9 +116,20 @@ function Databases({ onBack, onSelectItem, breadcrumb }) {
           onMainMenu={breadcrumb?.onMainMenu || onBack}
         />
 
+        {/* Collapsible Sidebar for quick topic navigation */}
+        <CollapsibleSidebar
+          items={databaseItems}
+          selectedIndex={-1}
+          onSelect={(index) => onSelectItem(databaseItems[index].id)}
+          title="Databases"
+          getItemLabel={(item) => item.name}
+          getItemIcon={(item) => item.icon}
+          primaryColor={DATABASE_COLORS.primary}
+        />
+
         <p style={{
           fontSize: '1.2rem',
-          color: '#d1d5db',
+          color: isDark ? '#d1d5db' : '#4b5563',
           textAlign: 'center',
           marginBottom: '3rem',
           lineHeight: '1.8'
@@ -183,7 +151,9 @@ function Databases({ onBack, onSelectItem, breadcrumb }) {
               role="link"
               aria-label={`${item.name}. ${item.description}`}
               style={{
-                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                background: isDark
+                  ? 'linear-gradient(to bottom right, #1f2937, #111827)'
+                  : 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
                 padding: '1.5rem',
                 borderRadius: '0.75rem',
                 border: `2px solid ${item.color}`,
@@ -217,7 +187,7 @@ function Databases({ onBack, onSelectItem, breadcrumb }) {
                 <h3 style={{
                   fontSize: '1.25rem',
                   fontWeight: 'bold',
-                  color: '#93c5fd',
+                  color: isDark ? '#93c5fd' : '#2563eb',
                   marginBottom: '0.25rem'
                 }}>
                   {item.name}
@@ -226,7 +196,7 @@ function Databases({ onBack, onSelectItem, breadcrumb }) {
 
               <p style={{
                 fontSize: '0.9rem',
-                color: '#d1d5db',
+                color: isDark ? '#d1d5db' : '#4b5563',
                 lineHeight: '1.6',
                 marginBottom: '1rem'
               }}>
@@ -242,7 +212,7 @@ function Databases({ onBack, onSelectItem, breadcrumb }) {
                 color: item.color,
                 fontWeight: '600',
                 paddingTop: '0.75rem',
-                borderTop: '1px solid #374151'
+                borderTop: isDark ? '1px solid #374151' : '1px solid #e5e7eb'
               }}>
                 <span>Explore Topic</span>
                 <span>→</span>

@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 import CompletionCheckbox from '../../components/CompletionCheckbox'
 import { isProblemCompleted } from '../../services/progressService'
 
@@ -2327,9 +2328,32 @@ void testOrderCreation() {
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
-          onMainMenu={breadcrumb?.onMainMenu}
+          onMainMenu={breadcrumb?.onMainMenu || onBack}
           colors={OOP_COLORS}
         />
+      </div>
+
+      {/* Collapsible Sidebar for quick concept navigation */}
+      <CollapsibleSidebar
+        items={concepts}
+        selectedIndex={selectedConceptIndex ?? -1}
+        onSelect={(index) => {
+          setSelectedConceptIndex(index)
+          setSelectedDetailIndex(0)
+        }}
+        title="Concepts"
+        getItemLabel={(item) => item.name}
+        getItemIcon={(item) => item.icon}
+        primaryColor={OOP_COLORS.primary}
+      />
+
+
+      {/* Intro text */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto 2rem', textAlign: 'center' }}>
+        <p style={{ color: '#94a3b8', fontSize: '1.1rem', lineHeight: '1.6' }}>
+          Master the four pillars of Object-Oriented Programming: Encapsulation, Inheritance,
+          Polymorphism, and Abstraction. Learn to write clean, maintainable, and reusable code.
+        </p>
       </div>
 
       {/* Practice Exercises Section */}
@@ -2466,7 +2490,7 @@ void testOrderCreation() {
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
-              onMainMenu={breadcrumb?.onMainMenu}
+              onMainMenu={breadcrumb?.onMainMenu || onBack}
               colors={OOP_COLORS}
             />
 

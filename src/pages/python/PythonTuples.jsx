@@ -3,6 +3,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import CompletionCheckbox from '../../components/CompletionCheckbox'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 
 function PythonTuples({ onBack, breadcrumb }) {
   const [selectedProblem, setSelectedProblem] = useState(null)
@@ -1040,7 +1041,7 @@ list2 = list(gen)  # [] - empty! Already consumed`,
                         fontSize: '1rem'
                       }}
                     >
-                      Code Block {idx + 1}
+                      Example {idx + 1}
                     </div>
                     <SyntaxHighlighter
                       language="python"
@@ -1139,7 +1140,7 @@ list2 = list(gen)  # [] - empty! Already consumed`,
                           fontSize: '1rem'
                         }}
                       >
-                        Code Block {idx + 1}
+                        Example {idx + 1}
                       </div>
                       <SyntaxHighlighter
                         language="python"
@@ -1244,7 +1245,20 @@ list2 = list(gen)  # [] - empty! Already consumed`,
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
+
+        <CollapsibleSidebar
+          items={problems}
+          selectedIndex={selectedProblem ? problems.findIndex(p => p.id === selectedProblem.id) : -1}
+          onSelect={(index) => setSelectedProblem(problems[index])}
+          title="Problems"
+          getItemLabel={(item) => item.title}
+          getItemIcon={(item) => {
+            const colors = { Easy: '🟢', Medium: '🟡', Hard: '🔴' };
+            return colors[item.difficulty] || '⚪';
+          }}
+          primaryColor="#3b82f6"
+        />
 
         <p style={{
           fontSize: '1.2rem',

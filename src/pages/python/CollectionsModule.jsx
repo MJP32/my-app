@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 
 // SVG Diagram Components
 
@@ -320,10 +321,22 @@ const conceptDiagrams = {
   'namedtuple': NamedTupleDiagram
 }
 
-function CollectionsModule({ onBack, breadcrumb }) {
+function CollectionsModule({ onBack, breadcrumb, initialConcept }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
-
   // Compute extended breadcrumb when a concept is selected
+  // Note: selectedConcept stores the concept ID, so we need to find the name
+  const getConceptName = (id) => {
+    const conceptNames = {
+      'counter': 'Counter',
+      'deque': 'deque',
+      'defaultdict': 'defaultdict',
+      'ordereddict': 'OrderedDict',
+      'namedtuple': 'namedtuple',
+      'chainmap': 'ChainMap'
+    }
+    return conceptNames[id] || id
+  }
+
   const activeBreadcrumb = selectedConcept ? {
     onMainMenu: breadcrumb?.onMainMenu,
     section: breadcrumb.section,
@@ -332,9 +345,16 @@ function CollectionsModule({ onBack, breadcrumb }) {
       name: breadcrumb.topic,
       onClick: () => setSelectedConcept(null)
     },
-    topic: selectedConcept.name,
+    topic: getConceptName(selectedConcept),
     colors: breadcrumb.colors
   } : breadcrumb
+
+  // Set initial concept if provided (e.g., when navigating from Python Deque)
+  useEffect(() => {
+    if (initialConcept && !selectedConcept) {
+      setSelectedConcept(initialConcept)
+    }
+  }, [initialConcept, selectedConcept])
 
   const parseCodeSections = (codeString) => {
     const sections = codeString.split('\n\n')
@@ -707,9 +727,7 @@ print(settings_parent.maps)  # [{'port': 3000}, {'debug': False, 'port': 8000}]`
         <div style={{
           background: 'linear-gradient(to bottom right, #111827, #1f2937)',
           borderRadius: '0.75rem',
-          maxWidth: '72rem',
-          width: '100%',
-          maxHeight: '90vh',
+          width: '95vw', maxWidth: '1400px', height: '90vh',
           overflowY: 'auto',
           border: '2px solid #3b82f6',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
@@ -858,7 +876,7 @@ print(settings_parent.maps)  # [{'port': 3000}, {'debug': False, 'port': 8000}]`
                         fontSize: '1rem'
                       }}
                     >
-                      Code Block {idx + 1}
+                      Example {idx + 1}
                     </div>
                     <SyntaxHighlighter
                       language="python"
@@ -947,7 +965,7 @@ print(settings_parent.maps)  # [{'port': 3000}, {'debug': False, 'port': 8000}]`
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={activeBreadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumb={activeBreadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
         <div style={{ textAlign: 'left', marginBottom: '3rem' }}>
           <p style={{
@@ -959,6 +977,18 @@ print(settings_parent.maps)  # [{'port': 3000}, {'debug': False, 'port': 8000}]`
             Master Python's specialized container datatypes. More powerful alternatives to built-in dict, list, set, and tuple.
           </p>
         </div>
+
+      {/* Collapsible Sidebar for quick concept navigation */}
+      <CollapsibleSidebar
+        items={concepts}
+        selectedIndex={selectedConcept ? concepts.findIndex(c => c.id === selectedConcept.id) : -1}
+        onSelect={(index) => setSelectedConcept(concepts[index])}
+        title="Concepts"
+        getItemLabel={(item) => item.name}
+        getItemIcon={(item) => item.icon}
+        primaryColor={'#3b82f6'}
+      />
+
 
         <div style={{
           display: 'grid',

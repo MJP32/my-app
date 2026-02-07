@@ -1,6 +1,20 @@
 import { useState, useEffect } from 'react'
+import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import { useTheme } from '../../contexts/ThemeContext'
 
-function Design({ onBack, onSelectItem, initialCategory }) {
+const DESIGN_COLORS = {
+  primary: '#c084fc',
+  primaryHover: '#d8b4fe',
+  bg: 'rgba(168, 85, 247, 0.1)',
+  border: 'rgba(168, 85, 247, 0.3)',
+  arrow: '#a855f7',
+  hoverBg: 'rgba(168, 85, 247, 0.2)',
+  topicBg: 'rgba(168, 85, 247, 0.2)'
+}
+
+function Design({ onBack, onSelectItem, initialCategory, breadcrumb }) {
+  const { colors, isDark } = useTheme()
   const [selectedCategory, setSelectedCategory] = useState(initialCategory || null)
 
   // Update selectedCategory when initialCategory prop changes
@@ -273,155 +287,63 @@ function Design({ onBack, onSelectItem, initialCategory }) {
     }
   ]
 
+  // Build breadcrumb stack based on current navigation state
+  const buildBreadcrumbStack = () => {
+    const stack = [{ name: 'Design', icon: '🎨' }]
+    if (selectedCategory) {
+      const cat = categories.find(c => c.id === selectedCategory)
+      if (cat) {
+        stack.push({ name: cat.name, icon: cat.icon })
+      }
+    }
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index) => {
+    if (index === 0) {
+      // Clicked on Design - go back to main categories
+      setSelectedCategory(null)
+    }
+  }
+
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #581c87, #111827)',
-      color: 'white',
+      background: isDark
+        ? 'linear-gradient(to bottom right, #111827, #581c87, #111827)'
+        : 'linear-gradient(to bottom right, #f8fafc, #f3e8ff, #f8fafc)',
+      color: colors.textPrimary,
       padding: '1.5rem'
     }}>
       <div style={{
         maxWidth: '80rem',
         margin: '0 auto'
       }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '2rem'
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem'
-          }}>
-            <button
-              onClick={onBack}
-              style={{
-                background: '#2563eb',
-                color: 'white',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '0.5rem',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontWeight: '500',
-                fontSize: '1rem',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#1d4ed8'
-                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#2563eb'
-                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              ← Back to Menu
-            </button>
-            <h1 style={{
-              fontSize: '2.25rem',
-              fontWeight: 'bold',
-              background: 'linear-gradient(to right, #a855f7, #c084fc)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
-            }}>
-              {selectedCategory
-                ? `${categories.find(c => c.id === selectedCategory)?.icon} ${categories.find(c => c.id === selectedCategory)?.name}`
-                : '🎨 Design & Architecture'}
-            </h1>
-          </div>
-        </div>
+        {/* Breadcrumb */}
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu || onBack}
+          colors={DESIGN_COLORS}
+        />
 
-        {/* Dark themed Breadcrumb */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          padding: '0.75rem 1rem',
-          backgroundColor: 'rgba(168, 85, 247, 0.1)',
-          borderRadius: '8px',
-          marginBottom: '1.5rem',
-          flexWrap: 'wrap',
-          border: '1px solid rgba(168, 85, 247, 0.3)'
-        }}>
-          <button
-            onClick={onBack}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#c084fc',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              fontWeight: '500',
-              padding: '0.25rem 0.5rem',
-              borderRadius: '4px',
-              transition: 'all 0.2s',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.25rem'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(168, 85, 247, 0.2)'
-              e.currentTarget.style.color = '#d8b4fe'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent'
-              e.currentTarget.style.color = '#c084fc'
-            }}
-          >
-            <span>🎨</span> Design
-          </button>
-          {selectedCategory && (
-            <>
-              <span style={{ color: '#a855f7', fontSize: '0.9rem' }}>→</span>
-              <button
-                onClick={() => setSelectedCategory(null)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#c084fc',
-                  cursor: 'pointer',
-                  fontSize: '0.9rem',
-                  fontWeight: '500',
-                  padding: '0.25rem 0.5rem',
-                  borderRadius: '4px',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(168, 85, 247, 0.2)'
-                  e.currentTarget.style.color = '#d8b4fe'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent'
-                  e.currentTarget.style.color = '#c084fc'
-                }}
-              >
-                {categories.find(c => c.id === selectedCategory)?.name}
-              </button>
-            </>
-          )}
-          <span style={{ color: '#a855f7', fontSize: '0.9rem' }}>→</span>
-          <span style={{
-            color: '#e2e8f0',
-            fontSize: '0.9rem',
-            fontWeight: '600',
-            padding: '0.25rem 0.75rem',
-            backgroundColor: 'rgba(168, 85, 247, 0.2)',
-            borderRadius: '4px'
-          }}>
-            {selectedCategory ? 'Topics' : 'Design & Architecture'}
-          </span>
-        </div>
+        {/* Collapsible Sidebar for quick topic navigation */}
+        <CollapsibleSidebar
+          items={categories.flatMap(cat => cat.topics)}
+          selectedIndex={-1}
+          onSelect={(index) => {
+            const allTopics = categories.flatMap(cat => cat.topics)
+            onSelectItem(allTopics[index].id)
+          }}
+          title="Topics"
+          getItemLabel={(item) => item.name}
+          getItemIcon={(item) => item.icon}
+          primaryColor={DESIGN_COLORS.primary}
+        />
 
         <p style={{
           fontSize: '1.2rem',
-          color: '#d1d5db',
+          color: isDark ? '#d1d5db' : '#4b5563',
           textAlign: 'center',
           marginBottom: '3rem',
           lineHeight: '1.8'
@@ -443,7 +365,9 @@ function Design({ onBack, onSelectItem, initialCategory }) {
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
                 style={{
-                  background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                  background: isDark
+                    ? 'linear-gradient(to bottom right, #1f2937, #111827)'
+                    : 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
                   padding: '2rem',
                   borderRadius: '0.75rem',
                   border: `2px solid ${category.color}`,
@@ -479,7 +403,7 @@ function Design({ onBack, onSelectItem, initialCategory }) {
                     </h3>
                     <span style={{
                       fontSize: '0.875rem',
-                      color: '#9ca3af'
+                      color: isDark ? '#9ca3af' : '#6b7280'
                     }}>
                       {category.topics.length} {category.topics.length === 1 ? 'topic' : 'topics'}
                     </span>
@@ -487,7 +411,7 @@ function Design({ onBack, onSelectItem, initialCategory }) {
                 </div>
                 <p style={{
                   fontSize: '0.95rem',
-                  color: '#d1d5db',
+                  color: isDark ? '#d1d5db' : '#4b5563',
                   lineHeight: '1.6',
                   marginBottom: '1rem'
                 }}>
@@ -503,10 +427,10 @@ function Design({ onBack, onSelectItem, initialCategory }) {
                       key={topic.id}
                       style={{
                         padding: '0.25rem 0.5rem',
-                        backgroundColor: '#374151',
+                        backgroundColor: isDark ? '#374151' : '#e5e7eb',
                         borderRadius: '0.25rem',
                         fontSize: '0.75rem',
-                        color: '#d1d5db'
+                        color: isDark ? '#d1d5db' : '#4b5563'
                       }}
                     >
                       {topic.name}
@@ -556,7 +480,9 @@ function Design({ onBack, onSelectItem, initialCategory }) {
                   key={topic.id}
                   onClick={() => onSelectItem(topic.id)}
                   style={{
-                    background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                    background: isDark
+                      ? 'linear-gradient(to bottom right, #1f2937, #111827)'
+                      : 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
                     padding: '1.5rem',
                     borderRadius: '0.75rem',
                     border: `2px solid ${topic.color}`,
@@ -585,7 +511,7 @@ function Design({ onBack, onSelectItem, initialCategory }) {
                       <h3 style={{
                         fontSize: '1.25rem',
                         fontWeight: 'bold',
-                        color: '#c084fc',
+                        color: isDark ? '#c084fc' : '#7c3aed',
                         marginBottom: '0.25rem'
                       }}>
                         {topic.name}
@@ -605,7 +531,7 @@ function Design({ onBack, onSelectItem, initialCategory }) {
                   </div>
                   <p style={{
                     fontSize: '0.9rem',
-                    color: '#d1d5db',
+                    color: isDark ? '#d1d5db' : '#4b5563',
                     lineHeight: '1.6',
                     marginBottom: '1rem'
                   }}>
@@ -620,7 +546,7 @@ function Design({ onBack, onSelectItem, initialCategory }) {
                     color: topic.color,
                     fontWeight: '600',
                     paddingTop: '0.75rem',
-                    borderTop: '1px solid #374151'
+                    borderTop: isDark ? '1px solid #374151' : '1px solid #e5e7eb'
                   }}>
                     <span>Open Topic</span>
                     <span>→</span>

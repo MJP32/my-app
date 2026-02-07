@@ -1,14 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
 import BookmarkButton from '../../components/BookmarkButton.jsx'
 import LanguageToggle from '../../components/LanguageToggle.jsx'
 import DrawingCanvas from '../../components/DrawingCanvas.jsx'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 import { isProblemCompleted } from '../../services/progressService'
+import { onAuthStateChange } from '../../services/authService'
+import { loadDrawings, addDrawing, deleteDrawing as deleteDrawingFromStorage } from '../../services/drawingService'
 import { getPreferredLanguage } from '../../services/languageService'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 
-function Recursion({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb, breadcrumbStack, onBreadcrumbClick, pushBreadcrumb, breadcrumbColors }) {
+function Recursion({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb, breadcrumbStack, onBreadcrumbClick, pushBreadcrumb, breadcrumbColors, problemLimit }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null)
   const [showSolution, setShowSolution] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
@@ -24,6 +27,130 @@ function Recursion({ onBack, onPrevious, onNext, previousName, nextName, current
     Medium: true,
     Hard: true
   })
+
+  // Drawing section state
+  const [drawingSectionOpen, setDrawingSectionOpen] = useState(false)
+  const [drawingColor, setDrawingColor] = useState('#000000')
+  const [drawingLineWidth, setDrawingLineWidth] = useState(3)
+  const [drawingTool, setDrawingTool] = useState('pen')
+  const [isDrawingActive, setIsDrawingActive] = useState(false)
+  const [savedDrawings, setSavedDrawings] = useState([])
+  const [selectedSavedDrawing, setSelectedSavedDrawing] = useState(null)
+  const scratchCanvasRef = useRef(null)
+  const scratchCtxRef = useRef(null)
+
+  const drawingColors = [
+    '#000000', '#FFFFFF', '#FF0000', '#00FF00', '#0000FF',
+    '#FFFF00', '#FF00FF', '#00FFFF', '#FFA500', '#800080',
+    '#FFC0CB', '#A52A2A', '#808080', '#90EE90', '#FFD700'
+  ]
+  const drawingWidths = [1, 2, 3, 5, 8, 12, 16, 20]
+
+  // Load drawings on mount and when auth state changes
+  useEffect(() => {
+    setSavedDrawings(loadDrawings())
+
+    const unsubscribe = onAuthStateChange(() => {
+      setSavedDrawings(loadDrawings())
+      setSelectedSavedDrawing(null)
+    })
+
+    return () => unsubscribe()
+  }, [])
+
+  const initScratchCanvas = useCallback(() => {
+    if (!scratchCanvasRef.current) return
+    const canvas = scratchCanvasRef.current
+    const ctx = canvas.getContext('2d')
+    canvas.width = 1000
+    canvas.height = 600
+    ctx.fillStyle = '#FFFFFF'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    scratchCtxRef.current = ctx
+  }, [])
+
+  useEffect(() => {
+    if (drawingSectionOpen) {
+      setTimeout(() => initScratchCanvas(), 50)
+    }
+  }, [drawingSectionOpen, initScratchCanvas])
+
+  const handleScratchMouseDown = (e) => {
+    const ctx = scratchCtxRef.current
+    if (!ctx) return
+    setIsDrawingActive(true)
+    const rect = scratchCanvasRef.current.getBoundingClientRect()
+    const scaleX = scratchCanvasRef.current.width / rect.width
+    const scaleY = scratchCanvasRef.current.height / rect.height
+    const x = (e.clientX - rect.left) * scaleX
+    const y = (e.clientY - rect.top) * scaleY
+    ctx.beginPath()
+    ctx.moveTo(x, y)
+    ctx.strokeStyle = drawingTool === 'eraser' ? '#FFFFFF' : drawingColor
+    ctx.lineWidth = drawingTool === 'eraser' ? drawingLineWidth * 3 : drawingLineWidth
+    ctx.lineCap = 'round'
+    ctx.lineJoin = 'round'
+  }
+
+  const handleScratchMouseMove = (e) => {
+    if (!isDrawingActive || !scratchCtxRef.current) return
+    const rect = scratchCanvasRef.current.getBoundingClientRect()
+    const scaleX = scratchCanvasRef.current.width / rect.width
+    const scaleY = scratchCanvasRef.current.height / rect.height
+    const x = (e.clientX - rect.left) * scaleX
+    const y = (e.clientY - rect.top) * scaleY
+    scratchCtxRef.current.lineTo(x, y)
+    scratchCtxRef.current.stroke()
+  }
+
+  const handleScratchMouseUp = () => {
+    if (!scratchCtxRef.current) return
+    setIsDrawingActive(false)
+    scratchCtxRef.current.closePath()
+  }
+
+  const clearScratchCanvas = () => {
+    if (!scratchCtxRef.current) return
+    scratchCtxRef.current.fillStyle = '#FFFFFF'
+    scratchCtxRef.current.fillRect(0, 0, scratchCanvasRef.current.width, scratchCanvasRef.current.height)
+  }
+
+  const saveScratchDrawing = () => {
+    if (!scratchCanvasRef.current) return
+    const dataUrl = scratchCanvasRef.current.toDataURL('image/png')
+    const name = prompt('Name your drawing:', `Drawing ${savedDrawings.length + 1}`)
+    if (!name) return
+    const updated = addDrawing(savedDrawings, name, dataUrl)
+    setSavedDrawings(updated)
+  }
+
+  const loadSavedDrawing = (drawing) => {
+    if (!scratchCanvasRef.current || !scratchCtxRef.current) return
+    const img = new Image()
+    img.onload = () => {
+      scratchCtxRef.current.fillStyle = '#FFFFFF'
+      scratchCtxRef.current.fillRect(0, 0, scratchCanvasRef.current.width, scratchCanvasRef.current.height)
+      scratchCtxRef.current.drawImage(img, 0, 0)
+    }
+    img.src = drawing.data
+    setSelectedSavedDrawing(drawing.name)
+  }
+
+  const deleteSavedDrawing = (index) => {
+    if (savedDrawings[index]?.name === selectedSavedDrawing) {
+      setSelectedSavedDrawing(null)
+    }
+    const updated = deleteDrawingFromStorage(savedDrawings, index)
+    setSavedDrawings(updated)
+  }
+
+  const downloadDrawing = () => {
+    if (!scratchCanvasRef.current) return
+    const link = document.createElement('a')
+    link.download = `recursion-drawing-${Date.now()}.png`
+    link.href = scratchCanvasRef.current.toDataURL('image/png')
+    link.click()
+  }
 
   useEffect(() => {
     const handleProgressUpdate = () => setRefreshKey(prev => prev + 1)
@@ -1082,19 +1209,21 @@ private boolean dfs(char[][] board, String word, int i, int j, int idx) {
     }
   ]
 
+  const displayQuestions = problemLimit ? questions.slice(0, problemLimit) : questions
+
   // Calculate completion status
   const getCompletionStats = () => {
-    const completed = questions.filter(q => isProblemCompleted(`Recursion-${q.id}`)).length
-    return { completed, total: questions.length, percentage: Math.round((completed / questions.length) * 100) }
+    const completed = displayQuestions.filter(q => isProblemCompleted(`Recursion-${q.id}`)).length
+    return { completed, total: displayQuestions.length, percentage: Math.round((completed / displayQuestions.length) * 100) }
   }
 
   const stats = getCompletionStats()
 
   // Group questions by difficulty
   const groupedQuestions = {
-    Easy: questions.filter(q => q.difficulty === 'Easy'),
-    Medium: questions.filter(q => q.difficulty === 'Medium'),
-    Hard: questions.filter(q => q.difficulty === 'Hard')
+    Easy: displayQuestions.filter(q => q.difficulty === 'Easy'),
+    Medium: displayQuestions.filter(q => q.difficulty === 'Medium'),
+    Hard: displayQuestions.filter(q => q.difficulty === 'Hard')
   }
 
   // Flatten visible questions for keyboard navigation
@@ -1177,7 +1306,7 @@ private boolean dfs(char[][] board, String word, int i, int j, int idx) {
           breadcrumb={problemBreadcrumb}
           breadcrumbStack={problemBreadcrumbStack}
           onBreadcrumbClick={handleProblemBreadcrumbClick}
-          onMainMenu={breadcrumb?.onMainMenu}
+          onMainMenu={breadcrumb?.onMainMenu || onBack}
           colors={breadcrumbColors}
         />
 
@@ -1294,8 +1423,23 @@ private boolean dfs(char[][] board, String word, int i, int j, int idx) {
         breadcrumb={breadcrumb}
         breadcrumbStack={breadcrumbStack}
         onBreadcrumbClick={onBreadcrumbClick}
-        onMainMenu={breadcrumb?.onMainMenu}
+        onMainMenu={breadcrumb?.onMainMenu || onBack}
         colors={breadcrumbColors}
+      />
+
+
+      {/* Collapsible Sidebar for quick problem navigation */}
+      <CollapsibleSidebar
+        items={questions}
+        selectedIndex={selectedQuestion ? questions.findIndex(q => q.id === selectedQuestion.id) : -1}
+        onSelect={(index) => setSelectedQuestion(questions[index])}
+        title="Problems"
+        getItemLabel={(item) => item.title}
+        getItemIcon={(item) => {
+          const colors = { Easy: '🟢', Medium: '🟡', Hard: '🔴' };
+          return colors[item.difficulty] || '⚪';
+        }}
+        primaryColor="#3b82f6"
       />
 
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
@@ -1312,6 +1456,250 @@ private boolean dfs(char[][] board, String word, int i, int j, int idx) {
             <div style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.25rem' }}>Progress</div>
           </div>
         </div>
+      </div>
+
+      {/* Drawing Scratchpad Section */}
+      <div style={{ marginBottom: '2rem' }}>
+        <button
+          onClick={() => setDrawingSectionOpen(!drawingSectionOpen)}
+          style={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '1rem 1.5rem',
+            backgroundColor: '#1f2937',
+            border: '2px solid #6366f1',
+            borderRadius: '12px',
+            cursor: 'pointer'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span style={{ fontSize: '1.5rem' }}>&#x1F3A8;</span>
+            <span style={{ fontSize: '1.25rem', fontWeight: '700', color: '#a5b4fc' }}>Drawing Scratchpad</span>
+            <span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>
+              ({savedDrawings.length} saved)
+            </span>
+          </div>
+          <span style={{ fontSize: '1.25rem', color: '#9ca3af' }}>{drawingSectionOpen ? '\u25BC' : '\u25B6'}</span>
+        </button>
+
+        {drawingSectionOpen && (
+          <div style={{
+            marginTop: '1rem',
+            backgroundColor: '#1f2937',
+            borderRadius: '12px',
+            border: '2px solid #374151',
+            padding: '1.5rem'
+          }}>
+            {/* Tools Row */}
+            <div style={{
+              display: 'flex',
+              gap: '1.5rem',
+              marginBottom: '1rem',
+              flexWrap: 'wrap',
+              alignItems: 'flex-start'
+            }}>
+              {/* Colors */}
+              <div>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: '#9ca3af', fontSize: '0.875rem' }}>
+                  Color
+                </label>
+                <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', maxWidth: '300px' }}>
+                  {drawingColors.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => { setDrawingColor(c); setDrawingTool('pen') }}
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        backgroundColor: c,
+                        border: drawingColor === c && drawingTool === 'pen' ? '3px solid #60a5fa' : '2px solid #4b5563',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s',
+                        boxShadow: drawingColor === c && drawingTool === 'pen' ? '0 0 0 2px rgba(96,165,250,0.4)' : 'none'
+                      }}
+                    />
+                  ))}
+                  <input
+                    type="color"
+                    value={drawingColor}
+                    onChange={(e) => { setDrawingColor(e.target.value); setDrawingTool('pen') }}
+                    style={{
+                      width: '28px',
+                      height: '28px',
+                      border: '2px solid #4b5563',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      padding: 0
+                    }}
+                    title="Custom color"
+                  />
+                </div>
+              </div>
+
+              {/* Pen Widths */}
+              <div>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: '#9ca3af', fontSize: '0.875rem' }}>
+                  Width
+                </label>
+                <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                  {drawingWidths.map((w) => (
+                    <button
+                      key={w}
+                      onClick={() => setDrawingLineWidth(w)}
+                      style={{
+                        padding: '0.35rem 0.7rem',
+                        backgroundColor: drawingLineWidth === w ? '#6366f1' : '#374151',
+                        color: drawingLineWidth === w ? 'white' : '#9ca3af',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        fontSize: '0.8rem',
+                        transition: 'all 0.15s'
+                      }}
+                    >
+                      {w}px
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tools */}
+              <div>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: '#9ca3af', fontSize: '0.875rem' }}>
+                  Tool
+                </label>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button
+                    onClick={() => setDrawingTool('pen')}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      backgroundColor: drawingTool === 'pen' ? '#6366f1' : '#374151',
+                      color: drawingTool === 'pen' ? 'white' : '#9ca3af',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontWeight: '600',
+                      fontSize: '0.875rem'
+                    }}
+                  >
+                    Pen
+                  </button>
+                  <button
+                    onClick={() => setDrawingTool('eraser')}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      backgroundColor: drawingTool === 'eraser' ? '#6366f1' : '#374151',
+                      color: drawingTool === 'eraser' ? 'white' : '#9ca3af',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontWeight: '600',
+                      fontSize: '0.875rem'
+                    }}
+                  >
+                    Eraser
+                  </button>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: '#9ca3af', fontSize: '0.875rem' }}>
+                  Actions
+                </label>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <button onClick={saveScratchDrawing} style={{ padding: '0.5rem 1rem', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '0.875rem' }}>
+                    Save
+                  </button>
+                  <button onClick={downloadDrawing} style={{ padding: '0.5rem 1rem', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '0.875rem' }}>
+                    Download
+                  </button>
+                  <button onClick={clearScratchCanvas} style={{ padding: '0.5rem 1rem', backgroundColor: '#f59e0b', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '0.875rem' }}>
+                    Clear
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Canvas */}
+            <canvas
+              ref={scratchCanvasRef}
+              onMouseDown={handleScratchMouseDown}
+              onMouseMove={handleScratchMouseMove}
+              onMouseUp={handleScratchMouseUp}
+              onMouseLeave={handleScratchMouseUp}
+              style={{
+                border: '2px solid #4b5563',
+                borderRadius: '8px',
+                cursor: drawingTool === 'eraser' ? 'pointer' : 'crosshair',
+                backgroundColor: 'white',
+                display: 'block',
+                width: '100%',
+                height: 'auto'
+              }}
+            />
+
+            {/* Saved Drawings */}
+            {savedDrawings.length > 0 && (
+              <div style={{ marginTop: '1rem' }}>
+                <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: '#9ca3af', fontSize: '0.875rem' }}>
+                  Saved Drawings
+                </label>
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  {savedDrawings.map((drawing, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        backgroundColor: selectedSavedDrawing === drawing.name ? '#374151' : '#111827',
+                        border: selectedSavedDrawing === drawing.name ? '2px solid #6366f1' : '2px solid #374151',
+                        borderRadius: '8px',
+                        padding: '0.5rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        width: '140px'
+                      }}
+                    >
+                      <img
+                        src={drawing.data}
+                        alt={drawing.name}
+                        onClick={() => loadSavedDrawing(drawing)}
+                        style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '4px', marginBottom: '0.35rem' }}
+                      />
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span
+                          onClick={() => loadSavedDrawing(drawing)}
+                          style={{ fontSize: '0.75rem', color: '#d1d5db', fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}
+                          title={drawing.name}
+                        >
+                          {drawing.name}
+                        </span>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); deleteSavedDrawing(idx) }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#ef4444',
+                            cursor: 'pointer',
+                            fontSize: '0.875rem',
+                            padding: '0 0.25rem',
+                            lineHeight: 1
+                          }}
+                          title="Delete drawing"
+                        >
+                          &#x2715;
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {Object.entries(groupedQuestions).map(([difficulty, difficultyQuestions]) => (

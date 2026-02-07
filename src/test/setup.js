@@ -1,13 +1,29 @@
 import '@testing-library/jest-dom'
 
-// Mock localStorage
+// Mock localStorage with working in-memory storage
+// Uses vi.fn() wrappers so tests can still spy on calls
+let store = {}
+
 const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn()
+  getItem: vi.fn((key) => {
+    return store[key] !== undefined ? store[key] : null
+  }),
+  setItem: vi.fn((key, value) => {
+    store[key] = String(value)
+  }),
+  removeItem: vi.fn((key) => {
+    delete store[key]
+  }),
+  clear: vi.fn(() => {
+    store = {}
+  })
 }
 Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+
+// Reset store between tests
+afterEach(() => {
+  store = {}
+})
 
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {

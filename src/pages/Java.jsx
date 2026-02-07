@@ -9,7 +9,9 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../components/Breadcrumb'
+import CollapsibleSidebar from '../components/CollapsibleSidebar'
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation'
+import { useTheme } from '../contexts/ThemeContext'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -186,6 +188,7 @@ const OOPDiagram = () => (
 // =============================================================================
 
 function Java({ onBack, onSelectItem, breadcrumb }) {
+  const { colors, isDark } = useTheme()
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
 
@@ -1244,61 +1247,14 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e1a0f 50%, #0f172a 100%)',
+      background: isDark
+        ? 'linear-gradient(135deg, #0f172a 0%, #1e1a0f 50%, #0f172a 100%)'
+        : 'linear-gradient(135deg, #f8fafc 0%, #fef3c7 50%, #f8fafc 100%)',
       padding: '1.5rem',
       fontFamily: 'system-ui, -apple-system, sans-serif',
-      color: 'white'
+      color: colors.textPrimary
     }}>
       <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
-        {/* Header */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '2rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button
-              onClick={onBack}
-              style={{
-                background: '#2563eb',
-                color: 'white',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '0.5rem',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontWeight: '500',
-                fontSize: '1rem',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#1d4ed8'
-                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#2563eb'
-                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              ← Back to Menu
-            </button>
-            <h1 style={{
-              fontSize: '2.25rem',
-              fontWeight: 'bold',
-              background: 'linear-gradient(to right, #fbbf24, #f59e0b, #d97706)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
-            }}>
-              ☕ Java Programming
-            </h1>
-          </div>
-        </div>
-
         {/* Breadcrumb */}
         <Breadcrumb
           breadcrumbStack={[
@@ -1311,7 +1267,7 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
         {/* Description */}
         <p style={{
           fontSize: '1.2rem',
-          color: '#d1d5db',
+          color: isDark ? '#d1d5db' : '#4b5563',
           textAlign: 'center',
           marginBottom: '3rem',
           lineHeight: '1.8'
@@ -1368,7 +1324,9 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
                     }
                   }}
                   style={{
-                    background: 'linear-gradient(145deg, #1e293b, #0f172a)',
+                    background: isDark
+                      ? 'linear-gradient(145deg, #1e293b, #0f172a)'
+                      : 'linear-gradient(145deg, #ffffff, #f9fafb)',
                     border: `2px solid ${focusedTopicIndex === globalIndex ? topic.color : topic.color + '40'}`,
                     borderRadius: '12px',
                     padding: '1.25rem',
@@ -1420,7 +1378,7 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
                     </h3>
                   </div>
                   <p style={{
-                    color: '#9ca3af',
+                    color: isDark ? '#9ca3af' : '#6b7280',
                     fontSize: '0.875rem',
                     lineHeight: '1.4',
                     margin: 0
@@ -1467,15 +1425,15 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
                 <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
                 <div>
-                  <h3 style={{ color: '#f1f5f9', fontSize: '1.25rem', fontWeight: '600', margin: 0 }}>
+                  <h3 style={{ color: isDark ? '#f1f5f9' : '#1f2937', fontSize: '1.25rem', fontWeight: '600', margin: 0 }}>
                     {concept.name}
                   </h3>
-                  <span style={{ color: '#64748b', fontSize: '0.85rem' }}>
+                  <span style={{ color: isDark ? '#64748b' : '#6b7280', fontSize: '0.85rem' }}>
                     {concept.details.length} topics
                   </span>
                 </div>
               </div>
-              <p style={{ color: '#94a3b8', fontSize: '0.9rem', lineHeight: '1.6', margin: 0 }}>
+              <p style={{ color: isDark ? '#94a3b8' : '#4b5563', fontSize: '0.9rem', lineHeight: '1.6', margin: 0 }}>
                 {concept.description}
               </p>
               <div style={{
@@ -1494,6 +1452,21 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
             </button>
           ))}
         </div>
+
+      {/* Collapsible Sidebar for quick concept navigation */}
+      <CollapsibleSidebar
+        items={concepts}
+        selectedIndex={selectedConceptIndex ?? -1}
+        onSelect={(index) => {
+          setSelectedConceptIndex(index)
+          setSelectedDetailIndex(0)
+        }}
+        title="Concepts"
+        getItemLabel={(item) => item.name}
+        getItemIcon={(item) => item.icon}
+        primaryColor={JAVA_COLORS.primary}
+      />
+
 
         {/* Modal */}
         {selectedConcept && (
@@ -1515,7 +1488,9 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
           >
             <div
               style={{
-                background: 'linear-gradient(145deg, #1e293b, #0f172a)',
+                background: isDark
+                  ? 'linear-gradient(145deg, #1e293b, #0f172a)'
+                  : 'linear-gradient(145deg, #ffffff, #f9fafb)',
                 borderRadius: '20px',
                 width: '100%',
                 maxWidth: '1600px',
@@ -1547,18 +1522,20 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
               {/* Modal Header with Navigation */}
               <div style={{
                 padding: '1.5rem',
-                borderBottom: '1px solid #334155',
+                borderBottom: isDark ? '1px solid #334155' : '1px solid #e5e7eb',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 position: 'sticky',
                 top: 0,
-                background: 'linear-gradient(145deg, #1e293b, #0f172a)',
+                background: isDark
+                  ? 'linear-gradient(145deg, #1e293b, #0f172a)'
+                  : 'linear-gradient(145deg, #ffffff, #f9fafb)',
                 zIndex: 10
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <span style={{ fontSize: '2rem' }}>{selectedConcept.icon}</span>
-                  <h2 style={{ color: '#f1f5f9', fontSize: '1.5rem', fontWeight: '600', margin: 0 }}>
+                  <h2 style={{ color: isDark ? '#f1f5f9' : '#1f2937', fontSize: '1.5rem', fontWeight: '600', margin: 0 }}>
                     {selectedConcept.name}
                   </h2>
                 </div>
@@ -1573,15 +1550,15 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
                     disabled={selectedConceptIndex === 0}
                     style={{
                       padding: '0.4rem 0.75rem',
-                      background: 'rgba(100, 116, 139, 0.2)',
-                      border: '1px solid rgba(100, 116, 139, 0.3)',
+                      background: isDark ? 'rgba(100, 116, 139, 0.2)' : 'rgba(100, 116, 139, 0.1)',
+                      border: isDark ? '1px solid rgba(100, 116, 139, 0.3)' : '1px solid rgba(100, 116, 139, 0.2)',
                       borderRadius: '0.375rem',
-                      color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8',
+                      color: selectedConceptIndex === 0 ? (isDark ? '#475569' : '#9ca3af') : (isDark ? '#94a3b8' : '#4b5563'),
                       cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer',
                       fontSize: '0.8rem'
                     }}
                   >←</button>
-                  <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>
+                  <span style={{ color: isDark ? '#64748b' : '#6b7280', fontSize: '0.75rem', padding: '0 0.5rem' }}>
                     {selectedConceptIndex + 1}/{concepts.length}
                   </span>
                   <button
@@ -1594,10 +1571,10 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
                     disabled={selectedConceptIndex === concepts.length - 1}
                     style={{
                       padding: '0.4rem 0.75rem',
-                      background: 'rgba(100, 116, 139, 0.2)',
-                      border: '1px solid rgba(100, 116, 139, 0.3)',
+                      background: isDark ? 'rgba(100, 116, 139, 0.2)' : 'rgba(100, 116, 139, 0.1)',
+                      border: isDark ? '1px solid rgba(100, 116, 139, 0.3)' : '1px solid rgba(100, 116, 139, 0.2)',
                       borderRadius: '0.375rem',
-                      color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8',
+                      color: selectedConceptIndex === concepts.length - 1 ? (isDark ? '#475569' : '#9ca3af') : (isDark ? '#94a3b8' : '#4b5563'),
                       cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer',
                       fontSize: '0.8rem'
                     }}
@@ -1623,7 +1600,7 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
 
               {/* Diagram */}
               {selectedConcept.diagram && (
-                <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #334155' }}>
+                <div style={{ padding: '1rem 1.5rem', borderBottom: isDark ? '1px solid #334155' : '1px solid #e5e7eb' }}>
                   <selectedConcept.diagram />
                 </div>
               )}
@@ -1633,7 +1610,7 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
                 display: 'flex',
                 gap: '0.5rem',
                 padding: '1rem 1.5rem',
-                borderBottom: '1px solid #334155',
+                borderBottom: isDark ? '1px solid #334155' : '1px solid #e5e7eb',
                 overflowX: 'auto'
               }}>
                 {selectedConcept.details.map((detail, idx) => (
@@ -1644,8 +1621,8 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
                       padding: '0.5rem 1rem',
                       borderRadius: '8px',
                       border: 'none',
-                      background: selectedDetailIndex === idx ? selectedConcept.color : '#334155',
-                      color: selectedDetailIndex === idx ? 'white' : '#94a3b8',
+                      background: selectedDetailIndex === idx ? selectedConcept.color : (isDark ? '#334155' : '#e5e7eb'),
+                      color: selectedDetailIndex === idx ? 'white' : (isDark ? '#94a3b8' : '#4b5563'),
                       cursor: 'pointer',
                       fontWeight: '500',
                       fontSize: '0.9rem',
@@ -1666,11 +1643,11 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
 
                   return (
                     <div>
-                      <h3 style={{ color: '#f1f5f9', fontSize: '1.25rem', marginBottom: '1rem' }}>
+                      <h3 style={{ color: isDark ? '#f1f5f9' : '#1f2937', fontSize: '1.25rem', marginBottom: '1rem' }}>
                         {detail.name}
                       </h3>
                       <p style={{
-                        color: '#e2e8f0',
+                        color: isDark ? '#e2e8f0' : '#374151',
                         lineHeight: '1.8',
                         marginBottom: '1.5rem',
                         background: colorScheme.bg,
@@ -1701,9 +1678,9 @@ EnumMap<Day, String> schedule = new EnumMap<>(Day.class);`
               {/* Navigation hint */}
               <div style={{
                 padding: '1rem 1.5rem',
-                borderTop: '1px solid #334155',
+                borderTop: isDark ? '1px solid #334155' : '1px solid #e5e7eb',
                 textAlign: 'center',
-                color: '#64748b',
+                color: isDark ? '#64748b' : '#6b7280',
                 fontSize: '0.85rem'
               }}>
                 Use ← → arrow keys to switch tabs • Press Escape to close

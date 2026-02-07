@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -509,6 +510,243 @@ const StateDiagram = () => (
     <path d="M 415 360 Q 265 400 115 360" stroke="#84cc16" strokeWidth="2" markerEnd="url(#arrowState)" fill="none" />
     <rect x="50" y="380" width="600" height="30" fill="#f7fee7" stroke="#84cc16" strokeWidth="2" rx="5" />
     <text x="350" y="400" textAnchor="middle" fill="#3f6212" fontSize="12">Each state encapsulates behavior and transitions</text>
+  </svg>
+)
+
+const AbstractFactoryDiagram = () => (
+  <svg viewBox="0 0 700 400" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem auto', display: 'block' }}>
+    <defs>
+      <linearGradient id="abstractFactoryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#0ea5e9', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#0284c7', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+    <text x="350" y="25" fontSize="18" fontWeight="bold" fill="#0ea5e9" textAnchor="middle">Abstract Factory Pattern</text>
+    <rect x="250" y="45" width="200" height="70" rx="8" fill="#e0f2fe" stroke="#0ea5e9" strokeWidth="2" />
+    <text x="350" y="70" fontSize="14" fontWeight="bold" fill="#0369a1" textAnchor="middle">AbstractFactory</text>
+    <text x="350" y="90" fontSize="11" fill="#0369a1" textAnchor="middle">+ createProductA()</text>
+    <text x="350" y="105" fontSize="11" fill="#0369a1" textAnchor="middle">+ createProductB()</text>
+    <rect x="80" y="150" width="160" height="60" rx="8" fill="url(#abstractFactoryGrad)" stroke="#0284c7" strokeWidth="2" />
+    <text x="160" y="175" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">WinFactory</text>
+    <text x="160" y="195" fontSize="10" fill="white" textAnchor="middle">Windows widgets</text>
+    <rect x="460" y="150" width="160" height="60" rx="8" fill="url(#abstractFactoryGrad)" stroke="#0284c7" strokeWidth="2" />
+    <text x="540" y="175" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">MacFactory</text>
+    <text x="540" y="195" fontSize="10" fill="white" textAnchor="middle">Mac widgets</text>
+    <rect x="40" y="260" width="100" height="45" rx="6" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2" />
+    <text x="90" y="287" fontSize="11" fontWeight="600" fill="#92400e" textAnchor="middle">WinButton</text>
+    <rect x="160" y="260" width="100" height="45" rx="6" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2" />
+    <text x="210" y="287" fontSize="11" fontWeight="600" fill="#92400e" textAnchor="middle">WinCheckbox</text>
+    <rect x="440" y="260" width="100" height="45" rx="6" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2" />
+    <text x="490" y="287" fontSize="11" fontWeight="600" fill="#92400e" textAnchor="middle">MacButton</text>
+    <rect x="560" y="260" width="100" height="45" rx="6" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2" />
+    <text x="610" y="287" fontSize="11" fontWeight="600" fill="#92400e" textAnchor="middle">MacCheckbox</text>
+    <line x1="160" y1="150" x2="300" y2="115" stroke="#0ea5e9" strokeWidth="2" />
+    <line x1="540" y1="150" x2="400" y2="115" stroke="#0ea5e9" strokeWidth="2" />
+    <line x1="90" y1="260" x2="130" y2="210" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4,4" />
+    <line x1="210" y1="260" x2="180" y2="210" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4,4" />
+    <line x1="490" y1="260" x2="520" y2="210" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4,4" />
+    <line x1="610" y1="260" x2="560" y2="210" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4,4" />
+    <rect x="200" y="340" width="300" height="40" rx="6" fill="#ecfdf5" stroke="#10b981" strokeWidth="1.5" />
+    <text x="350" y="365" fontSize="12" fill="#047857" textAnchor="middle">Creates families of related objects without specifying concrete classes</text>
+  </svg>
+)
+
+const PrototypeDiagram = () => (
+  <svg viewBox="0 0 600 320" style={{ width: '100%', maxWidth: '600px', height: 'auto', margin: '1rem auto', display: 'block' }}>
+    <defs>
+      <linearGradient id="prototypeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#f472b6', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#ec4899', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+    <text x="300" y="25" fontSize="18" fontWeight="bold" fill="#ec4899" textAnchor="middle">Prototype Pattern</text>
+    <rect x="200" y="50" width="200" height="60" rx="8" fill="#fce7f3" stroke="#ec4899" strokeWidth="2" />
+    <text x="300" y="75" fontSize="14" fontWeight="bold" fill="#be185d" textAnchor="middle">Prototype</text>
+    <text x="300" y="95" fontSize="11" fill="#be185d" textAnchor="middle">+ clone(): Prototype</text>
+    <rect x="80" y="160" width="180" height="80" rx="8" fill="url(#prototypeGrad)" stroke="#db2777" strokeWidth="2" />
+    <text x="170" y="185" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">ConcretePrototype1</text>
+    <line x1="90" y1="195" x2="250" y2="195" stroke="white" strokeWidth="1" />
+    <text x="170" y="215" fontSize="10" fill="white" textAnchor="middle">- field1, field2</text>
+    <text x="170" y="230" fontSize="10" fill="white" textAnchor="middle">+ clone()</text>
+    <rect x="340" y="160" width="180" height="80" rx="8" fill="url(#prototypeGrad)" stroke="#db2777" strokeWidth="2" />
+    <text x="430" y="185" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">ConcretePrototype2</text>
+    <line x1="350" y1="195" x2="510" y2="195" stroke="white" strokeWidth="1" />
+    <text x="430" y="215" fontSize="10" fill="white" textAnchor="middle">- fieldA, fieldB</text>
+    <text x="430" y="230" fontSize="10" fill="white" textAnchor="middle">+ clone()</text>
+    <line x1="170" y1="160" x2="250" y2="110" stroke="#ec4899" strokeWidth="2" />
+    <line x1="430" y1="160" x2="350" y2="110" stroke="#ec4899" strokeWidth="2" />
+    <rect x="150" y="270" width="300" height="35" rx="6" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.5" />
+    <text x="300" y="292" fontSize="12" fill="#92400e" textAnchor="middle">Clone existing objects without coupling to their classes</text>
+  </svg>
+)
+
+const CompositeDiagram = () => (
+  <svg viewBox="0 0 650 380" style={{ width: '100%', maxWidth: '650px', height: 'auto', margin: '1rem auto', display: 'block' }}>
+    <defs>
+      <linearGradient id="compositeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#a78bfa', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+    <text x="325" y="25" fontSize="18" fontWeight="bold" fill="#8b5cf6" textAnchor="middle">Composite Pattern</text>
+    <rect x="225" y="50" width="200" height="60" rx="8" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="2" />
+    <text x="325" y="75" fontSize="14" fontWeight="bold" fill="#6d28d9" textAnchor="middle">Component</text>
+    <text x="325" y="95" fontSize="11" fill="#6d28d9" textAnchor="middle">+ operation()</text>
+    <rect x="80" y="160" width="150" height="70" rx="8" fill="#ddd6fe" stroke="#8b5cf6" strokeWidth="2" />
+    <text x="155" y="185" fontSize="13" fontWeight="bold" fill="#6d28d9" textAnchor="middle">Leaf</text>
+    <line x1="90" y1="195" x2="220" y2="195" stroke="#8b5cf6" strokeWidth="1" />
+    <text x="155" y="215" fontSize="10" fill="#6d28d9" textAnchor="middle">+ operation()</text>
+    <rect x="420" y="160" width="150" height="90" rx="8" fill="url(#compositeGrad)" stroke="#7c3aed" strokeWidth="2" />
+    <text x="495" y="185" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">Composite</text>
+    <line x1="430" y1="195" x2="560" y2="195" stroke="white" strokeWidth="1" />
+    <text x="495" y="215" fontSize="10" fill="white" textAnchor="middle">- children: Component[]</text>
+    <text x="495" y="230" fontSize="10" fill="white" textAnchor="middle">+ add(Component)</text>
+    <text x="495" y="245" fontSize="10" fill="white" textAnchor="middle">+ operation()</text>
+    <line x1="155" y1="160" x2="275" y2="110" stroke="#8b5cf6" strokeWidth="2" />
+    <line x1="495" y1="160" x2="375" y2="110" stroke="#8b5cf6" strokeWidth="2" />
+    <path d="M 495 250 Q 495 300 325 300 Q 155 300 155 230" stroke="#8b5cf6" strokeWidth="2" strokeDasharray="5,5" fill="none" />
+    <text x="325" y="320" fontSize="11" fill="#6d28d9" textAnchor="middle">contains</text>
+    <rect x="175" y="340" width="300" height="30" rx="6" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.5" />
+    <text x="325" y="360" fontSize="11" fill="#92400e" textAnchor="middle">Compose objects into tree structures (part-whole hierarchies)</text>
+  </svg>
+)
+
+const TemplateMethodDiagram = () => (
+  <svg viewBox="0 0 600 350" style={{ width: '100%', maxWidth: '600px', height: 'auto', margin: '1rem auto', display: 'block' }}>
+    <defs>
+      <linearGradient id="templateGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#fb923c', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#f97316', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+    <text x="300" y="25" fontSize="18" fontWeight="bold" fill="#f97316" textAnchor="middle">Template Method Pattern</text>
+    <rect x="175" y="50" width="250" height="100" rx="8" fill="#ffedd5" stroke="#f97316" strokeWidth="2" />
+    <text x="300" y="75" fontSize="14" fontWeight="bold" fill="#c2410c" textAnchor="middle">AbstractClass</text>
+    <line x1="185" y1="85" x2="415" y2="85" stroke="#f97316" strokeWidth="1" />
+    <text x="300" y="105" fontSize="11" fill="#c2410c" textAnchor="middle">+ templateMethod() // final</text>
+    <text x="300" y="120" fontSize="11" fill="#9a3412" textAnchor="middle" fontStyle="italic">- step1() // abstract</text>
+    <text x="300" y="135" fontSize="11" fill="#9a3412" textAnchor="middle" fontStyle="italic">- step2() // abstract</text>
+    <rect x="80" y="200" width="180" height="80" rx="8" fill="url(#templateGrad)" stroke="#ea580c" strokeWidth="2" />
+    <text x="170" y="225" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">ConcreteClassA</text>
+    <line x1="90" y1="235" x2="250" y2="235" stroke="white" strokeWidth="1" />
+    <text x="170" y="255" fontSize="10" fill="white" textAnchor="middle">+ step1() // impl</text>
+    <text x="170" y="270" fontSize="10" fill="white" textAnchor="middle">+ step2() // impl</text>
+    <rect x="340" y="200" width="180" height="80" rx="8" fill="url(#templateGrad)" stroke="#ea580c" strokeWidth="2" />
+    <text x="430" y="225" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">ConcreteClassB</text>
+    <line x1="350" y1="235" x2="510" y2="235" stroke="white" strokeWidth="1" />
+    <text x="430" y="255" fontSize="10" fill="white" textAnchor="middle">+ step1() // impl</text>
+    <text x="430" y="270" fontSize="10" fill="white" textAnchor="middle">+ step2() // impl</text>
+    <line x1="170" y1="200" x2="250" y2="150" stroke="#f97316" strokeWidth="2" />
+    <line x1="430" y1="200" x2="350" y2="150" stroke="#f97316" strokeWidth="2" />
+    <rect x="125" y="310" width="350" height="30" rx="6" fill="#ecfdf5" stroke="#10b981" strokeWidth="1.5" />
+    <text x="300" y="330" fontSize="11" fill="#047857" textAnchor="middle">Define algorithm skeleton, let subclasses override specific steps</text>
+  </svg>
+)
+
+const IteratorDiagram = () => (
+  <svg viewBox="0 0 650 320" style={{ width: '100%', maxWidth: '650px', height: 'auto', margin: '1rem auto', display: 'block' }}>
+    <defs>
+      <linearGradient id="iteratorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#22d3ee', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#06b6d4', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+    <text x="325" y="25" fontSize="18" fontWeight="bold" fill="#06b6d4" textAnchor="middle">Iterator Pattern</text>
+    <rect x="40" y="60" width="180" height="80" rx="8" fill="#cffafe" stroke="#06b6d4" strokeWidth="2" />
+    <text x="130" y="85" fontSize="14" fontWeight="bold" fill="#0e7490" textAnchor="middle">Aggregate</text>
+    <line x1="50" y1="95" x2="210" y2="95" stroke="#06b6d4" strokeWidth="1" />
+    <text x="130" y="115" fontSize="11" fill="#0e7490" textAnchor="middle">+ createIterator()</text>
+    <text x="130" y="130" fontSize="11" fill="#0e7490" textAnchor="middle">+ getItems()</text>
+    <rect x="430" y="60" width="180" height="80" rx="8" fill="#cffafe" stroke="#06b6d4" strokeWidth="2" />
+    <text x="520" y="85" fontSize="14" fontWeight="bold" fill="#0e7490" textAnchor="middle">Iterator</text>
+    <line x1="440" y1="95" x2="600" y2="95" stroke="#06b6d4" strokeWidth="1" />
+    <text x="520" y="115" fontSize="11" fill="#0e7490" textAnchor="middle">+ hasNext(): boolean</text>
+    <text x="520" y="130" fontSize="11" fill="#0e7490" textAnchor="middle">+ next(): Element</text>
+    <rect x="40" y="190" width="180" height="60" rx="8" fill="url(#iteratorGrad)" stroke="#0891b2" strokeWidth="2" />
+    <text x="130" y="215" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">ConcreteAggregate</text>
+    <text x="130" y="235" fontSize="10" fill="white" textAnchor="middle">- items[]</text>
+    <rect x="430" y="190" width="180" height="60" rx="8" fill="url(#iteratorGrad)" stroke="#0891b2" strokeWidth="2" />
+    <text x="520" y="215" fontSize="13" fontWeight="bold" fill="white" textAnchor="middle">ConcreteIterator</text>
+    <text x="520" y="235" fontSize="10" fill="white" textAnchor="middle">- currentIndex</text>
+    <line x1="130" y1="190" x2="130" y2="140" stroke="#06b6d4" strokeWidth="2" />
+    <line x1="520" y1="190" x2="520" y2="140" stroke="#06b6d4" strokeWidth="2" />
+    <path d="M 220 220 L 430 220" stroke="#06b6d4" strokeWidth="2" strokeDasharray="5,5" />
+    <text x="325" y="210" fontSize="11" fill="#0e7490" textAnchor="middle">creates</text>
+    <rect x="175" y="280" width="300" height="30" rx="6" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.5" />
+    <text x="325" y="300" fontSize="11" fill="#92400e" textAnchor="middle">Access elements sequentially without exposing representation</text>
+  </svg>
+)
+
+const ChainOfResponsibilityDiagram = () => (
+  <svg viewBox="0 0 700 280" style={{ width: '100%', maxWidth: '700px', height: 'auto', margin: '1rem auto', display: 'block' }}>
+    <defs>
+      <linearGradient id="chainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#4ade80', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#22c55e', stopOpacity: 1 }} />
+      </linearGradient>
+      <marker id="arrowChain" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <polygon points="0 0, 10 3, 0 6" fill="#22c55e" />
+      </marker>
+    </defs>
+    <text x="350" y="25" fontSize="18" fontWeight="bold" fill="#22c55e" textAnchor="middle">Chain of Responsibility Pattern</text>
+    <rect x="250" y="50" width="200" height="70" rx="8" fill="#dcfce7" stroke="#22c55e" strokeWidth="2" />
+    <text x="350" y="75" fontSize="14" fontWeight="bold" fill="#166534" textAnchor="middle">Handler</text>
+    <line x1="260" y1="85" x2="440" y2="85" stroke="#22c55e" strokeWidth="1" />
+    <text x="350" y="105" fontSize="11" fill="#166534" textAnchor="middle">+ setNext(Handler)</text>
+    <text x="350" y="118" fontSize="11" fill="#166534" textAnchor="middle">+ handle(Request)</text>
+    <rect x="50" y="170" width="140" height="60" rx="8" fill="url(#chainGrad)" stroke="#16a34a" strokeWidth="2" />
+    <text x="120" y="195" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">HandlerA</text>
+    <text x="120" y="215" fontSize="10" fill="white" textAnchor="middle">handles type A</text>
+    <rect x="250" y="170" width="140" height="60" rx="8" fill="url(#chainGrad)" stroke="#16a34a" strokeWidth="2" />
+    <text x="320" y="195" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">HandlerB</text>
+    <text x="320" y="215" fontSize="10" fill="white" textAnchor="middle">handles type B</text>
+    <rect x="450" y="170" width="140" height="60" rx="8" fill="url(#chainGrad)" stroke="#16a34a" strokeWidth="2" />
+    <text x="520" y="195" fontSize="12" fontWeight="bold" fill="white" textAnchor="middle">HandlerC</text>
+    <text x="520" y="215" fontSize="10" fill="white" textAnchor="middle">handles type C</text>
+    <line x1="120" y1="170" x2="300" y2="120" stroke="#22c55e" strokeWidth="2" />
+    <line x1="320" y1="170" x2="350" y2="120" stroke="#22c55e" strokeWidth="2" />
+    <line x1="520" y1="170" x2="400" y2="120" stroke="#22c55e" strokeWidth="2" />
+    <line x1="190" y1="200" x2="250" y2="200" stroke="#22c55e" strokeWidth="2" markerEnd="url(#arrowChain)" />
+    <line x1="390" y1="200" x2="450" y2="200" stroke="#22c55e" strokeWidth="2" markerEnd="url(#arrowChain)" />
+    <rect x="175" y="250" width="350" height="25" rx="6" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.5" />
+    <text x="350" y="267" fontSize="11" fill="#92400e" textAnchor="middle">Pass request along chain until a handler processes it</text>
+  </svg>
+)
+
+const MementoDiagram = () => (
+  <svg viewBox="0 0 650 320" style={{ width: '100%', maxWidth: '650px', height: 'auto', margin: '1rem auto', display: 'block' }}>
+    <defs>
+      <linearGradient id="mementoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#f87171', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#ef4444', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+    <text x="325" y="25" fontSize="18" fontWeight="bold" fill="#ef4444" textAnchor="middle">Memento Pattern</text>
+    <rect x="40" y="70" width="160" height="100" rx="8" fill="#fee2e2" stroke="#ef4444" strokeWidth="2" />
+    <text x="120" y="95" fontSize="14" fontWeight="bold" fill="#b91c1c" textAnchor="middle">Originator</text>
+    <line x1="50" y1="105" x2="190" y2="105" stroke="#ef4444" strokeWidth="1" />
+    <text x="120" y="125" fontSize="10" fill="#b91c1c" textAnchor="middle">- state</text>
+    <text x="120" y="140" fontSize="10" fill="#b91c1c" textAnchor="middle">+ save(): Memento</text>
+    <text x="120" y="155" fontSize="10" fill="#b91c1c" textAnchor="middle">+ restore(Memento)</text>
+    <rect x="250" y="70" width="150" height="80" rx="8" fill="url(#mementoGrad)" stroke="#dc2626" strokeWidth="2" />
+    <text x="325" y="95" fontSize="14" fontWeight="bold" fill="white" textAnchor="middle">Memento</text>
+    <line x1="260" y1="105" x2="390" y2="105" stroke="white" strokeWidth="1" />
+    <text x="325" y="125" fontSize="10" fill="white" textAnchor="middle">- state (snapshot)</text>
+    <text x="325" y="140" fontSize="10" fill="white" textAnchor="middle">+ getState()</text>
+    <rect x="450" y="70" width="160" height="80" rx="8" fill="#fee2e2" stroke="#ef4444" strokeWidth="2" />
+    <text x="530" y="95" fontSize="14" fontWeight="bold" fill="#b91c1c" textAnchor="middle">Caretaker</text>
+    <line x1="460" y1="105" x2="600" y2="105" stroke="#ef4444" strokeWidth="1" />
+    <text x="530" y="125" fontSize="10" fill="#b91c1c" textAnchor="middle">- history: Memento[]</text>
+    <text x="530" y="140" fontSize="10" fill="#b91c1c" textAnchor="middle">+ undo()</text>
+    <path d="M 200 110 L 250 110" stroke="#ef4444" strokeWidth="2" />
+    <text x="225" y="100" fontSize="10" fill="#b91c1c">creates</text>
+    <path d="M 400 110 L 450 110" stroke="#ef4444" strokeWidth="2" />
+    <text x="425" y="100" fontSize="10" fill="#b91c1c">stores</text>
+    <rect x="150" y="200" width="350" height="80" rx="8" fill="#f3f4f6" stroke="#6b7280" strokeWidth="1.5" strokeDasharray="4,4" />
+    <text x="325" y="225" fontSize="12" fontWeight="600" fill="#374151" textAnchor="middle">Workflow</text>
+    <text x="175" y="245" fontSize="11" fill="#6b7280">1. Originator.save() → Memento</text>
+    <text x="175" y="262" fontSize="11" fill="#6b7280">2. Caretaker stores Memento in history</text>
+    <text x="175" y="279" fontSize="11" fill="#6b7280">3. Caretaker.undo() → Originator.restore(memento)</text>
   </svg>
 )
 
@@ -1459,6 +1697,759 @@ machine.insertCoin();    // Coin already inserted (in HasCoin)
 // - State transitions are explicit`
         }
       ]
+    },
+    {
+      id: 'abstract-factory',
+      name: 'Abstract Factory',
+      icon: '�icing',
+      color: '#0ea5e9',
+      description: 'Creates families of related objects without specifying concrete classes. Platform-independent UI toolkits.',
+      diagram: AbstractFactoryDiagram,
+      details: [
+        {
+          name: 'Abstract Factory Interface',
+          explanation: 'Declares creation methods for each product type in the family. Each concrete factory implements these methods to create products for a specific variant (e.g., Windows vs Mac).',
+          codeExample: `// Abstract Factory interface
+interface GUIFactory {
+    Button createButton();
+    Checkbox createCheckbox();
+    Menu createMenu();
+}
+
+// Abstract Products
+interface Button {
+    void render();
+    void onClick(Runnable handler);
+}
+
+interface Checkbox {
+    void render();
+    boolean isChecked();
+}`
+        },
+        {
+          name: 'Concrete Factories',
+          explanation: 'Each factory creates products of a single variant. All products from one factory are compatible with each other. Adding a new product family requires a new factory.',
+          codeExample: `// Windows Factory
+class WindowsFactory implements GUIFactory {
+    public Button createButton() {
+        return new WindowsButton();
+    }
+    public Checkbox createCheckbox() {
+        return new WindowsCheckbox();
+    }
+    public Menu createMenu() {
+        return new WindowsMenu();
+    }
+}
+
+// Mac Factory
+class MacFactory implements GUIFactory {
+    public Button createButton() {
+        return new MacButton();
+    }
+    public Checkbox createCheckbox() {
+        return new MacCheckbox();
+    }
+    public Menu createMenu() {
+        return new MacMenu();
+    }
+}`
+        },
+        {
+          name: 'Usage & Benefits',
+          explanation: 'Client code works with factories and products through abstract interfaces. Switch entire product families by changing factory. Ensures product compatibility.',
+          codeExample: `// Client code - works with any factory
+class Application {
+    private GUIFactory factory;
+    private Button button;
+    private Checkbox checkbox;
+
+    public Application(GUIFactory factory) {
+        this.factory = factory;
+    }
+
+    public void createUI() {
+        button = factory.createButton();
+        checkbox = factory.createCheckbox();
+    }
+
+    public void render() {
+        button.render();
+        checkbox.render();
+    }
+}
+
+// Usage - switch UI by changing factory
+GUIFactory factory = isWindows()
+    ? new WindowsFactory()
+    : new MacFactory();
+Application app = new Application(factory);
+app.createUI();
+app.render();
+
+// JDK Example: DocumentBuilderFactory, TransformerFactory`
+        }
+      ]
+    },
+    {
+      id: 'prototype',
+      name: 'Prototype',
+      icon: '🧬',
+      color: '#ec4899',
+      description: 'Clone existing objects without coupling to their concrete classes. Useful for complex object creation.',
+      diagram: PrototypeDiagram,
+      details: [
+        {
+          name: 'Prototype Interface',
+          explanation: 'Declares clone method. Concrete classes implement cloning logic. Supports shallow and deep copies depending on requirements.',
+          codeExample: `// Prototype interface
+interface Prototype<T> {
+    T clone();
+}
+
+// Or use Java's Cloneable
+class Shape implements Cloneable {
+    protected String color;
+    protected int x, y;
+
+    public Shape(Shape source) {
+        this.color = source.color;
+        this.x = source.x;
+        this.y = source.y;
+    }
+
+    @Override
+    public Shape clone() {
+        return new Shape(this);
+    }
+}`
+        },
+        {
+          name: 'Concrete Prototypes',
+          explanation: 'Each subclass implements clone() to copy its specific fields. Deep copy nested objects to avoid shared references. Copy constructors often used internally.',
+          codeExample: `class Circle extends Shape {
+    private int radius;
+
+    public Circle(Circle source) {
+        super(source);
+        this.radius = source.radius;
+    }
+
+    @Override
+    public Circle clone() {
+        return new Circle(this);
+    }
+}
+
+class Rectangle extends Shape {
+    private int width, height;
+
+    public Rectangle(Rectangle source) {
+        super(source);
+        this.width = source.width;
+        this.height = source.height;
+    }
+
+    @Override
+    public Rectangle clone() {
+        return new Rectangle(this);
+    }
+}`
+        },
+        {
+          name: 'Prototype Registry',
+          explanation: 'Store pre-built prototypes for common configurations. Clone and customize as needed. Reduces object creation complexity.',
+          codeExample: `class ShapeCache {
+    private static Map<String, Shape> cache = new HashMap<>();
+
+    static {
+        // Pre-populate with prototypes
+        Circle redCircle = new Circle();
+        redCircle.setColor("red");
+        redCircle.setRadius(10);
+        cache.put("red-circle", redCircle);
+
+        Rectangle blueRect = new Rectangle();
+        blueRect.setColor("blue");
+        blueRect.setWidth(100);
+        cache.put("blue-rect", blueRect);
+    }
+
+    public static Shape getShape(String id) {
+        return cache.get(id).clone();
+    }
+}
+
+// Usage
+Shape circle1 = ShapeCache.getShape("red-circle");
+Shape circle2 = ShapeCache.getShape("red-circle");
+// circle1 != circle2 (different objects, same data)
+
+// JDK Examples:
+Object.clone(), Arrays.copyOf(),
+Collections copy constructors`
+        }
+      ]
+    },
+    {
+      id: 'composite',
+      name: 'Composite',
+      icon: '🌳',
+      color: '#8b5cf6',
+      description: 'Compose objects into tree structures. Treat individual objects and compositions uniformly.',
+      diagram: CompositeDiagram,
+      details: [
+        {
+          name: 'Component Interface',
+          explanation: 'Common interface for both leaf and composite objects. Declares operations that make sense for both simple and complex elements.',
+          codeExample: `// Component interface
+interface FileSystemItem {
+    String getName();
+    long getSize();
+    void print(String indent);
+}
+
+// Leaf - simple element
+class File implements FileSystemItem {
+    private String name;
+    private long size;
+
+    public File(String name, long size) {
+        this.name = name;
+        this.size = size;
+    }
+
+    public String getName() { return name; }
+    public long getSize() { return size; }
+
+    public void print(String indent) {
+        System.out.println(indent + "File: " + name + " (" + size + " bytes)");
+    }
+}`
+        },
+        {
+          name: 'Composite Class',
+          explanation: 'Container that holds child components. Implements operations by delegating to children. Can contain both leaves and other composites.',
+          codeExample: `// Composite - container element
+class Directory implements FileSystemItem {
+    private String name;
+    private List<FileSystemItem> children = new ArrayList<>();
+
+    public Directory(String name) {
+        this.name = name;
+    }
+
+    public void add(FileSystemItem item) {
+        children.add(item);
+    }
+
+    public void remove(FileSystemItem item) {
+        children.remove(item);
+    }
+
+    public String getName() { return name; }
+
+    public long getSize() {
+        // Aggregate size from all children
+        return children.stream()
+            .mapToLong(FileSystemItem::getSize)
+            .sum();
+    }
+
+    public void print(String indent) {
+        System.out.println(indent + "Dir: " + name + "/");
+        for (FileSystemItem child : children) {
+            child.print(indent + "  ");
+        }
+    }
+}`
+        },
+        {
+          name: 'Usage Example',
+          explanation: 'Build tree structures naturally. Client code treats all elements uniformly through component interface. Great for hierarchical data.',
+          codeExample: `// Build file system tree
+Directory root = new Directory("root");
+Directory docs = new Directory("documents");
+Directory pics = new Directory("pictures");
+
+docs.add(new File("resume.pdf", 50000));
+docs.add(new File("notes.txt", 1200));
+
+pics.add(new File("photo1.jpg", 250000));
+pics.add(new File("photo2.png", 180000));
+
+root.add(docs);
+root.add(pics);
+root.add(new File("readme.md", 500));
+
+// Uniform operations on tree
+root.print("");
+// Dir: root/
+//   Dir: documents/
+//     File: resume.pdf (50000 bytes)
+//     File: notes.txt (1200 bytes)
+//   Dir: pictures/
+//     File: photo1.jpg (250000 bytes)
+//     File: photo2.png (180000 bytes)
+//   File: readme.md (500 bytes)
+
+System.out.println("Total: " + root.getSize() + " bytes");
+// Total: 481700 bytes
+
+// JDK Examples: java.awt.Container, javax.swing.JComponent`
+        }
+      ]
+    },
+    {
+      id: 'template-method',
+      name: 'Template Method',
+      icon: '📋',
+      color: '#f97316',
+      description: 'Define algorithm skeleton in base class, let subclasses override specific steps without changing structure.',
+      diagram: TemplateMethodDiagram,
+      details: [
+        {
+          name: 'Abstract Template Class',
+          explanation: 'Template method defines algorithm structure and is typically final to prevent overriding. Calls abstract primitive operations that subclasses must implement.',
+          codeExample: `abstract class DataProcessor {
+    // Template method - defines algorithm skeleton
+    public final void process() {
+        readData();
+        processData();
+        writeResults();
+        cleanup();  // Optional hook
+    }
+
+    // Abstract steps - subclasses MUST implement
+    protected abstract void readData();
+    protected abstract void processData();
+    protected abstract void writeResults();
+
+    // Hook - optional override, default implementation
+    protected void cleanup() {
+        // Default: do nothing
+    }
+}`
+        },
+        {
+          name: 'Concrete Implementations',
+          explanation: 'Subclasses implement abstract steps for specific data formats. Algorithm structure stays the same, only step implementations vary.',
+          codeExample: `class CSVProcessor extends DataProcessor {
+    private List<String[]> data;
+    private List<String[]> results;
+
+    @Override
+    protected void readData() {
+        data = CSVReader.read("input.csv");
+        System.out.println("Read " + data.size() + " CSV rows");
+    }
+
+    @Override
+    protected void processData() {
+        results = data.stream()
+            .filter(row -> row[0].startsWith("A"))
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    protected void writeResults() {
+        CSVWriter.write("output.csv", results);
+    }
+}
+
+class JSONProcessor extends DataProcessor {
+    private JsonArray data;
+    private JsonArray results;
+
+    @Override
+    protected void readData() {
+        data = JsonParser.parse("input.json");
+    }
+
+    @Override
+    protected void processData() {
+        results = transform(data);
+    }
+
+    @Override
+    protected void writeResults() {
+        JsonWriter.write("output.json", results);
+    }
+
+    @Override
+    protected void cleanup() {
+        // Override hook for JSON-specific cleanup
+        System.out.println("Clearing JSON cache...");
+    }
+}`
+        },
+        {
+          name: 'Usage & Benefits',
+          explanation: 'Eliminates code duplication by extracting common algorithm to base class. Subclasses customize only what varies. Hook methods provide optional extension points.',
+          codeExample: `// Usage
+DataProcessor csvProc = new CSVProcessor();
+csvProc.process();  // Uses CSV implementations
+
+DataProcessor jsonProc = new JSONProcessor();
+jsonProc.process();  // Uses JSON implementations
+
+// Both follow same algorithm:
+// 1. readData()
+// 2. processData()
+// 3. writeResults()
+// 4. cleanup()
+
+// Benefits:
+// - Code reuse in base class
+// - Easy to add new variants
+// - Enforces algorithm structure
+// - Hooks for optional customization
+
+// JDK Examples:
+// - java.io.InputStream.read()
+// - java.util.AbstractList.get()
+// - javax.servlet.http.HttpServlet.service()`
+        }
+      ]
+    },
+    {
+      id: 'iterator',
+      name: 'Iterator',
+      icon: '🔄',
+      color: '#06b6d4',
+      description: 'Access elements of a collection sequentially without exposing its underlying representation.',
+      diagram: IteratorDiagram,
+      details: [
+        {
+          name: 'Iterator Interface',
+          explanation: 'Declares traversal operations: hasNext() checks for more elements, next() returns current and advances. May include remove() for modification during iteration.',
+          codeExample: `// Custom Iterator interface
+interface Iterator<T> {
+    boolean hasNext();
+    T next();
+    void remove();  // Optional
+}
+
+// Collection interface
+interface IterableCollection<T> {
+    Iterator<T> createIterator();
+    int size();
+}`
+        },
+        {
+          name: 'Concrete Iterator',
+          explanation: 'Implements traversal algorithm for specific collection. Maintains current position. Multiple iterators can traverse same collection independently.',
+          codeExample: `class TreeNode<T> {
+    T value;
+    TreeNode<T> left, right;
+}
+
+// In-order iterator for binary tree
+class InOrderIterator<T> implements Iterator<T> {
+    private Stack<TreeNode<T>> stack = new Stack<>();
+
+    public InOrderIterator(TreeNode<T> root) {
+        pushLeftBranch(root);
+    }
+
+    private void pushLeftBranch(TreeNode<T> node) {
+        while (node != null) {
+            stack.push(node);
+            node = node.left;
+        }
+    }
+
+    @Override
+    public boolean hasNext() {
+        return !stack.isEmpty();
+    }
+
+    @Override
+    public T next() {
+        TreeNode<T> node = stack.pop();
+        if (node.right != null) {
+            pushLeftBranch(node.right);
+        }
+        return node.value;
+    }
+}
+
+// Can also create PreOrderIterator, PostOrderIterator, etc.`
+        },
+        {
+          name: 'Usage & Benefits',
+          explanation: 'Client code uses same interface for any collection type. Can iterate different structures uniformly. Java enhanced for-loop uses Iterator internally.',
+          codeExample: `// Java's built-in Iterator usage
+List<String> list = Arrays.asList("A", "B", "C");
+Iterator<String> it = list.iterator();
+while (it.hasNext()) {
+    String item = it.next();
+    System.out.println(item);
+}
+
+// Enhanced for-loop (uses Iterator internally)
+for (String item : list) {
+    System.out.println(item);
+}
+
+// Custom tree iteration
+BinaryTree<Integer> tree = new BinaryTree<>();
+tree.insert(5, 3, 7, 1, 4);
+
+Iterator<Integer> inOrder = tree.createInOrderIterator();
+while (inOrder.hasNext()) {
+    System.out.print(inOrder.next() + " ");  // 1 3 4 5 7
+}
+
+// JDK Examples:
+// - java.util.Iterator
+// - java.util.Scanner
+// - java.util.Enumeration
+// - java.sql.ResultSet`
+        }
+      ]
+    },
+    {
+      id: 'chain-of-responsibility',
+      name: 'Chain of Responsibility',
+      icon: '⛓️',
+      color: '#22c55e',
+      description: 'Pass requests along a chain of handlers. Each handler decides to process or pass to next handler.',
+      diagram: ChainOfResponsibilityDiagram,
+      details: [
+        {
+          name: 'Handler Interface',
+          explanation: 'Declares method for handling requests and setting next handler. Base handler class often provides default chaining logic.',
+          codeExample: `// Handler interface
+interface Handler {
+    void setNext(Handler next);
+    void handle(Request request);
+}
+
+// Base handler with chaining logic
+abstract class BaseHandler implements Handler {
+    protected Handler next;
+
+    @Override
+    public void setNext(Handler next) {
+        this.next = next;
+    }
+
+    protected void passToNext(Request request) {
+        if (next != null) {
+            next.handle(request);
+        }
+    }
+}`
+        },
+        {
+          name: 'Concrete Handlers',
+          explanation: 'Each handler checks if it can process the request. If yes, handles it (may stop chain). If no, passes to next handler.',
+          codeExample: `class AuthenticationHandler extends BaseHandler {
+    @Override
+    public void handle(Request request) {
+        if (!request.hasValidToken()) {
+            throw new UnauthorizedException("Invalid token");
+        }
+        System.out.println("Auth passed");
+        passToNext(request);
+    }
+}
+
+class AuthorizationHandler extends BaseHandler {
+    @Override
+    public void handle(Request request) {
+        if (!request.hasPermission()) {
+            throw new ForbiddenException("No permission");
+        }
+        System.out.println("Authz passed");
+        passToNext(request);
+    }
+}
+
+class ValidationHandler extends BaseHandler {
+    @Override
+    public void handle(Request request) {
+        if (!request.isValid()) {
+            throw new BadRequestException("Invalid data");
+        }
+        System.out.println("Validation passed");
+        passToNext(request);
+    }
+}
+
+class BusinessLogicHandler extends BaseHandler {
+    @Override
+    public void handle(Request request) {
+        System.out.println("Processing business logic...");
+        // Actually process the request
+    }
+}`
+        },
+        {
+          name: 'Chain Assembly & Usage',
+          explanation: 'Build chain by linking handlers. Order matters - auth before authz before validation. Each request flows through entire chain.',
+          codeExample: `// Build the chain
+Handler auth = new AuthenticationHandler();
+Handler authz = new AuthorizationHandler();
+Handler validation = new ValidationHandler();
+Handler business = new BusinessLogicHandler();
+
+auth.setNext(authz);
+authz.setNext(validation);
+validation.setNext(business);
+
+// Use the chain
+Request request = new Request(token, data);
+auth.handle(request);
+// Output:
+// Auth passed
+// Authz passed
+// Validation passed
+// Processing business logic...
+
+// Real-world examples:
+// - Servlet Filters
+// - Spring Security filter chain
+// - Logging frameworks
+// - Event bubbling in UI
+
+// JDK Example: java.util.logging.Logger (parent chain)`
+        }
+      ]
+    },
+    {
+      id: 'memento',
+      name: 'Memento',
+      icon: '💾',
+      color: '#ef4444',
+      description: 'Capture and restore object state without exposing internal structure. Enables undo/redo functionality.',
+      diagram: MementoDiagram,
+      details: [
+        {
+          name: 'Memento & Originator',
+          explanation: 'Originator creates mementos containing snapshots of its state. Memento is opaque to other objects - only originator can read its contents.',
+          codeExample: `// Memento - stores state snapshot
+class EditorMemento {
+    private final String content;
+    private final int cursorPosition;
+    private final String[] selection;
+
+    EditorMemento(String content, int cursor, String[] selection) {
+        this.content = content;
+        this.cursorPosition = cursor;
+        this.selection = selection.clone();
+    }
+
+    // Package-private getters - only Originator accesses
+    String getContent() { return content; }
+    int getCursorPosition() { return cursorPosition; }
+    String[] getSelection() { return selection.clone(); }
+}
+
+// Originator - creates and restores from mementos
+class TextEditor {
+    private String content = "";
+    private int cursorPosition = 0;
+    private String[] selection = {};
+
+    public void type(String text) {
+        content = content.substring(0, cursorPosition)
+                + text
+                + content.substring(cursorPosition);
+        cursorPosition += text.length();
+    }
+
+    public EditorMemento save() {
+        return new EditorMemento(content, cursorPosition, selection);
+    }
+
+    public void restore(EditorMemento memento) {
+        content = memento.getContent();
+        cursorPosition = memento.getCursorPosition();
+        selection = memento.getSelection();
+    }
+}`
+        },
+        {
+          name: 'Caretaker',
+          explanation: 'Stores mementos but never examines their contents. Manages history for undo/redo. Can limit history size to save memory.',
+          codeExample: `class History {
+    private Deque<EditorMemento> undoStack = new ArrayDeque<>();
+    private Deque<EditorMemento> redoStack = new ArrayDeque<>();
+    private static final int MAX_HISTORY = 50;
+
+    public void save(EditorMemento memento) {
+        undoStack.push(memento);
+        redoStack.clear();  // New action clears redo
+
+        // Limit history size
+        if (undoStack.size() > MAX_HISTORY) {
+            undoStack.removeLast();
+        }
+    }
+
+    public EditorMemento undo() {
+        if (undoStack.isEmpty()) return null;
+        EditorMemento memento = undoStack.pop();
+        redoStack.push(memento);
+        return undoStack.isEmpty() ? null : undoStack.peek();
+    }
+
+    public EditorMemento redo() {
+        if (redoStack.isEmpty()) return null;
+        EditorMemento memento = redoStack.pop();
+        undoStack.push(memento);
+        return memento;
+    }
+
+    public boolean canUndo() { return !undoStack.isEmpty(); }
+    public boolean canRedo() { return !redoStack.isEmpty(); }
+}`
+        },
+        {
+          name: 'Complete Usage',
+          explanation: 'Combine all three roles for full undo/redo support. Save state before changes. Restore previous state on undo.',
+          codeExample: `class EditorApplication {
+    private TextEditor editor = new TextEditor();
+    private History history = new History();
+
+    public void type(String text) {
+        history.save(editor.save());  // Save before change
+        editor.type(text);
+    }
+
+    public void undo() {
+        EditorMemento memento = history.undo();
+        if (memento != null) {
+            editor.restore(memento);
+        }
+    }
+
+    public void redo() {
+        EditorMemento memento = history.redo();
+        if (memento != null) {
+            editor.restore(memento);
+        }
+    }
+}
+
+// Usage
+EditorApplication app = new EditorApplication();
+app.type("Hello");
+app.type(" World");
+System.out.println(editor.getContent());  // "Hello World"
+
+app.undo();
+System.out.println(editor.getContent());  // "Hello"
+
+app.redo();
+System.out.println(editor.getContent());  // "Hello World"
+
+// JDK Example: java.io.Serializable (serialize state)`
+        }
+      ]
     }
   ]
 
@@ -1594,8 +2585,23 @@ machine.insertCoin();    // Coin already inserted (in HasCoin)
 
       {/* Breadcrumb */}
       <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
-        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
       </div>
+
+      {/* Collapsible Sidebar for quick concept navigation */}
+      <CollapsibleSidebar
+        items={concepts}
+        selectedIndex={selectedConceptIndex ?? -1}
+        onSelect={(index) => {
+          setSelectedConceptIndex(index)
+          setSelectedDetailIndex(0)
+        }}
+        title="Concepts"
+        getItemLabel={(item) => item.name}
+        getItemIcon={(item) => item.icon}
+        primaryColor={DESIGN_COLORS.primary}
+      />
+
 
       {/* Intro */}
       <div style={{

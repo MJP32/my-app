@@ -3,8 +3,9 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 import CompletionCheckbox from '../../components/CompletionCheckbox'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 
-function ZipkinQuestions({ onBack, breadcrumb }) {
+function ZipkinQuestions({ onBack, breadcrumb, problemLimit }) {
   const [expandedQuestion, setExpandedQuestion] = useState(null)
 
   const renderFormattedAnswer = (text) => {
@@ -1021,6 +1022,9 @@ Bad: "query"
     }
   ]
 
+  // Filter questions based on problemLimit (for Top 100/300 mode)
+  const displayQuestions = problemLimit ? questions.slice(0, problemLimit) : questions
+
   const toggleQuestion = (id) => {
     setExpandedQuestion(expandedQuestion === id ? null : id)
   }
@@ -1045,7 +1049,7 @@ Bad: "query"
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
+    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)', minHeight: '100vh' }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -1084,6 +1088,16 @@ Bad: "query"
 
       <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
+      <CollapsibleSidebar
+        items={displayQuestions}
+        selectedIndex={expandedQuestion ? displayQuestions.findIndex(q => q.id === expandedQuestion) : -1}
+        onSelect={(index) => toggleQuestion(displayQuestions[index].id)}
+        title="Questions"
+        getItemLabel={(item) => `${item.id}. ${item.category}`}
+        getItemIcon={() => '❓'}
+        primaryColor="#3b82f6"
+      />
+
       <p style={{
         fontSize: '1.1rem',
         color: '#9ca3af',
@@ -1095,7 +1109,7 @@ Bad: "query"
       </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        {questions.map((q) => (
+        {displayQuestions.map((q) => (
           <div
             key={q.id}
             style={{

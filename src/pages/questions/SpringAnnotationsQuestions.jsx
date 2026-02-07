@@ -3,8 +3,9 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
 import CompletionCheckbox from '../../components/CompletionCheckbox'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 
-export default function SpringAnnotationsQuestions({ onBack, breadcrumb }) {
+export default function SpringAnnotationsQuestions({ onBack, breadcrumb, problemLimit }) {
   const [expandedQuestionId, setExpandedQuestionId] = useState(null)
   const categoryColor = '#a855f7'
 
@@ -2062,6 +2063,9 @@ public class UserService {
     }
   ]
 
+  // Filter questions based on problemLimit (for Top 100/300 mode)
+  const displayQuestions = problemLimit ? questions.slice(0, problemLimit) : questions
+
   const renderFormattedAnswer = (text) => {
     const lines = text.split('\n')
     const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4']
@@ -2279,12 +2283,22 @@ public class UserService {
 
       <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
+      <CollapsibleSidebar
+        items={displayQuestions}
+        selectedIndex={expandedQuestionId ? displayQuestions.findIndex(q => q.id === expandedQuestionId) : -1}
+        onSelect={(index) => setExpandedQuestionId(displayQuestions[index].id)}
+        title="Questions"
+        getItemLabel={(item) => `${item.id}. ${item.category}`}
+        getItemIcon={() => '❓'}
+        primaryColor="#3b82f6"
+      />
+
       <div style={{
         display: 'flex',
         flexDirection: 'column',
         gap: '1.5rem'
       }}>
-        {questions.map((q) => (
+        {displayQuestions.map((q) => (
           <div
             key={q.id}
             style={{

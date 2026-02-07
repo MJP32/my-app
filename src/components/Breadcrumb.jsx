@@ -70,8 +70,7 @@ function Breadcrumb({ breadcrumb, breadcrumbStack, onBreadcrumbClick, colors: pr
         backgroundColor: themeColors.bg,
         borderRadius: '8px',
         marginBottom: '1.5rem',
-        flexWrap: 'wrap',
-        border: `1px solid ${themeColors.border}`
+        flexWrap: 'wrap'
       }}>
         {/* Main Menu link */}
         {onMainMenu && (
@@ -104,12 +103,9 @@ function Breadcrumb({ breadcrumb, breadcrumbStack, onBreadcrumbClick, colors: pr
                 </button>
               ) : (
                 <span style={{
-                  color: '#e2e8f0',
+                  color: themeColors.primary,
                   fontSize: '0.9rem',
                   fontWeight: '600',
-                  padding: '0.25rem 0.75rem',
-                  backgroundColor: themeColors.topicBg,
-                  borderRadius: '4px',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.25rem'
@@ -139,8 +135,7 @@ function Breadcrumb({ breadcrumb, breadcrumbStack, onBreadcrumbClick, colors: pr
       backgroundColor: themeColors.bg,
       borderRadius: '8px',
       marginBottom: '1.5rem',
-      flexWrap: 'wrap',
-      border: `1px solid ${themeColors.border}`
+      flexWrap: 'wrap'
     }}>
       {/* Main Menu link */}
       {onMainMenu && (
@@ -221,12 +216,9 @@ function Breadcrumb({ breadcrumb, breadcrumbStack, onBreadcrumbClick, colors: pr
 
       {/* Current Topic (not clickable) */}
       <span style={{
-        color: '#e2e8f0',
+        color: themeColors.primary,
         fontSize: '0.9rem',
-        fontWeight: '600',
-        padding: '0.25rem 0.75rem',
-        backgroundColor: themeColors.topicBg,
-        borderRadius: '4px'
+        fontWeight: '600'
       }}>
         {topic}
       </span>

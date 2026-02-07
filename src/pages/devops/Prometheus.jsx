@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 
 const PROMETHEUS_COLORS = {
   primary: '#e85d1f',
@@ -2021,7 +2022,7 @@ thanos query \\
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
-          onMainMenu={breadcrumb?.onMainMenu}
+          onMainMenu={breadcrumb?.onMainMenu || onBack}
           colors={PROMETHEUS_COLORS}
         />
       </div>
@@ -2068,6 +2069,21 @@ thanos query \\
         ))}
       </div>
 
+      {/* Collapsible Sidebar for quick concept navigation */}
+      <CollapsibleSidebar
+        items={concepts}
+        selectedIndex={selectedConceptIndex ?? -1}
+        onSelect={(index) => {
+          setSelectedConceptIndex(index)
+          setSelectedDetailIndex(0)
+        }}
+        title="Concepts"
+        getItemLabel={(item) => item.name}
+        getItemIcon={(item) => item.icon}
+        primaryColor={PROMETHEUS_COLORS.primary}
+      />
+
+
       {/* Concept Detail Modal */}
       {selectedConcept && (
         <div
@@ -2098,7 +2114,7 @@ thanos query \\
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
-              onMainMenu={breadcrumb?.onMainMenu}
+              onMainMenu={breadcrumb?.onMainMenu || onBack}
               colors={PROMETHEUS_COLORS}
             />
 

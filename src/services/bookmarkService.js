@@ -4,9 +4,14 @@ const STORAGE_KEY = 'bookmarked_problems'
 
 // Get current user's bookmark key
 const getBookmarkKey = () => {
-  const user = JSON.parse(localStorage.getItem('user') || 'null')
-  const uid = user?.uid || 'anonymous'
-  return `${STORAGE_KEY}_${uid}`
+  try {
+    const user = JSON.parse(localStorage.getItem('user') || 'null')
+    const uid = user?.uid || 'anonymous'
+    return `${STORAGE_KEY}_${uid}`
+  } catch (error) {
+    console.error('Error getting bookmark key:', error)
+    return `${STORAGE_KEY}_anonymous`
+  }
 }
 
 // Get all bookmarked problems

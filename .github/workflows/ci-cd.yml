@@ -34,6 +34,9 @@ jobs:
         run: npm run lint
         continue-on-error: true  # Don't fail on lint warnings
 
+      - name: Run tests
+        run: npm run test
+
       - name: Build application
         run: npm run build
         env:

@@ -2479,26 +2479,10 @@ public class ChaosMonkey {
     }}>
       <div style={{
         display: 'flex',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         alignItems: 'center',
         marginBottom: '2rem'
       }}>
-        <button
-          onClick={onBack}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            fontWeight: '600',
-            backgroundColor: '#2563eb',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          ← Back to Menu
-        </button>
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '800',
@@ -2508,10 +2492,9 @@ public class ChaosMonkey {
         }}>
           🚨 Production Support
         </h1>
-        <div style={{ width: '120px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
       <div style={{
         backgroundColor: '#1f2937',

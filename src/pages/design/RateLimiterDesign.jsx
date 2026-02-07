@@ -42,7 +42,7 @@ function RateLimiterDesign({ onBack, breadcrumb }) {
         <div style={{ width: '140px' }}></div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
       {/* Tabs */}
       <div style={{

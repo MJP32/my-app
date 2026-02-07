@@ -18,11 +18,6 @@ const categoryGroups = {
     color: '#3b82f6',
     items: ['SQL', 'NoSQL', 'Oracle', 'ORM']
   },
-  'My Projects': {
-    icon: '💼',
-    color: '#10b981',
-    items: ['Var/CVar', 'Var/CVar - Advanced', 'Var/CVar 3', 'Dark Pool Matching Engine', 'Dark Pool Matching Engine - Basic', 'Medi/Health', 'Dark Pool Engine 3', 'Monolith to Microservice', 'Financial Banking']
-  },
   'Frameworks': {
     icon: '🌱',
     color: '#ec4899',

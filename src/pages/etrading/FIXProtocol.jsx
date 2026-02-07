@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 
 const ETRADING_COLORS = {
   primary: '#4ade80',
@@ -1058,7 +1059,7 @@ public class IncrementalRefreshHandler {
       </div>
 
       <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
-        <Breadcrumb breadcrumbStack={buildBreadcrumbStack()} onBreadcrumbClick={handleBreadcrumbClick} colors={ETRADING_COLORS} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumbStack={buildBreadcrumbStack()} onBreadcrumbClick={handleBreadcrumbClick} colors={ETRADING_COLORS} onMainMenu={breadcrumb?.onMainMenu || onBack} />
       </div>
 
       <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
@@ -1106,7 +1107,7 @@ public class IncrementalRefreshHandler {
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
               colors={ETRADING_COLORS}
-              onMainMenu={breadcrumb?.onMainMenu}
+              onMainMenu={breadcrumb?.onMainMenu || onBack}
             />
             <div
               style={{
@@ -1206,6 +1207,21 @@ public class IncrementalRefreshHandler {
                 </button>
               </div>
             </div>
+
+      {/* Collapsible Sidebar for quick concept navigation */}
+      <CollapsibleSidebar
+        items={concepts}
+        selectedIndex={selectedConceptIndex ?? -1}
+        onSelect={(index) => {
+          setSelectedConceptIndex(index)
+          setSelectedDetailIndex(0)
+        }}
+        title="Concepts"
+        getItemLabel={(item) => item.name}
+        getItemIcon={(item) => item.icon}
+        primaryColor={ETRADING_COLORS.primary}
+      />
+
 
             {/* Subtopic Tabs */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>

@@ -467,7 +467,7 @@ export default function AsyncPython({ onBack, breadcrumb }) {
       color: '#f3f4f6',
       padding: '2rem'
     }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         {/* Back Button */}
         <button
           onClick={onBack}
@@ -487,7 +487,7 @@ export default function AsyncPython({ onBack, breadcrumb }) {
         </button>
 
         {/* Breadcrumb */}
-        {breadcrumb && <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />}
+        {breadcrumb && <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />}
 
         {/* Page Title */}
         <h1 style={{

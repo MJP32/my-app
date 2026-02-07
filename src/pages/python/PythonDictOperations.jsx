@@ -3,6 +3,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import CompletionCheckbox from '../../components/CompletionCheckbox'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 
 function PythonDictOperations({ onBack, breadcrumb }) {
   const [selectedProblem, setSelectedProblem] = useState(null)
@@ -749,7 +750,7 @@ def reorganizeString_alt(s: str) -> str:
         background: 'linear-gradient(to bottom right, #111827, #1e3a8a, #111827)',
         padding: '2rem'
       }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           <button
             onClick={handleBackClick}
             style={{
@@ -852,7 +853,7 @@ def reorganizeString_alt(s: str) -> str:
                         fontSize: '1rem'
                       }}
                     >
-                      Code Block {idx + 1}
+                      Example {idx + 1}
                     </div>
                     <SyntaxHighlighter
                       language="python"
@@ -928,7 +929,7 @@ def reorganizeString_alt(s: str) -> str:
                           fontSize: '1rem'
                         }}
                       >
-                        Code Block {idx + 1}
+                        Example {idx + 1}
                       </div>
                       <SyntaxHighlighter
                         language="python"
@@ -1009,7 +1010,20 @@ def reorganizeString_alt(s: str) -> str:
           </p>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
+
+        <CollapsibleSidebar
+          items={problems}
+          selectedIndex={selectedProblem ? problems.findIndex(p => p.id === selectedProblem.id) : -1}
+          onSelect={(index) => setSelectedProblem(problems[index])}
+          title="Problems"
+          getItemLabel={(item) => item.title}
+          getItemIcon={(item) => {
+            const colors = { Easy: '🟢', Medium: '🟡', Hard: '🔴' };
+            return colors[item.difficulty] || '⚪';
+          }}
+          primaryColor="#3b82f6"
+        />
 
         <div style={{
           display: 'grid',

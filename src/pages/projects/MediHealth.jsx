@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 import { useTheme } from '../../contexts/ThemeContext'
 
 // Simple syntax highlighter for Java code
@@ -140,7 +141,7 @@ function MediHealth({ onBack, breadcrumb }) {
       description: 'Complete system architecture for travel nurse medical application',
       diagram: () => (
         <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'center' }}>
-          <svg viewBox="0 0 1200 800" style={{ width: '100%', maxWidth: '1200px', height: 'auto' }}>
+          <svg viewBox="0 0 1200 800" style={{ width: '100%', maxWidth: '1400px', height: 'auto' }}>
             <defs>
               <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
@@ -3648,26 +3649,6 @@ public class ClaimService {
         maxWidth: '1400px',
         margin: '0 auto 2rem'
       }}>
-        <button
-          onClick={onBack}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            fontWeight: '600',
-            backgroundColor: '#2563eb',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            marginBottom: '1rem',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#2563eb'}
-        >
-          ← Back to Menu
-        </button>
-
         <h1 style={{
           fontSize: '2.5rem',
           fontWeight: '800',
@@ -3685,7 +3666,17 @@ public class ClaimService {
         </p>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
+
+      <CollapsibleSidebar
+        items={topics}
+        selectedIndex={selectedTopic ? topics.findIndex(t => t.id === selectedTopic.id) : -1}
+        onSelect={(index) => setSelectedTopic(topics[index])}
+        title="Topics"
+        getItemLabel={(item) => item.title}
+        getItemIcon={() => '📚'}
+        primaryColor="#6366f1"
+      />
 
       {/* Topics Grid */}
       {!selectedTopic && (

@@ -1,5 +1,6 @@
 import { useState, Suspense, lazy } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 import LoadingSpinner from '../../components/LoadingSpinner'
 
 // Lazy load existing design pages
@@ -643,6 +644,16 @@ function L5SystemDesign({ onBack, breadcrumb: propBreadcrumb }) {
         </button>
 
         <Breadcrumb breadcrumb={breadcrumb} />
+
+        <CollapsibleSidebar
+          items={topics}
+          selectedIndex={selectedTopic ? topics.findIndex(t => t.id === selectedTopic.id) : -1}
+          onSelect={(index) => setSelectedTopic(topics[index])}
+          title="Topics"
+          getItemLabel={(item) => item.title}
+          getItemIcon={(item) => item.icon}
+          primaryColor="#a855f7"
+        />
 
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <h1 style={{

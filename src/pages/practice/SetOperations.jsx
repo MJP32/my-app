@@ -3,6 +3,7 @@ import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
 import LanguageToggle from '../../components/LanguageToggle.jsx'
 import DrawingCanvas from '../../components/DrawingCanvas.jsx'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 import { isProblemCompleted } from '../../services/progressService'
 import { getPreferredLanguage } from '../../services/languageService'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
@@ -556,7 +557,20 @@ print(f"Users that changed: {changed_users}")  # {'alice', 'david', 'eve', 'fran
         </button>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
+
+      <CollapsibleSidebar
+        items={questions}
+        selectedIndex={selectedQuestion ? questions.findIndex(q => q.id === selectedQuestion.id) : -1}
+        onSelect={(index) => selectQuestion(questions[index])}
+        title="Problems"
+        getItemLabel={(item) => item.title}
+        getItemIcon={(item) => {
+          const colors = { Easy: '🟢', Medium: '🟡', Hard: '🔴' };
+          return colors[item.difficulty] || '⚪';
+        }}
+        primaryColor="#3b82f6"
+      />
 
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: 'white', marginBottom: '0.5rem' }}>Set Operations</h1>

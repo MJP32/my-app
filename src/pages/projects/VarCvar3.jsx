@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 
 const SyntaxHighlighter = ({ code }) => {
   const highlightJava = (code) => {
@@ -139,7 +140,7 @@ function VarCvar3({ onBack, breadcrumb }) {
       description: 'Complete system architecture for enterprise VaR/CVaR risk management platform',
       diagram: () => (
         <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'center' }}>
-          <svg viewBox="0 0 1200 800" style={{ width: '100%', maxWidth: '1200px', height: 'auto' }}>
+          <svg viewBox="0 0 1200 800" style={{ width: '100%', maxWidth: '1400px', height: 'auto' }}>
             <defs>
               <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" style={{ stopColor: '#7c3aed', stopOpacity: 1 }} />
@@ -2118,36 +2119,6 @@ public class LowLatencyVarService {
       background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
       minHeight: '100vh'
     }}>
-      {/* Back button */}
-      <button
-        onClick={onBack}
-        style={{
-          padding: '0.75rem 1.5rem',
-          fontSize: '1rem',
-          fontWeight: '600',
-          backgroundColor: '#1f2937',
-          color: 'white',
-          border: '2px solid #374151',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          marginBottom: '2rem',
-          transition: 'all 0.2s ease',
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-        }}
-        onMouseOver={(e) => {
-          e.target.style.backgroundColor = '#374151'
-          e.target.style.transform = 'translateY(-2px)'
-          e.target.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)'
-        }}
-        onMouseOut={(e) => {
-          e.target.style.backgroundColor = '#1f2937'
-          e.target.style.transform = 'translateY(0)'
-          e.target.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)'
-        }}
-      >
-        ← Back to Menu
-      </button>
-
       {/* Header */}
       <div style={{
         textAlign: 'center',
@@ -2173,7 +2144,17 @@ public class LowLatencyVarService {
         </p>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
+
+      <CollapsibleSidebar
+        items={topics}
+        selectedIndex={selectedTopic ? topics.findIndex(t => t.id === selectedTopic.id) : -1}
+        onSelect={(index) => setSelectedTopic(topics[index])}
+        title="Topics"
+        getItemLabel={(item) => item.title}
+        getItemIcon={() => '📚'}
+        primaryColor="#dc2626"
+      />
 
       {/* Topic cards */}
       <div style={{

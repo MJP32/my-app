@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 
 const FRAMEWORK_COLORS = {
   primary: '#4ade80',
@@ -583,7 +584,7 @@ function RestAPI({ onBack, onPrevious, onNext, previousName, nextName, breadcrum
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
-          onMainMenu={breadcrumb?.onMainMenu}
+          onMainMenu={breadcrumb?.onMainMenu || onBack}
           colors={FRAMEWORK_COLORS}
         />
       </div>
@@ -630,6 +631,21 @@ function RestAPI({ onBack, onPrevious, onNext, previousName, nextName, breadcrum
         ))}
       </div>
 
+      {/* Collapsible Sidebar for quick concept navigation */}
+      <CollapsibleSidebar
+        items={concepts}
+        selectedIndex={selectedConceptIndex ?? -1}
+        onSelect={(index) => {
+          setSelectedConceptIndex(index)
+          setSelectedDetailIndex(0)
+        }}
+        title="Concepts"
+        getItemLabel={(item) => item.name}
+        getItemIcon={(item) => item.icon}
+        primaryColor={FRAMEWORK_COLORS.primary}
+      />
+
+
       {/* Concept Detail Modal */}
       {selectedConcept && (
         <div
@@ -660,7 +676,7 @@ function RestAPI({ onBack, onPrevious, onNext, previousName, nextName, breadcrum
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
-              onMainMenu={breadcrumb?.onMainMenu}
+              onMainMenu={breadcrumb?.onMainMenu || onBack}
               colors={FRAMEWORK_COLORS}
             />
 

@@ -1714,7 +1714,7 @@ plt.show()`
         color: 'white',
         padding: '2rem'
       }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           <button
             onClick={() => setSelectedSection(null)}
             style={{
@@ -1810,7 +1810,7 @@ plt.show()`
       color: 'white',
       padding: '2rem'
     }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         <button
           onClick={onBack}
           style={{
@@ -1838,7 +1838,7 @@ plt.show()`
           Back to Python
         </button>
 
-        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
         <div style={{ textAlign: 'left', marginBottom: '3rem' }}>
           <h1 style={{

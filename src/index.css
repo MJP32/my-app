@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global box-sizing fix */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Add left padding to account for the collapsible sidebar */
+body {
+  padding-left: 2.5rem;
+}
+
 /* Focus ring styles for top menu buttons */
 .btn-focus-green {
   box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3), 0 6px 16px -2px rgba(16, 185, 129, 0.5) !important;
@@ -78,6 +93,184 @@
   background-color: var(--bg-primary);
 }
 
+/* ============================================
+   COMPREHENSIVE LIGHT MODE OVERRIDES
+   Force all dark sections to be light
+   ============================================ */
+
+/* Global light mode body override */
+[data-theme="light"] body,
+[data-theme="light"] #root {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+}
+
+/* Override ALL elements with dark inline backgrounds */
+[data-theme="light"] *[style*="#111827"],
+[data-theme="light"] *[style*="#1f2937"],
+[data-theme="light"] *[style*="#0f172a"],
+[data-theme="light"] *[style*="#1e293b"],
+[data-theme="light"] *[style*="#0c4a6e"],
+[data-theme="light"] *[style*="#14532d"],
+[data-theme="light"] *[style*="#78350f"],
+[data-theme="light"] *[style*="#581c87"],
+[data-theme="light"] *[style*="#1e1a0f"] {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+}
+
+/* Override gradient backgrounds globally - make them light */
+[data-theme="light"] *[style*="linear-gradient"] {
+  background: linear-gradient(to bottom right, #f8fafc, #f1f5f9) !important;
+}
+
+/* Keep button gradients but make cards light */
+[data-theme="light"] button[style*="linear-gradient"] {
+  background: linear-gradient(to bottom right, #ffffff, #f9fafb) !important;
+}
+
+/* Override white/light text to be dark in light mode */
+[data-theme="light"] *[style*="color: white"],
+[data-theme="light"] *[style*="color: #fff"],
+[data-theme="light"] *[style*="color: #f9fafb"],
+[data-theme="light"] *[style*="color: #f3f4f6"],
+[data-theme="light"] *[style*="color: #e5e7eb"],
+[data-theme="light"] *[style*="color: #e2e8f0"],
+[data-theme="light"] *[style*="color: #f1f5f9"],
+[data-theme="light"] *[style*="color: #ffffff"] {
+  color: #1f2937 !important;
+}
+
+[data-theme="light"] *[style*="color: #d1d5db"],
+[data-theme="light"] *[style*="color: #9ca3af"],
+[data-theme="light"] *[style*="color: #94a3b8"],
+[data-theme="light"] *[style*="color: #64748b"],
+[data-theme="light"] *[style*="color: #cbd5e1"],
+[data-theme="light"] *[style*="color: #a1a1aa"] {
+  color: #4b5563 !important;
+}
+
+/* AGGRESSIVE: Force ALL text to be dark in light mode */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6 {
+  color: #1f2937 !important;
+}
+
+[data-theme="light"] p {
+  color: #374151 !important;
+}
+
+/* Force span and div text to be visible - use inherit with fallback */
+[data-theme="light"] span:not([style*="color: #f59e0b"]):not([style*="color: #3b82f6"]):not([style*="color: #10b981"]):not([style*="color: #ef4444"]):not([style*="color: #8b5cf6"]):not([style*="color: #22c55e"]):not([style*="color: #ec4899"]):not([style*="color: #06b6d4"]):not([style*="color: #f97316"]) {
+  color: inherit !important;
+}
+
+/* Override default text color for the entire light theme */
+[data-theme="light"] {
+  --default-text: #1f2937;
+  --secondary-text: #4b5563;
+}
+
+/* Target all direct children in light mode with dark text */
+[data-theme="light"] div > h1,
+[data-theme="light"] div > h2,
+[data-theme="light"] div > h3,
+[data-theme="light"] div > p,
+[data-theme="light"] button > span,
+[data-theme="light"] div > div > h3,
+[data-theme="light"] div > div > p {
+  color: #1f2937 !important;
+}
+
+/* Specific fix for modal/overview sections */
+[data-theme="light"] [style*="color: 'white'"],
+[data-theme="light"] [style*="color:'white'"] {
+  color: #1f2937 !important;
+}
+
+/* Aggressive fallback - apply to ALL text in main content areas */
+[data-theme="light"] #root {
+  color: #1f2937;
+}
+
+[data-theme="light"] #root h1,
+[data-theme="light"] #root h2,
+[data-theme="light"] #root h3,
+[data-theme="light"] #root h4,
+[data-theme="light"] #root p {
+  color: #1f2937 !important;
+}
+
+/* Override rgba dark backgrounds */
+[data-theme="light"] *[style*="rgba(15"],
+[data-theme="light"] *[style*="rgba(17"],
+[data-theme="light"] *[style*="rgba(30"],
+[data-theme="light"] *[style*="rgba(31"],
+[data-theme="light"] *[style*="rgba(0, 0, 0, 0.8)"] {
+  background-color: rgba(248, 250, 252, 0.98) !important;
+}
+
+/* Override dark borders */
+[data-theme="light"] *[style*="border"][style*="#374151"],
+[data-theme="light"] *[style*="border"][style*="#4b5563"],
+[data-theme="light"] *[style*="border"][style*="#334155"],
+[data-theme="light"] *[style*="border"][style*="#1f2937"] {
+  border-color: #e5e7eb !important;
+}
+
+/* Preserve modal overlay darkness for contrast but lighter */
+[data-theme="light"] *[style*="position: fixed"][style*="inset: 0"] {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Force light theme on all container divs */
+[data-theme="light"] div[style*="minHeight"],
+[data-theme="light"] div[style*="min-height"] {
+  background: #f8fafc !important;
+  color: #1f2937 !important;
+}
+
+/* Cards and panels - light backgrounds */
+[data-theme="light"] div[style*="borderRadius"][style*="background"],
+[data-theme="light"] div[style*="border-radius"][style*="background"] {
+  background: #ffffff !important;
+  border-color: #e5e7eb !important;
+}
+
+/* Buttons with dark backgrounds */
+[data-theme="light"] button[style*="#1f2937"],
+[data-theme="light"] button[style*="#374151"],
+[data-theme="light"] button[style*="#334155"],
+[data-theme="light"] button[style*="#111827"] {
+  background-color: #f3f4f6 !important;
+  color: #1f2937 !important;
+  border-color: #e5e7eb !important;
+}
+
+/* Tab buttons - keep selected state visible */
+[data-theme="light"] button[style*="background: #334155"],
+[data-theme="light"] button[style*="background: '#334155"] {
+  background: #e5e7eb !important;
+  color: #4b5563 !important;
+}
+
+/* Syntax highlighter containers */
+[data-theme="light"] pre[style],
+[data-theme="light"] pre[class*="language"] {
+  background: #f8fafc !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* Code blocks */
+[data-theme="light"] code {
+  background: #f1f5f9 !important;
+  color: #1f2937 !important;
+}
+
 a {
   font-weight: 500;
   color: var(--text-secondary);
@@ -90,13 +283,13 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  width: 100%;
+  max-width: 100vw;
   min-height: 100vh;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
 }
 
 #root {
@@ -104,6 +297,7 @@ body {
   min-height: 100vh;
   background-color: var(--bg-primary);
   transition: background-color 0.3s ease;
+  overflow-x: hidden;
 }
 
 h1 {
@@ -261,6 +455,13 @@ button:focus-visible {
   transition: opacity 0.2s ease;
 }
 
+[data-theme="light"] .keyboard-hint {
+  background: rgba(255, 255, 255, 0.95);
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
 .keyboard-hint.visible {
   opacity: 1;
 }
@@ -271,6 +472,11 @@ button:focus-visible {
   border-radius: 4px;
   margin: 0 2px;
   font-family: monospace;
+}
+
+[data-theme="light"] .keyboard-hint kbd {
+  background: #e5e7eb;
+  color: #111827;
 }
 
 pre,

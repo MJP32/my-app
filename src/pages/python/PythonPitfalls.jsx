@@ -620,7 +620,7 @@ Note: get(key, []) creates a new list each call, but it's not added to dict. Use
                         fontSize: '1rem'
                       }}
                     >
-                      Code Block {idx + 1}
+                      Example {idx + 1}
                     </div>
                     <SyntaxHighlighter
                       language="python"
@@ -662,7 +662,7 @@ Note: get(key, []) creates a new list each call, but it's not added to dict. Use
                         fontSize: '1rem'
                       }}
                     >
-                      Code Block {idx + 1}
+                      Example {idx + 1}
                     </div>
                     <SyntaxHighlighter
                       language="python"
@@ -777,7 +777,7 @@ Note: get(key, []) creates a new list each call, but it's not added to dict. Use
           </p>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
         {/* Search Bar */}
         <div style={{ marginBottom: '2rem' }}>

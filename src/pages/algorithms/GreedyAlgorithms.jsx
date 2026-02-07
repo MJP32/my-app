@@ -3,12 +3,13 @@ import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
 import LanguageToggle from '../../components/LanguageToggle.jsx'
 import DrawingCanvas from '../../components/DrawingCanvas.jsx'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 import BookmarkButton from '../../components/BookmarkButton.jsx'
 import { isProblemCompleted } from '../../services/progressService'
 import { getPreferredLanguage } from '../../services/languageService'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 
-function GreedyAlgorithms({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb, breadcrumbStack, onBreadcrumbClick, pushBreadcrumb, breadcrumbColors }) {
+function GreedyAlgorithms({ onBack, onPrevious, onNext, previousName, nextName, currentSubcategory, previousSubcategory, nextSubcategory, onPreviousSubcategory, onNextSubcategory, breadcrumb, breadcrumbStack, onBreadcrumbClick, pushBreadcrumb, breadcrumbColors, problemLimit }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null)
   const [showSolution, setShowSolution] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
@@ -885,19 +886,21 @@ def find_min_arrow_shots_pythonic(self, points: List[List[int]]) -> int:
     }
   ]
 
+  const displayQuestions = problemLimit ? questions.slice(0, problemLimit) : questions
+
   // Calculate completion status
   const getCompletionStats = () => {
-    const completed = questions.filter(q => isProblemCompleted(`Greedy Algorithms-${q.id}`)).length
-    return { completed, total: questions.length, percentage: Math.round((completed / questions.length) * 100) }
+    const completed = displayQuestions.filter(q => isProblemCompleted(`Greedy Algorithms-${q.id}`)).length
+    return { completed, total: displayQuestions.length, percentage: Math.round((completed / displayQuestions.length) * 100) }
   }
 
   const stats = getCompletionStats()
 
   // Group questions by difficulty
   const groupedQuestions = {
-    Easy: questions.filter(q => q.difficulty === 'Easy'),
-    Medium: questions.filter(q => q.difficulty === 'Medium'),
-    Hard: questions.filter(q => q.difficulty === 'Hard')
+    Easy: displayQuestions.filter(q => q.difficulty === 'Easy'),
+    Medium: displayQuestions.filter(q => q.difficulty === 'Medium'),
+    Hard: displayQuestions.filter(q => q.difficulty === 'Hard')
   }
 
   // Flatten visible questions for keyboard navigation
@@ -980,7 +983,7 @@ def find_min_arrow_shots_pythonic(self, points: List[List[int]]) -> int:
           breadcrumb={problemBreadcrumb}
           breadcrumbStack={problemBreadcrumbStack}
           onBreadcrumbClick={handleProblemBreadcrumbClick}
-          onMainMenu={breadcrumb?.onMainMenu}
+          onMainMenu={breadcrumb?.onMainMenu || onBack}
           colors={breadcrumbColors}
         />
 
@@ -1094,8 +1097,23 @@ def find_min_arrow_shots_pythonic(self, points: List[List[int]]) -> int:
         breadcrumb={breadcrumb}
         breadcrumbStack={breadcrumbStack}
         onBreadcrumbClick={onBreadcrumbClick}
-        onMainMenu={breadcrumb?.onMainMenu}
+        onMainMenu={breadcrumb?.onMainMenu || onBack}
         colors={breadcrumbColors}
+      />
+
+
+      {/* Collapsible Sidebar for quick problem navigation */}
+      <CollapsibleSidebar
+        items={questions}
+        selectedIndex={selectedQuestion ? questions.findIndex(q => q.id === selectedQuestion.id) : -1}
+        onSelect={(index) => setSelectedQuestion(questions[index])}
+        title="Problems"
+        getItemLabel={(item) => item.title}
+        getItemIcon={(item) => {
+          const colors = { Easy: '🟢', Medium: '🟡', Hard: '🔴' };
+          return colors[item.difficulty] || '⚪';
+        }}
+        primaryColor="#3b82f6"
       />
 
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>

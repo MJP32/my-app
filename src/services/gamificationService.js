@@ -58,46 +58,60 @@ function createInitialData() {
 
 // Initialize gamification data for a user
 export function initializeGamification(uid) {
-  const key = getStorageKey(uid)
-  const existing = localStorage.getItem(key)
+  try {
+    const key = getStorageKey(uid)
+    const existing = localStorage.getItem(key)
 
-  if (!existing) {
-    const initialData = createInitialData()
-    localStorage.setItem(key, JSON.stringify(initialData))
-    return initialData
+    if (!existing) {
+      const initialData = createInitialData()
+      localStorage.setItem(key, JSON.stringify(initialData))
+      return initialData
+    }
+
+    return JSON.parse(existing)
+  } catch (error) {
+    console.error('Error initializing gamification:', error)
+    return createInitialData()
   }
-
-  return JSON.parse(existing)
 }
 
 // Get current gamification data
 export function getGamificationData(uid) {
-  const key = getStorageKey(uid)
-  const data = localStorage.getItem(key)
+  try {
+    const key = getStorageKey(uid)
+    const data = localStorage.getItem(key)
 
-  if (!data) {
-    return initializeGamification(uid)
+    if (!data) {
+      return initializeGamification(uid)
+    }
+
+    const parsed = JSON.parse(data)
+
+    // Reset daily data if it's a new day
+    if (parsed.xp.todayDate !== getTodayDate()) {
+      parsed.xp.todayXP = 0
+      parsed.xp.todayDate = getTodayDate()
+      parsed.completedToday = []
+      parsed.firstProblemTodayAwarded = false
+      saveGamificationData(uid, parsed)
+    }
+
+    return parsed
+  } catch (error) {
+    console.error('Error getting gamification data:', error)
+    return createInitialData()
   }
-
-  const parsed = JSON.parse(data)
-
-  // Reset daily data if it's a new day
-  if (parsed.xp.todayDate !== getTodayDate()) {
-    parsed.xp.todayXP = 0
-    parsed.xp.todayDate = getTodayDate()
-    parsed.completedToday = []
-    parsed.firstProblemTodayAwarded = false
-    saveGamificationData(uid, parsed)
-  }
-
-  return parsed
 }
 
 // Save gamification data
 export function saveGamificationData(uid, data) {
-  const key = getStorageKey(uid)
-  data.updatedAt = new Date().toISOString()
-  localStorage.setItem(key, JSON.stringify(data))
+  try {
+    const key = getStorageKey(uid)
+    data.updatedAt = new Date().toISOString()
+    localStorage.setItem(key, JSON.stringify(data))
+  } catch (error) {
+    console.error('Error saving gamification data:', error)
+  }
 }
 
 // Check and update streak status (call on app load)
@@ -353,56 +367,60 @@ export function getGamificationSummary(uid) {
 
 // Migrate anonymous data to authenticated user
 export function migrateGamificationData(fromUid, toUid) {
-  const fromKey = getStorageKey(fromUid)
-  const toKey = getStorageKey(toUid)
+  try {
+    const fromKey = getStorageKey(fromUid)
+    const toKey = getStorageKey(toUid)
 
-  const fromData = localStorage.getItem(fromKey)
-  const toData = localStorage.getItem(toKey)
+    const fromData = localStorage.getItem(fromKey)
+    const toData = localStorage.getItem(toKey)
 
-  // If no anonymous data, nothing to migrate
-  if (!fromData || fromUid === 'anonymous') {
-    return
-  }
-
-  // If user already has data, merge (keep higher values)
-  if (toData) {
-    const from = JSON.parse(fromData)
-    const to = JSON.parse(toData)
-
-    // Keep higher XP
-    if (from.xp.total > to.xp.total) {
-      to.xp.total = from.xp.total
+    // If no anonymous data, nothing to migrate
+    if (!fromData || fromUid === 'anonymous') {
+      return
     }
 
-    // Keep longer streak
-    if (from.streak.longest > to.streak.longest) {
-      to.streak.longest = from.streak.longest
+    // If user already has data, merge (keep higher values)
+    if (toData) {
+      const from = JSON.parse(fromData)
+      const to = JSON.parse(toData)
+
+      // Keep higher XP
+      if (from.xp.total > to.xp.total) {
+        to.xp.total = from.xp.total
+      }
+
+      // Keep longer streak
+      if (from.streak.longest > to.streak.longest) {
+        to.streak.longest = from.streak.longest
+      }
+
+      // Keep current streak if it's active and longer
+      if (from.streak.current > to.streak.current) {
+        to.streak.current = from.streak.current
+        to.streak.lastActivityDate = from.streak.lastActivityDate
+      }
+
+      // Recalculate level
+      to.level.current = getLevelFromXP(to.xp.total)
+      to.level.name = LEVEL_NAMES[to.level.current]
+      to.level.color = LEVEL_COLORS[to.level.current]
+
+      localStorage.setItem(toKey, JSON.stringify(to))
+    } else {
+      // Just copy data to new key
+      localStorage.setItem(toKey, fromData)
     }
 
-    // Keep current streak if it's active and longer
-    if (from.streak.current > to.streak.current) {
-      to.streak.current = from.streak.current
-      to.streak.lastActivityDate = from.streak.lastActivityDate
+    // Clear anonymous data
+    if (fromUid === 'anonymous') {
+      localStorage.removeItem(fromKey)
     }
 
-    // Recalculate level
-    to.level.current = getLevelFromXP(to.xp.total)
-    to.level.name = LEVEL_NAMES[to.level.current]
-    to.level.color = LEVEL_COLORS[to.level.current]
-
-    localStorage.setItem(toKey, JSON.stringify(to))
-  } else {
-    // Just copy data to new key
-    localStorage.setItem(toKey, fromData)
+    // Emit update
+    emitEvent('gamificationUpdate', getGamificationData(toUid))
+  } catch (error) {
+    console.error('Error migrating gamification data:', error)
   }
-
-  // Clear anonymous data
-  if (fromUid === 'anonymous') {
-    localStorage.removeItem(fromKey)
-  }
-
-  // Emit update
-  emitEvent('gamificationUpdate', getGamificationData(toUid))
 }
 
 // Custom event emitter

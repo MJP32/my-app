@@ -3,7 +3,7 @@ const fs = require('fs');
 const content = fs.readFileSync('src/services/progressService.js', 'utf8');
 
 // Extract getAllPracticeProblems
-const problemsMatch = content.match(/export const getAllPracticeProblems[\s\S]*?return \{([\s\S]*?)\n  \}/);
+const problemsMatch = content.match(/export const getAllPracticeProblems[\s\S]*?return \{([\s\S]*?)\n {2}\}/);
 const problemEntries = [...problemsMatch[1].matchAll(/'([^']+)':\s*(\d+)/g)];
 
 const algorithmTopics = [

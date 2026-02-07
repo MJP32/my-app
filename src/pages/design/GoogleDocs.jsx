@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Breadcrumb from '../../components/Breadcrumb';
+import CompletionCheckbox from '../../components/CompletionCheckbox';
 
 // SVG Diagram Components
 
@@ -722,24 +723,28 @@ export default function GoogleDocs({ onBack, breadcrumb }) {
             { id: 'scalability', label: 'Scalability' },
             { id: 'tradeoffs', label: 'Trade-offs' }
           ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                padding: '0.75rem 1.5rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: activeTab === tab.id ? '#374151' : 'transparent',
-                color: activeTab === tab.id ? '#60a5fa' : '#9ca3af',
-                border: 'none',
-                borderRadius: '8px 8px 0 0',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.2s'
-              }}
-            >
-              {tab.label}
-            </button>
+            <div key={tab.id} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              <div onClick={(e) => e.stopPropagation()} style={{ transform: 'scale(0.8)' }}>
+                <CompletionCheckbox problemId={`GoogleDocs-${tab.id}`} />
+              </div>
+              <button
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  backgroundColor: activeTab === tab.id ? '#374151' : 'transparent',
+                  color: activeTab === tab.id ? '#60a5fa' : '#9ca3af',
+                  border: 'none',
+                  borderRadius: '8px 8px 0 0',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {tab.label}
+              </button>
+            </div>
           ))}
         </div>
 

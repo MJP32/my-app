@@ -1032,7 +1032,7 @@ Regular insertion sort
                       fontSize: '1rem'
                     }}
                   >
-                    Code Block {idx + 1}
+                    Example {idx + 1}
                   </div>
                   <SyntaxHighlighter
                     language="python"
@@ -1109,7 +1109,7 @@ Regular insertion sort
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
         <p style={{
           fontSize: '1.2rem',

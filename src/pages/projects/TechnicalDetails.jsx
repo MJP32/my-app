@@ -1196,50 +1196,6 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
           position: 'relative'
         }}>
-          {onBack && (
-            <button
-              ref={backButtonRef}
-              onClick={(e) => {
-                e.stopPropagation();
-                onBack();
-              }}
-              aria-label="Go back to main menu"
-              style={{
-                position: 'absolute',
-                top: '1.5rem',
-                left: '1.5rem',
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                borderRadius: '8px',
-                padding: '0.75rem',
-                color: 'white',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                transition: 'all 0.2s ease',
-                backdropFilter: 'blur(10px)',
-                ...(isKeyboardUser && {
-                  outline: '3px solid rgba(255, 255, 255, 0.8)',
-                  outlineOffset: '2px'
-                })
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
-                e.target.style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-                e.target.style.transform = 'translateY(0)';
-              }}
-              onFocus={() => setIsKeyboardUser(true)}
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Menu
-            </button>
-          )}
           <h1 style={{
             fontSize: '3rem',
             fontWeight: 'bold',
@@ -1280,7 +1236,7 @@ resource "aws_autoscaling_policy" "risk_calc_policy" {
         </div>
       </div>
 
-      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+      <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {technicalPoints.map((point, index) => (

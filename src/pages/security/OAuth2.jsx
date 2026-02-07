@@ -80,7 +80,7 @@ export default function OAuth2({ onBack, breadcrumb }) {
             </div>
           </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
         {/* Tabs */}
         <div className="bg-gray-800 rounded-xl shadow-md p-2 mb-8">

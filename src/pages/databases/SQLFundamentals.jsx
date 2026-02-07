@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 
 const DATABASE_COLORS = {
   primary: '#06b6d4',
@@ -1399,6 +1400,21 @@ WINDOW w AS (
           ))}
         </div>
 
+      {/* Collapsible Sidebar for quick concept navigation */}
+      <CollapsibleSidebar
+        items={concepts}
+        selectedIndex={selectedConceptIndex ?? -1}
+        onSelect={(index) => {
+          setSelectedConceptIndex(index)
+          setSelectedDetailIndex(0)
+        }}
+        title="Concepts"
+        getItemLabel={(item) => item.name}
+        getItemIcon={(item) => item.icon}
+        primaryColor={DATABASE_COLORS.primary}
+      />
+
+
         {/* Modal */}
         {selectedConcept && (
           <div
@@ -1420,7 +1436,7 @@ WINDOW w AS (
                 borderRadius: '1rem',
                 padding: '2rem',
                 width: '95vw',
-                maxWidth: '1200px',
+                maxWidth: '1400px',
                 maxHeight: '90vh',
                 overflow: 'auto',
                 border: `1px solid ${selectedConcept.color}`

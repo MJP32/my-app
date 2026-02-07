@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 
 function ListComprehension({ onBack, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
@@ -584,7 +585,7 @@ print(positive_flat)
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={activeBreadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumb={activeBreadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
         <div style={{
           display: 'grid',
@@ -622,6 +623,18 @@ print(positive_flat)
               }}>
                 {concept.icon}
               </div>
+
+      {/* Collapsible Sidebar for quick concept navigation */}
+      <CollapsibleSidebar
+        items={concepts}
+        selectedIndex={selectedConcept ? concepts.findIndex(c => c.id === selectedConcept.id) : -1}
+        onSelect={(index) => setSelectedConcept(concepts[index])}
+        title="Concepts"
+        getItemLabel={(item) => item.name}
+        getItemIcon={(item) => item.icon}
+        primaryColor={'#3b82f6'}
+      />
+
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: 'bold',
@@ -658,9 +671,7 @@ print(positive_flat)
           <div style={{
             background: 'linear-gradient(to bottom right, #111827, #1f2937)',
             borderRadius: '0.75rem',
-            maxWidth: '72rem',
-            width: '100%',
-            maxHeight: '90vh',
+            width: '95vw', maxWidth: '1400px', height: '90vh',
             overflowY: 'auto',
             border: '2px solid #3b82f6',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'

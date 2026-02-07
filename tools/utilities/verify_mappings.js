@@ -3,11 +3,11 @@ const fs = require('fs');
 const content = fs.readFileSync('src/services/progressService.js', 'utf8');
 
 // Extract getAllPracticeProblems keys
-const problemsMatch = content.match(/export const getAllPracticeProblems[\s\S]*?return \{([\s\S]*?)\n  \}/);
+const problemsMatch = content.match(/export const getAllPracticeProblems[\s\S]*?return \{([\s\S]*?)\n {2}\}/);
 const problemsKeys = [...problemsMatch[1].matchAll(/'([^']+)':\s*\d+/g)].map(m => m[1]);
 
 // Extract getCategoryGroupings values
-const groupingsMatch = content.match(/export const getCategoryGroupings[\s\S]*?return \{([\s\S]*?)\n  \}/);
+const groupingsMatch = content.match(/export const getCategoryGroupings[\s\S]*?return \{([\s\S]*?)\n {2}\}/);
 const groupingsValues = [...groupingsMatch[1].matchAll(/'([^']+)'/g)]
   .map(m => m[1])
   .filter(v => !v.startsWith('Practice - ')); // Remove category names

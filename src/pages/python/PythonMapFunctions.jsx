@@ -5,6 +5,7 @@ import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
 import LanguageToggle from '../../components/LanguageToggle.jsx'
 import DrawingCanvas from '../../components/DrawingCanvas.jsx'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 import { isProblemCompleted } from '../../services/progressService'
 import { getPreferredLanguage } from '../../services/languageService'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
@@ -822,7 +823,20 @@ def combining_map_functions():
         <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: 'white', marginBottom: '0.5rem' }}>Python Map Functions</h1>
         <p style={{ fontSize: '1.2rem', color: '#9ca3af' }}>Master Python's functional programming tools: map(), filter(), reduce(), zip(), enumerate(), any(), all(), and more</p>
 
-        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
+
+        <CollapsibleSidebar
+          items={questions}
+          selectedIndex={selectedQuestion ? questions.findIndex(q => q.id === selectedQuestion.id) : -1}
+          onSelect={(index) => selectQuestion(questions[index])}
+          title="Problems"
+          getItemLabel={(item) => item.title}
+          getItemIcon={(item) => {
+            const colors = { Easy: '🟢', Medium: '🟡', Hard: '🔴' };
+            return colors[item.difficulty] || '⚪';
+          }}
+          primaryColor="#3b82f6"
+        />
 
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1.5rem' }}>
           <div style={{ padding: '1rem 2rem', backgroundColor: '#1f2937', borderRadius: '12px', border: '2px solid #374151' }}>

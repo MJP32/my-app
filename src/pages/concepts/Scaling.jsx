@@ -36,7 +36,7 @@ export default function Scaling({ onBack, breadcrumb }) {
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
         <div className="flex gap-2 mb-8 border-b-2 border-gray-700 overflow-x-auto pb-0">
           {['overview', 'comparison', 'patterns', 'examples'].map(tab => (

@@ -9,6 +9,8 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import { useTheme } from '../../contexts/ThemeContext'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -604,7 +606,33 @@ const CostOptimizationDiagram = () => (
 // MAIN COMPONENT
 // =============================================================================
 
-function Cloud({ onBack, breadcrumb }) {
+function Cloud({ onBack, onSelectItem, breadcrumb }) {
+  const { colors, isDark } = useTheme()
+  // Cloud provider items for navigation
+  const cloudProviders = [
+    {
+      id: 'AWS',
+      name: 'Amazon Web Services',
+      icon: '🔶',
+      color: '#ff9900',
+      description: 'EC2, S3, Lambda, RDS, DynamoDB, and comprehensive AWS cloud services.'
+    },
+    {
+      id: 'GCP',
+      name: 'Google Cloud Platform',
+      icon: '🔷',
+      color: '#4285f4',
+      description: 'Compute Engine, Cloud Storage, BigQuery, Kubernetes Engine, and GCP services.'
+    },
+    {
+      id: 'Azure',
+      name: 'Microsoft Azure',
+      icon: '🔹',
+      color: '#0078d4',
+      description: 'Virtual Machines, Blob Storage, Azure Functions, Cosmos DB, and Azure services.'
+    }
+  ]
+
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
 
@@ -1927,7 +1955,6 @@ const intelligentTieringConfig = {
 
   const buildBreadcrumbStack = () => {
     const stack = [
-      { name: 'Main Menu', icon: '🏠', page: 'main' },
       { name: 'Cloud', icon: '☁️', page: 'Cloud' }
     ]
     if (selectedConcept) {
@@ -1976,10 +2003,12 @@ const intelligentTieringConfig = {
 
   const containerStyle = {
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #0f172a 0%, #0c4a6e 50%, #0f172a 100%)',
+    background: isDark
+      ? 'linear-gradient(135deg, #0f172a 0%, #0c4a6e 50%, #0f172a 100%)'
+      : 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #f8fafc 100%)',
     padding: '1.5rem',
     fontFamily: 'system-ui, -apple-system, sans-serif',
-    color: 'white'
+    color: colors.textPrimary
   }
 
   const titleStyle = {
@@ -2014,34 +2043,6 @@ const intelligentTieringConfig = {
   return (
     <div style={containerStyle}>
       <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
-        {/* Header with title and back button */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem',
-          marginBottom: '2rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button
-              style={backButtonStyle}
-              onClick={onBack}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#1d4ed8'
-                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#2563eb'
-                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              ← Back to Menu
-            </button>
-            <h1 style={titleStyle}>☁️ Cloud Platforms</h1>
-          </div>
-        </div>
-
         {/* Breadcrumb navigation */}
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
@@ -2049,6 +2050,100 @@ const intelligentTieringConfig = {
           onMainMenu={breadcrumb?.onMainMenu || onBack}
           colors={CLOUD_COLORS}
         />
+
+        {/* Cloud Providers Section */}
+        <div style={{ marginTop: '2rem', marginBottom: '3rem' }}>
+          <h2 style={{
+            color: '#38bdf8',
+            fontSize: '1.5rem',
+            fontWeight: '700',
+            marginBottom: '1.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+            <span>🌐</span> Cloud Providers
+          </h2>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '1.5rem'
+          }}>
+            {cloudProviders.map((provider) => (
+              <div
+                key={provider.id}
+                onClick={() => onSelectItem && onSelectItem(provider.id)}
+                style={{
+                  background: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.9)',
+                  borderRadius: '1rem',
+                  padding: '1.5rem',
+                  border: `2px solid ${provider.color}40`,
+                  cursor: 'pointer',
+                  transition: 'all 0.3s'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)'
+                  e.currentTarget.style.boxShadow = `0 20px 40px ${provider.color}30`
+                  e.currentTarget.style.borderColor = provider.color
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = 'none'
+                  e.currentTarget.style.borderColor = `${provider.color}40`
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                  <span style={{ fontSize: '2.5rem' }}>{provider.icon}</span>
+                  <h3 style={{ color: provider.color, margin: 0, fontSize: '1.25rem', fontWeight: '700' }}>{provider.name}</h3>
+                </div>
+                <p style={{ color: isDark ? '#94a3b8' : '#4b5563', lineHeight: '1.6', margin: 0 }}>{provider.description}</p>
+                <div style={{
+                  marginTop: '1rem',
+                  color: provider.color,
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}>
+                  <span>Explore {provider.id}</span>
+                  <span>→</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      {/* Collapsible Sidebar for quick concept navigation */}
+      <CollapsibleSidebar
+        items={concepts}
+        selectedIndex={selectedConceptIndex ?? -1}
+        onSelect={(index) => {
+          setSelectedConceptIndex(index)
+          setSelectedDetailIndex(0)
+        }}
+        title="Concepts"
+        getItemLabel={(item) => item.name}
+        getItemIcon={(item) => item.icon}
+        primaryColor={CLOUD_COLORS.primary}
+      />
+
+
+        {/* Cloud Concepts Section Header */}
+        <h2 style={{
+          color: '#38bdf8',
+          fontSize: '1.5rem',
+          fontWeight: '700',
+          marginBottom: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem'
+        }}>
+          <span>📚</span> Cloud Concepts
+        </h2>
+        <p style={{ color: isDark ? '#94a3b8' : '#4b5563', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+          Learn fundamental cloud computing concepts including service models, architecture patterns, and best practices.
+        </p>
 
         {/* Concept Cards Grid */}
         <div style={{
@@ -2062,7 +2157,7 @@ const intelligentTieringConfig = {
             key={concept.id}
             onClick={() => setSelectedConceptIndex(index)}
             style={{
-              background: 'rgba(15, 23, 42, 0.8)',
+              background: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.9)',
               borderRadius: '1rem',
               padding: '1.5rem',
               border: `1px solid ${concept.color}40`,
@@ -2084,8 +2179,8 @@ const intelligentTieringConfig = {
               <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
               <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
             </div>
-            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
-            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+            <p style={{ color: isDark ? '#94a3b8' : '#4b5563', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
+            <div style={{ marginTop: '1rem', color: isDark ? '#64748b' : '#6b7280', fontSize: '0.875rem' }}>
               {concept.details.length} topics • Click to explore
             </div>
           </div>
@@ -2153,15 +2248,15 @@ const intelligentTieringConfig = {
                   disabled={selectedConceptIndex === 0}
                   style={{
                     padding: '0.4rem 0.75rem',
-                    background: 'rgba(100, 116, 139, 0.2)',
-                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    background: isDark ? 'rgba(100, 116, 139, 0.2)' : 'rgba(100, 116, 139, 0.1)',
+                    border: isDark ? '1px solid rgba(100, 116, 139, 0.3)' : '1px solid rgba(100, 116, 139, 0.2)',
                     borderRadius: '0.375rem',
-                    color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8',
+                    color: selectedConceptIndex === 0 ? (isDark ? '#475569' : '#9ca3af') : (isDark ? '#94a3b8' : '#4b5563'),
                     cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer',
                     fontSize: '0.8rem'
                   }}
                 >←</button>
-                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>
+                <span style={{ color: isDark ? '#64748b' : '#6b7280', fontSize: '0.75rem', padding: '0 0.5rem' }}>
                   {selectedConceptIndex + 1}/{concepts.length}
                 </span>
                 <button
@@ -2169,10 +2264,10 @@ const intelligentTieringConfig = {
                   disabled={selectedConceptIndex === concepts.length - 1}
                   style={{
                     padding: '0.4rem 0.75rem',
-                    background: 'rgba(100, 116, 139, 0.2)',
-                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    background: isDark ? 'rgba(100, 116, 139, 0.2)' : 'rgba(100, 116, 139, 0.1)',
+                    border: isDark ? '1px solid rgba(100, 116, 139, 0.3)' : '1px solid rgba(100, 116, 139, 0.2)',
                     borderRadius: '0.375rem',
-                    color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8',
+                    color: selectedConceptIndex === concepts.length - 1 ? (isDark ? '#475569' : '#9ca3af') : (isDark ? '#94a3b8' : '#4b5563'),
                     cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer',
                     fontSize: '0.8rem'
                   }}
@@ -2226,24 +2321,24 @@ const intelligentTieringConfig = {
                   {/* Diagram */}
                   {DiagramComponent && (
                     <div style={{
-                      background: 'rgba(15, 23, 42, 0.6)',
+                      background: isDark ? 'rgba(15, 23, 42, 0.6)' : 'rgba(241, 245, 249, 0.8)',
                       borderRadius: '0.75rem',
                       padding: '1rem',
                       marginBottom: '1.5rem',
-                      border: '1px solid #334155'
+                      border: isDark ? '1px solid #334155' : '1px solid #e2e8f0'
                     }}>
                       <DiagramComponent />
                     </div>
                   )}
 
                   {/* Detail Name */}
-                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>
+                  <h3 style={{ color: isDark ? '#e2e8f0' : '#1f2937', marginBottom: '0.75rem', fontSize: '1.1rem' }}>
                     {detail.name}
                   </h3>
 
                   {/* Explanation */}
                   <p style={{
-                    color: '#e2e8f0',
+                    color: isDark ? '#e2e8f0' : '#374151',
                     lineHeight: '1.8',
                     marginBottom: '1rem',
                     background: colorScheme.bg,
@@ -2265,8 +2360,8 @@ const intelligentTieringConfig = {
                         margin: 0,
                         borderRadius: '0.5rem',
                         fontSize: '0.8rem',
-                        border: '1px solid #334155',
-                        background: '#0f172a'
+                        border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
+                        background: isDark ? '#0f172a' : '#f8fafc'
                       }}
                       codeTagProps={{ style: { background: 'transparent' } }}
                     >

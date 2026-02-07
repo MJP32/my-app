@@ -1,6 +1,17 @@
 import { useState } from 'react'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+
+const DEVOPS_COLORS = {
+  primary: '#93c5fd',
+  primaryHover: '#bfdbfe',
+  bg: 'rgba(59, 130, 246, 0.1)',
+  border: 'rgba(59, 130, 246, 0.3)',
+  arrow: '#3b82f6',
+  hoverBg: 'rgba(59, 130, 246, 0.2)',
+  topicBg: 'rgba(59, 130, 246, 0.2)'
+}
 
 function DevOpsPage({ onBack, onSelectItem, breadcrumb, initialCategory, onInitialCategoryUsed }) {
   const [selectedCategory, setSelectedCategory] = useState(() => {
@@ -238,6 +249,22 @@ function DevOpsPage({ onBack, onSelectItem, breadcrumb, initialCategory, onIniti
 
   const currentCategory = categories.find(c => c.id === selectedCategory)
 
+  // Build breadcrumb stack based on current navigation state
+  const buildBreadcrumbStack = () => {
+    const stack = [{ name: 'DevOps', icon: '🛠️' }]
+    if (selectedCategory && currentCategory) {
+      stack.push({ name: currentCategory.name, icon: currentCategory.icon })
+    }
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index) => {
+    if (index === 0) {
+      // Clicked on DevOps - go back to main categories
+      setSelectedCategory(null)
+    }
+  }
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -246,127 +273,27 @@ function DevOpsPage({ onBack, onSelectItem, breadcrumb, initialCategory, onIniti
       padding: '1.5rem'
     }}>
       <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '2rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button
-              onClick={handleBack}
-              style={{
-                background: '#2563eb',
-                color: 'white',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '0.5rem',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontWeight: '500',
-                fontSize: '1rem',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#1d4ed8'
-                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#2563eb'
-                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              ← {selectedCategory ? 'Back to Categories' : 'Back to Menu'}
-            </button>
-            <h1 style={{
-              fontSize: '2.25rem',
-              fontWeight: 'bold',
-              background: 'linear-gradient(to right, #93c5fd, #60a5fa)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
-            }}>
-              {selectedCategory ? `${currentCategory?.icon} ${currentCategory?.name}` : '🛠️ DevOps'}
-            </h1>
-          </div>
-        </div>
+        {/* Breadcrumb */}
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu || onBack}
+          colors={DEVOPS_COLORS}
+        />
 
-        {/* Dark themed Breadcrumb */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          padding: '0.75rem 1rem',
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-          borderRadius: '8px',
-          marginBottom: '1.5rem',
-          flexWrap: 'wrap',
-          border: '1px solid rgba(59, 130, 246, 0.3)'
-        }}>
-          <button
-            onClick={() => {
-              setSelectedCategory(null)
-              if (!selectedCategory) onBack()
-            }}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#93c5fd',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              fontWeight: '500',
-              padding: '0.25rem 0.5rem',
-              borderRadius: '4px',
-              transition: 'all 0.2s',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.25rem'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.2)'
-              e.currentTarget.style.color = '#bfdbfe'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent'
-              e.currentTarget.style.color = '#93c5fd'
-            }}
-          >
-            <span>🛠️</span> DevOps
-          </button>
-          {selectedCategory && (
-            <>
-              <span style={{ color: '#3b82f6', fontSize: '0.9rem' }}>→</span>
-              <span style={{
-                color: '#e2e8f0',
-                fontSize: '0.9rem',
-                fontWeight: '600',
-                padding: '0.25rem 0.75rem',
-                backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                borderRadius: '4px'
-              }}>
-                {currentCategory?.name}
-              </span>
-            </>
-          )}
-          {!selectedCategory && (
-            <>
-              <span style={{ color: '#3b82f6', fontSize: '0.9rem' }}>→</span>
-              <span style={{
-                color: '#e2e8f0',
-                fontSize: '0.9rem',
-                fontWeight: '600',
-                padding: '0.25rem 0.75rem',
-                backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                borderRadius: '4px'
-              }}>
-                Categories
-              </span>
-            </>
-          )}
-        </div>
+        {/* Collapsible Sidebar for quick topic navigation */}
+        <CollapsibleSidebar
+          items={categories.flatMap(cat => cat.items)}
+          selectedIndex={-1}
+          onSelect={(index) => {
+            const allItems = categories.flatMap(cat => cat.items)
+            onSelectItem(allItems[index].id)
+          }}
+          title="Topics"
+          getItemLabel={(item) => item.name}
+          getItemIcon={(item) => item.icon}
+          primaryColor={DEVOPS_COLORS.primary}
+        />
 
         <p style={{
           fontSize: '1.2rem',

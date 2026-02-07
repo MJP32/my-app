@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -1871,7 +1872,7 @@ class AdvancedChronicleLatency {
       <Breadcrumb
         breadcrumbStack={buildBreadcrumbStack()}
         onBreadcrumbClick={handleBreadcrumbClick}
-        onMainMenu={breadcrumb?.onMainMenu}
+        onMainMenu={breadcrumb?.onMainMenu || onBack}
         colors={LATENCY_COLORS}
       />
 
@@ -1950,7 +1951,7 @@ class AdvancedChronicleLatency {
           </div>
         </div>
       ) : (
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           {/* Modal with concept details - similar to other eTrading pages */}
           <div style={{
             background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(120, 53, 15, 0.95) 50%, rgba(15, 23, 42, 0.95) 100%)',
@@ -2018,6 +2019,21 @@ class AdvancedChronicleLatency {
                 </button>
               </div>
             </div>
+
+      {/* Collapsible Sidebar for quick concept navigation */}
+      <CollapsibleSidebar
+        items={concepts}
+        selectedIndex={selectedConceptIndex ?? -1}
+        onSelect={(index) => {
+          setSelectedConceptIndex(index)
+          setSelectedDetailIndex(0)
+        }}
+        title="Concepts"
+        getItemLabel={(item) => item.name}
+        getItemIcon={(item) => item.icon}
+        primaryColor={LATENCY_COLORS.primary}
+      />
+
 
             {/* Tabs for details */}
             <div style={{

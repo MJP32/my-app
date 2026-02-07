@@ -79,6 +79,8 @@ import SQLQuestions from './pages/questions/SQLQuestions.jsx'
 import NoSQLQuestions from './pages/questions/NoSQLQuestions.jsx'
 import ORMQuestions from './pages/questions/ORMQuestions.jsx'
 import HibernateQuestions from './pages/questions/HibernateQuestions.jsx'
+import PostgreSQLQuestions from './pages/questions/PostgreSQLQuestions.jsx'
+import SQLFundamentalsQuestions from './pages/questions/SQLFundamentalsQuestions.jsx'
 import KafkaQuestions from './pages/questions/KafkaQuestions.jsx'
 import ApacheFlinkQuestions from './pages/questions/ApacheFlinkQuestions.jsx'
 import RabbitMQQuestions from './pages/questions/RabbitMQQuestions.jsx'
@@ -244,6 +246,7 @@ import PythonStringMethods from './pages/python/PythonStringMethods.jsx'
 import PythonHeaps from './pages/python/PythonHeapsReference.jsx'
 import PythonPitfalls from './pages/python/PythonPitfalls.jsx'
 import PythonRegex from './pages/python/PythonRegex.jsx'
+import PythonCombinations from './pages/python/PythonCombinations.jsx'
 import Itertools from './pages/python/Itertools.jsx'
 import CollectionsModule from './pages/python/CollectionsModule.jsx'
 import SortingFunctions from './pages/python/SortingFunctions.jsx'
@@ -251,6 +254,7 @@ import LeetCodePatterns from './pages/python/LeetCodePatterns.jsx'
 import SortingAlgorithms from './pages/python/SortingAlgorithms.jsx'
 import StringAlgorithms from './pages/python/StringAlgorithms.jsx'
 import Frameworks from './pages/Frameworks.jsx'
+import RecursionPatterns from './pages/RecursionPatterns.jsx'
 import StudyGuideModal from './components/StudyGuideModal.jsx'
 import AccountDropdown from './components/AccountDropdown.jsx'
 import KeyboardGuide from './components/KeyboardGuide.jsx'
@@ -289,77 +293,84 @@ const categoryOrganization = {
 const categoryGroups = {
   'Java': {
     icon: '☕',
-    color: '#f59e0b',
+    color: '#ea580c',
     groupSection: 'Learning',
     description: 'Java fundamentals and versions',
     items: []
   },
   'Python': {
     icon: '🐍',
-    color: '#3776ab',
+    color: '#2563eb',
     groupSection: 'Learning',
     description: 'Python programming and libraries',
     items: []
   },
   'Design': {
     icon: '🎨',
-    color: '#8b5cf6',
+    color: '#7c3aed',
     groupSection: 'Learning',
     description: 'Design patterns and architecture',
     items: []
   },
   'Frameworks': {
     icon: '🌱',
-    color: '#ec4899',
+    color: '#16a34a',
     groupSection: 'Tech Stack',
     description: 'Spring, REST, Hibernate, React',
     items: []
   },
   'Databases': {
     icon: '🗃️',
-    color: '#3b82f6',
+    color: '#0891b2',
     groupSection: 'Tech Stack',
     description: 'SQL, NoSQL, ORM, caching',
     items: []
   },
   'Cloud': {
     icon: '☁️',
-    color: '#0ea5e9',
+    color: '#0284c7',
     groupSection: 'Tech Stack',
     description: 'AWS, GCP, Azure platforms',
     items: []
   },
   'DevOps': {
     icon: '🛠️',
-    color: '#0ea5e9',
+    color: '#9333ea',
     groupSection: 'Operations',
     description: 'CI/CD, Docker, Kubernetes, Messaging, Security',
     items: []
   },
   'eTrading': {
     icon: '📈',
-    color: '#22c55e',
+    color: '#059669',
     groupSection: 'Tech Stack',
     description: 'Electronic trading systems and protocols',
     items: []
   },
+  'Recursion': {
+    icon: '🔄',
+    color: '#f59e0b',
+    groupSection: 'Practice',
+    description: 'Recursive algorithms and patterns',
+    items: []
+  },
   'Practice': {
     icon: '💪',
-    color: '#10b981',
+    color: '#dc2626',
     groupSection: 'Practice',
     description: 'Algorithm practice and coding challenges',
     items: []
   },
   'Questions': {
     icon: '❓',
-    color: '#8b5cf6',
+    color: '#c026d3',
     groupSection: 'Practice',
     description: 'Interview questions and answers',
     items: []
   },
   'Progress Dashboard': {
     icon: '📊',
-    color: '#6366f1',
+    color: '#ca8a04',
     groupSection: 'Practice',
     description: 'Track your learning progress',
     items: []
@@ -710,6 +721,15 @@ const BREADCRUMB_COLORS = {
     arrow: '#22c55e',
     hoverBg: 'rgba(34, 197, 94, 0.2)',
     topicBg: 'rgba(34, 197, 94, 0.2)'
+  },
+  Recursion: {
+    primary: '#fbbf24',
+    primaryHover: '#fcd34d',
+    bg: 'rgba(245, 158, 11, 0.1)',
+    border: 'rgba(245, 158, 11, 0.3)',
+    arrow: '#f59e0b',
+    hoverBg: 'rgba(245, 158, 11, 0.2)',
+    topicBg: 'rgba(245, 158, 11, 0.2)'
   }
 }
 
@@ -730,6 +750,8 @@ function App() {
     // Initialize from URL on first load
     return ROUTE_TO_PAGE[location.pathname] || ''
   })
+  const [problemLimit, setProblemLimit] = useState(null) // Limit problems shown (for Top 100/300 mode)
+  const [cameFromLearningPath, setCameFromLearningPath] = useState(false) // Track if user came from Learning Path
   const [pythonInitialCategory, setPythonInitialCategory] = useState(null)
   const [javaInitialCategory, setJavaInitialCategory] = useState(null)
   const [designInitialCategory, setDesignInitialCategory] = useState(null)
@@ -853,6 +875,8 @@ function App() {
   const [showNoSQLQuestionsModal, setShowNoSQLQuestionsModal] = useState(false)
   const [showORMQuestionsModal, setShowORMQuestionsModal] = useState(false)
   const [showHibernateQuestionsModal, setShowHibernateQuestionsModal] = useState(false)
+  const [showPostgreSQLQuestionsModal, setShowPostgreSQLQuestionsModal] = useState(false)
+  const [showSQLFundamentalsQuestionsModal, setShowSQLFundamentalsQuestionsModal] = useState(false)
   const [showKafkaQuestionsModal, setShowKafkaQuestionsModal] = useState(false)
   const [showApacheFlinkQuestionsModal, setShowApacheFlinkQuestionsModal] = useState(false)
   const [showRabbitMQQuestionsModal, setShowRabbitMQQuestionsModal] = useState(false)
@@ -1259,6 +1283,26 @@ function App() {
     } else if (!value) {
       navigate('/', { replace: true })
     }
+  }
+
+  // Helper function to handle back navigation from question modals
+  // If user came from Learning Path, go back there; otherwise go to Questions
+  const handleQuestionModalBack = (closeModalFn) => {
+    closeModalFn(false)
+    if (cameFromLearningPath) {
+      setCameFromLearningPath(false)
+      setProblemLimit(null)
+      setSelectedOptionAndRef('Progress Dashboard')
+    } else {
+      setSelectedOptionAndRef('Questions')
+    }
+    // Focus on main menu after modal closes
+    setTimeout(() => {
+      const firstCategoryButton = categoryButtonRefs.current[0]
+      if (firstCategoryButton) {
+        firstCategoryButton.focus()
+      }
+    }, 100)
   }
 
   // Practice component navigation helpers
@@ -2947,6 +2991,10 @@ function App() {
             [showGRPCModal, setShowGRPCModal],
             [showSOAPModal, setShowSOAPModal],
             [showReactModal, setShowReactModal],
+          ];
+
+          // Question modals that should use handleQuestionModalBack for proper Learning Path navigation
+          const questionModalClosers = [
             [showJavaQuestionsModal, setShowJavaQuestionsModal],
             [showCoreJavaQuestionsModal, setShowCoreJavaQuestionsModal],
             [showJava8QuestionsModal, setShowJava8QuestionsModal],
@@ -2973,8 +3021,26 @@ function App() {
             [showSpringAnnotationsQuestionsModal, setShowSpringAnnotationsQuestionsModal],
             [showEtradingQuestionsModal, setShowEtradingQuestionsModal],
             [showSystemDesignQuestionsModal, setShowSystemDesignQuestionsModal],
+            [showSystemDesignFundamentalsQuestionsModal, setShowSystemDesignFundamentalsQuestionsModal],
+            [showDataStorageQuestionsModal, setShowDataStorageQuestionsModal],
+            [showArchitectureQuestionsModal, setShowArchitectureQuestionsModal],
+            [showCommunicationQuestionsModal, setShowCommunicationQuestionsModal],
+            [showNoSQLQuestionsModal, setShowNoSQLQuestionsModal],
+            [showORMQuestionsModal, setShowORMQuestionsModal],
+            [showPostgreSQLQuestionsModal, setShowPostgreSQLQuestionsModal],
+            [showSQLFundamentalsQuestionsModal, setShowSQLFundamentalsQuestionsModal],
+            [showApacheFlinkQuestionsModal, setShowApacheFlinkQuestionsModal],
           ];
-          // Close the last (topmost) open modal
+
+          // Check question modals first - use handleQuestionModalBack for proper navigation
+          for (let i = questionModalClosers.length - 1; i >= 0; i--) {
+            if (questionModalClosers[i][0]) {
+              handleQuestionModalBack(questionModalClosers[i][1]);
+              return true;
+            }
+          }
+
+          // Close the last (topmost) open regular modal
           for (let i = closers.length - 1; i >= 0; i--) {
             if (closers[i][0]) {
               closers[i][1](false);
@@ -3379,14 +3445,10 @@ function App() {
     }
     if (selectedOption === 'Python') {
       return <Python
-        onBack={() => {
-          setPythonInitialCategory(null)
-          setSelectedOptionAndRef('')
-        }}
+        onBack={() => setSelectedOptionAndRef('')}
         onSelectItem={(item) => {
           setSelectedOptionAndRef(item)
         }}
-        initialCategory={pythonInitialCategory}
         breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
       />
     }
@@ -3457,6 +3519,9 @@ function App() {
     }
     if (selectedOption === 'Python Regex') {
       return <PythonRegex onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'Regular Expressions' }} />
+    }
+    if (selectedOption === 'Python Combinations') {
+      return <PythonCombinations onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'Combining Keywords' }} />
     }
     if (selectedOption === 'Itertools') {
       return <Itertools onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'Itertools' }} />
@@ -3555,12 +3620,19 @@ function App() {
           // Open the appropriate database topic
           setSelectedOptionAndRef(item)
         }}
+        breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
       />
     }
     if (selectedOption === 'Progress Dashboard') {
       return <ProgressDashboard
         onBack={() => setSelectedOptionAndRef('')}
-        onNavigate={(item) => {
+        onNavigate={(item, options) => {
+          // Store problem limit for Top 100/300 modes
+          if (options?.problemLimit) {
+            setProblemLimit(options.problemLimit)
+          } else {
+            setProblemLimit(null)
+          }
           // Handle question topics by opening their modals
           const questionModals = {
             'Java Questions': setShowJavaQuestionsModal,
@@ -3579,6 +3651,8 @@ function App() {
             'NoSQL Questions': setShowNoSQLQuestionsModal,
             'ORM Questions': setShowORMQuestionsModal,
             'Hibernate Questions': setShowHibernateQuestionsModal,
+            'PostgreSQL Questions': setShowPostgreSQLQuestionsModal,
+            'SQL Fundamentals Questions': setShowSQLFundamentalsQuestionsModal,
             'Kafka Questions': setShowKafkaQuestionsModal,
             'RabbitMQ Questions': setShowRabbitMQQuestionsModal,
             'Solace Questions': setShowSolaceQuestionsModal,
@@ -3621,6 +3695,7 @@ function App() {
           }
 
           if (questionModals[item]) {
+            setCameFromLearningPath(true)
             questionModals[item](true)
           } else {
             setSelectedOptionAndRef(item)
@@ -3668,6 +3743,7 @@ function App() {
           // Open the appropriate cloud topic
           setSelectedOptionAndRef(item)
         }}
+        breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
       />
     }
     if (selectedOption === 'Messaging') {
@@ -3677,6 +3753,7 @@ function App() {
           // Open the appropriate messaging topic
           setSelectedOptionAndRef(item)
         }}
+        breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
       />
     }
     if (selectedOption === 'eTrading') {
@@ -3686,6 +3763,7 @@ function App() {
           // Open the appropriate eTrading topic
           setSelectedOptionAndRef(item)
         }}
+        breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
       />
     }
     // eTrading topic pages
@@ -4232,9 +4310,10 @@ function App() {
       return null
     }
     if (selectedOption === 'Recursion') {
-      setShowRecursionModal(true)
-      setSelectedOptionAndRef('')
-      return null
+      return <RecursionPatterns
+        onBack={() => setSelectedOptionAndRef('')}
+        breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef('') }}
+      />
     }
     if (selectedOption === 'Collections Framework') {
       setShowCollectionsFrameworkModal(true)
@@ -4462,6 +4541,8 @@ function App() {
             case 'NoSQL Questions': setShowNoSQLQuestionsModal(true); break;
             case 'ORM Questions': setShowORMQuestionsModal(true); break;
             case 'Hibernate Questions': setShowHibernateQuestionsModal(true); break;
+            case 'PostgreSQL Questions': setShowPostgreSQLQuestionsModal(true); break;
+            case 'SQL Fundamentals Questions': setShowSQLFundamentalsQuestionsModal(true); break;
             case 'Kafka Questions': setShowKafkaQuestionsModal(true); break;
             case 'Apache Flink Questions': setShowApacheFlinkQuestionsModal(true); break;
             case 'RabbitMQ Questions': setShowRabbitMQQuestionsModal(true); break;
@@ -5606,7 +5687,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Arrays..." />}>
               <Arrays
-                onBack={() => { setShowArraysModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowArraysModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Arrays')}
               />
             </Suspense>
@@ -5625,7 +5707,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Hash Tables..." />}>
               <HashTables
-                onBack={() => { setShowHashTablesModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowHashTablesModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Hash Tables')}
               />
             </Suspense>
@@ -5644,7 +5727,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Stacks..." />}>
               <Stacks
-                onBack={() => { setShowStacksModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowStacksModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Stacks')}
               />
             </Suspense>
@@ -5663,7 +5747,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Queues..." />}>
               <Queues
-                onBack={() => { setShowQueuesModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowQueuesModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Queues')}
               />
             </Suspense>
@@ -5682,7 +5767,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Trees..." />}>
               <Trees
-                onBack={() => { setShowTreesModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowTreesModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Trees')}
               />
             </Suspense>
@@ -5701,7 +5787,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Binary Trees..." />}>
               <BinaryTrees
-                onBack={() => { setShowBinaryTreesModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowBinaryTreesModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Binary Trees')}
               />
             </Suspense>
@@ -5742,7 +5829,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Binary Search Trees..." />}>
               <BinarySearchTrees
-                onBack={() => { setShowBinarySearchTreesModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowBinarySearchTreesModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Binary Search Trees')}
               />
             </Suspense>
@@ -5761,7 +5849,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Graphs..." />}>
               <Graphs
-                onBack={() => { setShowGraphsModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowGraphsModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Graphs')}
               />
             </Suspense>
@@ -5802,7 +5891,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Heaps..." />}>
               <Heaps
-                onBack={() => { setShowHeapsModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowHeapsModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Heaps')}
               />
             </Suspense>
@@ -5843,7 +5933,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Union Find..." />}>
               <UnionFind
-                onBack={() => { setShowUnionFindModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowUnionFindModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('UnionFind')}
               />
             </Suspense>
@@ -5884,7 +5975,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Trie..." />}>
               <Trie
-                onBack={() => { setShowTrieModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowTrieModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Trie')}
               />
             </Suspense>
@@ -5925,7 +6017,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Linked Lists..." />}>
               <LinkedLists
-                onBack={() => { setShowLinkedListsModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowLinkedListsModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Linked Lists')}
               />
             </Suspense>
@@ -5966,7 +6059,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Sorting..." />}>
               <Sorting
-                onBack={() => { setShowSortingModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowSortingModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Sorting')}
               />
             </Suspense>
@@ -6007,7 +6101,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Binary Search..." />}>
               <BinarySearch
-                onBack={() => { setShowBinarySearchModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowBinarySearchModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Binary Search')}
               />
             </Suspense>
@@ -6048,7 +6143,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Recursion..." />}>
               <Recursion
-                onBack={() => { setShowRecursionModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowRecursionModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Recursion')}
               />
             </Suspense>
@@ -6089,7 +6185,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Dynamic Programming..." />}>
               <DynamicProgramming
-                onBack={() => { setShowDynamicProgrammingModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowDynamicProgrammingModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Dynamic Programming')}
               />
             </Suspense>
@@ -6130,7 +6227,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Sliding Window..." />}>
               <SlidingWindow
-                onBack={() => { setShowSlidingWindowModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowSlidingWindowModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Sliding Window')}
               />
             </Suspense>
@@ -6171,7 +6269,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Backtracking..." />}>
               <Backtracking
-                onBack={() => { setShowBacktrackingModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowBacktrackingModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Backtracking')}
               />
             </Suspense>
@@ -6212,7 +6311,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Intervals..." />}>
               <Intervals
-                onBack={() => { setShowIntervalsModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowIntervalsModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Intervals')}
               />
             </Suspense>
@@ -6253,7 +6353,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Math & Geometry..." />}>
               <MathGeometry
-                onBack={() => { setShowMathGeometryModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowMathGeometryModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Math & Geometry')}
               />
             </Suspense>
@@ -6294,7 +6395,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Advanced Graphs..." />}>
               <AdvancedGraphs
-                onBack={() => { setShowAdvancedGraphsModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowAdvancedGraphsModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Advanced Graphs')}
               />
             </Suspense>
@@ -6335,7 +6437,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Searching..." />}>
               <Searching
-                onBack={() => { setShowSearchingModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowSearchingModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Searching')}
               />
             </Suspense>
@@ -6376,7 +6479,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Greedy Algorithms..." />}>
               <GreedyAlgorithms
-                onBack={() => { setShowGreedyAlgorithmsModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowGreedyAlgorithmsModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Greedy Algorithms')}
               />
             </Suspense>
@@ -6417,7 +6521,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Famous Algorithms..." />}>
               <FamousAlgorithms
-                onBack={() => { setShowFamousAlgorithmsModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowFamousAlgorithmsModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Famous Algorithms')}
               />
             </Suspense>
@@ -7041,7 +7146,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Data Structures..." />}>
               <DataStructures
-                onBack={() => { setShowDataStructuresModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowDataStructuresModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Data Structures')}
               />
             </Suspense>
@@ -7082,7 +7188,8 @@ function App() {
           >
             <Suspense fallback={<LoadingSpinner text="Loading Strings..." />}>
               <Strings
-                onBack={() => { setShowStringsModal(false); setSelectedOptionAndRef('Algorithms') }}
+                onBack={() => { setShowStringsModal(false); setSelectedOptionAndRef('Algorithms'); setProblemLimit(null) }}
+                problemLimit={problemLimit}
                 {...createNavigationCallbacks('Strings')}
               />
             </Suspense>
@@ -7329,11 +7436,12 @@ function App() {
             }}
           >
             <JavaQuestions
-              onBack={() => { setShowJavaQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowJavaQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJavaQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Java',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -7371,11 +7479,12 @@ function App() {
             }}
           >
             <CoreJavaQuestions
-              onBack={() => { setShowCoreJavaQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowCoreJavaQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowCoreJavaQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Core Java',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -7413,11 +7522,12 @@ function App() {
             }}
           >
             <Java8Questions
-              onBack={() => { setShowJava8QuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowJava8QuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJava8QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Java 8',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -7455,11 +7565,12 @@ function App() {
             }}
           >
             <Java11Questions
-              onBack={() => { setShowJava11QuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowJava11QuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJava11QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Java 11',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -7497,11 +7608,12 @@ function App() {
             }}
           >
             <Java15Questions
-              onBack={() => { setShowJava15QuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowJava15QuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJava15QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Java 15',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -7539,11 +7651,12 @@ function App() {
             }}
           >
             <Java21Questions
-              onBack={() => { setShowJava21QuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowJava21QuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJava21QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Java 21',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -7581,11 +7694,12 @@ function App() {
             }}
           >
             <Java24Questions
-              onBack={() => { setShowJava24QuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowJava24QuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJava24QuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Java 24',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -7623,11 +7737,12 @@ function App() {
             }}
           >
             <SQLQuestions
-              onBack={() => { setShowSQLQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowSQLQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowSQLQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'SQL',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -7665,11 +7780,12 @@ function App() {
             }}
           >
             <NoSQLQuestions
-              onBack={() => { setShowNoSQLQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowNoSQLQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowNoSQLQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'NoSQL',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -7707,11 +7823,12 @@ function App() {
             }}
           >
             <ORMQuestions
-              onBack={() => { setShowORMQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowORMQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowORMQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'ORM',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -7749,11 +7866,98 @@ function App() {
             }}
           >
             <HibernateQuestions
-              onBack={() => { setShowHibernateQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowHibernateQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowHibernateQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Hibernate',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
+            />
+          </div>
+        </div>
+      )}
+
+      {showPostgreSQLQuestionsModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000000,
+            padding: '1rem',
+            overflow: 'auto'
+          }}
+          onClick={() => setShowPostgreSQLQuestionsModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: colors.bgSecondary,
+              borderRadius: '16px',
+              maxWidth: '95vw',
+              width: '1400px',
+              maxHeight: '95vh',
+              overflow: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              position: 'relative'
+            }}
+          >
+            <PostgreSQLQuestions
+              onBack={() => handleQuestionModalBack(setShowPostgreSQLQuestionsModal)}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowPostgreSQLQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'PostgreSQL',
+                colors: BREADCRUMB_COLORS.Questions
+              }}
+              problemLimit={problemLimit}
+            />
+          </div>
+        </div>
+      )}
+
+      {showSQLFundamentalsQuestionsModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000000,
+            padding: '1rem',
+            overflow: 'auto'
+          }}
+          onClick={() => setShowSQLFundamentalsQuestionsModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: colors.bgSecondary,
+              borderRadius: '16px',
+              maxWidth: '95vw',
+              width: '1400px',
+              maxHeight: '95vh',
+              overflow: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              position: 'relative'
+            }}
+          >
+            <SQLFundamentalsQuestions
+              onBack={() => handleQuestionModalBack(setShowSQLFundamentalsQuestionsModal)}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowSQLFundamentalsQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'SQL Fundamentals',
+                colors: BREADCRUMB_COLORS.Questions
+              }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -7791,11 +7995,12 @@ function App() {
             }}
           >
             <KafkaQuestions
-              onBack={() => { setShowKafkaQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowKafkaQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowKafkaQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Kafka',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -7833,11 +8038,12 @@ function App() {
             }}
           >
             <ApacheFlinkQuestions
-              onBack={() => { setShowApacheFlinkQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowApacheFlinkQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowApacheFlinkQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Apache Flink',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -7875,11 +8081,12 @@ function App() {
             }}
           >
             <RabbitMQQuestions
-              onBack={() => { setShowRabbitMQQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowRabbitMQQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowRabbitMQQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'RabbitMQ',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -7917,11 +8124,12 @@ function App() {
             }}
           >
             <SolaceQuestions
-              onBack={() => { setShowSolaceQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowSolaceQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowSolaceQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Solace',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -7959,11 +8167,12 @@ function App() {
             }}
           >
             <RestAPIQuestions
-              onBack={() => { setShowRestAPIQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowRestAPIQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowRestAPIQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'REST API',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -8001,11 +8210,12 @@ function App() {
             }}
           >
             <JenkinsQuestions
-              onBack={() => { setShowJenkinsQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowJenkinsQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJenkinsQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Jenkins',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -8043,11 +8253,12 @@ function App() {
             }}
           >
             <TeamCityQuestions
-              onBack={() => { setShowTeamCityQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowTeamCityQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowTeamCityQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'TeamCity',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -8085,11 +8296,12 @@ function App() {
             }}
           >
             <PrometheusQuestions
-              onBack={() => { setShowPrometheusQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowPrometheusQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowPrometheusQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Prometheus',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -8127,11 +8339,12 @@ function App() {
             }}
           >
             <GrafanaQuestions
-              onBack={() => { setShowGrafanaQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowGrafanaQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowGrafanaQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Grafana',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -8169,11 +8382,12 @@ function App() {
             }}
           >
             <ZipkinQuestions
-              onBack={() => { setShowZipkinQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowZipkinQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowZipkinQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Zipkin',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -8213,11 +8427,12 @@ function App() {
               }}
             >
               <ActuatorQuestions
-                onBack={() => { setShowActuatorQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+                onBack={() => handleQuestionModalBack(setShowActuatorQuestionsModal)}
                 breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowActuatorQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                   topic: 'Spring Actuator',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
             </div>
           </div>
@@ -8256,11 +8471,12 @@ function App() {
             }}
           >
             <SpringCoreQuestions
-              onBack={() => { setShowSpringCoreQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowSpringCoreQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringCoreQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Spring Core',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -8298,11 +8514,12 @@ function App() {
             }}
           >
             <SpringAnnotationsQuestions
-              onBack={() => { setShowSpringAnnotationsQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowSpringAnnotationsQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringAnnotationsQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Spring Annotations',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -8340,11 +8557,12 @@ function App() {
             }}
           >
             <EtradingQuestions
-              onBack={() => { setShowEtradingQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowEtradingQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowEtradingQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'eTrading Systems',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -8382,11 +8600,12 @@ function App() {
             }}
           >
             <SystemDesignQuestions
-              onBack={() => { setShowSystemDesignQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowSystemDesignQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowSystemDesignQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'System Design',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -8424,7 +8643,8 @@ function App() {
             }}
           >
             <SystemDesignFundamentalsQuestions
-              onBack={() => setShowSystemDesignFundamentalsQuestionsModal(false)}
+              onBack={() => handleQuestionModalBack(setShowSystemDesignFundamentalsQuestionsModal)}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -8462,7 +8682,8 @@ function App() {
             }}
           >
             <DataStorageQuestions
-              onBack={() => setShowDataStorageQuestionsModal(false)}
+              onBack={() => handleQuestionModalBack(setShowDataStorageQuestionsModal)}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -8500,7 +8721,8 @@ function App() {
             }}
           >
             <ArchitectureQuestions
-              onBack={() => setShowArchitectureQuestionsModal(false)}
+              onBack={() => handleQuestionModalBack(setShowArchitectureQuestionsModal)}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -8538,7 +8760,8 @@ function App() {
             }}
           >
             <CommunicationQuestions
-              onBack={() => setShowCommunicationQuestionsModal(false)}
+              onBack={() => handleQuestionModalBack(setShowCommunicationQuestionsModal)}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -8576,11 +8799,12 @@ function App() {
             }}
           >
             <SpringBootQuestions
-              onBack={() => { setShowSpringBootQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowSpringBootQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringBootQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Spring Boot',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -8618,11 +8842,12 @@ function App() {
             }}
           >
             <SpringSecurityQuestions
-              onBack={() => { setShowSpringSecurityQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowSpringSecurityQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringSecurityQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Spring Security',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -8660,11 +8885,12 @@ function App() {
             }}
           >
             <SpringDataJPAQuestions
-              onBack={() => { setShowSpringDataJPAQuestionsModal(false); setSelectedOptionAndRef('Questions') }}
+              onBack={() => handleQuestionModalBack(setShowSpringDataJPAQuestionsModal)}
               breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowSpringDataJPAQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
                 topic: 'Spring Data JPA',
                 colors: BREADCRUMB_COLORS.Questions
               }}
+              problemLimit={problemLimit}
             />
           </div>
         </div>
@@ -8678,11 +8904,9 @@ function App() {
           top: 0,
           left: 0,
           right: 0,
-          backgroundColor: colors.bgSecondary,
           padding: '0.5rem 1rem',
-          borderBottom: '3px solid rgba(59, 130, 246, 0.4)',
           boxShadow: '0 4px 20px -5px rgba(0, 0, 0, 0.15)',
-          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.03) 0%, rgba(147, 197, 253, 0.08) 100%)',
+          background: `linear-gradient(135deg, rgba(59, 130, 246, 0.03) 0%, rgba(147, 197, 253, 0.08) 100%), ${colors.bgSecondary}`,
           backdropFilter: 'blur(15px)',
           zIndex: 100001,
           transform: isHeaderVisible ? 'translateY(0)' : 'translateY(-100%)',
@@ -8718,7 +8942,7 @@ function App() {
             display: 'flex',
             alignItems: 'flex-start',
             justifyContent: 'center',
-            gap: '0.3rem',
+            gap: '0.5rem',
             flexWrap: 'nowrap',
             marginBottom: expandedGroup ? '1rem' : '0'
           }}
@@ -9007,7 +9231,8 @@ function App() {
               justifyContent: 'center',
               flexWrap: 'wrap',
               padding: '0.75rem',
-              backgroundColor: 'rgba(0, 0, 0, 0.02)',
+              backgroundColor: `${categoryGroups[expandedGroup]?.color}15`,
+              border: `1px solid ${categoryGroups[expandedGroup]?.color}40`,
               borderRadius: '10px',
               maxWidth: '1400px',
               margin: '0 auto'
@@ -9067,27 +9292,27 @@ function App() {
                         fontWeight: '700',
                         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                         backgroundColor: selectedOption === option.value
-                          ? '#3b82f6'
-                          : (isFocused ? 'rgba(59, 130, 246, 0.15)' : colors.bgSecondary),
+                          ? categoryGroups[expandedGroup]?.color
+                          : (isFocused ? `${categoryGroups[expandedGroup]?.color}25` : colors.bgSecondary),
                         color: selectedOption === option.value
                           ? 'white'
-                          : (isFocused ? '#1e40af' : colors.textPrimary),
-                        border: `2px solid ${colors.border}`,
+                          : (isFocused ? categoryGroups[expandedGroup]?.color : colors.textPrimary),
+                        border: `2px solid ${categoryGroups[expandedGroup]?.color}50`,
                         borderRadius: '8px',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
                         boxShadow: selectedOption === option.value
-                          ? '0 6px 12px -3px rgba(59, 130, 246, 0.4)'
+                          ? `0 6px 12px -3px ${categoryGroups[expandedGroup]?.color}66`
                           : isFocused
-                            ? '0 0 0 4px rgba(59, 130, 246, 0.3), 0 6px 12px -3px rgba(59, 130, 246, 0.2)'
+                            ? `0 0 0 4px ${categoryGroups[expandedGroup]?.color}40, 0 6px 12px -3px ${categoryGroups[expandedGroup]?.color}33`
                             : '0 3px 6px -1px rgba(0, 0, 0, 0.1)',
                         minWidth: '160px',
                         textAlign: 'center',
                         outline: 'none',
                         transform: hoveredOption?.value === option.value || isFocused ? 'translateY(-2px) scale(1.05)' : 'translateY(0)',
                         borderColor: selectedOption === option.value
-                          ? '#3b82f6'
-                          : (hoveredOption?.value === option.value || isFocused ? '#3b82f6' : colors.border),
+                          ? categoryGroups[expandedGroup]?.color
+                          : (hoveredOption?.value === option.value || isFocused ? categoryGroups[expandedGroup]?.color : `${categoryGroups[expandedGroup]?.color}50`),
                         borderWidth: isFocused ? '3px' : '2px'
                       }}
                     >
@@ -9751,7 +9976,7 @@ function App() {
       {selectedOption && (
         <div style={{
           position: 'fixed',
-          top: isHeaderVisible ? '120px' : '0',
+          top: isHeaderVisible ? '56px' : '0',
           left: 0,
           right: 0,
           bottom: 0,
@@ -9767,10 +9992,10 @@ function App() {
 
       {!selectedOption && (
         <main id="main-content" style={{
-          marginTop: '140px',
+          marginTop: '56px',
           padding: '2rem',
           maxWidth: '900px',
-          margin: '140px auto 0'
+          margin: '56px auto 0'
         }}>
           {/* Daily Challenge */}
           <div style={{

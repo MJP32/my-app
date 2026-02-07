@@ -1,8 +1,10 @@
-import { useState } from 'react'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import { useTheme } from '../../contexts/ThemeContext'
 
 function Messaging({ onBack, onSelectItem, breadcrumb }) {
+  const { isDark } = useTheme()
   const messagingItems = [
     {
       id: 'Kafka',
@@ -46,64 +48,29 @@ function Messaging({ onBack, onSelectItem, breadcrumb }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'var(--bg-gradient)',
-      color: 'var(--text-primary)',
+      background: isDark
+        ? 'linear-gradient(to bottom right, #111827, #78350f, #111827)'
+        : 'linear-gradient(to bottom right, #f8fafc, #fef3c7, #f8fafc)',
+      color: isDark ? '#ffffff' : '#1f2937',
       padding: '1.5rem'
     }}>
       <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '2rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button
-              onClick={onBack}
-              style={{
-                background: '#f59e0b',
-                color: 'white',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '0.5rem',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontWeight: '500',
-                fontSize: '1rem',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#d97706'
-                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#f59e0b'
-                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              ← Back to Menu
-            </button>
-            <h1 style={{
-              fontSize: '2.25rem',
-              fontWeight: 'bold',
-              background: 'linear-gradient(to right, #fcd34d, #f59e0b)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
-            }}>
-              📨 Messaging Systems
-            </h1>
-          </div>
-        </div>
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
-        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        {/* Collapsible Sidebar for quick topic navigation */}
+        <CollapsibleSidebar
+          items={messagingItems}
+          selectedIndex={-1}
+          onSelect={(index) => onSelectItem(messagingItems[index].id)}
+          title="Messaging"
+          getItemLabel={(item) => item.name}
+          getItemIcon={(item) => item.icon}
+          primaryColor="#f59e0b"
+        />
 
         <p style={{
           fontSize: '1.2rem',
-          color: 'var(--text-secondary)',
+          color: isDark ? '#d1d5db' : '#4b5563',
           textAlign: 'center',
           marginBottom: '3rem',
           lineHeight: '1.8'
@@ -125,7 +92,9 @@ function Messaging({ onBack, onSelectItem, breadcrumb }) {
               role="link"
               aria-label={`${item.name}. ${item.description}`}
               style={{
-                background: 'var(--bg-card)',
+                background: isDark
+                  ? 'linear-gradient(to bottom right, #1f2937, #111827)'
+                  : 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
                 padding: '1.5rem',
                 borderRadius: '0.75rem',
                 border: `2px solid ${item.color}`,
@@ -159,7 +128,7 @@ function Messaging({ onBack, onSelectItem, breadcrumb }) {
                 <h3 style={{
                   fontSize: '1.25rem',
                   fontWeight: 'bold',
-                  color: '#fcd34d',
+                  color: isDark ? '#fcd34d' : '#b45309',
                   marginBottom: '0.25rem'
                 }}>
                   {item.name}
@@ -168,7 +137,7 @@ function Messaging({ onBack, onSelectItem, breadcrumb }) {
 
               <p style={{
                 fontSize: '0.9rem',
-                color: 'var(--text-secondary)',
+                color: isDark ? '#d1d5db' : '#4b5563',
                 lineHeight: '1.6',
                 marginBottom: '1rem'
               }}>
@@ -184,7 +153,7 @@ function Messaging({ onBack, onSelectItem, breadcrumb }) {
                 color: item.color,
                 fontWeight: '600',
                 paddingTop: '0.75rem',
-                borderTop: '1px solid var(--border-light)'
+                borderTop: isDark ? '1px solid #374151' : '1px solid #e5e7eb'
               }}>
                 <span>Explore Topic</span>
                 <span>→</span>

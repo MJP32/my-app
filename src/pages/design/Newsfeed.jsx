@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Breadcrumb from '../../components/Breadcrumb';
+import CompletionCheckbox from '../../components/CompletionCheckbox';
 
 // SVG Diagram Components
 
@@ -681,7 +682,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
           </p>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
         {/* Tabs */}
         <div style={{
@@ -693,24 +694,28 @@ export default function Newsfeed({ onBack, breadcrumb }) {
           overflowX: 'auto'
         }}>
           {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                padding: '0.75rem 1.5rem',
-                fontSize: '1rem',
-                fontWeight: '600',
-                backgroundColor: activeTab === tab.id ? '#eff6ff' : 'transparent',
-                color: activeTab === tab.id ? '#2563eb' : '#6b7280',
-                border: 'none',
-                borderRadius: '8px 8px 0 0',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.2s'
-              }}
-            >
-              {tab.label}
-            </button>
+            <div key={tab.id} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              <div onClick={(e) => e.stopPropagation()} style={{ transform: 'scale(0.8)' }}>
+                <CompletionCheckbox problemId={`Newsfeed-${tab.id}`} />
+              </div>
+              <button
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  backgroundColor: activeTab === tab.id ? '#eff6ff' : 'transparent',
+                  color: activeTab === tab.id ? '#2563eb' : '#6b7280',
+                  border: 'none',
+                  borderRadius: '8px 8px 0 0',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {tab.label}
+              </button>
+            </div>
           ))}
         </div>
 

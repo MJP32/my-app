@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import Breadcrumb from '../../components/Breadcrumb';
+import CompletionCheckbox from '../../components/CompletionCheckbox';
+import CollapsibleSidebar from '../../components/CollapsibleSidebar';
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -1476,10 +1478,24 @@ public class GeoTrendingService {
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
-          onMainMenu={breadcrumb?.onMainMenu}
+          onMainMenu={breadcrumb?.onMainMenu || onBack}
           colors={TOPIC_COLORS}
         />
       </div>
+
+      {/* Collapsible Sidebar for quick concept navigation */}
+      <CollapsibleSidebar
+        items={concepts}
+        selectedIndex={selectedConceptIndex ?? -1}
+        onSelect={(index) => {
+          setSelectedConceptIndex(index)
+          setSelectedDetailIndex(0)
+        }}
+        title="Concepts"
+        getItemLabel={(item) => item.name}
+        getItemIcon={(item) => item.icon}
+        primaryColor={TOPIC_COLORS.primary}
+      />
 
       <div style={{
         maxWidth: '1400px',
@@ -1512,6 +1528,9 @@ public class GeoTrendingService {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <div onClick={(e) => e.stopPropagation()} style={{ transform: 'scale(0.9)' }}>
+                <CompletionCheckbox problemId={`Twitter-${concept.id}`} />
+              </div>
               <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
               <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
             </div>
@@ -1551,7 +1570,7 @@ public class GeoTrendingService {
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
-              onMainMenu={breadcrumb?.onMainMenu}
+              onMainMenu={breadcrumb?.onMainMenu || onBack}
               colors={TOPIC_COLORS}
             />
 

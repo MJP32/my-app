@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation'
 import Breadcrumb from '../components/Breadcrumb'
+import CollapsibleSidebar from '../components/CollapsibleSidebar'
+import { useTheme } from '../contexts/ThemeContext'
 
 const QUESTIONS_COLORS = {
   primary: '#a78bfa',
@@ -13,6 +15,7 @@ const QUESTIONS_COLORS = {
 }
 
 function Questions({ onBack, onSelectItem, initialCategory, breadcrumb }) {
+  const { colors, isDark } = useTheme()
   const [selectedCategory, setSelectedCategory] = useState(initialCategory || null)
 
   // Update selectedCategory when initialCategory prop changes
@@ -167,6 +170,22 @@ function Questions({ onBack, onSelectItem, initialCategory, breadcrumb }) {
           color: '#8b5cf6',
           complexity: 'Intermediate',
           description: 'Object-Relational Mapping concepts, JPA, Hibernate mappings, lazy loading, caching, and N+1 problems.'
+        },
+        {
+          id: 'PostgreSQL Questions',
+          name: 'PostgreSQL',
+          icon: '🐘',
+          color: '#336791',
+          complexity: 'Intermediate to Advanced',
+          description: 'PostgreSQL-specific features, JSONB, extensions, replication, and performance tuning.'
+        },
+        {
+          id: 'SQL Fundamentals Questions',
+          name: 'SQL Fundamentals',
+          icon: '📖',
+          color: '#06b6d4',
+          complexity: 'Beginner to Intermediate',
+          description: 'Core SQL concepts: JOINs, subqueries, CTEs, window functions, and aggregates.'
         }
       ]
     },
@@ -368,74 +387,36 @@ function Questions({ onBack, onSelectItem, initialCategory, breadcrumb }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #4c1d95, #111827)',
-      color: 'white',
+      background: isDark
+        ? 'linear-gradient(to bottom right, #111827, #4c1d95, #111827)'
+        : 'linear-gradient(to bottom right, #f8fafc, #ede9fe, #f8fafc)',
+      color: colors.textPrimary,
       padding: '1.5rem'
     }}>
       <div style={{
         maxWidth: '80rem',
         margin: '0 auto'
       }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '2rem'
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem'
-          }}>
-            <button
-              onClick={onBack}
-              style={{
-                background: '#2563eb',
-                color: 'white',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '0.5rem',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontWeight: '500',
-                fontSize: '1rem',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#1d4ed8'
-                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#2563eb'
-                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              ← Back to Menu
-            </button>
-            <h1 style={{
-              fontSize: '2.25rem',
-              fontWeight: 'bold',
-              background: 'linear-gradient(to right, #a78bfa, #c4b5fd)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
-            }}>
-              {selectedCategory
-                ? `${categories.find(c => c.id === selectedCategory)?.icon} ${categories.find(c => c.id === selectedCategory)?.name}`
-                : '❓ Interview Questions'}
-            </h1>
-          </div>
-        </div>
-
         {/* Breadcrumb */}
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
           onMainMenu={breadcrumb?.onMainMenu || onBack}
           colors={QUESTIONS_COLORS}
+        />
+
+        {/* Collapsible Sidebar for quick topic navigation */}
+        <CollapsibleSidebar
+          items={categories.flatMap(cat => cat.topics)}
+          selectedIndex={-1}
+          onSelect={(index) => {
+            const allTopics = categories.flatMap(cat => cat.topics)
+            onSelectItem(allTopics[index].id)
+          }}
+          title="Questions"
+          getItemLabel={(item) => item.name}
+          getItemIcon={(item) => item.icon}
+          primaryColor={QUESTIONS_COLORS.primary}
         />
 
         <p style={{
@@ -466,7 +447,7 @@ function Questions({ onBack, onSelectItem, initialCategory, breadcrumb }) {
                 role="link"
                 aria-label={`${category.name}. ${category.topics.length} topics.`}
                 style={{
-                  background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                  background: isDark ? 'linear-gradient(to bottom right, #1f2937, #111827)' : 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
                   padding: '2rem',
                   borderRadius: '0.75rem',
                   border: `2px solid ${category.color}`,
@@ -586,7 +567,7 @@ function Questions({ onBack, onSelectItem, initialCategory, breadcrumb }) {
                   role="link"
                   aria-label={`${topic.name}. ${topic.complexity}.`}
                   style={{
-                    background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                    background: isDark ? 'linear-gradient(to bottom right, #1f2937, #111827)' : 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
                     padding: '1.5rem',
                     borderRadius: '0.75rem',
                     border: `2px solid ${topic.color}`,

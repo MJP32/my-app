@@ -1,6 +1,7 @@
-import { useState } from 'react'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import { useTheme } from '../../contexts/ThemeContext'
 
 const ETRADING_COLORS = {
   primary: '#4ade80',
@@ -13,6 +14,7 @@ const ETRADING_COLORS = {
 }
 
 function ETrading({ onBack, onSelectItem, breadcrumb }) {
+  const { isDark } = useTheme()
   const etradingItems = [
     {
       id: 'RFQ Systems',
@@ -126,71 +128,36 @@ function ETrading({ onBack, onSelectItem, breadcrumb }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #14532d, #111827)',
-      color: 'white',
+      background: isDark
+        ? 'linear-gradient(to bottom right, #111827, #14532d, #111827)'
+        : 'linear-gradient(to bottom right, #f8fafc, #dcfce7, #f8fafc)',
+      color: isDark ? 'white' : '#1f2937',
       padding: '1.5rem'
     }}>
       <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '2rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button
-              onClick={onBack}
-              style={{
-                background: '#22c55e',
-                color: 'white',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '0.5rem',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontWeight: '500',
-                fontSize: '1rem',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#16a34a'
-                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#22c55e'
-                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              ← Back to Menu
-            </button>
-            <h1 style={{
-              fontSize: '2.25rem',
-              fontWeight: 'bold',
-              background: 'linear-gradient(to right, #4ade80, #22c55e)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
-            }}>
-              📈 eTrading
-            </h1>
-          </div>
-        </div>
-
         {/* Breadcrumb */}
         <Breadcrumb
           breadcrumbStack={[
             { name: 'eTrading', icon: '📈' }
           ]}
           colors={ETRADING_COLORS}
-          onMainMenu={breadcrumb?.onMainMenu}
+          onMainMenu={breadcrumb?.onMainMenu || onBack}
+        />
+
+        {/* Collapsible Sidebar for quick topic navigation */}
+        <CollapsibleSidebar
+          items={etradingItems}
+          selectedIndex={-1}
+          onSelect={(index) => onSelectItem(etradingItems[index].id)}
+          title="Topics"
+          getItemLabel={(item) => item.name}
+          getItemIcon={(item) => item.icon}
+          primaryColor={ETRADING_COLORS.primary}
         />
 
         <p style={{
           fontSize: '1.2rem',
-          color: '#d1d5db',
+          color: isDark ? '#d1d5db' : '#4b5563',
           textAlign: 'center',
           marginBottom: '3rem',
           lineHeight: '1.8'
@@ -212,7 +179,9 @@ function ETrading({ onBack, onSelectItem, breadcrumb }) {
               role="link"
               aria-label={`${item.name}. ${item.description}`}
               style={{
-                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                background: isDark
+                  ? 'linear-gradient(to bottom right, #1f2937, #111827)'
+                  : 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
                 padding: '1.5rem',
                 borderRadius: '0.75rem',
                 border: `2px solid ${item.color}`,
@@ -246,7 +215,7 @@ function ETrading({ onBack, onSelectItem, breadcrumb }) {
                 <h3 style={{
                   fontSize: '1.25rem',
                   fontWeight: 'bold',
-                  color: '#4ade80',
+                  color: isDark ? '#4ade80' : '#16a34a',
                   marginBottom: '0.25rem'
                 }}>
                   {item.name}
@@ -255,7 +224,7 @@ function ETrading({ onBack, onSelectItem, breadcrumb }) {
 
               <p style={{
                 fontSize: '0.9rem',
-                color: '#d1d5db',
+                color: isDark ? '#d1d5db' : '#4b5563',
                 lineHeight: '1.6',
                 marginBottom: '1rem'
               }}>
@@ -271,7 +240,7 @@ function ETrading({ onBack, onSelectItem, breadcrumb }) {
                 color: item.color,
                 fontWeight: '600',
                 paddingTop: '0.75rem',
-                borderTop: '1px solid #374151'
+                borderTop: isDark ? '1px solid #374151' : '1px solid #e5e7eb'
               }}>
                 <span>Explore Topic</span>
                 <span>→</span>

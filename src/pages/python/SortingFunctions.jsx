@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 
 function SortingFunctions({ onBack, breadcrumb }) {
   const [selectedConcept, setSelectedConcept] = useState(null)
@@ -530,7 +531,7 @@ sorted(data, key=lambda x: (x is None, x or 0))  # OK`
                         fontSize: '1rem'
                       }}
                     >
-                      Code Block {idx + 1}
+                      Example {idx + 1}
                     </div>
                     <SyntaxHighlighter
                       language="python"
@@ -619,7 +620,7 @@ sorted(data, key=lambda x: (x is None, x or 0))  # OK`
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={activeBreadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumb={activeBreadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
         <div style={{ textAlign: 'left', marginBottom: '3rem' }}>
           <p style={{
@@ -631,6 +632,18 @@ sorted(data, key=lambda x: (x is None, x or 0))  # OK`
             Master Python sorting with sorted(), sort(), key functions, and advanced techniques. Learn to sort lists, dictionaries, and complex objects efficiently.
           </p>
         </div>
+
+      {/* Collapsible Sidebar for quick concept navigation */}
+      <CollapsibleSidebar
+        items={concepts}
+        selectedIndex={selectedConcept ? concepts.findIndex(c => c.id === selectedConcept.id) : -1}
+        onSelect={(index) => setSelectedConcept(concepts[index])}
+        title="Concepts"
+        getItemLabel={(item) => item.name}
+        getItemIcon={(item) => item.icon}
+        primaryColor={'#3b82f6'}
+      />
+
 
         <div style={{
           display: 'grid',

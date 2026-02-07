@@ -5,8 +5,10 @@ import { getCurrentUser } from '../services/authService'
 import Breadcrumb from '../components/Breadcrumb'
 import WeeklyProgressChart from '../components/charts/WeeklyProgressChart'
 import ActivityHeatmap from '../components/charts/ActivityHeatmap'
+import { useTheme } from '../contexts/ThemeContext'
 
 function ProgressDashboard({ onBack, onNavigate }) {
+  const { colors, isDark } = useTheme()
   const currentUser = getCurrentUser()
   const [completedProblems, setCompletedProblems] = useState([])
   const [bookmarks, setBookmarks] = useState([])
@@ -14,6 +16,7 @@ function ProgressDashboard({ onBack, onNavigate }) {
   const [, setRefreshKey] = useState(0)
   const [expandedSections, setExpandedSections] = useState({})
   const [initialExpandSet, setInitialExpandSet] = useState(false)
+  const [pathSubTab, setPathSubTab] = useState('top100')
 
   useEffect(() => {
     loadData()
@@ -90,6 +93,8 @@ function ProgressDashboard({ onBack, onNavigate }) {
         'NoSQL Questions': 'NoSQLQuestions',
         'ORM Questions': 'ORMQuestions',
         'Hibernate Questions': 'HibernateQuestions',
+        'PostgreSQL Questions': 'PostgreSQLQuestions',
+        'SQL Fundamentals Questions': 'SQLFundamentalsQuestions',
         'Kafka Questions': 'KafkaQuestions',
         'RabbitMQ Questions': 'RabbitMQQuestions',
         'Solace Questions': 'SolaceQuestions',
@@ -108,9 +113,12 @@ function ProgressDashboard({ onBack, onNavigate }) {
       return completedProblems.filter(id => id.startsWith(prefix)).length
     }
 
+    // Use the appropriate learning path based on selected tab
+    // When user switches tabs, initialExpandSet is reset which re-triggers this
+    const activePath = pathSubTab === 'top100' ? top100Path : pathSubTab === 'top400' ? top400Path : learningPath
     let nextSectionIdx = 0
-    for (let i = 0; i < learningPath.length; i++) {
-      const section = learningPath[i]
+    for (let i = 0; i < activePath.length; i++) {
+      const section = activePath[i]
       const sectionCompleted = section.topics.reduce((sum, t) => sum + getTopicProgressLocal(t.name), 0)
       const sectionTotal = section.topics.reduce((sum, t) => sum + t.problems, 0)
       const sectionPercent = sectionTotal > 0 ? Math.round((sectionCompleted / sectionTotal) * 100) : 0
@@ -120,14 +128,15 @@ function ProgressDashboard({ onBack, onNavigate }) {
         break
       }
       // If all sections are complete, show the last one
-      if (i === learningPath.length - 1) {
+      if (i === activePath.length - 1) {
         nextSectionIdx = i
       }
     }
 
     setExpandedSections({ [nextSectionIdx]: true })
     setInitialExpandSet(true)
-  }, [completedProblems, initialExpandSet])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [completedProblems, initialExpandSet, pathSubTab])
 
   const loadData = () => {
     const completed = getCompletedProblems()
@@ -286,60 +295,60 @@ function ProgressDashboard({ onBack, onNavigate }) {
     ]},
     // System Design Fundamentals
     { category: 'System Design Fundamentals', difficulty: 'Intermediate', color: '#ec4899', topics: [
-      { name: 'System Design', problems: 0, icon: '🏗️', description: 'System design overview and methodology' },
-      { name: 'CAP Theorem', problems: 0, icon: '⚖️', description: 'Consistency, Availability, Partition tolerance' },
-      { name: 'Scaling', problems: 0, icon: '📈', description: 'Horizontal and vertical scaling strategies' },
-      { name: 'Load Balancing', problems: 0, icon: '⚡', description: 'Load balancer types and algorithms' },
-      { name: 'Caching Strategies', problems: 0, icon: '💨', description: 'Cache patterns, eviction policies, CDN' },
-      { name: 'CDN', problems: 0, icon: '🌐', description: 'Content Delivery Networks and edge caching' },
-      { name: 'Proxies', problems: 0, icon: '🔀', description: 'Forward and reverse proxy patterns' },
+      { name: 'System Design', problems: 3, icon: '🏗️', description: 'System design overview and methodology' },
+      { name: 'CAP Theorem', problems: 2, icon: '⚖️', description: 'Consistency, Availability, Partition tolerance' },
+      { name: 'Scaling', problems: 2, icon: '📈', description: 'Horizontal and vertical scaling strategies' },
+      { name: 'Load Balancing', problems: 2, icon: '⚡', description: 'Load balancer types and algorithms' },
+      { name: 'Caching Strategies', problems: 2, icon: '💨', description: 'Cache patterns, eviction policies, CDN' },
+      { name: 'CDN', problems: 2, icon: '🌐', description: 'Content Delivery Networks and edge caching' },
+      { name: 'Proxies', problems: 2, icon: '🔀', description: 'Forward and reverse proxy patterns' },
     ]},
     // Data & Storage
     { category: 'Data & Storage', difficulty: 'Intermediate-Advanced', color: '#8b5cf6', topics: [
-      { name: 'Database Sharding', problems: 0, icon: '🔪', description: 'Horizontal partitioning strategies' },
-      { name: 'Database Replication', problems: 0, icon: '📋', description: 'Master-slave, multi-master replication' },
-      { name: 'Data Partitioning', problems: 0, icon: '📊', description: 'Partitioning schemes and strategies' },
-      { name: 'SQL vs NoSQL', problems: 0, icon: '🗄️', description: 'When to use relational vs non-relational' },
-      { name: 'Consistent Hashing', problems: 0, icon: '🔄', description: 'Distributed hash tables and ring hashing' },
-      { name: 'Blob Storage', problems: 0, icon: '📦', description: 'Object storage for unstructured data' },
+      { name: 'Database Sharding', problems: 2, icon: '🔪', description: 'Horizontal partitioning strategies' },
+      { name: 'Database Replication', problems: 2, icon: '📋', description: 'Master-slave, multi-master replication' },
+      { name: 'Data Partitioning', problems: 2, icon: '📊', description: 'Partitioning schemes and strategies' },
+      { name: 'SQL vs NoSQL', problems: 2, icon: '🗄️', description: 'When to use relational vs non-relational' },
+      { name: 'Consistent Hashing', problems: 2, icon: '🔄', description: 'Distributed hash tables and ring hashing' },
+      { name: 'Blob Storage', problems: 2, icon: '📦', description: 'Object storage for unstructured data' },
     ]},
     // Communication & APIs
     { category: 'Communication & APIs', difficulty: 'Intermediate', color: '#06b6d4', topics: [
-      { name: 'API Design', problems: 0, icon: '🔌', description: 'RESTful API design principles' },
-      { name: 'Message Queues', problems: 0, icon: '📬', description: 'Async messaging patterns and brokers' },
-      { name: 'WebSockets', problems: 0, icon: '🔗', description: 'Real-time bidirectional communication' },
-      { name: 'Event Driven', problems: 0, icon: '📡', description: 'Event-driven architecture basics' },
+      { name: 'API Design', problems: 2, icon: '🔌', description: 'RESTful API design principles' },
+      { name: 'Message Queues', problems: 2, icon: '📬', description: 'Async messaging patterns and brokers' },
+      { name: 'WebSockets', problems: 2, icon: '🔗', description: 'Real-time bidirectional communication' },
+      { name: 'Event Driven', problems: 2, icon: '📡', description: 'Event-driven architecture basics' },
     ]},
     // Architecture Patterns
     { category: 'Architecture Patterns', difficulty: 'Advanced', color: '#f97316', topics: [
-      { name: 'Microservices', problems: 0, icon: '🧩', description: 'Microservices architecture principles' },
-      { name: 'Microservice Patterns', problems: 0, icon: '📐', description: 'Saga, CQRS, Event Sourcing patterns' },
-      { name: 'Domain Driven Design', problems: 0, icon: '🎯', description: 'DDD concepts and bounded contexts' },
-      { name: 'Event Driven Architecture', problems: 0, icon: '⚡', description: 'Event sourcing and stream processing' },
-      { name: 'Design Patterns', problems: 0, icon: '🏛️', description: 'Gang of Four design patterns' },
+      { name: 'Microservices', problems: 2, icon: '🧩', description: 'Microservices architecture principles' },
+      { name: 'Microservice Patterns', problems: 3, icon: '📐', description: 'Saga, CQRS, Event Sourcing patterns' },
+      { name: 'Domain Driven Design', problems: 2, icon: '🎯', description: 'DDD concepts and bounded contexts' },
+      { name: 'Event Driven Architecture', problems: 2, icon: '⚡', description: 'Event sourcing and stream processing' },
+      { name: 'Design Patterns', problems: 3, icon: '🏛️', description: 'Gang of Four design patterns' },
     ]},
     // System Design Components
     { category: 'System Design Components', difficulty: 'Advanced', color: '#10b981', topics: [
-      { name: 'LRU Cache', problems: 0, icon: '💾', description: 'Least Recently Used cache implementation' },
-      { name: 'Rate Limiter', problems: 0, icon: '⏱️', description: 'Rate limiting algorithms and implementations' },
-      { name: 'Notification System', problems: 0, icon: '🔔', description: 'Push notifications architecture' },
-      { name: 'Newsfeed', problems: 0, icon: '📰', description: 'Social media feed design' },
-      { name: 'TypeAhead', problems: 0, icon: '🔍', description: 'Autocomplete and search suggestions' },
-      { name: 'TinyURL', problems: 0, icon: '🔗', description: 'URL shortener service design' },
+      { name: 'LRU Cache', problems: 7, icon: '💾', description: 'Least Recently Used cache implementation' },
+      { name: 'Rate Limiter', problems: 6, icon: '⏱️', description: 'Rate limiting algorithms and implementations' },
+      { name: 'Notification System', problems: 6, icon: '🔔', description: 'Push notifications architecture' },
+      { name: 'Newsfeed', problems: 5, icon: '📰', description: 'Social media feed design' },
+      { name: 'TypeAhead', problems: 5, icon: '🔍', description: 'Autocomplete and search suggestions' },
+      { name: 'TinyURL', problems: 5, icon: '🔗', description: 'URL shortener service design' },
     ]},
     // System Design Case Studies
     { category: 'System Design Case Studies', difficulty: 'Advanced', color: '#ef4444', topics: [
-      { name: 'Twitter', problems: 0, icon: '🐦', description: 'Social media platform design' },
-      { name: 'Netflix', problems: 0, icon: '🎬', description: 'Video streaming service design' },
-      { name: 'Instagram', problems: 0, icon: '📷', description: 'Photo sharing platform design' },
-      { name: 'YouTube', problems: 0, icon: '▶️', description: 'Video platform architecture' },
-      { name: 'WhatsApp', problems: 0, icon: '💬', description: 'Messaging app design' },
-      { name: 'Zoom', problems: 0, icon: '📹', description: 'Video conferencing system' },
-      { name: 'Dropbox', problems: 0, icon: '📁', description: 'File storage and sync service' },
-      { name: 'Amazon', problems: 0, icon: '🛒', description: 'E-commerce platform design' },
-      { name: 'Google Docs', problems: 0, icon: '📝', description: 'Collaborative editing system' },
-      { name: 'RideShare', problems: 0, icon: '🚗', description: 'Ride-sharing service design' },
-      { name: 'Food Delivery', problems: 0, icon: '🍕', description: 'Food delivery platform design' },
+      { name: 'Twitter', problems: 5, icon: '🐦', description: 'Social media platform design' },
+      { name: 'Netflix', problems: 6, icon: '🎬', description: 'Video streaming service design' },
+      { name: 'Instagram', problems: 8, icon: '📷', description: 'Photo sharing platform design' },
+      { name: 'YouTube', problems: 5, icon: '▶️', description: 'Video platform architecture' },
+      { name: 'WhatsApp', problems: 7, icon: '💬', description: 'Messaging app design' },
+      { name: 'Zoom', problems: 9, icon: '📹', description: 'Video conferencing system' },
+      { name: 'Dropbox', problems: 7, icon: '📁', description: 'File storage and sync service' },
+      { name: 'Amazon', problems: 7, icon: '🛒', description: 'E-commerce platform design' },
+      { name: 'Google Docs', problems: 5, icon: '📝', description: 'Collaborative editing system' },
+      { name: 'RideShare', problems: 5, icon: '🚗', description: 'Ride-sharing service design' },
+      { name: 'Food Delivery', problems: 7, icon: '🍕', description: 'Food delivery platform design' },
     ]},
     // Java Interview Questions
     { category: 'Java Interview Questions', difficulty: 'Intermediate', color: '#f97316', topics: [
@@ -365,6 +374,8 @@ function ProgressDashboard({ onBack, onNavigate }) {
       { name: 'NoSQL Questions', problems: 8, icon: '📊', description: 'NoSQL databases and use cases' },
       { name: 'ORM Questions', problems: 8, icon: '🔗', description: 'Object-Relational Mapping concepts' },
       { name: 'Hibernate Questions', problems: 5, icon: '🐻', description: 'Hibernate ORM framework' },
+      { name: 'PostgreSQL Questions', problems: 10, icon: '🐘', description: 'PostgreSQL features and internals' },
+      { name: 'SQL Fundamentals Questions', problems: 10, icon: '📖', description: 'Core SQL concepts: JOINs, CTEs, window functions' },
     ]},
     // Messaging & Streaming Questions
     { category: 'Messaging & Streaming Questions', difficulty: 'Intermediate-Advanced', color: '#8b5cf6', topics: [
@@ -392,6 +403,291 @@ function ProgressDashboard({ onBack, onNavigate }) {
       { name: 'System Design Questions', problems: 15, icon: '🏛️', description: 'Scalability, architecture, and distributed systems' },
     ]},
   ]
+
+  // Top 100 - Exactly 100 most important questions from ALL categories
+  const top100Path = [
+    // Fundamentals (11)
+    { category: 'Fundamentals', difficulty: 'Beginner', color: '#10b981', topics: [
+      { name: 'Arrays', problems: 4, icon: '📊', description: 'Top 4 essential array problems' },
+      { name: 'Strings', problems: 2, icon: '📝', description: 'Must-know string problems' },
+      { name: 'Hash Tables', problems: 3, icon: '#️⃣', description: 'Key hash map problems' },
+      { name: 'Stacks', problems: 2, icon: '📚', description: 'Essential stack problems' },
+    ]},
+    // Core Algorithms (9)
+    { category: 'Core Algorithms', difficulty: 'Easy-Medium', color: '#3b82f6', topics: [
+      { name: 'Two Pointers', problems: 2, icon: '👆', description: 'Essential two pointer patterns' },
+      { name: 'Sliding Window', problems: 2, icon: '🪟', description: 'Key sliding window problems' },
+      { name: 'Binary Search', problems: 2, icon: '🔍', description: 'Must-know binary search' },
+      { name: 'Linked Lists', problems: 3, icon: '🔗', description: 'Essential linked list problems' },
+    ]},
+    // Intermediate (7)
+    { category: 'Intermediate', difficulty: 'Medium', color: '#f59e0b', topics: [
+      { name: 'Binary Trees', problems: 3, icon: '🌲', description: 'Core tree problems' },
+      { name: 'Heaps', problems: 2, icon: '⛰️', description: 'Priority queue basics' },
+      { name: 'Recursion', problems: 2, icon: '🔄', description: 'Key recursion patterns' },
+    ]},
+    // Advanced Data Structures (7)
+    { category: 'Advanced Data Structures', difficulty: 'Medium-Hard', color: '#8b5cf6', topics: [
+      { name: 'Graphs', problems: 3, icon: '🕸️', description: 'Essential graph problems' },
+      { name: 'Trie', problems: 2, icon: '🔤', description: 'Prefix tree basics' },
+      { name: 'Intervals', problems: 2, icon: '📏', description: 'Interval problems' },
+    ]},
+    // Advanced Algorithms (9)
+    { category: 'Advanced Algorithms', difficulty: 'Hard', color: '#ef4444', topics: [
+      { name: 'Dynamic Programming', problems: 4, icon: '🧩', description: 'Top 4 DP problems' },
+      { name: 'Backtracking', problems: 3, icon: '↩️', description: 'Key backtracking' },
+      { name: 'Greedy Algorithms', problems: 2, icon: '🎯', description: 'Greedy essentials' },
+    ]},
+    // Java Features (4)
+    { category: 'Java Features', difficulty: 'Intermediate', color: '#f97316', topics: [
+      { name: 'Lambdas', problems: 2, icon: 'λ', description: 'Lambda essentials' },
+      { name: 'Functional Interfaces', problems: 2, icon: '🔗', description: 'Core functional interfaces' },
+    ]},
+    // Modern Java Versions (4)
+    { category: 'Modern Java Versions', difficulty: 'Intermediate', color: '#0ea5e9', topics: [
+      { name: 'Java 8', problems: 2, icon: '🎯', description: 'Java 8 essentials' },
+      { name: 'Java 21', problems: 2, icon: '🚀', description: 'Java 21 key features' },
+    ]},
+    // Core Java Fundamentals (4)
+    { category: 'Core Java Fundamentals', difficulty: 'Beginner-Intermediate', color: '#06b6d4', topics: [
+      { name: 'Object-Oriented Programming', problems: 2, icon: '🎭', description: 'OOP essentials' },
+      { name: 'Generics', problems: 2, icon: '🔷', description: 'Generic basics' },
+    ]},
+    // Concurrency (2)
+    { category: 'Concurrency', difficulty: 'Advanced', color: '#a855f7', topics: [
+      { name: 'Multithreading', problems: 2, icon: '🧵', description: 'Threading essentials' },
+    ]},
+    // System Design Fundamentals (4)
+    { category: 'System Design Fundamentals', difficulty: 'Intermediate', color: '#ec4899', topics: [
+      { name: 'System Design', problems: 2, icon: '🏗️', description: 'Core concepts' },
+      { name: 'Load Balancing', problems: 1, icon: '⚡', description: 'Load balancer basics' },
+      { name: 'Caching Strategies', problems: 1, icon: '💨', description: 'Cache fundamentals' },
+    ]},
+    // Data & Storage (2)
+    { category: 'Data & Storage', difficulty: 'Intermediate-Advanced', color: '#8b5cf6', topics: [
+      { name: 'Database Sharding', problems: 1, icon: '🔪', description: 'Sharding basics' },
+      { name: 'SQL vs NoSQL', problems: 1, icon: '🗄️', description: 'Database selection' },
+    ]},
+    // Communication & APIs (2)
+    { category: 'Communication & APIs', difficulty: 'Intermediate', color: '#06b6d4', topics: [
+      { name: 'API Design', problems: 1, icon: '🔌', description: 'API design basics' },
+      { name: 'Message Queues', problems: 1, icon: '📬', description: 'Messaging fundamentals' },
+    ]},
+    // Architecture Patterns (3)
+    { category: 'Architecture Patterns', difficulty: 'Advanced', color: '#f97316', topics: [
+      { name: 'Microservices', problems: 1, icon: '🧩', description: 'Microservices intro' },
+      { name: 'Design Patterns', problems: 2, icon: '🏛️', description: 'Key design patterns' },
+    ]},
+    // System Design Components (4)
+    { category: 'System Design Components', difficulty: 'Advanced', color: '#10b981', topics: [
+      { name: 'LRU Cache', problems: 2, icon: '💾', description: 'Cache implementation' },
+      { name: 'Rate Limiter', problems: 2, icon: '⏱️', description: 'Rate limiting' },
+    ]},
+    // System Design Case Studies (4)
+    { category: 'System Design Case Studies', difficulty: 'Advanced', color: '#ef4444', topics: [
+      { name: 'Twitter', problems: 2, icon: '🐦', description: 'Social platform' },
+      { name: 'Netflix', problems: 2, icon: '🎬', description: 'Streaming service' },
+    ]},
+    // Java Interview Questions (6)
+    { category: 'Java Interview Questions', difficulty: 'Intermediate', color: '#f97316', topics: [
+      { name: 'Java 8 Questions', problems: 3, icon: '🎯', description: 'Top Java 8 questions' },
+      { name: 'Core Java Questions', problems: 3, icon: '📚', description: 'Core Java essentials' },
+    ]},
+    // Spring Framework Questions (2)
+    { category: 'Spring Framework Questions', difficulty: 'Intermediate-Advanced', color: '#22c55e', topics: [
+      { name: 'Spring Boot Questions', problems: 2, icon: '🚀', description: 'Spring Boot essentials' },
+    ]},
+    // Database Questions (5)
+    { category: 'Database Questions', difficulty: 'Intermediate', color: '#3b82f6', topics: [
+      { name: 'SQL Questions', problems: 3, icon: '🗃️', description: 'Must-know SQL' },
+      { name: 'NoSQL Questions', problems: 2, icon: '📊', description: 'NoSQL basics' },
+    ]},
+    // Messaging & Streaming Questions (2)
+    { category: 'Messaging & Streaming Questions', difficulty: 'Intermediate-Advanced', color: '#8b5cf6', topics: [
+      { name: 'Kafka Questions', problems: 2, icon: '📨', description: 'Kafka essentials' },
+    ]},
+    // DevOps & Monitoring Questions (3)
+    { category: 'DevOps & Monitoring Questions', difficulty: 'Intermediate', color: '#06b6d4', topics: [
+      { name: 'Jenkins Questions', problems: 2, icon: '🔧', description: 'CI/CD basics' },
+      { name: 'Prometheus Questions', problems: 1, icon: '📈', description: 'Monitoring intro' },
+    ]},
+    // API & Integration Questions (2)
+    { category: 'API & Integration Questions', difficulty: 'Intermediate', color: '#14b8a6', topics: [
+      { name: 'REST API Questions', problems: 2, icon: '🌐', description: 'REST API basics' },
+    ]},
+    // Specialized Domain Questions (4)
+    { category: 'Specialized Domain Questions', difficulty: 'Advanced', color: '#f43f5e', topics: [
+      { name: 'eTrading Questions', problems: 2, icon: '📈', description: 'eTrading essentials' },
+      { name: 'System Design Questions', problems: 2, icon: '🏛️', description: 'System design Q&A' },
+    ]},
+  ]
+
+  // Top 400 - More comprehensive coverage from EVERY category (exactly 400 questions)
+  const top400Path = [
+    // Fundamentals
+    { category: 'Fundamentals', difficulty: 'Beginner', color: '#10b981', topics: [
+      { name: 'Arrays', problems: 15, icon: '📊', description: 'Comprehensive array problems' },
+      { name: 'Strings', problems: 8, icon: '📝', description: 'String manipulation' },
+      { name: 'Hash Tables', problems: 8, icon: '#️⃣', description: 'Hash map mastery' },
+      { name: 'Stacks', problems: 6, icon: '📚', description: 'Stack applications' },
+      { name: 'Queues', problems: 3, icon: '🚶', description: 'Queue fundamentals' },
+    ]},
+    // Core Algorithms
+    { category: 'Core Algorithms', difficulty: 'Easy-Medium', color: '#3b82f6', topics: [
+      { name: 'Two Pointers', problems: 4, icon: '👆', description: 'Two pointer techniques' },
+      { name: 'Sliding Window', problems: 6, icon: '🪟', description: 'Sliding window mastery' },
+      { name: 'Binary Search', problems: 4, icon: '🔍', description: 'Binary search patterns' },
+      { name: 'Linked Lists', problems: 8, icon: '🔗', description: 'Linked list mastery' },
+      { name: 'Sorting', problems: 3, icon: '📈', description: 'Sorting algorithms' },
+    ]},
+    // Intermediate
+    { category: 'Intermediate', difficulty: 'Medium', color: '#f59e0b', topics: [
+      { name: 'Recursion', problems: 5, icon: '🔄', description: 'Recursive patterns' },
+      { name: 'Trees', problems: 4, icon: '🌳', description: 'Tree traversals' },
+      { name: 'Binary Trees', problems: 12, icon: '🌲', description: 'Binary tree algorithms' },
+      { name: 'Binary Search Trees', problems: 3, icon: '🌿', description: 'BST operations' },
+      { name: 'Heaps', problems: 5, icon: '⛰️', description: 'Priority queues' },
+      { name: 'Math & Geometry', problems: 5, icon: '📐', description: 'Math algorithms' },
+    ]},
+    // Advanced Data Structures
+    { category: 'Advanced Data Structures', difficulty: 'Medium-Hard', color: '#8b5cf6', topics: [
+      { name: 'Graphs', problems: 7, icon: '🕸️', description: 'Graph algorithms' },
+      { name: 'Trie', problems: 4, icon: '🔤', description: 'Prefix trees' },
+      { name: 'Union Find', problems: 3, icon: '🔗', description: 'Disjoint sets' },
+      { name: 'Intervals', problems: 5, icon: '📏', description: 'Interval problems' },
+    ]},
+    // Advanced Algorithms
+    { category: 'Advanced Algorithms', difficulty: 'Hard', color: '#ef4444', topics: [
+      { name: 'Dynamic Programming', problems: 12, icon: '🧩', description: 'DP fundamentals' },
+      { name: 'Dynamic Programming Patterns', problems: 20, icon: '🎨', description: 'Top DP patterns' },
+      { name: 'Backtracking', problems: 8, icon: '↩️', description: 'Backtracking problems' },
+      { name: 'Greedy Algorithms', problems: 3, icon: '🎯', description: 'Greedy approach' },
+      { name: 'Advanced Graphs', problems: 4, icon: '🗺️', description: 'Advanced graph algorithms' },
+      { name: 'Bit Manipulation', problems: 5, icon: '💻', description: 'Bit operations' },
+    ]},
+    // Java Features
+    { category: 'Java Features', difficulty: 'Intermediate', color: '#f97316', topics: [
+      { name: 'Streams', problems: 3, icon: '🌊', description: 'Stream API' },
+      { name: 'Lambdas', problems: 3, icon: 'λ', description: 'Lambda expressions' },
+      { name: 'Functional Interfaces', problems: 3, icon: '🔗', description: 'Functional interfaces' },
+      { name: 'Optional', problems: 2, icon: '❓', description: 'Optional usage' },
+    ]},
+    // Modern Java Versions
+    { category: 'Modern Java Versions', difficulty: 'Intermediate-Advanced', color: '#0ea5e9', topics: [
+      { name: 'Java 8', problems: 4, icon: '🎯', description: 'Java 8 features' },
+      { name: 'Java 11', problems: 3, icon: '🔧', description: 'Java 11 features' },
+      { name: 'Java 21', problems: 4, icon: '🚀', description: 'Java 21 features' },
+    ]},
+    // Core Java Fundamentals
+    { category: 'Core Java Fundamentals', difficulty: 'Beginner-Intermediate', color: '#06b6d4', topics: [
+      { name: 'Object-Oriented Programming', problems: 4, icon: '🎭', description: 'OOP concepts' },
+      { name: 'Exception Handling', problems: 3, icon: '⚠️', description: 'Exception handling' },
+      { name: 'Generics', problems: 3, icon: '🔷', description: 'Generic programming' },
+      { name: 'JVM Internals', problems: 3, icon: '⚙️', description: 'JVM architecture' },
+    ]},
+    // Concurrency
+    { category: 'Concurrency', difficulty: 'Advanced', color: '#a855f7', topics: [
+      { name: 'Concurrency', problems: 3, icon: '🔀', description: 'Concurrency basics' },
+      { name: 'Multithreading', problems: 4, icon: '🧵', description: 'Threading mastery' },
+    ]},
+    // System Design Fundamentals
+    { category: 'System Design Fundamentals', difficulty: 'Intermediate', color: '#ec4899', topics: [
+      { name: 'System Design', problems: 3, icon: '🏗️', description: 'Design methodology' },
+      { name: 'CAP Theorem', problems: 2, icon: '⚖️', description: 'CAP concepts' },
+      { name: 'Scaling', problems: 2, icon: '📈', description: 'Scaling strategies' },
+      { name: 'Load Balancing', problems: 2, icon: '⚡', description: 'Load balancers' },
+      { name: 'Caching Strategies', problems: 2, icon: '💨', description: 'Caching patterns' },
+    ]},
+    // Data & Storage
+    { category: 'Data & Storage', difficulty: 'Intermediate-Advanced', color: '#8b5cf6', topics: [
+      { name: 'Database Sharding', problems: 2, icon: '🔪', description: 'Sharding strategies' },
+      { name: 'Database Replication', problems: 2, icon: '📋', description: 'Replication patterns' },
+      { name: 'SQL vs NoSQL', problems: 2, icon: '🗄️', description: 'Database selection' },
+      { name: 'Consistent Hashing', problems: 2, icon: '🔄', description: 'Distributed hashing' },
+    ]},
+    // Communication & APIs
+    { category: 'Communication & APIs', difficulty: 'Intermediate', color: '#06b6d4', topics: [
+      { name: 'API Design', problems: 2, icon: '🔌', description: 'API design principles' },
+      { name: 'Message Queues', problems: 2, icon: '📬', description: 'Message brokers' },
+      { name: 'WebSockets', problems: 2, icon: '🔗', description: 'Real-time communication' },
+    ]},
+    // Architecture Patterns
+    { category: 'Architecture Patterns', difficulty: 'Advanced', color: '#f97316', topics: [
+      { name: 'Microservices', problems: 2, icon: '🧩', description: 'Microservices patterns' },
+      { name: 'Microservice Patterns', problems: 3, icon: '📐', description: 'Saga, CQRS, Event Sourcing' },
+      { name: 'Design Patterns', problems: 3, icon: '🏛️', description: 'GoF patterns' },
+      { name: 'Event Driven Architecture', problems: 2, icon: '⚡', description: 'Event sourcing' },
+    ]},
+    // System Design Components
+    { category: 'System Design Components', difficulty: 'Advanced', color: '#10b981', topics: [
+      { name: 'LRU Cache', problems: 5, icon: '💾', description: 'Cache implementation' },
+      { name: 'Rate Limiter', problems: 4, icon: '⏱️', description: 'Rate limiting algorithms' },
+      { name: 'Notification System', problems: 4, icon: '🔔', description: 'Push notifications' },
+      { name: 'TinyURL', problems: 4, icon: '🔗', description: 'URL shortener' },
+    ]},
+    // System Design Case Studies
+    { category: 'System Design Case Studies', difficulty: 'Advanced', color: '#ef4444', topics: [
+      { name: 'Twitter', problems: 4, icon: '🐦', description: 'Social platform design' },
+      { name: 'Netflix', problems: 4, icon: '🎬', description: 'Streaming service' },
+      { name: 'Instagram', problems: 4, icon: '📷', description: 'Photo sharing' },
+      { name: 'WhatsApp', problems: 4, icon: '💬', description: 'Messaging app' },
+      { name: 'Amazon', problems: 4, icon: '🛒', description: 'E-commerce platform' },
+    ]},
+    // Java Interview Questions
+    { category: 'Java Interview Questions', difficulty: 'Intermediate', color: '#f97316', topics: [
+      { name: 'Java Questions', problems: 5, icon: '☕', description: 'General Java questions' },
+      { name: 'Core Java Questions', problems: 8, icon: '📚', description: 'Core Java concepts' },
+      { name: 'Java 8 Questions', problems: 10, icon: '🎯', description: 'Java 8 features' },
+      { name: 'Java 21 Questions', problems: 5, icon: '🚀', description: 'Modern Java' },
+    ]},
+    // Spring Framework Questions
+    { category: 'Spring Framework Questions', difficulty: 'Intermediate-Advanced', color: '#22c55e', topics: [
+      { name: 'Spring Core Questions', problems: 3, icon: '🌱', description: 'Spring fundamentals' },
+      { name: 'Spring Boot Questions', problems: 10, icon: '🚀', description: 'Spring Boot mastery' },
+      { name: 'Spring Security Questions', problems: 3, icon: '🔒', description: 'Security concepts' },
+      { name: 'Spring Data JPA Questions', problems: 3, icon: '💾', description: 'Data JPA' },
+    ]},
+    // Database Questions
+    { category: 'Database Questions', difficulty: 'Intermediate', color: '#3b82f6', topics: [
+      { name: 'SQL Questions', problems: 10, icon: '🗃️', description: 'SQL expertise' },
+      { name: 'NoSQL Questions', problems: 5, icon: '📊', description: 'NoSQL databases' },
+      { name: 'ORM Questions', problems: 4, icon: '🔗', description: 'ORM concepts' },
+      { name: 'Hibernate Questions', problems: 4, icon: '🐻', description: 'Hibernate ORM' },
+    ]},
+    // Messaging & Streaming Questions
+    { category: 'Messaging & Streaming Questions', difficulty: 'Intermediate-Advanced', color: '#8b5cf6', topics: [
+      { name: 'Kafka Questions', problems: 10, icon: '📨', description: 'Kafka deep dive' },
+      { name: 'RabbitMQ Questions', problems: 3, icon: '🐰', description: 'RabbitMQ basics' },
+      { name: 'Apache Flink Questions', problems: 3, icon: '⚡', description: 'Stream processing' },
+    ]},
+    // DevOps & Monitoring Questions
+    { category: 'DevOps & Monitoring Questions', difficulty: 'Intermediate', color: '#06b6d4', topics: [
+      { name: 'Jenkins Questions', problems: 6, icon: '🔧', description: 'CI/CD pipelines' },
+      { name: 'Prometheus Questions', problems: 3, icon: '📈', description: 'Monitoring' },
+      { name: 'Grafana Questions', problems: 3, icon: '📊', description: 'Visualization' },
+    ]},
+    // API & Integration Questions
+    { category: 'API & Integration Questions', difficulty: 'Intermediate', color: '#14b8a6', topics: [
+      { name: 'REST API Questions', problems: 4, icon: '🌐', description: 'RESTful APIs' },
+    ]},
+    // Specialized Domain Questions
+    { category: 'Specialized Domain Questions', difficulty: 'Advanced', color: '#f43f5e', topics: [
+      { name: 'eTrading Questions', problems: 8, icon: '📈', description: 'eTrading systems' },
+      { name: 'System Design Questions', problems: 6, icon: '🏛️', description: 'System design Q&A' },
+    ]},
+  ]
+
+  // Get the active learning path based on sub-tab
+  const getActiveLearningPath = () => {
+    switch (pathSubTab) {
+      case 'top100':
+        return top100Path
+      case 'top400':
+        return top400Path
+      default:
+        return learningPath
+    }
+  }
 
   // Calculate progress for each topic
   const getTopicProgress = (topicName) => {
@@ -432,27 +728,32 @@ function ProgressDashboard({ onBack, onNavigate }) {
       // Python topics
       'Set Operations': 'SetOperations',
       'Map Operations': 'MapOperations',
-      // System Design Fundamentals
-      'System Design': 'SystemDesign',
-      'CAP Theorem': 'CAPTheorem',
-      'Load Balancing': 'LoadBalancing',
-      'Caching Strategies': 'CachingStrategies',
-      // Data & Storage
-      'Database Sharding': 'DatabaseSharding',
-      'Database Replication': 'DatabaseReplication',
-      'Data Partitioning': 'DataPartitioning',
-      'SQL vs NoSQL': 'SQLvsNoSQL',
-      'Consistent Hashing': 'ConsistentHashing',
-      'Blob Storage': 'BlobStorage',
-      // Communication & APIs
-      'API Design': 'APIDesign',
-      'Message Queues': 'MessageQueues',
-      'Event Driven': 'EventDriven',
-      // Architecture Patterns
-      'Microservice Patterns': 'MicroservicePatterns',
-      'Domain Driven Design': 'DomainDrivenDesign',
-      'Event Driven Architecture': 'EventDrivenArchitecture',
-      'Design Patterns': 'DesignPatterns',
+      // System Design Fundamentals - all map to SystemDesignFundamentalsQuestions
+      'System Design': 'SystemDesignFundamentalsQuestions',
+      'CAP Theorem': 'SystemDesignFundamentalsQuestions',
+      'Scaling': 'SystemDesignFundamentalsQuestions',
+      'Load Balancing': 'SystemDesignFundamentalsQuestions',
+      'Caching Strategies': 'SystemDesignFundamentalsQuestions',
+      'CDN': 'SystemDesignFundamentalsQuestions',
+      'Proxies': 'SystemDesignFundamentalsQuestions',
+      // Data & Storage - all map to DataStorageQuestions
+      'Database Sharding': 'DataStorageQuestions',
+      'Database Replication': 'DataStorageQuestions',
+      'Data Partitioning': 'DataStorageQuestions',
+      'SQL vs NoSQL': 'DataStorageQuestions',
+      'Consistent Hashing': 'DataStorageQuestions',
+      'Blob Storage': 'DataStorageQuestions',
+      // Communication & APIs - all map to CommunicationQuestions
+      'API Design': 'CommunicationQuestions',
+      'Message Queues': 'CommunicationQuestions',
+      'WebSockets': 'CommunicationQuestions',
+      'Event Driven': 'CommunicationQuestions',
+      // Architecture Patterns - all map to ArchitectureQuestions
+      'Microservices': 'ArchitectureQuestions',
+      'Microservice Patterns': 'ArchitectureQuestions',
+      'Domain Driven Design': 'ArchitectureQuestions',
+      'Event Driven Architecture': 'ArchitectureQuestions',
+      'Design Patterns': 'ArchitectureQuestions',
       // System Design Components
       'LRU Cache': 'LRUCache',
       'Rate Limiter': 'RateLimiter',
@@ -479,6 +780,8 @@ function ProgressDashboard({ onBack, onNavigate }) {
       'NoSQL Questions': 'NoSQLQuestions',
       'ORM Questions': 'ORMQuestions',
       'Hibernate Questions': 'HibernateQuestions',
+      'PostgreSQL Questions': 'PostgreSQLQuestions',
+      'SQL Fundamentals Questions': 'SQLFundamentalsQuestions',
       // Messaging & Streaming Questions
       'Kafka Questions': 'KafkaQuestions',
       'RabbitMQ Questions': 'RabbitMQQuestions',
@@ -504,11 +807,13 @@ function ProgressDashboard({ onBack, onNavigate }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #1f2937)',
-      color: 'white',
+      background: isDark
+        ? 'linear-gradient(to bottom right, #111827, #1f2937)'
+        : 'linear-gradient(to bottom right, #f8fafc, #f1f5f9)',
+      color: colors.textPrimary,
       padding: '2rem'
     }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         {/* Breadcrumb */}
         <div style={{ marginBottom: '1.5rem' }}>
           <Breadcrumb
@@ -557,24 +862,28 @@ function ProgressDashboard({ onBack, onNavigate }) {
             value={totalCompleted}
             label="Problems Completed"
             color="#10b981"
+            isDark={isDark}
           />
           <StatCard
             icon="⭐"
             value={totalBookmarked}
             label="Bookmarked"
             color="#f59e0b"
+            isDark={isDark}
           />
           <StatCard
             icon="📁"
             value={categoriesStarted}
             label="Categories Started"
             color="#3b82f6"
+            isDark={isDark}
           />
           <StatCard
             icon="🔥"
             value={calculateStreak(completedProblems)}
             label="Day Streak"
             color="#ef4444"
+            isDark={isDark}
           />
         </div>
 
@@ -629,7 +938,7 @@ function ProgressDashboard({ onBack, onNavigate }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
             {/* Progress by Category */}
             <div style={{
-              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              background: isDark ? 'linear-gradient(to bottom right, #1f2937, #111827)' : 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
               borderRadius: '12px',
               padding: '1.5rem',
               border: '1px solid #374151'
@@ -688,7 +997,7 @@ function ProgressDashboard({ onBack, onNavigate }) {
 
             {/* Recent Activity */}
             <div style={{
-              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+              background: isDark ? 'linear-gradient(to bottom right, #1f2937, #111827)' : 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
               borderRadius: '12px',
               padding: '1.5rem',
               border: '1px solid #374151'
@@ -735,7 +1044,7 @@ function ProgressDashboard({ onBack, onNavigate }) {
 
         {activeTab === 'path' && (
           <div style={{
-            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+            background: isDark ? 'linear-gradient(to bottom right, #1f2937, #111827)' : 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
             borderRadius: '12px',
             padding: '1.5rem',
             border: '1px solid #374151'
@@ -744,12 +1053,62 @@ function ProgressDashboard({ onBack, onNavigate }) {
               <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#f59e0b', marginBottom: '0.5rem' }}>
                 🎯 Recommended Learning Path
               </h3>
-              <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>
+              <p style={{ color: isDark ? '#9ca3af' : '#6b7280', fontSize: '0.9rem', marginBottom: '1rem' }}>
                 Follow this sequence from easiest to hardest to build your skills progressively
               </p>
+
+              {/* Sub-tabs for Top 100, Top 400, All */}
+              <div style={{
+                display: 'flex',
+                gap: '0.5rem',
+                marginBottom: '1rem'
+              }}>
+                {[
+                  { id: 'top100', label: 'Top 100' },
+                  { id: 'top400', label: 'Top 400' },
+                  { id: 'all', label: 'All', count: learningPath.reduce((sum, s) => sum + s.topics.reduce((t, topic) => t + topic.problems, 0), 0) }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setPathSubTab(tab.id)
+                      setExpandedSections({})
+                      setInitialExpandSet(false)
+                    }}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                      backgroundColor: pathSubTab === tab.id
+                        ? (tab.id === 'top100' ? '#3b82f6' : tab.id === 'top400' ? '#8b5cf6' : '#f59e0b')
+                        : (isDark ? '#374151' : '#e5e7eb'),
+                      color: pathSubTab === tab.id ? 'white' : (isDark ? '#9ca3af' : '#6b7280'),
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {tab.label}
+                    {tab.count && (
+                      <span style={{
+                        backgroundColor: pathSubTab === tab.id ? 'rgba(255,255,255,0.2)' : (isDark ? '#4b5563' : '#d1d5db'),
+                        padding: '0.125rem 0.5rem',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem'
+                      }}>
+                        {tab.count}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {learningPath.map((section, sectionIdx) => {
+            {getActiveLearningPath().map((section, sectionIdx) => {
               const sectionCompleted = section.topics.reduce((sum, t) => sum + getTopicProgress(t.name), 0)
               const sectionTotal = section.topics.reduce((sum, t) => sum + t.problems, 0)
               const sectionPercent = sectionTotal > 0 ? Math.round((sectionCompleted / sectionTotal) * 100) : 0
@@ -796,7 +1155,7 @@ function ProgressDashboard({ onBack, onNavigate }) {
                         <div style={{ color: section.color, fontWeight: '700', fontSize: '1rem' }}>
                           {section.category}
                         </div>
-                        <div style={{ color: '#9ca3af', fontSize: '0.75rem' }}>
+                        <div style={{ color: isDark ? '#9ca3af' : '#6b7280', fontSize: '0.75rem' }}>
                           {section.difficulty} • {section.topics.length} topics
                         </div>
                       </div>
@@ -806,7 +1165,7 @@ function ProgressDashboard({ onBack, onNavigate }) {
                         <div style={{ color: section.color, fontWeight: '700', fontSize: '1.1rem' }}>
                           {sectionPercent}%
                         </div>
-                        <div style={{ color: '#6b7280', fontSize: '0.75rem' }}>
+                        <div style={{ color: isDark ? '#6b7280' : '#9ca3af', fontSize: '0.75rem' }}>
                           {sectionCompleted}/{sectionTotal}
                         </div>
                       </div>
@@ -822,7 +1181,20 @@ function ProgressDashboard({ onBack, onNavigate }) {
                   </button>
 
                   {/* Topics Grid - Collapsible */}
-                  {isExpanded && (
+                  {isExpanded && (() => {
+                    // Find the first incomplete topic index
+                    let firstIncompleteIdx = -1
+                    for (let i = 0; i < section.topics.length; i++) {
+                      const t = section.topics[i]
+                      const c = getTopicProgress(t.name)
+                      const p = t.problems > 0 ? Math.round((c / t.problems) * 100) : 0
+                      if (p < 100) {
+                        firstIncompleteIdx = i
+                        break
+                      }
+                    }
+
+                    return (
                   <div style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
@@ -834,47 +1206,89 @@ function ProgressDashboard({ onBack, onNavigate }) {
                       const completed = getTopicProgress(topic.name)
                       const percent = topic.problems > 0 ? Math.round((completed / topic.problems) * 100) : 0
                       const isComplete = percent === 100
+                      const isNextToComplete = topicIdx === firstIncompleteIdx
 
                       return (
                         <button
                           key={topicIdx}
-                          onClick={() => onNavigate && onNavigate(topic.name)}
+                          onClick={() => {
+                            if (onNavigate) {
+                              // Pass problem limit for Top 100/300 modes
+                              if (pathSubTab !== 'all') {
+                                onNavigate(topic.name, { problemLimit: topic.problems, mode: pathSubTab })
+                              } else {
+                                onNavigate(topic.name)
+                              }
+                            }
+                          }}
                           style={{
                             padding: '1rem',
-                            backgroundColor: isComplete ? 'rgba(16, 185, 129, 0.1)' : '#374151',
+                            backgroundColor: isComplete ? 'rgba(16, 185, 129, 0.1)' : isNextToComplete ? 'rgba(245, 158, 11, 0.15)' : (isDark ? '#374151' : '#f3f4f6'),
                             borderRadius: '10px',
-                            border: isComplete ? '2px solid #10b981' : '1px solid #4b5563',
+                            border: isComplete ? '2px solid #10b981' : isNextToComplete ? '2px solid #f59e0b' : (isDark ? '1px solid #4b5563' : '1px solid #d1d5db'),
                             cursor: 'pointer',
                             textAlign: 'left',
-                            transition: 'all 0.2s'
+                            transition: 'all 0.2s',
+                            boxShadow: isNextToComplete ? '0 0 12px rgba(245, 158, 11, 0.4)' : 'none',
+                            position: 'relative'
                           }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.transform = 'translateY(-2px)'
-                            e.currentTarget.style.boxShadow = `0 4px 12px ${section.color}30`
+                            e.currentTarget.style.boxShadow = isNextToComplete ? '0 4px 16px rgba(245, 158, 11, 0.5)' : `0 4px 12px ${section.color}30`
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.transform = 'translateY(0)'
-                            e.currentTarget.style.boxShadow = 'none'
+                            e.currentTarget.style.boxShadow = isNextToComplete ? '0 0 12px rgba(245, 158, 11, 0.4)' : 'none'
                           }}
                         >
+                          {isNextToComplete && (
+                            <div style={{
+                              position: 'absolute',
+                              top: '-8px',
+                              right: '-8px',
+                              backgroundColor: '#f59e0b',
+                              color: '#1f2937',
+                              fontSize: '0.6rem',
+                              fontWeight: '700',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.5px'
+                            }}>
+                              Up Next
+                            </div>
+                          )}
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                             <span style={{ fontSize: '1.25rem' }}>{topic.icon}</span>
                             <span style={{
-                              color: isComplete ? '#10b981' : '#f9fafb',
+                              color: isComplete ? '#10b981' : isNextToComplete ? '#f59e0b' : (isDark ? '#f9fafb' : '#1f2937'),
                               fontWeight: '600',
                               fontSize: '0.9rem'
                             }}>
                               {topic.name}
                             </span>
                             {isComplete && <span style={{ color: '#10b981' }}>✓</span>}
+                            {topic.name.includes('Questions') && (
+                              <span style={{
+                                backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                                color: '#a78bfa',
+                                fontSize: '0.6rem',
+                                fontWeight: '600',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                marginLeft: 'auto'
+                              }}>
+                                PRACTICE
+                              </span>
+                            )}
                           </div>
-                          <div style={{ color: '#9ca3af', fontSize: '0.75rem', marginBottom: '0.75rem' }}>
+                          <div style={{ color: isDark ? '#9ca3af' : '#6b7280', fontSize: '0.75rem', marginBottom: '0.75rem' }}>
                             {topic.description}
                           </div>
                           {/* Progress Bar */}
                           <div style={{
                             height: '6px',
-                            backgroundColor: '#1f2937',
+                            backgroundColor: isDark ? '#1f2937' : '#f3f4f6',
                             borderRadius: '3px',
                             overflow: 'hidden',
                             marginBottom: '0.25rem'
@@ -891,7 +1305,7 @@ function ProgressDashboard({ onBack, onNavigate }) {
                             display: 'flex',
                             justifyContent: 'space-between',
                             fontSize: '0.7rem',
-                            color: '#6b7280'
+                            color: isDark ? '#6b7280' : '#9ca3af'
                           }}>
                             <span>{completed}/{topic.problems}</span>
                             <span style={{ color: isComplete ? '#10b981' : section.color }}>{percent}%</span>
@@ -900,7 +1314,8 @@ function ProgressDashboard({ onBack, onNavigate }) {
                       )
                     })}
                   </div>
-                  )}
+                    )
+                  })()}
                 </div>
               )
             })}
@@ -923,7 +1338,7 @@ function ProgressDashboard({ onBack, onNavigate }) {
 
         {activeTab === 'completed' && (
           <div style={{
-            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+            background: isDark ? 'linear-gradient(to bottom right, #1f2937, #111827)' : 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
             borderRadius: '12px',
             padding: '1.5rem',
             border: '1px solid #374151'
@@ -990,7 +1405,7 @@ function ProgressDashboard({ onBack, onNavigate }) {
 
         {activeTab === 'bookmarks' && (
           <div style={{
-            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+            background: isDark ? 'linear-gradient(to bottom right, #1f2937, #111827)' : 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
             borderRadius: '12px',
             padding: '1.5rem',
             border: '1px solid #374151'
@@ -1062,20 +1477,20 @@ function ProgressDashboard({ onBack, onNavigate }) {
 }
 
 // Stat Card Component
-function StatCard({ icon, value, label, color }) {
+function StatCard({ icon, value, label, color, isDark }) {
   return (
     <div style={{
-      background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+      background: isDark ? 'linear-gradient(to bottom right, #1f2937, #111827)' : 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
       borderRadius: '12px',
       padding: '1.5rem',
-      border: '1px solid #374151',
+      border: isDark ? '1px solid #374151' : '1px solid #e5e7eb',
       textAlign: 'center'
     }}>
       <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{icon}</div>
       <div style={{ fontSize: '2.5rem', fontWeight: '800', color, marginBottom: '0.25rem' }}>
         {value}
       </div>
-      <div style={{ color: '#9ca3af', fontSize: '0.9rem' }}>{label}</div>
+      <div style={{ color: isDark ? '#9ca3af' : '#6b7280', fontSize: '0.9rem' }}>{label}</div>
     </div>
   )
 }

@@ -1514,7 +1514,7 @@ print(f"Evicted: {evicted}")  # Critical`
                         fontSize: '1rem'
                       }}
                     >
-                      Code Block {idx + 1}
+                      Example {idx + 1}
                     </div>
                     <SyntaxHighlighter
                       language="python"
@@ -1630,7 +1630,7 @@ print(f"Evicted: {evicted}")  # Critical`
           </p>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
         {/* Visual Diagrams Section */}
         <div style={{

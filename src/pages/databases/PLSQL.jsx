@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 
 const DATABASE_COLORS = {
   primary: '#60a5fa',
@@ -720,7 +721,7 @@ function PLSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
-          onMainMenu={breadcrumb?.onMainMenu}
+          onMainMenu={breadcrumb?.onMainMenu || onBack}
           colors={DATABASE_COLORS}
         />
       </div>
@@ -767,6 +768,21 @@ function PLSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
         ))}
       </div>
 
+      {/* Collapsible Sidebar for quick concept navigation */}
+      <CollapsibleSidebar
+        items={concepts}
+        selectedIndex={selectedConceptIndex ?? -1}
+        onSelect={(index) => {
+          setSelectedConceptIndex(index)
+          setSelectedDetailIndex(0)
+        }}
+        title="Concepts"
+        getItemLabel={(item) => item.name}
+        getItemIcon={(item) => item.icon}
+        primaryColor={DATABASE_COLORS.primary}
+      />
+
+
       {/* Concept Detail Modal */}
       {selectedConcept && (
         <div
@@ -797,7 +813,7 @@ function PLSQL({ onBack, onPrevious, onNext, previousName, nextName, currentSubc
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
-              onMainMenu={breadcrumb?.onMainMenu}
+              onMainMenu={breadcrumb?.onMainMenu || onBack}
               colors={DATABASE_COLORS}
             />
 

@@ -6405,9 +6405,7 @@ def detectArbitrage(rates):
         <div style={{
           background: 'linear-gradient(to bottom right, #111827, #1f2937)',
           borderRadius: '0.75rem',
-          maxWidth: '72rem',
-          width: '100%',
-          maxHeight: '90vh',
+          width: '95vw', maxWidth: '1400px', height: '90vh',
           overflowY: 'auto',
           border: '2px solid #3b82f6',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
@@ -7176,7 +7174,7 @@ def detectArbitrage(rates):
                       fontSize: '1rem'
                     }}
                   >
-                    Code Block {idx + 1}
+                    Example {idx + 1}
                   </div>
                   <SyntaxHighlighter
                     language="python"
@@ -7302,7 +7300,7 @@ def detectArbitrage(rates):
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
         <p style={{
           fontSize: '1.2rem',

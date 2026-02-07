@@ -962,7 +962,7 @@ public class ExecutionReportConsumer {
           </div>
         </div>
 
-        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
         {/* Tabs */}
         <div style={{ backgroundColor: colors.bgSecondary, borderRadius: '0.75rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', padding: '0.5rem', marginBottom: '2rem' }}>

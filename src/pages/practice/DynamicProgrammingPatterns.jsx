@@ -608,7 +608,7 @@ function DynamicProgrammingPatterns({ onBack, breadcrumb }) {
         </div>
 
         {/* Breadcrumb */}
-        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+        <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
 
         <p style={{
           fontSize: '1.2rem',

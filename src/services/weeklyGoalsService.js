@@ -84,7 +84,14 @@ export const getWeeklyGoalProgress = (userId) => {
 
   if (!data) {
     // Initialize if doesn't exist or new week
-    return initializeWeeklyGoals(userId)
+    const initialized = initializeWeeklyGoals(userId)
+    if (!initialized) return null
+    return {
+      ...initialized,
+      remaining: initialized.goal,
+      percent: 0,
+      isComplete: false
+    }
   }
 
   const percent = data.goal > 0 ? Math.round((data.completed / data.goal) * 100) : 0
@@ -253,12 +260,15 @@ export const getWeeklyStats = (userId) => {
   const completionRate = Math.round((completedWeeks / totalWeeks) * 100)
 
   // Calculate current streak of completed weeks
+  // Streak breaks if current week is not complete
   let currentStreak = current.isComplete ? 1 : 0
-  for (let i = history.length - 1; i >= 0; i--) {
-    if (history[i].isComplete) {
-      currentStreak++
-    } else {
-      break
+  if (currentStreak > 0) {
+    for (let i = history.length - 1; i >= 0; i--) {
+      if (history[i].isComplete) {
+        currentStreak++
+      } else {
+        break
+      }
     }
   }
 

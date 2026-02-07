@@ -5,6 +5,7 @@ import CompletionCheckbox from '../../components/CompletionCheckbox.jsx'
 import LanguageToggle from '../../components/LanguageToggle.jsx'
 import DrawingCanvas from '../../components/DrawingCanvas.jsx'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
 import { isProblemCompleted } from '../../services/progressService'
 import { getPreferredLanguage } from '../../services/languageService'
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation'
@@ -776,7 +777,20 @@ print(extract_person_info("Bob (invalid)"))  # None
             Master Python's powerful regex module (re) for pattern matching, validation, and text processing.
           </p>
 
-          <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu} />
+          <Breadcrumb breadcrumb={breadcrumb} onMainMenu={breadcrumb?.onMainMenu || onBack} />
+
+          <CollapsibleSidebar
+            items={questions}
+            selectedIndex={selectedQuestion ? questions.findIndex(q => q.id === selectedQuestion.id) : -1}
+            onSelect={(index) => setSelectedQuestion(questions[index])}
+            title="Problems"
+            getItemLabel={(item) => item.title}
+            getItemIcon={(item) => {
+              const colors = { Easy: '🟢', Medium: '🟡', Hard: '🔴' };
+              return colors[item.difficulty] || '⚪';
+            }}
+            primaryColor="#3b82f6"
+          />
 
           {/* Regex Guide Section */}
           <div style={{

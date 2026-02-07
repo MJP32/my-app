@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Breadcrumb from '../../components/Breadcrumb'
+import CollapsibleSidebar from '../../components/CollapsibleSidebar'
+import { useTheme } from '../../contexts/ThemeContext'
 
 // =============================================================================
 // COLORS CONFIGURATION
@@ -377,6 +379,7 @@ const GrafanaDashboardDiagram = () => (
 // =============================================================================
 
 function DevOps({ onBack, breadcrumb }) {
+  const { colors, isDark } = useTheme()
   const [selectedConceptIndex, setSelectedConceptIndex] = useState(null)
   const [selectedDetailIndex, setSelectedDetailIndex] = useState(0)
 
@@ -1808,9 +1811,12 @@ object AgentManagement : Project({
 
   const containerStyle = {
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%)',
+    background: isDark
+      ? 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%)'
+      : 'linear-gradient(135deg, #f8fafc 0%, #dbeafe 50%, #f8fafc 100%)',
     padding: '2rem',
-    fontFamily: 'system-ui, -apple-system, sans-serif'
+    fontFamily: 'system-ui, -apple-system, sans-serif',
+    color: colors.textPrimary
   }
 
   const headerStyle = {
@@ -1845,38 +1851,34 @@ object AgentManagement : Project({
 
   return (
     <div style={containerStyle}>
-      <div style={headerStyle}>
-        <h1 style={titleStyle}>🛠️ DevOps</h1>
-        <button
-          style={backButtonStyle}
-          onClick={onBack}
-          onMouseOver={(e) => {
-            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.3)'
-            e.currentTarget.style.transform = 'translateY(-2px)'
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)'
-            e.currentTarget.style.transform = 'translateY(0)'
-          }}
-        >
-          ← Back to Menu
-        </button>
-      </div>
-
       <div style={{ maxWidth: '1400px', margin: '0 auto 2rem' }}>
         <Breadcrumb
           breadcrumbStack={buildBreadcrumbStack()}
           onBreadcrumbClick={handleBreadcrumbClick}
-          onMainMenu={breadcrumb?.onMainMenu}
+          onMainMenu={breadcrumb?.onMainMenu || onBack}
           colors={DEVOPS_COLORS}
         />
       </div>
+
+      {/* Collapsible Sidebar for quick concept navigation */}
+      <CollapsibleSidebar
+        items={concepts}
+        selectedIndex={selectedConceptIndex ?? -1}
+        onSelect={(index) => {
+          setSelectedConceptIndex(index)
+          setSelectedDetailIndex(0)
+        }}
+        title="Concepts"
+        getItemLabel={(item) => item.name}
+        getItemIcon={(item) => item.icon}
+        primaryColor={DEVOPS_COLORS.primary}
+      />
 
       <p style={{
         maxWidth: '1400px',
         margin: '0 auto 2rem',
         fontSize: '1.1rem',
-        color: '#94a3b8',
+        color: isDark ? '#94a3b8' : '#4b5563',
         textAlign: 'center',
         lineHeight: '1.8'
       }}>
@@ -1895,7 +1897,7 @@ object AgentManagement : Project({
             key={concept.id}
             onClick={() => setSelectedConceptIndex(index)}
             style={{
-              background: 'rgba(15, 23, 42, 0.8)',
+              background: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.9)',
               borderRadius: '1rem',
               padding: '1.5rem',
               border: `1px solid ${concept.color}40`,
@@ -1917,8 +1919,8 @@ object AgentManagement : Project({
               <span style={{ fontSize: '2.5rem' }}>{concept.icon}</span>
               <h3 style={{ color: concept.color, margin: 0, fontSize: '1.25rem' }}>{concept.name}</h3>
             </div>
-            <p style={{ color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
-            <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.875rem' }}>
+            <p style={{ color: isDark ? '#94a3b8' : '#4b5563', lineHeight: '1.6', margin: 0 }}>{concept.description}</p>
+            <div style={{ marginTop: '1rem', color: isDark ? '#64748b' : '#6b7280', fontSize: '0.875rem' }}>
               {concept.details.length} topics • Click to explore
             </div>
           </div>
@@ -1930,7 +1932,7 @@ object AgentManagement : Project({
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0, 0, 0, 0.8)',
+            background: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.4)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -1941,7 +1943,9 @@ object AgentManagement : Project({
         >
           <div
             style={{
-              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+              background: isDark
+                ? 'linear-gradient(135deg, #1e293b, #0f172a)'
+                : 'linear-gradient(135deg, #ffffff, #f9fafb)',
               borderRadius: '1rem',
               padding: '2rem',
               width: '95vw', maxWidth: '1400px', height: '90vh',
@@ -1953,7 +1957,7 @@ object AgentManagement : Project({
             <Breadcrumb
               breadcrumbStack={buildBreadcrumbStack()}
               onBreadcrumbClick={handleBreadcrumbClick}
-              onMainMenu={breadcrumb?.onMainMenu}
+              onMainMenu={breadcrumb?.onMainMenu || onBack}
               colors={DEVOPS_COLORS}
             />
 
@@ -1982,15 +1986,15 @@ object AgentManagement : Project({
                   disabled={selectedConceptIndex === 0}
                   style={{
                     padding: '0.4rem 0.75rem',
-                    background: 'rgba(100, 116, 139, 0.2)',
-                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    background: isDark ? 'rgba(100, 116, 139, 0.2)' : 'rgba(100, 116, 139, 0.1)',
+                    border: isDark ? '1px solid rgba(100, 116, 139, 0.3)' : '1px solid rgba(100, 116, 139, 0.2)',
                     borderRadius: '0.375rem',
-                    color: selectedConceptIndex === 0 ? '#475569' : '#94a3b8',
+                    color: selectedConceptIndex === 0 ? (isDark ? '#475569' : '#9ca3af') : (isDark ? '#94a3b8' : '#4b5563'),
                     cursor: selectedConceptIndex === 0 ? 'not-allowed' : 'pointer',
                     fontSize: '0.8rem'
                   }}
                 >←</button>
-                <span style={{ color: '#64748b', fontSize: '0.75rem', padding: '0 0.5rem' }}>
+                <span style={{ color: isDark ? '#64748b' : '#6b7280', fontSize: '0.75rem', padding: '0 0.5rem' }}>
                   {selectedConceptIndex + 1}/{concepts.length}
                 </span>
                 <button
@@ -1998,10 +2002,10 @@ object AgentManagement : Project({
                   disabled={selectedConceptIndex === concepts.length - 1}
                   style={{
                     padding: '0.4rem 0.75rem',
-                    background: 'rgba(100, 116, 139, 0.2)',
-                    border: '1px solid rgba(100, 116, 139, 0.3)',
+                    background: isDark ? 'rgba(100, 116, 139, 0.2)' : 'rgba(100, 116, 139, 0.1)',
+                    border: isDark ? '1px solid rgba(100, 116, 139, 0.3)' : '1px solid rgba(100, 116, 139, 0.2)',
                     borderRadius: '0.375rem',
-                    color: selectedConceptIndex === concepts.length - 1 ? '#475569' : '#94a3b8',
+                    color: selectedConceptIndex === concepts.length - 1 ? (isDark ? '#475569' : '#9ca3af') : (isDark ? '#94a3b8' : '#4b5563'),
                     cursor: selectedConceptIndex === concepts.length - 1 ? 'not-allowed' : 'pointer',
                     fontSize: '0.8rem'
                   }}
@@ -2029,10 +2033,10 @@ object AgentManagement : Project({
                   onClick={() => setSelectedDetailIndex(i)}
                   style={{
                     padding: '0.5rem 1rem',
-                    background: selectedDetailIndex === i ? `${selectedConcept.color}30` : 'rgba(100, 116, 139, 0.2)',
-                    border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : 'rgba(100, 116, 139, 0.3)'}`,
+                    background: selectedDetailIndex === i ? `${selectedConcept.color}30` : (isDark ? 'rgba(100, 116, 139, 0.2)' : 'rgba(100, 116, 139, 0.1)'),
+                    border: `1px solid ${selectedDetailIndex === i ? selectedConcept.color : (isDark ? 'rgba(100, 116, 139, 0.3)' : 'rgba(100, 116, 139, 0.2)')}`,
                     borderRadius: '0.5rem',
-                    color: selectedDetailIndex === i ? selectedConcept.color : '#94a3b8',
+                    color: selectedDetailIndex === i ? selectedConcept.color : (isDark ? '#94a3b8' : '#4b5563'),
                     cursor: 'pointer',
                     fontSize: '0.85rem',
                     fontWeight: selectedDetailIndex === i ? '600' : '400',
@@ -2052,22 +2056,22 @@ object AgentManagement : Project({
                 <div>
                   {DiagramComponent && (
                     <div style={{
-                      background: 'rgba(15, 23, 42, 0.6)',
+                      background: isDark ? 'rgba(15, 23, 42, 0.6)' : 'rgba(241, 245, 249, 0.8)',
                       borderRadius: '0.75rem',
                       padding: '1rem',
                       marginBottom: '1.5rem',
-                      border: '1px solid #334155'
+                      border: isDark ? '1px solid #334155' : '1px solid #e2e8f0'
                     }}>
                       <DiagramComponent />
                     </div>
                   )}
 
-                  <h3 style={{ color: '#e2e8f0', marginBottom: '0.75rem', fontSize: '1.1rem' }}>
+                  <h3 style={{ color: isDark ? '#e2e8f0' : '#1f2937', marginBottom: '0.75rem', fontSize: '1.1rem' }}>
                     {detail.name}
                   </h3>
 
                   <p style={{
-                    color: '#e2e8f0',
+                    color: isDark ? '#e2e8f0' : '#374151',
                     lineHeight: '1.8',
                     marginBottom: '1rem',
                     background: colorScheme.bg,
@@ -2088,8 +2092,8 @@ object AgentManagement : Project({
                         margin: 0,
                         borderRadius: '0.5rem',
                         fontSize: '0.8rem',
-                        border: '1px solid #334155',
-                        background: '#0f172a'
+                        border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
+                        background: isDark ? '#0f172a' : '#f8fafc'
                       }}
                       codeTagProps={{ style: { background: 'transparent' } }}
                     >

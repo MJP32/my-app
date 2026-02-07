@@ -9,9 +9,12 @@
 /* Main app container - theme aware */
 .app-container {
   min-height: 100vh;
+  width: 100%;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* Card and panel styles */
@@ -26,6 +29,10 @@
   border-color: var(--border-light);
 }
 
+/* ============================================
+   AGGRESSIVE LIGHT MODE OVERRIDES FOR ALL DARK SECTIONS
+   ============================================ */
+
 /* Override ALL divs with dark backgrounds in light mode */
 [data-theme="light"] div[style*="background-color: #111827"],
 [data-theme="light"] div[style*="backgroundColor: '#111827"],
@@ -33,40 +40,140 @@
 [data-theme="light"] div[style*="backgroundColor: '#1f2937"],
 [data-theme="light"] div[style*="background-color: #374151"],
 [data-theme="light"] div[style*="backgroundColor: '#374151"],
+[data-theme="light"] div[style*="background-color: #0f172a"],
+[data-theme="light"] div[style*="backgroundColor: '#0f172a"],
 [data-theme="light"] div[style*="background: #111827"],
 [data-theme="light"] div[style*="background: #1f2937"],
 [data-theme="light"] div[style*="background: #374151"],
+[data-theme="light"] div[style*="background: #0f172a"],
 [data-theme="light"] main[style*="background"],
 [data-theme="light"] section[style*="background"],
 [data-theme="light"] header[style*="background"] {
-  background-color: var(--bg-primary) !important;
-  background: var(--bg-primary) !important;
+  background-color: #f8fafc !important;
+  background: #f8fafc !important;
 }
 
-/* Light backgrounds should stay light but use theme colors */
+/* Override gradient backgrounds in light mode - ALL dark gradients */
+[data-theme="light"] div[style*="linear-gradient"][style*="#111827"],
+[data-theme="light"] div[style*="linear-gradient"][style*="#1f2937"],
+[data-theme="light"] div[style*="linear-gradient"][style*="#0f172a"],
+[data-theme="light"] div[style*="linear-gradient"][style*="#1e293b"],
+[data-theme="light"] div[style*="linear-gradient"][style*="#1e3a5f"],
+[data-theme="light"] div[style*="linear-gradient"][style*="#4c1d95"],
+[data-theme="light"] div[style*="linear-gradient"][style*="#581c87"],
+[data-theme="light"] div[style*="linear-gradient"][style*="#7f1d1d"],
+[data-theme="light"] div[style*="linear-gradient"][style*="#14532d"],
+[data-theme="light"] div[style*="linear-gradient"][style*="#78350f"],
+[data-theme="light"] div[style*="linear-gradient"][style*="#0c4a6e"],
+[data-theme="light"] div[style*="linear-gradient"][style*="#1e1a0f"] {
+  background: linear-gradient(to bottom right, #f8fafc, #f1f5f9) !important;
+}
+
+/* Override card-like elements with gradients */
+[data-theme="light"] [style*="background: linear-gradient(to bottom right, #1f2937"],
+[data-theme="light"] [style*="background: linear-gradient(145deg, #1e293b"],
+[data-theme="light"] [style*="background: linear-gradient(145deg, #1f2937"],
+[data-theme="light"] [style*="background: 'linear-gradient(to bottom right, #1f2937"],
+[data-theme="light"] button[style*="linear-gradient"] {
+  background: linear-gradient(to bottom right, #ffffff, #f9fafb) !important;
+}
+
+/* Override rgba dark backgrounds */
+[data-theme="light"] [style*="rgba(15, 23, 42"],
+[data-theme="light"] [style*="rgba(17, 24, 39"],
+[data-theme="light"] [style*="rgba(31, 41, 55"],
+[data-theme="light"] [style*="rgba(30, 41, 59"] {
+  background-color: rgba(248, 250, 252, 0.95) !important;
+}
+
+/* Override modal overlays - lighter for better UX */
+[data-theme="light"] [style*="rgba(0, 0, 0, 0.7)"],
+[data-theme="light"] [style*="rgba(0, 0, 0, 0.8)"] {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Ensure all page containers respect light theme */
+[data-theme="light"] [style*="minHeight: '100vh'"],
+[data-theme="light"] [style*="min-height: 100vh"],
+[data-theme="light"] div[style*="minHeight"] {
+  background: #f8fafc !important;
+  color: #1f2937 !important;
+}
+
+/* Light backgrounds should stay light */
 [data-theme="light"] div[style*="background-color: white"],
 [data-theme="light"] div[style*="backgroundColor: 'white"],
 [data-theme="light"] div[style*="background: white"] {
-  background-color: var(--bg-secondary) !important;
-  background: var(--bg-secondary) !important;
+  background-color: #ffffff !important;
+  background: #ffffff !important;
 }
 
-/* Override text colors in light mode */
+/* Override ALL white/light text colors in light mode */
 [data-theme="light"] [style*="color: #f9fafb"],
 [data-theme="light"] [style*="color: '#f9fafb"],
 [data-theme="light"] [style*="color: #e5e7eb"],
 [data-theme="light"] [style*="color: '#e5e7eb"],
+[data-theme="light"] [style*="color: #e2e8f0"],
+[data-theme="light"] [style*="color: '#e2e8f0"],
+[data-theme="light"] [style*="color: #f1f5f9"],
+[data-theme="light"] [style*="color: '#f1f5f9"],
 [data-theme="light"] [style*="color: white"],
+[data-theme="light"] [style*="color: 'white"],
 [data-theme="light"] [style*="color: '#fff"],
-[data-theme="light"] [style*="color: #fff"] {
-  color: var(--text-primary) !important;
+[data-theme="light"] [style*="color: #fff"],
+[data-theme="light"] [style*="color: #ffffff"],
+[data-theme="light"] [style*="color: '#ffffff"] {
+  color: #1f2937 !important;
 }
 
 [data-theme="light"] [style*="color: #d1d5db"],
 [data-theme="light"] [style*="color: '#d1d5db"],
 [data-theme="light"] [style*="color: #9ca3af"],
-[data-theme="light"] [style*="color: '#9ca3af"] {
-  color: var(--text-secondary) !important;
+[data-theme="light"] [style*="color: '#9ca3af"],
+[data-theme="light"] [style*="color: #94a3b8"],
+[data-theme="light"] [style*="color: '#94a3b8"],
+[data-theme="light"] [style*="color: #64748b"],
+[data-theme="light"] [style*="color: '#64748b"],
+[data-theme="light"] [style*="color: #cbd5e1"],
+[data-theme="light"] [style*="color: '#cbd5e1"] {
+  color: #4b5563 !important;
+}
+
+/* Force ALL headings to be dark in light mode */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6 {
+  color: #1f2937 !important;
+}
+
+/* Force paragraphs to be readable */
+[data-theme="light"] p {
+  color: #374151 !important;
+}
+
+/* Override any element with explicit white/light text */
+[data-theme="light"] span[style*="color: white"],
+[data-theme="light"] span[style*="color: '#ffffff"],
+[data-theme="light"] span[style*="color: #f"],
+[data-theme="light"] div[style*="color: white"],
+[data-theme="light"] div[style*="color: '#ffffff"],
+[data-theme="light"] div[style*="color: #f1f5f9"],
+[data-theme="light"] div[style*="color: #f9fafb"] {
+  color: #1f2937 !important;
+}
+
+/* Preserve colored text (accent colors) */
+[data-theme="light"] [style*="color: #f59e0b"],
+[data-theme="light"] [style*="color: #10b981"],
+[data-theme="light"] [style*="color: #3b82f6"],
+[data-theme="light"] [style*="color: #ef4444"],
+[data-theme="light"] [style*="color: #8b5cf6"],
+[data-theme="light"] [style*="color: #ec4899"],
+[data-theme="light"] [style*="color: #22c55e"] {
+  /* Keep accent colors as-is */
 }
 
 /* Border colors */
@@ -93,11 +200,17 @@
   border-color: var(--border-color) !important;
 }
 
-/* Buttons - preserve accent colors but adjust base buttons */
-[data-theme="light"] button:not([style*="background-color: #f59e0b"]):not([style*="background-color: #3b82f6"]):not([style*="background-color: #10b981"]):not([style*="background-color: #ef4444"]) {
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-  border-color: var(--border-color);
+/* Buttons with dark backgrounds only - preserve accent colors */
+[data-theme="light"] button[style*="background: #1f2937"],
+[data-theme="light"] button[style*="background: #374151"],
+[data-theme="light"] button[style*="background: #334155"],
+[data-theme="light"] button[style*="background-color: #1f2937"],
+[data-theme="light"] button[style*="background-color: #374151"],
+[data-theme="light"] button[style*="background-color: #334155"] {
+  background-color: #f3f4f6 !important;
+  background: #f3f4f6 !important;
+  color: #1f2937 !important;
+  border-color: #e5e7eb !important;
 }
 
 /* Code blocks */
@@ -105,6 +218,34 @@
 [data-theme="light"] code {
   background-color: var(--code-bg) !important;
   color: var(--code-text) !important;
+}
+
+/* Force light theme on all major containers */
+[data-theme="light"] > div,
+[data-theme="light"] .app-container > div {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Override SyntaxHighlighter backgrounds */
+[data-theme="light"] pre[class*="language-"],
+[data-theme="light"] code[class*="language-"],
+[data-theme="light"] [class*="prism"] {
+  background-color: #f8f9fa !important;
+}
+
+/* Ensure breadcrumb areas are themed */
+[data-theme="light"] [style*="rgba(59, 130, 246, 0.1)"],
+[data-theme="light"] [style*="rgba(139, 92, 246, 0.1)"],
+[data-theme="light"] [style*="rgba(16, 185, 129, 0.1)"],
+[data-theme="light"] [style*="rgba(245, 158, 11, 0.1)"] {
+  background-color: rgba(59, 130, 246, 0.08) !important;
+  border-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Fix category group expanded backgrounds */
+[data-theme="light"] [role="menu"] {
+  background-color: rgba(243, 244, 246, 0.8) !important;
 }
 
 /* Input fields */

@@ -1,5 +1,7 @@
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation'
 import Breadcrumb from '../components/Breadcrumb'
+import CollapsibleSidebar from '../components/CollapsibleSidebar'
+import { useTheme } from '../contexts/ThemeContext'
 
 const FRAMEWORK_COLORS = {
   primary: '#4ade80',
@@ -12,6 +14,7 @@ const FRAMEWORK_COLORS = {
 }
 
 function Frameworks({ onBack, onSelectItem, breadcrumb }) {
+  const { colors, isDark } = useTheme()
   const frameworkItems = [
     {
       id: 'Spring',
@@ -97,59 +100,13 @@ function Frameworks({ onBack, onSelectItem, breadcrumb }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #064e3b, #111827)',
-      color: 'white',
+      background: isDark
+        ? 'linear-gradient(to bottom right, #111827, #064e3b, #111827)'
+        : 'linear-gradient(to bottom right, #f8fafc, #d1fae5, #f8fafc)',
+      color: colors.textPrimary,
       padding: '1.5rem'
     }}>
       <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '2rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button
-              onClick={onBack}
-              style={{
-                background: '#2563eb',
-                color: 'white',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '0.5rem',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontWeight: '500',
-                fontSize: '1rem',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#1d4ed8'
-                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#2563eb'
-                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              ← Back to Menu
-            </button>
-            <h1 style={{
-              fontSize: '2.25rem',
-              fontWeight: 'bold',
-              background: 'linear-gradient(to right, #6ee7b7, #34d399)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
-            }}>
-              🌱 Frameworks
-            </h1>
-          </div>
-        </div>
-
         {/* Breadcrumb */}
         <Breadcrumb
           breadcrumbStack={[
@@ -157,6 +114,17 @@ function Frameworks({ onBack, onSelectItem, breadcrumb }) {
           ]}
           colors={FRAMEWORK_COLORS}
           onMainMenu={breadcrumb?.onMainMenu || onBack}
+        />
+
+        {/* Collapsible Sidebar for quick topic navigation */}
+        <CollapsibleSidebar
+          items={frameworkItems}
+          selectedIndex={-1}
+          onSelect={(index) => onSelectItem(frameworkItems[index].id)}
+          title="Frameworks"
+          getItemLabel={(item) => item.name}
+          getItemIcon={(item) => item.icon}
+          primaryColor={FRAMEWORK_COLORS.primary}
         />
 
         <p style={{
@@ -183,7 +151,7 @@ function Frameworks({ onBack, onSelectItem, breadcrumb }) {
               role="link"
               aria-label={`${item.name}. ${item.description}`}
               style={{
-                background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                background: isDark ? 'linear-gradient(to bottom right, #1f2937, #111827)' : 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
                 padding: '1.5rem',
                 borderRadius: '0.75rem',
                 border: `2px solid ${item.color}`,

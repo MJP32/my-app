@@ -1,8 +1,22 @@
 import { useState, useEffect } from 'react'
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation'
 import { isProblemCompleted } from '../services/progressService'
+import Breadcrumb from '../components/Breadcrumb'
+import CollapsibleSidebar from '../components/CollapsibleSidebar'
+import { useTheme } from '../contexts/ThemeContext'
 
-function Practice({ onBack, onSelectItem }) {
+const PRACTICE_COLORS = {
+  primary: '#93c5fd',
+  primaryHover: '#bfdbfe',
+  bg: 'rgba(59, 130, 246, 0.1)',
+  border: 'rgba(59, 130, 246, 0.3)',
+  arrow: '#3b82f6',
+  hoverBg: 'rgba(59, 130, 246, 0.2)',
+  topicBg: 'rgba(59, 130, 246, 0.2)'
+}
+
+function Practice({ onBack, onSelectItem, breadcrumb }) {
+  const { isDark } = useTheme()
   const [selectedSubcategory, setSelectedSubcategory] = useState(null)
   const [itemProgress, setItemProgress] = useState({})
   const [refreshKey, setRefreshKey] = useState(0)
@@ -222,6 +236,22 @@ function Practice({ onBack, onSelectItem }) {
   // Flatten for navigation
   const subcategories = categoryGroups.flatMap(group => group.categories)
 
+  // Build breadcrumb stack based on current navigation state
+  const buildBreadcrumbStack = () => {
+    const stack = [{ name: 'Practice', icon: '💪' }]
+    if (selectedSubcategory) {
+      stack.push({ name: selectedSubcategory.name, icon: selectedSubcategory.icon })
+    }
+    return stack
+  }
+
+  const handleBreadcrumbClick = (index) => {
+    if (index === 0) {
+      // Clicked on Practice - go back to main categories
+      setSelectedSubcategory(null)
+    }
+  }
+
   // Hook for subcategories view
   const { focusedIndex: focusedSubcategoryIndex, itemRefs: subcategoryRefs } = useKeyboardNavigation({
     items: subcategories,
@@ -246,132 +276,31 @@ function Practice({ onBack, onSelectItem }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)',
+      background: isDark
+        ? 'linear-gradient(to bottom right, #111827, #1e3a5f, #111827)'
+        : 'linear-gradient(to bottom right, #f8fafc, #dbeafe, #f8fafc)',
       color: 'white',
       padding: '1.5rem'
     }}>
       <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '2rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button
-              onClick={selectedSubcategory ? () => setSelectedSubcategory(null) : onBack}
-              style={{
-                background: '#2563eb',
-                color: 'white',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '0.5rem',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontWeight: '500',
-                fontSize: '1rem',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#1d4ed8'
-                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#2563eb'
-                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              ← {selectedSubcategory ? 'Back to Categories' : 'Back to Menu'}
-            </button>
-            <h1 style={{
-              fontSize: '2.25rem',
-              fontWeight: 'bold',
-              background: 'linear-gradient(to right, #93c5fd, #60a5fa)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
-            }}>
-              {selectedSubcategory ? `${selectedSubcategory.icon} ${selectedSubcategory.name}` : '💪 Practice'}
-            </h1>
-          </div>
-        </div>
+        {/* Breadcrumb */}
+        <Breadcrumb
+          breadcrumbStack={buildBreadcrumbStack()}
+          onBreadcrumbClick={handleBreadcrumbClick}
+          onMainMenu={breadcrumb?.onMainMenu || onBack}
+          colors={PRACTICE_COLORS}
+        />
 
-        {/* Dark themed Breadcrumb */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          padding: '0.75rem 1rem',
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-          borderRadius: '8px',
-          marginBottom: '1.5rem',
-          flexWrap: 'wrap',
-          border: '1px solid rgba(59, 130, 246, 0.3)'
-        }}>
-          <button
-            onClick={() => {
-              setSelectedSubcategory(null)
-              if (!selectedSubcategory) onBack()
-            }}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#93c5fd',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              fontWeight: '500',
-              padding: '0.25rem 0.5rem',
-              borderRadius: '4px',
-              transition: 'all 0.2s',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.25rem'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.2)'
-              e.currentTarget.style.color = '#bfdbfe'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent'
-              e.currentTarget.style.color = '#93c5fd'
-            }}
-          >
-            <span>💪</span> Practice
-          </button>
-          {selectedSubcategory && (
-            <>
-              <span style={{ color: '#3b82f6', fontSize: '0.9rem' }}>→</span>
-              <span style={{
-                color: '#e2e8f0',
-                fontSize: '0.9rem',
-                fontWeight: '600',
-                padding: '0.25rem 0.75rem',
-                backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                borderRadius: '4px'
-              }}>
-                {selectedSubcategory.name}
-              </span>
-            </>
-          )}
-          {!selectedSubcategory && (
-            <>
-              <span style={{ color: '#3b82f6', fontSize: '0.9rem' }}>→</span>
-              <span style={{
-                color: '#e2e8f0',
-                fontSize: '0.9rem',
-                fontWeight: '600',
-                padding: '0.25rem 0.75rem',
-                backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                borderRadius: '4px'
-              }}>
-                Categories
-              </span>
-            </>
-          )}
-        </div>
+        {/* Collapsible Sidebar for quick topic navigation */}
+        <CollapsibleSidebar
+          items={subcategories}
+          selectedIndex={selectedSubcategory ? subcategories.findIndex(s => s.name === selectedSubcategory.name) : -1}
+          onSelect={(index) => setSelectedSubcategory(subcategories[index])}
+          title="Topics"
+          getItemLabel={(item) => item.name}
+          getItemIcon={(item) => item.icon}
+          primaryColor={PRACTICE_COLORS.primary}
+        />
 
         {!selectedSubcategory ? (
           <>
@@ -400,16 +329,16 @@ function Practice({ onBack, onSelectItem }) {
                     gap: '0.75rem',
                     marginBottom: '1rem',
                     padding: '0.75rem 1rem',
-                    backgroundColor: 'rgba(31, 41, 55, 0.8)',
+                    backgroundColor: isDark ? 'rgba(31, 41, 55, 0.8)' : 'rgba(241, 245, 249, 0.9)',
                     borderRadius: '10px',
                     borderLeft: `5px solid ${group.color}`,
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+                    boxShadow: isDark ? '0 2px 6px rgba(0,0,0,0.2)' : '0 2px 6px rgba(0,0,0,0.08)'
                   }}>
                     <span style={{ fontSize: '1.5rem' }}>{group.icon}</span>
                     <h2 style={{
                       fontSize: '1.4rem',
                       fontWeight: '700',
-                      color: '#e2e8f0',
+                      color: isDark ? '#e2e8f0' : '#1f2937',
                       margin: 0
                     }}>
                       {group.title}
@@ -433,7 +362,7 @@ function Practice({ onBack, onSelectItem }) {
                           role="link"
                           aria-label={`${subcategory.name} category. ${subcategory.count} practice problems.`}
                           style={{
-                            background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                            background: isDark ? 'linear-gradient(to bottom right, #1f2937, #111827)' : 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
                             padding: '1.5rem',
                             borderRadius: '0.75rem',
                             border: `2px solid ${subcategory.color}`,
@@ -595,7 +524,7 @@ function Practice({ onBack, onSelectItem }) {
                   role="link"
                   aria-label={`${item} practice problem`}
                   style={{
-                    background: 'linear-gradient(to bottom right, #1f2937, #111827)',
+                    background: isDark ? 'linear-gradient(to bottom right, #1f2937, #111827)' : 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
                     padding: '1.5rem',
                     borderRadius: '0.75rem',
                     border: `2px solid ${selectedSubcategory.color}`,
