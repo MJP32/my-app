@@ -1278,6 +1278,429 @@ WINDOW w AS (
 );`
         }
       ]
+    },
+    {
+      id: 'schema-management',
+      name: 'Schema Management',
+      icon: '🔧',
+      color: '#f59e0b',
+      description: 'ALTER TABLE, constraints, DCL (GRANT/REVOKE), and transaction control',
+      details: [
+        {
+          name: 'ALTER TABLE — Column Changes',
+          explanation: 'ALTER TABLE modifies an existing table structure. You can change a column\'s data type, add or drop NOT NULL constraints, set or remove default values, add new columns, drop existing ones, and rename columns. These are DDL operations and auto-commit in most databases.',
+          codeExample: `-- Change column data type
+ALTER TABLE employees ALTER COLUMN salary TYPE NUMERIC(12, 2);
+
+-- Add NOT NULL constraint (column must have no NULLs)
+ALTER TABLE employees ALTER COLUMN email SET NOT NULL;
+
+-- Drop NOT NULL constraint
+ALTER TABLE employees ALTER COLUMN phone DROP NOT NULL;
+
+-- Set a default value
+ALTER TABLE employees ALTER COLUMN status SET DEFAULT 'active';
+
+-- Drop a default value
+ALTER TABLE employees ALTER COLUMN status DROP DEFAULT;
+
+-- Add a new column
+ALTER TABLE employees ADD COLUMN department_id INTEGER;
+
+-- Add column with constraints
+ALTER TABLE employees ADD COLUMN hire_date DATE NOT NULL DEFAULT CURRENT_DATE;
+
+-- Drop a column
+ALTER TABLE employees DROP COLUMN middle_name;
+
+-- Drop column with dependencies
+ALTER TABLE employees DROP COLUMN department_id CASCADE;
+
+-- Rename a column
+ALTER TABLE employees RENAME COLUMN fname TO first_name;`
+        },
+        {
+          name: 'ALTER TABLE — Constraints',
+          explanation: 'Constraints enforce data integrity rules. You can add or drop primary keys, foreign keys (with ON DELETE behavior), unique constraints, and check constraints. Named constraints are easier to manage than inline anonymous ones.',
+          codeExample: `-- Add PRIMARY KEY
+ALTER TABLE employees ADD CONSTRAINT pk_employees PRIMARY KEY (id);
+
+-- Drop PRIMARY KEY
+ALTER TABLE employees DROP CONSTRAINT pk_employees;
+
+-- Add FOREIGN KEY with ON DELETE options
+ALTER TABLE orders ADD CONSTRAINT fk_orders_user
+  FOREIGN KEY (user_id) REFERENCES users(id)
+  ON DELETE CASCADE;          -- Delete child rows when parent deleted
+
+-- ON DELETE options:
+--   CASCADE    → delete child rows
+--   SET NULL   → set FK column to NULL
+--   SET DEFAULT → set FK column to default
+--   RESTRICT   → prevent parent deletion (default)
+--   NO ACTION  → like RESTRICT, checked at end of txn
+
+-- Drop FOREIGN KEY
+ALTER TABLE orders DROP CONSTRAINT fk_orders_user;
+
+-- Add UNIQUE constraint
+ALTER TABLE users ADD CONSTRAINT uq_users_email UNIQUE (email);
+
+-- Composite UNIQUE
+ALTER TABLE enrollments ADD CONSTRAINT uq_enrollment
+  UNIQUE (student_id, course_id);
+
+-- Add CHECK constraint
+ALTER TABLE products ADD CONSTRAINT chk_price_positive
+  CHECK (price > 0);
+
+ALTER TABLE employees ADD CONSTRAINT chk_salary_range
+  CHECK (salary BETWEEN 30000 AND 500000);
+
+-- Drop CHECK constraint
+ALTER TABLE products DROP CONSTRAINT chk_price_positive;`
+        },
+        {
+          name: 'ALTER TABLE — Table Operations',
+          explanation: 'Beyond columns and constraints, ALTER TABLE can rename tables, change schemas, manage indexes, and control triggers. Index management is critical for query performance tuning.',
+          codeExample: `-- Rename a table
+ALTER TABLE employees RENAME TO staff;
+
+-- Move table to a different schema
+ALTER TABLE staff SET SCHEMA hr;
+
+-- Change table owner (PostgreSQL)
+ALTER TABLE staff OWNER TO admin_user;
+
+-- Create indexes for performance
+CREATE INDEX idx_emp_dept ON employees(department_id);
+CREATE INDEX idx_emp_name ON employees(last_name, first_name);
+
+-- Unique index (enforces uniqueness like a constraint)
+CREATE UNIQUE INDEX idx_users_email ON users(email);
+
+-- Partial index (only index active rows)
+CREATE INDEX idx_active_users ON users(email)
+  WHERE status = 'active';
+
+-- Drop an index
+DROP INDEX idx_emp_dept;
+
+-- Rename an index
+ALTER INDEX idx_emp_name RENAME TO idx_staff_name;
+
+-- Enable/disable triggers
+ALTER TABLE orders DISABLE TRIGGER audit_trigger;
+ALTER TABLE orders ENABLE TRIGGER audit_trigger;
+
+-- Disable ALL triggers on a table
+ALTER TABLE orders DISABLE TRIGGER ALL;`
+        },
+        {
+          name: 'DCL — Data Control',
+          explanation: 'DCL (Data Control Language) manages permissions. GRANT gives privileges; REVOKE removes them. You can control access at the table, schema, column, and sequence level. WITH GRANT OPTION allows a user to pass their privileges to others.',
+          codeExample: `-- GRANT privileges on a table
+GRANT SELECT ON employees TO analyst_role;
+GRANT SELECT, INSERT, UPDATE ON orders TO app_user;
+GRANT ALL PRIVILEGES ON products TO admin_user;
+
+-- GRANT on all tables in a schema
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO readonly_role;
+
+-- Column-level privileges
+GRANT SELECT (name, email) ON employees TO intern_role;
+GRANT UPDATE (status) ON orders TO support_role;
+
+-- GRANT on sequences (needed for INSERT with SERIAL/IDENTITY)
+GRANT USAGE, SELECT ON SEQUENCE employees_id_seq TO app_user;
+
+-- GRANT a role to a user
+GRANT analyst_role TO john;
+GRANT admin_role TO jane;
+
+-- WITH GRANT OPTION (user can grant to others)
+GRANT SELECT ON reports TO manager
+  WITH GRANT OPTION;
+
+-- REVOKE privileges
+REVOKE INSERT ON orders FROM app_user;
+REVOKE ALL PRIVILEGES ON employees FROM intern_role;
+
+-- REVOKE role from user
+REVOKE analyst_role FROM john;
+
+-- Create and manage roles
+CREATE ROLE readonly_role;
+GRANT readonly_role TO new_user;`
+        },
+        {
+          name: 'TCL — Transaction Control',
+          explanation: 'TCL (Transaction Control Language) manages transactions. BEGIN starts a transaction, COMMIT saves changes, ROLLBACK undoes them. SAVEPOINT creates checkpoints within a transaction so you can partially roll back. Isolation levels control how concurrent transactions interact.',
+          codeExample: `-- Basic transaction
+BEGIN;
+  UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+  UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+COMMIT;
+
+-- Rollback on error
+BEGIN;
+  INSERT INTO orders (user_id, total) VALUES (1, 99.99);
+  INSERT INTO order_items (order_id, product_id) VALUES (100, 5);
+  -- Something went wrong:
+ROLLBACK;  -- Undoes both INSERTs
+
+-- SAVEPOINT: Partial rollback
+BEGIN;
+  INSERT INTO users (name) VALUES ('Alice');
+  SAVEPOINT sp1;
+
+  INSERT INTO users (name) VALUES ('Bob');
+  SAVEPOINT sp2;
+
+  INSERT INTO users (name) VALUES ('Charlie');
+  -- Undo only Charlie:
+  ROLLBACK TO SAVEPOINT sp2;
+
+  -- Alice and Bob are still pending
+COMMIT;  -- Saves Alice and Bob
+
+-- Transaction isolation levels
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;   -- Default in PostgreSQL
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;   -- Snapshot at txn start
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;      -- Strictest, no anomalies
+
+-- Isolation levels (from least to most strict):
+-- READ UNCOMMITTED → can see uncommitted changes (dirty reads)
+-- READ COMMITTED   → only sees committed data
+-- REPEATABLE READ  → snapshot isolation, no phantom reads in PG
+-- SERIALIZABLE     → full isolation, transactions appear sequential`
+        }
+      ]
+    },
+    {
+      id: 'essential-operations',
+      name: 'Essential SQL Operations',
+      icon: '⚡',
+      color: '#8b5cf6',
+      description: 'Set operations, CASE expressions, type casting, string and date functions',
+      details: [
+        {
+          name: 'Set Operations',
+          explanation: 'Set operations combine results from multiple SELECT statements. UNION merges and removes duplicates; UNION ALL keeps all rows (faster). INTERSECT returns rows in both queries. EXCEPT (MINUS in Oracle) returns rows in the first query but not the second. All queries must have the same number of columns with compatible types.',
+          codeExample: `-- UNION: Combine and deduplicate
+SELECT name, email FROM customers
+UNION
+SELECT name, email FROM suppliers;
+
+-- UNION ALL: Combine and keep duplicates (faster)
+SELECT product_id, 'sale' AS type FROM sales
+UNION ALL
+SELECT product_id, 'return' AS type FROM returns;
+
+-- INTERSECT: Rows in both queries
+SELECT user_id FROM premium_users
+INTERSECT
+SELECT user_id FROM active_users;
+-- Users who are both premium AND active
+
+-- EXCEPT: Rows in first but not second (MINUS in Oracle)
+SELECT user_id FROM registered_users
+EXCEPT
+SELECT user_id FROM banned_users;
+-- Registered users who are NOT banned
+
+-- Combining multiple sets
+SELECT id, name FROM employees WHERE dept = 'Engineering'
+UNION ALL
+SELECT id, name FROM employees WHERE dept = 'Design'
+UNION ALL
+SELECT id, name FROM contractors WHERE dept = 'Engineering';
+
+-- Order the combined result
+(SELECT name, 'customer' AS type FROM customers)
+UNION ALL
+(SELECT name, 'supplier' AS type FROM suppliers)
+ORDER BY name;`
+        },
+        {
+          name: 'CASE Expressions',
+          explanation: 'CASE is SQL\'s if/else. Simple CASE compares a value against options. Searched CASE evaluates boolean conditions. CASE can appear in SELECT, WHERE, ORDER BY, and inside aggregate functions for conditional aggregation.',
+          codeExample: `-- Simple CASE (compare one value)
+SELECT name, status,
+  CASE status
+    WHEN 'A' THEN 'Active'
+    WHEN 'I' THEN 'Inactive'
+    WHEN 'P' THEN 'Pending'
+    ELSE 'Unknown'
+  END AS status_label
+FROM users;
+
+-- Searched CASE (boolean conditions)
+SELECT name, salary,
+  CASE
+    WHEN salary >= 100000 THEN 'Senior'
+    WHEN salary >= 60000  THEN 'Mid'
+    WHEN salary >= 30000  THEN 'Junior'
+    ELSE 'Intern'
+  END AS level
+FROM employees;
+
+-- CASE in WHERE clause
+SELECT * FROM orders
+WHERE CASE
+  WHEN priority = 'high' THEN total > 100
+  WHEN priority = 'low'  THEN total > 1000
+  ELSE true
+END;
+
+-- CASE in ORDER BY
+SELECT * FROM tasks
+ORDER BY
+  CASE priority
+    WHEN 'critical' THEN 1
+    WHEN 'high'     THEN 2
+    WHEN 'medium'   THEN 3
+    WHEN 'low'      THEN 4
+  END;
+
+-- Conditional aggregation (pivot-style)
+SELECT
+  department,
+  COUNT(*) AS total,
+  SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) AS active_count,
+  SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) AS inactive_count,
+  ROUND(AVG(CASE WHEN gender = 'F' THEN salary END), 2) AS avg_female_salary
+FROM employees
+GROUP BY department;`
+        },
+        {
+          name: 'Type Casting & Conversion',
+          explanation: 'Type casting converts values between data types. CAST(x AS type) is standard SQL. PostgreSQL also supports the :: shorthand. Use TO_CHAR, TO_DATE, TO_NUMBER for formatted conversions. Be aware of implicit casting pitfalls that can cause index scans or errors.',
+          codeExample: `-- Standard CAST syntax
+SELECT CAST('42' AS INTEGER);            -- String to integer
+SELECT CAST(42 AS VARCHAR);              -- Integer to string
+SELECT CAST('2024-01-15' AS DATE);       -- String to date
+SELECT CAST(99.7 AS INTEGER);            -- Truncates to 99
+
+-- PostgreSQL :: shorthand
+SELECT '42'::INTEGER;
+SELECT '2024-01-15'::DATE;
+SELECT 3.14::NUMERIC(10,2);
+SELECT '{"key":"value"}'::JSONB;
+
+-- TO_CHAR: Format numbers and dates as strings
+SELECT TO_CHAR(salary, '$999,999.99') FROM employees;
+SELECT TO_CHAR(NOW(), 'YYYY-MM-DD HH24:MI:SS');
+SELECT TO_CHAR(created_at, 'Month DD, YYYY');
+
+-- TO_DATE / TO_TIMESTAMP: Parse strings to dates
+SELECT TO_DATE('15-Jan-2024', 'DD-Mon-YYYY');
+SELECT TO_TIMESTAMP('2024-01-15 14:30', 'YYYY-MM-DD HH24:MI');
+
+-- TO_NUMBER: Parse strings to numbers
+SELECT TO_NUMBER('$1,234.56', '$9,999.99');
+
+-- Implicit casting pitfall
+-- BAD: This prevents index usage!
+SELECT * FROM orders WHERE order_id = '12345';  -- String vs integer column
+-- GOOD: Match the column type
+SELECT * FROM orders WHERE order_id = 12345;
+
+-- Safe casting with error handling (PostgreSQL)
+-- Use a function or CASE to handle bad data
+SELECT CASE
+  WHEN value ~ '^[0-9]+$' THEN value::INTEGER
+  ELSE NULL
+END AS safe_int
+FROM raw_data;`
+        },
+        {
+          name: 'String Functions',
+          explanation: 'String functions manipulate text data. CONCAT or || joins strings. SUBSTRING extracts parts. TRIM removes whitespace. REPLACE swaps substrings. LIKE/ILIKE pattern match with % (any chars) and _ (single char). These are essential for data cleaning and formatting.',
+          codeExample: `-- Concatenation
+SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM employees;
+SELECT first_name || ' ' || last_name AS full_name FROM employees;  -- PostgreSQL
+
+-- Length
+SELECT name, LENGTH(name) AS name_length FROM products;
+
+-- Case conversion
+SELECT UPPER(email) AS upper_email, LOWER(name) AS lower_name FROM users;
+
+-- Substring extraction
+SELECT SUBSTRING(phone FROM 1 FOR 3) AS area_code FROM contacts;
+SELECT LEFT(sku, 3) AS prefix, RIGHT(sku, 4) AS suffix FROM products;
+
+-- Trimming whitespace
+SELECT TRIM('  hello  ');              -- 'hello'
+SELECT LTRIM('  hello');               -- 'hello'
+SELECT RTRIM('hello  ');               -- 'hello'
+SELECT TRIM(BOTH '-' FROM '--hello--'); -- 'hello'
+
+-- Replace and position
+SELECT REPLACE(phone, '-', '') AS clean_phone FROM contacts;
+SELECT POSITION('@' IN email) AS at_pos FROM users;
+
+-- Split (PostgreSQL)
+SELECT SPLIT_PART('a.b.c', '.', 2);   -- 'b'
+
+-- Pattern matching
+SELECT * FROM users WHERE name LIKE 'J%';       -- Starts with J
+SELECT * FROM users WHERE name LIKE '%son';      -- Ends with son
+SELECT * FROM users WHERE name LIKE '_o%';       -- 2nd char is o
+SELECT * FROM users WHERE name ILIKE '%john%';   -- Case-insensitive (PG)
+
+-- Combine for data cleaning
+SELECT
+  TRIM(UPPER(LEFT(REPLACE(name, '.', ''), 50))) AS clean_name
+FROM raw_imports;`
+        },
+        {
+          name: 'Date & Time Functions',
+          explanation: 'Date and time functions are essential for reporting, filtering by time ranges, and calculating durations. CURRENT_DATE/NOW() get the current moment. EXTRACT and DATE_TRUNC pull out or round date parts. INTERVAL allows date arithmetic. Formatting with TO_CHAR controls display.',
+          codeExample: `-- Current date and time
+SELECT CURRENT_DATE;                    -- Date only: 2024-01-15
+SELECT CURRENT_TIMESTAMP;              -- With time + timezone
+SELECT NOW();                          -- Same as CURRENT_TIMESTAMP (PG)
+
+-- EXTRACT parts from a date
+SELECT
+  EXTRACT(YEAR FROM created_at)  AS year,
+  EXTRACT(MONTH FROM created_at) AS month,
+  EXTRACT(DOW FROM created_at)   AS day_of_week,  -- 0=Sun, 6=Sat
+  EXTRACT(EPOCH FROM created_at) AS unix_timestamp
+FROM orders;
+
+-- DATE_TRUNC: Round down to a unit
+SELECT
+  DATE_TRUNC('month', created_at) AS month_start,
+  DATE_TRUNC('week', created_at)  AS week_start,
+  DATE_TRUNC('hour', created_at)  AS hour_start
+FROM orders;
+
+-- Date arithmetic with INTERVAL
+SELECT NOW() - INTERVAL '7 days'  AS one_week_ago;
+SELECT NOW() + INTERVAL '3 months' AS three_months_later;
+SELECT created_at + INTERVAL '30 days' AS due_date FROM invoices;
+
+-- AGE: Calculate difference between dates
+SELECT AGE(NOW(), hire_date) AS tenure FROM employees;
+-- Returns interval like '3 years 2 mons 15 days'
+
+-- DATE_PART (similar to EXTRACT)
+SELECT DATE_PART('year', created_at) AS year FROM orders;
+
+-- Formatting with TO_CHAR
+SELECT TO_CHAR(created_at, 'YYYY-MM-DD') AS iso_date FROM orders;
+SELECT TO_CHAR(created_at, 'Mon DD, YYYY HH12:MI AM') AS readable FROM orders;
+
+-- Common filtering patterns
+SELECT * FROM orders WHERE created_at >= DATE_TRUNC('month', NOW());  -- This month
+SELECT * FROM orders WHERE created_at >= NOW() - INTERVAL '24 hours'; -- Last 24h
+SELECT * FROM orders
+WHERE EXTRACT(DOW FROM created_at) IN (0, 6);  -- Weekends only`
+        }
+      ]
     }
   ]
 

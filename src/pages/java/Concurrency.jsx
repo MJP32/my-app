@@ -1843,6 +1843,275 @@ class EventManager {
 }`
         }
       ]
+    },
+    {
+      id: 'executor-framework',
+      name: 'Executor Framework',
+      icon: '⚙️',
+      color: '#3b82f6',
+      description: 'Executor class hierarchy, Future API, invokeAll/invokeAny, ForkJoinPool, and advanced CompletableFuture patterns',
+      details: [
+        {
+          name: 'Executor Hierarchy',
+          explanation: 'The Executor framework decouples task submission from execution. Executor is the base interface with a single execute(Runnable) method. ExecutorService extends it with lifecycle management (shutdown), Future-based submission (submit), and bulk operations. ScheduledExecutorService adds delayed/periodic scheduling. Understanding this hierarchy is key to choosing the right abstraction.',
+          codeExample: `import java.util.concurrent.*;
+
+// Executor — simplest interface, just runs a Runnable
+Executor executor = Runnable::run;                // Runs on caller thread
+Executor asyncExecutor = command -> new Thread(command).start(); // New thread
+
+executor.execute(() -> System.out.println("Task"));
+
+// ExecutorService — adds lifecycle + submit() returning Future
+ExecutorService service = Executors.newFixedThreadPool(4);
+Future<String> future = service.submit(() -> "result");
+service.shutdown();     // No new tasks accepted, existing finish
+service.shutdownNow();  // Interrupts running tasks, returns queued
+
+// Check shutdown status
+service.isShutdown();    // true after shutdown() called
+service.isTerminated();  // true when all tasks complete after shutdown
+
+// Proper shutdown pattern
+service.shutdown();
+try {
+    if (!service.awaitTermination(60, TimeUnit.SECONDS)) {
+        service.shutdownNow();
+        if (!service.awaitTermination(60, TimeUnit.SECONDS)) {
+            System.err.println("Pool did not terminate");
+        }
+    }
+} catch (InterruptedException e) {
+    service.shutdownNow();
+    Thread.currentThread().interrupt();
+}
+
+// ScheduledExecutorService — adds scheduling
+ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(2);
+// schedule()         — run once after delay
+// scheduleAtFixedRate()    — fixed rate (period between starts)
+// scheduleWithFixedDelay() — fixed delay (delay between end and next start)`
+        },
+        {
+          name: 'Future & Callable',
+          explanation: 'Callable is like Runnable but returns a value and can throw checked exceptions. Future represents a pending result: get() blocks until complete, cancel() attempts cancellation, isDone() checks completion. get() with timeout prevents indefinite blocking. Always handle InterruptedException and ExecutionException.',
+          codeExample: `import java.util.concurrent.*;
+
+class FutureExample {
+    public static void main(String[] args) throws Exception {
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+
+        // Callable returns a value and can throw checked exceptions
+        Callable<Integer> task = () -> {
+            Thread.sleep(1000);
+            return 42;
+        };
+
+        Future<Integer> future = executor.submit(task);
+
+        // Future API
+        future.isDone();      // Non-blocking check
+        future.isCancelled(); // Was it cancelled?
+
+        // get() blocks until result is ready
+        Integer result = future.get();
+
+        // get() with timeout — throws TimeoutException if not ready
+        try {
+            Integer r = future.get(5, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            future.cancel(true);  // true = interrupt if running
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();  // Unwrap actual exception
+        }
+
+        // cancel() — attempt to cancel
+        // cancel(false): don't interrupt if running
+        // cancel(true):  interrupt if running
+        boolean cancelled = future.cancel(true);
+
+        // Submit Runnable with a predetermined result
+        Future<String> f = executor.submit(() -> {
+            System.out.println("side effect");
+        }, "done");
+        // f.get() returns "done"
+
+        // Submit Runnable, get() returns null
+        Future<?> f2 = executor.submit(() -> System.out.println("task"));
+        f2.get();  // returns null when done
+
+        executor.shutdown();
+    }
+}`
+        },
+        {
+          name: 'invokeAll & invokeAny',
+          explanation: 'invokeAll submits a collection of tasks and blocks until ALL complete, returning a list of Futures. invokeAny blocks until ANY one task completes and returns that single result, cancelling the rest. Both accept an optional timeout. Use invokeAll for batch processing; invokeAny for fastest-response scenarios.',
+          codeExample: `import java.util.concurrent.*;
+import java.util.*;
+
+class BulkExecutionExample {
+    public static void main(String[] args) throws Exception {
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+
+        List<Callable<String>> tasks = List.of(
+            () -> { Thread.sleep(2000); return "Slow"; },
+            () -> { Thread.sleep(500);  return "Fast"; },
+            () -> { Thread.sleep(1000); return "Medium"; }
+        );
+
+        // invokeAll — blocks until ALL complete
+        List<Future<String>> futures = executor.invokeAll(tasks);
+        for (Future<String> f : futures) {
+            System.out.println(f.get());  // All are done, no blocking
+        }
+
+        // invokeAll with timeout — cancels unfinished tasks
+        List<Future<String>> timedFutures =
+            executor.invokeAll(tasks, 1, TimeUnit.SECONDS);
+        for (Future<String> f : timedFutures) {
+            if (!f.isCancelled()) {
+                System.out.println(f.get());
+            }
+        }
+
+        // invokeAny — returns FIRST completed result, cancels rest
+        String fastest = executor.invokeAny(tasks);
+        System.out.println("Fastest: " + fastest);  // "Fast"
+
+        // invokeAny with timeout
+        try {
+            String result = executor.invokeAny(tasks, 2, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            System.out.println("No task finished in time");
+        }
+
+        // Practical: Query multiple mirrors, use first response
+        List<Callable<byte[]>> mirrorTasks = mirrors.stream()
+            .map(url -> (Callable<byte[]>) () -> httpGet(url))
+            .toList();
+        byte[] data = executor.invokeAny(mirrorTasks);
+
+        executor.shutdown();
+    }
+}`
+        },
+        {
+          name: 'ForkJoinPool',
+          explanation: 'ForkJoinPool is designed for recursive divide-and-conquer tasks. It uses work-stealing: idle threads steal work from busy threads\' queues. RecursiveTask returns a result; RecursiveAction does not. ForkJoinPool.commonPool() is the shared pool used by parallel streams and CompletableFuture.',
+          codeExample: `import java.util.concurrent.*;
+
+// RecursiveTask<V> — returns a value
+class SumTask extends RecursiveTask<Long> {
+    private final long[] array;
+    private final int start, end;
+    private static final int THRESHOLD = 10_000;
+
+    SumTask(long[] array, int start, int end) {
+        this.array = array; this.start = start; this.end = end;
+    }
+
+    @Override
+    protected Long compute() {
+        if (end - start <= THRESHOLD) {
+            // Base case: compute directly
+            long sum = 0;
+            for (int i = start; i < end; i++) sum += array[i];
+            return sum;
+        }
+        // Recursive case: split
+        int mid = (start + end) / 2;
+        SumTask left = new SumTask(array, start, mid);
+        SumTask right = new SumTask(array, mid, end);
+
+        left.fork();           // Submit left to pool
+        long rightResult = right.compute();  // Compute right in current thread
+        long leftResult = left.join();       // Wait for left
+
+        return leftResult + rightResult;
+    }
+}
+
+// Usage
+ForkJoinPool pool = new ForkJoinPool(4);  // 4 threads
+long[] data = new long[1_000_000];
+long sum = pool.invoke(new SumTask(data, 0, data.length));
+
+// Common pool (shared, used by parallel streams)
+ForkJoinPool common = ForkJoinPool.commonPool();
+int parallelism = common.getParallelism();  // Typically CPU cores - 1
+
+// RecursiveAction — no return value
+class SortAction extends RecursiveAction {
+    @Override
+    protected void compute() {
+        // Similar pattern but no return value
+        if (array.length < THRESHOLD) {
+            Arrays.sort(array);
+        } else {
+            // fork and join sub-tasks
+        }
+    }
+}`
+        },
+        {
+          name: 'Advanced CompletableFuture',
+          explanation: 'CompletableFuture extends Future with a rich fluent API. Use thenApply/thenAccept/thenRun for chaining, thenCompose for flatMapping, thenCombine for joining two futures. anyOf/allOf handle multiple futures. exceptionally/handle/whenComplete deal with errors. Specify executors to control which thread runs each stage.',
+          codeExample: `import java.util.concurrent.*;
+
+class AdvancedCF {
+    ExecutorService io = Executors.newCachedThreadPool();
+
+    // Chaining stages
+    CompletableFuture<Void> pipeline = CompletableFuture
+        .supplyAsync(() -> fetchUser(1), io)   // Run on io pool
+        .thenApplyAsync(user -> enrich(user))  // Transform (default pool)
+        .thenAcceptAsync(user -> save(user))   // Consume result
+        .thenRunAsync(() -> log("done"));      // Run after, no input
+
+    // thenCompose — flatMap (avoid nested CompletableFuture)
+    CompletableFuture<Order> order = fetchUser(1)
+        .thenCompose(user -> fetchLatestOrder(user));
+    // Without thenCompose: CompletableFuture<CompletableFuture<Order>>
+
+    // thenCombine — join two independent futures
+    CompletableFuture<String> summary =
+        fetchUser(1).thenCombine(fetchOrders(1),
+            (user, orders) -> user.name + ": " + orders.size() + " orders");
+
+    // Error handling
+    CompletableFuture<String> safe = fetchUser(1)
+        .thenApply(User::getName)
+        .exceptionally(ex -> "Unknown");          // Recover from error
+
+    CompletableFuture<String> handled = fetchUser(1)
+        .handle((user, ex) -> {                   // Always runs
+            if (ex != null) return "Error: " + ex.getMessage();
+            return user.getName();
+        });
+
+    // allOf — wait for all (returns CompletableFuture<Void>)
+    CompletableFuture<Void> all = CompletableFuture.allOf(
+        fetchUser(1), fetchUser(2), fetchUser(3)
+    );
+
+    // anyOf — first to complete (returns CompletableFuture<Object>)
+    CompletableFuture<Object> first = CompletableFuture.anyOf(
+        queryPrimary(), queryReplica()
+    );
+
+    // Collect allOf results
+    List<CompletableFuture<User>> futures = ids.stream()
+        .map(id -> fetchUser(id))
+        .toList();
+    CompletableFuture<List<User>> allUsers = CompletableFuture
+        .allOf(futures.toArray(new CompletableFuture[0]))
+        .thenApply(v -> futures.stream()
+            .map(CompletableFuture::join)
+            .toList());
+}`
+        }
+      ]
     }
   ]
 
