@@ -256,7 +256,7 @@ const AlertingDiagram = () => (
     {/* Alert Example */}
     <rect x="100" y="160" width="600" height="45" rx="6" fill="rgba(239, 68, 68, 0.1)" stroke="#ef4444" strokeWidth="1"/>
     <text x="400" y="180" textAnchor="middle" fill="#f87171" fontSize="10" fontWeight="bold">Alert Rule Example</text>
-    <text x="400" y="197" textAnchor="middle" fill="#fca5a5" fontSize="9">{`alert: HighErrorRate | expr: rate(errors[5m]) &gt; 0.1 | for: 5m | severity: critical`}</text>
+    <text x="400" y="197" textAnchor="middle" fill="#fca5a5" fontSize="9">{`alert: HighErrorRate | expr: rate(errors[5m]) > 0.1 | for: 5m | severity: critical`}</text>
   </svg>
 )
 
@@ -328,8 +328,8 @@ const SyntaxHighlighter = ({ code }) => {
   const highlightCode = (code) => {
     let highlighted = code
       .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
+      .replace(/</g, '<')
+      .replace(/>/g, '>')
 
     const protectedContent = []
     let placeholder = 0

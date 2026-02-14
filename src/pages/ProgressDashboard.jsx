@@ -392,6 +392,9 @@ function ProgressDashboard({ onBack, onNavigate }) {
       { name: 'Grafana Questions', problems: 4, icon: '📊', description: 'Grafana visualization and dashboards' },
       { name: 'Zipkin Questions', problems: 4, icon: '🔍', description: 'Distributed tracing with Zipkin' },
       { name: 'Actuator Questions', problems: 4, icon: '⚙️', description: 'Spring Boot Actuator endpoints' },
+      { name: 'JMeter Questions', problems: 4, icon: '🔥', description: 'JMeter load testing concepts' },
+      { name: 'JFR Questions', problems: 4, icon: '✈️', description: 'Java Flight Recorder profiling' },
+      { name: 'Dynatrace Questions', problems: 4, icon: '🔮', description: 'Dynatrace APM and monitoring' },
     ]},
     // API & Integration Questions
     { category: 'API & Integration Questions', difficulty: 'Intermediate', color: '#14b8a6', topics: [
@@ -665,6 +668,9 @@ function ProgressDashboard({ onBack, onNavigate }) {
       { name: 'Jenkins Questions', problems: 6, icon: '🔧', description: 'CI/CD pipelines' },
       { name: 'Prometheus Questions', problems: 3, icon: '📈', description: 'Monitoring' },
       { name: 'Grafana Questions', problems: 3, icon: '📊', description: 'Visualization' },
+      { name: 'JMeter Questions', problems: 4, icon: '🔥', description: 'Load testing' },
+      { name: 'JFR Questions', problems: 4, icon: '✈️', description: 'Java Flight Recorder' },
+      { name: 'Dynatrace Questions', problems: 4, icon: '🔮', description: 'Dynatrace APM' },
     ]},
     // API & Integration Questions
     { category: 'API & Integration Questions', difficulty: 'Intermediate', color: '#14b8a6', topics: [
@@ -794,6 +800,9 @@ function ProgressDashboard({ onBack, onNavigate }) {
       'Grafana Questions': 'GrafanaQuestions',
       'Zipkin Questions': 'ZipkinQuestions',
       'Actuator Questions': 'ActuatorQuestions',
+      'JMeter Questions': 'JMeterQuestions',
+      'JFR Questions': 'JFRQuestions',
+      'Dynatrace Questions': 'DynatraceQuestions',
       // API & Integration Questions
       'REST API Questions': 'RestAPIQuestions',
       // Specialized Domain Questions

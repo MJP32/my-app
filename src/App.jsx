@@ -103,6 +103,9 @@ import SystemDesignFundamentalsQuestions from './pages/questions/SystemDesignFun
 import DataStorageQuestions from './pages/questions/DataStorageQuestions.jsx'
 import ArchitectureQuestions from './pages/questions/ArchitectureQuestions.jsx'
 import CommunicationQuestions from './pages/questions/CommunicationQuestions.jsx'
+import JMeterQuestions from './pages/questions/JMeterQuestions.jsx'
+import JFRQuestions from './pages/questions/JFRQuestions.jsx'
+import DynatraceQuestions from './pages/questions/DynatraceQuestions.jsx'
 
 // Database pages
 import SQL from './pages/databases/SQL.jsx'
@@ -127,6 +130,11 @@ import TeamCity from './pages/devops/TeamCity.jsx'
 import Jenkins from './pages/devops/Jenkins.jsx'
 import Prometheus from './pages/devops/Prometheus.jsx'
 import Grafana from './pages/devops/Grafana.jsx'
+import Ansible from './pages/devops/Ansible.jsx'
+import UnixScripting from './pages/devops/UnixScripting.jsx'
+import JavaFlightRecorder from './pages/devops/JavaFlightRecorder.jsx'
+import JMeter from './pages/devops/JMeter.jsx'
+import Dynatrace from './pages/devops/Dynatrace.jsx'
 
 // Security pages
 import SecurityPage from './pages/SecurityPage.jsx'
@@ -253,6 +261,12 @@ import SortingFunctions from './pages/python/SortingFunctions.jsx'
 import LeetCodePatterns from './pages/python/LeetCodePatterns.jsx'
 import SortingAlgorithms from './pages/python/SortingAlgorithms.jsx'
 import StringAlgorithms from './pages/python/StringAlgorithms.jsx'
+import MathFunctions from './pages/python/MathFunctions.jsx'
+import BuiltinFunctions from './pages/python/BuiltinFunctions.jsx'
+import Functools from './pages/python/Functools.jsx'
+import CopyModule from './pages/python/CopyModule.jsx'
+import Decorators from './pages/python/Decorators.jsx'
+import Generators from './pages/python/Generators.jsx'
 import Frameworks from './pages/Frameworks.jsx'
 import RecursionPatterns from './pages/RecursionPatterns.jsx'
 import StudyGuideModal from './components/StudyGuideModal.jsx'
@@ -420,7 +434,9 @@ const QUESTIONS_COMPONENTS_ORDER = [
   // CI/CD
   'Jenkins Questions', 'TeamCity Questions',
   // Monitoring
-  'Prometheus Questions', 'Grafana Questions', 'Zipkin Questions', 'Actuator Questions'
+  'Prometheus Questions', 'Grafana Questions', 'Zipkin Questions', 'Actuator Questions',
+  // Performance & Profiling
+  'JMeter Questions', 'JFR Questions', 'Dynatrace Questions'
 ]
 
 // Subcategory groupings for questions
@@ -431,10 +447,11 @@ const QUESTIONS_SUBCATEGORIES = {
   'Messaging': ['Kafka Questions', 'RabbitMQ Questions', 'Solace Questions'],
   'APIs & Integration': ['REST API Questions'],
   'CI/CD': ['Jenkins Questions', 'TeamCity Questions'],
-  'Monitoring': ['Prometheus Questions', 'Grafana Questions', 'Zipkin Questions', 'Actuator Questions']
+  'Monitoring': ['Prometheus Questions', 'Grafana Questions', 'Zipkin Questions', 'Actuator Questions'],
+  'Performance & Profiling': ['JMeter Questions', 'JFR Questions', 'Dynatrace Questions']
 }
 
-const QUESTIONS_SUBCATEGORY_ORDER = ['Spring Framework', 'Java', 'Databases', 'Messaging', 'APIs & Integration', 'CI/CD', 'Monitoring']
+const QUESTIONS_SUBCATEGORY_ORDER = ['Spring Framework', 'Java', 'Databases', 'Messaging', 'APIs & Integration', 'CI/CD', 'Monitoring', 'Performance & Profiling']
 
 // Get subcategory for a component (Practice)
 const getSubcategoryForComponent = (componentName) => {
@@ -525,7 +542,7 @@ const getFrameworksComponentIndex = (componentName) => {
   return FRAMEWORKS_COMPONENTS_ORDER.indexOf(componentName)
 }
 
-const DEVOPS_COMPONENTS_ORDER = ['Deployment', 'Docker', 'Kubernetes', 'Testing', 'CICD', 'AgileScrum', 'ProductionSupport', 'TeamCity', 'Jenkins', 'Prometheus', 'Grafana', 'SecurityOWASP', 'JWT', 'OAuth', 'OAuth2', 'Kafka', 'ApacheFlink', 'RabbitMQ', 'Solace', 'MuleSoft']
+const DEVOPS_COMPONENTS_ORDER = ['Deployment', 'Docker', 'Kubernetes', 'Testing', 'CICD', 'AgileScrum', 'ProductionSupport', 'TeamCity', 'Jenkins', 'Prometheus', 'Grafana', 'Ansible', 'UnixScripting', 'JavaFlightRecorder', 'JMeter', 'Dynatrace', 'SecurityOWASP', 'JWT', 'OAuth', 'OAuth2', 'Kafka', 'ApacheFlink', 'RabbitMQ', 'Solace', 'MuleSoft']
 
 // Display names for devops components
 const DEVOPS_DISPLAY_NAMES = {
@@ -540,6 +557,11 @@ const DEVOPS_DISPLAY_NAMES = {
   'Jenkins': 'Jenkins',
   'Prometheus': 'Prometheus',
   'Grafana': 'Grafana',
+  'Ansible': 'Ansible',
+  'UnixScripting': 'Unix Scripting',
+  'JavaFlightRecorder': 'Java Flight Recorder',
+  'JMeter': 'JMeter',
+  'Dynatrace': 'Dynatrace',
   'SecurityOWASP': 'Security & OWASP',
   'JWT': 'JWT',
   'OAuth': 'OAuth',
@@ -807,6 +829,11 @@ function App() {
   const [showJenkinsModal, setShowJenkinsModal] = useState(false)
   const [showPrometheusModal, setShowPrometheusModal] = useState(false)
   const [showGrafanaModal, setShowGrafanaModal] = useState(false)
+  const [showAnsibleModal, setShowAnsibleModal] = useState(false)
+  const [showUnixScriptingModal, setShowUnixScriptingModal] = useState(false)
+  const [showJavaFlightRecorderModal, setShowJavaFlightRecorderModal] = useState(false)
+  const [showJMeterModal, setShowJMeterModal] = useState(false)
+  const [showDynatraceModal, setShowDynatraceModal] = useState(false)
   const [showSecurityOWASPModal, setShowSecurityOWASPModal] = useState(false)
   const [showKafkaModal, setShowKafkaModal] = useState(false)
   const [showApacheFlinkModal, setShowApacheFlinkModal] = useState(false)
@@ -894,6 +921,9 @@ function App() {
   const [showSpringDataJPAQuestionsModal, setShowSpringDataJPAQuestionsModal] = useState(false)
   const [showSpringAnnotationsQuestionsModal, setShowSpringAnnotationsQuestionsModal] = useState(false)
   const [showEtradingQuestionsModal, setShowEtradingQuestionsModal] = useState(false)
+  const [showJMeterQuestionsModal, setShowJMeterQuestionsModal] = useState(false)
+  const [showJFRQuestionsModal, setShowJFRQuestionsModal] = useState(false)
+  const [showDynatraceQuestionsModal, setShowDynatraceQuestionsModal] = useState(false)
   const [showSystemDesignQuestionsModal, setShowSystemDesignQuestionsModal] = useState(false)
   const [showSystemDesignFundamentalsQuestionsModal, setShowSystemDesignFundamentalsQuestionsModal] = useState(false)
   const [showDataStorageQuestionsModal, setShowDataStorageQuestionsModal] = useState(false)
@@ -1206,6 +1236,13 @@ function App() {
       'Jenkins': setShowJenkinsModal,
       'Prometheus': setShowPrometheusModal,
       'Grafana': setShowGrafanaModal,
+      'Ansible': setShowAnsibleModal,
+      'Unix Scripting': setShowUnixScriptingModal,
+      'UnixScripting': setShowUnixScriptingModal,
+      'Java Flight Recorder': setShowJavaFlightRecorderModal,
+      'JavaFlightRecorder': setShowJavaFlightRecorderModal,
+      'JMeter': setShowJMeterModal,
+      'Dynatrace': setShowDynatraceModal,
       'Security OWASP': setShowSecurityOWASPModal,
       'Security & OWASP': setShowSecurityOWASPModal
     }
@@ -1224,6 +1261,11 @@ function App() {
       setShowJenkinsModal(false)
       setShowPrometheusModal(false)
       setShowGrafanaModal(false)
+      setShowAnsibleModal(false)
+      setShowUnixScriptingModal(false)
+      setShowJavaFlightRecorderModal(false)
+      setShowJMeterModal(false)
+      setShowDynatraceModal(false)
       setShowSecurityOWASPModal(false)
 
       // Open the target modal
@@ -1932,6 +1974,11 @@ function App() {
       setShowJenkinsModal(false)
       setShowPrometheusModal(false)
       setShowGrafanaModal(false)
+      setShowAnsibleModal(false)
+      setShowUnixScriptingModal(false)
+      setShowJavaFlightRecorderModal(false)
+      setShowJMeterModal(false)
+      setShowDynatraceModal(false)
       setShowSecurityOWASPModal(false)
       setShowKafkaModal(false)
       setShowApacheFlinkModal(false)
@@ -1962,6 +2009,16 @@ function App() {
         setShowPrometheusModal(true)
       } else if (componentName === 'Grafana') {
         setShowGrafanaModal(true)
+      } else if (componentName === 'Ansible') {
+        setShowAnsibleModal(true)
+      } else if (componentName === 'UnixScripting') {
+        setShowUnixScriptingModal(true)
+      } else if (componentName === 'JavaFlightRecorder') {
+        setShowJavaFlightRecorderModal(true)
+      } else if (componentName === 'JMeter') {
+        setShowJMeterModal(true)
+      } else if (componentName === 'Dynatrace') {
+        setShowDynatraceModal(true)
       } else if (componentName === 'SecurityOWASP') {
         setShowSecurityOWASPModal(true)
       } else if (componentName === 'JWT') {
@@ -2937,6 +2994,11 @@ function App() {
             [showJenkinsModal, setShowJenkinsModal],
             [showPrometheusModal, setShowPrometheusModal],
             [showGrafanaModal, setShowGrafanaModal],
+            [showAnsibleModal, setShowAnsibleModal],
+            [showUnixScriptingModal, setShowUnixScriptingModal],
+            [showJavaFlightRecorderModal, setShowJavaFlightRecorderModal],
+            [showJMeterModal, setShowJMeterModal],
+            [showDynatraceModal, setShowDynatraceModal],
             [showSecurityOWASPModal, setShowSecurityOWASPModal],
             [showKafkaModal, setShowKafkaModal],
             [showApacheFlinkModal, setShowApacheFlinkModal],
@@ -3030,6 +3092,9 @@ function App() {
             [showPostgreSQLQuestionsModal, setShowPostgreSQLQuestionsModal],
             [showSQLFundamentalsQuestionsModal, setShowSQLFundamentalsQuestionsModal],
             [showApacheFlinkQuestionsModal, setShowApacheFlinkQuestionsModal],
+            [showJMeterQuestionsModal, setShowJMeterQuestionsModal],
+            [showJFRQuestionsModal, setShowJFRQuestionsModal],
+            [showDynatraceQuestionsModal, setShowDynatraceQuestionsModal],
           ];
 
           // Check question modals first - use handleQuestionModalBack for proper navigation
@@ -3210,6 +3275,11 @@ function App() {
     showJenkinsModal,
     showPrometheusModal,
     showGrafanaModal,
+    showAnsibleModal,
+    showUnixScriptingModal,
+    showJavaFlightRecorderModal,
+    showJMeterModal,
+    showDynatraceModal,
     showSecurityOWASPModal,
     showKafkaModal,
     showApacheFlinkModal,
@@ -3288,7 +3358,10 @@ function App() {
     showSpringSecurityQuestionsModal,
     showSpringDataJPAQuestionsModal,
     showSpringAnnotationsQuestionsModal,
-    showEtradingQuestionsModal
+    showEtradingQuestionsModal,
+    showJMeterQuestionsModal,
+    showJFRQuestionsModal,
+    showDynatraceQuestionsModal
   ]);
 
   // Design topic category mapping for breadcrumbs (component level for modal access)
@@ -3391,6 +3464,11 @@ function App() {
     'ProductionSupport': { name: 'Monitoring & Observability', id: 'monitoring' },
     'Prometheus': { name: 'Monitoring & Observability', id: 'monitoring' },
     'Grafana': { name: 'Monitoring & Observability', id: 'monitoring' },
+    'Ansible': { name: 'Infrastructure & Config', id: 'infrastructure' },
+    'UnixScripting': { name: 'Infrastructure & Config', id: 'infrastructure' },
+    'JavaFlightRecorder': { name: 'Monitoring & Observability', id: 'monitoring' },
+    'JMeter': { name: 'Monitoring & Observability', id: 'monitoring' },
+    'Dynatrace': { name: 'Monitoring & Observability', id: 'monitoring' },
     'SecurityOWASP': { name: 'Security & Authentication', id: 'security' }
   }
 
@@ -3558,6 +3636,24 @@ function App() {
     }
     if (selectedOption === 'String Algorithms') {
       return <StringAlgorithms onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'String Algorithms' }} />
+    }
+    if (selectedOption === 'Math Functions') {
+      return <MathFunctions onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'Math Functions' }} />
+    }
+    if (selectedOption === 'Builtin Functions') {
+      return <BuiltinFunctions onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'Built-in Functions' }} />
+    }
+    if (selectedOption === 'Functools') {
+      return <Functools onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'functools Module' }} />
+    }
+    if (selectedOption === 'Copy Module') {
+      return <CopyModule onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'Copy Module' }} />
+    }
+    if (selectedOption === 'Decorators') {
+      return <Decorators onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'Decorators Deep Dive' }} />
+    }
+    if (selectedOption === 'Generators') {
+      return <Generators onBack={() => setSelectedOptionAndRef('Python')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Python', icon: '🐍', onClick: () => setSelectedOptionAndRef('Python') }, colors: BREADCRUMB_COLORS.Python, topic: 'Generators & Iterators' }} />
     }
     if (selectedOption === 'Event Driven Architecture') {
       setShowEventDrivenArchitectureModal(true)
@@ -4564,6 +4660,9 @@ function App() {
             case 'Spring Annotations Questions': setShowSpringAnnotationsQuestionsModal(true); break;
             case 'eTrading Questions': setShowEtradingQuestionsModal(true); break;
             case 'System Design Questions': setShowSystemDesignQuestionsModal(true); break;
+            case 'JMeter Questions': setShowJMeterQuestionsModal(true); break;
+            case 'JFR Questions': setShowJFRQuestionsModal(true); break;
+            case 'Dynatrace Questions': setShowDynatraceQuestionsModal(true); break;
             default:
               console.log('No match found for item:', item);
               break;
@@ -5374,6 +5473,101 @@ function App() {
             <Grafana onBack={() => { setShowGrafanaModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('Grafana')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowGrafanaModal(false); setSelectedOptionAndRef('DevOps') } },
               category: { name: devopsTopicCategories['Grafana'].name, onClick: () => { setShowGrafanaModal(false); goToDevopsCategory(devopsTopicCategories['Grafana'].id) } },
               topic: 'Grafana',
+              colors: BREADCRUMB_COLORS.DevOps
+            }} />
+          </div>
+        </div>
+      )}
+
+      {/* Ansible Modal */}
+      {showAnsibleModal && (
+        <div
+          style={modalOverlayStyle}
+          onClick={() => setShowAnsibleModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={modalContentStyle}
+          >
+            <Ansible onBack={() => { setShowAnsibleModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('Ansible')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowAnsibleModal(false); setSelectedOptionAndRef('DevOps') } },
+              category: { name: devopsTopicCategories['Ansible'].name, onClick: () => { setShowAnsibleModal(false); goToDevopsCategory(devopsTopicCategories['Ansible'].id) } },
+              topic: 'Ansible',
+              colors: BREADCRUMB_COLORS.DevOps
+            }} />
+          </div>
+        </div>
+      )}
+
+      {/* Unix Scripting Modal */}
+      {showUnixScriptingModal && (
+        <div
+          style={modalOverlayStyle}
+          onClick={() => setShowUnixScriptingModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={modalContentStyle}
+          >
+            <UnixScripting onBack={() => { setShowUnixScriptingModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('UnixScripting')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowUnixScriptingModal(false); setSelectedOptionAndRef('DevOps') } },
+              category: { name: devopsTopicCategories['UnixScripting'].name, onClick: () => { setShowUnixScriptingModal(false); goToDevopsCategory(devopsTopicCategories['UnixScripting'].id) } },
+              topic: 'Unix Scripting',
+              colors: BREADCRUMB_COLORS.DevOps
+            }} />
+          </div>
+        </div>
+      )}
+
+      {/* Java Flight Recorder Modal */}
+      {showJavaFlightRecorderModal && (
+        <div
+          style={modalOverlayStyle}
+          onClick={() => setShowJavaFlightRecorderModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={modalContentStyle}
+          >
+            <JavaFlightRecorder onBack={() => { setShowJavaFlightRecorderModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('JavaFlightRecorder')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowJavaFlightRecorderModal(false); setSelectedOptionAndRef('DevOps') } },
+              category: { name: devopsTopicCategories['JavaFlightRecorder'].name, onClick: () => { setShowJavaFlightRecorderModal(false); goToDevopsCategory(devopsTopicCategories['JavaFlightRecorder'].id) } },
+              topic: 'Java Flight Recorder',
+              colors: BREADCRUMB_COLORS.DevOps
+            }} />
+          </div>
+        </div>
+      )}
+
+      {/* JMeter Modal */}
+      {showJMeterModal && (
+        <div
+          style={modalOverlayStyle}
+          onClick={() => setShowJMeterModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={modalContentStyle}
+          >
+            <JMeter onBack={() => { setShowJMeterModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('JMeter')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowJMeterModal(false); setSelectedOptionAndRef('DevOps') } },
+              category: { name: devopsTopicCategories['JMeter'].name, onClick: () => { setShowJMeterModal(false); goToDevopsCategory(devopsTopicCategories['JMeter'].id) } },
+              topic: 'JMeter',
+              colors: BREADCRUMB_COLORS.DevOps
+            }} />
+          </div>
+        </div>
+      )}
+
+      {/* Dynatrace Modal */}
+      {showDynatraceModal && (
+        <div
+          style={modalOverlayStyle}
+          onClick={() => setShowDynatraceModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={modalContentStyle}
+          >
+            <Dynatrace onBack={() => { setShowDynatraceModal(false); setSelectedOptionAndRef('DevOps') }} {...createDevOpsNavigationCallbacks('Dynatrace')} breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'DevOps', icon: '🛠️', onClick: () => { setShowDynatraceModal(false); setSelectedOptionAndRef('DevOps') } },
+              category: { name: devopsTopicCategories['Dynatrace'].name, onClick: () => { setShowDynatraceModal(false); goToDevopsCategory(devopsTopicCategories['Dynatrace'].id) } },
+              topic: 'Dynatrace',
               colors: BREADCRUMB_COLORS.DevOps
             }} />
           </div>
@@ -8437,6 +8631,135 @@ function App() {
             </div>
           </div>
         </>
+      )}
+
+      {showJMeterQuestionsModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000000,
+            padding: '1rem',
+            overflow: 'auto'
+          }}
+          onClick={() => setShowJMeterQuestionsModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: colors.bgSecondary,
+              borderRadius: '16px',
+              maxWidth: '95vw',
+              width: '1400px',
+              maxHeight: '95vh',
+              overflow: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              position: 'relative'
+            }}
+          >
+            <JMeterQuestions
+              onBack={() => handleQuestionModalBack(setShowJMeterQuestionsModal)}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJMeterQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'JMeter',
+                colors: BREADCRUMB_COLORS.Questions
+              }}
+              problemLimit={problemLimit}
+            />
+          </div>
+        </div>
+      )}
+
+      {showJFRQuestionsModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000000,
+            padding: '1rem',
+            overflow: 'auto'
+          }}
+          onClick={() => setShowJFRQuestionsModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: colors.bgSecondary,
+              borderRadius: '16px',
+              maxWidth: '95vw',
+              width: '1400px',
+              maxHeight: '95vh',
+              overflow: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              position: 'relative'
+            }}
+          >
+            <JFRQuestions
+              onBack={() => handleQuestionModalBack(setShowJFRQuestionsModal)}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowJFRQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Java Flight Recorder',
+                colors: BREADCRUMB_COLORS.Questions
+              }}
+              problemLimit={problemLimit}
+            />
+          </div>
+        </div>
+      )}
+
+      {showDynatraceQuestionsModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000000,
+            padding: '1rem',
+            overflow: 'auto'
+          }}
+          onClick={() => setShowDynatraceQuestionsModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: colors.bgSecondary,
+              borderRadius: '16px',
+              maxWidth: '95vw',
+              width: '1400px',
+              maxHeight: '95vh',
+              overflow: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              position: 'relative'
+            }}
+          >
+            <DynatraceQuestions
+              onBack={() => handleQuestionModalBack(setShowDynatraceQuestionsModal)}
+              breadcrumb={{ onMainMenu: () => setSelectedOptionAndRef(''), section: { name: 'Questions', icon: '?', onClick: () => { setShowDynatraceQuestionsModal(false); setSelectedOptionAndRef('Questions') } },
+                topic: 'Dynatrace',
+                colors: BREADCRUMB_COLORS.Questions
+              }}
+              problemLimit={problemLimit}
+            />
+          </div>
+        </div>
       )}
 
       {showSpringCoreQuestionsModal && (

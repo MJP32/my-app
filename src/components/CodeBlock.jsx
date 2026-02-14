@@ -24,8 +24,8 @@ const normalizeIndentation = (code) => {
 const highlightJava = (code) => {
   let highlighted = code
     .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
+    .replace(/</g, '<')
+    .replace(/>/g, '>')
 
   const protectedContent = []
   let placeholder = 0
@@ -63,8 +63,8 @@ const highlightJava = (code) => {
 const highlightPython = (code) => {
   let highlighted = code
     .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
+    .replace(/</g, '<')
+    .replace(/>/g, '>')
 
   const protectedContent = []
   let placeholder = 0

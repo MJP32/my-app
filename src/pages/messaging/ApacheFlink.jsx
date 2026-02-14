@@ -94,11 +94,11 @@ const StatefulComputingDiagram = () => (
     <rect x="50" y="50" width="140" height="130" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
     <text x="120" y="72" textAnchor="middle" fill="#60a5fa" fontSize="10" fontWeight="bold">Keyed State</text>
     <rect x="60" y="85" width="120" height="25" rx="3" fill="rgba(34, 197, 94, 0.4)" stroke="#22c55e" strokeWidth="1"/>
-    <text x="120" y="102" textAnchor="middle" fill="#4ade80" fontSize="8">{`ValueState&lt;T&gt;`}</text>
+    <text x="120" y="102" textAnchor="middle" fill="#4ade80" fontSize="8">{`ValueState<T>`}</text>
     <rect x="60" y="115" width="120" height="25" rx="3" fill="rgba(245, 158, 11, 0.4)" stroke="#f59e0b" strokeWidth="1"/>
-    <text x="120" y="132" textAnchor="middle" fill="#fbbf24" fontSize="8">{`ListState&lt;T&gt;`}</text>
+    <text x="120" y="132" textAnchor="middle" fill="#fbbf24" fontSize="8">{`ListState<T>`}</text>
     <rect x="60" y="145" width="120" height="25" rx="3" fill="rgba(139, 92, 246, 0.4)" stroke="#8b5cf6" strokeWidth="1"/>
-    <text x="120" y="162" textAnchor="middle" fill="#a78bfa" fontSize="8">{`MapState&lt;K,V&gt;`}</text>
+    <text x="120" y="162" textAnchor="middle" fill="#a78bfa" fontSize="8">{`MapState<K,V>`}</text>
 
     <rect x="250" y="50" width="140" height="130" rx="6" fill="rgba(236, 72, 153, 0.2)" stroke="#ec4899" strokeWidth="2"/>
     <text x="320" y="72" textAnchor="middle" fill="#f472b6" fontSize="10" fontWeight="bold">State Backend</text>

@@ -151,8 +151,8 @@ const SyntaxHighlighter = ({ code }) => {
   const highlightJava = (code) => {
     let highlighted = code
       .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
+      .replace(/</g, '<')
+      .replace(/>/g, '>')
 
     const protectedContent = []
     let placeholder = 0

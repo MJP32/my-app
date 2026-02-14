@@ -78,7 +78,7 @@ const LambdaDiagram = () => (
     {/* Lambda */}
     <rect x="330" y="70" width="160" height="90" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
     <text x="410" y="95" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Lambda Expression</text>
-    <text x="410" y="120" textAnchor="middle" fill="white" fontSize="13" fontFamily="monospace">{`() -&gt; {'{'}`}</text>
+    <text x="410" y="120" textAnchor="middle" fill="white" fontSize="13" fontFamily="monospace">{`() -> {'{'}`}</text>
     <text x="410" y="140" textAnchor="middle" fill="#c4b5fd" fontSize="11" fontFamily="monospace">// code</text>
     <text x="410" y="155" textAnchor="middle" fill="white" fontSize="13" fontFamily="monospace">{'}'}</text>
 
@@ -107,7 +107,7 @@ const StreamDiagram = () => (
     </defs>
 
     <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`
-      Stream Pipeline: Source -&gt; Intermediate Operations -&gt; Terminal Operation
+      Stream Pipeline: Source -> Intermediate Operations -> Terminal Operation
     `}</text>
 
     {/* Source */}
@@ -154,7 +154,7 @@ const StreamDiagram = () => (
 
     {/* Data flow illustration */}
     <text x="400" y="175" textAnchor="middle" fill="#64748b" fontSize="10">{`
-      Data flows through pipeline: [1,2,3,4,5] -&gt; filter evens -&gt; map *2 -&gt; sort -&gt; [4,8]
+      Data flows through pipeline: [1,2,3,4,5] -> filter evens -> map *2 -> sort -> [4,8]
     `}</text>
   </svg>
 )
@@ -368,7 +368,7 @@ const MetaspaceDiagram = () => (
     <text x="200" y="170" textAnchor="middle" fill="#94a3b8" fontSize="9">-XX:MaxPermSize required</text>
 
     {/* Arrow */}
-    <text x="400" y="115" textAnchor="middle" fill="#22c55e" fontSize="20" fontWeight="bold">{`-&gt;`}</text>
+    <text x="400" y="115" textAnchor="middle" fill="#22c55e" fontSize="20" fontWeight="bold">{`->`}</text>
 
     {/* Java 8+ */}
     <rect x="430" y="50" width="340" height="130" rx="8" fill="#1e293b" stroke="#22c55e" strokeWidth="2"/>

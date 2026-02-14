@@ -2603,8 +2603,8 @@ public class HTML {
 
     private static String escapeHtml(String str) {
         return str.replace("&", "&amp;")
-                  .replace("<", "&lt;")
-                  .replace(">", "&gt;")
+                  .replace("<", "<")
+                  .replace(">", ">")
                   .replace("\\"", "&quot;");
     }
 
@@ -2617,7 +2617,7 @@ public class HTML {
             </div>
             """;
         // If bio = "<script>alert('xss')</script>"
-        // Output: &lt;script&gt;alert('xss')&lt;/script&gt;
+        // Output: <script>alert('xss')</script>
     }
 }
 \`\`\`

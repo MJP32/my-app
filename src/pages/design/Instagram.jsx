@@ -349,7 +349,7 @@ const StoriesDiagram = () => (
 
     <rect x="690" y="330" width="180" height="40" fill="#374151" rx="6" />
     <text x="780" y="350" textAnchor="middle" fill="#06b6d4" fontSize="10" fontWeight="bold">Redis: Sorted Set</text>
-    <text x="780" y="365" textAnchor="middle" fill="#9ca3af" fontSize="8">{`stories:{'{user_id}'} -&gt; timestamp`}</text>
+    <text x="780" y="365" textAnchor="middle" fill="#9ca3af" fontSize="8">{`stories:{'{user_id}'} -> timestamp`}</text>
 
     <path d="M 130 110 L 155 110" stroke="#E1306C" strokeWidth="2" fill="none" markerEnd="url(#arrowStory)" />
     <path d="M 260 110 L 285 110" stroke="#E1306C" strokeWidth="2" fill="none" markerEnd="url(#arrowStory)" />

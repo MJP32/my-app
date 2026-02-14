@@ -27,8 +27,8 @@ const SyntaxHighlighter = ({ code }) => {
   const highlightCode = (code) => {
     let highlighted = code
       .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
+      .replace(/</g, '<')
+      .replace(/>/g, '>')
 
     const protectedContent = []
     let placeholder = 0
@@ -54,7 +54,7 @@ const SyntaxHighlighter = ({ code }) => {
       .replace(/\b(useState|useEffect|useContext|useReducer|useCallback|useMemo|useRef|React|Component|PureComponent|Fragment|StrictMode|Suspense|lazy)\b/g, '<span style="color: #4ec9b0;">$1</span>')
       .replace(/\b(\d+\.?\d*)\b/g, '<span style="color: #b5cea8;">$1</span>')
       .replace(/\b([a-z_]\w*)\s*\(/g, '<span style="color: #dcdcaa;">$1</span>(')
-      .replace(/=&gt;/g, '<span style="color: #c586c0;">=&gt;</span>')
+      .replace(/=&gt;/g, '<span style="color: #c586c0;">=></span>')
 
     protectedContent.forEach(({ id, replacement }) => {
       highlighted = highlighted.replace(id, replacement)

@@ -332,8 +332,8 @@ const SyntaxHighlighter = ({ code }) => {
   const highlightCode = (code) => {
     let highlighted = code
       .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
+      .replace(/</g, '<')
+      .replace(/>/g, '>')
 
     const protectedContent = []
     let placeholder = 0
@@ -623,8 +623,8 @@ object Build : BuildType({
 /*
 <artifact-rules>
   <include>
-    <rule>build/libs/*.jar =&gt; artifacts/</rule>
-    <rule>build/reports/** =&gt; reports.zip</rule>
+    <rule>build/libs/*.jar => artifacts/</rule>
+    <rule>build/reports/** => reports.zip</rule>
   </include>
   <exclude>
     <rule>build/libs/*-sources.jar</rule>

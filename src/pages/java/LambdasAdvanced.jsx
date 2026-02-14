@@ -71,19 +71,19 @@ const FunctionCompositionDiagram = () => (
 
     <rect x="180" y="70" width="120" height="60" rx="8" fill="#7c3aed" stroke="#a78bfa" strokeWidth="2"/>
     <text x="240" y="95" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">trim()</text>
-    <text x="240" y="115" textAnchor="middle" fill="#c4b5fd" fontSize="10">{`Function&lt;String, String&gt;`}</text>
+    <text x="240" y="115" textAnchor="middle" fill="#c4b5fd" fontSize="10">{`Function<String, String>`}</text>
 
     <line x1="300" y1="100" x2="345" y2="100" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrow-comp)"/>
 
     <rect x="350" y="70" width="120" height="60" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
     <text x="410" y="95" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">toUpperCase()</text>
-    <text x="410" y="115" textAnchor="middle" fill="#93c5fd" fontSize="10">{`Function&lt;String, String&gt;`}</text>
+    <text x="410" y="115" textAnchor="middle" fill="#93c5fd" fontSize="10">{`Function<String, String>`}</text>
 
     <line x1="470" y1="100" x2="515" y2="100" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrow-comp)"/>
 
     <rect x="520" y="70" width="120" height="60" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
     <text x="580" y="95" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">addPrefix()</text>
-    <text x="580" y="115" textAnchor="middle" fill="#86efac" fontSize="10">{`Function&lt;String, String&gt;`}</text>
+    <text x="580" y="115" textAnchor="middle" fill="#86efac" fontSize="10">{`Function<String, String>`}</text>
 
     <line x1="640" y1="100" x2="685" y2="100" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrow-comp)"/>
 
@@ -116,7 +116,7 @@ const PredicateChainDiagram = () => (
 
     <rect x="200" y="50" width="130" height="70" rx="8" fill="#7c3aed" stroke="#a78bfa" strokeWidth="2"/>
     <text x="265" y="75" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">isPositive</text>
-    <text x="265" y="95" textAnchor="middle" fill="#c4b5fd" fontSize="10">{`n &gt; 0`}</text>
+    <text x="265" y="95" textAnchor="middle" fill="#c4b5fd" fontSize="10">{`n > 0`}</text>
     <text x="265" y="110" textAnchor="middle" fill="#4ade80" fontSize="10">✓ true</text>
 
     <line x1="330" y1="85" x2="375" y2="85" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrow-pred)"/>
@@ -132,7 +132,7 @@ const PredicateChainDiagram = () => (
 
     <rect x="560" y="50" width="130" height="70" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
     <text x="625" y="75" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">greaterThan10</text>
-    <text x="625" y="95" textAnchor="middle" fill="#86efac" fontSize="10">{`n &gt; 10`}</text>
+    <text x="625" y="95" textAnchor="middle" fill="#86efac" fontSize="10">{`n > 10`}</text>
     <text x="625" y="110" textAnchor="middle" fill="#4ade80" fontSize="10">✓ true</text>
 
     <line x1="690" y1="85" x2="735" y2="85" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrow-pred)"/>
@@ -160,12 +160,12 @@ const CustomFunctionalInterfaceDiagram = () => (
     </defs>
 
     <text x="400" y="25" textAnchor="middle" fill="#94a3b8" fontSize="14" fontWeight="bold">{`
-      Custom Functional Interface: TriFunction&lt;T, U, V, R&gt;
+      Custom Functional Interface: TriFunction<T, U, V, R>
     `}</text>
 
     <rect x="50" y="50" width="300" height="150" rx="10" fill="rgba(124, 58, 237, 0.1)" stroke="#7c3aed" strokeWidth="2"/>
     <text x="200" y="75" textAnchor="middle" fill="#a78bfa" fontSize="12" fontWeight="bold">@FunctionalInterface</text>
-    <text x="200" y="95" textAnchor="middle" fill="#e2e8f0" fontSize="11">{`interface TriFunction&lt;T, U, V, R&gt;`}</text>
+    <text x="200" y="95" textAnchor="middle" fill="#e2e8f0" fontSize="11">{`interface TriFunction<T, U, V, R>`}</text>
 
     <rect x="80" y="110" width="240" height="70" rx="6" fill="#1e293b" stroke="#334155" strokeWidth="1"/>
     <text x="200" y="135" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">R apply(T t, U u, V v)</text>
@@ -179,8 +179,8 @@ const CustomFunctionalInterfaceDiagram = () => (
     <text x="585" y="75" textAnchor="middle" fill="#4ade80" fontSize="12" fontWeight="bold">Lambda Implementation</text>
 
     <rect x="440" y="90" width="290" height="95" rx="6" fill="#0f172a" stroke="#334155" strokeWidth="1"/>
-    <text x="585" y="115" textAnchor="middle" fill="#e2e8f0" fontSize="10" fontFamily="monospace">{`TriFunction&lt;Double, Double, Double, Double&gt;`}</text>
-    <text x="585" y="135" textAnchor="middle" fill="#a78bfa" fontSize="10" fontFamily="monospace">{`triangleArea = (a, b, c) -&gt; {"{"}`}</text>
+    <text x="585" y="115" textAnchor="middle" fill="#e2e8f0" fontSize="10" fontFamily="monospace">{`TriFunction<Double, Double, Double, Double>`}</text>
+    <text x="585" y="135" textAnchor="middle" fill="#a78bfa" fontSize="10" fontFamily="monospace">{`triangleArea = (a, b, c) -> {"{"}`}</text>
     <text x="585" y="152" textAnchor="middle" fill="#f59e0b" fontSize="10" fontFamily="monospace">double s = (a + b + c) / 2;</text>
     <text x="585" y="169" textAnchor="middle" fill="#f59e0b" fontSize="10" fontFamily="monospace">return Math.sqrt(s*(s-a)*(s-b)*(s-c));</text>
 
@@ -229,7 +229,7 @@ const MethodReferencesDiagram = () => (
     <rect x="100" y="170" width="600" height="80" rx="8" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
     <text x="400" y="195" textAnchor="middle" fill="#e2e8f0" fontSize="12" fontWeight="bold">When to Use Method References</text>
     <text x="400" y="215" textAnchor="middle" fill="#94a3b8" fontSize="10">Use when lambda only calls a single method with the same parameters</text>
-    <text x="400" y="235" textAnchor="middle" fill="#64748b" fontSize="10">{`x -&gt; x.toLowerCase()  ==&gt;  String::toLowerCase`}</text>
+    <text x="400" y="235" textAnchor="middle" fill="#64748b" fontSize="10">{`x -> x.toLowerCase()  ==>  String::toLowerCase`}</text>
   </svg>
 )
 
@@ -247,13 +247,13 @@ const ExceptionHandlingDiagram = () => (
 
     <rect x="50" y="50" width="200" height="80" rx="8" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="2"/>
     <text x="150" y="75" textAnchor="middle" fill="#f87171" fontSize="11" fontWeight="bold">Problem</text>
-    <text x="150" y="95" textAnchor="middle" fill="#fca5a5" fontSize="10">{`Function&lt;T,R&gt; cannot`}</text>
+    <text x="150" y="95" textAnchor="middle" fill="#fca5a5" fontSize="10">{`Function<T,R> cannot`}</text>
     <text x="150" y="110" textAnchor="middle" fill="#fca5a5" fontSize="10">throw checked exceptions</text>
 
     <line x1="250" y1="90" x2="295" y2="90" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrow-ex)"/>
 
     <rect x="300" y="45" width="230" height="90" rx="8" fill="rgba(124, 58, 237, 0.2)" stroke="#7c3aed" strokeWidth="2"/>
-    <text x="415" y="70" textAnchor="middle" fill="#a78bfa" fontSize="11" fontWeight="bold">{`ThrowingFunction&lt;T,R&gt;`}</text>
+    <text x="415" y="70" textAnchor="middle" fill="#a78bfa" fontSize="11" fontWeight="bold">{`ThrowingFunction<T,R>`}</text>
     <text x="415" y="90" textAnchor="middle" fill="#c4b5fd" fontSize="10">@FunctionalInterface</text>
     <text x="415" y="108" textAnchor="middle" fill="#e2e8f0" fontSize="9" fontFamily="monospace">R apply(T t) throws Exception</text>
 
@@ -262,14 +262,14 @@ const ExceptionHandlingDiagram = () => (
     <rect x="580" y="50" width="170" height="80" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
     <text x="665" y="75" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">Solution</text>
     <text x="665" y="95" textAnchor="middle" fill="#86efac" fontSize="10">Wrap in try-catch</text>
-    <text x="665" y="110" textAnchor="middle" fill="#86efac" fontSize="10">{`Return Optional&lt;R&gt;`}</text>
+    <text x="665" y="110" textAnchor="middle" fill="#86efac" fontSize="10">{`Return Optional<R>`}</text>
 
     <rect x="100" y="155" width="600" height="85" rx="8" fill="#0f172a" stroke="#334155" strokeWidth="1"/>
     <text x="400" y="180" textAnchor="middle" fill="#e2e8f0" fontSize="11" fontFamily="monospace">{`
-      static &lt;T, R&gt; Function&lt;T, Optional&lt;R&gt;&gt; wrap(ThrowingFunction&lt;T, R&gt; f) {"{"}
+      static <T, R> Function<T, Optional<R>> wrap(ThrowingFunction<T, R> f) {"{"}
     `}</text>
     <text x="400" y="200" textAnchor="middle" fill="#f59e0b" fontSize="10" fontFamily="monospace">{`
-      return t -&gt; {"{"} try {"{"} return Optional.of(f.apply(t)); {"}"}
+      return t -> {"{"} try {"{"} return Optional.of(f.apply(t)); {"}"}
     `}</text>
     <text x="400" y="218" textAnchor="middle" fill="#f59e0b" fontSize="10" fontFamily="monospace">
       catch (Exception e) {"{"} return Optional.empty(); {"}"} {"}"};
@@ -290,7 +290,7 @@ const ConsumerSupplierDiagram = () => (
     </text>
 
     <rect x="50" y="50" width="320" height="160" rx="10" fill="rgba(59, 130, 246, 0.1)" stroke="#3b82f6" strokeWidth="2"/>
-    <text x="210" y="75" textAnchor="middle" fill="#60a5fa" fontSize="12" fontWeight="bold">{`Consumer&lt;T&gt;`}</text>
+    <text x="210" y="75" textAnchor="middle" fill="#60a5fa" fontSize="12" fontWeight="bold">{`Consumer<T>`}</text>
     <text x="210" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">Accepts input, returns void (side effects)</text>
 
     <rect x="70" y="105" width="100" height="40" rx="6" fill="#1e293b" stroke="#334155"/>
@@ -302,10 +302,10 @@ const ConsumerSupplierDiagram = () => (
     <text x="285" y="130" textAnchor="middle" fill="white" fontSize="10">void accept(T)</text>
 
     <text x="210" y="175" textAnchor="middle" fill="#94a3b8" fontSize="9">Chain with: c1.andThen(c2)</text>
-    <text x="210" y="195" textAnchor="middle" fill="#64748b" fontSize="9" fontFamily="monospace">{`Consumer&lt;String&gt; log = System.out::println`}</text>
+    <text x="210" y="195" textAnchor="middle" fill="#64748b" fontSize="9" fontFamily="monospace">{`Consumer<String> log = System.out::println`}</text>
 
     <rect x="430" y="50" width="320" height="160" rx="10" fill="rgba(34, 197, 94, 0.1)" stroke="#22c55e" strokeWidth="2"/>
-    <text x="590" y="75" textAnchor="middle" fill="#4ade80" fontSize="12" fontWeight="bold">{`Supplier&lt;T&gt;`}</text>
+    <text x="590" y="75" textAnchor="middle" fill="#4ade80" fontSize="12" fontWeight="bold">{`Supplier<T>`}</text>
     <text x="590" y="95" textAnchor="middle" fill="#94a3b8" fontSize="10">No input, returns value (lazy initialization)</text>
 
     <rect x="460" y="105" width="130" height="40" rx="6" fill="#22c55e" stroke="#4ade80"/>
@@ -317,7 +317,7 @@ const ConsumerSupplierDiagram = () => (
     <text x="690" y="130" textAnchor="middle" fill="#e2e8f0" fontSize="10">Output T</text>
 
     <text x="590" y="175" textAnchor="middle" fill="#94a3b8" fontSize="9">Computed only when get() is called</text>
-    <text x="590" y="195" textAnchor="middle" fill="#64748b" fontSize="9" fontFamily="monospace">{`Supplier&lt;List&gt; lazy = ArrayList::new`}</text>
+    <text x="590" y="195" textAnchor="middle" fill="#64748b" fontSize="9" fontFamily="monospace">{`Supplier<List> lazy = ArrayList::new`}</text>
   </svg>
 )
 
@@ -336,26 +336,26 @@ const HigherOrderFunctionsDiagram = () => (
     <rect x="50" y="55" width="180" height="80" rx="8" fill="rgba(124, 58, 237, 0.2)" stroke="#7c3aed" strokeWidth="2"/>
     <text x="140" y="80" textAnchor="middle" fill="#a78bfa" fontSize="11" fontWeight="bold">makeOperator(String op)</text>
     <text x="140" y="100" textAnchor="middle" fill="#c4b5fd" fontSize="10">Function Factory</text>
-    <text x="140" y="118" textAnchor="middle" fill="#64748b" fontSize="9">{`Returns Function&lt;Integer, Integer&gt;`}</text>
+    <text x="140" y="118" textAnchor="middle" fill="#64748b" fontSize="9">{`Returns Function<Integer, Integer>`}</text>
 
     <line x1="230" y1="75" x2="290" y2="55" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrow-hof)"/>
     <line x1="230" y1="95" x2="290" y2="95" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrow-hof)"/>
     <line x1="230" y1="115" x2="290" y2="135" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrow-hof)"/>
 
     <rect x="295" y="40" width="150" height="35" rx="6" fill="#7c3aed" stroke="#a78bfa"/>
-    <text x="370" y="63" textAnchor="middle" fill="white" fontSize="10">{`"double" -&gt; x * 2`}</text>
+    <text x="370" y="63" textAnchor="middle" fill="white" fontSize="10">{`"double" -> x * 2`}</text>
 
     <rect x="295" y="80" width="150" height="35" rx="6" fill="#3b82f6" stroke="#60a5fa"/>
-    <text x="370" y="103" textAnchor="middle" fill="white" fontSize="10">{`"square" -&gt; x * x`}</text>
+    <text x="370" y="103" textAnchor="middle" fill="white" fontSize="10">{`"square" -> x * x`}</text>
 
     <rect x="295" y="120" width="150" height="35" rx="6" fill="#22c55e" stroke="#4ade80"/>
-    <text x="370" y="143" textAnchor="middle" fill="white" fontSize="10">{`"negate" -&gt; -x`}</text>
+    <text x="370" y="143" textAnchor="middle" fill="white" fontSize="10">{`"negate" -> -x`}</text>
 
     <rect x="500" y="50" width="250" height="100" rx="8" fill="rgba(245, 158, 11, 0.1)" stroke="#f59e0b" strokeWidth="2"/>
-    <text x="625" y="75" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">{`BiFunction&lt;T, U, R&gt;`}</text>
+    <text x="625" y="75" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">{`BiFunction<T, U, R>`}</text>
     <text x="625" y="95" textAnchor="middle" fill="#fde68a" fontSize="10">R apply(T t, U u)</text>
     <text x="625" y="115" textAnchor="middle" fill="#94a3b8" fontSize="9">Takes 2 parameters, returns 1 result</text>
-    <text x="625" y="135" textAnchor="middle" fill="#64748b" fontSize="9" fontFamily="monospace">{`(a, b) -&gt; a*a + b*b`}</text>
+    <text x="625" y="135" textAnchor="middle" fill="#64748b" fontSize="9" fontFamily="monospace">{`(a, b) -> a*a + b*b`}</text>
 
     <rect x="150" y="175" width="500" height="55" rx="8" fill="#0f172a" stroke="#334155"/>
     <text x="400" y="195" textAnchor="middle" fill="#e2e8f0" fontSize="10">Higher-order functions accept or return other functions</text>
@@ -386,8 +386,8 @@ const ClosuresDiagram = () => (
     <line x1="270" y1="110" x2="315" y2="110" stroke="#8b5cf6" strokeWidth="2" markerEnd="url(#arrow-cl)"/>
 
     <rect x="320" y="50" width="180" height="120" rx="8" fill="#7c3aed" stroke="#a78bfa" strokeWidth="2"/>
-    <text x="410" y="75" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`Supplier&lt;Integer&gt;`}</text>
-    <text x="410" y="100" textAnchor="middle" fill="#c4b5fd" fontSize="9">{`() -&gt; {"{"}`}</text>
+    <text x="410" y="75" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`Supplier<Integer>`}</text>
+    <text x="410" y="100" textAnchor="middle" fill="#c4b5fd" fontSize="9">{`() -> {"{"}`}</text>
     <text x="410" y="118" textAnchor="middle" fill="#c4b5fd" fontSize="9">int current = count[0];</text>
     <text x="410" y="136" textAnchor="middle" fill="#c4b5fd" fontSize="9">count[0] += step;</text>
     <text x="410" y="154" textAnchor="middle" fill="#c4b5fd" fontSize="9">return current;</text>
@@ -396,13 +396,13 @@ const ClosuresDiagram = () => (
     <text x="650" y="75" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">Each Call</text>
 
     <rect x="565" y="90" width="80" height="30" rx="4" fill="#1e293b" stroke="#334155"/>
-    <text x="605" y="110" textAnchor="middle" fill="#e2e8f0" fontSize="10">{`get() -&gt; 0`}</text>
+    <text x="605" y="110" textAnchor="middle" fill="#e2e8f0" fontSize="10">{`get() -> 0`}</text>
 
     <rect x="655" y="90" width="80" height="30" rx="4" fill="#1e293b" stroke="#334155"/>
-    <text x="695" y="110" textAnchor="middle" fill="#e2e8f0" fontSize="10">{`get() -&gt; 1`}</text>
+    <text x="695" y="110" textAnchor="middle" fill="#e2e8f0" fontSize="10">{`get() -> 1`}</text>
 
     <rect x="565" y="125" width="80" height="30" rx="4" fill="#1e293b" stroke="#334155"/>
-    <text x="605" y="145" textAnchor="middle" fill="#e2e8f0" fontSize="10">{`get() -&gt; 2`}</text>
+    <text x="605" y="145" textAnchor="middle" fill="#e2e8f0" fontSize="10">{`get() -> 2`}</text>
 
     <rect x="655" y="125" width="80" height="30" rx="4" fill="#1e293b" stroke="#334155"/>
     <text x="695" y="145" textAnchor="middle" fill="#e2e8f0" fontSize="10">...</text>

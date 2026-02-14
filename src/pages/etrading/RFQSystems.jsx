@@ -112,7 +112,7 @@ const AutoQuoteDiagram = () => (
     <line x1="340" y1="130" x2="395" y2="205" stroke="#4ade80" strokeWidth="1.5"/>
     <line x1="340" y1="130" x2="565" y2="130" stroke="#4ade80" strokeWidth="2" markerEnd="url(#aqArrow)"/>
     {/* Latency */}
-    <text x="350" y="275" textAnchor="middle" fill="#64748b" fontSize="11">{`Target latency: &lt;10ms from RFQ receipt to quote response`}</text>
+    <text x="350" y="275" textAnchor="middle" fill="#64748b" fontSize="11">{`Target latency: <10ms from RFQ receipt to quote response`}</text>
   </svg>
 )
 
@@ -189,7 +189,7 @@ const AutoQuoteEngineDiagram = () => (
     <rect x="570" y="50" width="100" height="45" rx="4" fill="#ef4444"/>
     <text x="620" y="77" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Quote</text>
     <text x="350" y="130" textAnchor="middle" fill="#64748b" fontSize="10">+ Inventory skew + Volatility adjustment</text>
-    <text x="350" y="150" textAnchor="middle" fill="#64748b" fontSize="9">{`Target response: &lt;100ms`}</text>
+    <text x="350" y="150" textAnchor="middle" fill="#64748b" fontSize="9">{`Target response: <100ms`}</text>
   </svg>
 )
 
@@ -452,7 +452,7 @@ const CriticalPathDiagram = () => (
         {i < 5 && <line x1={130 + i * 110} y1="72" x2={145 + i * 110} y2="72" stroke="#4ade80" strokeWidth="2"/>}
       </g>
     ))}
-    <text x="350" y="125" textAnchor="middle" fill="#4ade80" fontSize="10">{`Target: &lt;50ms liquid | &lt;100ms complex`}</text>
+    <text x="350" y="125" textAnchor="middle" fill="#4ade80" fontSize="10">{`Target: <50ms liquid | <100ms complex`}</text>
     <text x="350" y="145" textAnchor="middle" fill="#64748b" fontSize="9">Bottlenecks: DB queries, network hops, complex calculations</text>
   </svg>
 )

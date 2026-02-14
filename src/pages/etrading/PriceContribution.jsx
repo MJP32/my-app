@@ -119,7 +119,7 @@ const PricePipelineDiagram = () => (
         {i < 4 && <line x1={150 + i * 130} y1="75" x2={170 + i * 130} y2="75" stroke="#4ade80" strokeWidth="2"/>}
       </g>
     ))}
-    <text x="350" y="130" textAnchor="middle" fill="#64748b" fontSize="9">{`Triggered by market data | Target latency &lt;1ms`}</text>
+    <text x="350" y="130" textAnchor="middle" fill="#64748b" fontSize="9">{`Triggered by market data | Target latency <1ms`}</text>
   </svg>
 )
 
@@ -186,7 +186,7 @@ const StalenessDiagram = () => (
     <text x="350" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Warning (80-100%)</text>
     <text x="350" y="90" textAnchor="middle" fill="#fef3c7" fontSize="8">Log metric</text>
     <rect x="470" y="50" width="180" height="55" rx="4" fill="#ef4444"/>
-    <text x="560" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">{`Stale (&gt;100%)`}</text>
+    <text x="560" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">{`Stale (>100%)`}</text>
     <text x="560" y="90" textAnchor="middle" fill="#fecaca" fontSize="8">Auto-withdraw</text>
     <text x="350" y="130" textAnchor="middle" fill="#64748b" fontSize="9">Max age threshold (e.g., 500ms) | Check every 100ms | Alert if persistent</text>
   </svg>

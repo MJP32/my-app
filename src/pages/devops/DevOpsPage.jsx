@@ -111,6 +111,27 @@ function DevOpsPage({ onBack, onSelectItem, breadcrumb, initialCategory, onIniti
           icon: '🛟',
           color: '#06b6d4',
           description: 'Incident management, monitoring, troubleshooting, and maintaining production systems.'
+        },
+        {
+          id: 'JavaFlightRecorder',
+          name: 'Java Flight Recorder',
+          icon: '✈️',
+          color: '#f97316',
+          description: 'JDK Flight Recorder for low-overhead profiling, event-based monitoring, and production diagnostics.'
+        },
+        {
+          id: 'JMeter',
+          name: 'JMeter',
+          icon: '🔥',
+          color: '#dc2626',
+          description: 'Apache JMeter for load testing, performance testing, stress testing, and test plan creation.'
+        },
+        {
+          id: 'Dynatrace',
+          name: 'Dynatrace',
+          icon: '🔮',
+          color: '#6f2da8',
+          description: 'Dynatrace APM platform with OneAgent, Davis AI, PurePath distributed tracing, and SLO management.'
         }
       ]
     },
@@ -171,6 +192,20 @@ function DevOpsPage({ onBack, onSelectItem, breadcrumb, initialCategory, onIniti
           icon: '🧪',
           color: '#0c4a6e',
           description: 'Unit testing, integration testing, E2E testing, and test automation strategies.'
+        },
+        {
+          id: 'Ansible',
+          name: 'Ansible',
+          icon: '📜',
+          color: '#ee0000',
+          description: 'Infrastructure automation with Ansible playbooks, roles, inventories, modules, and configuration management.'
+        },
+        {
+          id: 'UnixScripting',
+          name: 'Unix Scripting',
+          icon: '🖥️',
+          color: '#4ade80',
+          description: 'Shell scripting, Bash fundamentals, text processing with sed/awk/grep, cron jobs, and Unix system administration.'
         }
       ]
     },

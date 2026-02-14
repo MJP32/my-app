@@ -121,7 +121,7 @@ const YouTubeArchitectureDiagram = () => (
     {/* Processing Time Labels */}
     <rect x="200" y="320" width="500" height="50" rx="8" fill="#dc2626" fillOpacity="0.2" stroke="#ef4444" strokeWidth="1" />
     <text x="450" y="345" fontSize="12" fontWeight="bold" fill="#ef4444" textAnchor="middle">End-to-End Pipeline</text>
-    <text x="450" y="360" fontSize="10" fill="#fca5a5" textAnchor="middle">{`Upload: 1-5 min | Transcode: 5-30 min | CDN: Instant | Playback: &lt;2s start`}</text>
+    <text x="450" y="360" fontSize="10" fill="#fca5a5" textAnchor="middle">{`Upload: 1-5 min | Transcode: 5-30 min | CDN: Instant | Playback: <2s start`}</text>
   </svg>
 );
 
@@ -448,7 +448,7 @@ const CDNArchitectureDiagram = () => (
     {/* Stats at bottom */}
     <rect x="200" y="475" width="500" height="20" rx="4" fill="#dc2626" fillOpacity="0.2" />
     <text x="450" y="489" fontSize="10" fill="#fca5a5" textAnchor="middle">{`
-      Cache Hit Rate: 95% | Bandwidth: 100+ Tbps | Video Start Time: &lt;2s | Pre-warming for Viral Content
+      Cache Hit Rate: 95% | Bandwidth: 100+ Tbps | Video Start Time: <2s | Pre-warming for Viral Content
     `}</text>
   </svg>
 );

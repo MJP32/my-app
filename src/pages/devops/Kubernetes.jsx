@@ -276,8 +276,8 @@ const AutoScalingDiagram = () => (
     <text x="95" y="55" textAnchor="middle" fill="#60a5fa" fontSize="9" fontWeight="bold">HPA</text>
     <text x="95" y="68" textAnchor="middle" fill="#94a3b8" fontSize="7">Horizontal Pod Autoscaler</text>
     <rect x="30" y="75" width="130" height="60" rx="3" fill="#374151"/>
-    <text x="95" y="90" textAnchor="middle" fill="#60a5fa" fontSize="7">{`CPU &gt; 80% scale up`}</text>
-    <text x="95" y="105" textAnchor="middle" fill="#60a5fa" fontSize="7">{`CPU &lt; 50% scale down`}</text>
+    <text x="95" y="90" textAnchor="middle" fill="#60a5fa" fontSize="7">{`CPU > 80% scale up`}</text>
+    <text x="95" y="105" textAnchor="middle" fill="#60a5fa" fontSize="7">{`CPU < 50% scale down`}</text>
     <text x="95" y="120" textAnchor="middle" fill="#6b7280" fontSize="6">min: 2, max: 10</text>
     <text x="95" y="132" textAnchor="middle" fill="#6b7280" fontSize="6">Custom metrics</text>
     <rect x="190" y="40" width="150" height="105" rx="6" fill="#1e3a5f" stroke="#10b981" strokeWidth="2"/>

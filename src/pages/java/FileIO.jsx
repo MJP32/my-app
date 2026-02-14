@@ -254,7 +254,7 @@ const NIOFilesAPIDiagram = () => (
 
     <rect x="200" y="160" width="130" height="45" rx="6" fill="rgba(34, 197, 94, 0.3)" stroke="#4ade80" strokeWidth="1"/>
     <text x="265" y="180" textAnchor="middle" fill="#86efac" fontSize="10" fontWeight="bold">Files.readAllLines()</text>
-    <text x="265" y="195" textAnchor="middle" fill="#4ade80" fontSize="8">{`Returns List&lt;String&gt;`}</text>
+    <text x="265" y="195" textAnchor="middle" fill="#4ade80" fontSize="8">{`Returns List<String>`}</text>
 
     <rect x="350" y="160" width="130" height="45" rx="6" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" strokeWidth="1"/>
     <text x="415" y="180" textAnchor="middle" fill="#f472b6" fontSize="10" fontWeight="bold">Files.write()</text>
@@ -262,7 +262,7 @@ const NIOFilesAPIDiagram = () => (
 
     <rect x="500" y="160" width="130" height="45" rx="6" fill="rgba(6, 182, 212, 0.3)" stroke="#06b6d4" strokeWidth="1"/>
     <text x="565" y="180" textAnchor="middle" fill="#67e8f9" fontSize="10" fontWeight="bold">Files.walk()</text>
-    <text x="565" y="195" textAnchor="middle" fill="#06b6d4" fontSize="8">{`Stream&lt;Path&gt;`}</text>
+    <text x="565" y="195" textAnchor="middle" fill="#06b6d4" fontSize="8">{`Stream<Path>`}</text>
 
     <rect x="650" y="160" width="110" height="45" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="1"/>
     <text x="705" y="180" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Files.move()</text>
@@ -395,10 +395,10 @@ const FilesWalkDiagram = () => (
     {/* Stream Pipeline */}
     <rect x="100" y="245" width="600" height="60" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
     <text x="400" y="268" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">{`
-      Files.walk(path).filter(Files::isRegularFile).filter(p -&gt; p.endsWith(".java")).collect(toList())
+      Files.walk(path).filter(Files::isRegularFile).filter(p -> p.endsWith(".java")).collect(toList())
     `}</text>
     <text x="400" y="290" textAnchor="middle" fill="#94a3b8" fontSize="10">{`
-      Returns Stream&lt;Path&gt; for functional processing | Use try-with-resources to close
+      Returns Stream<Path> for functional processing | Use try-with-resources to close
     `}</text>
   </svg>
 )

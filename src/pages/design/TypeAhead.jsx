@@ -115,7 +115,7 @@ const TypeAheadArchitectureDiagram = () => (
     <line x1="400" y1="342" x2="440" y2="342" stroke="#22c55e" strokeWidth="2" strokeDasharray="5,3"/>
     <text x="450" y="346" fontSize="10" fill="#22c55e">Dashed arrows</text>
     <text x="550" y="345" fontSize="11" fontWeight="bold" fill="#475569">Latency Target:</text>
-    <text x="660" y="346" fontSize="10" fill="#ef4444">{`P99 &lt; 100ms`}</text>
+    <text x="660" y="346" fontSize="10" fill="#ef4444">{`P99 < 100ms`}</text>
   </svg>
 );
 
@@ -1331,7 +1331,7 @@ export default function TypeAhead({ onBack, breadcrumb }) {
                   { step: 1, title: 'User Searches', desc: 'User completes search, query logged to Kafka topic "search_queries"', color: 'blue' },
                   { step: 2, title: 'Stream Aggregation', desc: 'Apache Flink consumes stream, aggregates query counts (5-min tumbling window)', color: 'green' },
                   { step: 3, title: 'Update Frequency Counts', desc: 'Write aggregated counts to Cassandra: UPDATE queries SET count=count+N WHERE query="car"', color: 'purple' },
-                  { step: 4, title: 'Detect Trending', desc: 'Analytics Service detects spike: count &gt; 3 × moving_average → mark as trending', color: 'orange' },
+                  { step: 4, title: 'Detect Trending', desc: 'Analytics Service detects spike: count > 3 × moving_average → mark as trending', color: 'orange' },
                   { step: 5, title: 'Incremental Trie Update', desc: 'For trending queries, update trie nodes immediately (hot path)', color: 'red' },
                   { step: 6, title: 'Full Trie Rebuild (Daily)', desc: 'Background job rebuilds entire trie from scratch using all query counts', color: 'pink' },
                   { step: 7, title: 'Atomic Swap', desc: 'Once new trie ready, atomically swap: old trie → new trie (zero downtime)', color: 'indigo' },

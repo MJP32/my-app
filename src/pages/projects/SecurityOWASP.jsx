@@ -6,8 +6,8 @@ const SyntaxHighlighter = ({ code }) => {
   const highlightJava = (code) => {
     let highlighted = code
       .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
+      .replace(/</g, '<')
+      .replace(/>/g, '>')
 
     const protectedContent = []
     let placeholder = 0
@@ -1553,7 +1553,7 @@ public class HtmlEncodingService {
 
     return HtmlUtils.htmlEscape(input);
     // Converts: <script>alert('xss')</script>
-    // To: &lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;
+    // To: <script>alert(&#39;xss&#39;)</script>
   }
 
   public String encodeForHtmlAttribute(String input) {
@@ -1561,8 +1561,8 @@ public class HtmlEncodingService {
 
     return input
       .replace("&", "&amp;")
-      .replace("<", "&lt;")
-      .replace(">", "&gt;")
+      .replace("<", "<")
+      .replace(">", ">")
       .replace('"', "&quot;")
       .replace("'", "&#x27;")
       .replace("/", "&#x2F;");
@@ -1573,7 +1573,7 @@ public class HtmlEncodingService {
 /*
 SAFE: Thymeleaf auto-escapes by default
 <p th:text="$userInput"></p>
-Output: &lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;
+Output: <script>alert(&#39;xss&#39;)</script>
 
 UNSAFE: Unescaped HTML (only for trusted content)
 <p th:utext="$trustedHtml"></p>
@@ -1860,7 +1860,7 @@ class SecurityTest {
 
     String response = result.getResponse().getContentAsString();
     assertFalse(response.contains("<script>"));
-    assertTrue(response.contains("&lt;script&gt;") ||
+    assertTrue(response.contains("<script>") ||
                response.contains("\\\\u003cscript\\\\u003e"));
   }
 

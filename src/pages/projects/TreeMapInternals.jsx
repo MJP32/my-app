@@ -5,7 +5,7 @@ import Breadcrumb from '../../components/Breadcrumb';
 import { useTheme } from '../../contexts/ThemeContext';
 
 const highlightCode = (code) => {
-  let highlighted = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  let highlighted = code.replace(/&/g, '&amp;').replace(/</g, '<').replace(/>/g, '>');
   const placeholders = [];
   const store = (html) => { placeholders.push(html); return `___P${placeholders.length - 1}___`; };
   highlighted = highlighted.replace(/\/\*[\s\S]*?\*\//g, (m) => store(`<span class="token comment">${m}</span>`));

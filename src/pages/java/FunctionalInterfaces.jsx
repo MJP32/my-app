@@ -54,7 +54,7 @@ const FunctionDiagram = () => (
     </defs>
 
     <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">{`
-      Function&lt;T, R&gt; - Transform Input to Output
+      Function<T, R> - Transform Input to Output
     `}</text>
 
     {/* Input T */}
@@ -64,7 +64,7 @@ const FunctionDiagram = () => (
 
     {/* Function Box */}
     <rect x="300" y="60" width="200" height="90" rx="12" fill="url(#funcGrad)" stroke="#d946ef" strokeWidth="2"/>
-    <text x="400" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">{`Function&lt;T, R&gt;`}</text>
+    <text x="400" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">{`Function<T, R>`}</text>
     <text x="400" y="115" textAnchor="middle" fill="#fce7f3" fontSize="12">R apply(T t)</text>
     <text x="400" y="135" textAnchor="middle" fill="#f5d0fe" fontSize="10">andThen() | compose()</text>
 
@@ -83,7 +83,7 @@ const FunctionDiagram = () => (
 
     {/* Example */}
     <text x="400" y="180" textAnchor="middle" fill="#94a3b8" fontSize="11" fontStyle="italic">{`
-      Example: s -&gt; s.length() transforms String to Integer
+      Example: s -> s.length() transforms String to Integer
     `}</text>
   </svg>
 )
@@ -98,7 +98,7 @@ const ConsumerDiagram = () => (
     </defs>
 
     <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">{`
-      Consumer&lt;T&gt; - Consume Input, No Output
+      Consumer<T> - Consume Input, No Output
     `}</text>
 
     {/* Input T */}
@@ -108,7 +108,7 @@ const ConsumerDiagram = () => (
 
     {/* Consumer Box */}
     <rect x="320" y="60" width="200" height="90" rx="12" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
-    <text x="420" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">{`Consumer&lt;T&gt;`}</text>
+    <text x="420" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">{`Consumer<T>`}</text>
     <text x="420" y="115" textAnchor="middle" fill="#fef3c7" fontSize="12">void accept(T t)</text>
     <text x="420" y="135" textAnchor="middle" fill="#fde68a" fontSize="10">andThen()</text>
 
@@ -125,7 +125,7 @@ const ConsumerDiagram = () => (
     <text x="420" y="180" textAnchor="middle" fill="#f87171" fontSize="11">Side Effect!</text>
 
     <text x="400" y="195" textAnchor="middle" fill="#94a3b8" fontSize="10" fontStyle="italic">{`
-      Example: s -&gt; System.out.println(s)
+      Example: s -> System.out.println(s)
     `}</text>
   </svg>
 )
@@ -140,7 +140,7 @@ const SupplierDiagram = () => (
     </defs>
 
     <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">{`
-      Supplier&lt;T&gt; - No Input, Produce Output
+      Supplier<T> - No Input, Produce Output
     `}</text>
 
     {/* No input */}
@@ -149,7 +149,7 @@ const SupplierDiagram = () => (
 
     {/* Supplier Box */}
     <rect x="280" y="60" width="200" height="90" rx="12" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
-    <text x="380" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">{`Supplier&lt;T&gt;`}</text>
+    <text x="380" y="90" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">{`Supplier<T>`}</text>
     <text x="380" y="115" textAnchor="middle" fill="#dcfce7" fontSize="12">T get()</text>
     <text x="380" y="135" textAnchor="middle" fill="#bbf7d0" fontSize="10">Factory Pattern</text>
 
@@ -167,7 +167,7 @@ const SupplierDiagram = () => (
     <text x="630" y="175" textAnchor="middle" fill="#94a3b8" fontSize="10">Object factories</text>
 
     <text x="300" y="185" textAnchor="middle" fill="#94a3b8" fontSize="10" fontStyle="italic">{`
-      Example: () -&gt; Math.random()
+      Example: () -> Math.random()
     `}</text>
   </svg>
 )
@@ -182,7 +182,7 @@ const PredicateDiagram = () => (
     </defs>
 
     <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">{`
-      Predicate&lt;T&gt; - Test Input, Return Boolean
+      Predicate<T> - Test Input, Return Boolean
     `}</text>
 
     {/* Input T */}
@@ -192,7 +192,7 @@ const PredicateDiagram = () => (
 
     {/* Predicate Box */}
     <rect x="280" y="55" width="200" height="100" rx="12" fill="#06b6d4" stroke="#22d3ee" strokeWidth="2"/>
-    <text x="380" y="85" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">{`Predicate&lt;T&gt;`}</text>
+    <text x="380" y="85" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">{`Predicate<T>`}</text>
     <text x="380" y="110" textAnchor="middle" fill="#cffafe" fontSize="12">boolean test(T t)</text>
     <text x="380" y="135" textAnchor="middle" fill="#a5f3fc" fontSize="10">and() | or() | negate()</text>
 
@@ -211,7 +211,7 @@ const PredicateDiagram = () => (
 
     {/* Example */}
     <text x="400" y="190" textAnchor="middle" fill="#94a3b8" fontSize="11" fontStyle="italic">{`
-      Example: n -&gt; n % 2 == 0 tests if number is even
+      Example: n -> n % 2 == 0 tests if number is even
     `}</text>
     <text x="400" y="210" textAnchor="middle" fill="#64748b" fontSize="10">
       Used in Stream.filter(), Collection.removeIf()
@@ -467,7 +467,7 @@ const CustomInterfaceDiagram = () => (
 
     {/* Lambda arrow */}
     <text x="400" y="255" textAnchor="middle" fill="#94a3b8" fontSize="12">{`
-      Enables: Calculator calc = (a, b) -&gt; a + b;
+      Enables: Calculator calc = (a, b) -> a + b;
     `}</text>
 
     {/* Side notes */}
@@ -486,12 +486,12 @@ const OptionalDiagram = () => (
     </defs>
 
     <text x="400" y="25" textAnchor="middle" fill="#e2e8f0" fontSize="16" fontWeight="bold">{`
-      Optional&lt;T&gt; - Functional Operations on Nullable Values
+      Optional<T> - Functional Operations on Nullable Values
     `}</text>
 
     {/* Optional container */}
     <rect x="150" y="50" width="150" height="80" rx="12" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="2"/>
-    <text x="225" y="80" textAnchor="middle" fill="#c4b5fd" fontSize="12" fontWeight="bold">{`Optional&lt;T&gt;`}</text>
+    <text x="225" y="80" textAnchor="middle" fill="#c4b5fd" fontSize="12" fontWeight="bold">{`Optional<T>`}</text>
     <text x="225" y="100" textAnchor="middle" fill="#a78bfa" fontSize="10">of() | ofNullable()</text>
     <text x="225" y="115" textAnchor="middle" fill="#a78bfa" fontSize="10">empty()</text>
 
@@ -590,7 +590,7 @@ const ComposableApisDiagram = () => (
     <text x="595" y="177" textAnchor="middle" fill="#e879f9" fontSize="10">Supplier factories</text>
 
     <text x="400" y="210" textAnchor="middle" fill="#64748b" fontSize="10" fontStyle="italic">{`
-      Query.select("name").from("users").where(age &gt; 18).execute()
+      Query.select("name").from("users").where(age > 18).execute()
     `}</text>
   </svg>
 )
@@ -610,33 +610,33 @@ const BiFunctionDiagram = () => (
 
     {/* BiFunction */}
     <rect x="50" y="50" width="200" height="70" rx="10" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
-    <text x="150" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`BiFunction&lt;T, U, R&gt;`}</text>
+    <text x="150" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`BiFunction<T, U, R>`}</text>
     <text x="150" y="95" textAnchor="middle" fill="#ddd6fe" fontSize="10">R apply(T t, U u)</text>
-    <text x="150" y="110" textAnchor="middle" fill="#c4b5fd" fontSize="9">{`(T, U) -&gt; R`}</text>
+    <text x="150" y="110" textAnchor="middle" fill="#c4b5fd" fontSize="9">{`(T, U) -> R`}</text>
 
     {/* BinaryOperator */}
     <rect x="300" y="50" width="200" height="70" rx="10" fill="#d946ef" stroke="#e879f9" strokeWidth="2"/>
-    <text x="400" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`BinaryOperator&lt;T&gt;`}</text>
+    <text x="400" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`BinaryOperator<T>`}</text>
     <text x="400" y="95" textAnchor="middle" fill="#fce7f3" fontSize="10">T apply(T t1, T t2)</text>
-    <text x="400" y="110" textAnchor="middle" fill="#f5d0fe" fontSize="9">{`(T, T) -&gt; T`}</text>
+    <text x="400" y="110" textAnchor="middle" fill="#f5d0fe" fontSize="9">{`(T, T) -> T`}</text>
 
     {/* BiConsumer */}
     <rect x="550" y="50" width="200" height="70" rx="10" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
-    <text x="650" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`BiConsumer&lt;T, U&gt;`}</text>
+    <text x="650" y="75" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`BiConsumer<T, U>`}</text>
     <text x="650" y="95" textAnchor="middle" fill="#fef3c7" fontSize="10">void accept(T t, U u)</text>
-    <text x="650" y="110" textAnchor="middle" fill="#fde68a" fontSize="9">{`(T, U) -&gt; void`}</text>
+    <text x="650" y="110" textAnchor="middle" fill="#fde68a" fontSize="9">{`(T, U) -> void`}</text>
 
     {/* BiPredicate */}
     <rect x="175" y="140" width="200" height="70" rx="10" fill="#06b6d4" stroke="#22d3ee" strokeWidth="2"/>
-    <text x="275" y="165" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`BiPredicate&lt;T, U&gt;`}</text>
+    <text x="275" y="165" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`BiPredicate<T, U>`}</text>
     <text x="275" y="185" textAnchor="middle" fill="#cffafe" fontSize="10">boolean test(T t, U u)</text>
-    <text x="275" y="200" textAnchor="middle" fill="#a5f3fc" fontSize="9">{`(T, U) -&gt; boolean`}</text>
+    <text x="275" y="200" textAnchor="middle" fill="#a5f3fc" fontSize="9">{`(T, U) -> boolean`}</text>
 
     {/* UnaryOperator */}
     <rect x="425" y="140" width="200" height="70" rx="10" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
-    <text x="525" y="165" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`UnaryOperator&lt;T&gt;`}</text>
+    <text x="525" y="165" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`UnaryOperator<T>`}</text>
     <text x="525" y="185" textAnchor="middle" fill="#dcfce7" fontSize="10">T apply(T t)</text>
-    <text x="525" y="200" textAnchor="middle" fill="#bbf7d0" fontSize="9">{`T -&gt; T (same type)`}</text>
+    <text x="525" y="200" textAnchor="middle" fill="#bbf7d0" fontSize="9">{`T -> T (same type)`}</text>
 
     {/* Relationship arrows */}
     <line x1="300" y1="85" x2="255" y2="85" stroke="#64748b" strokeWidth="1" strokeDasharray="3,3"/>

@@ -251,6 +251,38 @@ function Python({ onBack, onSelectItem, breadcrumb }) {
           color: '#f97316',
           complexity: 'Beginner to Intermediate',
           description: 'Master Python string manipulation: case conversion, strip/trim, search, validation, split/join, replace, formatting, and encoding methods.'
+        },
+        {
+          id: 'Math Functions',
+          name: 'Math Functions',
+          icon: '🔢',
+          color: '#0891b2',
+          complexity: 'Beginner to Intermediate',
+          description: 'Python math module: abs, round, pow, sqrt, floor, ceil, factorial, gcd, log, trigonometry, and constants like pi and e.'
+        },
+        {
+          id: 'Builtin Functions',
+          name: 'Built-in Functions',
+          icon: '🧰',
+          color: '#dc2626',
+          complexity: 'Beginner to Intermediate',
+          description: 'Essential Python built-ins: type(), isinstance(), len(), range(), print(), input(), id(), hash(), dir(), vars(), and more.'
+        },
+        {
+          id: 'Functools',
+          name: 'Functools',
+          icon: '🔧',
+          color: '#7c3aed',
+          complexity: 'Intermediate to Advanced',
+          description: 'Higher-order functions: lru_cache, partial, reduce, wraps, singledispatch, total_ordering, and cmp_to_key for functional programming.'
+        },
+        {
+          id: 'Copy Module',
+          name: 'Copy Module',
+          icon: '📋',
+          color: '#059669',
+          complexity: 'Intermediate',
+          description: 'Shallow vs deep copying: copy.copy(), copy.deepcopy(), custom __copy__/__deepcopy__, and common pitfalls with mutable objects.'
         }
       ]
     },
@@ -268,6 +300,22 @@ function Python({ onBack, onSelectItem, breadcrumb }) {
           color: '#646464',
           complexity: 'Advanced',
           description: 'Decorators, generators, context managers, metaclasses, descriptors, async/await patterns, and advanced OOP concepts.'
+        },
+        {
+          id: 'Decorators',
+          name: 'Decorators',
+          icon: '🎀',
+          color: '#e11d48',
+          complexity: 'Intermediate to Advanced',
+          description: 'Function and class decorators, decorator factories, @wraps, stacking decorators, and real-world patterns like memoization and authentication.'
+        },
+        {
+          id: 'Generators',
+          name: 'Generators',
+          icon: '🔄',
+          color: '#7c3aed',
+          complexity: 'Intermediate to Advanced',
+          description: 'Generator functions, yield/yield from, generator expressions, lazy evaluation, infinite sequences, and coroutine-style generators.'
         },
         {
           id: 'Async Python',

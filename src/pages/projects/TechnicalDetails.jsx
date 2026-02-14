@@ -17,8 +17,8 @@ const highlightCode = (code) => {
   // Uses placeholders for comments/strings to avoid nested replacements.
   let highlighted = code
     .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+    .replace(/</g, '<')
+    .replace(/>/g, '>');
 
   const placeholders = [];
   const store = (html) => {

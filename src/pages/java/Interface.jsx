@@ -410,8 +410,8 @@ const PolymorphismDiagram = () => (
 
     {/* Polymorphic usage */}
     <rect x="200" y="210" width="400" height="40" rx="6" fill="rgba(245, 158, 11, 0.15)" stroke="#f59e0b" strokeWidth="1"/>
-    <text x="400" y="227" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">{`List&lt;Shape&gt; shapes = List.of(circle, rect, triangle);`}</text>
-    <text x="400" y="242" textAnchor="middle" fill="#94a3b8" fontSize="9">{`shapes.forEach(s -&gt; s.draw(canvas));  // Each draws differently`}</text>
+    <text x="400" y="227" textAnchor="middle" fill="#fbbf24" fontSize="10" fontWeight="bold">{`List<Shape> shapes = List.of(circle, rect, triangle);`}</text>
+    <text x="400" y="242" textAnchor="middle" fill="#94a3b8" fontSize="9">{`shapes.forEach(s -> s.draw(canvas));  // Each draws differently`}</text>
   </svg>
 )
 
@@ -431,10 +431,10 @@ const DefaultMethodsDiagram = () => (
     {/* Interface with default method */}
     <rect x="250" y="45" width="300" height="85" rx="8" fill="rgba(14, 165, 233, 0.2)" stroke="#0ea5e9" strokeWidth="2" strokeDasharray="8,4"/>
     <text x="400" y="65" textAnchor="middle" fill="#0ea5e9" fontSize="10" fontStyle="italic">{'<<interface>>'}</text>
-    <text x="400" y="82" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`Validator&lt;T&gt;`}</text>
+    <text x="400" y="82" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`Validator<T>`}</text>
     <line x1="260" y1="92" x2="540" y2="92" stroke="#0ea5e9" strokeWidth="1" strokeDasharray="3,2"/>
     <text x="400" y="108" textAnchor="middle" fill="#94a3b8" fontSize="10">+ validate(T item) : ValidationResult</text>
-    <text x="400" y="124" textAnchor="middle" fill="#4ade80" fontSize="10">{`+ default and(Validator&lt;T&gt; other) : Validator&lt;T&gt;`}</text>
+    <text x="400" y="124" textAnchor="middle" fill="#4ade80" fontSize="10">{`+ default and(Validator<T> other) : Validator<T>`}</text>
 
     {/* Implementations */}
     <rect x="120" y="160" width="160" height="45" rx="6" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
@@ -464,7 +464,7 @@ const StaticMethodsDiagram = () => (
     {/* Interface with static method */}
     <rect x="250" y="50" width="300" height="80" rx="8" fill="rgba(14, 165, 233, 0.2)" stroke="#0ea5e9" strokeWidth="2" strokeDasharray="8,4"/>
     <text x="400" y="70" textAnchor="middle" fill="#0ea5e9" fontSize="10" fontStyle="italic">{'<<interface>>'}</text>
-    <text x="400" y="87" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`Comparator&lt;T&gt;`}</text>
+    <text x="400" y="87" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`Comparator<T>`}</text>
     <line x1="260" y1="97" x2="540" y2="97" stroke="#0ea5e9" strokeWidth="1" strokeDasharray="3,2"/>
     <text x="400" y="113" textAnchor="middle" fill="#f59e0b" fontSize="10">+ static naturalOrder() : Comparator</text>
     <text x="400" y="126" textAnchor="middle" fill="#f59e0b" fontSize="10">+ static comparing(Function) : Comparator</text>

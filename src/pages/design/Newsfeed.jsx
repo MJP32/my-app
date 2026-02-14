@@ -1214,7 +1214,7 @@ export default function Newsfeed({ onBack, breadcrumb }) {
                   { step: 2, title: 'Upload to Post Service', desc: 'API Gateway routes to Post Service, media uploaded to S3 in parallel', color: 'green' },
                   { step: 3, title: 'Store Post Data', desc: 'Post metadata saved to Cassandra (post_id, user_id, content, timestamp)', color: 'purple' },
                   { step: 4, title: 'Publish to Kafka', desc: 'Post creation event published to Kafka topic "new_posts"', color: 'orange' },
-                  { step: 5, title: 'Fan-out Decision', desc: 'Check user type: Celebrity (&gt;1M followers) → fan-out on read, Regular → fan-out on write', color: 'red' },
+                  { step: 5, title: 'Fan-out Decision', desc: 'Check user type: Celebrity (>1M followers) → fan-out on read, Regular → fan-out on write', color: 'red' },
                   { step: 6, title: 'Fan-out on Write', desc: 'Fetch follower list from Graph DB, write post_id to each follower\'s feed in Redis', color: 'pink' },
                   { step: 7, title: 'Send Notifications', desc: 'Notification Service sends push/in-app notifications to active followers', color: 'indigo' },
                   { step: 8, title: 'Return Success', desc: 'API returns success to client, post visible in user\'s own feed immediately', color: 'cyan' }

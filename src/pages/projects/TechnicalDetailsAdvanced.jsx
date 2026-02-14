@@ -49,8 +49,8 @@ const highlightCode = (code) => {
   // Escape HTML characters
   let highlighted = code
     .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+    .replace(/</g, '<')
+    .replace(/>/g, '>');
 
   // Apply syntax highlighting in order of specificity
   // Comments first (to protect from other patterns)

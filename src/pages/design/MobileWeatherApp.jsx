@@ -188,7 +188,7 @@ const CachingLayersDiagram = () => (
     <rect x="310" y="60" width="180" height="80" rx="8" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="2"/>
     <text x="400" y="85" textAnchor="middle" fill="#f87171" fontSize="12" fontWeight="bold">L2: Redis Cache</text>
     <text x="400" y="105" textAnchor="middle" fill="#94a3b8" fontSize="10">Server-side, 15min TTL</text>
-    <text x="400" y="125" textAnchor="middle" fill="#64748b" fontSize="9">{`85% hit rate, &lt;50ms`}</text>
+    <text x="400" y="125" textAnchor="middle" fill="#64748b" fontSize="9">{`85% hit rate, <50ms`}</text>
 
     {/* L3 CDN */}
     <rect x="570" y="60" width="180" height="80" rx="8" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" strokeWidth="2"/>
@@ -326,7 +326,7 @@ const MobilePerformanceDiagram = () => (
     <text x="650" y="100" textAnchor="middle" fill="#94a3b8" fontSize="9">Response size: ~10KB</text>
     <text x="650" y="120" textAnchor="middle" fill="#94a3b8" fontSize="9">Compress with gzip</text>
     <text x="650" y="140" textAnchor="middle" fill="#94a3b8" fontSize="9">Delta updates only</text>
-    <text x="650" y="160" textAnchor="middle" fill="#94a3b8" fontSize="9">{`Target latency: &lt;1s`}</text>
+    <text x="650" y="160" textAnchor="middle" fill="#94a3b8" fontSize="9">{`Target latency: <1s`}</text>
   </svg>
 )
 
@@ -355,8 +355,8 @@ const ScalabilityDiagram = () => (
     <rect x="470" y="50" width="170" height="160" rx="8" fill="rgba(34, 197, 94, 0.15)" stroke="#22c55e" strokeWidth="2"/>
     <text x="555" y="75" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">Performance</text>
     <text x="555" y="100" textAnchor="middle" fill="#94a3b8" fontSize="9">Cache hit: 85%</text>
-    <text x="555" y="120" textAnchor="middle" fill="#94a3b8" fontSize="9">{`Cache latency: &lt;50ms`}</text>
-    <text x="555" y="140" textAnchor="middle" fill="#94a3b8" fontSize="9">{`API fallback: &lt;2s`}</text>
+    <text x="555" y="120" textAnchor="middle" fill="#94a3b8" fontSize="9">{`Cache latency: <50ms`}</text>
+    <text x="555" y="140" textAnchor="middle" fill="#94a3b8" fontSize="9">{`API fallback: <2s`}</text>
     <text x="555" y="160" textAnchor="middle" fill="#94a3b8" fontSize="9">Bandwidth: 150GB/day</text>
     <text x="555" y="180" textAnchor="middle" fill="#94a3b8" fontSize="9">Uptime: 99.9%</text>
 

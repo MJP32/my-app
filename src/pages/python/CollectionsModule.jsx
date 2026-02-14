@@ -155,7 +155,7 @@ const DefaultDictDiagram = () => (
     <rect x="115" y="75" width="30" height="20" rx="4" fill="url(#valueGradient)" />
     <text x="130" y="89" textAnchor="middle" fill="#1e3a5f" fontSize="10">1</text>
 
-    <text x="70" y="115" fill="#f87171" fontSize="10">{`d['b'] -&gt; KeyError!`}</text>
+    <text x="70" y="115" fill="#f87171" fontSize="10">{`d['b'] -> KeyError!`}</text>
     <text x="185" y="115" fill="#ef4444" fontSize="16">X</text>
 
     {/* defaultdict behavior */}
@@ -168,7 +168,7 @@ const DefaultDictDiagram = () => (
     <rect x="355" y="75" width="30" height="20" rx="4" fill="url(#valueGradient)" />
     <text x="370" y="89" textAnchor="middle" fill="#1e3a5f" fontSize="10">1</text>
 
-    <text x="310" y="115" fill="#34d399" fontSize="10">{`d['b'] -&gt; 0 (auto!)`}</text>
+    <text x="310" y="115" fill="#34d399" fontSize="10">{`d['b'] -> 0 (auto!)`}</text>
     <text x="440" y="115" fill="#10b981" fontSize="14">OK</text>
 
     {/* Arrow showing the flow */}
@@ -179,10 +179,10 @@ const DefaultDictDiagram = () => (
     <rect x="50" y="175" width="400" height="55" rx="8" fill="#1f2937" stroke="#3b82f6" strokeWidth="2" />
     <text x="250" y="195" textAnchor="middle" fill="#93c5fd" fontSize="12" fontWeight="bold">Factory Functions</text>
 
-    <text x="100" y="218" textAnchor="middle" fill="#fbbf24" fontSize="10">{`int -&gt; 0`}</text>
-    <text x="200" y="218" textAnchor="middle" fill="#fbbf24" fontSize="10">{`list -&gt; []`}</text>
-    <text x="300" y="218" textAnchor="middle" fill="#fbbf24" fontSize="10">{`set -&gt; set()`}</text>
-    <text x="400" y="218" textAnchor="middle" fill="#fbbf24" fontSize="10">{`str -&gt; ""`}</text>
+    <text x="100" y="218" textAnchor="middle" fill="#fbbf24" fontSize="10">{`int -> 0`}</text>
+    <text x="200" y="218" textAnchor="middle" fill="#fbbf24" fontSize="10">{`list -> []`}</text>
+    <text x="300" y="218" textAnchor="middle" fill="#fbbf24" fontSize="10">{`set -> set()`}</text>
+    <text x="400" y="218" textAnchor="middle" fill="#fbbf24" fontSize="10">{`str -> ""`}</text>
   </svg>
 )
 

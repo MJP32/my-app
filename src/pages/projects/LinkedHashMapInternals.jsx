@@ -110,7 +110,7 @@ const DoublyLinkedListDiagram = () => (
 
     {/* Entry structure */}
     <rect x="280" y="220" width="240" height="45" rx="6" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
-    <text x="400" y="238" textAnchor="middle" fill="#64748b" fontSize="10">{`Entry&lt;K,V&gt;`}</text>
+    <text x="400" y="238" textAnchor="middle" fill="#64748b" fontSize="10">{`Entry<K,V>`}</text>
     <text x="400" y="255" textAnchor="middle" fill="#14b8a6" fontSize="9">hash | key | value | next | before | after</text>
   </svg>
 )
@@ -258,7 +258,7 @@ const StructureOverviewDiagram = () => (
 
     {/* HashMap base */}
     <rect x="50" y="50" width="150" height="50" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
-    <text x="125" y="80" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`HashMap&lt;K,V&gt;`}</text>
+    <text x="125" y="80" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`HashMap<K,V>`}</text>
 
     {/* extends arrow */}
     <line x1="200" y1="75" x2="280" y2="75" stroke="#14b8a6" strokeWidth="2" markerEnd="url(#arrowTeal2)"/>
@@ -266,12 +266,12 @@ const StructureOverviewDiagram = () => (
 
     {/* LinkedHashMap */}
     <rect x="290" y="50" width="180" height="50" rx="8" fill="#14b8a6" stroke="#2dd4bf" strokeWidth="2"/>
-    <text x="380" y="80" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`LinkedHashMap&lt;K,V&gt;`}</text>
+    <text x="380" y="80" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`LinkedHashMap<K,V>`}</text>
 
     {/* Additional fields */}
     <rect x="520" y="40" width="250" height="70" rx="8" fill="rgba(15, 23, 42, 0.8)" stroke="#334155" strokeWidth="1"/>
     <text x="645" y="60" textAnchor="middle" fill="#64748b" fontSize="10">Additional Fields:</text>
-    <text x="645" y="80" textAnchor="middle" fill="#14b8a6" fontSize="10" fontFamily="monospace">{`Entry&lt;K,V&gt; head, tail`}</text>
+    <text x="645" y="80" textAnchor="middle" fill="#14b8a6" fontSize="10" fontFamily="monospace">{`Entry<K,V> head, tail`}</text>
     <text x="645" y="95" textAnchor="middle" fill="#14b8a6" fontSize="10" fontFamily="monospace">boolean accessOrder</text>
 
     <line x1="470" y1="75" x2="515" y2="75" stroke="#475569" strokeWidth="1" strokeDasharray="4"/>

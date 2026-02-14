@@ -234,7 +234,7 @@ const InterfaceDiagram = () => (
 
     {/* Interface */}
     <rect x="300" y="45" width="200" height="60" rx="10" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2" strokeDasharray="5,3"/>
-    <text x="400" y="68" textAnchor="middle" fill="#60a5fa" fontSize="11" fontWeight="bold">{`&lt;&lt;interface&gt;&gt;`}</text>
+    <text x="400" y="68" textAnchor="middle" fill="#60a5fa" fontSize="11" fontWeight="bold">{`<<interface>>`}</text>
     <text x="400" y="85" textAnchor="middle" fill="#93c5fd" fontSize="11" fontWeight="bold">Flyable</text>
     <text x="400" y="100" textAnchor="middle" fill="#bfdbfe" fontSize="9">+ fly(): void</text>
 
@@ -353,7 +353,7 @@ const ObserverDiagram = () => (
     <rect x="50" y="70" width="200" height="100" rx="10" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
     <text x="150" y="95" textAnchor="middle" fill="#a78bfa" fontSize="11" fontWeight="bold">Subject (Observable)</text>
     <line x1="65" y1="105" x2="235" y2="105" stroke="#8b5cf6" strokeWidth="1" opacity="0.5"/>
-    <text x="150" y="125" textAnchor="middle" fill="#c4b5fd" fontSize="9">{`- observers: List&lt;Observer&gt;`}</text>
+    <text x="150" y="125" textAnchor="middle" fill="#c4b5fd" fontSize="9">{`- observers: List<Observer>`}</text>
     <text x="150" y="145" textAnchor="middle" fill="#c4b5fd" fontSize="9">+ attach(observer)</text>
     <text x="150" y="160" textAnchor="middle" fill="#c4b5fd" fontSize="9">+ notifyAll()</text>
 

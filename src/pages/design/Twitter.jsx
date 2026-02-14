@@ -300,7 +300,7 @@ const SocialGraphDiagram = () => (
     <text x="682" y="155" textAnchor="middle" fill="white" fontSize="8">[elonmusk, userB, ...]</text>
     <rect x="440" y="185" width="320" height="80" rx="6" fill="#10B981" fillOpacity="0.2" stroke="#10B981" strokeWidth="1"/>
     <text x="600" y="205" textAnchor="middle" fill="#6EE7B7" fontSize="12" fontWeight="bold">Option 2: Graph Database (Neo4j)</text>
-    <text x="600" y="230" textAnchor="middle" fill="#9CA3AF" fontSize="10" fontFamily="monospace">{`(UserA)-[:FOLLOWS]-&gt;(Celebrity)`}</text>
+    <text x="600" y="230" textAnchor="middle" fill="#9CA3AF" fontSize="10" fontFamily="monospace">{`(UserA)-[:FOLLOWS]->(Celebrity)`}</text>
     <text x="600" y="250" textAnchor="middle" fill="#9CA3AF" fontSize="10">Native graph queries, efficient traversal</text>
     <rect x="440" y="275" width="320" height="75" rx="6" fill="#F59E0B" fillOpacity="0.2" stroke="#F59E0B" strokeWidth="1"/>
     <text x="600" y="295" textAnchor="middle" fill="#FCD34D" fontSize="12" fontWeight="bold">Option 3: MySQL (Follow Table)</text>

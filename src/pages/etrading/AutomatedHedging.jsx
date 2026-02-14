@@ -213,7 +213,7 @@ const CostOptimizationDiagram = () => (
     <text x="125" y="90" textAnchor="middle" fill="#fecaca" fontSize="8">Spread + Commission</text>
     <rect x="220" y="50" width="150" height="55" rx="4" fill="#f59e0b"/>
     <text x="295" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Basis Risk</text>
-    <text x="295" y="90" textAnchor="middle" fill="#fef3c7" fontSize="8">{`Correlation &lt; 1`}</text>
+    <text x="295" y="90" textAnchor="middle" fill="#fef3c7" fontSize="8">{`Correlation < 1`}</text>
     <rect x="390" y="50" width="150" height="55" rx="4" fill="#3b82f6"/>
     <text x="465" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Capital Cost</text>
     <text x="465" y="90" textAnchor="middle" fill="#bfdbfe" fontSize="8">Margin requirements</text>
@@ -275,7 +275,7 @@ const EffectivenessDiagram = () => (
     <text x="380" y="90" textAnchor="middle" fill="#bbf7d0" fontSize="8">1 - σ²(combined)/σ²(hedged)</text>
     <rect x="510" y="50" width="140" height="55" rx="4" fill="#ef4444"/>
     <text x="580" y="72" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">Alert Thresholds</text>
-    <text x="580" y="90" textAnchor="middle" fill="#fecaca" fontSize="8">{`0.8 &lt; ratio &lt; 1.25`}</text>
+    <text x="580" y="90" textAnchor="middle" fill="#fecaca" fontSize="8">{`0.8 < ratio < 1.25`}</text>
     <text x="350" y="130" textAnchor="middle" fill="#64748b" fontSize="9">Measure hourly | Alert on drift | Track by hedge relationship</text>
   </svg>
 )

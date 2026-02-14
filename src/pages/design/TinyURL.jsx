@@ -359,7 +359,7 @@ const RedirectFlowDiagram = () => (
     <g filter="url(#redirShadow)">
       <rect x="660" y="160" width="180" height="55" rx="8" fill="#10b981" />
       <text x="750" y="185" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Cache Hit - Fast Path</text>
-      <text x="750" y="203" textAnchor="middle" fill="#d1fae5" fontSize="9">{`Return long URL in &lt;5ms`}</text>
+      <text x="750" y="203" textAnchor="middle" fill="#d1fae5" fontSize="9">{`Return long URL in <5ms`}</text>
     </g>
 
     {/* Cache Miss Path */}

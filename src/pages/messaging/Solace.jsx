@@ -120,7 +120,7 @@ const QueuesTopicsDiagram = () => (
 
     <rect x="50" y="45" width="320" height="120" rx="6" fill="rgba(139, 92, 246, 0.1)" stroke="#8b5cf6" strokeWidth="2"/>
     <text x="210" y="68" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold">Topic Subscriptions (Pub/Sub)</text>
-    <text x="210" y="88" textAnchor="middle" fill="#c4b5fd" fontSize="8">{`orders/&gt;  (wildcard)`}</text>
+    <text x="210" y="88" textAnchor="middle" fill="#c4b5fd" fontSize="8">{`orders/>  (wildcard)`}</text>
     <text x="210" y="105" textAnchor="middle" fill="#c4b5fd" fontSize="8">orders/*/created</text>
     <rect x="70" y="115" width="120" height="35" rx="4" fill="rgba(34, 197, 94, 0.3)" stroke="#22c55e" strokeWidth="1"/>
     <text x="130" y="137" textAnchor="middle" fill="#4ade80" fontSize="8">Subscriber A</text>

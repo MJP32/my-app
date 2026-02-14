@@ -187,7 +187,7 @@ const LambdaDiagram = () => (
     {/* Anonymous Class (Old Way) */}
     <rect x="30" y="55" width="280" height="110" rx="10" fill="rgba(100, 116, 139, 0.3)" stroke="#64748b" strokeWidth="2"/>
     <text x="170" y="75" textAnchor="middle" fill="#94a3b8" fontSize="10" fontWeight="bold">Before Java 8 (Verbose)</text>
-    <text x="170" y="100" textAnchor="middle" fill="#cbd5e1" fontSize="9" fontFamily="monospace">{`new Comparator&lt;String&gt;() {'{'}`}</text>
+    <text x="170" y="100" textAnchor="middle" fill="#cbd5e1" fontSize="9" fontFamily="monospace">{`new Comparator<String>() {'{'}`}</text>
     <text x="170" y="115" textAnchor="middle" fill="#cbd5e1" fontSize="9" fontFamily="monospace">  int compare(s1, s2) {'{'}</text>
     <text x="170" y="130" textAnchor="middle" fill="#cbd5e1" fontSize="9" fontFamily="monospace">    return s1.length() - s2.length();</text>
     <text x="170" y="145" textAnchor="middle" fill="#cbd5e1" fontSize="9" fontFamily="monospace">  {'}'}</text>
@@ -223,12 +223,12 @@ const StreamDiagram = () => (
     {/* Source */}
     <rect x="30" y="60" width="100" height="60" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
     <text x="80" y="85" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Source</text>
-    <text x="80" y="102" textAnchor="middle" fill="#93c5fd" fontSize="8">{`List&lt;Person&gt;`}</text>
+    <text x="80" y="102" textAnchor="middle" fill="#93c5fd" fontSize="8">{`List<Person>`}</text>
 
     {/* Filter */}
     <rect x="170" y="60" width="110" height="60" rx="8" fill="#f43f5e" stroke="#fb7185" strokeWidth="2"/>
     <text x="225" y="82" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">filter()</text>
-    <text x="225" y="100" textAnchor="middle" fill="#fecdd3" fontSize="8">{`age &gt;= 18`}</text>
+    <text x="225" y="100" textAnchor="middle" fill="#fecdd3" fontSize="8">{`age >= 18`}</text>
 
     {/* Map */}
     <rect x="320" y="60" width="110" height="60" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>

@@ -149,7 +149,7 @@ const ExecutorServiceDiagram = () => (
     <rect x="610" y="70" width="140" height="120" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
     <text x="680" y="95" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">Future Results</text>
     <rect x="625" y="110" width="110" height="20" rx="4" fill="#22c55e"/>
-    <text x="680" y="124" textAnchor="middle" fill="white" fontSize="9">{`Future&lt;T&gt;`}</text>
+    <text x="680" y="124" textAnchor="middle" fill="white" fontSize="9">{`Future<T>`}</text>
     <text x="680" y="155" textAnchor="middle" fill="#94a3b8" fontSize="9">get() blocks</text>
     <text x="680" y="170" textAnchor="middle" fill="#94a3b8" fontSize="9">until complete</text>
 
@@ -237,7 +237,7 @@ const CountDownLatchDiagram = () => (
     <text x="320" y="125" textAnchor="middle" fill="#94a3b8" fontSize="9">Initial count: 3</text>
     <rect x="280" y="135" width="30" height="30" rx="4" fill="#f59e0b"/>
     <text x="295" y="155" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">3</text>
-    <text x="320" y="155" textAnchor="middle" fill="#94a3b8" fontSize="10">{`-&gt;`}</text>
+    <text x="320" y="155" textAnchor="middle" fill="#94a3b8" fontSize="10">{`->`}</text>
     <rect x="330" y="135" width="30" height="30" rx="4" fill="#22c55e"/>
     <text x="345" y="155" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">0</text>
 
@@ -290,13 +290,13 @@ const ThreadLocalDiagram = () => (
 
     {/* ThreadLocal Storage */}
     <rect x="380" y="55" width="180" height="155" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
-    <text x="470" y="80" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">{`ThreadLocal&lt;Context&gt;`}</text>
+    <text x="470" y="80" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">{`ThreadLocal<Context>`}</text>
 
     <rect x="400" y="95" width="140" height="25" rx="4" fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6"/>
-    <text x="470" y="112" textAnchor="middle" fill="#60a5fa" fontSize="9">{`T1 -&gt; User-A`}</text>
+    <text x="470" y="112" textAnchor="middle" fill="#60a5fa" fontSize="9">{`T1 -> User-A`}</text>
 
     <rect x="400" y="130" width="140" height="25" rx="4" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6"/>
-    <text x="470" y="147" textAnchor="middle" fill="#a78bfa" fontSize="9">{`T2 -&gt; User-B`}</text>
+    <text x="470" y="147" textAnchor="middle" fill="#a78bfa" fontSize="9">{`T2 -> User-B`}</text>
 
     <text x="470" y="180" textAnchor="middle" fill="#94a3b8" fontSize="9">Each thread sees</text>
     <text x="470" y="195" textAnchor="middle" fill="#94a3b8" fontSize="9">only its own copy</text>
@@ -334,7 +334,7 @@ const FutureCallableDiagram = () => (
 
     {/* Callable Task */}
     <rect x="240" y="60" width="140" height="60" rx="8" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" strokeWidth="2"/>
-    <text x="310" y="85" textAnchor="middle" fill="#a78bfa" fontSize="11" fontWeight="bold">{`Callable&lt;T&gt;`}</text>
+    <text x="310" y="85" textAnchor="middle" fill="#a78bfa" fontSize="11" fontWeight="bold">{`Callable<T>`}</text>
     <text x="310" y="105" textAnchor="middle" fill="#94a3b8" fontSize="9">call() returns T</text>
 
     {/* Executor */}
@@ -343,7 +343,7 @@ const FutureCallableDiagram = () => (
 
     {/* Future */}
     <rect x="460" y="60" width="140" height="60" rx="8" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2"/>
-    <text x="530" y="85" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">{`Future&lt;T&gt;`}</text>
+    <text x="530" y="85" textAnchor="middle" fill="#fbbf24" fontSize="11" fontWeight="bold">{`Future<T>`}</text>
     <text x="530" y="105" textAnchor="middle" fill="#94a3b8" fontSize="9">get() blocks</text>
 
     {/* Result */}

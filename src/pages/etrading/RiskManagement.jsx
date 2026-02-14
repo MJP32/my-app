@@ -112,7 +112,7 @@ const VaRDiagram = () => (
     {/* Labels */}
     <text x="340" y="180" textAnchor="middle" fill="#64748b" fontSize="10">Expected Return Distribution</text>
     <text x="500" y="80" fill="#60a5fa" fontSize="10">95% of days</text>
-    <text x="500" y="95" fill="#60a5fa" fontSize="10">{`loss &lt; VaR`}</text>
+    <text x="500" y="95" fill="#60a5fa" fontSize="10">{`loss < VaR`}</text>
   </svg>
 )
 

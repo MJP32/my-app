@@ -634,7 +634,7 @@ const GarbageCollectionDiagram = () => (
     <text x="160" y="290" fill="#94a3b8" fontSize="9">Region-based, balanced</text>
 
     <text x="50" y="310" fill="#60a5fa" fontSize="10">ZGC/Shenandoah</text>
-    <text x="185" y="310" fill="#94a3b8" fontSize="9">{`Low latency (&lt;10ms)`}</text>
+    <text x="185" y="310" fill="#94a3b8" fontSize="9">{`Low latency (<10ms)`}</text>
 
     {/* GC Roots */}
     <rect x="310" y="200" width="260" height="130" rx="8" fill="rgba(139, 92, 246, 0.1)" stroke="#8b5cf6" strokeWidth="1.5"/>

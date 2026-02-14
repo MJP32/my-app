@@ -236,7 +236,7 @@ const SiftUpDiagram = () => (
     <line x1="620" y1="145" x2="610" y2="160" stroke="#64748b" strokeWidth="1.5"/>
     <line x1="640" y1="145" x2="650" y2="160" stroke="#64748b" strokeWidth="1.5"/>
     <line x1="720" y1="145" x2="735" y2="160" stroke="#64748b" strokeWidth="1.5"/>
-    <text x="695" y="118" fill="#94a3b8" fontSize="10">{`2 &gt; 1`}</text>
+    <text x="695" y="118" fill="#94a3b8" fontSize="10">{`2 > 1`}</text>
 
     {/* Array result */}
     <text x="400" y="230" textAnchor="middle" fill="#94a3b8" fontSize="12">Final Array: [1, 3, 2, 7, 5, 4]</text>
@@ -427,12 +427,12 @@ const ComparatorDiagram = () => (
 
     <rect x="50" y="50" width="320" height="100" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
     <text x="210" y="80" textAnchor="middle" fill="#22c55e" fontSize="12" fontWeight="bold">Min-Heap (default)</text>
-    <text x="210" y="105" textAnchor="middle" fill="#e2e8f0" fontSize="11">{`new PriorityQueue&lt;&gt;()`}</text>
+    <text x="210" y="105" textAnchor="middle" fill="#e2e8f0" fontSize="11">{`new PriorityQueue<>()`}</text>
     <text x="210" y="130" textAnchor="middle" fill="#94a3b8" fontSize="11">poll() returns smallest</text>
 
     <rect x="430" y="50" width="320" height="100" rx="8" fill="rgba(239, 68, 68, 0.2)" stroke="#ef4444" strokeWidth="2"/>
     <text x="590" y="80" textAnchor="middle" fill="#ef4444" fontSize="12" fontWeight="bold">Max-Heap</text>
-    <text x="590" y="105" textAnchor="middle" fill="#e2e8f0" fontSize="11">{`new PriorityQueue&lt;&gt;(Collections.reverseOrder())`}</text>
+    <text x="590" y="105" textAnchor="middle" fill="#e2e8f0" fontSize="11">{`new PriorityQueue<>(Collections.reverseOrder())`}</text>
     <text x="590" y="130" textAnchor="middle" fill="#94a3b8" fontSize="11">poll() returns largest</text>
   </svg>
 )

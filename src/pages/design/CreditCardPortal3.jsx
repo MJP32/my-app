@@ -488,7 +488,7 @@ const ObservabilityDiagram = () => (
 
     {/* Alerts */}
     <rect x="200" y="160" width="400" height="40" rx="6" fill="rgba(239, 68, 68, 0.1)" stroke="#ef4444" strokeWidth="1"/>
-    <text x="400" y="185" textAnchor="middle" fill="#f87171" fontSize="10">{`Alerts: Latency &gt;500ms | Error Rate &gt;1% | CPU &gt;80% | PagerDuty Integration`}</text>
+    <text x="400" y="185" textAnchor="middle" fill="#f87171" fontSize="10">{`Alerts: Latency >500ms | Error Rate >1% | CPU >80% | PagerDuty Integration`}</text>
   </svg>
 )
 

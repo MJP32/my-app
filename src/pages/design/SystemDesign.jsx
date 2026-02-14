@@ -121,7 +121,7 @@ const HighAvailabilityDiagram = () => (
     <text x="637" y="95" textAnchor="middle" fill="#94a3b8" fontSize="7">99.9% = 8.76h/yr</text>
     <text x="637" y="110" textAnchor="middle" fill="#94a3b8" fontSize="7">99.99% = 52m/yr</text>
     <text x="637" y="125" textAnchor="middle" fill="#94a3b8" fontSize="7">99.999% = 5m/yr</text>
-    <text x="637" y="140" textAnchor="middle" fill="#6b7280" fontSize="6">{`Failover &lt; 30s`}</text>
+    <text x="637" y="140" textAnchor="middle" fill="#6b7280" fontSize="6">{`Failover < 30s`}</text>
     <rect x="20" y="75" width="95" height="70" rx="6" fill="#1e3a5f" stroke="#ec4899" strokeWidth="2"/>
     <text x="67" y="93" textAnchor="middle" fill="#f472b6" fontSize="9" fontWeight="bold">Strategies</text>
     <text x="67" y="110" textAnchor="middle" fill="#94a3b8" fontSize="7">Active-Active</text>

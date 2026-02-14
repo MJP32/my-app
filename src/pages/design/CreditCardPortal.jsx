@@ -104,7 +104,7 @@ const SecurityDiagram = () => (
 
     <rect x="390" y="70" width="140" height="60" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
     <text x="460" y="95" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Fraud Detection</text>
-    <text x="460" y="110" textAnchor="middle" fill="white" fontSize="8">{`ML Models &lt;100ms`}</text>
+    <text x="460" y="110" textAnchor="middle" fill="white" fontSize="8">{`ML Models <100ms`}</text>
 
     <rect x="580" y="70" width="120" height="60" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
     <text x="640" y="95" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">PCI Vault</text>

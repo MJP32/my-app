@@ -306,7 +306,7 @@ const MatchingAlgorithmDiagram = () => (
       {/* Metrics */}
       <g transform="translate(20, 285)">
         <rect width="155" height="28" rx="4" fill="#2d2d2d"/>
-        <text x="78" y="19" textAnchor="middle" fill="#06c167" fontSize="11" fontWeight="bold">{`Latency: &lt;500ms`}</text>
+        <text x="78" y="19" textAnchor="middle" fill="#06c167" fontSize="11" fontWeight="bold">{`Latency: <500ms`}</text>
       </g>
       <g transform="translate(185, 285)">
         <rect width="175" height="28" rx="4" fill="#2d2d2d"/>

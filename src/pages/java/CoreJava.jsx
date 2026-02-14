@@ -59,16 +59,16 @@ const GenericsDiagram = () => (
     </text>
     <rect x="50" y="60" width="140" height="60" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
     <text x="120" y="85" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Generic Class</text>
-    <text x="120" y="105" textAnchor="middle" fill="#93c5fd" fontSize="10">{`Box&lt;T&gt;`}</text>
+    <text x="120" y="105" textAnchor="middle" fill="#93c5fd" fontSize="10">{`Box<T>`}</text>
     <rect x="250" y="60" width="140" height="60" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
     <text x="320" y="85" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Type Parameter</text>
     <text x="320" y="105" textAnchor="middle" fill="#86efac" fontSize="10">T, E, K, V</text>
     <rect x="450" y="60" width="140" height="60" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
     <text x="520" y="85" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Bounded Types</text>
-    <text x="520" y="105" textAnchor="middle" fill="#c4b5fd" fontSize="10">{`&lt;T extends Number&gt;`}</text>
+    <text x="520" y="105" textAnchor="middle" fill="#c4b5fd" fontSize="10">{`<T extends Number>`}</text>
     <rect x="650" y="60" width="120" height="60" rx="8" fill="#ec4899" stroke="#f472b6" strokeWidth="2"/>
     <text x="710" y="85" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">Wildcards</text>
-    <text x="710" y="105" textAnchor="middle" fill="#f9a8d4" fontSize="10">{`&lt;? extends/super&gt;`}</text>
+    <text x="710" y="105" textAnchor="middle" fill="#f9a8d4" fontSize="10">{`<? extends/super>`}</text>
     <line x1="190" y1="90" x2="245" y2="90" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-gen)"/>
     <line x1="390" y1="90" x2="445" y2="90" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-gen)"/>
     <line x1="590" y1="90" x2="645" y2="90" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-gen)"/>
@@ -88,19 +88,19 @@ const CollectionsDiagram = () => (
       Java Collections Framework Hierarchy
     </text>
     <rect x="320" y="45" width="160" height="40" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
-    <text x="400" y="70" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`Iterable&lt;E&gt;`}</text>
+    <text x="400" y="70" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`Iterable<E>`}</text>
     <line x1="400" y1="85" x2="400" y2="105" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-col)"/>
     <rect x="320" y="110" width="160" height="40" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
-    <text x="400" y="135" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`Collection&lt;E&gt;`}</text>
+    <text x="400" y="135" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{`Collection<E>`}</text>
     <line x1="280" y1="130" x2="140" y2="180" stroke="#fbbf24" strokeWidth="2"/>
     <line x1="400" y1="150" x2="400" y2="180" stroke="#fbbf24" strokeWidth="2"/>
     <line x1="520" y1="130" x2="660" y2="180" stroke="#fbbf24" strokeWidth="2"/>
     <rect x="60" y="185" width="140" height="40" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
-    <text x="130" y="210" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`List&lt;E&gt;`}</text>
+    <text x="130" y="210" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`List<E>`}</text>
     <rect x="330" y="185" width="140" height="40" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
-    <text x="400" y="210" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`Set&lt;E&gt;`}</text>
+    <text x="400" y="210" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`Set<E>`}</text>
     <rect x="590" y="185" width="140" height="40" rx="8" fill="#ec4899" stroke="#f472b6" strokeWidth="2"/>
-    <text x="660" y="210" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`Queue&lt;E&gt;`}</text>
+    <text x="660" y="210" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{`Queue<E>`}</text>
     <text x="130" y="250" textAnchor="middle" fill="#86efac" fontSize="10">ArrayList, LinkedList</text>
     <text x="400" y="250" textAnchor="middle" fill="#c4b5fd" fontSize="10">HashSet, TreeSet</text>
     <text x="660" y="250" textAnchor="middle" fill="#f9a8d4" fontSize="10">PriorityQueue, Deque</text>
@@ -229,7 +229,7 @@ const ExecutorDiagram = () => (
     <rect x="50" y="60" width="120" height="80" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
     <text x="110" y="85" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Task Queue</text>
     <text x="110" y="105" textAnchor="middle" fill="#93c5fd" fontSize="9">Runnable</text>
-    <text x="110" y="120" textAnchor="middle" fill="#93c5fd" fontSize="9">{`Callable&lt;V&gt;`}</text>
+    <text x="110" y="120" textAnchor="middle" fill="#93c5fd" fontSize="9">{`Callable<V>`}</text>
     <rect x="260" y="50" width="280" height="100" rx="12" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
     <text x="400" y="75" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">Thread Pool</text>
     <rect x="280" y="90" width="70" height="45" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="1"/>
@@ -239,7 +239,7 @@ const ExecutorDiagram = () => (
     <rect x="450" y="90" width="70" height="45" rx="6" fill="#22c55e" stroke="#4ade80" strokeWidth="1"/>
     <text x="485" y="117" textAnchor="middle" fill="white" fontSize="9">Thread N</text>
     <rect x="630" y="70" width="120" height="60" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
-    <text x="690" y="95" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">{`Future&lt;V&gt;`}</text>
+    <text x="690" y="95" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">{`Future<V>`}</text>
     <text x="690" y="115" textAnchor="middle" fill="#c4b5fd" fontSize="9">get() result</text>
     <line x1="170" y1="100" x2="255" y2="100" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-exec)"/>
     <line x1="540" y1="100" x2="625" y2="100" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrowhead-exec)"/>

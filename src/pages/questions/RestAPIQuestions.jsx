@@ -1372,8 +1372,8 @@ public class InputSanitizer {
     public String sanitize(String input) {
         if (input == null) return null;
         return input.trim()
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
+            .replaceAll("<", "<")
+            .replaceAll(">", ">")
             .replaceAll("\\"", "&quot;");
     }
 }

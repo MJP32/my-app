@@ -358,7 +358,7 @@ const NodeDiagram = () => (
 
     {/* Main Node box */}
     <rect x="250" y="50" width="300" height="130" rx="10" fill="#1e293b" stroke="#f97316" strokeWidth="2"/>
-    <text x="400" y="75" textAnchor="middle" fill="#f97316" fontSize="12" fontWeight="bold">{`Node&lt;K,V&gt;`}</text>
+    <text x="400" y="75" textAnchor="middle" fill="#f97316" fontSize="12" fontWeight="bold">{`Node<K,V>`}</text>
 
     {/* Fields */}
     <rect x="270" y="90" width="120" height="35" rx="4" fill="#3b82f6" stroke="#60a5fa" strokeWidth="1"/>

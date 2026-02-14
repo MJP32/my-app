@@ -135,7 +135,7 @@ const GroupingByDiagram = () => (
 
     {/* Result Map */}
     <rect x="420" y="50" width="350" height="200" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
-    <text x="595" y="75" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">{`Map&lt;Dept, Map&lt;Range, List&lt;Emp&gt;&gt;&gt;`}</text>
+    <text x="595" y="75" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">{`Map<Dept, Map<Range, List<Emp>>>`}</text>
 
     {/* IT Group */}
     <rect x="435" y="90" width="155" height="70" rx="6" fill="rgba(139, 92, 246, 0.3)" stroke="#8b5cf6" strokeWidth="1"/>
@@ -153,7 +153,7 @@ const GroupingByDiagram = () => (
     <line x1="370" y1="150" x2="415" y2="150" stroke="#06b6d4" strokeWidth="2" markerEnd="url(#group-arrow)"/>
 
     {/* Legend */}
-    <text x="595" y="220" textAnchor="middle" fill="#94a3b8" fontSize="9">{`low: &lt;$50K | mid: $50K-$100K | high: &gt;$100K`}</text>
+    <text x="595" y="220" textAnchor="middle" fill="#94a3b8" fontSize="9">{`low: <$50K | mid: $50K-$100K | high: >$100K`}</text>
   </svg>
 )
 
@@ -177,16 +177,16 @@ const CustomCollectorDiagram = () => (
     <rect x="80" y="100" width="140" height="70" rx="8" fill="#3b82f6" stroke="#60a5fa" strokeWidth="2"/>
     <text x="150" y="125" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Supplier</text>
     <text x="150" y="145" textAnchor="middle" fill="#bfdbfe" fontSize="8">Stats::new</text>
-    <text x="150" y="158" textAnchor="middle" fill="#93c5fd" fontSize="7">{`() -&gt; new Stats()`}</text>
+    <text x="150" y="158" textAnchor="middle" fill="#93c5fd" fontSize="7">{`() -> new Stats()`}</text>
 
     <rect x="240" y="100" width="140" height="70" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
     <text x="310" y="125" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Accumulator</text>
     <text x="310" y="145" textAnchor="middle" fill="#ddd6fe" fontSize="8">Stats::add</text>
-    <text x="310" y="158" textAnchor="middle" fill="#c4b5fd" fontSize="7">{`(s, elem) -&gt; s.add(elem)`}</text>
+    <text x="310" y="158" textAnchor="middle" fill="#c4b5fd" fontSize="7">{`(s, elem) -> s.add(elem)`}</text>
 
     <rect x="400" y="100" width="140" height="70" rx="8" fill="#f59e0b" stroke="#fbbf24" strokeWidth="2"/>
     <text x="470" y="125" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Combiner</text>
-    <text x="470" y="145" textAnchor="middle" fill="#fef3c7" fontSize="8">{`(s1, s2) -&gt; merge`}</text>
+    <text x="470" y="145" textAnchor="middle" fill="#fef3c7" fontSize="8">{`(s1, s2) -> merge`}</text>
     <text x="470" y="158" textAnchor="middle" fill="#fde68a" fontSize="7">s1.merge(s2); return s1</text>
 
     <rect x="560" y="100" width="160" height="70" rx="8" fill="#22c55e" stroke="#4ade80" strokeWidth="2"/>
@@ -215,7 +215,7 @@ const FlatMapDiagram = () => (
 
     {/* Input: Nested List */}
     <rect x="30" y="50" width="200" height="150" rx="8" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2"/>
-    <text x="130" y="75" textAnchor="middle" fill="#60a5fa" fontSize="11" fontWeight="bold">{`List&lt;List&lt;String&gt;&gt;`}</text>
+    <text x="130" y="75" textAnchor="middle" fill="#60a5fa" fontSize="11" fontWeight="bold">{`List<List<String>>`}</text>
 
     <rect x="50" y="90" width="160" height="35" rx="4" fill="#1e40af"/>
     <text x="130" y="112" textAnchor="middle" fill="white" fontSize="9">["hello world"]</text>
@@ -234,7 +234,7 @@ const FlatMapDiagram = () => (
 
     {/* Output: Flat List */}
     <rect x="450" y="50" width="320" height="150" rx="8" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2"/>
-    <text x="610" y="75" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">{`List&lt;String&gt; (flattened)`}</text>
+    <text x="610" y="75" textAnchor="middle" fill="#4ade80" fontSize="11" fontWeight="bold">{`List<String> (flattened)`}</text>
 
     <rect x="470" y="95" width="70" height="30" rx="4" fill="#166534"/>
     <text x="505" y="115" textAnchor="middle" fill="white" fontSize="9">"hello"</text>
@@ -253,7 +253,7 @@ const FlatMapDiagram = () => (
 
     {/* Explanation */}
     <text x="610" y="160" textAnchor="middle" fill="#94a3b8" fontSize="9">Each inner collection becomes individual elements</text>
-    <text x="610" y="180" textAnchor="middle" fill="#64748b" fontSize="8">{`Stream&lt;Stream&lt;T&gt;&gt; -&gt; Stream&lt;T&gt;`}</text>
+    <text x="610" y="180" textAnchor="middle" fill="#64748b" fontSize="8">{`Stream<Stream<T>> -> Stream<T>`}</text>
   </svg>
 )
 
@@ -360,7 +360,7 @@ const ReduceOperationDiagram = () => (
 
     {/* Reduce operation */}
     <rect x="430" y="50" width="150" height="60" rx="8" fill="#06b6d4" stroke="#22d3ee" strokeWidth="2"/>
-    <text x="505" y="78" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">{`reduce(0, (a,b) -&gt; a+b)`}</text>
+    <text x="505" y="78" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">{`reduce(0, (a,b) -> a+b)`}</text>
     <text x="505" y="95" textAnchor="middle" fill="#a5f3fc" fontSize="8">Identity + BinaryOperator</text>
 
     {/* Arrow */}
@@ -396,7 +396,7 @@ const InfiniteStreamsDiagram = () => (
     <rect x="50" y="70" width="140" height="70" rx="8" fill="#8b5cf6" stroke="#a78bfa" strokeWidth="2"/>
     <text x="120" y="95" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">Stream.iterate()</text>
     <text x="120" y="115" textAnchor="middle" fill="#ddd6fe" fontSize="8">seed: 0</text>
-    <text x="120" y="128" textAnchor="middle" fill="#c4b5fd" fontSize="8">{`n -&gt; n + 1`}</text>
+    <text x="120" y="128" textAnchor="middle" fill="#c4b5fd" fontSize="8">{`n -> n + 1`}</text>
 
     {/* Infinite stream representation */}
     <rect x="240" y="80" width="40" height="30" rx="4" fill="#3b82f6"/>
